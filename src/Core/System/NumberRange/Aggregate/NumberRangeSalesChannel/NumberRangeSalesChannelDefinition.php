@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -16,6 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class NumberRangeSalesChannelDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'number_range_sales_channel';

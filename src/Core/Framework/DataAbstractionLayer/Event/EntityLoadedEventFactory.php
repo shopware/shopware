@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -16,6 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @internal
  * @package core
  */
+#[Package('core')]
 class EntityLoadedEventFactory
 {
     private DefinitionInstanceRegistry $registry;

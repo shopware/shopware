@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\NullableType;
 use PhpParser\Node\Stmt\ClassMethod;
@@ -21,6 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class DumpClassSchemaCommand extends Command
 {
     protected static $defaultName = 'framework:dump:class:schema';

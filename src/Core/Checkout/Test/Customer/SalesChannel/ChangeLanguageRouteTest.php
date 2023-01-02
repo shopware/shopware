@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -22,7 +23,7 @@ class ChangeLanguageRouteTest extends TestCase
     use CustomerTestTrait;
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     * @var KernelBrowser
      */
     private $browser;
 

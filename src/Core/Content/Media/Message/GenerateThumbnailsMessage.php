@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\Media\Message;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 
 /**
  * @package content
  */
+#[Package('content')]
 class GenerateThumbnailsMessage
 {
     /**

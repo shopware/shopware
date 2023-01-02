@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -19,6 +20,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @package system-settings
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('system-settings')]
 class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
 {
     private AbstractProductSearchRoute $decorated;

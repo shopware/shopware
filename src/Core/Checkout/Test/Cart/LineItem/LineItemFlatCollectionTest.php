@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\LineItem;
 
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
@@ -18,7 +19,7 @@ class LineItemFlatCollectionTest extends TestCase
      * to add a line item with a specific id multiple times.
      * It must not be aggregated within an associative array in the flat list.
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     * @throws InvalidQuantityException
      */
     public function testCanAddSameItemMultipleTimes(): void
     {

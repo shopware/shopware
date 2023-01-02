@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\EntityProtection;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @experimental
  *
@@ -9,6 +10,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\EntityProtection;
  * This can lead to unexpected side effects
  * @package core
  */
+#[Package('core')]
 class ReadProtection extends EntityProtection
 {
     public const PROTECTION = 'read_protection';

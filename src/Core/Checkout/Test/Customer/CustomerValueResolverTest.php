@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Customer;
 
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerValueResolver;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
@@ -54,7 +55,7 @@ class CustomerValueResolverTest extends TestCase
     private $contextService;
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     * @var KernelBrowser
      */
     private $browser;
 

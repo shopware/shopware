@@ -12,6 +12,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @package core
  */
+#[\Shopware\Core\Framework\Log\Package('core')]
 class MissingSystemTranslationException extends WriteConstraintViolationException
 {
     public const VIOLATION_MISSING_SYSTEM_TRANSLATION = 'MISSING-SYSTEM-TRANSLATION';

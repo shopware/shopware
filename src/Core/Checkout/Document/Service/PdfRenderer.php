@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Dompdf\Adapter\CPDF;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -10,6 +11,7 @@ use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 final class PdfRenderer
 {
     public const FILE_EXTENSION = 'pdf';

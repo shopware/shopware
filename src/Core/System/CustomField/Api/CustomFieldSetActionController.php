@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomField\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -16,6 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class CustomFieldSetActionController extends AbstractController
 {
     /**

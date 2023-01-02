@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Authentication;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Feature;
  *
  * @decrecated tag:v6.5.0 - Will be removed. Use AbstractStoreRequestOptionsProvider instead
  */
+#[Package('merchant-services')]
 class AuthenticationProvider extends AbstractAuthenticationProvider
 {
     private const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';

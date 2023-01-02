@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -10,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class DefaultPayment implements SynchronousPaymentHandlerInterface
 {
     /**

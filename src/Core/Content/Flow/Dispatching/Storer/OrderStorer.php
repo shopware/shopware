@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Event\OrderAware;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class OrderStorer extends FlowStorer
 {
     private EntityRepositoryInterface $orderRepository;

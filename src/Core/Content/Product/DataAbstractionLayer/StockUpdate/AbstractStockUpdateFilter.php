@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 
 /**
  * @package core
  */
+#[Package('core')]
 abstract class AbstractStockUpdateFilter
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Cms\Xml;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 
 /**
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
  *
  * @internal
  */
+#[Package('content')]
 class Block extends XmlElement
 {
     public const TRANSLATABLE_FIELDS = [

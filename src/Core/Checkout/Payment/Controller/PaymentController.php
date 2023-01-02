@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
@@ -26,6 +27,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PaymentController extends AbstractController
 {
     private PaymentService $paymentService;

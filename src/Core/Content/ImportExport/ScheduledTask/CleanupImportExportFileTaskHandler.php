@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\ScheduledTask;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class CleanupImportExportFileTaskHandler extends ScheduledTaskHandler
 {
     private DeleteExpiredFilesService $deleteExpiredFilesService;

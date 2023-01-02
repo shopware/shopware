@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\MailTemplate\Service\AttachmentLoader;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
@@ -19,6 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @Route(defaults={"_routeScope"={"api"}})
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class MailActionController extends AbstractController
 {
     private AbstractMailService $mailService;

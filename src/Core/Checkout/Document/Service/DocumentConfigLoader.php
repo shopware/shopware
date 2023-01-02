@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
@@ -18,6 +19,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('customer-order')]
 final class DocumentConfigLoader implements EventSubscriberInterface, ResetInterface
 {
     /**

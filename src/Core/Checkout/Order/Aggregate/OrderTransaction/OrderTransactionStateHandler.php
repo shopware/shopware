@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
@@ -15,6 +16,7 @@ use Shopware\Core\System\StateMachine\Transition;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class OrderTransactionStateHandler
 {
     /**

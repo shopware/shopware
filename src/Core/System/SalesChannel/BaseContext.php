@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -17,6 +18,7 @@ use Shopware\Core\System\Tax\TaxCollection;
  *
  * @internal Use SalesChannelContext for extensions
  */
+#[Package('core')]
 class BaseContext
 {
     protected CustomerGroupEntity $currentCustomerGroup;

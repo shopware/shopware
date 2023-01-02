@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Monolog\Logger;
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
@@ -29,6 +30,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class MailService extends AbstractMailService
 {
     /**

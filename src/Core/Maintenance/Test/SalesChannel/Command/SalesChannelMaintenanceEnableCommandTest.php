@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Maintenance\Test\SalesChannel\Command;
 
+use Shopware\Core\Framework\Uuid\Uuid;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -35,7 +36,7 @@ class SalesChannelMaintenanceEnableCommandTest extends TestCase
     public function testUnknownSalesChannelIds(): void
     {
         $commandTester = new CommandTester($this->getContainer()->get(SalesChannelMaintenanceEnableCommand::class));
-        $commandTester->execute(['ids' => [\Shopware\Core\Framework\Uuid\Uuid::randomHex()]]);
+        $commandTester->execute(['ids' => [Uuid::randomHex()]]);
 
         static::assertEquals(
             'No sales channels were updated',

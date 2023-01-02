@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductCrossSellingAssignedProductsDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_cross_selling_assigned_products';

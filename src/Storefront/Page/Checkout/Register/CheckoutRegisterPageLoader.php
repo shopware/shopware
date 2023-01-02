@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Checkout\Register;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -27,6 +28,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class CheckoutRegisterPageLoader
 {
     private GenericPageLoaderInterface $genericLoader;

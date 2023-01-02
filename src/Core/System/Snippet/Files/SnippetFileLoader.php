@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class SnippetFileLoader implements SnippetFileLoaderInterface
 {
     private KernelInterface $kernel;

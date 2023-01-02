@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer;
 use Symfony\Component\Console\Command\Command;
@@ -12,6 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class HttpCacheWarmUpCommand extends Command
 {
     protected static $defaultName = 'http:cache:warm:up';

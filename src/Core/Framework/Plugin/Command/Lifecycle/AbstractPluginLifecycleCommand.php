@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
@@ -27,6 +28,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @package core
  */
+#[Package('core')]
 abstract class AbstractPluginLifecycleCommand extends Command
 {
     protected PluginLifecycleService $pluginLifecycleService;

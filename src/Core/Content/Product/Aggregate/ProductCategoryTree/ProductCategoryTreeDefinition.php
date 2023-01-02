@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductCategoryTree;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductCategoryTreeDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'product_category_tree';

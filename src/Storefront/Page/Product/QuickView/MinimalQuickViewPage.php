@@ -2,12 +2,14 @@
 
 namespace Shopware\Storefront\Page\Product\QuickView;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class MinimalQuickViewPage extends Struct
 {
     /**

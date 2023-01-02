@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @package core
  */
+#[Package('core')]
 class TaxFreeConfig extends Struct
 {
     protected bool $enabled;

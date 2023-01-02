@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Provider;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -21,6 +22,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class ProductUrlProvider extends AbstractUrlProvider
 {
     public const CHANGE_FREQ = 'hourly';

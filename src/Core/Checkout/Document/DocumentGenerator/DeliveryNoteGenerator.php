@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
@@ -17,6 +18,7 @@ use Twig\Error\Error;
  *
  * @deprecated tag:v6.5.0 - Will be removed, use DeliveryNoteRenderer instead
  */
+#[Package('customer-order')]
 class DeliveryNoteGenerator implements DocumentGeneratorInterface
 {
     public const DEFAULT_TEMPLATE = '@Framework/documents/delivery_note.html.twig';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityGenerator;
@@ -12,6 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class CreateEntitiesCommand extends Command
 {
     protected static $defaultName = 'dal:create:entities';

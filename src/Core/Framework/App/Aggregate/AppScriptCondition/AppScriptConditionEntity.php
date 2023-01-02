@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\AppScriptCondition;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptConditionTranslation\AppScriptConditionTranslationCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 /**
  * @package core
  */
+#[Package('core')]
 class AppScriptConditionEntity extends Entity
 {
     use EntityIdTrait;

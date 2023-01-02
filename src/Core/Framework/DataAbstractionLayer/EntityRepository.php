@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent;
@@ -30,6 +31,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @package core
  * @final tag:v6.5.0
  */
+#[Package('core')]
 class EntityRepository implements EntityRepositoryInterface
 {
     private EntityReaderInterface $reader;

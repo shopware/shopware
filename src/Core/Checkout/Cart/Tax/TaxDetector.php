@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Tax;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -9,6 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class TaxDetector
 {
     public function useGross(SalesChannelContext $context): bool

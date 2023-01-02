@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Cms;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 /**
  * @package content
  */
+#[Package('content')]
 class YoutubeVideoCmsElementResolver extends AbstractCmsElementResolver
 {
     public function getType(): string

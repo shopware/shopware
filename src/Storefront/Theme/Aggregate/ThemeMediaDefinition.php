@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Aggregate;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -14,6 +15,7 @@ use Shopware\Storefront\Theme\ThemeDefinition;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class ThemeMediaDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'theme_media';

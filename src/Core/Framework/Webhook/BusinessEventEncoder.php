@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 /**
  * @package core
  */
+#[Package('core')]
 class BusinessEventEncoder
 {
     private JsonEntityEncoder $entityEncoder;

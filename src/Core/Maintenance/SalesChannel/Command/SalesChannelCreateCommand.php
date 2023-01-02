@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Maintenance\SalesChannel\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
@@ -25,6 +26,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @internal should be used over the CLI only
  */
+#[Package('core')]
 class SalesChannelCreateCommand extends Command
 {
     protected static $defaultName = 'sales-channel:create';

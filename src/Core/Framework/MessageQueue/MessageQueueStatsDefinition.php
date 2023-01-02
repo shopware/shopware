@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  *
  * @deprecated tag:v6.5.0 - reason:remove-entity - use `shopware.increment.message_queue.gateway` service instead
  */
+#[Package('core')]
 class MessageQueueStatsDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'message_queue_stats';

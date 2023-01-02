@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Context;
 use Twig\Cache\FilesystemCache;
@@ -15,6 +16,7 @@ use Twig\Loader\ArrayLoader;
  * @package core
  * @final tag:v6.5.0
  */
+#[Package('core')]
 class StringTemplateRenderer
 {
     private Environment $twig;

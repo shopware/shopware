@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<LineItem>
  */
+#[Package('checkout')]
 class LineItemCollection extends Collection
 {
     public function __construct(iterable $elements = [])

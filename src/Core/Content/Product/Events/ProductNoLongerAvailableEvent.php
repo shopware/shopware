@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Events;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -9,6 +10,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductNoLongerAvailableEvent extends Event implements ShopwareEvent, ProductChangedEventInterface
 {
     protected array $ids;

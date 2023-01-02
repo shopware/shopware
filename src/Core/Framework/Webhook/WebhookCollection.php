@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @package core
  * @extends EntityCollection<WebhookEntity>
  */
+#[Package('core')]
 class WebhookCollection extends EntityCollection
 {
     public function filterForEvent(string $name)

@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareException;
 
 /**
  * @package core
  */
+#[Package('core')]
 interface WriteFieldException extends ShopwareException
 {
     public function getPath(): string;

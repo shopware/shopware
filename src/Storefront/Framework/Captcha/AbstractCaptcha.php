@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -9,6 +10,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 abstract class AbstractCaptcha
 {
     /**

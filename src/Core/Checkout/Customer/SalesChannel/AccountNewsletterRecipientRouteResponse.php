@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
@@ -10,6 +11,7 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
  *
  * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
  */
+#[Package('customer-order')]
 class AccountNewsletterRecipientRouteResponse extends StoreApiResponse
 {
     /**

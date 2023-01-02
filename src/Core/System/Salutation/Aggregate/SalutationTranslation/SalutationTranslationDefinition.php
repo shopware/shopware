@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Salutation\Aggregate\SalutationTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -13,6 +14,7 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class SalutationTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'salutation_translation';

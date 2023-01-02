@@ -2,6 +2,8 @@
 
 namespace Shopware\Storefront\Theme\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin;
@@ -26,6 +28,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  * @package storefront
  */
+#[Package('storefront')]
 class PluginLifecycleSubscriber implements EventSubscriberInterface
 {
     private StorefrontPluginRegistryInterface $storefrontPluginRegistry;
@@ -200,6 +203,6 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
 
     private function skipCompile(Context $context): bool
     {
-        return $context->hasState(Plugin\PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
+        return $context->hasState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
     }
 }

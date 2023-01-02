@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use Monolog\Logger;
 use Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent;
@@ -30,6 +31,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @Route(defaults={"_routeScope"={"store-api"}})
  * @package inventory
  */
+#[Package('inventory')]
 class ExportController
 {
     /**

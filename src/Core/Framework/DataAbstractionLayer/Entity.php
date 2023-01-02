@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @package core
  */
+#[Package('core')]
 class Entity extends Struct
 {
     /**

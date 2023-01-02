@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Translation;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -15,6 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('core')]
 class TranslatorCacheInvalidate implements EventSubscriberInterface
 {
     private Connection $connection;

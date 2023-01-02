@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package merchant-services
  *
@@ -9,6 +10,7 @@ namespace Shopware\Core\Framework\Store\Struct;
  *
  * @package inventory
  */
+#[Package('merchant-services')]
 class VariantStruct extends StoreStruct
 {
     public const TYPE_RENT = 'rent';

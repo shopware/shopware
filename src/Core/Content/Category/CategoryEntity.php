@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -18,6 +19,7 @@ use Shopware\Core\System\Tag\TagCollection;
 /**
  * @package content
  */
+#[Package('content')]
 class CategoryEntity extends Entity
 {
     use EntityIdTrait;

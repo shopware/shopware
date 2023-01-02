@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Framework\Context;
@@ -13,6 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductExportProductCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     protected Criteria $criteria;

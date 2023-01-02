@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
@@ -47,6 +48,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
+#[Package('customer-order')]
 class RegisterController extends StorefrontController
 {
     private AccountLoginPageLoader $loginPageLoader;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Sorting;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductSortingDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_sorting';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Node;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Twig\Compiler;
 use Twig\Node\IncludeNode;
@@ -9,6 +10,7 @@ use Twig\Node\IncludeNode;
 /**
  * @package core
  */
+#[Package('core')]
 class SwInclude extends IncludeNode
 {
     protected function addGetTemplate(Compiler $compiler): void

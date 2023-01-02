@@ -2,6 +2,8 @@
 
 namespace Shopware\Core;
 
+use Shopware\Core\Framework\Log\Package;
+use Doctrine\DBAL\Exception;
 use Composer\Autoload\ClassLoader;
 use Composer\InstalledVersions;
 use Doctrine\DBAL\Connection;
@@ -29,6 +31,7 @@ use Symfony\Component\HttpKernel\TerminableInterface;
  * @package core
  * @psalm-import-type Params from DriverManager
  */
+#[Package('core')]
 class HttpKernel
 {
     protected static ?Connection $connection = null;
@@ -77,7 +80,7 @@ class HttpKernel
 
         try {
             return $this->doHandle($request, (int) $type, (bool) $catch);
-        } catch (\Doctrine\DBAL\Exception $e) {
+        } catch (Exception $e) {
             /** @var Params|array{url?: string} $connectionParams */
             $connectionParams = self::getConnection()->getParams();
 

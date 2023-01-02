@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Handler;
 
+use Shopware\Core\Framework\Log\Package;
 use League\OAuth2\Server\CryptKey;
 use Shopware\Core\Framework\MessageQueue\Message\EncryptedMessage;
 use Shopware\Core\Framework\MessageQueue\Stamp\DecryptedStamp;
@@ -14,6 +15,7 @@ use Symfony\Component\Messenger\Stamp\ReceivedStamp;
  *
  * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we remove queue encryption
  */
+#[Package('core')]
 class EncryptedMessageHandler extends AbstractMessageHandler
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -32,6 +33,7 @@ use function array_unique;
  *
  * @internal
  */
+#[Package('core')]
 class BaseContextFactory extends AbstractBaseContextFactory
 {
     private EntityRepositoryInterface $salesChannelRepository;

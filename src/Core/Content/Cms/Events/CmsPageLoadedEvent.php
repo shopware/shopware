@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\Events;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package content
  */
+#[Package('content')]
 class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**

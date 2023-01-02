@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package core
  * @template TElement
  * @implements \IteratorAggregate<array-key, TElement>
  */
+#[Package('core')]
 abstract class Collection extends Struct implements \IteratorAggregate, \Countable
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -14,6 +15,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class DeleteUnusedGuestCustomerService
 {
     public const DELETE_CUSTOMERS_BATCH_SIZE = 100;

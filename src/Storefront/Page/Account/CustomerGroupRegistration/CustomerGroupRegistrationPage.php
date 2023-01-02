@@ -2,12 +2,14 @@
 
 namespace Shopware\Storefront\Page\Account\CustomerGroupRegistration;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPage;
 
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class CustomerGroupRegistrationPage extends AccountLoginPage
 {
     /**

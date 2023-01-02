@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReaderInterface;
 use Shopware\Core\Framework\Context;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Script\ScriptEntity;
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 class ScriptPersister
 {
     private ScriptFileReaderInterface $scriptReader;

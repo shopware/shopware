@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class CustomerRecoveryDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'customer_recovery';

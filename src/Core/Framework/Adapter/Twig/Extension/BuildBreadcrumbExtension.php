@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Framework\Context;
@@ -15,6 +16,7 @@ use Twig\TwigFunction;
 /**
  * @package core
  */
+#[Package('core')]
 class BuildBreadcrumbExtension extends AbstractExtension
 {
     /**

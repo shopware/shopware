@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Migration\Traits;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package core
  */
+#[Package('core')]
 class Translations
 {
     /**

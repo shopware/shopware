@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -22,6 +23,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class ThemeChangeCommand extends Command
 {
     protected static $defaultName = 'theme:change';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Struct\Struct;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Struct\Struct;
  *
  * @codeCoverageIgnore
  */
+#[Package('merchant-services')]
 class ExtensionStruct extends Struct
 {
     public const EXTENSION_TYPE_APP = 'app';

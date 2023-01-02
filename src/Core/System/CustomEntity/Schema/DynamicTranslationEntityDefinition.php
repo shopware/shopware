@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Schema;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -10,6 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal Used for custom entities
  * @package core
  */
+#[Package('core')]
 class DynamicTranslationEntityDefinition extends EntityTranslationDefinition
 {
     protected string $root;

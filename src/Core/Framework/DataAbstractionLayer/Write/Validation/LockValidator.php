@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
@@ -15,6 +16,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  * @package core
  */
+#[Package('core')]
 class LockValidator implements EventSubscriberInterface
 {
     public const VIOLATION_LOCKED = 'FRAMEWORK__ENTITY_IS_LOCKED';

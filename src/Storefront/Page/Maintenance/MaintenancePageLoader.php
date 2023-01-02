@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Maintenance;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class MaintenancePageLoader
 {
     /**

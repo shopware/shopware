@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\FlowAction;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\FlowAction\Xml\Actions;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
@@ -10,6 +11,7 @@ use Symfony\Component\Config\Util\XmlUtils;
  * @internal
  * @package core
  */
+#[Package('core')]
 class FlowAction
 {
     private const XSD_FILE = __DIR__ . '/Schema/flow-action-1.0.xsd';

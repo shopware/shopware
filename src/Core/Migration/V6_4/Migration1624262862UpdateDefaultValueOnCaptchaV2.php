@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_4;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
  * @package core
  */
+#[Package('core')]
 class Migration1624262862UpdateDefaultValueOnCaptchaV2 extends MigrationStep
 {
     private const CONFIG_KEY = 'core.basicInformation.activeCaptchasV2';

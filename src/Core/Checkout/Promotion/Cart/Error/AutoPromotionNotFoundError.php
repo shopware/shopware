@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Error;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Error\Error;
 
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class AutoPromotionNotFoundError extends Error
 {
     private const KEY = 'auto-promotion-not-found';

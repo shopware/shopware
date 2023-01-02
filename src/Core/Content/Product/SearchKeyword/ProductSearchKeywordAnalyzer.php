@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterface
 {
     private const MAXIMUM_KEYWORD_LENGTH = 500;

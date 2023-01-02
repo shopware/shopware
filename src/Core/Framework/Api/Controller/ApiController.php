@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -65,6 +66,7 @@ use Symfony\Component\Serializer\Serializer;
  * @Route(defaults={"_routeScope"={"api"}})
  * @package core
  */
+#[Package('core')]
 class ApiController extends AbstractController
 {
     public const WRITE_UPDATE = 'update';

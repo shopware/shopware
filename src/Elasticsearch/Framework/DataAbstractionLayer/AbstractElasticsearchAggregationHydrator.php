@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 /**
  * @package core
  */
+#[Package('core')]
 abstract class AbstractElasticsearchAggregationHydrator
 {
     abstract public function getDecorated(): AbstractElasticsearchAggregationHydrator;

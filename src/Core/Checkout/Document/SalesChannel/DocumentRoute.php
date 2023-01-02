@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -19,6 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('customer-order')]
 final class DocumentRoute extends AbstractDocumentRoute
 {
     private DocumentGenerator $documentGenerator;

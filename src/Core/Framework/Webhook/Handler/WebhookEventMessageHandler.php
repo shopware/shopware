@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook\Handler;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will only implement MessageHandlerInterface and all MessageHandler will be internal and final starting with v6.5.0.0
  */
+#[Package('core')]
 class WebhookEventMessageHandler extends AbstractMessageHandler
 {
     private const TIMEOUT = 20;

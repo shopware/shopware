@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
@@ -46,6 +47,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SalesChannelEntity extends Entity
 {
     use EntityIdTrait;

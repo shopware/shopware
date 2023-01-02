@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category\Validation;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
@@ -20,6 +21,7 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('content')]
 class EntryPointValidator implements EventSubscriberInterface
 {
     private const ERROR_CODE = 'CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT';

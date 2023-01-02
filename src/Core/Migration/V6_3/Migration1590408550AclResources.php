@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_3;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
  */
+#[Package('core')]
 class Migration1590408550AclResources extends MigrationStep
 {
     public function getCreationTimestamp(): int

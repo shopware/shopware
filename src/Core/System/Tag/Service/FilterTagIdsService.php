@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Tag\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Shopware\Core\Framework\Context;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  * @package business-ops
  */
+#[Package('business-ops')]
 class FilterTagIdsService
 {
     private EntityDefinition $tagDefinition;

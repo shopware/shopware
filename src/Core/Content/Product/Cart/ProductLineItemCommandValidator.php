@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
@@ -19,6 +20,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  * @package inventory
  */
+#[Package('inventory')]
 class ProductLineItemCommandValidator implements EventSubscriberInterface
 {
     private Connection $connection;

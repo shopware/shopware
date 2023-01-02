@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
@@ -15,6 +16,7 @@ use Symfony\Component\Finder\Finder;
  *
  * @Decoratable
  */
+#[Package('storefront')]
 class ThemeFileImporter implements ThemeFileImporterInterface
 {
     private string $projectDir;

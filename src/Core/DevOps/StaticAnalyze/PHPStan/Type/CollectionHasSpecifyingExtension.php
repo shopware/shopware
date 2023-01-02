@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type;
 
+use Shopware\Core\Framework\Log\Package;
+use PHPStan\Analyser\SpecifiedTypes;
 use PhpParser\Node\Expr\MethodCall;
 use PHPStan\Analyser\Scope;
 use PHPStan\Analyser\TypeSpecifier;
@@ -17,6 +19,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
  */
+#[Package('core')]
 class CollectionHasSpecifyingExtension implements MethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
     private TypeSpecifier $typeSpecifier;
@@ -35,7 +38,7 @@ class CollectionHasSpecifyingExtension implements MethodTypeSpecifyingExtension,
             && $methodReflection->getName() === 'has' && $context->truthy();
     }
 
-    public function specifyTypes(MethodReflection $methodReflection, MethodCall $node, Scope $scope, TypeSpecifierContext $context): \PHPStan\Analyser\SpecifiedTypes
+    public function specifyTypes(MethodReflection $methodReflection, MethodCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
     {
         $getExpr = new MethodCall($node->var, 'get', $node->args);
 

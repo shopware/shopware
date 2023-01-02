@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Aggregate\DocumentType;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection;
 use Shopware\Core\Checkout\Document\DocumentCollection;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class DocumentTypeEntity extends Entity
 {
     use EntityIdTrait;

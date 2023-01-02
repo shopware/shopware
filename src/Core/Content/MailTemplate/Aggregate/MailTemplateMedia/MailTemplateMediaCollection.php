@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  * @extends EntityCollection<MailTemplateMediaEntity>
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class MailTemplateMediaCollection extends EntityCollection
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Currency;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -11,6 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('core')]
 class CurrencyLoadSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

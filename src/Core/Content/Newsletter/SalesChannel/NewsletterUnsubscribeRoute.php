@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
@@ -27,6 +28,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @Route(defaults={"_routeScope"={"store-api"}})
  * @package customer-order
  */
+#[Package('customer-order')]
 class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
 {
     /**

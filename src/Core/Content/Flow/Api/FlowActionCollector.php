@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowAction;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Events\FlowActionCollectorEvent;
@@ -15,6 +16,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class FlowActionCollector
 {
     /**

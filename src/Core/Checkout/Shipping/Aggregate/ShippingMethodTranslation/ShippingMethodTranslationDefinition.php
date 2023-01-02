@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class ShippingMethodTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'shipping_method_translation';

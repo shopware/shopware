@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Shopware\Core\Framework\Api\Acl\Event\AclGetAdditionalPrivilegesEvent;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -24,6 +25,7 @@ use function array_merge;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class AclController extends AbstractController
 {
     private DefinitionInstanceRegistry $definitionInstanceRegistry;

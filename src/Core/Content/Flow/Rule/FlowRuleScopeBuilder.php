@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder;
@@ -15,6 +16,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @internal
  */
+#[Package('business-ops')]
 class FlowRuleScopeBuilder implements ResetInterface
 {
     private OrderConverter $orderConverter;

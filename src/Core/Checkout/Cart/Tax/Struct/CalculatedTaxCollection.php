@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Feature;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Util\FloatComparator;
  *
  * @extends Collection<CalculatedTax>
  */
+#[Package('checkout')]
 class CalculatedTaxCollection extends Collection
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\EventListener\Authentication;
 
+use Shopware\Core\Framework\Log\Package;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\Grant\PasswordGrant;
@@ -23,6 +24,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  * @package core
  */
+#[Package('core')]
 class ApiAuthenticationListener implements EventSubscriberInterface
 {
     use RouteScopeCheckTrait;

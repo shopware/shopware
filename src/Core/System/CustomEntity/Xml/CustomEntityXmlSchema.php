@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
@@ -9,6 +10,7 @@ use Symfony\Component\Config\Util\XmlUtils;
  * @internal
  * @package core
  */
+#[Package('core')]
 class CustomEntityXmlSchema
 {
     private const XSD_FILE = __DIR__ . '/entity-1.0.xsd';

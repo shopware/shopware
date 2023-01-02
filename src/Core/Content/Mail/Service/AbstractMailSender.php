@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\MailTemplate\Exception\MailTransportFailedException;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mime\Email;
@@ -9,6 +10,7 @@ use Symfony\Component\Mime\Email;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 abstract class AbstractMailSender
 {
     abstract public function getDecorated(): AbstractMailSender;

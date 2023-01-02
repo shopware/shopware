@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package core
  */
+#[Package('core')]
 trait EntityIdTrait
 {
     /**

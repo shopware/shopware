@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslation
 /**
  * @package core
  */
+#[Package('core')]
 class PluginEntity extends Entity
 {
     use EntityIdTrait;

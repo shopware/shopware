@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerWishlistLoaderCriteriaEvent;
@@ -29,6 +30,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @Route(defaults={"_routeScope"={"store-api"}})
  * @package customer-order
  */
+#[Package('customer-order')]
 class LoadWishlistRoute extends AbstractLoadWishlistRoute
 {
     private EventDispatcherInterface $eventDispatcher;

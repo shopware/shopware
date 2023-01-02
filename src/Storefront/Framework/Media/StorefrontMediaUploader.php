@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Media;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @package content
  */
+#[Package('content')]
 class StorefrontMediaUploader
 {
     /**

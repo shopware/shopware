@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -30,6 +31,7 @@ use Shopware\Storefront\Theme\Aggregate\ThemeTranslationDefinition;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class ThemeDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'theme';

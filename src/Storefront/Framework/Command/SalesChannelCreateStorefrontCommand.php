@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -17,6 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @final
  * @package storefront
  */
+#[Package('storefront')]
 class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 {
     protected static $defaultName = 'sales-channel:create:storefront';

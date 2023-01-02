@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Migration;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package core
  */
+#[Package('core')]
 class Migration1601388975RequireFeatureSetName extends \Shopware\Core\Migration\V6_3\Migration1601388975RequireFeatureSetName
 {
 }

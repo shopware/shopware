@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Shipping;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -11,6 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @extends EntityCollection<ShippingMethodEntity>
  */
+#[Package('checkout')]
 class ShippingMethodCollection extends EntityCollection
 {
     public function filterByActiveRules(SalesChannelContext $salesChannelContext): ShippingMethodCollection

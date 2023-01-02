@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Message;
 
+use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will only implement MessageHandlerInterface and all MessageHandler will be internal and final starting with v6.5.0.0
  */
+#[Package('content')]
 class DeleteFileHandler extends AbstractMessageHandler
 {
     private FilesystemInterface $filesystemPublic;

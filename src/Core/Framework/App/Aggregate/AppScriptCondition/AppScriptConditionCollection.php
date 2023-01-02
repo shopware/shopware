@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\AppScriptCondition;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<AppScriptConditionEntity>
  * @package core
  */
+#[Package('core')]
 class AppScriptConditionCollection extends EntityCollection
 {
     public function getApiAlias(): string

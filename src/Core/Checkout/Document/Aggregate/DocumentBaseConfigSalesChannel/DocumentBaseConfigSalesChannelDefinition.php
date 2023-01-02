@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -17,6 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class DocumentBaseConfigSalesChannelDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'document_base_config_sales_channel';

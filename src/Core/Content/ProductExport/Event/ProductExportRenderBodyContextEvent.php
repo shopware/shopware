@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\ProductExport\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductExportRenderBodyContextEvent extends Event
 {
     public const NAME = 'product_export.render.body_context';

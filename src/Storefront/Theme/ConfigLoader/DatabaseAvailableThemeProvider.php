@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Storefront\Theme\ConfigLoader;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -15,6 +16,7 @@ use Shopware\Storefront\Theme\ThemeCollection;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class DatabaseAvailableThemeProvider extends AbstractAvailableThemeProvider
 {
     private EntityRepositoryInterface $salesChannelRepository;

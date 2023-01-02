@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\LandingPage\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheTagsEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package content
  */
+#[Package('content')]
 class LandingPageRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
     protected string $landingPageId;

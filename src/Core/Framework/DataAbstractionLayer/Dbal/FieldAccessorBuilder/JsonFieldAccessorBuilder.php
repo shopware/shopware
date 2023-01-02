@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  * @package core
  */
+#[Package('core')]
 class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {
     /**

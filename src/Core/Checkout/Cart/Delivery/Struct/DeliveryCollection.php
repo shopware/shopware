@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<Delivery>
  */
+#[Package('checkout')]
 class DeliveryCollection extends Collection
 {
     /**

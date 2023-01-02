@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductCrossSellingTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'product_cross_selling_translation';

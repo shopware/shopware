@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
@@ -16,6 +17,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class PromotionIndividualCodeSerializer extends EntitySerializer implements ResetInterface
 {
     private EntityRepositoryInterface $promoCodeRepository;

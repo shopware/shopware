@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -11,6 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class DeadMessageLoadedSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

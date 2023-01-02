@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductStream;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class ProductStreamHydrator extends EntityHydrator
 {
     protected function assign(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context): Entity

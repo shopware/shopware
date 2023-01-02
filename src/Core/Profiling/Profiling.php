@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Profiling;
 
+use Shopware\Core\Framework\Log\Package;
 use Composer\InstalledVersions;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Kernel;
@@ -19,6 +20,7 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
  *
  * @internal
  */
+#[Package('core')]
 class Profiling extends Bundle
 {
     public function getTemplatePriority(): int

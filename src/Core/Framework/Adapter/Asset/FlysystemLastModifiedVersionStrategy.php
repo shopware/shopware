@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
+use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
@@ -11,6 +12,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class FlysystemLastModifiedVersionStrategy implements VersionStrategyInterface
 {
     private FilesystemInterface $filesystem;

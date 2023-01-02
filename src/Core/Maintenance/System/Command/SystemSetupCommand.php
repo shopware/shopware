@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Maintenance\System\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Defuse\Crypto\Key;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
@@ -22,6 +23,7 @@ use Symfony\Component\Dotenv\Command\DotenvDumpCommand;
  *
  * @internal should be used over the CLI only
  */
+#[Package('core')]
 class SystemSetupCommand extends Command
 {
     public static $defaultName = 'system:setup';

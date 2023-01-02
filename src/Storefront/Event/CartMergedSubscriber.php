@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -12,6 +13,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('storefront')]
 class CartMergedSubscriber implements EventSubscriberInterface
 {
     private TranslatorInterface $translator;

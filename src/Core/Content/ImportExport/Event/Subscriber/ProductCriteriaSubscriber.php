@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Event\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Struct\Config;
@@ -15,6 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class ProductCriteriaSubscriber implements EventSubscriberInterface
 {
     /**

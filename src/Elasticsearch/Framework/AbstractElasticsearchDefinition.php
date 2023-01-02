@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
+use Shopware\Core\Framework\Log\Package;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchPhrasePrefixQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
@@ -14,6 +15,7 @@ use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 /**
  * @package core
  */
+#[Package('core')]
 abstract class AbstractElasticsearchDefinition
 {
     /**

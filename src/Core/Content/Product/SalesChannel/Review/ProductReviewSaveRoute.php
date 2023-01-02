@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Framework\Context;
@@ -32,6 +33,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @Route(defaults={"_routeScope"={"store-api"}})
  * @package inventory
  */
+#[Package('inventory')]
 class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 {
     /**

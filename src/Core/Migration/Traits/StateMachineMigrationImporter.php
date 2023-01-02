@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\Traits;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -14,6 +15,7 @@ use Shopware\Core\System\StateMachine\StateMachineTranslationDefinition;
 /**
  * @package core
  */
+#[Package('core')]
 class StateMachineMigrationImporter
 {
     use ImportTranslationsTrait;

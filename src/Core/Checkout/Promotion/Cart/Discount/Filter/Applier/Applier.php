@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Applier;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class Applier
 {
     public const APPLIER_ALL = 'ALL';

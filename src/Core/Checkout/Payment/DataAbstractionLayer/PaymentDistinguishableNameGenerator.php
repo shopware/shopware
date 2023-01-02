@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PaymentDistinguishableNameGenerator
 {
     private EntityRepositoryInterface $paymentMethodRepository;

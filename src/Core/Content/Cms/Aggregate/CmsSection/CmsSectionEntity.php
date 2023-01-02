@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\Aggregate\CmsSection;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 /**
  * @package content
  */
+#[Package('content')]
 class CmsSectionEntity extends Entity
 {
     use EntityIdTrait;

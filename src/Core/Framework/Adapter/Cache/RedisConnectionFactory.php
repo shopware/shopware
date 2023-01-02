@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 use Symfony\Component\Cache\Traits\RedisClusterProxy;
@@ -12,6 +13,7 @@ use Symfony\Component\Cache\Traits\RedisProxy;
  * Used to create new Redis connection based on a connection dsn.
  * Existing connections are reused if there are any.
  */
+#[Package('core')]
 class RedisConnectionFactory
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Tax;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -24,6 +25,7 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleDefinition;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class TaxDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'tax';

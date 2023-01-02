@@ -2,6 +2,7 @@
 
 namespace Shopware\Recovery\Test;
 
+use Slim\Container;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -13,12 +14,12 @@ use Slim\Http\Request;
 class FeatureFlagsTest extends TestCase
 {
     /**
-     * @var \Slim\App
+     * @var App
      */
     private $installApp;
 
     /**
-     * @var \Slim\App
+     * @var App
      */
     private $updateApp;
 
@@ -171,7 +172,7 @@ class FeatureFlagsTest extends TestCase
         }
         file_put_contents($tmpEnvFile, $content);
 
-        /** @var \Slim\Container $container */
+        /** @var Container $container */
         $container = $app->getContainer();
         if ($defaults) {
             $container->offsetSet('env.defaults.path', $tmpEnvFile);
@@ -189,7 +190,7 @@ class FeatureFlagsTest extends TestCase
             'REQUEST_URI' => $scriptName . '/feature-active/?feature=FEATURE_NEXT_101',
         ]);
 
-        /** @var \Slim\Container $container */
+        /** @var Container $container */
         $container = $app->getContainer();
         $container->offsetSet('request', Request::createFromEnvironment($env));
         $container->offsetSet('env.path', __DIR__ . '/_test-env/empty');

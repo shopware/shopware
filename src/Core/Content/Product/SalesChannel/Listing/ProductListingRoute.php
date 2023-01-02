@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -25,6 +26,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @package inventory
  */
+#[Package('inventory')]
 class ProductListingRoute extends AbstractProductListingRoute
 {
     /**

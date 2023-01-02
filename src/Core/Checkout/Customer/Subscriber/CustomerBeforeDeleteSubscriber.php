@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
@@ -20,6 +21,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('customer-order')]
 class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
 {
     private EntityRepositoryInterface $customerRepository;

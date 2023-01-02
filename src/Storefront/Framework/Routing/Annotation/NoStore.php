@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Routing\Annotation;
 
+use Shopware\Core\Framework\Log\Package;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
 
 /**
@@ -9,6 +10,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
  *
  * @Annotation
  */
+#[Package('storefront')]
 class NoStore extends ConfigurationAnnotation
 {
     public const ALIAS = 'noStore';

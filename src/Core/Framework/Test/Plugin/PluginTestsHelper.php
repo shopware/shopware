@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Plugin;
 
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin;
@@ -70,6 +71,6 @@ trait PluginTestsHelper
         $plugin = new $class($active, $testPluginBaseDir);
         $pluginCollection->add($plugin);
 
-        $this->getContainer()->get(Plugin\KernelPluginLoader\KernelPluginLoader::class)->getPluginInstances()->add($plugin);
+        $this->getContainer()->get(KernelPluginLoader::class)->getPluginInstances()->add($plugin);
     }
 }

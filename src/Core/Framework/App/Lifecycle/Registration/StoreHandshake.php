@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Registration;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Uri;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 class StoreHandshake implements AppHandshakeInterface
 {
     private const SBP_EXCEPTION_UNAUTHORIZED = 'ShopwarePlatformException-1';

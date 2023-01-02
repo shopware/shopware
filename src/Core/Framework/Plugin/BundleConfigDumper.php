@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -10,6 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - Remove this class as not needed anymore
  */
+#[Package('core')]
 class BundleConfigDumper implements EventSubscriberInterface
 {
     /**

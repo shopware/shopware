@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -20,6 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @internal
  * @Route(defaults={"_routeScope"={"api"}, "_acl"={"system.plugin_maintain"}})
  */
+#[Package('merchant-services')]
 class ExtensionStoreLicensesController extends AbstractController
 {
     private AbstractExtensionStoreLicensesService $extensionStoreLicensesService;

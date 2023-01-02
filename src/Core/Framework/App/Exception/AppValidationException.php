@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\App\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 
 /**
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 class AppValidationException extends \RuntimeException
 {
     public function __construct(string $appName, ErrorCollection $errors)

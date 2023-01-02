@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginEvents;
@@ -11,6 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  * @package core
  */
+#[Package('core')]
 class PluginLoadedSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

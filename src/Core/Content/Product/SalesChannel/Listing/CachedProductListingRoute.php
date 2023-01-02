@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Events\ProductListingRouteCacheKeyEvent;
 use Shopware\Core\Content\Product\Events\ProductListingRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
@@ -25,6 +26,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @package inventory
  */
+#[Package('inventory')]
 class CachedProductListingRoute extends AbstractProductListingRoute
 {
     private AbstractProductListingRoute $decorated;

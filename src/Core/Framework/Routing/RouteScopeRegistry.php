@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package core
  * Contains all registered RouteScopes in the system
  */
+#[Package('core')]
 class RouteScopeRegistry
 {
     /**

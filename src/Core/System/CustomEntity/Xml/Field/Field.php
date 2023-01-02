@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Symfony\Component\Config\Util\XmlUtils;
 
@@ -9,6 +10,7 @@ use Symfony\Component\Config\Util\XmlUtils;
  * @internal
  * @package core
  */
+#[Package('core')]
 class Field extends XmlElement
 {
     protected string $name;

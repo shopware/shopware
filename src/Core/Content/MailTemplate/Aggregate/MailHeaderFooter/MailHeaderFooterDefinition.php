@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\MailHeaderFooterTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -18,6 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class MailHeaderFooterDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'mail_header_footer';

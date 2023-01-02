@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use ONGR\ElasticsearchDSL\Search;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -12,6 +13,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package core
  */
+#[Package('core')]
 class ElasticsearchEntityAggregatorSearchEvent extends Event implements ShopwareEvent
 {
     private Search $search;

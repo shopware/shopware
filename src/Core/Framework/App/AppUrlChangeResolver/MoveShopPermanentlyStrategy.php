@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
@@ -24,6 +25,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * that way communication from the old shop to the app backend will be blocked in the future
  * @package core
  */
+#[Package('core')]
 class MoveShopPermanentlyStrategy extends AbstractAppUrlChangeStrategy
 {
     public const STRATEGY_NAME = 'move-shop-permanently';

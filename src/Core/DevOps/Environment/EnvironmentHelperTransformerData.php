@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\DevOps\Environment;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package core
  */
+#[Package('core')]
 class EnvironmentHelperTransformerData
 {
     private string $key;

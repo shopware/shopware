@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Script\Executor;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 
 /**
  * @deprecated tag:v6.5.0 will be removed, use \Shopware\Core\Framework\Script\Execution\ScriptExecutor instead
  * @package core
  */
+#[Package('core')]
 class ScriptExecutor
 {
     public function __construct()

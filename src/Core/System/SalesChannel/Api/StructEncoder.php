@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -16,6 +17,7 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * @package core
  */
+#[Package('core')]
 class StructEncoder
 {
     private DefinitionInstanceRegistry $definitionRegistry;

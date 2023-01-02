@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\Media\File;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 
 /**
  * @package content
  */
+#[Package('content')]
 class FileNameValidator
 {
     private const RESTRICTED_CHARACTERS = [

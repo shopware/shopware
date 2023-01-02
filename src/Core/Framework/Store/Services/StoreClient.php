@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Psr\Http\Message\ResponseInterface;
@@ -37,6 +38,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  *
  * @internal
  */
+#[Package('merchant-services')]
 class StoreClient
 {
     private const PLUGIN_LICENSE_VIOLATION_EXTENSION_KEY = 'licenseViolation';

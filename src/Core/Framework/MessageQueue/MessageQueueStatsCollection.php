@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Feature;
 
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Feature;
  *
  * @extends EntityCollection<MessageQueueStatsEntity>
  */
+#[Package('core')]
 class MessageQueueStatsCollection extends EntityCollection
 {
     public function getApiAlias(): string

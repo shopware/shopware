@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
@@ -39,6 +40,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
+#[Package('storefront')]
 class WishlistController extends StorefrontController
 {
     private WishlistPageLoader $wishlistPageLoader;

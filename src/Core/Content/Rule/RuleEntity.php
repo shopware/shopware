@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupCollection;
@@ -22,6 +23,7 @@ use Shopware\Core\System\Tag\TagCollection;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class RuleEntity extends Entity
 {
     use EntityIdTrait;

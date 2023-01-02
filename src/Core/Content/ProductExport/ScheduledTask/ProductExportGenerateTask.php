@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductExportGenerateTask extends ScheduledTask
 {
     public static function getTaskName(): string

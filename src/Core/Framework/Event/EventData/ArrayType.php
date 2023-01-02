@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class ArrayType implements EventDataType
 {
     public const TYPE = 'array';

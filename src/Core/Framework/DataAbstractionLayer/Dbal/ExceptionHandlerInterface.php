@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 
 /**
  * @package core
  */
+#[Package('core')]
 interface ExceptionHandlerInterface
 {
     public const PRIORITY_DEFAULT = 0;

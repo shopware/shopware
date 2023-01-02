@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
+use Doctrine\DBAL\Exception;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
@@ -11,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PromotionExclusionUpdater
 {
     private Connection $connection;
@@ -99,7 +103,7 @@ class PromotionExclusionUpdater
      *
      * @param array<string> $excludeThisIds
      *
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      *
      * @return array<string>
      */
@@ -147,7 +151,7 @@ class PromotionExclusionUpdater
     /**
      * appends addId in all promotions that id is in ids
      *
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     private function addToJSON(string $addId, array $ids): void
     {
@@ -177,8 +181,8 @@ class PromotionExclusionUpdater
      *
      * @param array<string> $onlyAddThisExistingIds
      *
-     * @throws \Doctrine\DBAL\Exception
-     * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
+     * @throws Exception
+     * @throws InvalidUuidException
      */
     private function updateJSON(string $id, array $onlyAddThisExistingIds): void
     {
@@ -226,7 +230,7 @@ class PromotionExclusionUpdater
     /**
      * returns exclusions of promotion with id id
      *
-     * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
+     * @throws InvalidUuidException
      */
     private function getExclusionIds(string $id): array
     {

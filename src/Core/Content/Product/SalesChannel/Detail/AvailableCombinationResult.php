@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class AvailableCombinationResult extends Struct
 {
     /**

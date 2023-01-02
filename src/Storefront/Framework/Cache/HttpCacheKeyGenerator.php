@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Cache;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheGenerateKeyEvent;
@@ -12,6 +13,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class HttpCacheKeyGenerator extends AbstractHttpCacheKeyGenerator
 {
     private string $cacheHash;

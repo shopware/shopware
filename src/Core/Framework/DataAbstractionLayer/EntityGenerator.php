@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -40,6 +41,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
  * @package core
  * @final tag:v6.5.0
  */
+#[Package('core')]
 class EntityGenerator
 {
     private string $classTemplate = <<<EOF

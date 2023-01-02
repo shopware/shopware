@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\ProductExport\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductExport\Error\Error;
 
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductExportResult
 {
     /**

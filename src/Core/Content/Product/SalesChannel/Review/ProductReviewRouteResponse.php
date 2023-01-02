@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductReviewRouteResponse extends StoreApiResponse
 {
     /**

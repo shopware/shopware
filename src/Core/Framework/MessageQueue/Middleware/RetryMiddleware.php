@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Middleware;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -24,6 +25,7 @@ use Symfony\Component\Messenger\Middleware\StackInterface;
  *
  * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we use default symfony retry mechanism
  */
+#[Package('core')]
 class RetryMiddleware implements MiddlewareInterface
 {
     private EntityRepositoryInterface $deadMessageRepository;

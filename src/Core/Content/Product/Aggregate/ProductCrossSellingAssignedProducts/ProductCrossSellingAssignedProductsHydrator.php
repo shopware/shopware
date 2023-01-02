@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductCrossSellingAssignedProductsHydrator extends EntityHydrator
 {
     protected function assign(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context): Entity

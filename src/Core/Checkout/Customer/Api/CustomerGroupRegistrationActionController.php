@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
@@ -22,6 +23,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Package('customer-order')]
 class CustomerGroupRegistrationActionController
 {
     private EntityRepository $customerRepository;

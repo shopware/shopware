@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -14,6 +15,7 @@ use Twig\Extension\GlobalsInterface;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class TemplateDataExtension extends AbstractExtension implements GlobalsInterface
 {
     /**

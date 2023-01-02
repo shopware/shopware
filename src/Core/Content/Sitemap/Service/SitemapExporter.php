@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
@@ -18,6 +19,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SitemapExporter implements SitemapExporterInterface
 {
     /**

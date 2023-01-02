@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Event\EventAction;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Feature;
 
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Feature;
  * @extends EntityCollection<EventActionEntity>
  * @package business-ops
  */
+#[Package('business-ops')]
 class EventActionCollection extends EntityCollection
 {
     public function getApiAlias(): string

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductVisibility;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -10,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductVisibilityEntity extends Entity
 {
     use EntityIdTrait;

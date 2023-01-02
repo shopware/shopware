@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Cache\ReverseProxy;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
@@ -18,6 +19,7 @@ use function sprintf;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 {
     private const API_URL = 'https://api.fastly.com';

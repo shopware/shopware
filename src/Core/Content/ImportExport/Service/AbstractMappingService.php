@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -9,6 +10,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 abstract class AbstractMappingService
 {
     abstract public function getDecorated(): AbstractMappingService;

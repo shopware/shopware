@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
  * @extends EntityCollection<VersionCommitDataEntity>
  * @package core
  */
+#[Package('core')]
 class VersionCommitDataCollection extends EntityCollection
 {
     public function filterByEntity(EntityDefinition $definition): self

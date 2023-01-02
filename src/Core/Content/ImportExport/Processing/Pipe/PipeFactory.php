@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Pipe;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\PrimaryKeyResolver;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class PipeFactory extends AbstractPipeFactory
 {
     private DefinitionInstanceRegistry $definitionInstanceRegistry;

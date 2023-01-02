@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Event\CartCreatedEvent;
@@ -26,6 +27,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class CartRuleLoader implements ResetInterface
 {
     private const MAX_ITERATION = 7;

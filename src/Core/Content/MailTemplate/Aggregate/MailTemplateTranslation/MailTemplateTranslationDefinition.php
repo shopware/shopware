@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class MailTemplateTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'mail_template_translation';

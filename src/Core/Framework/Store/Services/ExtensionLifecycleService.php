@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Plugin\PluginService;
  *
  * @internal
  */
+#[Package('merchant-services')]
 class ExtensionLifecycleService extends AbstractExtensionLifecycle
 {
     private AbstractStoreAppLifecycleService $storeAppLifecycleService;

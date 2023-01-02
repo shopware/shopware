@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
@@ -28,6 +29,7 @@ use Twig\Environment;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 abstract class StorefrontController extends AbstractController
 {
     public const SUCCESS = 'success';

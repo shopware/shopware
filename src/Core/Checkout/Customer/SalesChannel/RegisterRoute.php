@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -61,6 +62,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
+#[Package('customer-order')]
 class RegisterRoute extends AbstractRegisterRoute
 {
     protected Connection $connection;

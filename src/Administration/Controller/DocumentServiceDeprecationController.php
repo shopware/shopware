@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\Controller\DocumentController;
 use Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
@@ -29,6 +30,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @deprecated tag:v6.5.0 - Will be removed
  * @Route(defaults={"_routeScope"={"administration"}})
  */
+#[Package('customer-order')]
 class DocumentServiceDeprecationController
 {
     private DocumentService $documentService;

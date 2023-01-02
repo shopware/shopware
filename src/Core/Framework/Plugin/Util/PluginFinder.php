@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
+use Shopware\Core\Framework\Log\Package;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Package\CompletePackageInterface;
@@ -16,6 +17,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @package core
  */
+#[Package('core')]
 class PluginFinder
 {
     public const COMPOSER_TYPE = 'shopware-platform-plugin';

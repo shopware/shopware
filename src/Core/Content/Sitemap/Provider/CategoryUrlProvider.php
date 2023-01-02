@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Provider;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -20,6 +21,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class CategoryUrlProvider extends AbstractUrlProvider
 {
     public const CHANGE_FREQ = 'daily';

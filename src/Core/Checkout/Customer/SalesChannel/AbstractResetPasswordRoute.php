@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
@@ -11,6 +12,7 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
  * The required parameters are: "hash" (received from the mail), "newPassword" and "newPasswordConfirm"
  * @package customer-order
  */
+#[Package('customer-order')]
 abstract class AbstractResetPasswordRoute
 {
     abstract public function getDecorated(): AbstractResetPasswordRoute;

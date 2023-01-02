@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeState;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -16,6 +17,7 @@ use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class NumberRangeStateDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'number_range_state';

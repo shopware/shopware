@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Cache\ReverseProxy;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheEvent;
 use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
@@ -16,6 +17,7 @@ use function array_values;
  *
  * @template TCachedContent
  */
+#[Package('storefront')]
 class ReverseProxyCache implements StoreInterface
 {
     private AbstractReverseProxyGateway $gateway;

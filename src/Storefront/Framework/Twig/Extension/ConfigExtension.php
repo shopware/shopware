@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Twig\Extension;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Twig\TemplateConfigAccessor;
@@ -11,6 +12,7 @@ use Twig\TwigFunction;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class ConfigExtension extends AbstractExtension
 {
     /**

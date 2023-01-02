@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
 /**
  * @package core
  */
+#[Package('core')]
 abstract class AssociationField extends Field
 {
     /**

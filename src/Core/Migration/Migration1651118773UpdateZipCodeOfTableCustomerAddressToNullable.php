@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Migration;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @deprecated tag:v6.5.0 - Will be deleted. Migrations are now namespaced by major version
  * @package core
  */
+#[Package('core')]
 class Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullable extends \Shopware\Core\Migration\V6_4\Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullable
 {
 }

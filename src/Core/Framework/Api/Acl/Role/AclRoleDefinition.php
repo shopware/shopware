@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Acl\Role;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -25,6 +26,7 @@ use Shopware\Core\System\User\UserDefinition;
 /**
  * @package core
  */
+#[Package('core')]
 class AclRoleDefinition extends EntityDefinition
 {
     public const PRIVILEGE_READ = 'read';

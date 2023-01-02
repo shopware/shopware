@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Footer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @Decoratable()
  */
+#[Package('storefront')]
 class FooterPageletLoader implements FooterPageletLoaderInterface
 {
     /**

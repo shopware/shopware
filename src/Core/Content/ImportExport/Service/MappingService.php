@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Exception\FileEmptyException;
 use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
@@ -28,6 +29,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class MappingService extends AbstractMappingService
 {
     private AbstractFileService $fileService;

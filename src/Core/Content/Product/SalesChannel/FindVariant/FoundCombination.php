@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\FindVariant;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class FoundCombination extends Struct
 {
     protected string $variantId;

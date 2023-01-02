@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
+use Shopware\Core\Framework\Log\Package;
+use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Name;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Identifier;
@@ -20,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
  *
  * @internal
  */
+#[Package('core')]
 class RuleAreasFlagNotAllowedRule implements Rule
 {
     private ReflectionProvider $reflectionProvider;
@@ -90,8 +94,8 @@ class RuleAreasFlagNotAllowedRule implements Rule
     private function resolveClassName(Node $node): ?string
     {
         switch (true) {
-            case $node instanceof Node\Expr\New_:
-                if ($node->class instanceof Node\Name) {
+            case $node instanceof New_:
+                if ($node->class instanceof Name) {
                     return (string) $node->class;
                 }
 

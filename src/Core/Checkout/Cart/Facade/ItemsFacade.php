@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade;
 
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsAddTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsCountTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsGetTrait;
@@ -19,9 +21,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @script-service cart_manipulation
  *
- * @implements \IteratorAggregate<array-key, \Shopware\Core\Checkout\Cart\LineItem\LineItem>
+ * @implements \IteratorAggregate<array-key, LineItem>
  * @package checkout
  */
+#[Package('checkout')]
 class ItemsFacade implements \IteratorAggregate
 {
     use ItemsAddTrait;

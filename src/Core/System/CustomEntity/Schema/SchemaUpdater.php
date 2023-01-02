@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Schema;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -12,6 +13,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
  * @phpstan-type CustomEntityField array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}
  * @package core
  */
+#[Package('core')]
 class SchemaUpdater
 {
     public const TABLE_PREFIX = 'custom_entity_';

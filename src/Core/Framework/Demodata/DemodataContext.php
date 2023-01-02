@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Demodata;
 
+use Shopware\Core\Framework\Log\Package;
 use Faker\Generator;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
@@ -16,6 +17,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
  */
+#[Package('core')]
 class DemodataContext
 {
     private Context $context;

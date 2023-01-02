@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
@@ -12,6 +13,7 @@ use Shopware\Core\System\Country\CountryCollection;
  *
  * @extends EntityCollection<CustomerAddressEntity>
  */
+#[Package('customer-order')]
 class CustomerAddressCollection extends EntityCollection
 {
     /**

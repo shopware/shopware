@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package core
  *
  * @internal
  */
+#[Package('core')]
 class PluginZipDetector
 {
     public function isPlugin(\ZipArchive $archive): bool

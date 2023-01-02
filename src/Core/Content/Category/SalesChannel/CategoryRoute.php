@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
@@ -22,6 +23,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @package content
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('content')]
 class CategoryRoute extends AbstractCategoryRoute
 {
     public const HOME = 'home';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SystemConfig\Facade;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
@@ -15,6 +16,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class SystemConfigFacade
 {
     private const PRIVILEGE = 'system_config:read';

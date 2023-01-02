@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\SalesChannel;
 
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
@@ -27,7 +29,7 @@ class CartItemRemoveRouteTest extends TestCase
     use SalesChannelApiTestBehaviour;
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     * @var KernelBrowser
      */
     private $browser;
 
@@ -37,7 +39,7 @@ class CartItemRemoveRouteTest extends TestCase
     private $ids;
 
     /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     * @var EntityRepository
      */
     private $productRepository;
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExportLogCollection extends EntityCollection
 {
     public function getApiAlias(): string

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Search;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Struct\Struct;
  *
  * @internal
  */
+#[Package('merchant-services')]
 class ExtensionCriteria extends Struct
 {
     public const ORDER_SEQUENCE_ASC = 'asc';

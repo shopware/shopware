@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Seo\Exception\InvalidTemplateException;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
@@ -28,6 +29,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SeoUrlGenerator
 {
     public const ESCAPE_SLUGIFY = 'slugifyurlencode';

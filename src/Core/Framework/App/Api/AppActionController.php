@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\ActionButton\ActionButtonLoader;
 use Shopware\Core\Framework\App\ActionButton\AppActionLoader;
 use Shopware\Core\Framework\App\ActionButton\Executor;
@@ -22,6 +23,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @Route(defaults={"_routeScope"={"api"}})
  * @package core
  */
+#[Package('core')]
 class AppActionController extends AbstractController
 {
     private ActionButtonLoader $actionButtonLoader;

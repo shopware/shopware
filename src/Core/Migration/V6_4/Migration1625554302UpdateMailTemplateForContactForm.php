@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_4;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -12,6 +13,7 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
  * @package core
  */
+#[Package('core')]
 class Migration1625554302UpdateMailTemplateForContactForm extends MigrationStep
 {
     use UpdateMailTrait;

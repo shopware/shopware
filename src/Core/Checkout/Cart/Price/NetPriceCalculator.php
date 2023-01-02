@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class NetPriceCalculator
 {
     private TaxCalculator $taxCalculator;

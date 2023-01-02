@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\SalesChannel\AbstractDocumentRoute;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -20,6 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
+#[Package('storefront')]
 class DocumentController extends StorefrontController
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Shopware\Core\Framework\Log\Package;
 use Cocur\Slugify\Bridge\Twig\SlugifyExtension;
 use Cocur\Slugify\SlugifyInterface;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
@@ -13,6 +14,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SeoUrlTwigFactory
 {
     public function createTwigEnvironment(SlugifyInterface $slugify, iterable $twigExtensions = []): Environment

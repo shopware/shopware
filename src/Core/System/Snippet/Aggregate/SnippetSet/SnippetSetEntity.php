@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Snippet\Aggregate\SnippetSet;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -11,6 +12,7 @@ use Shopware\Core\System\Snippet\SnippetCollection;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class SnippetSetEntity extends Entity
 {
     use EntityIdTrait;

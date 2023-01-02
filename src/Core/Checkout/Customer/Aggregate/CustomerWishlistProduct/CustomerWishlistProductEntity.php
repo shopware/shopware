@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class CustomerWishlistProductEntity extends Entity
 {
     use EntityIdTrait;

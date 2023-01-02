@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
  *
  * @internal
  */
+#[Package('merchant-services')]
 class ExtensionDataProvider extends AbstractExtensionDataProvider
 {
     public const HEADER_NAME_TOTAL_COUNT = 'SW-Meta-Total';

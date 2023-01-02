@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade\Traits;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 
 /**
  * @package checkout
  */
+#[Package('checkout')]
 trait ItemsCountTrait
 {
     private LineItemCollection $items;

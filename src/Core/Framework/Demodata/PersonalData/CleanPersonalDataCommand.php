@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Demodata\PersonalData;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -19,6 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
  * @package core
  */
+#[Package('core')]
 class CleanPersonalDataCommand extends Command
 {
     protected const VALID_TYPES = [

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cms;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
@@ -26,6 +27,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 {
     private const PRODUCT_SLIDER_ENTITY_FALLBACK = 'product-slider-entity-fallback';

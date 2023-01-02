@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class FileService extends AbstractFileService
 {
     private FilesystemInterface $filesystem;

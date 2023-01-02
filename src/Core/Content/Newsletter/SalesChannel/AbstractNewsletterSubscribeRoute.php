@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -13,6 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Optional parameters are: "salutationId", "firstName", "lastName", "street", "city" and "zipCode"
  * @package customer-order
  */
+#[Package('customer-order')]
 abstract class AbstractNewsletterSubscribeRoute
 {
     abstract public function getDecorated(): AbstractNewsletterSubscribeRoute;

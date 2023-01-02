@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Events\ProductSearchRouteCacheKeyEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
@@ -23,6 +24,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class CachedProductSearchRoute extends AbstractProductSearchRoute
 {
     private const NAME = 'product-search-route';

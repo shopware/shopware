@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  *
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class ScriptDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'script';

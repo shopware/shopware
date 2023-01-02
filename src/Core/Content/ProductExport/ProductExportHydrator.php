@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductExportHydrator extends EntityHydrator
 {
     /**

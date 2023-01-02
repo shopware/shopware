@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Adapter\Twig;
 
+use Twig\Environment;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
@@ -21,7 +22,7 @@ class StringTemplateRendererTest extends TestCase
     private $stringTemplateRenderer;
 
     /**
-     * @var \Twig\Environment
+     * @var Environment
      */
     private $twig;
 

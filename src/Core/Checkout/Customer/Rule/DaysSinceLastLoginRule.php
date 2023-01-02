@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class DaysSinceLastLoginRule extends Rule
 {
     protected string $operator = Rule::OPERATOR_EQ;

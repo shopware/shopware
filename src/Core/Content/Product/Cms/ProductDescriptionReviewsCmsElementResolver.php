@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cms;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
@@ -27,6 +28,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     private const LIMIT = 10;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
 use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package content
  */
+#[Package('content')]
 class CmsSlotTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'cms_slot_translation';

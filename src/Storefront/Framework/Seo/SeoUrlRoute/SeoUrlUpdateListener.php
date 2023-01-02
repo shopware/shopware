@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Seo\SeoUrlRoute;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEvents;
@@ -22,6 +23,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('sales-channel')]
 class SeoUrlUpdateListener implements EventSubscriberInterface
 {
     public const CATEGORY_SEO_URL_UPDATER = 'category.seo-url';

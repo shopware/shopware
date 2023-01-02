@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Checkout\Cart\Transaction\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class Transaction extends Struct
 {
     /**

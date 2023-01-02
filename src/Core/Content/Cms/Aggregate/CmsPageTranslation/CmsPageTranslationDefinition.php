@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package content
  */
+#[Package('content')]
 class CmsPageTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'cms_page_translation';

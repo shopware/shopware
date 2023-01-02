@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Framework\Rule\Rule;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class CustomerGroupRule extends Rule
 {
     /**

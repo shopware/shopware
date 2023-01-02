@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  * @package core
  */
+#[Package('core')]
 class TranslationFieldResolver extends AbstractFieldResolver
 {
     public function join(FieldResolverContext $context): string

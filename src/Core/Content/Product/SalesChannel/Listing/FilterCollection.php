@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @package inventory
  */
+#[Package('inventory')]
 class FilterCollection extends Collection
 {
     /**

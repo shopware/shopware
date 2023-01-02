@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
@@ -10,6 +11,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterSorterInterface;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class FilterSorterPriceAsc implements FilterSorterInterface
 {
     public function getKey(): string

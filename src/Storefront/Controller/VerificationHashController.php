@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -17,6 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
+#[Package('storefront')]
 class VerificationHashController extends AbstractController
 {
     /**

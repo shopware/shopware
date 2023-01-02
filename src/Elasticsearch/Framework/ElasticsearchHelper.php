@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
+use Shopware\Core\Framework\Log\Package;
 use Elasticsearch\Client;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
@@ -20,6 +21,7 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 /**
  * @package core
  */
+#[Package('core')]
 class ElasticsearchHelper
 {
     // max for default configuration

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -15,6 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class AccessKeyController extends AbstractController
 {
     /**

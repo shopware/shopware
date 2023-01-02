@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -16,6 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @script-service cart_manipulation
  * @package checkout
  */
+#[Package('checkout')]
 class ItemFacade
 {
     private LineItem $item;

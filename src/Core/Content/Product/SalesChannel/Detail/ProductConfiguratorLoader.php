@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
@@ -18,6 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductConfiguratorLoader
 {
     private EntityRepositoryInterface $configuratorRepository;

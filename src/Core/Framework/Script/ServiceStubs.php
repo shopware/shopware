@@ -2,6 +2,14 @@
 
 namespace Shopware\Core\Framework\Script;
 
+use Shopware\Core\Checkout\Cart\Facade\CartFacade;
+use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacade;
+use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacade;
+use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacade;
+use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacade;
+use Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade;
+use Shopware\Core\Framework\Adapter\Cache\Script\Facade\CacheInvalidatorFacade;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 
 /**
@@ -11,14 +19,15 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
  *
  * @example: {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
  *
- * @method \Shopware\Core\Checkout\Cart\Facade\CartFacade                                    cart()
- * @method \Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacade             repository()
- * @method \Shopware\Core\System\SystemConfig\Facade\SystemConfigFacade                      config()
- * @method \Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacade store()
- * @method \Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacade       writer()
- * @method \Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade                   response()
- * @method \Shopware\Core\Framework\Adapter\Cache\Script\Facade\CacheInvalidatorFacade       cache()
+ * @method CartFacade cart()
+ * @method RepositoryFacade repository()
+ * @method SystemConfigFacade config()
+ * @method SalesChannelRepositoryFacade store()
+ * @method RepositoryWriterFacade writer()
+ * @method ScriptResponseFactoryFacade response()
+ * @method CacheInvalidatorFacade cache()
  */
+#[Package('core')]
 final class ServiceStubs
 {
     private string $hook;

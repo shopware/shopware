@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Feature;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class FlowState
 {
     public string $flowId;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEvent;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Feature;
  *
  * @internal
  */
+#[Package('business-ops')]
 class StorableFlow
 {
     protected ?FlowState $state = null;

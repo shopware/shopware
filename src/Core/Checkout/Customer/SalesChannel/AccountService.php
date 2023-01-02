@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
@@ -28,6 +29,7 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class AccountService
 {
     /**

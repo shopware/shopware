@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Csrf;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,6 +19,7 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
  *
  * @deprecated tag:v6.5.0 - class will be removed as the csrf system will be removed in favor for the samesite approach
  */
+#[Package('storefront')]
 class CsrfPlaceholderHandler
 {
     public const CSRF_PLACEHOLDER = '1b4dfebfc2584cf58b63c72c20d521d0';

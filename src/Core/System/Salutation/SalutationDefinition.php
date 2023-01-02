@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Salutation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
@@ -24,6 +25,7 @@ use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTr
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class SalutationDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'salutation';

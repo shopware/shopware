@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Feature;
  * @deprecated tag:v6.5.0 - reason:remove-decorator - Will be removed
  * @package core
  */
+#[Package('core')]
 class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
 {
     /**

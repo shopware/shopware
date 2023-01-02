@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade\Traits;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Facade\DiscountFacade;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Util\FloatComparator;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 trait SurchargeTrait
 {
     private LineItemCollection $items;

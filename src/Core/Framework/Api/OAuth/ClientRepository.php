@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\OAuth;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package core
  */
+#[Package('core')]
 class ClientRepository implements ClientRepositoryInterface
 {
     private Connection $connection;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Event\NavigationLoadedEvent;
@@ -20,6 +21,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @package content
  * @Decoratable()
  */
+#[Package('content')]
 class NavigationLoader implements NavigationLoaderInterface
 {
     /**

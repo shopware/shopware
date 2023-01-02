@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\File;
 
+use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FileExistsException;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
@@ -35,6 +36,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @package content
  */
+#[Package('content')]
 class FileSaver
 {
     private EntityRepositoryInterface $mediaRepository;

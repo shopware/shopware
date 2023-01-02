@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Checkout\Confirm;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
@@ -9,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class CheckoutConfirmPageLoadedEvent extends PageLoadedEvent
 {
     /**

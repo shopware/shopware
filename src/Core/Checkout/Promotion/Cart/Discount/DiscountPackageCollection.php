@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<DiscountPackage>
  */
+#[Package('checkout')]
 class DiscountPackageCollection extends Collection
 {
     /**

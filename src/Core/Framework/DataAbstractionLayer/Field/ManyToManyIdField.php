@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 
 /**
  * @package core
  */
+#[Package('core')]
 class ManyToManyIdField extends ListField
 {
     /**

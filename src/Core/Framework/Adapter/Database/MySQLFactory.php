@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Database;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
@@ -14,6 +15,7 @@ use Shopware\Core\Kernel;
  *
  * @internal
  */
+#[Package('core')]
 class MySQLFactory
 {
     public static function create(): Connection

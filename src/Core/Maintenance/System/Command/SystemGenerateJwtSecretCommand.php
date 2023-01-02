@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Maintenance\System\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,6 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @internal should be used over the CLI only
  */
+#[Package('core')]
 class SystemGenerateJwtSecretCommand extends Command
 {
     public static $defaultName = 'system:generate-jwt-secret';

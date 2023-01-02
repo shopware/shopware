@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Maintenance\System\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @internal
  */
+#[Package('core')]
 class AppUrlVerifier
 {
     private Client $guzzle;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -11,6 +12,7 @@ use Twig\Extension\CoreExtension;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class TwigDateRequestListener implements EventSubscriberInterface
 {
     public const TIMEZONE_COOKIE = 'timezone';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Installer\Database;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  *
  * @internal
  */
+#[Package('core')]
 class BlueGreenDeploymentService
 {
     public const ENV_NAME = 'BLUE_GREEN_DEPLOYMENT';

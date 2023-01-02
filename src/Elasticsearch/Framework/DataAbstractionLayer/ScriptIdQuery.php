@@ -2,12 +2,14 @@
 
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use ONGR\ElasticsearchDSL\BuilderInterface;
 use ONGR\ElasticsearchDSL\ParametersTrait;
 
 /**
  * @package core
  */
+#[Package('core')]
 class ScriptIdQuery implements BuilderInterface
 {
     use ParametersTrait;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SystemConfig;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\Plugin;
@@ -15,6 +16,7 @@ use function json_decode;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class SystemConfigLoader extends AbstractSystemConfigLoader
 {
     protected Connection $connection;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Indexing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Events\FlowIndexerEvent;
 use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
@@ -31,6 +32,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('business-ops')]
 class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
 {
     private IteratorFactory $iteratorFactory;

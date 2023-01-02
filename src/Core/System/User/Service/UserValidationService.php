@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class UserValidationService
 {
     /**

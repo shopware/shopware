@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Entity;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\PartialEntityLoadedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
@@ -12,6 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @internal
  */
+#[Package('sales-channel')]
 class PartialSalesChannelEntityLoadedEvent extends PartialEntityLoadedEvent implements ShopwareSalesChannelEvent
 {
     private SalesChannelContext $salesChannelContext;

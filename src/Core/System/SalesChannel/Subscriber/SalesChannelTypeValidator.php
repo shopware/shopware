@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -15,6 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('sales-channel')]
 class SalesChannelTypeValidator implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

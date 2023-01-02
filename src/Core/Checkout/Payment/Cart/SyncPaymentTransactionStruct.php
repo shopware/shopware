@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Struct\CloneTrait;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class SyncPaymentTransactionStruct implements \JsonSerializable, ExtendableInterface
 {
     use CloneTrait;

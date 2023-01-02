@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Monolog\Logger;
 use Shopware\Core\Content\Flow\Dispatching\Aware\NameAware;
 use Shopware\Core\Framework\Context;
@@ -15,6 +16,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class MailErrorEvent extends Event implements LogAware, FlowEventAware, BusinessEventInterface, NameAware
 {
     public const NAME = 'mail.sent.error';

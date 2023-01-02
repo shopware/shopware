@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderAddress;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -14,6 +15,7 @@ use Shopware\Core\System\Salutation\SalutationEntity;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class OrderAddressEntity extends Entity
 {
     use EntityIdTrait;

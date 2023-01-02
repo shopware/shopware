@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package content
  */
+#[Package('content')]
 class CategoryTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'category_translation';

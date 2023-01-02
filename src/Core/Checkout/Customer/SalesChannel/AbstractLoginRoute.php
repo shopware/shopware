@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -11,6 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * The required parameters are "email" and "password"
  * @package customer-order
  */
+#[Package('customer-order')]
 abstract class AbstractLoginRoute
 {
     abstract public function getDecorated(): AbstractLoginRoute;

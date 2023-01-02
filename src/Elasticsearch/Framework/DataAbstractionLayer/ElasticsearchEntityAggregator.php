@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Elasticsearch\Client;
 use ONGR\ElasticsearchDSL\Search;
 use Shopware\Core\Framework\Context;
@@ -16,6 +17,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 {
     public const RESULT_STATE = 'loaded-by-elastic';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Event\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
@@ -23,6 +24,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetInterface
 {
     private EntityRepositoryInterface $categoryRepository;

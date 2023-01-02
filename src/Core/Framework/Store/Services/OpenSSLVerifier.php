@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
 
 /**
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
  *
  * @internal
  */
+#[Package('merchant-services')]
 class OpenSSLVerifier
 {
     /**

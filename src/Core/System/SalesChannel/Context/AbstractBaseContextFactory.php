@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\BaseContext;
 
 /**
@@ -9,6 +10,7 @@ use Shopware\Core\System\SalesChannel\BaseContext;
  *
  * @internal
  */
+#[Package('core')]
 abstract class AbstractBaseContextFactory
 {
     abstract public function getDecorated(): AbstractBaseContextFactory;

@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\System\SalesChannel\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @package core
  */
+#[Package('core')]
 class SalesChannelContextSwitcher
 {
     private AbstractContextSwitchRoute $contextSwitchRoute;

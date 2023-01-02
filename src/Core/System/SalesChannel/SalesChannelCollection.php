@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -11,6 +12,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTyp
  * @package core
  * @extends EntityCollection<SalesChannelEntity>
  */
+#[Package('core')]
 class SalesChannelCollection extends EntityCollection
 {
     /**

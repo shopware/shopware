@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Schema\Table;
@@ -35,6 +36,7 @@ use Symfony\Component\String\Inflector\EnglishInflector;
  * @package core
  * @final tag:v6.5.0
  */
+#[Package('core')]
 class DefinitionValidator
 {
     private const FOREIGN_KEY_PREFIX = 'fk';

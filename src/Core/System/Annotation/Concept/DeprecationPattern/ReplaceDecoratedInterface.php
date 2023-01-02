@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Annotation\Concept\DeprecationPattern;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\Common\Annotations\Annotation;
 
 /**
@@ -52,6 +53,7 @@ use Doctrine\Common\Annotations\Annotation;
  *      If you call the inner service decorator with the new interface, which it does not implement yet it will lead to errors, therefore you have to also to the instanceof check in your decorators.
  * @package core
  */
+#[Package('core')]
 class ReplaceDecoratedInterface
 {
     public function __construct(array $info)

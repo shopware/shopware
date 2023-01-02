@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Shipping\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Shipping\Event\ShippingMethodRouteCacheKeyEvent;
 use Shopware\Core\Checkout\Shipping\Event\ShippingMethodRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
@@ -26,6 +27,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('checkout')]
 class CachedShippingMethodRoute extends AbstractShippingMethodRoute
 {
     public const ALL_TAG = 'shipping-method-route';

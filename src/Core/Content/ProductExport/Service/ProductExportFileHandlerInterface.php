@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 
 /**
  * @package inventory
  */
+#[Package('inventory')]
 interface ProductExportFileHandlerInterface
 {
     public function getFilePath(ProductExportEntity $productExport, bool $partialGeneration = false): string;

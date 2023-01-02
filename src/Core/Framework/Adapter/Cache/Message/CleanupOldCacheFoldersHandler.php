@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Message;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
@@ -10,6 +11,7 @@ use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
  *
  * @internal
  */
+#[Package('core')]
 final class CleanupOldCacheFoldersHandler implements MessageSubscriberInterface
 {
     private CacheClearer $cacheClearer;

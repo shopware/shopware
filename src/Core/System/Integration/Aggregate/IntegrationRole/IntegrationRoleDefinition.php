@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Integration\Aggregate\IntegrationRole;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -14,6 +15,7 @@ use Shopware\Core\System\Integration\IntegrationDefinition;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class IntegrationRoleDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'integration_role';

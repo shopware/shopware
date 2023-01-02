@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductReview;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -13,6 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductReviewEntity extends Entity
 {
     use EntityIdTrait;

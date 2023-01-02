@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\StateMachine\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -22,6 +23,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @Route(defaults={"_routeScope"={"api"}})
  * @package checkout
  */
+#[Package('checkout')]
 class StateMachineActionController extends AbstractController
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 /**
  * @package core
  */
+#[Package('core')]
 class CustomerWishlistProductExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int

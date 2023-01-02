@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Installer\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -17,6 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @internal
  */
+#[Package('core')]
 class FinishController extends InstallerController
 {
     private SystemLocker $systemLocker;

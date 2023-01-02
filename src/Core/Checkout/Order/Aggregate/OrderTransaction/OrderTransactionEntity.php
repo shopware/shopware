@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -14,6 +15,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class OrderTransactionEntity extends Entity
 {
     use EntityIdTrait;

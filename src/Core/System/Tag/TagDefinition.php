@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Tag;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerTag\CustomerTagDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTag\OrderTagDefinition;
@@ -33,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class TagDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'tag';

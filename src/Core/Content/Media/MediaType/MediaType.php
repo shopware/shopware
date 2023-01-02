@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\Media\MediaType;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @package content
  */
+#[Package('content')]
 abstract class MediaType extends Struct
 {
     /**

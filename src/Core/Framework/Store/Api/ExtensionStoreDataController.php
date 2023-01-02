@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -24,6 +25,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @internal
  * @Route(defaults={"_routeScope"={"api"}, "_acl"={"system.plugin_maintain"}})
  */
+#[Package('merchant-services')]
 class ExtensionStoreDataController extends AbstractController
 {
     private AbstractExtensionDataProvider $extensionDataProvider;

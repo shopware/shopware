@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\CriteriaPartResolver;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpret
  * @internal
  * @package core
  */
+#[Package('core')]
 class CriteriaQueryBuilder
 {
     /**

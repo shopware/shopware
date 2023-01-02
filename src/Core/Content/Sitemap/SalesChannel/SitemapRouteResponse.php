@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\Sitemap\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Sitemap\Struct\SitemapCollection;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SitemapRouteResponse extends StoreApiResponse
 {
     /**

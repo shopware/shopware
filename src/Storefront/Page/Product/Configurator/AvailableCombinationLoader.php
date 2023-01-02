@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Product\Configurator;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader as CoreAvailableCombinationLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Feature;
  * @deprecated tag:v6.5.0 - Class will be removed
  * @package inventory
  */
+#[Package('inventory')]
 class AvailableCombinationLoader extends CoreAvailableCombinationLoader
 {
     private CoreAvailableCombinationLoader $loader;

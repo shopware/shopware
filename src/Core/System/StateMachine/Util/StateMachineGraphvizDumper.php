@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\System\StateMachine\Util;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class StateMachineGraphvizDumper
 {
     protected static array $defaultOptions = [

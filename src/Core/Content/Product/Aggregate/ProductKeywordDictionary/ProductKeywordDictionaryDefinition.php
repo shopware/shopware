@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -17,6 +18,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductKeywordDictionaryDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_keyword_dictionary';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
 use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
@@ -41,6 +42,7 @@ use Symfony\Component\Validator\Constraints\Type;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExportActionController extends AbstractController
 {
     private SupportedFeaturesService $supportedFeaturesService;

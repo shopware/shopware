@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Payment\Handler;
 
+use Shopware\Core\Framework\Log\Package;
 use Psr\Http\Client\ClientExceptionInterface;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
@@ -40,6 +41,7 @@ use Shopware\Core\System\StateMachine\Transition;
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymentHandlerInterface
 {
     protected OrderTransactionStateHandler $transactionStateHandler;

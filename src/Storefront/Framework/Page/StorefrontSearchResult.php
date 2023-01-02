@@ -2,12 +2,14 @@
 
 namespace Shopware\Storefront\Framework\Page;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class StorefrontSearchResult extends EntitySearchResult
 {
     /**

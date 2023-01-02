@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\CrossSelling;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
@@ -34,6 +35,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @package inventory
  */
+#[Package('inventory')]
 class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 {
     private EventDispatcherInterface $eventDispatcher;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\Unit\UnitEntity;
@@ -9,6 +10,7 @@ use Shopware\Core\System\Unit\UnitEntity;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class UnitTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

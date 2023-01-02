@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Property;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class PropertyGroupEntity extends Entity
 {
     use EntityIdTrait;

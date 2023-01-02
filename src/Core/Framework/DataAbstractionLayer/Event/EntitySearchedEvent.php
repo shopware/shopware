@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -11,6 +12,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package core
  */
+#[Package('core')]
 class EntitySearchedEvent extends Event implements ShopwareEvent
 {
     /**

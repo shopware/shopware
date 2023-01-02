@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
@@ -41,6 +42,7 @@ use Shopware\Core\System\Unit\UnitEntity;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductEntity extends Entity
 {
     use EntityIdTrait;

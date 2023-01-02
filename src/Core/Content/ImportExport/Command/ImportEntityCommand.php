@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
@@ -28,6 +29,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class ImportEntityCommand extends Command
 {
     protected static $defaultName = 'import:entity';

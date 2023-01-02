@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
@@ -14,6 +15,7 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 /**
  * @package core
  */
+#[Package('core')]
 class ScheduledTaskRunner extends Command
 {
     protected static $defaultName = 'scheduled-task:run';

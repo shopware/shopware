@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class AccountNewsletterRecipientResult extends Struct
 {
     public const UNDEFINED = 'undefined';

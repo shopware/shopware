@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -20,6 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class IndexingController extends AbstractController
 {
     /**

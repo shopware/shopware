@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 class Script extends Struct
 {
     protected string $name;

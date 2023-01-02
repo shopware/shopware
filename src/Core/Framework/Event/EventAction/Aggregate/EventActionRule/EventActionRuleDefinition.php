@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
  * @deprecated tag:v6.5.0 - reason:remove-entity - Will be removed in v6.5.0.
  * @package business-ops
  */
+#[Package('business-ops')]
 class EventActionRuleDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'event_action_rule';

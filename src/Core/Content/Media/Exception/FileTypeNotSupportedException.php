@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @deprecated tag:v6.5.0 - Will be removed. Use FileExtensionNotSupportedException or ThumbnailNotSupportedException instead
  */
+#[Package('content')]
 class FileTypeNotSupportedException extends ShopwareHttpException
 {
     public function getErrorCode(): string

@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<VersionCommitEntity>
  * @package core
  */
+#[Package('core')]
 class VersionCommitCollection extends EntityCollection
 {
     /**

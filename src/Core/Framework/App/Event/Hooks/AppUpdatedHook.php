@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Event\Hooks;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
 
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
  * @since 6.4.9.0
  * @package core
  */
+#[Package('core')]
 class AppUpdatedHook extends AppLifecycleHook implements AppSpecificHook
 {
     public const HOOK_NAME = 'app-updated';

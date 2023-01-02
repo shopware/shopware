@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @package content
  * @extends EntityCollection<MediaThumbnailSizeEntity>
  */
+#[Package('content')]
 class MediaThumbnailSizeCollection extends EntityCollection
 {
     public function getApiAlias(): string

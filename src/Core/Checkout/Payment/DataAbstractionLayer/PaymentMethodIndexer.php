@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\Event\PaymentMethodIndexerEvent;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -16,6 +17,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PaymentMethodIndexer extends EntityIndexer
 {
     private IteratorFactory $iteratorFactory;

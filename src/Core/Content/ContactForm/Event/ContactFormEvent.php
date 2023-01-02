@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContactForm\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ContactFormDataAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -16,6 +17,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package content
  */
+#[Package('content')]
 final class ContactFormEvent extends Event implements FlowEventAware, SalesChannelAware, MailAware, ContactFormDataAware
 {
     public const EVENT_NAME = 'contact_form.send';

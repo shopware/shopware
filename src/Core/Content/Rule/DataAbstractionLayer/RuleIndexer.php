@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
@@ -29,6 +30,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('business-ops')]
 class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
 {
     public const PAYLOAD_UPDATER = 'rule.payload';

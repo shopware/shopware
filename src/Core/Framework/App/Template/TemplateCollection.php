@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Template;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  * @extends EntityCollection<TemplateEntity>
  * @package core
  */
+#[Package('core')]
 class TemplateCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

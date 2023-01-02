@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\System\CustomEntity;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 /**
  * @package core
  */
+#[Package('core')]
 class CustomEntityEntity extends Entity
 {
     use EntityIdTrait;

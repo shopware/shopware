@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\ImportExport\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExportBeforeExportRecordEvent extends Event
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
  *
  * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we use default symfony retry mechanism
  */
+#[Package('core')]
 class MessageFailedException extends ShopwareHttpException
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\NumberRange;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -13,6 +14,7 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEn
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class NumberRangeEntity extends Entity
 {
     use EntityIdTrait;

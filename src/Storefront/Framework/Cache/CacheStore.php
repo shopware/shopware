@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Cache;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
@@ -18,6 +19,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class CacheStore implements StoreInterface
 {
     public const TAG_HEADER = 'sw-cache-tags';

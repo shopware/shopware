@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Increment;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -11,6 +12,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @package core
  */
+#[Package('core')]
 class IncrementerGatewayCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

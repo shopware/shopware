@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -13,6 +14,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package core
  */
+#[Package('core')]
 class PreWriteValidationEvent extends Event implements ShopwareEvent
 {
     /**

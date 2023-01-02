@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
@@ -13,6 +14,7 @@ use function preg_replace_callback;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 {
     public const DOMAIN_PLACEHOLDER = '124c71d524604ccbad6042edce3ac799';

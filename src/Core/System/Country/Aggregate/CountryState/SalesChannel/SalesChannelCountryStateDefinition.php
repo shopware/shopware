@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Country\Aggregate\CountryState\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
@@ -11,6 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class SalesChannelCountryStateDefinition extends CountryStateDefinition implements SalesChannelDefinitionInterface
 {
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void

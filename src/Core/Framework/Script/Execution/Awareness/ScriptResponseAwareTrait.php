@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Execution\Awareness;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Api\ScriptResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -9,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  * @package core
  */
+#[Package('core')]
 trait ScriptResponseAwareTrait
 {
     /**

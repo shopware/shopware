@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cms;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 abstract class AbstractProductDetailCmsElementResolver extends AbstractCmsElementResolver
 {
     abstract public function getType(): string;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Store\Struct\FrwState;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -11,6 +12,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal
  */
+#[Package('merchant-services')]
 class FirstRunWizardFinishedEvent extends Event
 {
     /**

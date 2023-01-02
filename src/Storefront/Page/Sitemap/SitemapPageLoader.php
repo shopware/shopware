@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Sitemap;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Sitemap\SalesChannel\AbstractSitemapRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SitemapPageLoader
 {
     /**

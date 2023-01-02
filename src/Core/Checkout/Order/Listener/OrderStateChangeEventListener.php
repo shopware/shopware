@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Listener;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Exception\OrderDeliveryNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderTransactionNotFoundException;
@@ -26,6 +27,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('customer-order')]
 class OrderStateChangeEventListener implements EventSubscriberInterface
 {
     private EntityRepositoryInterface $stateRepository;

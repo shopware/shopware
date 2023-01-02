@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Demodata;
 
+use Shopware\Core\Framework\Log\Package;
+use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
 use Faker\Factory;
 use Faker\Generator;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
@@ -17,6 +19,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
  */
+#[Package('core')]
 class DemodataService
 {
     private array $generators;
@@ -93,8 +96,8 @@ class DemodataService
         /*
          * @deprecated tag:v6.5.0 remove and replace by importing \Maltyxx\ImagesGenerator\ImagesGeneratorProvider
          */
-        if (\class_exists(\Maltyxx\ImagesGenerator\ImagesGeneratorProvider::class)) {
-            $faker->addProvider(new \Maltyxx\ImagesGenerator\ImagesGeneratorProvider($faker));
+        if (\class_exists(ImagesGeneratorProvider::class)) {
+            $faker->addProvider(new ImagesGeneratorProvider($faker));
         } else {
             $faker->addProvider(new \bheller\ImagesGenerator\ImagesGeneratorProvider($faker));
         }

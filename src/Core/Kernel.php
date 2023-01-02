@@ -2,6 +2,7 @@
 
 namespace Shopware\Core;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
@@ -23,6 +24,7 @@ use Symfony\Component\Routing\Route;
 /**
  * @package core
  */
+#[Package('core')]
 class Kernel extends HttpKernel
 {
     use MicroKernelTrait;

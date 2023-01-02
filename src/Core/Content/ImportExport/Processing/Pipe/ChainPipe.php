@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Pipe;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class ChainPipe extends AbstractPipe
 {
     /**

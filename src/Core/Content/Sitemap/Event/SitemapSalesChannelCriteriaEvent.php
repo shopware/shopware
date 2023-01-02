@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ShopwareEvent;
@@ -10,6 +11,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SitemapSalesChannelCriteriaEvent extends Event implements ShopwareEvent
 {
     private Criteria $criteria;

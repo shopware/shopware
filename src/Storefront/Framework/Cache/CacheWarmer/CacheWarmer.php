@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Cache\CacheWarmer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -17,6 +18,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  *
  * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - Won't extend AbstractMessageHandler anymore, message handling is done in `CacheWarmerTaskHandler`
  */
+#[Package('storefront')]
 class CacheWarmer extends AbstractMessageHandler
 {
     private EntityRepositoryInterface $domainRepository;

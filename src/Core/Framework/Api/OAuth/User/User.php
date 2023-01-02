@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Api\OAuth\User;
 
+use Shopware\Core\Framework\Log\Package;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 
 /**
  * @package core
  */
+#[Package('core')]
 class User implements UserEntityInterface
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Shipping;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTag\ShippingMethodTagDefinition;
@@ -36,6 +37,7 @@ use Shopware\Core\System\Tax\TaxDefinition;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class ShippingMethodDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'shipping_method';

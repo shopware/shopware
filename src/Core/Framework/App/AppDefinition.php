@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodDefinition;
@@ -43,6 +44,7 @@ use Shopware\Core\System\Integration\IntegrationDefinition;
  *
  * @internal
  */
+#[Package('core')]
 class AppDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'app';

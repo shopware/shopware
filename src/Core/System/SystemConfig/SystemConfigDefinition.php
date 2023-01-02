@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SystemConfig;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -17,6 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class SystemConfigDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'system_config';

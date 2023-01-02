@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SystemConfig\Store;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
@@ -11,6 +12,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 final class MemoizedSystemConfigStore implements EventSubscriberInterface, ResetInterface
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
@@ -31,6 +32,7 @@ use Twig\TwigTest;
 /**
  * @package core
  */
+#[Package('core')]
 class PhpSyntaxExtension extends AbstractExtension
 {
     public function getTokenParsers(): array

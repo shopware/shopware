@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\DocParser;
 use Shopware\Core\Framework\Event\Annotation\Event;
@@ -16,6 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @package core
  */
+#[Package('core')]
 class ActionEventCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

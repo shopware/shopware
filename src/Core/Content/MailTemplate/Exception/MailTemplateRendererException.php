@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\MailTemplate\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class MailTemplateRendererException extends ShopwareHttpException
 {
     public function __construct(string $twigMessage)

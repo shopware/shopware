@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -26,6 +27,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class OrderTransactionCaptureDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'order_transaction_capture';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\Document;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Document\DocumentEntity;
@@ -23,6 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @deprecated tag:v6.5.0 - Will be removed, using DocumentRoute instead to load generated document blob
  */
+#[Package('customer-order')]
 class DocumentPageLoader
 {
     /**

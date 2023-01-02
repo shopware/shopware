@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package core
  * @template-covariant TKey
@@ -9,6 +10,7 @@ namespace Shopware\Core\Framework\Struct;
  *
  * @implements \ArrayAccess<string, mixed>
  */
+#[Package('core')]
 class ArrayStruct extends Struct implements \ArrayAccess
 {
     /**

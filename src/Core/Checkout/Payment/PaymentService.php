@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
+use Shopware\Core\Framework\Log\Package;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
@@ -34,6 +35,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PaymentService
 {
     private PaymentTransactionChainProcessor $paymentProcessor;

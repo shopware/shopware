@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Enqueue;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Enqueue\ConnectionFactoryFactoryInterface;
 use Interop\Queue\ConnectionFactory;
@@ -11,6 +12,7 @@ use Interop\Queue\ConnectionFactory;
  *
  * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we remove enqueue
  */
+#[Package('core')]
 class ConnectionFactoryFactory implements ConnectionFactoryFactoryInterface
 {
     /**

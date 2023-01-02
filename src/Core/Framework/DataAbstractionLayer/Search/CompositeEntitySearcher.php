@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Feature;
  * @deprecated tag:v6.5.0 - Will be removed, please also remove `shopware.composite_search.definition` service tag
  * @package core
  */
+#[Package('core')]
 class CompositeEntitySearcher
 {
     /**

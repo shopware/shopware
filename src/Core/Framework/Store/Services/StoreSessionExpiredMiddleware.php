@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *
  * @internal
  */
+#[Package('merchant-services')]
 class StoreSessionExpiredMiddleware implements MiddlewareInterface
 {
     private const STORE_TOKEN_EXPIRED = 'ShopwarePlatformException-1';

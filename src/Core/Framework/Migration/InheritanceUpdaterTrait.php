@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Migration;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 
 /**
  * @package core
  */
+#[Package('core')]
 trait InheritanceUpdaterTrait
 {
     protected function updateInheritance(Connection $connection, string $entity, string $propertyName): void

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Address\Detail;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
@@ -26,6 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class AddressDetailPageLoader
 {
     /**

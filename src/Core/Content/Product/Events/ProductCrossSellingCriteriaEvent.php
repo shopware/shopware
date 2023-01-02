@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Events;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -12,6 +13,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 abstract class ProductCrossSellingCriteriaEvent extends Event implements ShopwareSalesChannelEvent
 {
     /**

@@ -2,11 +2,13 @@
 
 namespace Shopware\Elasticsearch\Sort;
 
+use Shopware\Core\Framework\Log\Package;
 use ONGR\ElasticsearchDSL\Sort\FieldSort;
 
 /**
  * @package core
  */
+#[Package('core')]
 class CountSort extends FieldSort
 {
     /**

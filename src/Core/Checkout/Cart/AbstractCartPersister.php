@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -9,6 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 abstract class AbstractCartPersister implements CartPersisterInterface
 {
     abstract public function getDecorated(): AbstractCartPersister;

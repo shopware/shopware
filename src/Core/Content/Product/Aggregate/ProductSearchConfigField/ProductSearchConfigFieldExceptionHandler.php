@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Exception\DuplicateProductSearchConfigFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductSearchConfigFieldExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int

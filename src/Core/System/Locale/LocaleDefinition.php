@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Locale;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -22,6 +23,7 @@ use Shopware\Core\System\User\UserDefinition;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class LocaleDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'locale';

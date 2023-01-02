@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Struct\Struct;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @package core
  */
+#[Package('core')]
 class CheapestPrice extends Struct
 {
     /**

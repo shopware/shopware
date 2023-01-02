@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Checkout\Cart\Order\Transformer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class CustomerTransformer
 {
     public static function transformCollection(CustomerCollection $customers, bool $useIdAsKey = false): array

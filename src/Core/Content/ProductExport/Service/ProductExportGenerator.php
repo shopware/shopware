@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Monolog\Logger;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -35,6 +36,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductExportGenerator implements ProductExportGeneratorInterface
 {
     private ProductStreamBuilderInterface $productStreamBuilder;

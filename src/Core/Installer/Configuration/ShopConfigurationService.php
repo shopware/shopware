@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Installer\Configuration;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -18,6 +19,7 @@ use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
  *
  * @phpstan-import-type Shop from ShopConfigurationController
  */
+#[Package('core')]
 class ShopConfigurationService
 {
     /**

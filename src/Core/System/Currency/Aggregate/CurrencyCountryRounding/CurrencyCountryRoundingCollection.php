@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  *
  * @package inventory
  */
+#[Package('inventory')]
 class CurrencyCountryRoundingCollection extends EntityCollection
 {
     public function getApiAlias(): string

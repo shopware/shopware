@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Struct\Struct;
  * @final tag:v6.5.0
  * @package core
  */
+#[Package('core')]
 class Bucket extends Struct
 {
     /**

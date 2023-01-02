@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\Context;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -9,6 +10,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 abstract class DocumentOrderEvent extends Event
 {
     private OrderCollection $orders;

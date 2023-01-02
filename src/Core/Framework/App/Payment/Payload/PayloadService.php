@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Payment\Payload;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
@@ -26,6 +27,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 class PayloadService
 {
     protected Client $client;

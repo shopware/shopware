@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Compatibility\AnnotationReaderCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
@@ -45,6 +46,7 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
  *
  * @internal
  */
+#[Package('core')]
 class Framework extends Bundle
 {
     public function getTemplatePriority(): int

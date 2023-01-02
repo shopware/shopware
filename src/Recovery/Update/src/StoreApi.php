@@ -2,11 +2,13 @@
 
 namespace Shopware\Recovery\Update;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Recovery\Common\HttpClient\Client;
 
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class StoreApi
 {
     /**

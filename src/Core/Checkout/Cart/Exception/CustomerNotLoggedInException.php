@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Checkout\Cart\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class CustomerNotLoggedInException extends CartException
 {
     /**

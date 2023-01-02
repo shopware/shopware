@@ -2,11 +2,13 @@
 
 namespace Shopware\Recovery\Update;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * Changes the permissions defined in the given array.
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class FilePermissionChanger
 {
     /**

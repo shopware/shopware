@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PromotionCodeTuple
 {
     /**

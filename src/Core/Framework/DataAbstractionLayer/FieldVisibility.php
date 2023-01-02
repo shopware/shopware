@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package core
  *
  * @internal
  */
+#[Package('core')]
 class FieldVisibility
 {
     public static bool $isInTwigRenderingContext = false;

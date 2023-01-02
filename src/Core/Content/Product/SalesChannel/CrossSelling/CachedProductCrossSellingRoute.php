@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\CrossSelling;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Events\CrossSellingRouteCacheKeyEvent;
 use Shopware\Core\Content\Product\Events\CrossSellingRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
@@ -25,6 +26,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @package inventory
  */
+#[Package('inventory')]
 class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 {
     private AbstractProductCrossSellingRoute $decorated;

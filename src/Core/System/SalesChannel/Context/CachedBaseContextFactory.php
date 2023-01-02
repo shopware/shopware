@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\System\SalesChannel\BaseContext;
@@ -14,6 +15,7 @@ use Symfony\Contracts\Cache\ItemInterface;
  *
  * @internal
  */
+#[Package('core')]
 class CachedBaseContextFactory extends AbstractBaseContextFactory
 {
     private AbstractBaseContextFactory $decorated;

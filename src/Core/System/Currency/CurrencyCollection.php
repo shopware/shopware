@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\System\Currency;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @package core
  * @extends EntityCollection<CurrencyEntity>
  */
+#[Package('core')]
 class CurrencyCollection extends EntityCollection
 {
     public function getApiAlias(): string

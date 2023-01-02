@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Twig\Environment;
@@ -9,6 +10,7 @@ use Twig\Environment;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class ErrorTemplateResolver
 {
     /**

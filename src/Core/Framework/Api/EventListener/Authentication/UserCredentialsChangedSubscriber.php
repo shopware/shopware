@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\EventListener\Authentication;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
@@ -16,6 +17,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class UserCredentialsChangedSubscriber implements EventSubscriberInterface
 {
     private RefreshTokenRepository $refreshTokenRepository;

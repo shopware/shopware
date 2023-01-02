@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @final tag:v6.5.0
  * @package core
  */
+#[Package('core')]
 class XOrFilter extends MultiFilter
 {
     public function __construct(array $queries = [])

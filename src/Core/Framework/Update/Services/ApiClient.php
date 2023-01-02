@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Update\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Store\Services\OpenSSLVerifier;
@@ -14,6 +15,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 final class ApiClient
 {
     private const SHOPWARE_SIGNATURE_HEADER = 'x-shopware-signature';

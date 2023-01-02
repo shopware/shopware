@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -19,6 +20,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class CustomerGroupRegistrationDeclined extends Event implements SalesChannelAware, CustomerAware, MailAware, CustomerGroupAware
 {
     public const EVENT_NAME = 'customer.group.registration.declined';

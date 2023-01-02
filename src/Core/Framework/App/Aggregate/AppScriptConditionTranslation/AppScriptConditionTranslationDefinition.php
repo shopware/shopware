@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\AppScriptConditionTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package core
  */
+#[Package('core')]
 class AppScriptConditionTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'app_script_condition_translation';

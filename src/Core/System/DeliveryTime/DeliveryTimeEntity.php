@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\DeliveryTime;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -13,6 +14,7 @@ use Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation\Delivery
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class DeliveryTimeEntity extends Entity
 {
     use EntityIdTrait;

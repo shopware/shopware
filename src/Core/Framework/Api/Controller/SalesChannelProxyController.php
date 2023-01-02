@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\ApiOrderCartService;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -56,6 +57,7 @@ use Symfony\Component\Validator\Constraints\Type;
  * @Route(defaults={"_routeScope"={"api"}})
  * @package core
  */
+#[Package('core')]
 class SalesChannelProxyController extends AbstractController
 {
     private const CUSTOMER_ID = SalesChannelContextService::CUSTOMER_ID;

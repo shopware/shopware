@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Pathname\PathnameStrategy;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 
@@ -15,6 +16,7 @@ use Shopware\Core\Content\Media\MediaEntity;
  *   * If an empty string is returned, the data will be striped
  *   * You must not return leading or trailing slashes
  */
+#[Package('content')]
 interface PathnameStrategyInterface
 {
     public function getName(): string;

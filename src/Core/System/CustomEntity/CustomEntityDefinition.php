@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package core
  */
+#[Package('core')]
 class CustomEntityDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'custom_entity';

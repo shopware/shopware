@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity;
 use Shopware\Core\Framework\App\Cms\AbstractBlockTemplateLoader;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
  * @internal
  * @package core
  */
+#[Package('core')]
 class CmsBlockPersister
 {
     private EntityRepositoryInterface $cmsBlockRepository;

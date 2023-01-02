@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Update\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class UpdatePreFinishEvent extends UpdateEvent
 {
     /**

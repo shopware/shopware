@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Snippet;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Administration\Administration;
 use Shopware\Storefront\Storefront;
 use Symfony\Component\Finder\Finder;
@@ -9,6 +10,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class SnippetFileHandler
 {
     public function openJsonFile(string $path): array

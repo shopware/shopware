@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Product;
 
+use Shopware\Core\Framework\Log\Package;
 use Elasticsearch\Client;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
@@ -15,6 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('core')]
 class CustomFieldUpdater implements EventSubscriberInterface
 {
     private ElasticsearchOutdatedIndexDetector $indexDetector;

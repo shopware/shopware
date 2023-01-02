@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\TypeDetector;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaType\AudioType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
@@ -9,6 +10,7 @@ use Shopware\Core\Content\Media\MediaType\MediaType;
 /**
  * @package content
  */
+#[Package('content')]
 class AudioTypeDetector implements TypeDetectorInterface
 {
     protected const SUPPORTED_FILE_EXTENSIONS = [

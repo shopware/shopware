@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -14,6 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class CurrencyPriceCalculator
 {
     private QuantityPriceCalculator $priceCalculator;

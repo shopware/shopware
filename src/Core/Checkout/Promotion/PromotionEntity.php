@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Rule\LineItemGroupRule;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\Rule\Rule;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PromotionEntity extends Entity
 {
     use EntityIdTrait;

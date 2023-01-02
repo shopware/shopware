@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\Order;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
@@ -10,6 +11,7 @@ use Shopware\Storefront\Page\Page;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class AccountEditOrderPage extends Page
 {
     /**

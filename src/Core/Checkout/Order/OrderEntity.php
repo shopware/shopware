@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentCollection;
@@ -25,6 +26,7 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class OrderEntity extends Entity
 {
     use EntityIdTrait;

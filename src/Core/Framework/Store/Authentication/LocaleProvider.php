@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Authentication;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -15,6 +16,7 @@ use Shopware\Core\System\User\UserDefinition;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal
  */
+#[Package('merchant-services')]
 class LocaleProvider
 {
     private EntityRepositoryInterface $userRepository;

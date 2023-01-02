@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaCustomer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PromotionPersonaCustomerDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'promotion_persona_customer';

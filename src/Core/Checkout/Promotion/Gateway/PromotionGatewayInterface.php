@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Gateway;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -10,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 interface PromotionGatewayInterface
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Mapping;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class UpdateByCollection extends Collection
 {
     /**

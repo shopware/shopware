@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupRegistrationSalesChannel\CustomerGroupRegistrationSalesChannelDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -23,6 +24,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class CustomerGroupDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'customer_group';

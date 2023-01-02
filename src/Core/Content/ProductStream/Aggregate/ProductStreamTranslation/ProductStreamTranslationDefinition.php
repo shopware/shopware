@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class ProductStreamTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'product_stream_translation';

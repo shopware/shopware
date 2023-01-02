@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Events\ProductDetailRouteCacheKeyEvent;
 use Shopware\Core\Content\Product\Events\ProductDetailRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
@@ -25,6 +26,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @Route(defaults={"_routeScope"={"store-api"}})
  * @package inventory
  */
+#[Package('inventory')]
 class CachedProductReviewRoute extends AbstractProductReviewRoute
 {
     public const ALL_TAG = 'product-review-route';

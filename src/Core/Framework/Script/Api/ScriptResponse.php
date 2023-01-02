@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Exception\HookMethodException;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
@@ -10,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @package core
  */
+#[Package('core')]
 class ScriptResponse
 {
     private int $code;

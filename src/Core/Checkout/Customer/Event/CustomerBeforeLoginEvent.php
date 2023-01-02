@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Dispatching\Aware\EmailAware;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Framework\Context;
@@ -18,6 +19,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class CustomerBeforeLoginEvent extends Event implements BusinessEventInterface, SalesChannelAware, ShopwareSalesChannelEvent, MailAware, EmailAware
 {
     public const EVENT_NAME = 'checkout.customer.before.login';

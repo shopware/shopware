@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -10,6 +11,7 @@ use Shopware\Core\System\CustomField\CustomFieldEntity;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductSearchConfigFieldEntity extends Entity
 {
     use EntityIdTrait;

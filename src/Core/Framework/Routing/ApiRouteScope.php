@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package core
  */
+#[Package('core')]
 class ApiRouteScope extends AbstractRouteScope implements ApiContextRouteScopeDependant
 {
     public const ID = 'api';

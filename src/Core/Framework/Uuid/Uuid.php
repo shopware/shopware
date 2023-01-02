@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Uuid;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 
 /**
  * @package core
  */
+#[Package('core')]
 class Uuid
 {
     /**

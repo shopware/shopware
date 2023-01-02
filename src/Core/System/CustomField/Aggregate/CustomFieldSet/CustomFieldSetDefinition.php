@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomField\Aggregate\CustomFieldSet;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\App\AppDefinition;
@@ -26,6 +27,7 @@ use Shopware\Core\System\CustomField\CustomFieldDefinition;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class CustomFieldSetDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'custom_field_set';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentEntity;
@@ -35,6 +36,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @final
  */
+#[Package('customer-order')]
 class DocumentGenerator
 {
     private DocumentRendererRegistry $rendererRegistry;

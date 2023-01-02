@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineState;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureDefinition;
@@ -28,6 +29,7 @@ use Shopware\Core\System\StateMachine\StateMachineDefinition;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class StateMachineStateDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'state_machine_state';

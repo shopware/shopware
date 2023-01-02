@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Salutation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
@@ -15,6 +16,7 @@ use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTr
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class SalutationEntity extends Entity
 {
     use EntityIdTrait;

@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Validator\Constraint;
 
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 abstract class Rule extends Struct
 {
     public const OPERATOR_GTE = '>=';

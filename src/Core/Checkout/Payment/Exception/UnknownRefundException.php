@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class UnknownRefundException extends RefundProcessException
 {
     public function __construct(string $refundId, ?\Throwable $e = null)

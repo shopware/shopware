@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package content
  */
+#[Package('content')]
 class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
 {
     private EntityRepositoryInterface $cmsPageRepository;

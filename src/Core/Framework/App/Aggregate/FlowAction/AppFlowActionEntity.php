@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\FlowAction;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceCollection;
 use Shopware\Core\Framework\App\Aggregate\FlowActionTranslation\AppFlowActionTranslationCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 /**
  * @package core
  */
+#[Package('core')]
 class AppFlowActionEntity extends Entity
 {
     use EntityIdTrait;

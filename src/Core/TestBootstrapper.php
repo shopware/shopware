@@ -2,6 +2,7 @@
 
 namespace Shopware\Core;
 
+use Shopware\Core\Framework\Log\Package;
 use Composer\Autoload\ClassLoader;
 use DG\BypassFinals;
 use Doctrine\DBAL\Connection;
@@ -21,6 +22,7 @@ use function is_file;
 /**
  * @package core
  */
+#[Package('core')]
 class TestBootstrapper
 {
     private ?ClassLoader $classLoader = null;

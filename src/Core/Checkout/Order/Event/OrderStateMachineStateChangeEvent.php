@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
@@ -19,6 +20,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class OrderStateMachineStateChangeEvent extends Event implements SalesChannelAware, OrderAware, MailAware, CustomerAware
 {
     /**

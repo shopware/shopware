@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Elasticsearch\Client;
 use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing\FilterAggregation;
@@ -21,6 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class ElasticsearchEntitySearcher implements EntitySearcherInterface
 {
     public const MAX_LIMIT = 10000;

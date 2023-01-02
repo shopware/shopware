@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
@@ -14,6 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class AmountCalculator
 {
     private CashRounding $rounding;

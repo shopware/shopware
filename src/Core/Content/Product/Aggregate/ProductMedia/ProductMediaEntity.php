@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductMediaEntity extends Entity
 {
     use EntityIdTrait;

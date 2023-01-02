@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @deprecated tag:v6.5.0 - Use AbstractSnippetFile instead
  *
@@ -9,6 +10,7 @@ namespace Shopware\Core\System\Snippet\Files;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 interface SnippetFileInterface
 {
     /**

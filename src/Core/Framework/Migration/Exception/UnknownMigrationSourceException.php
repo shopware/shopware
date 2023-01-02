@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Migration\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -11,6 +12,7 @@ if (class_exists(HttpException::class)) {
     /**
      * @package core
      */
+    #[Package('core')]
     class UnknownMigrationSourceExceptionBase extends ShopwareHttpException
     {
         /**
@@ -44,6 +46,7 @@ if (class_exists(HttpException::class)) {
     /**
      * @package core
      */
+    #[Package('core')]
     class UnknownMigrationSourceExceptionBase extends \RuntimeException implements ShopwareException
     {
         /**
@@ -74,6 +77,7 @@ if (class_exists(HttpException::class)) {
 /**
  * @package core
  */
+#[Package('core')]
 class UnknownMigrationSourceException extends UnknownMigrationSourceExceptionBase
 {
 }

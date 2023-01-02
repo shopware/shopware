@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Psr\EventDispatcher\StoppableEventInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -19,6 +20,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @deprecated tag:v6.5.0 - reason:remove-decorator - Will be removed in v6.5.0, use FlowDispatcher instead.
  * @package business-ops
  */
+#[Package('business-ops')]
 class BusinessEventDispatcher implements EventDispatcherInterface
 {
     /**

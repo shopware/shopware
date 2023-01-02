@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\FileGenerator;
 
+use Shopware\Core\Framework\Log\Package;
 use Dompdf\Adapter\CPDF;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Feature;
  *
  * @deprecated tag:v6.5.0 - Will be removed, use PdfRenderer instead
  */
+#[Package('customer-order')]
 class PdfGenerator implements FileGeneratorInterface
 {
     public const FILE_EXTENSION = 'pdf';

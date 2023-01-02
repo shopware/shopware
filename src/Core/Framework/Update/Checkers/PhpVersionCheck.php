@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Update\Checkers;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Struct\ValidationResult;
 
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class PhpVersionCheck implements CheckerInterface
 {
     public function supports(string $check): bool

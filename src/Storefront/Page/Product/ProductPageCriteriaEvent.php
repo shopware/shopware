@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Product;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
@@ -11,6 +12,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class ProductPageCriteriaEvent extends Event implements ShopwareSalesChannelEvent
 {
     protected string $productId;

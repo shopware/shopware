@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Api\Sync;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 
 if (Feature::isActive('FEATURE_NEXT_15815')) {
     /**
      * @package core
      */
+    #[Package('core')]
     class SyncBehavior
     {
         protected ?string $indexingBehavior;
@@ -42,6 +44,7 @@ if (Feature::isActive('FEATURE_NEXT_15815')) {
     /**
      * @package core
      */
+    #[Package('core')]
     class SyncBehavior
     {
         protected bool $failOnError;

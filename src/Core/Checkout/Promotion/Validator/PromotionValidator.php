@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Checkout\Promotion\Validator;
 
+use Shopware\Core\Framework\Log\Package;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
@@ -21,6 +23,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  * @package checkout
  */
+#[Package('checkout')]
 class PromotionValidator implements EventSubscriberInterface
 {
     /**
@@ -136,7 +139,7 @@ class PromotionValidator implements EventSubscriberInterface
      * @param list<WriteCommand> $writeCommands
      *
      * @throws ResourceNotFoundException
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     private function collect(array $writeCommands): void
     {

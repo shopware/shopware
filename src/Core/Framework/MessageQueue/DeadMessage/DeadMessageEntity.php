@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\DeadMessage;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 /**
  * @package core
  */
+#[Package('core')]
 class DeadMessageEntity extends Entity
 {
     use EntityIdTrait;

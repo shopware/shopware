@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
  * @package business-ops
  * OrRule returns true, if at least one child rule is true
  */
+#[Package('business-ops')]
 class OrRule extends Container
 {
     public function match(RuleScope $scope): bool

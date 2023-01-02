@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class DocumentTypeTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'document_type_translation';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
+use Shopware\Core\Framework\Log\Package;
 use Elasticsearch\Client;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -11,6 +12,7 @@ use Shopware\Core\System\Language\LanguageCollection;
 /**
  * @package core
  */
+#[Package('core')]
 class ElasticsearchOutdatedIndexDetector
 {
     private Client $client;

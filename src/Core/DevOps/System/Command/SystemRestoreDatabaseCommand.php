@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\DevOps\System\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Symfony\Component\Console\Command\Command;
@@ -13,6 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @psalm-import-type Params from DriverManager
  * @psalm-import-type OverrideParams from DriverManager
  */
+#[Package('core')]
 class SystemRestoreDatabaseCommand extends Command
 {
     public static $defaultName = 'system:restore';

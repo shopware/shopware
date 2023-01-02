@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\System\NumberRange\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class NoConfigurationException extends ShopwareHttpException
 {
     public function __construct(string $entityName, ?string $salesChannelId = null)

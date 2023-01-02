@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Cms;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -16,6 +17,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @since 6.4.8.0
  */
+#[Package('content')]
 class CmsPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;

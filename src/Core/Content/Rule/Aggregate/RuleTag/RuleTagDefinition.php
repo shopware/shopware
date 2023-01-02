@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Rule\Aggregate\RuleTag;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -14,6 +15,7 @@ use Shopware\Core\System\Tag\TagDefinition;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class RuleTagDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'rule_tag';

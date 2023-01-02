@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
@@ -20,6 +21,7 @@ use Twig\Error\Error;
  *
  * @deprecated tag:v6.5.0 - Will be removed, use CreditNoteRenderer instead
  */
+#[Package('customer-order')]
 class CreditNoteGenerator implements DocumentGeneratorInterface
 {
     public const DEFAULT_TEMPLATE = '@Framework/documents/credit_note.html.twig';

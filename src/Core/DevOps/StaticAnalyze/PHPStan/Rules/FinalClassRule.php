@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
+use Shopware\Core\Framework\Log\Package;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
@@ -15,6 +16,7 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
  *
  * @internal
  */
+#[Package('core')]
 class FinalClassRule implements Rule
 {
     public function getNodeType(): string

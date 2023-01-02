@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Composer\IO\NullIO;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotAZipFileException;
@@ -25,6 +26,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @internal
  * @Route(defaults={"_routeScope"={"api"}, "_acl"={"system.plugin_maintain"}})
  */
+#[Package('merchant-services')]
 class ExtensionStoreActionsController extends AbstractController
 {
     private AbstractExtensionLifecycle $extensionLifecycleService;

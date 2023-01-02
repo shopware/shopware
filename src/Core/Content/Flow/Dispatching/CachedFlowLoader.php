@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\FlowEvents;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -14,6 +15,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @internal not intended for decoration or replacement
  */
+#[Package('business-ops')]
 class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInterface, ResetInterface
 {
     public const KEY = 'flow-loader';

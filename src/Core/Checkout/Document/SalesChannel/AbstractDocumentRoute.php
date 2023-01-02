@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
  * This route is used to get the generated document from a documentId
  * @package customer-order
  */
+#[Package('customer-order')]
 abstract class AbstractDocumentRoute
 {
     abstract public function getDecorated(): AbstractDocumentRoute;

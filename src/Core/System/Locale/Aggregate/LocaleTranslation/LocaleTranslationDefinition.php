@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Locale\Aggregate\LocaleTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -13,6 +14,7 @@ use Shopware\Core\System\Locale\LocaleDefinition;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class LocaleTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'locale_translation';

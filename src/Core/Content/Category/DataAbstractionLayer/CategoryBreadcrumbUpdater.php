@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
@@ -17,6 +18,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 /**
  * @package content
  */
+#[Package('content')]
 class CategoryBreadcrumbUpdater
 {
     private Connection $connection;

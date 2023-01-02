@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -15,6 +16,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class CountrySerializer extends EntitySerializer implements ResetInterface
 {
     private EntityRepositoryInterface $countryRepository;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class ProductStreamFilterEntity extends Entity
 {
     use EntityIdTrait;

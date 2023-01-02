@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Increment;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 
 /**
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundExceptio
  *
  * @internal - Used internally for Increment pattern
  */
+#[Package('core')]
 class IncrementGatewayRegistry
 {
     public const MESSAGE_QUEUE_POOL = 'message_queue';

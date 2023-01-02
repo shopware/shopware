@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
@@ -20,6 +21,7 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 /**
  * @package core
  */
+#[Package('core')]
 class PriceSerializer extends FieldSerializer
 {
     /**

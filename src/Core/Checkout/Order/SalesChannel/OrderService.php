@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
@@ -28,6 +29,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class OrderService
 {
     public const CUSTOMER_COMMENT_KEY = 'customerComment';

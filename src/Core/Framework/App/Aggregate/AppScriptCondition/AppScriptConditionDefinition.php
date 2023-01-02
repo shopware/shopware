@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\AppScriptCondition;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppScriptConditionTranslation\AppScriptConditionTranslationDefinition;
 use Shopware\Core\Framework\App\AppDefinition;
@@ -30,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package core
  */
+#[Package('core')]
 class AppScriptConditionDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'app_script_condition';

@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\MailTemplate\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class MailEventConfigurationException extends ShopwareHttpException
 {
     public function __construct(string $message, string $eventClass)

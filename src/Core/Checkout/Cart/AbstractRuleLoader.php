@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
 
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Context;
  *
  * @internal
  */
+#[Package('checkout')]
 abstract class AbstractRuleLoader
 {
     abstract public function getDecorated(): AbstractRuleLoader;

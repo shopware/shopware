@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 
 /**
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Context;
  *
  * @internal
  */
+#[Package('merchant-services')]
 abstract class AbstractStoreAppLifecycleService
 {
     abstract public function installExtension(string $technicalName, Context $context): void;

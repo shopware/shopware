@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package core
  */
+#[Package('core')]
 class CacheTagCollection
 {
     private array $keys = ['all' => true];

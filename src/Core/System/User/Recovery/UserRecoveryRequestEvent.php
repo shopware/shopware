@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User\Recovery;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ResetUrlAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
@@ -19,6 +20,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class UserRecoveryRequestEvent extends Event implements BusinessEventInterface, UserAware, MailAware, ResetUrlAware
 {
     public const EVENT_NAME = 'user.recovery.request';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
+use Shopware\Core\Framework\Log\Package;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
@@ -24,6 +25,7 @@ use Twig\Extension\DebugExtension;
 /**
  * @package core
  */
+#[Package('core')]
 class ScriptExecutor
 {
     public static bool $isInScriptExecutionContext = false;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -20,6 +21,7 @@ use Symfony\Component\Validator\Constraints\Type;
  *
  * @internal
  */
+#[Package('business-ops')]
 class FlowTemplateConfigFieldSerializer extends JsonFieldSerializer
 {
     public function encode(

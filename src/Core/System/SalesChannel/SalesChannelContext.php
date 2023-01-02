@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -24,6 +25,7 @@ use Shopware\Core\System\Tax\TaxCollection;
 /**
  * @package core
  */
+#[Package('core')]
 class SalesChannelContext extends Struct
 {
     use StateAwareTrait;

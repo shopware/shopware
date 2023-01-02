@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
@@ -40,6 +41,7 @@ use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class UserDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'user';

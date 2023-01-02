@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Test\CustomEntity;
 
+use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Schema;
@@ -987,7 +988,7 @@ class CustomEntityTest extends TestCase
 
         try {
             $container->get(Connection::class)->executeStatement('DELETE FROM custom_entity_blog');
-        } catch (Exception\TableNotFoundException $e) {
+        } catch (TableNotFoundException $e) {
         }
 
         $container->get(Connection::class)->executeStatement('DELETE FROM product');

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -12,6 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @package inventory
  */
+#[Package('inventory')]
 class SalesChannelProductBuilder extends AbstractSalesChannelProductBuilder
 {
     private AbstractPropertyGroupSorter $propertyGroupSorter;

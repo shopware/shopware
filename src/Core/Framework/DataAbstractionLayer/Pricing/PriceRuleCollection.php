@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Pricing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<PriceRuleEntity>
  * @package core
  */
+#[Package('core')]
 class PriceRuleCollection extends EntityCollection
 {
     public function getApiAlias(): string

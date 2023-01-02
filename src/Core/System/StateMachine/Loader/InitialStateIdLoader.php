@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\StateMachine\Loader;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Service\ResetInterface;
@@ -9,6 +10,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class InitialStateIdLoader implements ResetInterface
 {
     public const CACHE_KEY = 'state-machine-initial-state-ids';

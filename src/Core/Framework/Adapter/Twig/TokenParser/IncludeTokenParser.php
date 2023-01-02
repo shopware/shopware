@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Twig\Node\SwInclude;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Twig\Node\IncludeNode;
@@ -13,6 +14,7 @@ use Twig\TokenParser\AbstractTokenParser;
 /**
  * @package core
  */
+#[Package('core')]
 final class IncludeTokenParser extends AbstractTokenParser
 {
     /**

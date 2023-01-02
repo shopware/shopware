@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Exception\InvalidMediaUrlException;
 use Shopware\Core\Content\ImportExport\Exception\MediaDownloadException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
@@ -26,6 +27,7 @@ use Symfony\Contracts\Service\ResetInterface;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  * @package core
  */
+#[Package('core')]
 class MediaSerializer extends EntitySerializer implements EventSubscriberInterface, ResetInterface
 {
     private FileSaver $fileSaver;

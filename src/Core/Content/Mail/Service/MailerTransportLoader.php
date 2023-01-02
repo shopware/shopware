@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -15,6 +16,7 @@ use Symfony\Component\Mailer\Transport\TransportInterface;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class MailerTransportLoader
 {
     private Transport $envBasedTransport;

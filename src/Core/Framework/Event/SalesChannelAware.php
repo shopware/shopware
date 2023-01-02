@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 interface SalesChannelAware extends FlowEventAware
 {
     public function getSalesChannelId(): string;

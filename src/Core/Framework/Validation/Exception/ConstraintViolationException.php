@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Validation\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -10,6 +11,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @package core
  */
+#[Package('core')]
 class ConstraintViolationException extends ShopwareHttpException
 {
     /**

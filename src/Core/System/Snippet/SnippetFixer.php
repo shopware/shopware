@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\System\Snippet;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
 
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class SnippetFixer
 {
     /**

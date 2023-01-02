@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
 /**
  * @deprecated tag:v6.5.0 will be removed, use AbstractIncrementStorage instead
  * @package checkout
  */
+#[Package('checkout')]
 interface IncrementStorageInterface
 {
     /**

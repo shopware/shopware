@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\Aggregate\CategoryTag\CategoryTagDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
@@ -45,6 +46,7 @@ use Shopware\Core\System\Tag\TagDefinition;
 /**
  * @package content
  */
+#[Package('content')]
 class CategoryDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'category';

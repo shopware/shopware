@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\DevOps;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Bundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -12,6 +13,7 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
  *
  * @internal
  */
+#[Package('core')]
 class DevOps extends Bundle
 {
     /**

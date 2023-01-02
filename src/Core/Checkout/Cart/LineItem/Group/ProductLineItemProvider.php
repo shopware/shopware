@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class ProductLineItemProvider extends AbstractProductLineItemProvider
 {
     public function getDecorated(): AbstractProductLineItemProvider

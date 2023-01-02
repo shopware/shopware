@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -12,6 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class CustomerGroupEntity extends Entity
 {
     use EntityIdTrait;

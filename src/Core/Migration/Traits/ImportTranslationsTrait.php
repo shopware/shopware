@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\Traits;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package core
  */
+#[Package('core')]
 trait ImportTranslationsTrait
 {
     protected function importTranslation(string $table, Translations $translations, Connection $connection): TranslationWriteResult

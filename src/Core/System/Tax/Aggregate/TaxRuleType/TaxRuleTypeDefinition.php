@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Tax\Aggregate\TaxRuleType;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -21,6 +22,7 @@ use Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation\TaxRuleTypeTransla
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class TaxRuleTypeDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'tax_rule_type';

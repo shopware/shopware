@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductExport\Error\ErrorCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Validator\ValidatorInterface;
@@ -9,6 +10,7 @@ use Shopware\Core\Content\ProductExport\Validator\ValidatorInterface;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductExportValidator implements ProductExportValidatorInterface
 {
     /**

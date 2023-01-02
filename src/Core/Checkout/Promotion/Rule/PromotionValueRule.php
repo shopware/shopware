@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class PromotionValueRule extends FilterRule
 {
     protected float $amount;

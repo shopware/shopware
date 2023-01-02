@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
@@ -26,6 +27,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PaymentTransactionChainProcessor
 {
     private TokenFactoryInterfaceV2 $tokenFactory;

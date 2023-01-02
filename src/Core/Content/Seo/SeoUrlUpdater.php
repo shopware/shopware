@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Defaults;
@@ -18,6 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
  *
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SeoUrlUpdater
 {
     /**

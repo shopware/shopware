@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Suggest;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Events\ProductSuggestRouteCacheKeyEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
@@ -25,6 +26,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @package system-settings
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('system-settings')]
 class CachedProductSuggestRoute extends AbstractProductSuggestRoute
 {
     private const NAME = 'product-suggest-route';

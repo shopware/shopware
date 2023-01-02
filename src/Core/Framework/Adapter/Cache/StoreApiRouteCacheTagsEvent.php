@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
@@ -11,6 +12,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package core
  */
+#[Package('core')]
 class StoreApiRouteCacheTagsEvent extends Event
 {
     protected array $tags;

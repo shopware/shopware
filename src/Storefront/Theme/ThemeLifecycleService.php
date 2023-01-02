@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
 use Shopware\Core\Content\Media\File\FileNameProvider;
@@ -22,6 +23,7 @@ use function GuzzleHttp\Psr7\mimetype_from_filename;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class ThemeLifecycleService
 {
     private StorefrontPluginRegistryInterface $pluginRegistry;

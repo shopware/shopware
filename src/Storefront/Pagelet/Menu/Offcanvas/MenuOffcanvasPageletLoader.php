@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Menu\Offcanvas;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @Decoratable()
  */
+#[Package('storefront')]
 class MenuOffcanvasPageletLoader implements MenuOffcanvasPageletLoaderInterface
 {
     /**

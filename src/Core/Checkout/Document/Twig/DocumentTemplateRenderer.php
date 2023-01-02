@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\DocumentGenerator\Counter;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
@@ -20,6 +21,7 @@ use Twig\Error\SyntaxError;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class DocumentTemplateRenderer
 {
     private TemplateFinder $templateFinder;

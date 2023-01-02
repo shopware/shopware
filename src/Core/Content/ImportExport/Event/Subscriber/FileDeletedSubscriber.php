@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Event\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEvents;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
@@ -15,6 +16,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class FileDeletedSubscriber implements EventSubscriberInterface
 {
     private MessageBusInterface $messageBus;

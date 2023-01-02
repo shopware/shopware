@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Migration\V6_3;
 
+use Shopware\Core\Framework\Log\Package;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
@@ -13,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
  * @package core
  */
+#[Package('core')]
 class Migration1573569685DoubleOptInGuestMailTemplate extends MigrationStep
 {
     private const GERMAN_LANGUAGE_NAME = 'Deutsch';
@@ -46,7 +49,7 @@ class Migration1573569685DoubleOptInGuestMailTemplate extends MigrationStep
                 'SELECT id FROM `language` WHERE `name` = :languageName',
                 ['languageName' => $languageName]
             );
-        } catch (\Doctrine\DBAL\Exception $e) {
+        } catch (Exception $e) {
             return null;
         }
     }

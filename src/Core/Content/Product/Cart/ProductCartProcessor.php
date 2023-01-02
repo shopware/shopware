@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -32,6 +33,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {
     public const CUSTOM_PRICE = 'customPrice';

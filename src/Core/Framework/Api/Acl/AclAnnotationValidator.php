@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Acl;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  * @package core
  */
+#[Package('core')]
 class AclAnnotationValidator implements EventSubscriberInterface
 {
     private Connection $connection;

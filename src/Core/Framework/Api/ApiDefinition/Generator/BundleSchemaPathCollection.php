@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -10,6 +11,7 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  * @phpstan-import-type Api from DefinitionService
  * @package core
  */
+#[Package('core')]
 class BundleSchemaPathCollection
 {
     /**

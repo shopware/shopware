@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Maintenance\System\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
@@ -15,6 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @internal should be used over the CLI only
  */
+#[Package('core')]
 class SystemConfigureShopCommand extends Command
 {
     public static $defaultName = 'system:configure-shop';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Log\Monolog;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package core
  */
+#[Package('core')]
 class DoctrineSQLHandler extends AbstractProcessingHandler
 {
     /**

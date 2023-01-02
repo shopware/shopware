@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 
 /**
@@ -14,6 +15,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
  * @script-service cart_manipulation
  * @package checkout
  */
+#[Package('checkout')]
 class DiscountFacade
 {
     private LineItem $item;

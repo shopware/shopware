@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 
 /**
  * @final tag:v6.5.0
  * @package core
  */
+#[Package('core')]
 class InsertCommand extends WriteCommand
 {
     public function getPrivilege(): ?string

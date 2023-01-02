@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Tax;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -10,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class TaxCalculator
 {
     public function calculateGross(float $netPrice, TaxRuleCollection $rules): float

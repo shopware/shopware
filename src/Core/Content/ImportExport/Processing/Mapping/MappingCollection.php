@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Mapping;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class MappingCollection extends Collection
 {
     /**

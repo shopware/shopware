@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Language;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation\DocumentTypeTranslationDefinition;
@@ -78,6 +79,7 @@ use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinitio
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class LanguageDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'language';

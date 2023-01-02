@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
+use Shopware\Core\Framework\Log\Package;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
@@ -44,6 +45,7 @@ use Shopware\Core\Framework\Rule\TimeRangeRule;
  *
  * @package core
  */
+#[Package('core')]
 class RuleConditionHasRuleConfigRule implements Rule
 {
     /**

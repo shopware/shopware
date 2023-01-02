@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroupRule\PromotionSetGroupRuleDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PromotionSetGroupDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'promotion_setgroup';

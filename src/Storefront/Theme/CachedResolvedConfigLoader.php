@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -10,6 +11,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class CachedResolvedConfigLoader extends AbstractResolvedConfigLoader
 {
     private AbstractResolvedConfigLoader $decorated;

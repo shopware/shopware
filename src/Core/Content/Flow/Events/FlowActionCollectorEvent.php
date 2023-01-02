@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Events;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Api\FlowActionCollectorResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Event\NestedEvent;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class FlowActionCollectorEvent extends NestedEvent
 {
     private FlowActionCollectorResponse $flowActionCollectorResponse;

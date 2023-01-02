@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
@@ -23,6 +24,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExportFactory
 {
     private ImportExportService $importExportService;

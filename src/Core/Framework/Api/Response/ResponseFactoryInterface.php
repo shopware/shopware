@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Response;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @package core
  */
+#[Package('core')]
 interface ResponseFactoryInterface
 {
     public function supports(string $contentType, ContextSource $origin): bool;

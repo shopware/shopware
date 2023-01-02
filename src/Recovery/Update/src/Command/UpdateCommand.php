@@ -2,6 +2,8 @@
 
 namespace Shopware\Recovery\Update\Command;
 
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Recovery\Common\SystemLocker;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Shopware\Recovery\Common\IOHelper;
@@ -22,6 +24,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class UpdateCommand extends Command
 {
     /**
@@ -208,7 +211,7 @@ class UpdateCommand extends Command
 
     private function writeLockFile(): void
     {
-        /** @var \Shopware\Recovery\Common\SystemLocker $systemLocker */
+        /** @var SystemLocker $systemLocker */
         $systemLocker = $this->container->get('system.locker');
         $systemLocker();
     }

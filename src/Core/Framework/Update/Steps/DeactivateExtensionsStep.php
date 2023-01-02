@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Update\Steps;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
@@ -12,6 +13,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class DeactivateExtensionsStep
 {
     public const UPDATE_DEACTIVATED_PLUGINS = 'core.update.deactivatedPlugins';

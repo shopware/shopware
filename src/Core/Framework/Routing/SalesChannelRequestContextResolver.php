@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 /**
  * @package core
  */
+#[Package('core')]
 class SalesChannelRequestContextResolver implements RequestContextResolverInterface
 {
     use RouteScopeCheckTrait;

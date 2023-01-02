@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\System\Tax;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class TaxEvents
 {
     /**

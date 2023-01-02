@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -10,6 +11,7 @@ if (class_exists('Shopware\Storefront\Page\Product\Review\RatingMatrix')) {
      * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - will only extend from `Struct` in the future
      * @package inventory
      */
+    #[Package('inventory')]
     class RatingMatrix extends \Shopware\Storefront\Page\Product\Review\RatingMatrix
     {
         private const MAX_POINTS = 5;
@@ -98,6 +100,7 @@ if (class_exists('Shopware\Storefront\Page\Product\Review\RatingMatrix')) {
     /**
      * @package inventory
      */
+    #[Package('inventory')]
     class RatingMatrix extends Struct
     {
         private const MAX_POINTS = 5;

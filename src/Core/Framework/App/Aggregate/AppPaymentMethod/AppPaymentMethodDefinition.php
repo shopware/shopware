@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\AppPaymentMethod;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\App\AppDefinition;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 class AppPaymentMethodDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'app_payment_method';

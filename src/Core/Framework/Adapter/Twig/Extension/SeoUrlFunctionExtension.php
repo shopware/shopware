@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Twig\Extension\AbstractExtension;
@@ -10,6 +11,7 @@ use Twig\TwigFunction;
 /**
  * @package core
  */
+#[Package('core')]
 class SeoUrlFunctionExtension extends AbstractExtension
 {
     /**

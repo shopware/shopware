@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\Rector;
 
+use Shopware\Core\Framework\Log\Package;
 use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike;
@@ -13,6 +14,7 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 /**
  * @package core
  */
+#[Package('core')]
 class ClassPackageRector extends AbstractRector
 {
     private string $template = <<<'PHP'

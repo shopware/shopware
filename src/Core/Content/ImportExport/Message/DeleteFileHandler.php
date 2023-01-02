@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Message;
 
+use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class DeleteFileHandler extends AbstractMessageHandler
 {
     /**

@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\ProductExport\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductExportChangeEncodingEvent extends Event
 {
     public const NAME = 'product_export.change_encoding';

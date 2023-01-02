@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -17,6 +18,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SalesChannelIndexer extends EntityIndexer
 {
     public const MANY_TO_MANY_UPDATER = 'sales_channel.many-to-many';

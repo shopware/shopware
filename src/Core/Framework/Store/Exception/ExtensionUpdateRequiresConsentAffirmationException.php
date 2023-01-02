@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package merchant-services
  *
@@ -9,6 +10,7 @@ namespace Shopware\Core\Framework\Store\Exception;
  *
  * @internal
  */
+#[Package('merchant-services')]
 class ExtensionUpdateRequiresConsentAffirmationException extends ExtensionRequiresNewPrivilegesException
 {
     /**

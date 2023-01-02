@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Shipping\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -15,6 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('checkout')]
 class SortedShippingMethodRoute extends AbstractShippingMethodRoute
 {
     private AbstractShippingMethodRoute $decorated;

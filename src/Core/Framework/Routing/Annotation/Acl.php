@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing\Annotation;
 
+use Shopware\Core\Framework\Log\Package;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
 use Shopware\Core\Framework\Feature;
 
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Feature;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class Acl extends ConfigurationAnnotation
 {
     /**

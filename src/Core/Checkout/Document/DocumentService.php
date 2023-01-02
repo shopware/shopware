@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
@@ -38,6 +39,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @deprecated tag:v6.5.0 - Will be removed, use DocumentGenerator instead
  * @package customer-order
  */
+#[Package('customer-order')]
 class DocumentService
 {
     public const VERSION_NAME = 'document';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User\Aggregate\UserAccessKey;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -20,6 +21,7 @@ use Shopware\Core\System\User\UserDefinition;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class UserAccessKeyDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'user_access_key';

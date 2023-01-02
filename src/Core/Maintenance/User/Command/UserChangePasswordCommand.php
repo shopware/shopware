@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Maintenance\User\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -19,6 +20,7 @@ use Symfony\Component\Console\Question\Question;
  *
  * @internal should be used over the CLI only
  */
+#[Package('core')]
 class UserChangePasswordCommand extends Command
 {
     protected static $defaultName = 'user:change-password';

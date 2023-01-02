@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Schema;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -15,6 +16,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
  * @internal Used for custom entities
  * @package core
  */
+#[Package('core')]
 class DynamicMappingEntityDefinition extends MappingEntityDefinition
 {
     protected string $name;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Seo\Exception\InvalidTemplateException;
 use Shopware\Core\Content\Seo\Exception\NoEntitiesForPreviewException;
 use Shopware\Core\Content\Seo\Exception\SeoUrlRouteNotFoundException;
@@ -41,6 +42,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Package('sales-channel')]
 class SeoActionController extends AbstractController
 {
     private SeoUrlGenerator $seoUrlGenerator;

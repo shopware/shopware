@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRecipientIndexerEvent;
@@ -17,6 +18,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class NewsletterRecipientIndexer extends EntityIndexer
 {
     public const CUSTOMER_NEWSLETTER_SALES_CHANNELS_UPDATER = 'newsletter_recipients.customer-newsletter-sales-channels';

@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class SnippetFileCollectionFactory
 {
     private SnippetFileLoaderInterface $snippetFileLoader;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Sync;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -10,6 +11,7 @@ if (!Feature::isActive('FEATURE_NEXT_15815')) {
     /**
      * @package core
      */
+    #[Package('core')]
     class SyncResult extends Struct
     {
         /**
@@ -87,6 +89,7 @@ if (!Feature::isActive('FEATURE_NEXT_15815')) {
     /**
      * @package core
      */
+    #[Package('core')]
     class SyncResult extends Struct
     {
         protected array $data = [];

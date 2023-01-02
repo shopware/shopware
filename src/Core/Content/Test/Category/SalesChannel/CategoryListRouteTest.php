@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Category\SalesChannel;
 
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
@@ -26,7 +27,7 @@ class CategoryListRouteTest extends TestCase
     private $route;
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     * @var KernelBrowser
      */
     private $browser;
 

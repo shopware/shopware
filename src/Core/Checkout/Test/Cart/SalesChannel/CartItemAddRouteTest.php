@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\SalesChannel;
 
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
@@ -34,7 +36,7 @@ class CartItemAddRouteTest extends TestCase
     use PromotionTestFixtureBehaviour;
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     * @var KernelBrowser
      */
     private $browser;
 
@@ -44,7 +46,7 @@ class CartItemAddRouteTest extends TestCase
     private $ids;
 
     /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     * @var EntityRepository
      */
     private $productRepository;
 

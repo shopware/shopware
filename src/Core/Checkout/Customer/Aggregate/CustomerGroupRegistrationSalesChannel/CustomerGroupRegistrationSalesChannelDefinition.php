@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupRegistrationSalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -15,6 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class CustomerGroupRegistrationSalesChannelDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'customer_group_registration_sales_channels';

@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\App\FlowAction\Xml;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 
 /**
  * @internal
  * @package core
  */
+#[Package('core')]
 class Headers extends XmlElement
 {
     /**

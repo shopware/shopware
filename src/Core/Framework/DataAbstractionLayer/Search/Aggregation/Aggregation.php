@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Struct\Struct;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  * @package core
  */
+#[Package('core')]
 abstract class Aggregation extends Struct implements CriteriaPartInterface
 {
     /**

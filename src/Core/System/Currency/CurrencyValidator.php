@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Currency;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -16,6 +17,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('core')]
 class CurrencyValidator implements EventSubscriberInterface
 {
     public const VIOLATION_DELETE_DEFAULT_CURRENCY = 'delete_default_currency_violation';

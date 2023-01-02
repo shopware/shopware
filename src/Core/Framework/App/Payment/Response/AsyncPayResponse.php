@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Payment\Response;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
@@ -10,6 +11,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 class AsyncPayResponse extends AbstractResponse
 {
     /**

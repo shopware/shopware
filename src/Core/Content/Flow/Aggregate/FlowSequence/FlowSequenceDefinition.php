@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Aggregate\FlowSequence;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionDefinition;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class FlowSequenceDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'flow_sequence';

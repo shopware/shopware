@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Property\Aggregate\PropertyGroupOption;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingEntity;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class PropertyGroupOptionEntity extends Entity
 {
     use EntityIdTrait;

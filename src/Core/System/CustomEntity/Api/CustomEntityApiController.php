@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
@@ -17,6 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @Route(defaults={"_routeScope"={"api"}})
  * @package core
  */
+#[Package('core')]
 class CustomEntityApiController extends ApiController
 {
     /**

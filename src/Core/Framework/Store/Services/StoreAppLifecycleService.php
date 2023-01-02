@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirm
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - This class will be marked as "internal - only for use by the app-system"
  */
+#[Package('merchant-services')]
 class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 {
     private StoreClient $storeClient;

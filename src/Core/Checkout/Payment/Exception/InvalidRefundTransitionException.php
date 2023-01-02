@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class InvalidRefundTransitionException extends RefundProcessException
 {
     public function __construct(string $refundId, string $stateName, ?\Throwable $e = null)

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
@@ -10,6 +11,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
  *
  * @Decoratable
  */
+#[Package('storefront')]
 interface StorefrontPluginRegistryInterface
 {
     public function getConfigurations(): StorefrontPluginConfigurationCollection;

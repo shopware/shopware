@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterface
 {
     private const RELEVANT_KEYWORD_COUNT = 8;

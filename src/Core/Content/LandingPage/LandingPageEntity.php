@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\LandingPage;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
@@ -14,6 +15,7 @@ use Shopware\Core\System\Tag\TagCollection;
 /**
  * @package content
  */
+#[Package('content')]
 class LandingPageEntity extends Entity
 {
     use EntityIdTrait;

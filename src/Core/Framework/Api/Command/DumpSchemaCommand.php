@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Symfony\Component\Console\Command\Command;
@@ -14,6 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class DumpSchemaCommand extends Command
 {
     protected static $defaultName = 'framework:schema';

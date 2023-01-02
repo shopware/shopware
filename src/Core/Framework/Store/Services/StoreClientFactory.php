@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
@@ -12,6 +13,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal
  */
+#[Package('merchant-services')]
 class StoreClientFactory
 {
     private const CONFIG_KEY_STORE_API_URI = 'core.store.apiUri';

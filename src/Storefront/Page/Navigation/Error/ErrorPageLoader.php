@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Navigation\Error;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @Decoratable()
  */
+#[Package('storefront')]
 class ErrorPageLoader implements ErrorPageLoaderInterface
 {
     /**

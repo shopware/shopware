@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Field\AssociationField;
 use Shopware\Core\System\CustomEntity\Xml\Field\OneToManyField;
 
@@ -9,6 +10,7 @@ use Shopware\Core\System\CustomEntity\Xml\Field\OneToManyField;
  * @internal
  * @package core
  */
+#[Package('core')]
 class CustomEntityXmlSchemaValidator
 {
     public function validate(CustomEntityXmlSchema $schema): void

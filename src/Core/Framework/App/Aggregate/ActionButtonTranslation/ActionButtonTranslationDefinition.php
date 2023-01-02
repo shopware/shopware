@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  * @package core
  */
+#[Package('core')]
 class ActionButtonTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'app_action_button_translation';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\CustomFieldType;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\CustomFieldTypeFactory;
 
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\CustomFieldTypeFac
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 class RuleCondition extends XmlElement
 {
     public const TRANSLATABLE_FIELDS = ['name'];

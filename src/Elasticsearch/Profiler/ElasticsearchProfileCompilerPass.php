@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Profiler;
 
+use Shopware\Core\Framework\Log\Package;
 use Elasticsearch\Client;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -11,6 +12,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @package core
  */
+#[Package('core')]
 class ElasticsearchProfileCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

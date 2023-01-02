@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\DeadMessage;
 
+use Shopware\Core\Framework\Log\Package;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -19,6 +20,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class RequeueDeadMessagesService
 {
     private const MAX_RETRIES = 3;

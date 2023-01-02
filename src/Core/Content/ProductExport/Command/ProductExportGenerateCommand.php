@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Defaults;
@@ -17,6 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductExportGenerateCommand extends Command
 {
     public static $defaultName = 'product-export:generate';

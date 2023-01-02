@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
+use Shopware\Core\Framework\Log\Package;
 use OpenApi\Annotations\OpenApi;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
@@ -21,6 +22,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
  * @phpstan-import-type OpenApiSpec from DefinitionService
  * @package core
  */
+#[Package('core')]
 class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 {
     public const FORMAT = 'openapi-3';

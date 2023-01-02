@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemInterface;
@@ -39,6 +40,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExport
 {
     private const PART_FILE_SUFFIX = '.offset_';

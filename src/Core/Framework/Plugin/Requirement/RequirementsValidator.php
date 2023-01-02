@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Requirement;
 
+use Shopware\Core\Framework\Log\Package;
 use Composer\Composer;
 use Composer\Package\Link;
 use Composer\Package\PackageInterface;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 /**
  * @package core
  */
+#[Package('core')]
 class RequirementsValidator
 {
     private EntityRepositoryInterface $pluginRepo;

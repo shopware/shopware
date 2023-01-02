@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Checkout\Offcanvas;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Storefront\Page\Page;
@@ -9,6 +10,7 @@ use Shopware\Storefront\Page\Page;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class OffcanvasCartPage extends Page
 {
     /**

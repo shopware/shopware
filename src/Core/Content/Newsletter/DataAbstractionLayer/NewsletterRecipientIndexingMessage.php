@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\Newsletter\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class NewsletterRecipientIndexingMessage extends EntityIndexingMessage
 {
     private bool $deletedNewsletterRecipients = false;

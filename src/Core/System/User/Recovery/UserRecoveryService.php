@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User\Recovery;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
@@ -22,6 +23,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class UserRecoveryService
 {
     /**

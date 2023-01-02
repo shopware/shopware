@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -76,6 +77,7 @@ use Shopware\Core\System\Unit\UnitDefinition;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product';

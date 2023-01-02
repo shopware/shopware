@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Product;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection;
@@ -14,6 +15,7 @@ use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class ProductPage extends Page
 {
     /**

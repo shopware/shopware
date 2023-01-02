@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -18,6 +19,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - MessageHandler will be internal and final starting with v6.5.0.0
  * @package inventory
  */
+#[Package('inventory')]
 class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 {
     /**

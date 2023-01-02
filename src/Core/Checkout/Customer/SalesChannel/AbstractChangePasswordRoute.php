@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
@@ -12,6 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * The required fields are: "password", "newPassword" and "newPasswordConfirm"
  * @package customer-order
  */
+#[Package('customer-order')]
 abstract class AbstractChangePasswordRoute
 {
     abstract public function getDecorated(): AbstractChangePasswordRoute;

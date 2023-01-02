@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Header;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\TreeItem;
@@ -24,6 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @Decoratable()
  */
+#[Package('storefront')]
 class HeaderPageletLoader implements HeaderPageletLoaderInterface
 {
     private EventDispatcherInterface $eventDispatcher;

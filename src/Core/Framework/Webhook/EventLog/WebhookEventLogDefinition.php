@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook\EventLog;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package core
  */
+#[Package('core')]
 class WebhookEventLogDefinition extends EntityDefinition
 {
     public const STATUS_QUEUED = 'queued';

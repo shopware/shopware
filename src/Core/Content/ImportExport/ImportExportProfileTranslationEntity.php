@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\ImportExport;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExportProfileTranslationEntity extends TranslationEntity
 {
     /**

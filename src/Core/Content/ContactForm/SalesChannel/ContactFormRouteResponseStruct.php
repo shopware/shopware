@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\ContactForm\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @package content
  */
+#[Package('content')]
 class ContactFormRouteResponseStruct extends Struct
 {
     /**

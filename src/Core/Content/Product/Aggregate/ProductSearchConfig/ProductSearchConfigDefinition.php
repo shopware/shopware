@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductSearchConfig;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -21,6 +22,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductSearchConfigDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_search_config';

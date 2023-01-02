@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Cache;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 
@@ -10,6 +11,7 @@ use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
  *
  * @extends AbstractCacheTracer<mixed|null>
  */
+#[Package('storefront')]
 class CacheTracer extends AbstractCacheTracer
 {
     /**

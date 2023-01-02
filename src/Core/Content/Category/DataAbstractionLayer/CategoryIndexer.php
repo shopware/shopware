@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
@@ -22,6 +23,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package content
  */
+#[Package('content')]
 class CategoryIndexer extends EntityIndexer
 {
     public const CHILD_COUNT_UPDATER = 'category.child-count';

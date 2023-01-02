@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\Cms;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\HttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @package content
  */
+#[Package('content')]
 class CmsException extends HttpException
 {
     public const DELETION_OF_DEFAULT_CODE = 'CONTENT__DELETION_DEFAULT_CMS_PAGE';

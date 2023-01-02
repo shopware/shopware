@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderAddress;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -26,6 +27,7 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class OrderAddressDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'order_address';

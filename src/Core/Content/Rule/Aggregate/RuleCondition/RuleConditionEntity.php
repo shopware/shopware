@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Rule\Aggregate\RuleCondition;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class RuleConditionEntity extends Entity
 {
     use EntityIdTrait;

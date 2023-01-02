@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -15,6 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SalesChannelTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'sales_channel_translation';

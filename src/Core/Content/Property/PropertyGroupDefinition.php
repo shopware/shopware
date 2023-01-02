@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Property;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class PropertyGroupDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'property_group';

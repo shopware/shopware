@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  * @package core
  */
+#[Package('core')]
 interface EntityWriteGatewayInterface
 {
     public function prefetchExistences(WriteParameterBag $parameterBag): void;

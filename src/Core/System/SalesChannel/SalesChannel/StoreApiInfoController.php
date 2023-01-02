@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -19,6 +20,7 @@ use Twig\Environment;
  *
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class StoreApiInfoController
 {
     protected DefinitionService $definitionService;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -9,6 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package core
  */
+#[Package('core')]
 class SalesChannelContextRestoredEvent extends NestedEvent
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Migration;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package core
  */
+#[Package('core')]
 class IndexerQueuer
 {
     public const INDEXER_KEY = 'core.scheduled_indexers';

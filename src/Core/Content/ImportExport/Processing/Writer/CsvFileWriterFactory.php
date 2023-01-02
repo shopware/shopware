@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Writer;
 
+use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class CsvFileWriterFactory extends AbstractWriterFactory
 {
     /**

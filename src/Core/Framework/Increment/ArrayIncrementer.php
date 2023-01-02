@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Increment;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @package core
  */
+#[Package('core')]
 class ArrayIncrementer extends AbstractIncrementer
 {
     private array $logs = [];

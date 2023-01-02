@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\System\Snippet\Filter;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 abstract class AbstractFilter
 {
     abstract public function getName(): string;

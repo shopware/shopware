@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -20,6 +21,7 @@ use Symfony\Component\Validator\Constraints\Type;
  *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('checkout')]
 class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
 {
     /**

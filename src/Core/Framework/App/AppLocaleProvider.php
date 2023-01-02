@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -14,6 +15,7 @@ use Shopware\Core\System\User\UserDefinition;
 /**
  * @package core
  */
+#[Package('core')]
 class AppLocaleProvider
 {
     private EntityRepositoryInterface $userRepository;

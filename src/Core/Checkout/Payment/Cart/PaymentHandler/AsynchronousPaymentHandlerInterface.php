@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 interface AsynchronousPaymentHandlerInterface extends PaymentHandlerInterface
 {
     /**

@@ -2,6 +2,8 @@
 
 namespace Shopware\Storefront\Page\Product\Review;
 
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
@@ -22,6 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class ProductReviewLoader
 {
     private const LIMIT = 10;
@@ -54,7 +57,7 @@ class ProductReviewLoader
      * otherwise MissingRequestParameterException is thrown
      *
      * @throws MissingRequestParameterException
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
+     * @throws InconsistentCriteriaIdsException
      */
     public function load(Request $request, SalesChannelContext $context): ReviewLoaderResult
     {
@@ -124,7 +127,7 @@ class ProductReviewLoader
      * a customer should only create one review per product, so if there are more than one
      * review we only take one
      *
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
+     * @throws InconsistentCriteriaIdsException
      */
     private function getCustomerReview(string $productId, SalesChannelContext $context): ?ProductReviewEntity
     {

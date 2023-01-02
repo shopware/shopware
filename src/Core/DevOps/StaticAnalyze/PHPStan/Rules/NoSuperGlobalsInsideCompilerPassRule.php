@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
+use Shopware\Core\Framework\Log\Package;
+use PhpParser\Node\Expr\Variable;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PHPStan\Analyser\Scope;
@@ -16,6 +18,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
  *
  * @implements Rule<ArrayDimFetch>
  */
+#[Package('core')]
 class NoSuperGlobalsInsideCompilerPassRule implements Rule
 {
     public function getNodeType(): string
@@ -40,7 +43,7 @@ class NoSuperGlobalsInsideCompilerPassRule implements Rule
             return [];
         }
 
-        if (!$node->var instanceof Node\Expr\Variable) {
+        if (!$node->var instanceof Variable) {
             return [];
         }
 

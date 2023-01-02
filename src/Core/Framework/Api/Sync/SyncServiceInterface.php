@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Sync;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\ConnectionException;
 use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Context;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Context;
 /**
  * @package core
  */
+#[Package('core')]
 interface SyncServiceInterface
 {
     /**

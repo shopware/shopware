@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Installer\License;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 use Shopware\Core\Installer\Subscriber\InstallerLocaleListener;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @internal
  */
+#[Package('core')]
 class LicenseFetcher
 {
     private Client $guzzle;

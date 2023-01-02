@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<BusinessEventDefinition>
  * @package business-ops
  */
+#[Package('business-ops')]
 class BusinessEventCollectorResponse extends Collection
 {
     protected function getExpectedClass(): ?string

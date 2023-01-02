@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\FieldSerializer\FlowTemplateConfigFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
  *
  * @internal
  */
+#[Package('business-ops')]
 class FlowTemplateConfigField extends JsonField
 {
     public function __construct(string $storageName, string $propertyName)

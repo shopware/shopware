@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomField\Aggregate\CustomFieldSet;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -12,6 +13,7 @@ use Shopware\Core\System\CustomField\CustomFieldCollection;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class CustomFieldSetEntity extends Entity
 {
     use EntityIdTrait;

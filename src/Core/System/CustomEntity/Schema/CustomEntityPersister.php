@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Schema;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  * @package core
  */
+#[Package('core')]
 class CustomEntityPersister
 {
     private Connection $connection;

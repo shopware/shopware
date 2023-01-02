@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException;
@@ -11,6 +12,7 @@ use Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class SnippetFileCollection extends Collection
 {
     /**

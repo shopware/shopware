@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Cache\Annotation;
 
+use Shopware\Core\Framework\Log\Package;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
 use Shopware\Core\Framework\Script\Api\ResponseCacheConfiguration;
 
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Script\Api\ResponseCacheConfiguration;
  *
  * @Annotation
  */
+#[Package('storefront')]
 class HttpCache extends ConfigurationAnnotation
 {
     public const ALIAS = 'httpCache';

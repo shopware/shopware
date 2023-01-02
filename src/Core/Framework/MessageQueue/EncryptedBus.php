@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue;
 
+use Shopware\Core\Framework\Log\Package;
 use League\OAuth2\Server\CryptKey;
 use Shopware\Core\Framework\MessageQueue\Message\EncryptedMessage;
 use Symfony\Component\Messenger\Envelope;
@@ -12,6 +13,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  *
  * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we remove queue encryption
  */
+#[Package('core')]
 class EncryptedBus implements MessageBusInterface
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Acl;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\Event\CommandAclValidationEvent;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -20,6 +21,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class AclWriteValidator implements EventSubscriberInterface
 {
     private EventDispatcherInterface $eventDispatcher;

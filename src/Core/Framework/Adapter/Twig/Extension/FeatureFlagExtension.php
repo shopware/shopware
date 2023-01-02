@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\FeatureFlagCallTokenParser;
 use Shopware\Core\Framework\Feature;
 use Twig\Extension\AbstractExtension;
@@ -10,6 +11,7 @@ use Twig\TwigFunction;
 /**
  * @package core
  */
+#[Package('core')]
 class FeatureFlagExtension extends AbstractExtension
 {
     /**

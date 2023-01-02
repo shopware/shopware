@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaTag;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -15,6 +16,7 @@ use Shopware\Core\System\Tag\TagDefinition;
 /**
  * @package content
  */
+#[Package('content')]
 class MediaTagDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'media_tag';

@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\System\Locale\Aggregate\LocaleTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<LocaleTranslationEntity>
  * @package system-settings
  */
+#[Package('system-settings')]
 class LocaleTranslationCollection extends EntityCollection
 {
     public function getLocaleIds(): array

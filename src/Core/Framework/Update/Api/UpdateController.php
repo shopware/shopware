@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Update\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
@@ -48,6 +49,7 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class UpdateController extends AbstractController
 {
     public const UPDATE_TOKEN_KEY = 'core.update.token';

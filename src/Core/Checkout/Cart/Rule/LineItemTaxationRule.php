@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
@@ -15,6 +16,7 @@ use Shopware\Core\System\Tax\TaxDefinition;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class LineItemTaxationRule extends Rule
 {
     /**

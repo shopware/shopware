@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItemFactoryHandler;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\InsufficientPermissionException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -15,6 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class CustomLineItemFactory implements LineItemFactoryInterface
 {
     /**

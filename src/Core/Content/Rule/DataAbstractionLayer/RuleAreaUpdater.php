@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CachedRuleLoader;
 use Shopware\Core\Content\Rule\RuleDefinition;
@@ -33,6 +34,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @internal
  */
+#[Package('business-ops')]
 class RuleAreaUpdater implements EventSubscriberInterface
 {
     private Connection $connection;

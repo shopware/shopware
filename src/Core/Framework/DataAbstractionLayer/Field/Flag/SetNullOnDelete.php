@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * In case the referenced association data will be deleted, the related data will be set to null and an Written event will be thrown
  * @package core
  */
+#[Package('core')]
 class SetNullOnDelete extends Flag
 {
     private bool $enforcedByConstraint;

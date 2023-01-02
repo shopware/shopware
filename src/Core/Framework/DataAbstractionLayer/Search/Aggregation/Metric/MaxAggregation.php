@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 
 /**
  * @final tag:v6.5.0
  * @package core
  */
+#[Package('core')]
 class MaxAggregation extends Aggregation
 {
 }

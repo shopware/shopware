@@ -2,11 +2,13 @@
 
 namespace Shopware\Storefront\Pagelet;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\Tree\Tree;
 
 /**
  * @package storefront
  */
+#[Package('storefront')]
 abstract class NavigationPagelet extends Pagelet
 {
     /**

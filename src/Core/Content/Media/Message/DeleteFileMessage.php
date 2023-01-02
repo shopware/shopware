@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\Media\Message;
 
+use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\AdapterInterface;
 
 /**
  * @package content
  */
+#[Package('content')]
 class DeleteFileMessage
 {
     private array $files;

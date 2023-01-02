@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Tax\Aggregate\TaxRule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Country\CountryEntity;
@@ -11,6 +12,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class TaxRuleEntity extends Entity
 {
     use EntityIdTrait;

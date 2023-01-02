@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\PlatformRequest;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class ThemeAssetPackage extends FallbackUrlPackage
 {
     private RequestStack $requestStack;

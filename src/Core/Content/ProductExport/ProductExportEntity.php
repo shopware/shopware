@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -12,6 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductExportEntity extends Entity
 {
     use EntityIdTrait;

@@ -2,12 +2,14 @@
 
 namespace Shopware\Storefront\Page\Navigation\Error;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Storefront\Page\Page;
 
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class ErrorPage extends Page
 {
     /**

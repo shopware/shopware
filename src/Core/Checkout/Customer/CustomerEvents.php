@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\Customer;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class CustomerEvents
 {
     /**

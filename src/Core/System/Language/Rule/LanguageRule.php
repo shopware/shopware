@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Language\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -14,6 +15,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class LanguageRule extends Rule
 {
     /**

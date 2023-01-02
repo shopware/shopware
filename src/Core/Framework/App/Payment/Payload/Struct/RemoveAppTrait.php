@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\App\Payment\Payload\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 
 /**
  * @package core
  */
+#[Package('core')]
 trait RemoveAppTrait
 {
     private function removeApp(OrderTransactionEntity $orderTransaction): OrderTransactionEntity

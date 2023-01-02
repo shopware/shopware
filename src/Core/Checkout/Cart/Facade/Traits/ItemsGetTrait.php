@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade\Traits;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
 use Shopware\Core\Checkout\Cart\Facade\ContainerFacade;
 use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
@@ -12,6 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 trait ItemsGetTrait
 {
     private LineItemCollection $items;

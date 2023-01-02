@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 
 /**
  * @package core
  */
+#[Package('core')]
 trait ExtendableTrait
 {
     /**

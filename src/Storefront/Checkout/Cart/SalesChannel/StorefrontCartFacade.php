@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Checkout\Cart\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
@@ -21,6 +22,7 @@ use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class StorefrontCartFacade
 {
     private CartService $cartService;

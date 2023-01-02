@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\TypeDetector;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaType\AudioType;
 use Shopware\Core\Content\Media\MediaType\BinaryType;
@@ -12,6 +13,7 @@ use Shopware\Core\Content\Media\MediaType\VideoType;
 /**
  * @package content
  */
+#[Package('content')]
 class DefaultTypeDetector implements TypeDetectorInterface
 {
     public function detect(MediaFile $mediaFile, ?MediaType $previouslyDetectedType): ?MediaType

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart;
 
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterSorterNotFoundException;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
@@ -51,6 +53,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * Cart Promotion Calculator
  */
+#[Package('checkout')]
 class PromotionCalculator
 {
     use PromotionCartInformationTrait;
@@ -266,7 +269,7 @@ class PromotionCalculator
      * the provided discount line item.
      *
      * @throws DiscountCalculatorNotFoundException
-     * @throws Discount\Filter\Exception\FilterSorterNotFoundException
+     * @throws FilterSorterNotFoundException
      * @throws InvalidPriceDefinitionException
      * @throws InvalidScopeDefinitionException
      * @throws InvalidQuantityException

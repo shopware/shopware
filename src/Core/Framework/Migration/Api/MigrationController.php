@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Migration\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
@@ -18,6 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @deprecated tag:v6.5.0 - Will be removed, migrations should be executed over the CLI instead
  * @package core
  */
+#[Package('core')]
 class MigrationController extends AbstractController
 {
     /**

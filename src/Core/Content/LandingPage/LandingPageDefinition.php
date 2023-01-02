@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\LandingPage;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageSalesChannel\LandingPageSalesChannelDefinition;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageTag\LandingPageTagDefinition;
@@ -30,6 +31,7 @@ use Shopware\Core\System\Tag\TagDefinition;
 /**
  * @package content
  */
+#[Package('content')]
 class LandingPageDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'landing_page';

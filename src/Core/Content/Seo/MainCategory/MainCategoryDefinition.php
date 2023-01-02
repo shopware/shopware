@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\MainCategory;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -18,6 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class MainCategoryDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'main_category';

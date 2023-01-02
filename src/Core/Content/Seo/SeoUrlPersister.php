@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
 use Shopware\Core\Defaults;
@@ -18,6 +19,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SeoUrlPersister
 {
     private Connection $connection;

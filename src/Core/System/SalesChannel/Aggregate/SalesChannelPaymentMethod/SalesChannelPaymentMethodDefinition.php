@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -14,6 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SalesChannelPaymentMethodDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'sales_channel_payment_method';

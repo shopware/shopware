@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
@@ -21,6 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class IntegrationController extends AbstractController
 {
     /**

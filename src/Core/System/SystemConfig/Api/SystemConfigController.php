@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SystemConfig\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -20,6 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class SystemConfigController extends AbstractController
 {
     /**

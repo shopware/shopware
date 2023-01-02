@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContactForm\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -27,6 +28,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @package content
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('content')]
 class ContactFormRoute extends AbstractContactFormRoute
 {
     private DataValidationFactoryInterface $contactFormValidationFactory;

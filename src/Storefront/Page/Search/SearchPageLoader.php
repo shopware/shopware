@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Search;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class SearchPageLoader
 {
     /**

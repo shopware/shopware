@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\Cms\Type;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -68,7 +69,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
     private array $randomProductIds;
 
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|SystemConfigService
+     * @var MockObject|SystemConfigService
      */
     private $systemConfig;
 

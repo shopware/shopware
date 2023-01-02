@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
@@ -13,6 +14,7 @@ use Twig\TwigFunction;
 /**
  * @package core
  */
+#[Package('core')]
 class CategoryUrlExtension extends AbstractExtension
 {
     /**

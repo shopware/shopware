@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
@@ -29,6 +30,7 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @package content
  */
+#[Package('content')]
 class MediaEntity extends Entity
 {
     use EntityIdTrait;

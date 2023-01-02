@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientResult;
 use Shopware\Core\Framework\Context;
@@ -22,7 +23,7 @@ class AccountNewsletterRecipientRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    private \Symfony\Bundle\FrameworkBundle\KernelBrowser $browser;
+    private KernelBrowser $browser;
 
     private TestDataCollection $ids;
 

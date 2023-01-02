@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionCartRule\PromotionCartRuleDefinition;
@@ -38,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PromotionDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'promotion';

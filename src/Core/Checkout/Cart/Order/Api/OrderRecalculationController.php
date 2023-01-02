@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Order\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
@@ -25,6 +26,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Package('checkout')]
 class OrderRecalculationController extends AbstractController
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
@@ -29,6 +30,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - Will be removed in v6.5.0 Use SendMailAction instead
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class MailSendSubscriber implements EventSubscriberInterface
 {
     public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;

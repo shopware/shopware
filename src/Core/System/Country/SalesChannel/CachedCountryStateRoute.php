@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Country\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -24,6 +25,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class CachedCountryStateRoute extends AbstractCountryStateRoute
 {
     public const ALL_TAG = 'country-state-route';

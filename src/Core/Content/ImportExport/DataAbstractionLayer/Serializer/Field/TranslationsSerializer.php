@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -16,6 +17,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 /**
  * @package core
  */
+#[Package('core')]
 class TranslationsSerializer extends FieldSerializer
 {
     /**

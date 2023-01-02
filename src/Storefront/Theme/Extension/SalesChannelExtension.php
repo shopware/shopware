@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Extension;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -12,6 +13,7 @@ use Shopware\Storefront\Theme\ThemeDefinition;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class SalesChannelExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void

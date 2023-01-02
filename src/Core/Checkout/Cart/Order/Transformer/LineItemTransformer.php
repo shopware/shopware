@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Order\Transformer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class LineItemTransformer
 {
     public static function transformCollection(LineItemCollection $lineItems, ?string $parentId = null): array

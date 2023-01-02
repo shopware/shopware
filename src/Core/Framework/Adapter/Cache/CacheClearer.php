@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Shopware\Core\Framework\Log\Package;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
@@ -19,6 +20,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-final - will be final starting with v6.5.0.0 and won't extend AbstractMessageHandler anymore
  */
+#[Package('core')]
 class CacheClearer extends AbstractMessageHandler
 {
     /**

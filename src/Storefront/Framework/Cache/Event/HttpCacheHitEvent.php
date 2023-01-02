@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Cache\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Psr\Cache\CacheItemInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,6 +11,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class HttpCacheHitEvent extends Event
 {
     /**

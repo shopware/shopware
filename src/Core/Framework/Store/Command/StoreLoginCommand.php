@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -25,6 +26,7 @@ use Symfony\Component\Console\Question\Question;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal
  */
+#[Package('merchant-services')]
 class StoreLoginCommand extends Command
 {
     public static $defaultName = 'store:login';

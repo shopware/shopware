@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
+use Shopware\Core\Framework\Log\Package;
+use PhpParser\Node\Stmt\Return_;
+use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
@@ -17,6 +20,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
  */
+#[Package('core')]
 class ScheduledTaskTooLowIntervalRule implements Rule
 {
     private const EXCEPTION_CLASSES = [
@@ -53,7 +57,7 @@ class ScheduledTaskTooLowIntervalRule implements Rule
         }
 
         foreach ($node->stmts ?? [] as $stmt) {
-            if ($stmt instanceof Node\Stmt\Return_ && $stmt->expr instanceof Node\Scalar\LNumber) {
+            if ($stmt instanceof Return_ && $stmt->expr instanceof LNumber) {
                 $interval = (int) $stmt->expr->value;
 
                 if ($interval < self::MIN_SCHEDULED_TASK_INTERVAL) {

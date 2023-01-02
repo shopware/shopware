@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\System\SalesChannel\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SalesChannelIndexerEvent extends NestedEvent
 {
     /**

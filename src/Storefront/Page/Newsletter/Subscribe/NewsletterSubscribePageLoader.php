@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Newsletter\Subscribe;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class NewsletterSubscribePageLoader
 {
     /**

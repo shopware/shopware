@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Product;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchPhrasePrefixQuery;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @package core
  * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: int}
  */
+#[Package('core')]
 class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 {
     private const NOT_SUPPORTED_FIELDS = [

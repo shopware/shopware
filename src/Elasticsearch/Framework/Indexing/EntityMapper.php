@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -45,6 +46,7 @@ use Shopware\Core\Framework\Feature;
  *
  * @deprecated tag:v6.5.0 - Will be removed, create your mapping by own instead
  */
+#[Package('core')]
 class EntityMapper
 {
     public const PRICE_FIELD = [

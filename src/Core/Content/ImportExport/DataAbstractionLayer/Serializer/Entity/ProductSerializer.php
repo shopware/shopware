@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package core
  */
+#[Package('core')]
 class ProductSerializer extends EntitySerializer
 {
     public const VISIBILITY_MAPPING = [

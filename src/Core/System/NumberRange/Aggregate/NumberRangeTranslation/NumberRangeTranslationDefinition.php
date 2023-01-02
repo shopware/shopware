@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -12,6 +13,7 @@ use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class NumberRangeTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'number_range_translation';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Event\EventAction;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -24,6 +25,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  * @deprecated tag:v6.5.0 - reason:remove-entity - Will be removed in v6.5.0.
  * @package business-ops
  */
+#[Package('business-ops')]
 class EventActionDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'event_action';

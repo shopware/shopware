@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition;
 use Shopware\Core\Checkout\Promotion\Event\PromotionIndexerEvent;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
@@ -18,6 +19,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PromotionIndexer extends EntityIndexer
 {
     public const EXCLUSION_UPDATER = 'promotion.exclusion';

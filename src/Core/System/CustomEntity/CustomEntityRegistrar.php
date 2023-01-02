@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -19,6 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @internal
  */
+#[Package('core')]
 class CustomEntityRegistrar
 {
     private ContainerInterface $container;

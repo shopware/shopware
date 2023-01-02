@@ -2,11 +2,13 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 
 /**
  * @package core
  */
+#[Package('core')]
 class ElasticsearchIndexingMessage
 {
     private IndexingDto $data;

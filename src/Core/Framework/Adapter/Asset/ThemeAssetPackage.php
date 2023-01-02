@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * @deprecated tag:v6.5.0 use
  * @see \Shopware\Storefront\Theme\ThemeAssetPackage instead
  */
+#[Package('core')]
 class ThemeAssetPackage extends FallbackUrlPackage
 {
     private RequestStack $requestStack;

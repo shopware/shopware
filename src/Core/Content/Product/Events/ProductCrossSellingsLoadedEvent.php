@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Events;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
@@ -11,6 +12,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductCrossSellingsLoadedEvent extends Event implements ShopwareSalesChannelEvent
 {
     /**

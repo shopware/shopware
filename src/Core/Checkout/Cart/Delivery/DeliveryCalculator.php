@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
@@ -27,6 +28,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class DeliveryCalculator
 {
     public const CALCULATION_BY_LINE_ITEM_COUNT = 1;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -9,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
  * This route is used to cancel a order
  * @package customer-order
  */
+#[Package('customer-order')]
 abstract class AbstractCancelOrderRoute
 {
     abstract public function getDecorated(): AbstractCancelOrderRoute;

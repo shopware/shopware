@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 final class OrderTransactionCaptureStates
 {
     public const STATE_MACHINE = 'order_transaction_capture.state';

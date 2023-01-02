@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi;
 
+use Shopware\Core\Framework\Log\Package;
 use OpenApi\Annotations\Property;
 use OpenApi\Annotations\Schema;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
@@ -39,6 +40,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package core
  */
+#[Package('core')]
 class OpenApiDefinitionSchemaBuilder
 {
     /**

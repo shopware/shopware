@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Product;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package core
  */
+#[Package('core')]
 class ProductSearchBuilder implements ProductSearchBuilderInterface
 {
     private ProductSearchBuilderInterface $decorated;

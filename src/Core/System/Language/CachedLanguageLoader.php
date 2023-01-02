@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Language;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -12,6 +13,7 @@ use Symfony\Contracts\Cache\CacheInterface;
  *
  * @phpstan-import-type LanguageData from LanguageLoaderInterface
  */
+#[Package('core')]
 class CachedLanguageLoader implements LanguageLoaderInterface, EventSubscriberInterface
 {
     private const CACHE_KEY = 'shopware.languages';

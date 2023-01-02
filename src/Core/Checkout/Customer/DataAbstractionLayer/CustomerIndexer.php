@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerIndexerEvent;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
@@ -18,6 +19,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class CustomerIndexer extends EntityIndexer
 {
     public const MANY_TO_MANY_ID_FIELD_UPDATER = 'customer.many-to-many-id-field';

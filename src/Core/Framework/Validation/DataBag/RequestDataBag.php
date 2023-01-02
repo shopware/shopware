@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Validation\DataBag;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package core
  */
+#[Package('core')]
 class RequestDataBag extends DataBag
 {
 }

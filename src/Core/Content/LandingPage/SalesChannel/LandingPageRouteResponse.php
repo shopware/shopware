@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\LandingPage\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
  * @package content
  */
+#[Package('content')]
 class LandingPageRouteResponse extends StoreApiResponse
 {
     /**

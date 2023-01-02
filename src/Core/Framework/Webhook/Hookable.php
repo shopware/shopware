@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 /**
  * @package core
  */
+#[Package('core')]
 interface Hookable
 {
     public const HOOKABLE_EVENTS = [

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Shipping;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
@@ -18,6 +19,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class ShippingMethodEntity extends Entity
 {
     use EntityIdTrait;

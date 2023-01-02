@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
@@ -21,6 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  * @package core
  */
+#[Package('core')]
 class RefreshAppCommand extends Command
 {
     protected static $defaultName = 'app:refresh';

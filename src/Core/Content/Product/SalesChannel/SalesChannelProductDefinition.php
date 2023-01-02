@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
@@ -26,6 +27,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class SalesChannelProductDefinition extends ProductDefinition implements SalesChannelDefinitionInterface
 {
     public function getEntityClass(): string

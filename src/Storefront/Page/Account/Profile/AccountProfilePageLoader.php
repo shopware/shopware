@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\Profile;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class AccountProfilePageLoader
 {
     /**

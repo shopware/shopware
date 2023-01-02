@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Facade;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Script\Execution\Script;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal
  * @package core
  */
+#[Package('core')]
 class RepositoryFacadeHookFactory extends HookServiceFactory
 {
     private DefinitionInstanceRegistry $registry;

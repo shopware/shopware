@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class CustomerNewsletterSalesChannelsUpdater
 {
     private Connection $connection;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\WishlistMergedEvent;
@@ -28,6 +29,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @Route(defaults={"_routeScope"={"store-api"}})
  * @package customer-order
  */
+#[Package('customer-order')]
 class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 {
     private EntityRepositoryInterface $wishlistRepository;

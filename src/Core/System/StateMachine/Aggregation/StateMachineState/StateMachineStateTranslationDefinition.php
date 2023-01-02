@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineState;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class StateMachineStateTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'state_machine_state_translation';

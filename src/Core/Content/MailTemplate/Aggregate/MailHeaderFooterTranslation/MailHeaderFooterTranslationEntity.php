@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class MailHeaderFooterTranslationEntity extends TranslationEntity
 {
     /**

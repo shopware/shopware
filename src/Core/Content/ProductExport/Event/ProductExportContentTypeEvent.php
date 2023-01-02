@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\ProductExport\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductExportContentTypeEvent extends Event
 {
     private string $fileFormat;

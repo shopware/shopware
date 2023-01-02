@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 use Twig\Node\Expression\AssignNameExpression;
@@ -14,6 +15,7 @@ use Twig\Node\Node;
 /**
  * @package core
  */
+#[Package('core')]
 class TwigVariableParser
 {
     private Environment $twig;

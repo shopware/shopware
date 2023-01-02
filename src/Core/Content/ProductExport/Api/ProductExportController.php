@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Monolog\Logger;
 use Shopware\Core\Content\ProductExport\Error\Error;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
@@ -29,6 +30,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @Route(defaults={"_routeScope"={"api"}})
  * @package inventory
  */
+#[Package('inventory')]
 class ProductExportController extends AbstractController
 {
     private EntityRepositoryInterface $salesChannelDomainRepository;

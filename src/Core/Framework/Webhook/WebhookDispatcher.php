@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
@@ -36,6 +37,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class WebhookDispatcher implements EventDispatcherInterface
 {
     private EventDispatcherInterface $dispatcher;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Schema;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -15,6 +16,7 @@ use Symfony\Component\Lock\LockFactory;
  * @phpstan-import-type CustomEntityField from SchemaUpdater
  * @package core
  */
+#[Package('core')]
 class CustomEntitySchemaUpdater
 {
     private const COMMENT = 'custom-entity-element';

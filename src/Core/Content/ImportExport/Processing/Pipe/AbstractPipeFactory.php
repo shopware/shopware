@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Pipe;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 abstract class AbstractPipeFactory
 {
     abstract public function create(ImportExportLogEntity $logEntity): AbstractPipe;

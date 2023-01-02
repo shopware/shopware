@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @package content
  * @extends EntityCollection<LandingPageTranslationEntity>
  */
+#[Package('content')]
 class LandingPageTranslationCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

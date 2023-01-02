@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Message;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will only implement MessageHandlerInterface and all MessageHandler will be internal and final starting with v6.5.0.0
  */
+#[Package('content')]
 class GenerateThumbnailsHandler extends AbstractMessageHandler
 {
     private ThumbnailService $thumbnailService;

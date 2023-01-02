@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -11,6 +12,7 @@ use Symfony\Contracts\Cache\ItemInterface;
  *
  * @phpstan-import-type Domain from AbstractDomainLoader
  */
+#[Package('storefront')]
 class CachedDomainLoader extends AbstractDomainLoader
 {
     public const CACHE_KEY = 'routing-domains';

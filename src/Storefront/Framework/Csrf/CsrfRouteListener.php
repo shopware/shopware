@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Csrf;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
@@ -23,6 +24,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be removed
  */
+#[Package('storefront')]
 class CsrfRouteListener implements EventSubscriberInterface, ResetInterface
 {
     /**

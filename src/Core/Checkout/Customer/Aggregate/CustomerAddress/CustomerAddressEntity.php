@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
@@ -13,6 +14,7 @@ use Shopware\Core\System\Salutation\SalutationEntity;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class CustomerAddressEntity extends Entity
 {
     use EntityIdTrait;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -10,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @extends EntityCollection<PaymentMethodEntity>
  */
+#[Package('checkout')]
 class PaymentMethodCollection extends EntityCollection
 {
     public function filterByActiveRules(SalesChannelContext $salesChannelContext): PaymentMethodCollection

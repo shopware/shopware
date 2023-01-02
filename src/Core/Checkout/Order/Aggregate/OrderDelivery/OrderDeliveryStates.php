@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 final class OrderDeliveryStates
 {
     public const STATE_MACHINE = 'order_delivery.state';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Content\Rule\RuleEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
@@ -17,6 +18,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('business-ops')]
 class RulePayloadSubscriber implements EventSubscriberInterface
 {
     private RulePayloadUpdater $updater;

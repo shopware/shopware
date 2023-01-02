@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Product;
 
+use Shopware\Core\Framework\Log\Package;
 use Elasticsearch\Client;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -18,6 +19,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  *
  * When an language is created, we need to trigger an indexing for that
  */
+#[Package('core')]
 class LanguageSubscriber implements EventSubscriberInterface
 {
     private ElasticsearchHelper $elasticsearchHelper;

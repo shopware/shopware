@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Profiling\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -20,6 +21,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @internal
  */
+#[Package('core')]
 class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implements EventSubscriberInterface, ResetInterface
 {
     private EntityRepositoryInterface $ruleRepository;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -40,6 +41,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class CreateHydratorCommand extends Command
 {
     protected static $defaultName = 'dal:create:hydrators';

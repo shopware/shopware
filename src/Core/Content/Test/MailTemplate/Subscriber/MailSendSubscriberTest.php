@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\MailTemplate\Subscriber;
 
+use Symfony\Component\Mime\Email;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -369,7 +370,7 @@ class TestEmailService extends EMailService
     {
     }
 
-    public function send(array $data, Context $context, array $templateData = []): ?\Symfony\Component\Mime\Email
+    public function send(array $data, Context $context, array $templateData = []): ?Email
     {
         $this->data = $data;
         ++$this->calls;

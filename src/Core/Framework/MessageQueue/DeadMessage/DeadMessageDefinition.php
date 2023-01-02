@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\DeadMessage;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 /**
  * @package core
  */
+#[Package('core')]
 class DeadMessageDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'dead_message';

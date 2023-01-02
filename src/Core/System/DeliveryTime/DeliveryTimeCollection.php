@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\DeliveryTime;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  *
  * @extends EntityCollection<DeliveryTimeEntity>
  */
+#[Package('customer-order')]
 class DeliveryTimeCollection extends EntityCollection
 {
     public function getApiAlias(): string

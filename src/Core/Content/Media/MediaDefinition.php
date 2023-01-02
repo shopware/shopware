@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
@@ -55,6 +56,7 @@ use Shopware\Core\System\User\UserDefinition;
 /**
  * @package content
  */
+#[Package('content')]
 class MediaDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'media';

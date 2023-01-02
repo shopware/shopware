@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Log\Monolog;
 
+use Shopware\Core\Framework\Log\Package;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\HandlerInterface;
 
 /**
  * @package core
  */
+#[Package('core')]
 class ExcludeExceptionHandler extends AbstractHandler
 {
     private HandlerInterface $handler;

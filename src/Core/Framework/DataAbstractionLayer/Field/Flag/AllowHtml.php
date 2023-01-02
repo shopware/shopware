@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 
 /*
@@ -11,6 +12,7 @@ if (Feature::isActive('FEATURE_NEXT_15172')) {
     /**
      * @package core
      */
+    #[Package('core')]
     class AllowHtml extends Flag
     {
         /**
@@ -37,6 +39,7 @@ if (Feature::isActive('FEATURE_NEXT_15172')) {
     /**
      * @package core
      */
+    #[Package('core')]
     class AllowHtml extends Flag
     {
         /**

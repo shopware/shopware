@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Country\Aggregate\CountryState;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -13,6 +14,7 @@ use Shopware\Core\System\Country\CountryEntity;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class CountryStateEntity extends Entity
 {
     use EntityIdTrait;

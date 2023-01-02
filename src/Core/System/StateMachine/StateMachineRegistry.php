@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\StateMachine;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -31,6 +32,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class StateMachineRegistry
 {
     private EntityRepositoryInterface $stateMachineRepository;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Content\MailTemplate\Service\Event\AttachmentLoaderCriteriaEvent;
@@ -15,6 +16,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @internal (flag: FEATURE_NEXT_7530)
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class AttachmentLoader
 {
     private EntityRepositoryInterface $documentRepository;

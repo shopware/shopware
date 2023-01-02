@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Feature;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Feature;
  * @deprecated tag:v6.5.0 - Will be removed
  * @package core
  */
+#[Package('core')]
 class IndexTableOperator
 {
     /**

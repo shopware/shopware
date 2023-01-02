@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -28,6 +29,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @package content
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('content')]
 class NavigationRoute extends AbstractNavigationRoute
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Manifest;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  * @package core
  */
+#[Package('core')]
 class ModuleLoader
 {
     private EntityRepositoryInterface $appRepository;

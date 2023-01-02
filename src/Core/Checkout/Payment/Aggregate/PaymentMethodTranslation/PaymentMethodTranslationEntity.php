@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PaymentMethodTranslationEntity extends TranslationEntity
 {
     use EntityIdTrait;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Installer\Requirements;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Requirements\Struct\PathCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
@@ -11,6 +12,7 @@ use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
  *
  * @internal
  */
+#[Package('core')]
 class FilesystemRequirementsValidator implements RequirementsValidatorInterface
 {
     private const NEEDED_PATHS = [

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\Feature;
  * @internal
  * @package core
  */
+#[Package('core')]
 class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
 {
     /**

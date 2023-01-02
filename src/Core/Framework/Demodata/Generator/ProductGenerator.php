@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -26,6 +27,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @package inventory
  */
+#[Package('inventory')]
 class ProductGenerator implements DemodataGeneratorInterface
 {
     private Connection $connection;

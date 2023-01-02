@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bridge\Twig\AppVariable;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -15,6 +16,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *
  * To allow custom server parameters,
  */
+#[Package('core')]
 class TwigAppVariable extends AppVariable
 {
     private ?Request $request = null;

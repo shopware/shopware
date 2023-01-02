@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Composer\IO\ConsoleIO;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
@@ -19,6 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class PluginZipImportCommand extends Command
 {
     protected static $defaultName = 'plugin:zip-import';

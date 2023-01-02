@@ -2,12 +2,14 @@
 
 namespace Shopware\Storefront\Page\Checkout\Finish;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Storefront\Page\Page;
 
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class CheckoutFinishPage extends Page
 {
     /**

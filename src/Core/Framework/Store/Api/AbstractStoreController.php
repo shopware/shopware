@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
@@ -21,6 +22,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
  *
  * @deprecated tag:v6.5.0 - Will be removed. Use AbstractStoreRequestOptionsProvider provide store token.
  */
+#[Package('merchant-services')]
 abstract class AbstractStoreController extends AbstractController
 {
     /**

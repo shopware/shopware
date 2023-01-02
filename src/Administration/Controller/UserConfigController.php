@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -28,6 +29,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class UserConfigController extends AbstractController
 {
     private EntityRepositoryInterface $userConfigRepository;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Changelog;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<ChangelogFile>
  */
+#[Package('core')]
 class ChangelogFileCollection extends Collection
 {
     protected function getExpectedClass(): ?string

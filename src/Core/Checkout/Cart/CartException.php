@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class CartException extends HttpException
 {
     public const DESERIALIZE_FAILED_CODE = 'CHECKOUT__CART_DESERIALIZE_FAILED';

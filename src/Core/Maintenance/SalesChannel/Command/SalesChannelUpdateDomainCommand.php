@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Maintenance\SalesChannel\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,6 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class SalesChannelUpdateDomainCommand extends Command
 {
     public static $defaultName = 'sales-channel:update:domain';

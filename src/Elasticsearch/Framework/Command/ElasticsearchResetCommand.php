@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
@@ -16,6 +17,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @package core
  */
+#[Package('core')]
 class ElasticsearchResetCommand extends Command
 {
     protected static $defaultName = 'es:reset';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Product\QuickView;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class MinimalQuickViewPageLoader
 {
     /**

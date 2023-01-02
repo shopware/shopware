@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User\Aggregate\UserAccessKey;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -11,6 +12,7 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class UserAccessKeyEntity extends Entity
 {
     use EntityIdTrait;

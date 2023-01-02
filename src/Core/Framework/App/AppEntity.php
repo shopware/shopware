@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
@@ -23,6 +24,7 @@ use Shopware\Core\System\Integration\IntegrationEntity;
  *
  * @internal
  */
+#[Package('core')]
 class AppEntity extends Entity
 {
     use EntityIdTrait;

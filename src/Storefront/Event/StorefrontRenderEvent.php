@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class StorefrontRenderEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**

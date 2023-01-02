@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -20,6 +21,7 @@ use Shopware\Storefront\Theme\ThemeAppLifecycleHandler;
  * apps in the current installation will be uninstalled without informing them about that (as they still run on the old installation)
  * @package core
  */
+#[Package('core')]
 class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
 {
     public const STRATEGY_NAME = 'uninstall-apps';

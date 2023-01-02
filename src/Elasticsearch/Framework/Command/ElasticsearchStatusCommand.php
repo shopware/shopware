@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use Shopware\Core\Defaults;
@@ -17,6 +18,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @package core
  */
+#[Package('core')]
 class ElasticsearchStatusCommand extends Command
 {
     use ConsoleProgressTrait;

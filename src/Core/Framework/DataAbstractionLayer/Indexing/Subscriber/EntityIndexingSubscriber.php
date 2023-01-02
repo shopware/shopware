@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -10,6 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @internal
  * @package core
  */
+#[Package('core')]
 class EntityIndexingSubscriber implements EventSubscriberInterface
 {
     private EntityIndexerRegistry $indexerRegistry;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\OAuth;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\UnencryptedToken;
@@ -14,6 +15,7 @@ use Shopware\Core\PlatformRequest;
 /**
  * @package core
  */
+#[Package('core')]
 class BearerTokenValidator implements AuthorizationValidatorInterface
 {
     private Connection $connection;

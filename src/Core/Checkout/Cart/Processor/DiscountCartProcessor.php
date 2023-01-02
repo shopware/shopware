@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Processor;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -22,6 +23,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class DiscountCartProcessor implements CartProcessorInterface
 {
     private PercentagePriceCalculator $percentageCalculator;

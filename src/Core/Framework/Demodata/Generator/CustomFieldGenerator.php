@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -16,6 +17,7 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
  * @package core
  */
+#[Package('core')]
 class CustomFieldGenerator implements DemodataGeneratorInterface
 {
     private EntityRepositoryInterface $attributeSetRepository;

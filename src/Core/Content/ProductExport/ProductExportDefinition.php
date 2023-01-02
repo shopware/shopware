@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -23,6 +24,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductExportDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_export';

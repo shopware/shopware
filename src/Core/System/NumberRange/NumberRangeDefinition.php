@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\NumberRange;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -25,6 +26,7 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeDe
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class NumberRangeDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'number_range';

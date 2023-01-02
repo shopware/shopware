@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Serializer;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
@@ -10,6 +11,7 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 /**
  * @package core
  */
+#[Package('core')]
 class JsonApiDecoder implements DecoderInterface
 {
     public const FORMAT = 'jsonapi';

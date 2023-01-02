@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Currency;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
@@ -19,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class CurrencyEntity extends Entity
 {
     use EntityIdTrait;

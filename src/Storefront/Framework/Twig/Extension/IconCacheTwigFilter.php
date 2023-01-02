@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Twig\Extension;
 
+use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -9,6 +10,7 @@ use Twig\TwigFunction;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class IconCacheTwigFilter extends AbstractExtension
 {
     protected static bool $enabled = false;

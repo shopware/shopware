@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @deprecated tag:v6.5.0 - Will be removed. Use \Shopware\Core\Checkout\Cart\CartException::missingAssociation instead
  */
+#[Package('checkout')]
 class MissingOrderRelationException extends ShopwareHttpException
 {
     public function __construct(string $relation)

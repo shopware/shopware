@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\Entity\Serializer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Seo\Entity\Field\SeoUrlAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SeoUrlFieldSerializer extends OneToManyAssociationFieldSerializer
 {
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator

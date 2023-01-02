@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Manifest;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Manifest\Xml\Admin;
 use Shopware\Core\Framework\App\Manifest\Xml\AllowedHosts;
 use Shopware\Core\Framework\App\Manifest\Xml\Cookies;
@@ -22,6 +23,7 @@ use Symfony\Component\Config\Util\XmlUtils;
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  * @package core
  */
+#[Package('core')]
 class Manifest
 {
     private const XSD_FILE = __DIR__ . '/Schema/manifest-2.0.xsd';

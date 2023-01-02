@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Faker\Factory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -15,6 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package content
  */
+#[Package('content')]
 class CreatePageCommand extends Command
 {
     protected static $defaultName = 'cms:page:create';

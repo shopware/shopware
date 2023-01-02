@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal
  * @package core
  */
+#[Package('core')]
 abstract class Hook
 {
     protected Context $context;

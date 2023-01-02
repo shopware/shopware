@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class PropertyGroupTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'property_group_translation';

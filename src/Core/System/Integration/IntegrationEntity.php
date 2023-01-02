@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Integration;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class IntegrationEntity extends Entity
 {
     use EntityIdTrait;

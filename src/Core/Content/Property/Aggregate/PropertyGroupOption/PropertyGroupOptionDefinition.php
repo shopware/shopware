@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Property\Aggregate\PropertyGroupOption;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductOption\ProductOptionDefinition;
@@ -30,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class PropertyGroupOptionDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'property_group_option';

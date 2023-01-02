@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -14,6 +15,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 {
     private ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry;

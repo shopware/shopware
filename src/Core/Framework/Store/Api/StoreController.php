@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -36,6 +37,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @internal
  * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Package('merchant-services')]
 class StoreController extends AbstractController
 {
     private StoreClient $storeClient;

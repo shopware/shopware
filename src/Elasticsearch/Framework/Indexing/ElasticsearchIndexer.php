@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -33,6 +34,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will only implement MessageHandlerInterface and all MessageHandler will be internal and final starting with v6.5.0.0
  */
+#[Package('core')]
 class ElasticsearchIndexer extends AbstractMessageHandler
 {
     private Connection $connection;

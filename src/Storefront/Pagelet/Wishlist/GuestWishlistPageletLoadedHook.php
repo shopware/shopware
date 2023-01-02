@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Wishlist;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedHook;
@@ -15,6 +16,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @since 6.4.8.0
  */
+#[Package('storefront')]
 class GuestWishlistPageletLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;

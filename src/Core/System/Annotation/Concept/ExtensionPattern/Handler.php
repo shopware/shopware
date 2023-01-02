@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Annotation\Concept\ExtensionPattern;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @Annotation
  * @Target("CLASS")
@@ -18,6 +19,7 @@ namespace Shopware\Core\System\Annotation\Concept\ExtensionPattern;
  * The composite is usually the class tagged with this annotation, the handlers can quickly be found by checking all the implementations of the HandlerInterface.
  * @package core
  */
+#[Package('core')]
 class Handler
 {
     public function __construct(array $info)

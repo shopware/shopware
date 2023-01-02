@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -13,6 +14,7 @@ use Shopware\Core\System\Unit\UnitDefinition;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class UnitTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'unit_translation';

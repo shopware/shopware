@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountRule\PromotionDiscountRuleDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PromotionDiscountDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'promotion_discount';

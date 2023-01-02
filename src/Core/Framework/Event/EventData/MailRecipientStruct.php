@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class MailRecipientStruct
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Language;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -21,6 +22,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('core')]
 class TranslationValidator implements EventSubscriberInterface
 {
     public const VIOLATION_DELETE_SYSTEM_TRANSLATION = 'delete-system-translation-violation';

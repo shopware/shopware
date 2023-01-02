@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Tag;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class TagEntity extends Entity
 {
     use EntityIdTrait;

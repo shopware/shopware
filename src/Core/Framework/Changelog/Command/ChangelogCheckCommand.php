@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Changelog\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Changelog\Processor\ChangelogValidator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,6 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
  * @package core
  */
+#[Package('core')]
 class ChangelogCheckCommand extends Command
 {
     protected static $defaultName = 'changelog:check';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -26,6 +27,7 @@ use Symfony\Component\Validator\Constraints\Type;
  *
  * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Package('customer-order')]
 class DocumentGeneratorController extends AbstractController
 {
     protected DocumentService $documentService;

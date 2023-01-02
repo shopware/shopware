@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  * @package core
  */
+#[Package('core')]
 class ActivateAppCommand extends AbstractAppActivationCommand
 {
     private const ACTION = 'activate';

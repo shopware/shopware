@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
@@ -24,6 +25,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class CartService implements ResetInterface
 {
     public const SALES_CHANNEL = 'sales-channel';

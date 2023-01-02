@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @package content
  * @extends EntityCollection<CategoryTranslationEntity>
  */
+#[Package('content')]
 class CategoryTranslationCollection extends EntityCollection
 {
     /**

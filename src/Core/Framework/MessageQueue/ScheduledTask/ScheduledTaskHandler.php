@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
  *
  * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - Will only implement MessageHandlerInterface
  */
+#[Package('core')]
 abstract class ScheduledTaskHandler extends AbstractMessageHandler
 {
     /**

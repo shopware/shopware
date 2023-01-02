@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -12,6 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class ResolvedConfigLoader extends AbstractResolvedConfigLoader
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -16,6 +17,7 @@ if (!Feature::isActive('v6.5.0.0')) {
     /**
      * @package checkout
      */
+    #[Package('checkout')]
     class InvalidCartException extends ShopwareHttpException
     {
         /**
@@ -75,6 +77,7 @@ if (!Feature::isActive('v6.5.0.0')) {
     /**
      * @package checkout
      */
+    #[Package('checkout')]
     class InvalidCartException extends CartException
     {
     }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface;
 use Shopware\Core\SalesChannelRequest;
@@ -17,6 +18,7 @@ use Symfony\Contracts\Service\ResetInterface;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  * @package storefront
  */
+#[Package('storefront')]
 class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface, EventSubscriberInterface, ResetInterface
 {
     /**

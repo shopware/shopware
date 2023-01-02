@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\OAuth;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
 /**
  * @package core
  */
+#[Package('core')]
 class ScopeRepository implements ScopeRepositoryInterface
 {
     /**

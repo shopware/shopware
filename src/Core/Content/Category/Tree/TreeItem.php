@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\Category\Tree;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @package content
  */
+#[Package('content')]
 class TreeItem extends Struct
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Price;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
@@ -24,6 +25,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductPriceCalculator extends AbstractProductPriceCalculator implements ResetInterface
 {
     private EntityRepositoryInterface $unitRepository;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
@@ -15,6 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @package content
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('content')]
 class CategoryListRoute extends AbstractCategoryListRoute
 {
     /**

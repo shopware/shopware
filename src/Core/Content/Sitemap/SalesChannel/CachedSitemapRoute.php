@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Sitemap\Event\SitemapRouteCacheKeyEvent;
 use Shopware\Core\Content\Sitemap\Event\SitemapRouteCacheTagsEvent;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
@@ -24,6 +25,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('sales-channel')]
 class CachedSitemapRoute extends AbstractSitemapRoute
 {
     public const ALL_TAG = 'sitemap-route';

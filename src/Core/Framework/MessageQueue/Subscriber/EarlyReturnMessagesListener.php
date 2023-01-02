@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 use Symfony\Component\Messenger\Event\WorkerRunningEvent;
@@ -11,6 +12,7 @@ use Symfony\Component\Messenger\Event\WorkerRunningEvent;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class EarlyReturnMessagesListener implements EventSubscriberInterface
 {
     private bool $handled = false;

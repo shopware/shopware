@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Entity;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -29,6 +30,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @final tag:v6.5.0
  */
+#[Package('sales-channel')]
 class SalesChannelRepository implements SalesChannelRepositoryInterface
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Newsletter\Register;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @deprecated tag:v6.5.0 - Will be removed
  */
+#[Package('customer-order')]
 class NewsletterRegisterPageLoader
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageDefinition;
 /**
  * @package core
  */
+#[Package('core')]
 class ScheduledTaskDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'scheduled_task';

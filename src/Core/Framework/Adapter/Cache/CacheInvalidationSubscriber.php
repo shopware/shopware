@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CachedRuleLoader;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
@@ -79,6 +80,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @internal - The functions inside this class are no public-api and can be changed without previous deprecation
  */
+#[Package('core')]
 class CacheInvalidationSubscriber implements EventSubscriberInterface
 {
     private Connection $connection;

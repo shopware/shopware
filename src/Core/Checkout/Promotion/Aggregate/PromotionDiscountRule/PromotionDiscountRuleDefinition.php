@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountRule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PromotionDiscountRuleDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'promotion_discount_rule';

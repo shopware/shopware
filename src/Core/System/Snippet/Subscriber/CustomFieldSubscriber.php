@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Snippet\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -15,6 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class CustomFieldSubscriber implements EventSubscriberInterface
 {
     private const CUSTOM_FIELD_ID_FIELD = 'custom_field_id';

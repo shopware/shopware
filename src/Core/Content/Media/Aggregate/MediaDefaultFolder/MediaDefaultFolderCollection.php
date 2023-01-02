@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @package content
  * @extends EntityCollection<MediaDefaultFolderEntity>
  */
+#[Package('content')]
 class MediaDefaultFolderCollection extends EntityCollection
 {
     public function getApiAlias(): string

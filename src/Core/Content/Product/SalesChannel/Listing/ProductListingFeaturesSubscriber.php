@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductListingCollectFilterEvent;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
@@ -46,6 +47,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @package inventory
  */
+#[Package('inventory')]
 class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 {
     public const DEFAULT_SEARCH_SORT = 'score';

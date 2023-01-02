@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Compatibility;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -11,6 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - Remove compatibility bridge to make parameters case insensitive
  * @see https://github.com/doctrine/annotations/issues/421
  */
+#[Package('core')]
 class AnnotationReaderCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

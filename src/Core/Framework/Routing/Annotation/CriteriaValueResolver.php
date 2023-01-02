@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing\Annotation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 /**
  * @package core
  */
+#[Package('core')]
 class CriteriaValueResolver implements ArgumentValueResolverInterface
 {
     /**

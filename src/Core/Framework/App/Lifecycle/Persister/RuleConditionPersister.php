@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\App\AppEntity;
@@ -32,6 +33,7 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  * @package core
  */
+#[Package('core')]
 class RuleConditionPersister
 {
     private const CONDITION_SCRIPT_DIR = '/rule-conditions/';

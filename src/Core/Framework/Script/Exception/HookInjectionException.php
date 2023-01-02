@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Script\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 
 /**
  * @package core
  */
+#[Package('core')]
 class HookInjectionException extends \RuntimeException
 {
     public function __construct(Hook $hook, string $class, string $required)

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
@@ -20,6 +21,7 @@ use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class UserEntity extends Entity
 {
     use EntityIdTrait;

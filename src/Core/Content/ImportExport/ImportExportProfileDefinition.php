@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExportProfileDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'import_export_profile';

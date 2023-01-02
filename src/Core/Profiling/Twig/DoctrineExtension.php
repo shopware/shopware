@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Profiling\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\VarDumper\Cloner\Data;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -10,6 +11,7 @@ use Twig\TwigFilter;
  * @package core
  * This class contains the needed functions in order to do the query highlighting
  */
+#[Package('core')]
 class DoctrineExtension extends AbstractExtension
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppCollection;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 class AppPrinter
 {
     private const PRIVILEGE_TO_HUMAN_READABLE = [

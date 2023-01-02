@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<MailTemplateTypeEntity>
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class MailTemplateTypeCollection extends EntityCollection
 {
     public function getApiAlias(): string

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\CustomerGroupRegistration;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -10,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * Loads the customer group registration page
  */
+#[Package('storefront')]
 abstract class AbstractCustomerGroupRegistrationPageLoader
 {
     abstract public function getDecorated(): AbstractCustomerGroupRegistrationPageLoader;

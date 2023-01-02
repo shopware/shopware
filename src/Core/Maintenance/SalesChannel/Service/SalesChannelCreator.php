@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Maintenance\SalesChannel\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 /**
  * @package core
  */
+#[Package('core')]
 class SalesChannelCreator
 {
     private EntityRepositoryInterface $salesChannelRepository;

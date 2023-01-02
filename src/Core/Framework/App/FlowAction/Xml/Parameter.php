@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\FlowAction\Xml;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Symfony\Component\Config\Util\XmlUtils;
 
@@ -9,6 +10,7 @@ use Symfony\Component\Config\Util\XmlUtils;
  * @internal
  * @package core
  */
+#[Package('core')]
 class Parameter extends XmlElement
 {
     protected string $type;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Validation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -12,6 +13,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 /**
  * @package core
  */
+#[Package('core')]
 class EntityNotExistsValidator extends ConstraintValidator
 {
     /**

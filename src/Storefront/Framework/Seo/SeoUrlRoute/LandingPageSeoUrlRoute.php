@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Seo\SeoUrlRoute;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
@@ -16,6 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class LandingPageSeoUrlRoute implements SeoUrlRouteInterface
 {
     public const ROUTE_NAME = 'frontend.landing.page';

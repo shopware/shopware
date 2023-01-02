@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Feature;
 
@@ -9,6 +10,7 @@ if (Feature::isActive('v6.5.0.0')) {
     /**
      * @package inventory
      */
+    #[Package('inventory')]
     abstract class AbstractProductVariationBuilder
     {
         abstract public function getDecorated(): AbstractProductVariationBuilder;
@@ -19,6 +21,7 @@ if (Feature::isActive('v6.5.0.0')) {
     /**
      * @package inventory
      */
+    #[Package('inventory')]
     abstract class AbstractProductVariationBuilder
     {
         abstract public function getDecorated(): AbstractProductVariationBuilder;

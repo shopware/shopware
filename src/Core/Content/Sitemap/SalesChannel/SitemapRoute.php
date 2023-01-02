@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
 use Shopware\Core\Content\Sitemap\Service\SitemapListerInterface;
@@ -19,6 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('sales-channel')]
 class SitemapRoute extends AbstractSitemapRoute
 {
     /**

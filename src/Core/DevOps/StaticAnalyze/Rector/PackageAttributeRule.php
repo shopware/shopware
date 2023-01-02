@@ -36,32 +36,32 @@ class PackageAttributeRule extends AbstractRector
     private $annotationsToAttributes = [];
     /**
      * @readonly
-     * @var \Rector\PhpAttribute\NodeFactory\PhpAttributeGroupFactory
+     * @var PhpAttributeGroupFactory
      */
     private $phpAttributeGroupFactory;
     /**
      * @readonly
-     * @var \Rector\Php80\NodeFactory\AttrGroupsFactory
+     * @var AttrGroupsFactory
      */
     private $attrGroupsFactory;
     /**
      * @readonly
-     * @var \Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTagRemover
+     * @var PhpDocTagRemover
      */
     private $phpDocTagRemover;
     /**
      * @readonly
-     * @var \Rector\Php80\NodeManipulator\AttributeGroupNamedArgumentManipulator
+     * @var AttributeGroupNamedArgumentManipulator
      */
     private $attributeGroupNamedArgumentManipulator;
     /**
      * @readonly
-     * @var \Rector\Naming\Naming\UseImportsResolver
+     * @var UseImportsResolver
      */
     private $useImportsResolver;
     /**
      * @readonly
-     * @var \Rector\Php80\NodeAnalyzer\PhpAttributeAnalyzer
+     * @var PhpAttributeAnalyzer
      */
     private $phpAttributeAnalyzer;
 
@@ -110,28 +110,9 @@ class PackageAttributeRule extends AbstractRector
         if (!$area) {
             return null;
         }
+        $array = \explode("\n", $area);
 
-        $traverser = new PhpDocNodeTraverser();
-
-        $traverser->traverseWithCallable($phpDocInfo->getPhpDocNode(), '', function (DocNode $docNode) use(&$attributeGroups, $phpDocInfo) : ?int {
-            if (!$docNode instanceof PhpDocTagNode) {
-                return null;
-            }
-            if (!$docNode->value instanceof GenericTagValueNode) {
-                return null;
-            }
-            $tag = \trim($docNode->name, '@');
-            // not a basic one
-            if (\strpos($tag, '\\') !== \false) {
-                return null;
-            }
-
-            if ($tag === 'package') {
-                $phpDocInfo->markAsChanged();
-                return PhpDocNodeTraverser::NODE_REMOVE;
-            }
-            return null;
-        });
+        $area = trim(\array_shift($array));
 
         $node->attrGroups[] = $this->phpAttributeGroupFactory->createFromClassWithItems(Package::class, [$area]);
 

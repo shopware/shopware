@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
 use Shopware\Core\Framework\Feature;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -12,6 +13,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @see BundleSchemaPathCollection
  * @package core
  */
+#[Package('core')]
 class OpenApiPathsEvent extends Event
 {
     /**

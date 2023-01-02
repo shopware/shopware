@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -21,6 +22,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  * @package core
  */
+#[Package('core')]
 class CustomFieldProtectionSubscriber implements EventSubscriberInterface
 {
     public const VIOLATION_NO_PERMISSION = 'no_permission_violation';

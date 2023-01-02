@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
@@ -20,6 +21,7 @@ use Twig\Extension\DebugExtension;
  *
  * @internal
  */
+#[Package('business-ops')]
 class ScriptRule extends Rule
 {
     protected string $script = '';

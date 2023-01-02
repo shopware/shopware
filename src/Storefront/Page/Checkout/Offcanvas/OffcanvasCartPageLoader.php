@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Checkout\Offcanvas;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class OffcanvasCartPageLoader
 {
     private EventDispatcherInterface $eventDispatcher;

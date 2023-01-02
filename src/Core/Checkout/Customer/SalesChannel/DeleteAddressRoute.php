@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteActiveAddressException;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
@@ -19,6 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('customer-order')]
 class DeleteAddressRoute extends AbstractDeleteAddressRoute
 {
     use CustomerAddressValidationTrait;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Plugin\PluginDefinition;
 /**
  * @package core
  */
+#[Package('core')]
 class PluginTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'plugin_translation';

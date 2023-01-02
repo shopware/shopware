@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
@@ -35,6 +36,7 @@ use Shopware\Core\System\Language\LanguageLoaderInterface;
  * over the EntityWriteGateway (sql implementation in default).
  * @package core
  */
+#[Package('core')]
 class EntityWriter implements EntityWriterInterface
 {
     private EntityForeignKeyResolver $foreignKeyResolver;

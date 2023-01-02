@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -13,6 +14,7 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class DeliveryTimeTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'delivery_time_translation';

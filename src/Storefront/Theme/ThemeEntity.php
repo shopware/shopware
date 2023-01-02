@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -14,6 +15,7 @@ use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class ThemeEntity extends Entity
 {
     use EntityIdTrait;

@@ -52,7 +52,7 @@ class CacheDecoratorTest extends TestCase
 
     public function testTraceReadAndWrite(): void
     {
-        $collection = $this->getContainer()->get(\Shopware\Core\Framework\Adapter\Cache\CacheTagCollection::class);
+        $collection = $this->getContainer()->get(CacheTagCollection::class);
 
         $this->writeItem('some-key-1', ['tag-a', 'tag-b']);
         $this->writeItem('some-key-2', ['tag-c', 'tag-b']);

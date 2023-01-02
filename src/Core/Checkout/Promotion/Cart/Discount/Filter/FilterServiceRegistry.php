@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterPickerNotFoundException;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterSorterNotFoundException;
 
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class FilterServiceRegistry
 {
     /**

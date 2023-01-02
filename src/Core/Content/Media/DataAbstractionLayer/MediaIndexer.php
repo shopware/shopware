@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -21,6 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package content
  */
+#[Package('content')]
 class MediaIndexer extends EntityIndexer
 {
     private IteratorFactory $iteratorFactory;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Test;
 
+use Doctrine\DBAL\Exception;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -58,10 +59,10 @@ class TestKernel extends Kernel
     {
         $urlParams = parse_url($_ENV['DATABASE_URL']);
         if ($urlParams === false || !\array_key_exists('user', $urlParams) || !\array_key_exists('pass', $urlParams)) {
-            throw new \Doctrine\DBAL\Exception('Could not parse DATABASE_URL');
+            throw new Exception('Could not parse DATABASE_URL');
         }
 
-        throw new \Doctrine\DBAL\Exception(vsprintf(
+        throw new Exception(vsprintf(
             'Could not connect to the server as %s with the password %s with connection string %s',
             [$urlParams['user'], $urlParams['pass'], $_ENV['DATABASE_URL']]
         ));

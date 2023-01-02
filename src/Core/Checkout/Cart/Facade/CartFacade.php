@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ContainerFactoryTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\DiscountTrait;
@@ -23,6 +24,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @script-service cart_manipulation
  * @package checkout
  */
+#[Package('checkout')]
 class CartFacade
 {
     use DiscountTrait;

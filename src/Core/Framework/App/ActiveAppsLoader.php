@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
@@ -14,6 +15,7 @@ use Symfony\Contracts\Service\ResetInterface;
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  * @phpstan-type App array{name: string, path: string, author: string|null}
  */
+#[Package('core')]
 class ActiveAppsLoader implements ResetInterface
 {
     /**

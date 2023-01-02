@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Checkout\Cart\Address\Error;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class ShippingAddressSalutationMissingError extends SalutationMissingError
 {
     protected const KEY = parent::KEY . '-shipping-address';

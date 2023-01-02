@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\System\User;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @package core
  * @extends EntityCollection<UserEntity>
  */
+#[Package('core')]
 class UserCollection extends EntityCollection
 {
     public function getLocaleIds(): array

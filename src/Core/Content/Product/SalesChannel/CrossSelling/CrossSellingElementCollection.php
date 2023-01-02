@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\CrossSelling;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @package inventory
  */
+#[Package('inventory')]
 class CrossSellingElementCollection extends Collection
 {
     public function getExpectedClass(): ?string

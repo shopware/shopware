@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Response\Type\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Api\Response\Type\JsonFactoryBase;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @package core
  */
+#[Package('core')]
 class JsonType extends JsonFactoryBase
 {
     /**

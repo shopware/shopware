@@ -2,11 +2,13 @@
 
 namespace Shopware\Storefront\Checkout\Cart\Error;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Error\Error;
 
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PaymentMethodChangedError extends Error
 {
     private const KEY = 'payment-method-changed';

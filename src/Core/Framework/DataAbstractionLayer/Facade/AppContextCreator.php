@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Facade;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  * @package core
  */
+#[Package('core')]
 class AppContextCreator
 {
     private Connection $connection;

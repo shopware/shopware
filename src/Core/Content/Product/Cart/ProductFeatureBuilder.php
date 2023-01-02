@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
@@ -18,6 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductFeatureBuilder
 {
     private EntityRepositoryInterface $customFieldRepository;

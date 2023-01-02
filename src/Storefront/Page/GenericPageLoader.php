@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @Decoratable()
  */
+#[Package('storefront')]
 class GenericPageLoader implements GenericPageLoaderInterface
 {
     /**

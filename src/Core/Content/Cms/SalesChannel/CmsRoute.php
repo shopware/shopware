@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -16,6 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @package content
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('content')]
 class CmsRoute extends AbstractCmsRoute
 {
     /**

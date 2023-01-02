@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\Seo\SeoUrlRoute;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SeoUrlRouteConfig
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
@@ -14,6 +15,7 @@ use Symfony\Component\Validator\Constraints\Type;
  * A PercentagePriceDefinition calculate a percentual sum of all previously calculated prices and returns it as its own
  * price. This can be used for percentual discounts.
  */
+#[Package('checkout')]
 class PercentagePriceDefinition extends Struct implements PriceDefinitionInterface
 {
     public const TYPE = 'percentage';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -13,6 +14,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class MailFactory extends AbstractMailFactory
 {
     /**

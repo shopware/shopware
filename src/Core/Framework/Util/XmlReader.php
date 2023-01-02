@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Util;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\XmlElementNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
@@ -9,6 +10,7 @@ use Symfony\Component\Config\Util\XmlUtils;
 /**
  * @package core
  */
+#[Package('core')]
 abstract class XmlReader
 {
     /**

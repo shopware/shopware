@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -11,6 +12,7 @@ use Symfony\Component\Validator\Constraints\Type;
  * @package business-ops
  * MatchAllLineItemsRule returns true, if all rules are true for all line items
  */
+#[Package('business-ops')]
 class MatchAllLineItemsRule extends Container
 {
     protected ?int $minimumShouldMatch = null;

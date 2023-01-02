@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Order;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
@@ -53,6 +54,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class OrderConverter
 {
     public const CART_CONVERTED_TO_ORDER_EVENT = 'cart.convertedToOrder.event';

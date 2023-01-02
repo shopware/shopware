@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Exception\InvalidChildQuantityException;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class LineItem extends Struct
 {
     public const CREDIT_LINE_ITEM_TYPE = 'credit';

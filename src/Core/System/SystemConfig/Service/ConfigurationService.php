@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SystemConfig\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Bundle;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class ConfigurationService
 {
     /**

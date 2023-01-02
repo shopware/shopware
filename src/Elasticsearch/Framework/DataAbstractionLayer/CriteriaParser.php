@@ -2,6 +2,8 @@
 
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
+use ONGR\ElasticsearchDSL\Aggregation\Bucketing\ReverseNestedAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing\CompositeAggregation;
@@ -61,6 +63,7 @@ use Shopware\Elasticsearch\Sort\CountSort;
 /**
  * @package core
  */
+#[Package('core')]
 class CriteriaParser
 {
     private EntityDefinitionQueryHelper $helper;
@@ -242,7 +245,7 @@ class CriteriaParser
             $filter = new Bucketing\FilterAggregation($aggregation->getName(), $query->getQuery());
 
             // afterwards we reset the nesting to allow following filters to point to another nested property
-            $reverse = new Bucketing\ReverseNestedAggregation($aggregation->getName());
+            $reverse = new ReverseNestedAggregation($aggregation->getName());
 
             $filter->addAggregation($reverse);
 

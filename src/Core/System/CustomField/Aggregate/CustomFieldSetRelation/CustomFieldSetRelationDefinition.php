@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -15,6 +16,7 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefi
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class CustomFieldSetRelationDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'custom_field_set_relation';

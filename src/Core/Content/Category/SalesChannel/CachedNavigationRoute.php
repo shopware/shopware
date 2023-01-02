@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Event\NavigationRouteCacheKeyEvent;
@@ -28,6 +29,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @package content
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('content')]
 class CachedNavigationRoute extends AbstractNavigationRoute
 {
     public const ALL_TAG = 'navigation';

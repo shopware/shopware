@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Log\Package;
 use Composer\IO\NullIO;
 use GuzzleHttp\Client;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @internal
  */
+#[Package('core')]
 class PluginManagementService
 {
     public const PLUGIN = 'plugin';

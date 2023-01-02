@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 
 /**
  * @package checkout
  */
+#[Package('checkout')]
 abstract class PackageFilter
 {
     abstract public function getDecorated(): PackageFilter;

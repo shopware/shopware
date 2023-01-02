@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Monolog\Logger;
 use Shopware\Core\Content\Flow\Dispatching\Aware\NameAware;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
@@ -17,6 +18,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductExportLoggingEvent extends Event implements BusinessEventInterface, LogAware, MailAware, NameAware
 {
     public const NAME = 'product_export.log';

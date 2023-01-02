@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Salutation\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -24,6 +25,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @Route(defaults={"_routeScope"={"store-api"}})
  * @package customer-order
  */
+#[Package('customer-order')]
 class CachedSalutationRoute extends AbstractSalutationRoute
 {
     public const ALL_TAG = 'salutation-route';

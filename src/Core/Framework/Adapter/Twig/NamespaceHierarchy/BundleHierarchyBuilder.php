@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Bundle;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -9,6 +10,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface
 {
     private KernelInterface $kernel;

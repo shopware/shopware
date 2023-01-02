@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PasswordFieldSerializer;
 
 /**
  * @package core
  */
+#[Package('core')]
 class PasswordField extends Field implements StorageAware
 {
     /**

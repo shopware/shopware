@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Authentication;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -20,6 +21,7 @@ use Shopware\Core\System\User\UserEntity;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in future versions
  */
+#[Package('merchant-services')]
 class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
 {
     public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';

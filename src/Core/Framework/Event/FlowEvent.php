@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -12,6 +13,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @deprecated tag:v6.5.0 - Will be removed, use `FlowAction::handleFlow()` instead
  * @package business-ops
  */
+#[Package('business-ops')]
 class FlowEvent extends Event
 {
     private FlowState $state;

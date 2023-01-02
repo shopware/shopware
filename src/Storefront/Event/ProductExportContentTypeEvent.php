@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -10,6 +11,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  *
  * @deprecated tag:v6.5.0 - Use @see \Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent instead
  */
+#[Package('storefront')]
 class ProductExportContentTypeEvent extends Event
 {
     /**

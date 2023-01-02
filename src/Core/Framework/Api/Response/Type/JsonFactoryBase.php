@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Response\Type;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @package core
  */
+#[Package('core')]
 abstract class JsonFactoryBase implements ResponseFactoryInterface
 {
     public function createRedirectResponse(EntityDefinition $definition, string $id, Request $request, Context $context): Response

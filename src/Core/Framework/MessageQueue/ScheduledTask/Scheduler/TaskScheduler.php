@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -24,6 +25,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-final - Will be final starting with v6.5.0.0
  */
+#[Package('core')]
 class TaskScheduler
 {
     /**

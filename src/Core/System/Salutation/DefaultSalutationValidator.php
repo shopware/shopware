@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Salutation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -18,6 +19,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - This subscriber will be superfluous once salutations
  * are fully optional and should be removed together with the flag FEATURE_NEXT_7739.
  */
+#[Package('core')]
 class DefaultSalutationValidator implements EventSubscriberInterface
 {
     public const VIOLATION_CODE = 'SYSTEM__DEFAULT_SALUTATION_LOCKED';

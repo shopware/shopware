@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\MailTemplate\Exception\MailTransportFailedException;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -12,6 +13,7 @@ use Symfony\Component\Mime\Email;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class MailSender extends AbstractMailSender
 {
     /**

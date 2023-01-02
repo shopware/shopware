@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
@@ -32,6 +33,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package inventory
  */
+#[Package('inventory')]
 class ProductDetailRoute extends AbstractProductDetailRoute
 {
     private SalesChannelRepositoryInterface $productRepository;

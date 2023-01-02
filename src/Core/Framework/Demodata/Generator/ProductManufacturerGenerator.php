@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @package inventory
  */
+#[Package('inventory')]
 class ProductManufacturerGenerator implements DemodataGeneratorInterface
 {
     private EntityWriterInterface $writer;

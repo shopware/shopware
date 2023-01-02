@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -17,6 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class UserRecoveryController extends AbstractController
 {
     private UserRecoveryService $userRecoveryService;

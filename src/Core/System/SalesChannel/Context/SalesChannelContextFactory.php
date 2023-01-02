@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
@@ -32,6 +33,7 @@ use function array_unique;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
     private EntityRepositoryInterface $customerRepository;

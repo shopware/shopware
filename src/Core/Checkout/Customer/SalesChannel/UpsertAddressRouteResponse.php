@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class UpsertAddressRouteResponse extends StoreApiResponse
 {
     /**

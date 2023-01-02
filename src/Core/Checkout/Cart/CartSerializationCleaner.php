@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Event\CartBeforeSerializationEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -12,6 +13,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class CartSerializationCleaner
 {
     private Connection $connection;

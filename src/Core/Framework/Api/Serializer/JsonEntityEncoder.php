@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Serializer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -19,6 +20,7 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * @package core
  */
+#[Package('core')]
 class JsonEntityEncoder
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  *
  * @internal not intended for decoration or replacement
  */
+#[Package('business-ops')]
 class FlowLoader extends AbstractFlowLoader
 {
     private Connection $connection;

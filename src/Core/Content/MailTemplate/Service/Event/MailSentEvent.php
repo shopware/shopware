@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Monolog\Logger;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ContentsAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\RecipientsAware;
@@ -17,6 +18,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class MailSentEvent extends Event implements BusinessEventInterface, LogAware, SubjectAware, ContentsAware, RecipientsAware
 {
     public const EVENT_NAME = 'mail.sent';

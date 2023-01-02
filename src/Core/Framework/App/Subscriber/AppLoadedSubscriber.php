@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -10,6 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  * @package core
  */
+#[Package('core')]
 class AppLoadedSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

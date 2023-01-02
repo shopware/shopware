@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductStream\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Event\ProductStreamIndexerEvent;
@@ -25,6 +26,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class ProductStreamIndexer extends EntityIndexer
 {
     private IteratorFactory $iteratorFactory;

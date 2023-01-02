@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -19,6 +20,7 @@ use Shopware\Core\Test\TestDefaults;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
  * @package core
  */
+#[Package('core')]
 class CustomerGenerator implements DemodataGeneratorInterface
 {
     private EntityWriterInterface $writer;

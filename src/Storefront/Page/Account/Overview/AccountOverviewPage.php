@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\Overview;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Storefront\Page\Page;
@@ -10,6 +11,7 @@ use Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPagelet;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class AccountOverviewPage extends Page
 {
     /**

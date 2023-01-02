@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
+use Shopware\Core\Framework\Log\Package;
 use Twig\Error\LoaderError;
 use Twig\Loader\LoaderInterface;
 use Twig\Source;
@@ -10,6 +11,7 @@ use Twig\Source;
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 class ScriptTwigLoader implements LoaderInterface
 {
     private Script $script;

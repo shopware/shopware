@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipientTag\NewsletterRecipientTagDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -22,6 +23,7 @@ use Shopware\Core\System\Tag\TagDefinition;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class NewsletterRecipientDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'newsletter_recipient';

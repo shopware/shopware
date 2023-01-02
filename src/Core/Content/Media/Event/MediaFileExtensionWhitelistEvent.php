@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\Media\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @package content
  */
+#[Package('content')]
 class MediaFileExtensionWhitelistEvent extends Event
 {
     /**

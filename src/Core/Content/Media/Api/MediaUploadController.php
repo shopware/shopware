@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\File\FileNameProvider;
@@ -22,6 +23,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @package content
  * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Package('content')]
 class MediaUploadController extends AbstractController
 {
     /**

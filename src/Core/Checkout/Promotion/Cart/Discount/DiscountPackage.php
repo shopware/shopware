@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Feature;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class DiscountPackage
 {
     private LineItemQuantityCollection $metaItems;

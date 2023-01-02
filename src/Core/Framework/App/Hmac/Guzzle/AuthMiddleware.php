@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Hmac\Guzzle;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Exception\InvalidArgumentException;
 use GuzzleHttp\Exception\ServerException;
 use Psr\Http\Message\RequestInterface;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Context;
 /**
  * @package core
  */
+#[Package('core')]
 class AuthMiddleware
 {
     public const APP_REQUEST_TYPE = 'request_type';

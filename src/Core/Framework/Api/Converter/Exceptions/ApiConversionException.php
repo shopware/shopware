@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Converter\Exceptions;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -9,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @package core
  */
+#[Package('core')]
 class ApiConversionException extends ShopwareHttpException
 {
     /**

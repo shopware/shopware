@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\Overview;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractCustomerRoute;
@@ -23,6 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class AccountOverviewPageLoader
 {
     /**

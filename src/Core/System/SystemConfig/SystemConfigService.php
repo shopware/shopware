@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SystemConfig;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
@@ -28,6 +29,7 @@ use function json_decode;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class SystemConfigService
 {
     private Connection $connection;

@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Composition;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class DiscountCompositionBuilder
 {
     /**

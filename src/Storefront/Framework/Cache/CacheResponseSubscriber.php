@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Cache;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
@@ -24,6 +25,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('storefront')]
 class CacheResponseSubscriber implements EventSubscriberInterface
 {
     public const STATE_LOGGED_IN = CacheStateSubscriber::STATE_LOGGED_IN;

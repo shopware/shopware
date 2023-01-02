@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Event\MediaFolderIndexerEvent;
@@ -21,6 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package content
  */
+#[Package('content')]
 class MediaFolderIndexer extends EntityIndexer
 {
     public const CHILD_COUNT_UPDATER = 'media_folder.child-count';

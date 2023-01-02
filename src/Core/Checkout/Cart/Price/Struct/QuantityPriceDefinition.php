@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Struct\Struct;
@@ -16,6 +17,7 @@ use Symfony\Component\Validator\Constraints\Type;
  * based on a item quantity. These Definitions are used for LineItems created from Products. They do not depend on
  * other PriceDefinitions in a calculation process.
  */
+#[Package('checkout')]
 class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
 {
     public const TYPE = 'quantity';

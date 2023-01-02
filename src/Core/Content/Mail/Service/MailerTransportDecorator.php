@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
@@ -16,6 +17,7 @@ use Symfony\Component\Mime\RawMessage;
  * @internal
  * @package system-settings
  */
+#[Package('system-settings')]
 class MailerTransportDecorator implements TransportInterface
 {
     private TransportInterface $decorated;

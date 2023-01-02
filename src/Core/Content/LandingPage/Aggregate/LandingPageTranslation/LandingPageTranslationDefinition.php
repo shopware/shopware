@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package content
  */
+#[Package('content')]
 class LandingPageTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'landing_page_translation';

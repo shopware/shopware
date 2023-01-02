@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\DependencyInjection;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\AbstractThemePathBuilder;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
@@ -11,6 +12,7 @@ use Symfony\Component\DependencyInjection\Extension\Extension;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class StorefrontExtension extends Extension
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionEntity;
@@ -33,6 +34,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('business-ops')]
 class RuleValidator implements EventSubscriberInterface
 {
     private ValidatorInterface $validator;

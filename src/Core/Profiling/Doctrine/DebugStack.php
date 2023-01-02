@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Profiling\Doctrine;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Logging\DebugStack as DoctrineDebugStack;
 
 /**
  * @package core
  * Includes executed SQLs in a Debug Stack.
  */
+#[Package('core')]
 class DebugStack extends DoctrineDebugStack
 {
     public static string $writeSqlRegex = '/^\s*(UPDATE|ALTER|BACKUP|CREATE|DELETE|DROP|EXEC|INSERT|TRUNCATE)/i';

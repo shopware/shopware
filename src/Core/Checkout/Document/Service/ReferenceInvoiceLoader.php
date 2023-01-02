@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @internal - Fetch the $referenceDocumentId if set, otherwise fetch the latest document
  */
+#[Package('customer-order')]
 final class ReferenceInvoiceLoader
 {
     private Connection $connection;

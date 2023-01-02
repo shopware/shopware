@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -10,6 +11,7 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * @internal
  */
+#[Package('core')]
 class PluginExtractor
 {
     /**

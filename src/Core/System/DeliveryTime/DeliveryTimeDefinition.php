@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\DeliveryTime;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -21,6 +22,7 @@ use Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation\Delivery
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class DeliveryTimeDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'delivery_time';

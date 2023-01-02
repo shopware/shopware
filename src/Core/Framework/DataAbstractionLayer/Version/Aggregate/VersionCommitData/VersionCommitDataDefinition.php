@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit
 /**
  * @package core
  */
+#[Package('core')]
 class VersionCommitDataDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'version_commit_data';

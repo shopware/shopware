@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Aware;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Event\FlowEventAware;
 
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 interface ConfirmUrlAware extends FlowEventAware
 {
     public const CONFIRM_URL = 'confirmUrl';

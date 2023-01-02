@@ -2,11 +2,13 @@
 
 namespace Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class BasicCaptchaImage extends Struct
 {
     private string $code;

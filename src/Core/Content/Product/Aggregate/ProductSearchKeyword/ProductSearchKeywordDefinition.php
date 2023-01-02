@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -19,6 +20,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductSearchKeywordDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_search_keyword';

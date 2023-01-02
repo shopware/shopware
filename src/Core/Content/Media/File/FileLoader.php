@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\File;
 
+use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 /**
  * @package content
  */
+#[Package('content')]
 class FileLoader
 {
     private FilesystemInterface $filesystemPublic;

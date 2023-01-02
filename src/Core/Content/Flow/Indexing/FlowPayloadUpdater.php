@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Indexing;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Dispatching\CachedFlowLoader;
 use Shopware\Core\Content\Flow\Dispatching\FlowBuilder;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class FlowPayloadUpdater
 {
     private Connection $connection;

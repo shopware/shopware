@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\AppTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  * @package core
  */
+#[Package('core')]
 class AppTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'app_translation';

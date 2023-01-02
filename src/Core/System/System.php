@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\System\CustomEntity\CustomEntityRegistrar;
 use Shopware\Core\System\DependencyInjection\CompilerPass\RedisNumberRangeIncrementerCompilerPass;
@@ -15,6 +16,7 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
  *
  * @internal
  */
+#[Package('core')]
 class System extends Bundle
 {
     public function getTemplatePriority(): int

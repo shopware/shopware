@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Util;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Promotion\Exception\PatternAlreadyInUseException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PromotionCodeService
 {
     public const PROMOTION_PATTERN_REGEX = '/(?<prefix>[^%]*)(?<replacement>(%[sd])+)(?<suffix>.*)/';

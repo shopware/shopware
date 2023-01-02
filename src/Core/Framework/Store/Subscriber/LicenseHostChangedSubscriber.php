@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
@@ -13,6 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @internal
  */
+#[Package('merchant-services')]
 class LicenseHostChangedSubscriber implements EventSubscriberInterface
 {
     private SystemConfigService $systemConfigService;

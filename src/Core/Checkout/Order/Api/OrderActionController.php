@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Checkout\Order\Api;
 
+use Shopware\Core\Framework\Log\Package;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
@@ -27,6 +29,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Package('customer-order')]
 class OrderActionController extends AbstractController
 {
     private OrderService $orderService;
@@ -204,7 +207,7 @@ class OrderActionController extends AbstractController
     /**
      * @param array<string> $documentTypes
      *
-     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws Exception
      * @throws \Doctrine\DBAL\Exception
      *
      * @return array<string>

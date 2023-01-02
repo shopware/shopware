@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\Event\PaymentMethodRouteCacheKeyEvent;
 use Shopware\Core\Checkout\Payment\Event\PaymentMethodRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
@@ -26,6 +27,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('checkout')]
 class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
 {
     public const ALL_TAG = 'payment-method-route';

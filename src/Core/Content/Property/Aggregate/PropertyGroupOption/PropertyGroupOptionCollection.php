@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Property\Aggregate\PropertyGroupOption;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  * @extends EntityCollection<PropertyGroupOptionEntity>
  * @package inventory
  */
+#[Package('inventory')]
 class PropertyGroupOptionCollection extends EntityCollection
 {
     /**

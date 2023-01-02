@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Acl\Role;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -11,6 +12,7 @@ use Shopware\Core\System\User\UserCollection;
 /**
  * @package core
  */
+#[Package('core')]
 class AclRoleEntity extends Entity
 {
     use EntityIdTrait;

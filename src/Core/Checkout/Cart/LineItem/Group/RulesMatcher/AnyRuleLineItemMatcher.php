@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
@@ -11,6 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class AnyRuleLineItemMatcher extends AbstractAnyRuleLineItemMatcher
 {
     public function getDecorated(): AbstractAnyRuleLineItemMatcher

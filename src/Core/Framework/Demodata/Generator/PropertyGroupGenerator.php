@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @package inventory
  */
+#[Package('inventory')]
 class PropertyGroupGenerator implements DemodataGeneratorInterface
 {
     private EntityRepositoryInterface $propertyGroupRepository;

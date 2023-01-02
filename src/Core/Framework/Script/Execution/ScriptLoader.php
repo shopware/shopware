@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
@@ -15,6 +16,7 @@ use Twig\Cache\FilesystemCache;
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 class ScriptLoader implements EventSubscriberInterface
 {
     public const CACHE_KEY = 'shopware-app-scripts';

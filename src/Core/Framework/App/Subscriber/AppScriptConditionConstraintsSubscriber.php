@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -10,6 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @internal
  * @package core
  */
+#[Package('core')]
 class AppScriptConditionConstraintsSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

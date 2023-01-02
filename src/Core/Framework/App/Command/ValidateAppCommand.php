@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Manifest\Exception\ManifestNotFoundException;
@@ -19,6 +20,7 @@ use Symfony\Component\Finder\Finder;
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 class ValidateAppCommand extends Command
 {
     protected static $defaultName = 'app:validate';

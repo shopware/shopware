@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Exception\MediaFolderNotFoundException;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package content
  */
+#[Package('content')]
 class MediaFolderService
 {
     /**

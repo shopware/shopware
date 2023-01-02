@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Checkout\Shipping;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @internal Only to be used by the Storefront
  */
+#[Package('checkout')]
 class BlockedShippingMethodSwitcher
 {
     private AbstractShippingMethodRoute $shippingMethodRoute;

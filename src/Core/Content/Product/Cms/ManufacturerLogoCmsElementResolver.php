@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cms;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     public function getType(): string

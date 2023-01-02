@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\System\StateMachine;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @package core
  * @extends EntityCollection<StateMachineTranslationEntity>
  */
+#[Package('core')]
 class StateMachineTranslationCollection extends EntityCollection
 {
     /**

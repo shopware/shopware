@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Compatibility;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\Common\Annotations\Annotation\IgnoreAnnotation;
 use Doctrine\Common\Annotations\Annotation\Target;
 use Doctrine\Common\Annotations\AnnotationException;
@@ -24,6 +25,7 @@ use function ini_get;
  * @deprecated tag:v6.5.0 - Remove compatibility bridge to make parameters case insensitive
  * @see https://github.com/doctrine/annotations/issues/421
  */
+#[Package('core')]
 class AnnotationReader implements Reader
 {
     /**
@@ -32,7 +34,7 @@ class AnnotationReader implements Reader
      * @var array<string, class-string>
      */
     private static $globalImports = [
-        'ignoreannotation' => Annotation\IgnoreAnnotation::class,
+        'ignoreannotation' => IgnoreAnnotation::class,
     ];
 
     /**

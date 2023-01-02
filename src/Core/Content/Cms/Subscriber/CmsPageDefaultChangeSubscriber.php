@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsException;
@@ -19,6 +20,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('content')]
 class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
 {
     /**

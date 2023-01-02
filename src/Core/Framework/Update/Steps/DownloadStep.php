@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Update\Steps;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Services\Download;
 use Shopware\Core\Framework\Update\Struct\Version;
 
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class DownloadStep
 {
     private Version $version;

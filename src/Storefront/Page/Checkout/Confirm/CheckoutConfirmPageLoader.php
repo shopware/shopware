@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Checkout\Confirm;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -26,6 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class CheckoutConfirmPageLoader
 {
     private EventDispatcherInterface $eventDispatcher;

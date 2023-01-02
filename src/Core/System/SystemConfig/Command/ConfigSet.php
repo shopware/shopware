@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SystemConfig\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -12,6 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class ConfigSet extends Command
 {
     protected static $defaultName = 'system:config:set';

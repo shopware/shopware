@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\MailHeaderFooterTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -10,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class MailHeaderFooterEntity extends Entity
 {
     use EntityIdTrait;

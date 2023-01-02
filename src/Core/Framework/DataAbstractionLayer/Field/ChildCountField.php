@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 
 /**
  * @package core
  */
+#[Package('core')]
 class ChildCountField extends IntField
 {
     public function __construct()

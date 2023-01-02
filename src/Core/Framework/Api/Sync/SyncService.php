@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Sync;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
@@ -27,6 +28,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class SyncService implements SyncServiceInterface
 {
     private DefinitionInstanceRegistry $definitionRegistry;

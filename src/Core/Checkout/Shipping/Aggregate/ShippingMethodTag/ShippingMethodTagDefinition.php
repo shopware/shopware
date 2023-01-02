@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTag;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -14,6 +15,7 @@ use Shopware\Core\System\Tag\TagDefinition;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class ShippingMethodTagDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'shipping_method_tag';

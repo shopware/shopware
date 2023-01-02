@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\Media\Pathname\PathnameStrategy;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 
 /**
  * @package content
  */
+#[Package('content')]
 class PlainPathnameStrategy extends AbstractPathNameStrategy
 {
     /**

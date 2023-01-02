@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Log\Package;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -53,6 +54,7 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
  *
  * @internal
  */
+#[Package('core')]
 class PluginLifecycleService
 {
     public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';

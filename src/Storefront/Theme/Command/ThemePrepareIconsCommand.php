@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use SVG\Nodes\Structures\SVGDefs;
 use SVG\Nodes\Structures\SVGUse;
 use SVG\Nodes\SVGNode;
@@ -18,6 +19,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class ThemePrepareIconsCommand extends Command
 {
     protected static $defaultName = 'theme:prepare-icons';

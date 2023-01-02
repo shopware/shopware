@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Payment\Handler;
 
+use Shopware\Core\Framework\Log\Package;
 use Psr\Http\Client\ClientExceptionInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
@@ -25,6 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 class AppAsyncPaymentHandler extends AppPaymentHandler implements AsynchronousPaymentHandlerInterface
 {
     public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse

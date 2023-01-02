@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
+use Shopware\Core\Framework\Log\Package;
 use Psr\EventDispatcher\StoppableEventInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
@@ -22,6 +23,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @internal not intended for decoration or replacement
  */
+#[Package('business-ops')]
 class FlowDispatcher implements EventDispatcherInterface
 {
     private EventDispatcherInterface $dispatcher;

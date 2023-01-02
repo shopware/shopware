@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\RateLimiter\Policy;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Lock\NoLock;
 use Symfony\Component\RateLimiter\Exception\ReserveNotSupportedException;
@@ -16,6 +17,7 @@ use Symfony\Component\RateLimiter\Util\TimeUtil;
  * @internal
  * @package core
  */
+#[Package('core')]
 class TimeBackoffLimiter implements LimiterInterface
 {
     use ResetLimiterTrait;

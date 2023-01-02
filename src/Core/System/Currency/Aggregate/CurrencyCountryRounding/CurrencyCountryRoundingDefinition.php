@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CashRoundingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -17,6 +18,7 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class CurrencyCountryRoundingDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'currency_country_rounding';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\ActionButton;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ServerException;
 use Psr\Log\LoggerInterface;
@@ -25,6 +26,7 @@ use Symfony\Component\Routing\RouterInterface;
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  * @package core
  */
+#[Package('core')]
 class Executor
 {
     private Client $guzzleClient;

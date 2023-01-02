@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
@@ -18,6 +19,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package core
  */
+#[Package('core')]
 class BeforeDeleteEvent extends Event implements ShopwareEvent
 {
     private WriteContext $writeContext;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use League\Flysystem\FilesystemInterface;
@@ -37,6 +38,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @internal
  */
+#[Package('merchant-services')]
 final class FirstRunWizardClient
 {
     public const USER_CONFIG_KEY_FRW_USER_TOKEN = 'core.frw.userToken';

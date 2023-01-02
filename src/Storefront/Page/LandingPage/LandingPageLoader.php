@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\LandingPage;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\LandingPage\SalesChannel\AbstractLandingPageRoute;
 use Shopware\Core\Framework\Feature;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package content
  */
+#[Package('content')]
 class LandingPageLoader
 {
     /**

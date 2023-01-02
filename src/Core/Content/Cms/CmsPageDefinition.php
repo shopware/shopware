@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionDefinition;
@@ -30,6 +31,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package content
  */
+#[Package('content')]
 class CmsPageDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'cms_page';

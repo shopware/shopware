@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\SeoUrl;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -11,6 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SeoUrlEntity extends Entity
 {
     use EntityIdTrait;

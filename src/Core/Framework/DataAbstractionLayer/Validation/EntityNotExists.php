@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Validation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\Validator\Constraint;
@@ -13,6 +14,7 @@ use Symfony\Component\Validator\Exception\MissingOptionsException;
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  * @package core
  */
+#[Package('core')]
 class EntityNotExists extends Constraint
 {
     public const ENTITY_EXISTS = 'fr456trg-r43w-ko87-z54e-de4r5tghzt65';

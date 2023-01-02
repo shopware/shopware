@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
@@ -13,6 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
  *
  * @extends EntityCollection<CustomerEntity>
  */
+#[Package('customer-order')]
 class CustomerCollection extends EntityCollection
 {
     /**

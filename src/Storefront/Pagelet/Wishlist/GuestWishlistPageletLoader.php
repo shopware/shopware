@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Wishlist;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class GuestWishlistPageletLoader
 {
     private const LIMIT = 100;

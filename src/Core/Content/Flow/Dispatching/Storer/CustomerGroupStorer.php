@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class CustomerGroupStorer extends FlowStorer
 {
     private EntityRepositoryInterface $customerGroupRepository;

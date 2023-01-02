@@ -1,4 +1,6 @@
 <?php declare(strict_types=1);
+use Slim\App;
+use Shopware\Recovery\Common\SystemLocker;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -15,7 +17,7 @@ date_default_timezone_set('Europe/Berlin');
 $config = require __DIR__ . '/../config/config.php';
 $container = new Container(new \Slim\Container(), $config);
 
-/** @var \Slim\App $app */
+/** @var App $app */
 $app = $container->get('app');
 
 $app->add(function (ServerRequestInterface $request, ResponseInterface $response, callable $next) use ($container, $app) {
@@ -125,7 +127,7 @@ $app->any('/done', function (ServerRequestInterface $request, ResponseInterface 
         file_put_contents($lastGeneratedVersionFile, $container->get('shopware.version'));
     }
 
-    /** @var \Shopware\Recovery\Common\SystemLocker $systemLocker */
+    /** @var SystemLocker $systemLocker */
     $systemLocker = $container->get('system.locker');
     $systemLocker();
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -14,6 +15,7 @@ use Shopware\Core\Content\Property\PropertyGroupCollection;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class SalesChannelProductEntity extends ProductEntity
 {
     /**

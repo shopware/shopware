@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -9,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 interface ProductSearchBuilderInterface
 {
     public function build(Request $request, Criteria $criteria, SalesChannelContext $context): void;

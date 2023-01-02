@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+use PHPUnit\Framework\TestCase;
 
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -8,7 +9,7 @@ use Shopware\Storefront\Framework\Twig\Extension\CsrfFunctionExtension;
 /**
  * @internal
  */
-class CsrfFunctionExtensionTest extends \PHPUnit\Framework\TestCase
+class CsrfFunctionExtensionTest extends TestCase
 {
     use IntegrationTestBehaviour;
 

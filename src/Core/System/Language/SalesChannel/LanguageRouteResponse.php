@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Language\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
@@ -9,6 +10,7 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class LanguageRouteResponse extends StoreApiResponse
 {
     /**

@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @final tag:v6.5.0
  * @package core
  */
+#[Package('core')]
 class SearchPattern
 {
     public const BOOLEAN_CLAUSE_AND = 'boolean_clause_and';

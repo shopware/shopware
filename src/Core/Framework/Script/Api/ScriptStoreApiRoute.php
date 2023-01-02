@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -19,6 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @Route(defaults={"_routeScope"={"store-api"}})
  * @package core
  */
+#[Package('core')]
 class ScriptStoreApiRoute
 {
     public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';

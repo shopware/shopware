@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Maintenance\SalesChannel\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -16,6 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @internal should be used over the CLI only
  */
+#[Package('core')]
 class SalesChannelMaintenanceEnableCommand extends Command
 {
     protected static $defaultName = 'sales-channel:maintenance:enable';

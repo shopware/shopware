@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Routing\NotFound;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -31,6 +32,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('storefront')]
 class NotFoundSubscriber implements EventSubscriberInterface
 {
     private const ALL_TAG = 'error-page';

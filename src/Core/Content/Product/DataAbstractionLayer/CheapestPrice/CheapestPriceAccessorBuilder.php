@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice;
 
+use Shopware\Core\Framework\Log\Package;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 /**
  * @package core
  */
+#[Package('core')]
 class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
 {
     private int $maxRulePrices;

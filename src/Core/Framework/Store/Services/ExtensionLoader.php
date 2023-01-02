@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\AppCollection;
@@ -35,6 +36,7 @@ use Symfony\Component\Intl\Locales;
  *
  * @internal
  */
+#[Package('merchant-services')]
 class ExtensionLoader
 {
     private const DEFAULT_LOCALE = 'en_GB';

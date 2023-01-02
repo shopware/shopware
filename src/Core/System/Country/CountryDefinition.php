@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Country;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Defaults;
@@ -33,6 +34,7 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleDefinition;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class CountryDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'country';

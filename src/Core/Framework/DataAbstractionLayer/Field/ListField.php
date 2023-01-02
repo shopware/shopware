@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ListFieldSerializer;
 use Shopware\Core\Framework\Feature;
 
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\Feature;
  *      [12,55,192,22]
  * @package core
  */
+#[Package('core')]
 class ListField extends JsonField
 {
     /**

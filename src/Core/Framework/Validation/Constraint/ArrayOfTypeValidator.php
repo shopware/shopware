@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Validation\Constraint;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Type;
@@ -11,6 +12,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 /**
  * @package core
  */
+#[Package('core')]
 class ArrayOfTypeValidator extends ConstraintValidator
 {
     public function validate($value, Constraint $constraint): void

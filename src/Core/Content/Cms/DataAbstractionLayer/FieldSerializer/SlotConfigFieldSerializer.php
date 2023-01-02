@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
@@ -13,6 +14,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @package content
  */
+#[Package('content')]
 class SlotConfigFieldSerializer extends JsonFieldSerializer
 {
     protected function getConstraints(Field $field): array

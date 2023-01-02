@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\AbstractEntitySerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 /**
  * @package core
  */
+#[Package('core')]
 abstract class AbstractFieldSerializer
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Seo\SeoUrlRoute;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
@@ -18,6 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
 {
     public const ROUTE_NAME = 'frontend.navigation.page';

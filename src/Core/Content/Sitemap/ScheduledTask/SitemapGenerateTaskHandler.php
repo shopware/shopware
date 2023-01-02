@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\ScheduledTask;
 
+use Shopware\Core\Framework\Log\Package;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Sitemap\Event\SitemapSalesChannelCriteriaEvent;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
@@ -26,6 +27,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - MessageHandler will be internal and final starting with v6.5.0.0
  */
+#[Package('sales-channel')]
 class SitemapGenerateTaskHandler extends ScheduledTaskHandler
 {
     private EntityRepositoryInterface $salesChannelRepository;

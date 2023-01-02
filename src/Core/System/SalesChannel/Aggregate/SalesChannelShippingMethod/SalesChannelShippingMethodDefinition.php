@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -14,6 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SalesChannelShippingMethodDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'sales_channel_shipping_method';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Util;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @deprecated tag:v6.5.0 - Use PromotionCodeService instead
  * @package checkout
  */
+#[Package('checkout')]
 class PromotionCodesLoader
 {
     private Connection $connection;

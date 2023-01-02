@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Installer\Requirements;
 
+use Shopware\Core\Framework\Log\Package;
 use Composer\Composer;
 use Composer\Repository\PlatformRepository;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
@@ -13,6 +14,7 @@ use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
  *
  * @internal
  */
+#[Package('core')]
 class EnvironmentRequirementsValidator implements RequirementsValidatorInterface
 {
     private Composer $composer;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
+use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class AssetService
 {
     private FilesystemInterface $filesystem;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
@@ -10,6 +11,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 trait PromotionCartInformationTrait
 {
     /**

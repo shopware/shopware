@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Feature;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Feature;
  *
  * @deprecated tag:v6.5.0 - use `shopware.increment.message_queue.gateway` service instead
  */
+#[Package('core')]
 class MessageQueueStatsEntity extends Entity
 {
     use EntityIdTrait;

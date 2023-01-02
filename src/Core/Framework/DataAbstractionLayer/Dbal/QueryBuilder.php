@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Query\QueryBuilder as DBALQueryBuilder;
 
 /**
  * @package core
  */
+#[Package('core')]
 class QueryBuilder extends DBALQueryBuilder
 {
     /**

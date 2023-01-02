@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Content\ImportExport\Message;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class DeleteFileMessage
 {
     /**

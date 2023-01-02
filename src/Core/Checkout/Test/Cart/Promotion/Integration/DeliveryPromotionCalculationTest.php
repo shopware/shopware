@@ -2,6 +2,12 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration;
 
+use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Doctrine\DBAL\Exception;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
@@ -63,10 +69,10 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testAbsoluteDeliveryDiscount(): void
     {
@@ -106,10 +112,10 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testPercentageDeliveryDiscount(): void
     {
@@ -149,10 +155,10 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testPercentageAutoDeliveryDiscount(): void
     {
@@ -183,10 +189,10 @@ class DeliveryPromotionCalculationTest extends TestCase
      *
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testPercentageAbsoluteDeliveryDiscountCombination(): void
     {
@@ -228,10 +234,10 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\Exception
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws Exception
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testAbsoluteDeliveryDiscountHigherThanShippingCosts(): void
     {
@@ -267,10 +273,10 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\Exception
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws Exception
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testFixedDeliveryDiscountHigherThanShippingCosts(): void
     {
@@ -306,10 +312,10 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\Exception
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws Exception
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testFixedDeliveryDiscount(): void
     {
@@ -346,10 +352,10 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\Exception
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws Exception
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testFixedDeliveryDiscountWithCurrency(): void
     {
@@ -391,10 +397,10 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\Exception
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws Exception
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testMultipleDeliveryDiscountsWithFixed(): void
     {
@@ -442,10 +448,10 @@ class DeliveryPromotionCalculationTest extends TestCase
      * NEXT-21735 - Sometimes has a $reduceValue of 0
      * @group not-deterministic
      *
-     * @throws \Doctrine\DBAL\Exception
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws Exception
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testMultipleDeliveryDiscountsWithoutFixed(): void
     {
@@ -488,10 +494,10 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\Exception
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws Exception
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testMultipleFixedPriceDeliveryDiscounts(): void
     {
@@ -670,7 +676,7 @@ class DeliveryPromotionCalculationTest extends TestCase
     /**
      * helper function for deleting our created promotions
      *
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
+     * @throws InconsistentCriteriaIdsException
      */
     private function deletePromotions(): void
     {

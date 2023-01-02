@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Plugin\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
  * @package core
  */
+#[Package('core')]
 class KernelPluginLoaderException extends ShopwareHttpException
 {
     public function __construct(string $plugin, string $reason)

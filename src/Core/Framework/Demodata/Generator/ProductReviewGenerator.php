@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Defaults;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
  * @package core
  */
+#[Package('core')]
 class ProductReviewGenerator implements DemodataGeneratorInterface
 {
     private EntityWriterInterface $writer;

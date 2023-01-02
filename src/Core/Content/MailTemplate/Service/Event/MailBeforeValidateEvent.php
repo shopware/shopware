@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Monolog\Logger;
 use Shopware\Core\Content\Flow\Dispatching\Aware\DataAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\TemplateDataAware;
@@ -16,6 +17,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class MailBeforeValidateEvent extends Event implements BusinessEventInterface, LogAware, TemplateDataAware, DataAware
 {
     public const EVENT_NAME = 'mail.before.send';

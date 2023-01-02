@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Helper;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupRegistrationSalesChannel\CustomerGroupRegistrationSalesChannelDefinition;
@@ -154,6 +155,7 @@ use Shopware\Core\System\User\UserDefinition;
  *
  * @internal
  */
+#[Package('merchant-services')]
 class PermissionCategorization
 {
     private const CATEGORY_APP = 'app';

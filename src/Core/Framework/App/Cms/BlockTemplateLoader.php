@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Cms;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Exception\AppCmsExtensionException;
 use Symfony\Component\Finder\Finder;
 
@@ -10,6 +11,7 @@ use Symfony\Component\Finder\Finder;
  *
  * @internal
  */
+#[Package('content')]
 class BlockTemplateLoader extends AbstractBlockTemplateLoader
 {
     public function getTemplateForBlock(CmsExtensions $cmsExtensions, string $blockName): string

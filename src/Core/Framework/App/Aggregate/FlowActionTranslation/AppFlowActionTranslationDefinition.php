@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\FlowActionTranslation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package core
  */
+#[Package('core')]
 class AppFlowActionTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'app_flow_action_translation';

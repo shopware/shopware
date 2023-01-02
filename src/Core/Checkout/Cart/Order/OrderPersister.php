@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Order;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
@@ -16,6 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class OrderPersister implements OrderPersisterInterface
 {
     private EntityRepositoryInterface $orderRepository;

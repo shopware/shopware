@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\ProductEvents;
@@ -26,6 +27,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @package system-settings
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('system-settings')]
 class ProductSearchRoute extends AbstractProductSearchRoute
 {
     private EventDispatcherInterface $eventDispatcher;

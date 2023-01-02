@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 
 /**
  * @final tag:v6.5.0
  * @package core
  */
+#[Package('core')]
 class WriteResult extends DeleteResult
 {
     /**

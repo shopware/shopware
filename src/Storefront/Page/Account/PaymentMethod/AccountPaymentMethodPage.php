@@ -2,12 +2,14 @@
 
 namespace Shopware\Storefront\Page\Account\PaymentMethod;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Storefront\Page\Page;
 
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class AccountPaymentMethodPage extends Page
 {
     /**

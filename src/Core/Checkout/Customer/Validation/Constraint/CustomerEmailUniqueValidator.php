@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -14,6 +15,7 @@ use function array_filter;
  * @Annotation
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
+#[Package('customer-order')]
 class CustomerEmailUniqueValidator extends ConstraintValidator
 {
     private Connection $connection;

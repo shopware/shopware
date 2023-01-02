@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ShopwareEvent;
@@ -10,6 +11,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package core
  */
+#[Package('core')]
 class ElasticsearchIndexerLanguageCriteriaEvent extends Event implements ShopwareEvent
 {
     private Criteria $criteria;

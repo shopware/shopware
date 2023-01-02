@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class ProductStreamFilterDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_stream_filter';

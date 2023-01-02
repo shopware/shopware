@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Installer\Database;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Migration\MigrationSource;
  *
  * @internal
  */
+#[Package('core')]
 class MigrationCollectionFactory
 {
     private string $projectDir;

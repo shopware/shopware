@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi;
 
+use Shopware\Core\Framework\Log\Package;
 use OpenApi\Annotations\MediaType;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
@@ -19,6 +20,7 @@ use const OpenApi\Annotations\UNDEFINED;
  * @deprecated tag:v6.5.0 - Will be removed
  * @package core
  */
+#[Package('core')]
 class OpenApiLoader
 {
     private const OPERATION_KEYS = [

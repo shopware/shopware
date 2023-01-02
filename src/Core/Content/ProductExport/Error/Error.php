@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\Error;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\AssignArrayTrait;
 use Shopware\Core\Framework\Struct\CreateFromTrait;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 abstract class Error extends \Exception implements \JsonSerializable
 {
     use JsonSerializableTrait;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Commands;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Sitemap\Event\SitemapSalesChannelCriteriaEvent;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
@@ -25,6 +26,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SitemapGenerateCommand extends Command
 {
     public static $defaultName = 'sitemap:generate';

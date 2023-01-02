@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @deprecated tag:v6.5.0 - Will be removed. Use \Shopware\Core\Checkout\Cart\CartException::paymentMethodNotChangeable instead
  */
+#[Package('checkout')]
 class OrderPaymentMethodNotChangeable extends ShopwareHttpException
 {
     public function __construct(?\Throwable $e = null)

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class PaymentMethodRule extends Rule
 {
     private const NAME = 'paymentMethod';

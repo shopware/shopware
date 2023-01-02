@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -21,6 +22,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @internal
  */
+#[Package('checkout')]
 class CartFacadeHelper implements ResetInterface
 {
     private LineItemFactoryRegistry $factory;

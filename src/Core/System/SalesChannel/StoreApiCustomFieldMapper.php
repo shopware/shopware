@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Contracts\Service\ResetInterface;
@@ -9,6 +10,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class StoreApiCustomFieldMapper implements ResetInterface
 {
     private Connection $connection;

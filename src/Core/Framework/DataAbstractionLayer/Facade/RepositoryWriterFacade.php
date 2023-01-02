@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Facade;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncResult;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Feature;
  * @script-service custom_endpoint
  * @package core
  */
+#[Package('core')]
 class RepositoryWriterFacade
 {
     private DefinitionInstanceRegistry $registry;

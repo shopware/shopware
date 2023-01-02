@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Changelog\Processor;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Changelog\ChangelogDefinition;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
  * @package core
  */
+#[Package('core')]
 class ChangelogGenerator extends ChangelogProcessor
 {
     public function generate(ChangelogDefinition $template, string $date, bool $dryRun = false): string

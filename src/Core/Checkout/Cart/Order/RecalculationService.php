@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Order;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
@@ -42,6 +43,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class RecalculationService
 {
     protected EntityRepositoryInterface $orderRepository;

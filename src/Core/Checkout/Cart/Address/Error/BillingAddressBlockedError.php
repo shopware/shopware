@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\Address\Error;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Error\Error;
 
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class BillingAddressBlockedError extends Error
 {
     private const KEY = 'billing-address-blocked';

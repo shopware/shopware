@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
+use Shopware\Core\Framework\Log\Package;
 use Elasticsearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
@@ -12,6 +13,7 @@ use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexCreatedEve
 /**
  * @package core
  */
+#[Package('core')]
 class IndexCreator
 {
     private Client $client;

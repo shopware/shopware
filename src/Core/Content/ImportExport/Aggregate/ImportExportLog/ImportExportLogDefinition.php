@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileDefinition;
 use Shopware\Core\Content\ImportExport\ImportExportProfileDefinition;
 use Shopware\Core\Framework\Context;
@@ -23,6 +24,7 @@ use Shopware\Core\System\User\UserDefinition;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExportLogDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'import_export_log';

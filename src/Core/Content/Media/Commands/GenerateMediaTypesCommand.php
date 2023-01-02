@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Commands;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
@@ -18,6 +19,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @package content
  */
+#[Package('content')]
 class GenerateMediaTypesCommand extends Command
 {
     protected static $defaultName = 'media:generate-media-types';

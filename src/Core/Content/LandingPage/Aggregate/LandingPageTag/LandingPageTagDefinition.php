@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\LandingPage\Aggregate\LandingPageTag;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -15,6 +16,7 @@ use Shopware\Core\System\Tag\TagDefinition;
 /**
  * @package content
  */
+#[Package('content')]
 class LandingPageTagDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'landing_page_tag';

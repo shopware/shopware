@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Navigation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Storefront\Page\Page;
@@ -9,6 +10,7 @@ use Shopware\Storefront\Page\Page;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class NavigationPage extends Page
 {
     /**

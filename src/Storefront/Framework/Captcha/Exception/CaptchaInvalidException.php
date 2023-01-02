@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Captcha\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Symfony\Component\HttpFoundation\Response;
@@ -9,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class CaptchaInvalidException extends ShopwareHttpException
 {
     public function __construct(AbstractCaptcha $captcha)

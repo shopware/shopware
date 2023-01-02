@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Annotation\Concept\ExtensionPattern;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\Common\Annotations\Annotation;
 
 /**
@@ -12,6 +13,7 @@ use Doctrine\Common\Annotations\Annotation;
  * Every ExtensionPattern provides a description of the used pattern, prerequisites the core code must meet in order to apply this pattern and an introduction on how to use this pattern.
  * @package core
  */
+#[Package('core')]
 class ExtensionPattern
 {
 }

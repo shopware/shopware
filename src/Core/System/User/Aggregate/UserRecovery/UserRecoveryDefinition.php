@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User\Aggregate\UserRecovery;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -16,6 +17,7 @@ use Shopware\Core\System\User\UserDefinition;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class UserRecoveryDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'user_recovery';

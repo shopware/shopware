@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  *
  * @internal
  */
+#[Package('checkout')]
 class RuleLoader extends AbstractRuleLoader
 {
     private EntityRepositoryInterface $repository;

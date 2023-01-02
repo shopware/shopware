@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Route;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -13,6 +14,7 @@ use Symfony\Component\Routing\RouteCollection;
 /**
  * @package core
  */
+#[Package('core')]
 class ApiRouteLoader extends Loader
 {
     private DefinitionInstanceRegistry $definitionRegistry;

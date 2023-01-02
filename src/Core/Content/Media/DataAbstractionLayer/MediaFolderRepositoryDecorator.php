@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
  * @deprecated tag:v6.5.0 - reason:remove-decorator - Will be removed
  * @package core
  */
+#[Package('core')]
 class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
 {
     private EntityRepositoryInterface $innerRepo;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Entity;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -12,6 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @deprecated tag:v6.5.0 - will be removed, use SalesChannelRepository type hint instead
  * @package sales-channel
  */
+#[Package('sales-channel')]
 interface SalesChannelRepositoryInterface
 {
     public function search(Criteria $criteria, SalesChannelContext $salesChannelContext): EntitySearchResult;

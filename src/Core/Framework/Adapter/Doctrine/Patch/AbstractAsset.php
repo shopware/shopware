@@ -6,6 +6,7 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use function array_map;
 use function crc32;
@@ -29,6 +30,7 @@ if (class_exists('\Doctrine\DBAL\Schema\AbstractAsset', false)) {
  * This encapsulation hack is necessary to keep a consistent state of the database schema. Say we have a list of tables
  * array($tableName => Table($tableName)); if you want to rename the table, you have to make sure
  */
+#[Package('core')]
 abstract class AbstractAsset
 {
     /**

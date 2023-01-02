@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
+use Shopware\Core\Framework\Log\Package;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
@@ -16,6 +17,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @package core
  */
+#[Package('core')]
 class PackageAnnotationRule implements Rule
 {
     /**

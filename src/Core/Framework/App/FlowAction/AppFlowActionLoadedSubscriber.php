@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\FlowAction;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -10,6 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @internal
  * @package core
  */
+#[Package('core')]
 class AppFlowActionLoadedSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

@@ -2,11 +2,13 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package core
  *
  * @internal
  */
+#[Package('core')]
 class ElasticsearchLanguageIndexIteratorMessage
 {
     private string $languageId;

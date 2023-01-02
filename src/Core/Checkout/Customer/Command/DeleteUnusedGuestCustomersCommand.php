@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerService;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
@@ -12,6 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class DeleteUnusedGuestCustomersCommand extends Command
 {
     protected static $defaultName = 'customer:delete-unused-guests';

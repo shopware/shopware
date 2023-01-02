@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\System\Country\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheTagsEvent;
 
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class CountryRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
 }

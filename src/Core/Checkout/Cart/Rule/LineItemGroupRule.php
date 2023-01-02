@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
@@ -19,6 +20,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class LineItemGroupRule extends FilterRule
 {
     protected string $groupId;

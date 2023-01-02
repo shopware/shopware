@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Cms;
 
+use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 /**
  * @package content
  */
+#[Package('content')]
 class DefaultMediaResolver extends AbstractDefaultMediaResolver
 {
     private FilesystemInterface $filesystem;

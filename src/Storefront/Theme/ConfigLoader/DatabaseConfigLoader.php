@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\ConfigLoader;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -21,6 +22,7 @@ use Shopware\Storefront\Theme\ThemeEntity;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class DatabaseConfigLoader extends AbstractConfigLoader
 {
     private EntityRepositoryInterface $themeRepository;

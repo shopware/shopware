@@ -2,11 +2,13 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package storefront
  *
  * @internal - may be changed in the future
  */
+#[Package('storefront')]
 abstract class AbstractScssCompiler
 {
     abstract public function compileString(

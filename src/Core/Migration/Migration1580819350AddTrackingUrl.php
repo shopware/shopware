@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Migration;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package core
  *
  * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
  */
+#[Package('core')]
 class Migration1580819350AddTrackingUrl extends \Shopware\Core\Migration\V6_3\Migration1580819350AddTrackingUrl
 {
 }

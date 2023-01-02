@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  *
  * @phpstan-import-type Domain from AbstractDomainLoader
  */
+#[Package('storefront')]
 class DomainLoader extends AbstractDomainLoader
 {
     /**

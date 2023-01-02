@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Plugin;
@@ -14,6 +15,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
  * @package core
  * @Decoratable
  */
+#[Package('core')]
 class BundleConfigGenerator implements BundleConfigGeneratorInterface
 {
     private Kernel $kernel;

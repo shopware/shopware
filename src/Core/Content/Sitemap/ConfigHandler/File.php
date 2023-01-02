@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\Sitemap\ConfigHandler;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class File implements ConfigHandlerInterface
 {
     /**

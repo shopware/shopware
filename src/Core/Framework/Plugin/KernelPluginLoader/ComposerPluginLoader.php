@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Plugin\KernelPluginLoader;
 
+use Shopware\Core\Framework\Log\Package;
 use Composer\InstalledVersions;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 
 /**
  * @package core
  */
+#[Package('core')]
 class ComposerPluginLoader extends KernelPluginLoader
 {
     protected function loadPluginInfos(): void

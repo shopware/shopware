@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\System\SystemConfig\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class BeforeSystemConfigChangedEvent extends Event
 {
     private string $key;

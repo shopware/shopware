@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\Flow\Aggregate\FlowTemplate;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class FlowTemplateEntity extends Entity
 {
     use EntityIdTrait;

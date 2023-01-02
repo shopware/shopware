@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\System\Locale;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\HttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class LocaleException extends HttpException
 {
     public const LOCALE_DOES_NOT_EXISTS_EXCEPTION = 'SYSTEM__LOCALE_DOES_NOT_EXISTS';

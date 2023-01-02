@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\RuleCollection;
 
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class RuleLoaderResult
 {
     /**

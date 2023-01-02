@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\StateMachine;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -22,6 +23,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class StateMachineDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'state_machine';

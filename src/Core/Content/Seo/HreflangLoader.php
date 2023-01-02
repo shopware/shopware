@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\Hreflang\HreflangCollection;
 use Shopware\Core\Content\Seo\Hreflang\HreflangStruct;
@@ -17,6 +18,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class HreflangLoader implements HreflangLoaderInterface
 {
     private RouterInterface $router;

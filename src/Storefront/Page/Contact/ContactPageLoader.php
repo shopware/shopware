@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Contact;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @deprecated tag:v6.5.0 the according controller was already removed, use store-api ContactRoute instead
  */
+#[Package('storefront')]
 class ContactPageLoader
 {
     /**

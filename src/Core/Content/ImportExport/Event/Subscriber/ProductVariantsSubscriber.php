@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Event\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
@@ -25,6 +26,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterface
 {
     private SyncServiceInterface $syncService;

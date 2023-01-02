@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing\Annotation;
 
+use Shopware\Core\Framework\Log\Package;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -13,6 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @Annotation
  * @package core
  */
+#[Package('core')]
 class LoginRequired implements ConfigurationInterface
 {
     /**

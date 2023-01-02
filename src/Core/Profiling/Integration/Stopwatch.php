@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Profiling\Integration;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Stopwatch\Stopwatch as SymfonyStopwatch;
 
 /**
@@ -9,6 +10,7 @@ use Symfony\Component\Stopwatch\Stopwatch as SymfonyStopwatch;
  *
  * @internal experimental atm
  */
+#[Package('core')]
 class Stopwatch implements ProfilerInterface
 {
     private ?SymfonyStopwatch $stopwatch;

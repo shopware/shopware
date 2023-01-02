@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\System\SalesChannel\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
@@ -15,6 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class SalesChannelUserConfigSubscriber implements EventSubscriberInterface
 {
     public const CONFIG_KEY = 'sales-channel-favorites';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStateHandler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PaymentRefundProcessor
 {
     private const TABLE_ALIAS = 'refund';

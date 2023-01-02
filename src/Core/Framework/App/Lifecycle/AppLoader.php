@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
@@ -18,6 +19,7 @@ use Symfony\Component\Finder\Finder;
  * @internal
  * @package core
  */
+#[Package('core')]
 class AppLoader extends AbstractAppLoader
 {
     private string $appDir;

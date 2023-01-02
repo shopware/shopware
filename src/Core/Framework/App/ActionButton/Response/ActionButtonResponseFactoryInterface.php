@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\ActionButton\Response;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\Context;
 
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Context;
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 interface ActionButtonResponseFactoryInterface
 {
     public function supports(string $actionType): bool;

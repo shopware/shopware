@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -11,6 +12,7 @@ use Symfony\Contracts\Cache\ItemInterface;
  *
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
+#[Package('sales-channel')]
 class CachedSeoResolver extends AbstractSeoResolver
 {
     private AbstractSeoResolver $decorated;

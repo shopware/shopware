@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Snippet\Aggregate\SnippetSet;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -19,6 +20,7 @@ use Shopware\Core\System\Snippet\SnippetDefinition;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class SnippetSetDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'snippet_set';

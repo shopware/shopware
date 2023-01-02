@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\SeoUrl;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -20,6 +21,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SeoUrlDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'seo_url';

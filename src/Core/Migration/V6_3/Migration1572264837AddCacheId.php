@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Migration\V6_3;
 
+use Shopware\Core\Framework\Log\Package;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -11,6 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
  */
+#[Package('core')]
 class Migration1572264837AddCacheId extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -24,7 +27,7 @@ class Migration1572264837AddCacheId extends MigrationStep
 
         try {
             $connection->executeStatement('ALTER TABLE app_config ADD PRIMARY KEY (`key`)');
-        } catch (\Doctrine\DBAL\Exception $e) {
+        } catch (Exception $e) {
             // PK already exists
         }
 

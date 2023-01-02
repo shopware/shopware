@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Aggregate;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -13,6 +14,7 @@ use Shopware\Storefront\Theme\ThemeDefinition;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class ThemeTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'theme_translation';

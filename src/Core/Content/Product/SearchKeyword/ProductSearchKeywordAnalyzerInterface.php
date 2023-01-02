@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 
 /**
  * @package inventory
  */
+#[Package('inventory')]
 interface ProductSearchKeywordAnalyzerInterface
 {
     /**

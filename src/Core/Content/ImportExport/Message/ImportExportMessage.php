@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\ImportExport\Message;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExportMessage
 {
     private Context $context;

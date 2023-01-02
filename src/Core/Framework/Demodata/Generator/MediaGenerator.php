@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
+use Shopware\Core\Framework\Log\Package;
+use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
@@ -23,6 +25,7 @@ use Symfony\Component\Finder\Finder;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
  * @package core
  */
+#[Package('core')]
 class MediaGenerator implements DemodataGeneratorInterface
 {
     private EntityWriterInterface $writer;
@@ -173,8 +176,8 @@ class MediaGenerator implements DemodataGeneratorInterface
         /*
          * @deprecated tag:v6.5.0 remove and replace by importing \Maltyxx\ImagesGenerator\ImagesGeneratorProvider
          */
-        if (\class_exists(\Maltyxx\ImagesGenerator\ImagesGeneratorProvider::class)) {
-            $provider = \Maltyxx\ImagesGenerator\ImagesGeneratorProvider::class;
+        if (\class_exists(ImagesGeneratorProvider::class)) {
+            $provider = ImagesGeneratorProvider::class;
         } else {
             $provider = \bheller\ImagesGenerator\ImagesGeneratorProvider::class;
         }

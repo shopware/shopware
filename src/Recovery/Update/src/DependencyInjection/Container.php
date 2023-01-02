@@ -2,6 +2,7 @@
 
 namespace Shopware\Recovery\Update\DependencyInjection;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\DriverManager;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -32,6 +33,7 @@ use const SW_PATH;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class Container extends BaseContainer
 {
     public function setup(\Pimple\Container $container): void

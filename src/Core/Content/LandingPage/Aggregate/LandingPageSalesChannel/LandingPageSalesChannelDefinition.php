@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\LandingPage\Aggregate\LandingPageSalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -15,6 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package content
  */
+#[Package('content')]
 class LandingPageSalesChannelDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'landing_page_sales_channel';

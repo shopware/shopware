@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Routing\Annotation;
 
+use Shopware\Core\Framework\Log\Package;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
 
 /**
  * @Annotation
  * @package core
  */
+#[Package('core')]
 class Since extends ConfigurationAnnotation
 {
     /**

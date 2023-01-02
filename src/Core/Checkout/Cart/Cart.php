@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class Cart extends Struct
 {
     use StateAwareTrait;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Product;
 
+use Shopware\Core\Framework\Log\Package;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 /**
  * @package core
  */
+#[Package('core')]
 abstract class AbstractProductSearchQueryBuilder
 {
     abstract public function getDecorated(): AbstractProductSearchQueryBuilder;

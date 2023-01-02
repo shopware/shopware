@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductStream\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\Context;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class ProductStreamBuilder implements ProductStreamBuilderInterface
 {
     /**

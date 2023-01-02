@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -21,6 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Package('customer-order')]
 class AccountNewsletterRecipientRoute extends AbstractAccountNewsletterRecipientRoute
 {
     private SalesChannelRepositoryInterface $newsletterRecipientRepository;

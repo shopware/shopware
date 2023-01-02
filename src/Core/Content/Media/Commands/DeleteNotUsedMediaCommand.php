@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Commands;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\DeleteNotUsedMediaService;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
@@ -14,6 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package content
  */
+#[Package('content')]
 class DeleteNotUsedMediaCommand extends Command
 {
     protected static $defaultName = 'media:delete-unused';

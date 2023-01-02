@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 
 /**
  * @package checkout
  */
+#[Package('checkout')]
 interface RefundPaymentHandlerInterface extends PaymentHandlerInterface
 {
     public function refund(string $refundId, Context $context): void;

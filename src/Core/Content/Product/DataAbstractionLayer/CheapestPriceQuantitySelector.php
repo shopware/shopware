@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  * Allows project overrides to change cheapest price selection
  * @package core
  */
+#[Package('core')]
 class CheapestPriceQuantitySelector extends AbstractCheapestPriceQuantitySelector
 {
     public function getDecorated(): AbstractCheapestPriceQuantitySelector

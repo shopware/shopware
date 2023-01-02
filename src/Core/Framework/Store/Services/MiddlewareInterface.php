@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -9,6 +10,7 @@ use Psr\Http\Message\ResponseInterface;
  *
  * @internal
  */
+#[Package('merchant-services')]
 interface MiddlewareInterface
 {
     public function __invoke(ResponseInterface $response): ResponseInterface;

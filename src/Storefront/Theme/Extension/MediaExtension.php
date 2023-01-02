@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Extension;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -13,6 +14,7 @@ use Shopware\Storefront\Theme\ThemeDefinition;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class MediaExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void

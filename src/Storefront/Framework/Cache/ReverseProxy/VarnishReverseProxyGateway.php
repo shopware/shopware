@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Cache\ReverseProxy;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @see https://github.com/varnish/varnish-modules/blob/master/src/vmod_xkey.vcc
  */
+#[Package('storefront')]
 class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
 {
     /**

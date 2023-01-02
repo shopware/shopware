@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
 use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\OutputStyle;
 
@@ -10,6 +11,7 @@ use ScssPhp\ScssPhp\OutputStyle;
  *
  * @internal - may be changed in the future
  */
+#[Package('storefront')]
 class ScssPhpCompiler extends AbstractScssCompiler
 {
     private Compiler $compiler;

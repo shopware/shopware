@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Country\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 abstract class AbstractCountryStateRoute
 {
     abstract public function load(string $countryId, Request $request, Criteria $criteria, SalesChannelContext $context): CountryStateRouteResponse;

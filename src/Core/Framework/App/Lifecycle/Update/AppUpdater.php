@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Update;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
  * @internal
  * @package core
  */
+#[Package('core')]
 class AppUpdater extends AbstractAppUpdater
 {
     private AbstractExtensionDataProvider $extensionDataProvider;

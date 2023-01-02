@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Cms;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Cms\Xml\Blocks;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
@@ -11,6 +12,7 @@ use Symfony\Component\Config\Util\XmlUtils;
  *
  * @internal
  */
+#[Package('content')]
 class CmsExtensions
 {
     private const XSD_FILE = __DIR__ . '/Schema/cms-1.0.xsd';

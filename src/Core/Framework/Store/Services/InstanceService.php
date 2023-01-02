@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 
 /**
@@ -9,6 +10,7 @@ use Shopware\Core\Kernel;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal
  */
+#[Package('merchant-services')]
 class InstanceService
 {
     private string $shopwareVersion;

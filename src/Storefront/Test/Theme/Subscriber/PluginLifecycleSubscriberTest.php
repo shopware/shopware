@@ -2,6 +2,10 @@
 
 namespace Shopware\Storefront\Test\Theme\Subscriber;
 
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
+use Shopware\Core\Framework\Plugin\Event\PluginPreActivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
+use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -36,7 +40,7 @@ class PluginLifecycleSubscriberTest extends TestCase
     public function testThemeLifecycleIsNotCalledWhenDeactivatedUsingContextOnActivate(): void
     {
         $context = Context::createDefaultContext();
-        $context->addState(Plugin\PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
+        $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
         $event = new PluginPostActivateEvent(
             $this->getPlugin(),
             new ActivateContext(
@@ -66,8 +70,8 @@ class PluginLifecycleSubscriberTest extends TestCase
     {
         Feature::skipTestIfActive('v6.5.0.0', $this);
         $context = Context::createDefaultContext();
-        $context->addState(Plugin\PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
-        $event = new Plugin\Event\PluginPreActivateEvent(
+        $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
+        $event = new PluginPreActivateEvent(
             $this->getPlugin(),
             new ActivateContext(
                 $this->createMock(Plugin::class),
@@ -99,10 +103,10 @@ class PluginLifecycleSubscriberTest extends TestCase
     public function testThemeLifecycleIsNotCalledWhenDeactivatedUsingContextOnUpdate(): void
     {
         $context = Context::createDefaultContext();
-        $context->addState(Plugin\PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
-        $event = new Plugin\Event\PluginPreUpdateEvent(
+        $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
+        $event = new PluginPreUpdateEvent(
             $this->getPlugin(),
-            new Plugin\Context\UpdateContext(
+            new UpdateContext(
                 $this->createMock(Plugin::class),
                 $context,
                 '6.1.0',

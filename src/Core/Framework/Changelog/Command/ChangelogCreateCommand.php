@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Changelog\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Changelog\ChangelogDefinition;
 use Shopware\Core\Framework\Changelog\Processor\ChangelogGenerator;
 use Symfony\Component\Console\Command\Command;
@@ -16,6 +17,7 @@ use Symfony\Component\Process\Process;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
  * @package core
  */
+#[Package('core')]
 class ChangelogCreateCommand extends Command
 {
     protected static $defaultName = 'changelog:create';

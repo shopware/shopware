@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\Order;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderPaidException;
@@ -32,6 +33,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class AccountEditOrderPageLoader
 {
     private GenericPageLoaderInterface $genericLoader;

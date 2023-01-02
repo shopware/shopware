@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
@@ -46,6 +47,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * Contains recursive calls from extract->map->AssociationInterface->extract->map->....
  * @package core
  */
+#[Package('core')]
 class WriteCommandExtractor
 {
     private EntityWriteGatewayInterface $entityExistenceGateway;

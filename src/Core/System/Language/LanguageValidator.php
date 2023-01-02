@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Language;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Defaults;
@@ -24,6 +25,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('core')]
 class LanguageValidator implements EventSubscriberInterface
 {
     public const VIOLATION_PARENT_HAS_PARENT = 'parent_has_parent_violation';

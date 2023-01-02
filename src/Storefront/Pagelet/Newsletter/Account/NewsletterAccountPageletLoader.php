@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Newsletter\Account;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractAccountNewsletterRecipientRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @internal (flag:FEATURE_NEXT_14001) remove comment on feature release
  */
+#[Package('customer-order')]
 class NewsletterAccountPageletLoader
 {
     private EventDispatcherInterface $eventDispatcher;

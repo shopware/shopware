@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Facade;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -21,6 +22,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @script-service data_loading
  * @package core
  */
+#[Package('core')]
 class SalesChannelRepositoryFacade
 {
     private SalesChannelDefinitionInstanceRegistry $registry;

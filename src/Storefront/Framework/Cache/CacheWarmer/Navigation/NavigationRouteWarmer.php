@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Cache\CacheWarmer\Navigation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -11,6 +12,7 @@ use Shopware\Storefront\Framework\Cache\CacheWarmer\WarmUpMessage;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class NavigationRouteWarmer implements CacheRouteWarmer
 {
     /**

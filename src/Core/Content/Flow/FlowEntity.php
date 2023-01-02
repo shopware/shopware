@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceCollection;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class FlowEntity extends Entity
 {
     use EntityIdTrait;

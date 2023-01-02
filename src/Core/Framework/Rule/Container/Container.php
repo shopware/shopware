@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
  * @package business-ops
  * AbstractContainer implements setRules and addRule of the container interface
  */
+#[Package('business-ops')]
 abstract class Container extends Rule implements ContainerInterface
 {
     /**

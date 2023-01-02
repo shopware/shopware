@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Order\Transformer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class AddressTransformer
 {
     public static function transformCollection(CustomerAddressCollection $addresses, bool $useIdAsKey = false): array

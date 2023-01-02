@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_4;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceDefinition;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @phpstan-import-type SequenceData from Migration1648803451FixInvalidMigrationOfBusinessEventToFlow
  * @package core
  */
+#[Package('core')]
 class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
 {
     private const RECIPIENT_TYPE_DEFAULT = 'default';

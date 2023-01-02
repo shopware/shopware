@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\Context;
@@ -13,6 +14,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class SwitchBuyBoxVariantEvent extends Event implements ShopwareSalesChannelEvent
 {
     private Request $request;

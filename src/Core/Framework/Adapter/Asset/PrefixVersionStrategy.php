@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 
 /**
  * @package core
  */
+#[Package('core')]
 class PrefixVersionStrategy implements VersionStrategyInterface
 {
     private string $prefix;

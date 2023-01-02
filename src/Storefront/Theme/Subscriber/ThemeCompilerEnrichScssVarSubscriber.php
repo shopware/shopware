@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Exception as DBALException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
@@ -12,6 +13,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  * @package storefront
  */
+#[Package('storefront')]
 class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
 {
     private ConfigurationService $configurationService;

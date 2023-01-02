@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Installer\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Exception\DriverException;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
@@ -21,6 +22,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * @internal
  */
+#[Package('core')]
 class DatabaseConfigurationController extends InstallerController
 {
     private TranslatorInterface $translator;

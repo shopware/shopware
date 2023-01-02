@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\Category;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 
 /**
  * @package content
  */
+#[Package('content')]
 class CategoryEvents
 {
     /**

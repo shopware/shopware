@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem;
 
+use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use League\Flysystem\Handler;
 use League\Flysystem\PluginInterface;
@@ -9,6 +10,7 @@ use League\Flysystem\PluginInterface;
 /**
  * @package core
  */
+#[Package('core')]
 abstract class AbstractFilesystem implements FilesystemInterface
 {
     /**

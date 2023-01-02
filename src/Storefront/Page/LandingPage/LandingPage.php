@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\LandingPage;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
@@ -12,6 +13,7 @@ use Shopware\Storefront\Page\Page;
 /**
  * @package content
  */
+#[Package('content')]
 class LandingPage extends Page
 {
     /* @deprecated tag:v6.5.0 Trait will be removed. customFields will be found under the cmsPage and landingPage */

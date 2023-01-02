@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\NumberRange\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -16,6 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @Route(defaults={"_routeScope"={"api"}})
  * @package checkout
  */
+#[Package('checkout')]
 class NumberRangeController extends AbstractController
 {
     /**

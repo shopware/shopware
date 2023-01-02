@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\DataResolver\Element;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element;
@@ -14,7 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @package content
  */
-class FormCmsElementResolver extends Element\AbstractCmsElementResolver
+#[Package('content')]
+class FormCmsElementResolver extends AbstractCmsElementResolver
 {
     private AbstractSalutationRoute $salutationRoute;
 

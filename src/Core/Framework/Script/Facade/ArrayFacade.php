@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Facade;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * The ArrayFacade acts as a wrapper around an array and allows easier manipulation of arrays inside scripts.
  * An array facade can also be accessed like a "normal" array inside twig.
@@ -26,6 +27,7 @@ namespace Shopware\Core\Framework\Script\Facade;
  * @implements \IteratorAggregate<array-key, string|int|float|array|object|bool|null>
  * @package core
  */
+#[Package('core')]
 class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
 {
     private array $items;

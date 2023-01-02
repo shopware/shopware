@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
@@ -25,6 +26,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - FlowActions won't be executed over the event system anymore,
  * therefore the actions won't implement the EventSubscriberInterface anymore.
  */
+#[Package('business-ops')]
 class SetOrderStateAction extends FlowAction implements DelayableAction
 {
     public const FORCE_TRANSITION = 'force_transition';

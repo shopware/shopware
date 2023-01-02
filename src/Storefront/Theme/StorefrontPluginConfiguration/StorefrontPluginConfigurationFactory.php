@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Framework\ThemeInterface;
@@ -12,6 +13,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfigurationFactory
 {
     /**

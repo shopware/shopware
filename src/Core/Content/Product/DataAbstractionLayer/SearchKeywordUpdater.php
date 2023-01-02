@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
@@ -29,6 +30,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class SearchKeywordUpdater implements ResetInterface
 {
     private Connection $connection;

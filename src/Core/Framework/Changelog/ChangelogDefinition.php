@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Changelog;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -11,6 +12,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
  */
+#[Package('core')]
 class ChangelogDefinition
 {
     /**

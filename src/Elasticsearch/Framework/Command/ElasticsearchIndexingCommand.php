@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
@@ -15,6 +16,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class ElasticsearchIndexingCommand extends Command
 {
     use ConsoleProgressTrait;

@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeType;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<NumberRangeTypeEntity>
  * @package checkout
  */
+#[Package('checkout')]
 class NumberRangeTypeCollection extends EntityCollection
 {
     public function getApiAlias(): string

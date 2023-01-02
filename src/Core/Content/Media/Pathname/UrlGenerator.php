@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Pathname;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Core\Content\Media\Exception\EmptyMediaIdException;
@@ -14,6 +15,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @package content
  */
+#[Package('content')]
 class UrlGenerator implements UrlGeneratorInterface, ResetInterface
 {
     private RequestStack $requestStack;

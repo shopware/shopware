@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook\Hookable;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
@@ -23,6 +24,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 class HookableEventCollector
 {
     public const HOOKABLE_ENTITIES = [

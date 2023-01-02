@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Facade\Traits\PriceFactoryTrait;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 
@@ -14,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
  * @script-service cart_manipulation
  * @package checkout
  */
+#[Package('checkout')]
 class CartPriceFacade
 {
     use PriceFactoryTrait;

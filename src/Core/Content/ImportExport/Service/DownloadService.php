@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\FileNotFoundException;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class DownloadService
 {
     private FilesystemInterface $filesystem;

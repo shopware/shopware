@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\System\Unit;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @package core
  * @extends EntityCollection<UnitEntity>
  */
+#[Package('core')]
 class UnitCollection extends EntityCollection
 {
     public function getApiAlias(): string

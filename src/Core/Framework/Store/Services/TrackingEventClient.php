@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 
 /**
@@ -9,6 +10,7 @@ use GuzzleHttp\Client;
  *
  * @internal
  */
+#[Package('merchant-services')]
 class TrackingEventClient
 {
     private Client $client;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExportProfileTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = ImportExportProfileDefinition::ENTITY_NAME . '_translation';

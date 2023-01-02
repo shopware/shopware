@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<CustomerWishlistEntity>
  * @package customer-order
  */
+#[Package('customer-order')]
 class CustomerWishlistCollection extends EntityCollection
 {
     public function getApiAlias(): string

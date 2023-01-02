@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
+use Shopware\Core\Framework\Log\Package;
 use PhpParser\Node;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Identifier;
@@ -19,6 +20,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
  *
  * @implements Rule<StaticCall>
  */
+#[Package('core')]
 class NoEnvironmentHelperInsideCompilerPassRule implements Rule
 {
     public function getNodeType(): string

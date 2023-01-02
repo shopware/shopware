@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Dispatching\Aware\NewsletterRecipientAware;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
@@ -19,6 +20,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @deprecated tag:v6.5.0 will be removed as it was not thrown
  * @package customer-order
  */
+#[Package('customer-order')]
 class NewsletterUpdateEvent extends Event implements SalesChannelAware, MailAware, NewsletterRecipientAware
 {
     public const EVENT_NAME = NewsletterEvents::NEWSLETTER_UPDATE_EVENT;

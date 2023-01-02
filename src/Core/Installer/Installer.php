@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Installer;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  *
  * @internal
  */
+#[Package('core')]
 class Installer extends Bundle
 {
     /**

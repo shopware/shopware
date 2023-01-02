@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Newsletter\Account;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\PageletLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @internal (flag:FEATURE_NEXT_14001) remove comment on feature release
  */
+#[Package('customer-order')]
 class NewsletterAccountPageletLoadedEvent extends PageletLoadedEvent
 {
     protected NewsletterAccountPagelet $pagelet;

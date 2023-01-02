@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -20,6 +21,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class CustomerWishlistDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'customer_wishlist';

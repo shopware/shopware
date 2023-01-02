@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -10,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @package inventory
  */
+#[Package('inventory')]
 abstract class AbstractSalesChannelProductBuilder
 {
     abstract public function getDecorated(): AbstractSalesChannelProductBuilder;

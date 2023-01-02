@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Navigation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @Decoratable()
  */
+#[Package('storefront')]
 class NavigationPageLoader implements NavigationPageLoaderInterface
 {
     /**

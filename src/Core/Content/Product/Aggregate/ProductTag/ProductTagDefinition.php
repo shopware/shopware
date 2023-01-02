@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductTag;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -15,6 +16,7 @@ use Shopware\Core\System\Tag\TagDefinition;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductTagDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'product_tag';

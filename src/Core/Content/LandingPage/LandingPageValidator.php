@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\LandingPage;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageSalesChannel\LandingPageSalesChannelDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -17,6 +18,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('content')]
 class LandingPageValidator implements EventSubscriberInterface
 {
     private ValidatorInterface $validator;

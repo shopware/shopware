@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Response;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
@@ -9,6 +10,7 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 /**
  * @package core
  */
+#[Package('core')]
 class ResponseFactoryInterfaceValueResolver implements ArgumentValueResolverInterface
 {
     /**

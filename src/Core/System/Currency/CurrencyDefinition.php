@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Currency;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceDefinition;
 use Shopware\Core\Content\ProductExport\ProductExportDefinition;
@@ -33,6 +34,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class CurrencyDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'currency';

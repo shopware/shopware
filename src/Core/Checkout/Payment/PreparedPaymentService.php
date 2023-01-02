@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
+use Shopware\Core\Framework\Log\Package;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
@@ -26,6 +27,7 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PreparedPaymentService
 {
     private PaymentHandlerRegistry $paymentHandlerRegistry;

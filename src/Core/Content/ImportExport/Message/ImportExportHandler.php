@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Message;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
@@ -15,6 +16,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExportHandler extends AbstractMessageHandler
 {
     private MessageBusInterface $messageBus;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -12,6 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * This class is used to recalculate a modified shopping cart. For this it uses the CartRuleLoader class.
  * The rule loader recalculates the cart and validates the current rules.
  */
+#[Package('checkout')]
 class CartCalculator
 {
     /**

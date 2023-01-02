@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\ActionButton\Response;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\Exception\ActionProcessException;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Context;
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 class OpenModalResponseFactory implements ActionButtonResponseFactoryInterface
 {
     private const VALID_MODAL_SIZES = [

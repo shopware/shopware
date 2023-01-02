@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -54,6 +55,7 @@ use Symfony\Component\Serializer\SerializerInterface;
  *
  * @internal
  */
+#[Package('core')]
 class VersionManager
 {
     public const DISABLE_AUDIT_LOG = 'disable-audit-log';

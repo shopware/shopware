@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Database;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Shopware\Core\Kernel;
 
@@ -10,6 +11,7 @@ use Shopware\Core\Kernel;
  *
  * @internal
  */
+#[Package('core')]
 class ReplicaConnection
 {
     public static function ensurePrimary(): void

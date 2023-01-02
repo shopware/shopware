@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\Aggregate\CmsBlock;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  * @package content
  * @extends EntityCollection<CmsBlockEntity>
  */
+#[Package('content')]
 class CmsBlockCollection extends EntityCollection
 {
     public function getSlots(): CmsSlotCollection

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Converter;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 /**
  * @package core
  */
+#[Package('core')]
 class ApiVersionConverter
 {
     /**

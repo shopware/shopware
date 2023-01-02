@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTag;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -16,6 +17,7 @@ use Shopware\Core\System\Tag\TagDefinition;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class OrderTagDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'order_tag';

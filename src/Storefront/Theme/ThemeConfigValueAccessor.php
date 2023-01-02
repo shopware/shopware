@@ -2,12 +2,14 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class ThemeConfigValueAccessor
 {
     private AbstractResolvedConfigLoader $themeConfigLoader;

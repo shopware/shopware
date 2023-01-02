@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Translation;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -28,6 +29,7 @@ use Symfony\Contracts\Translation\TranslatorTrait;
 /**
  * @package core
  */
+#[Package('core')]
 class Translator extends AbstractTranslator
 {
     use TranslatorTrait;

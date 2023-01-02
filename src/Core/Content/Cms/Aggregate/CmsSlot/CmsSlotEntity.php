@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\Aggregate\CmsSlot;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationEntity;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @package content
  */
+#[Package('content')]
 class CmsSlotEntity extends Entity
 {
     use EntityIdTrait;

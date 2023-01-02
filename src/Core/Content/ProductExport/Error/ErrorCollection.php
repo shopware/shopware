@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\ProductExport\Error;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<Error>
  * @package inventory
  */
+#[Package('inventory')]
 class ErrorCollection extends Collection
 {
     /**

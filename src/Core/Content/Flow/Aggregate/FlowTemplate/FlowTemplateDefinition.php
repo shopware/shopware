@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Aggregate\FlowTemplate;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class FlowTemplateDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'flow_template';

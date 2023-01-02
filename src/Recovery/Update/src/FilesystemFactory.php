@@ -2,6 +2,7 @@
 
 namespace Shopware\Recovery\Update;
 
+use Shopware\Core\Framework\Log\Package;
 use Gaufrette\Adapter\Ftp as FtpAdapter;
 use Gaufrette\Adapter\Local as LocalAdapter;
 use Gaufrette\Filesystem;
@@ -9,6 +10,7 @@ use Gaufrette\Filesystem;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class FilesystemFactory
 {
     /**

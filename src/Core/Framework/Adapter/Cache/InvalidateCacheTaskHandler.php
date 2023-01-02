@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
  *
  * @internal
  */
+#[Package('core')]
 final class InvalidateCacheTaskHandler extends ScheduledTaskHandler
 {
     private CacheInvalidator $cacheInvalidator;

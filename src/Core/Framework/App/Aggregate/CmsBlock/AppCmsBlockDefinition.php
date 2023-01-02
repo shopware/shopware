@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\CmsBlock;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation\AppCmsBlockTranslationDefinition;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  *
  * @internal
  */
+#[Package('content')]
 class AppCmsBlockDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'app_cms_block';

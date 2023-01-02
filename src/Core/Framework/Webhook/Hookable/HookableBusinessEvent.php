@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook\Hookable;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Webhook\Hookable;
 /**
  * @package core
  */
+#[Package('core')]
 class HookableBusinessEvent implements Hookable
 {
     private FlowEventAware $flowEventAware;

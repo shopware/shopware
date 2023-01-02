@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Product;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
@@ -22,6 +23,7 @@ use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMapping
 /**
  * @package core
  */
+#[Package('core')]
 class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 {
     private const SEARCH_FIELD = [

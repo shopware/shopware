@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
@@ -30,6 +31,7 @@ use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 final class BusinessEvents
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\MainCategory;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -11,6 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class MainCategoryEntity extends Entity
 {
     use EntityIdTrait;

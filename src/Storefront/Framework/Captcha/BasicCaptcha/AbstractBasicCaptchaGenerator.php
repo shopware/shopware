@@ -2,9 +2,11 @@
 
 namespace Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 abstract class AbstractBasicCaptchaGenerator
 {
     abstract public function generate(): BasicCaptchaImage;

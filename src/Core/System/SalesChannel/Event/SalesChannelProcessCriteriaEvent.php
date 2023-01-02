@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
@@ -10,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package sales-channel
  */
+#[Package('sales-channel')]
 class SalesChannelProcessCriteriaEvent implements ShopwareSalesChannelEvent
 {
     private Criteria $criteria;

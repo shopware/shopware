@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -13,6 +14,7 @@ use Shopware\Core\System\Tag\TagCollection;
 /**
  * @package customer-order
  */
+#[Package('customer-order')]
 class NewsletterRecipientEntity extends Entity
 {
     use EntityIdTrait;

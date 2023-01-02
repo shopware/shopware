@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Composer\IO\ConsoleIO;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
@@ -17,6 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package core
  */
+#[Package('core')]
 class PluginRefreshCommand extends Command
 {
     protected static $defaultName = 'plugin:refresh';

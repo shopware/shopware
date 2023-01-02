@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Log\Package;
 use Composer\IO\IOInterface;
 use Composer\Package\CompletePackageInterface;
 use Shopware\Core\Defaults;
@@ -24,6 +25,7 @@ use Shopware\Core\System\Language\LanguageEntity;
  *
  * @internal
  */
+#[Package('core')]
 class PluginService
 {
     public const COMPOSER_AUTHOR_ROLE_MANUFACTURER = 'Manufacturer';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Twig\Extension;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaEntity;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -9,6 +10,7 @@ use Twig\TwigFilter;
 /**
  * @package storefront
  */
+#[Package('storefront')]
 class UrlEncodingTwigFilter extends AbstractExtension
 {
     /**

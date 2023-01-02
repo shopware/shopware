@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Event\WorkerRunningEvent;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnTimeLimitListener;
 
@@ -10,6 +11,7 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnTimeLimitListener;
  *
  * @package system-settings
  */
+#[Package('system-settings')]
 class CountHandledMessagesListener extends StopWorkerOnTimeLimitListener
 {
     private int $handledMessages = 0;

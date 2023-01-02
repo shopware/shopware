@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineState;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureCollection;
@@ -17,6 +18,7 @@ use Shopware\Core\System\StateMachine\StateMachineEntity;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class StateMachineStateEntity extends Entity
 {
     use EntityIdTrait;

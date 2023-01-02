@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule\Collector;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\InvalidConditionException;
 use Shopware\Core\Framework\Rule\FlowRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Rule\Rule;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class RuleConditionRegistry
 {
     /**

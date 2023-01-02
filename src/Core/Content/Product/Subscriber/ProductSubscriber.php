@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\AbstractIsNewDetector;
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\AbstractProductVariationBuilder;
@@ -30,6 +31,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @package inventory
  */
+#[Package('inventory')]
 class ProductSubscriber implements EventSubscriberInterface
 {
     private AbstractSalesChannelProductBuilder $salesChannelProductBuilder;

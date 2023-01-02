@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Installer\Database;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 
@@ -10,6 +11,7 @@ use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
  *
  * @internal
  */
+#[Package('core')]
 class DatabaseMigrator
 {
     private SetupDatabaseAdapter $adapter;

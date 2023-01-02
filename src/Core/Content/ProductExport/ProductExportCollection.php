@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\ProductExport;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<ProductExportEntity>
  * @package inventory
  */
+#[Package('inventory')]
 class ProductExportCollection extends EntityCollection
 {
     public function getApiAlias(): string

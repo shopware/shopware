@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_3;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Defaults;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
  */
+#[Package('core')]
 class Migration1590758953ProductFeatureSet extends MigrationStep
 {
     use InheritanceUpdaterTrait;

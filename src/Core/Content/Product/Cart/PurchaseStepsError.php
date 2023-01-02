@@ -3,11 +3,13 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Content\Product\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Error\Error;
 
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class PurchaseStepsError extends Error
 {
     /**

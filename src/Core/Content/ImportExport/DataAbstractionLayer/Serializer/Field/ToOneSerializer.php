@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\PrimaryKeyResolver;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @package core
  */
+#[Package('core')]
 class ToOneSerializer extends FieldSerializer
 {
     private PrimaryKeyResolver $primaryKeyResolver;

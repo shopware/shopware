@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Schema;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -14,6 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal The use of this class is reserved for the custom_entity feature
  * @package core
  */
+#[Package('core')]
 class DynamicEntityDefinition extends EntityDefinition
 {
     protected string $name;

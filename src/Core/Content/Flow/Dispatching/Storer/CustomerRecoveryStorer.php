@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Content\Flow\Dispatching\Aware\CustomerRecoveryAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class CustomerRecoveryStorer extends FlowStorer
 {
     private EntityRepositoryInterface $customerRecoveryRepository;

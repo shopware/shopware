@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Rule\Aggregate\RuleCondition;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class RuleConditionDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'rule_condition';

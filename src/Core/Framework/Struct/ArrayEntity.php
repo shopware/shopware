@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Feature;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Feature;
 /**
  * @package core
  */
+#[Package('core')]
 class ArrayEntity extends Entity implements \ArrayAccess
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomField;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
@@ -21,6 +22,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('core')]
 class CustomFieldService implements EventSubscriberInterface, ResetInterface
 {
     /**

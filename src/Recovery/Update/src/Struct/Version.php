@@ -2,9 +2,11 @@
 
 namespace Shopware\Recovery\Update\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class Version extends Struct
 {
     /**

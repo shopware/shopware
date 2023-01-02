@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Update;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 
 /**
  * @internal
  * @package core
  */
+#[Package('core')]
 abstract class AbstractAppUpdater
 {
     abstract public function updateApps(Context $context): void;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 
+use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\AdapterInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -9,6 +10,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @package core
  */
+#[Package('core')]
 class LocalFactory implements AdapterFactoryInterface
 {
     public function create(array $config): AdapterInterface

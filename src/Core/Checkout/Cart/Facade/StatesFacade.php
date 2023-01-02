@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 
 /**
@@ -13,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Cart;
  * @script-service cart_manipulation
  * @package checkout
  */
+#[Package('checkout')]
 class StatesFacade
 {
     private Cart $cart;

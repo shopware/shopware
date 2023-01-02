@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\SeoUrlTemplate;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  *
  * @extends EntityCollection<SeoUrlTemplateEntity>
  */
+#[Package('sales-channel')]
 class SeoUrlTemplateCollection extends EntityCollection
 {
     public function getApiAlias(): string

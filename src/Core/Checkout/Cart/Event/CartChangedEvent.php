@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -9,6 +10,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class CartChangedEvent extends Event
 {
     /**

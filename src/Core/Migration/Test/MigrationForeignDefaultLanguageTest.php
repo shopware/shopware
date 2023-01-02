@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\Test;
 
+use Shopware\Core\Migration\Migration1536233560BasicData;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -299,7 +300,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
 
     private function isBasicDataMigration(string $className): bool
     {
-        return $className === \Shopware\Core\Migration\Migration1536233560BasicData::class
+        return $className === Migration1536233560BasicData::class
             || $className === \Shopware\Core\Migration\V6_3\Migration1536233560BasicData::class;
     }
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 
@@ -11,6 +12,7 @@ use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
  *
  * @deprecated tag:v6.5.0 - Use FlysystemLastModifiedVersionStrategy instead
  */
+#[Package('core')]
 class LastModifiedVersionStrategy implements VersionStrategyInterface
 {
     /**

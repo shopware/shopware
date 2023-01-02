@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Authentication;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Feature;
  *
  * @deprecated tag:v6.5.0 - Will be removed use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider instead
  */
+#[Package('merchant-services')]
 abstract class AbstractAuthenticationProvider
 {
     abstract public function getUserStoreToken(Context $context): ?string;

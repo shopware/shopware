@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -25,6 +26,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @internal
  * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Package('merchant-services')]
 class FirstRunWizardController extends AbstractController
 {
     private FirstRunWizardClient $frwClient;

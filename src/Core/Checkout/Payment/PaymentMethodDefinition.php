@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
@@ -37,6 +38,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class PaymentMethodDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'payment_method';

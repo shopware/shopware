@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -14,6 +15,7 @@ use Shopware\Core\System\Country\CountryDefinition;
 /**
  * @package business-ops
  */
+#[Package('business-ops')]
 class ShippingCountryRule extends Rule
 {
     /**

@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 
 /**
  * @package checkout
  */
+#[Package('checkout')]
 interface NumberRangeValueGeneratorInterface
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductExport\Error\Error;
 use Shopware\Core\Content\ProductExport\Error\ErrorMessage;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ExportInvalidException extends ShopwareHttpException
 {
     /**

@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\System\Country;
 
+use Shopware\Core\Framework\Log\Package;
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class CountryEvents
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\FlowAction;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceDefinition;
 use Shopware\Core\Framework\App\Aggregate\FlowActionTranslation\AppFlowActionTranslationDefinition;
 use Shopware\Core\Framework\App\AppDefinition;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @package core
  */
+#[Package('core')]
 class AppFlowActionDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'app_flow_action';

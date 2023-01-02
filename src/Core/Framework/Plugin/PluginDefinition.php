@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslation
 /**
  * @package core
  */
+#[Package('core')]
 class PluginDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'plugin';

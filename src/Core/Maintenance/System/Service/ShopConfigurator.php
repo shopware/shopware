@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Maintenance\System\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
@@ -12,6 +13,7 @@ use Symfony\Component\Intl\Currencies;
 /**
  * @package core
  */
+#[Package('core')]
 class ShopConfigurator
 {
     private Connection $connection;

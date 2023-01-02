@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -10,6 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * @deprecated tag:v6.5.0 - will be removed without replacement
  * @package core
  */
+#[Package('core')]
 class DisableExtensionsCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

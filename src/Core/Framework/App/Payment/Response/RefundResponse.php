@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\App\Payment\Response;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 
 /**
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 class RefundResponse extends AbstractResponse
 {
     /**

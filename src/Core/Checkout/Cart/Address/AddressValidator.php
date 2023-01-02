@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Address;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ProfileSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressBlockedError;
@@ -19,6 +20,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class AddressValidator implements CartValidatorInterface, ResetInterface
 {
     private EntityRepositoryInterface $repository;

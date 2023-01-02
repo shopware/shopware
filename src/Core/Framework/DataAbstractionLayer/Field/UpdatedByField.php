@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\UpdatedByFieldSerializer;
 use Shopware\Core\System\User\UserDefinition;
@@ -9,6 +10,7 @@ use Shopware\Core\System\User\UserDefinition;
 /**
  * @package core
  */
+#[Package('core')]
 class UpdatedByField extends FkField
 {
     /**

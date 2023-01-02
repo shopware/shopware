@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Serializer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -18,6 +19,7 @@ use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 /**
  * @package core
  */
+#[Package('core')]
 class JsonApiEncoder
 {
     /**

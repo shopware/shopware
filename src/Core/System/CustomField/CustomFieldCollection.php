@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\System\CustomField;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @package core
  * @extends EntityCollection<CustomFieldEntity>
  */
+#[Package('core')]
 class CustomFieldCollection extends EntityCollection
 {
     public function filterByType(string $type): self

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Commands;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
@@ -23,6 +24,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @package content
  */
+#[Package('content')]
 class GenerateThumbnailsCommand extends Command
 {
     protected static $defaultName = 'media:generate-thumbnails';

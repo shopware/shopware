@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
@@ -22,6 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package checkout
  */
+#[Package('checkout')]
 class CartMigrateCommand extends Command
 {
     use ConsoleProgressTrait;

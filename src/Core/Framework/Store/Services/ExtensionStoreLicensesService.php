@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Store\Struct\ReviewStruct;
  *
  * @internal
  */
+#[Package('merchant-services')]
 class ExtensionStoreLicensesService extends AbstractExtensionStoreLicensesService
 {
     private StoreClient $client;

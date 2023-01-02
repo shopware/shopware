@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -26,6 +27,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal
  */
+#[Package('merchant-services')]
 class StoreDownloadCommand extends Command
 {
     public static $defaultName = 'store:download';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
  * @internal only for use by the app-system
  * @package core
  */
+#[Package('core')]
 abstract class AbstractAppUrlChangeStrategy
 {
     /**

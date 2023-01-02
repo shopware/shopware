@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Integration;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -23,6 +24,7 @@ use Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDe
 /**
  * @package system-settings
  */
+#[Package('system-settings')]
 class IntegrationDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'integration';

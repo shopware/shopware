@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Product;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Framework\Context;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -9,6 +10,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 /**
  * @package core
  */
+#[Package('core')]
 class SearchKeywordReplacement extends SearchKeywordUpdater
 {
     private SearchKeywordUpdater $decorated;

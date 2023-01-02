@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductVisibility;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -17,6 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @package inventory
  */
+#[Package('inventory')]
 class ProductVisibilityDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_visibility';

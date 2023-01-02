@@ -16,7 +16,7 @@
         </xs:sequence>
 
         <xs:attribute name="name" type="xs:string" use="required"/>
-        <xs:attribute name="navigation-parent" type="xs:string" use="required"/>
+        <xs:attribute name="navigation-parent" type="navigation-parent" use="required"/>
         <xs:attribute name="position" type="xs:int" use="required"/>
         <xs:attribute name="icon" type="xs:string" default="pencil"/>
         <xs:attribute name="color" type="xs:string" default="#758CA3"/>
@@ -64,4 +64,16 @@
         <xs:attribute type="xs:boolean" name="helpText" default="false"/>
         <xs:attribute type="xs:boolean" name="placeholder" default="false"/>
     </xs:complexType>
+
+    <xs:simpleType name="navigation-parent">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="sw-catalogue"/>
+            <xs:enumeration value="sw-order"/>
+            <xs:enumeration value="sw-customer"/>
+            <xs:enumeration value="sw-content"/>
+            <xs:enumeration value="sw-marketing"/>
+            <xs:enumeration value="sw-extension"/>
+            <xs:enumeration value="sw-settings"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

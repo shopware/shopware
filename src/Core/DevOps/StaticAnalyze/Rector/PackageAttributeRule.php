@@ -5,6 +5,8 @@ namespace Shopware\Core\DevOps\StaticAnalyze\Rector;
 use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike;
+use PHPStan\PhpDocParser\Ast\Node as DocNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\GenericTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
 use Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfo;
 use Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTagRemover;
@@ -15,6 +17,7 @@ use Rector\Php80\NodeFactory\AttrGroupsFactory;
 use Rector\Php80\NodeManipulator\AttributeGroupNamedArgumentManipulator;
 use Rector\Php80\ValueObject\AnnotationToAttribute;
 use Rector\PhpAttribute\NodeFactory\PhpAttributeGroupFactory;
+use Rector\PhpDocParser\PhpDocParser\PhpDocNodeTraverser;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Controller\AccountOrderController;
@@ -85,7 +88,6 @@ class PackageAttributeRule extends AbstractRector
 
     public function refactor(Node $node): ?Node
     {
-
         if (!$node instanceof ClassLike) {
             return null;
         }
@@ -94,36 +96,44 @@ class PackageAttributeRule extends AbstractRector
             return null;
         }
 
-//        $phpDocInfo = $this->phpDocInfoFactory->createFromNode($node);
-//        if (!$phpDocInfo instanceof PhpDocInfo) {
-//            return null;
-//        }
-//
-//        $package = $phpDocInfo->getByName('package');
-//        if (!$package instanceof PhpDocTagNode) {
-//            return null;
-//        }
-//
-//        $area = $package->value->value;
-//        if (!$area) {
-//            return null;
-//        }
-
-        $name = $node->namespacedName->toString();
-
-        if ($name !== "Wusel") {
+        $phpDocInfo = $this->phpDocInfoFactory->createFromNode($node);
+        if (!$phpDocInfo instanceof PhpDocInfo) {
             return null;
         }
 
-        $f = $node->attrGroups[0];
-//        $f->setAttribute('parent', null);
+        $package = $phpDocInfo->getByName('package');
+        if (!$package instanceof PhpDocTagNode) {
+            return null;
+        }
 
+        $area = $package->value->value;
+        if (!$area) {
+            return null;
+        }
 
-//        dump($node->namespacedName);
+        $traverser = new PhpDocNodeTraverser();
 
-        $x = $this->phpAttributeGroupFactory->createFromClass(Package::class);
+        $traverser->traverseWithCallable($phpDocInfo->getPhpDocNode(), '', function (DocNode $docNode) use(&$attributeGroups, $phpDocInfo) : ?int {
+            if (!$docNode instanceof PhpDocTagNode) {
+                return null;
+            }
+            if (!$docNode->value instanceof GenericTagValueNode) {
+                return null;
+            }
+            $tag = \trim($docNode->name, '@');
+            // not a basic one
+            if (\strpos($tag, '\\') !== \false) {
+                return null;
+            }
 
-        $node->attrGroups[] = $x;
+            if ($tag === 'package') {
+                $phpDocInfo->markAsChanged();
+                return PhpDocNodeTraverser::NODE_REMOVE;
+            }
+            return null;
+        });
+
+        $node->attrGroups[] = $this->phpAttributeGroupFactory->createFromClassWithItems(Package::class, [$area]);
 
         return $node;
     }

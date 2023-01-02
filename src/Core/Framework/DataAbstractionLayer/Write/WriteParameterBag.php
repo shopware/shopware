@@ -9,9 +9,9 @@ use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @inernal
- *
  * @package core
+ *
+ * @internal
  */
 class WriteParameterBag
 {

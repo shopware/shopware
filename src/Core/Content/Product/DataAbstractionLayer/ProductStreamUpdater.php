@@ -25,6 +25,9 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @package core
+ */
 class ProductStreamUpdater extends EntityIndexer
 {
     private Connection $connection;

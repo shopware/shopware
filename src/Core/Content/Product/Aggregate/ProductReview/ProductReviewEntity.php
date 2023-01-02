@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @package inventory
+ */
 class ProductReviewEntity extends Entity
 {
     use EntityIdTrait;

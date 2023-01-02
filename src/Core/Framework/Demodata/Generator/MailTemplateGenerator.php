@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @package core
  */
 class MailTemplateGenerator implements DemodataGeneratorInterface
 {

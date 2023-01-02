@@ -6,6 +6,9 @@ use Shopware\Core\Content\ProductExport\Error\ErrorCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Validator\ValidatorInterface;
 
+/**
+ * @package inventory
+ */
 class ProductExportValidator implements ProductExportValidatorInterface
 {
     /**

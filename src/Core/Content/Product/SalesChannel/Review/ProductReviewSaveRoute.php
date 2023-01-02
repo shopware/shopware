@@ -30,6 +30,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
+ * @package inventory
  */
 class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 {

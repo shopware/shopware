@@ -6,6 +6,9 @@ use Shopware\Core\Content\Product\Exception\DuplicateProductSearchConfigFieldExc
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 
+/**
+ * @package inventory
+ */
 class ProductSearchConfigFieldExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int

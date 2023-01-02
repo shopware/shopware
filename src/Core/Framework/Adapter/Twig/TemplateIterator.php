@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 use Shopware\Core\Framework\Bundle;
 use Symfony\Bundle\TwigBundle\TemplateIterator as TwigBundleIterator;
 
+/**
+ * @package core
+ */
 class TemplateIterator implements \IteratorAggregate
 {
     private TwigBundleIterator $templateIterator;

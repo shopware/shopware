@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 
 /**
  * @deprecated tag:v6.5.0 - Use EntityRepositoryInterface instead
+ * @package checkout
  */
 class PromotionCodesRemover
 {

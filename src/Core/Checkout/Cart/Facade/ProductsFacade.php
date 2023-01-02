@@ -14,13 +14,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package checkout
  */
-
 /**
  * The ProductsFacade is a wrapper around a collection of product line-items.
  *
  * @script-service cart_manipulation
  *
  * @implements \IteratorAggregate<array-key, \Shopware\Core\Checkout\Cart\LineItem\LineItem>
+ * @package checkout
  */
 class ProductsFacade implements \IteratorAggregate
 {

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ * @package core
  */
 class Migration1582011195FixCountryStateGermanTranslation extends MigrationStep
 {

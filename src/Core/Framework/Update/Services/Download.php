@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Update\Services;
 
 use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 
+/**
+ * @package system-settings
+ */
 class Download
 {
     /**

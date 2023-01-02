@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpret
 
 /**
  * @internal
+ * @package core
  */
 class CriteriaQueryBuilder
 {

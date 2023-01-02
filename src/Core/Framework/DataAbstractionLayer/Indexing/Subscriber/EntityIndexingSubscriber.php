@@ -8,6 +8,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ * @package core
  */
 class EntityIndexingSubscriber implements EventSubscriberInterface
 {

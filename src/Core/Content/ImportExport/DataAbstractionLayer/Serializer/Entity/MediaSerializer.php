@@ -24,6 +24,7 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package core
  */
 class MediaSerializer extends EntitySerializer implements EventSubscriberInterface, ResetInterface
 {

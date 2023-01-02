@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Feature;
  * Keep in mind that your app needs to have the correct permissions for the data it writes through this service.
  *
  * @script-service custom_endpoint
+ * @package core
  */
 class RepositoryWriterFacade
 {

@@ -11,6 +11,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
  * @phpstan-import-type ApiType from DefinitionService
  * @phpstan-import-type OpenApiSpec from DefinitionService
  * @phpstan-import-type ApiSchema from DefinitionService
+ * @package core
  */
 interface ApiDefinitionGeneratorInterface
 {

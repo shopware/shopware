@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
+ * @package core
  */
 class ChangelogReleaseExporter extends ChangelogProcessor
 {

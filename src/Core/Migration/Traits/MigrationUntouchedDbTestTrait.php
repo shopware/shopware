@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Feature;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed use `\Shopware\Core\Migration\Test\MigrationUntouchedDbTestTrait` instead
+ * @package core
  */
 trait MigrationUntouchedDbTestTrait
 {

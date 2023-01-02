@@ -13,6 +13,7 @@ use Symfony\Component\Lock\LockFactory;
 /**
  * @internal
  * @phpstan-import-type CustomEntityField from SchemaUpdater
+ * @package core
  */
 class CustomEntitySchemaUpdater
 {

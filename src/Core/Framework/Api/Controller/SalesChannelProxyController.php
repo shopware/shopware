@@ -54,6 +54,7 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
+ * @package core
  */
 class SalesChannelProxyController extends AbstractController
 {

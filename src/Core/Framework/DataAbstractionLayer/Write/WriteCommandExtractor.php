@@ -44,6 +44,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * Builds the command queue for write operations.
  *
  * Contains recursive calls from extract->map->AssociationInterface->extract->map->....
+ * @package core
  */
 class WriteCommandExtractor
 {

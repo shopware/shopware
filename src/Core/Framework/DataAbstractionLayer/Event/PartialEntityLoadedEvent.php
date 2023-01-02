@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Event\NestedEvent;
 
 /**
  * @internal
+ * @package core
  */
 class PartialEntityLoadedEvent extends NestedEvent implements GenericEvent
 {

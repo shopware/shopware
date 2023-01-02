@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @package core
  */
 class JoinGroup extends Filter
 {

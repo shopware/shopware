@@ -5,6 +5,9 @@ namespace Shopware\Core\System\StateMachine\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package checkout
+ */
 class StateMachineInvalidEntityIdException extends ShopwareHttpException
 {
     public function __construct(string $entityName, string $entityId)

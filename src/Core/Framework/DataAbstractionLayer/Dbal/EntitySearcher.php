@@ -23,6 +23,7 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
  * Fields which are not necessary to determines which ids are affected are not fetched.
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @package core
  */
 class EntitySearcher implements EntitySearcherInterface
 {

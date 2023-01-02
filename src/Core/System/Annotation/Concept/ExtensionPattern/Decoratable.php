@@ -21,6 +21,7 @@ namespace Shopware\Core\System\Annotation\Concept\ExtensionPattern;
  * @see \Shopware\Development\Analyze\PHPStan\Rules\Decoratable\DecoratableNotInstantiatedRule
  *
  * For an introduction on how to use decoration in your plugin refer to the (symfony docs)[https://symfony.com/doc/current/service_container/service_decoration.html]
+ * @package core
  */
 class Decoratable
 {

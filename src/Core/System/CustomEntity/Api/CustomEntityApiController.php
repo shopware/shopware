@@ -15,6 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal, should only be used over the provided API
  *
  * @Route(defaults={"_routeScope"={"api"}})
+ * @package core
  */
 class CustomEntityApiController extends ApiController
 {

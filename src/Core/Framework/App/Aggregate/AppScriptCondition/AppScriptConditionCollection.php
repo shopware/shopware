@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<AppScriptConditionEntity>
+ * @package core
  */
 class AppScriptConditionCollection extends EntityCollection
 {

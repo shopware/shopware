@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Util\XmlReader;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @package core
  */
 class Webhook extends XmlElement
 {

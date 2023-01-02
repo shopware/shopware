@@ -6,6 +6,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @deprecated tag:v6.5.0 will be marked internal
+ * @package core
  */
 trait SalesChannelContextAwareTrait
 {

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed in v6.5.0 Use MailAware instead
+ * @package business-ops
  */
 interface MailActionInterface extends BusinessEventInterface
 {

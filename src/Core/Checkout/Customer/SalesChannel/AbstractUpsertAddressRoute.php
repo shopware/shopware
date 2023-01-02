@@ -8,6 +8,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * This route can be used to create or update new customer addresses
+ * @package customer-order
  */
 abstract class AbstractUpsertAddressRoute
 {

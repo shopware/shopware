@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\System\Salutation\SalutationCollection;
 
+/**
+ * @package customer-order
+ */
 class SalutationRouteResponse extends StoreApiResponse
 {
     /**

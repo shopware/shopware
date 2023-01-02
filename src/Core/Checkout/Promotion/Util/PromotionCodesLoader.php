@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @deprecated tag:v6.5.0 - Use PromotionCodeService instead
+ * @package checkout
  */
 class PromotionCodesLoader
 {

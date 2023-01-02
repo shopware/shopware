@@ -10,6 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @deprecated tag:v6.5.0 - will be removed, use SalesChannelRepository type hint instead
+ * @package sales-channel
  */
 interface SalesChannelRepositoryInterface
 {

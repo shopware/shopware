@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Feature;
  * @deprecated tag:v6.5.0 - Will be removed in v6.5.0
  *
  * @extends EntityCollection<EventActionEntity>
+ * @package business-ops
  */
 class EventActionCollection extends EntityCollection
 {

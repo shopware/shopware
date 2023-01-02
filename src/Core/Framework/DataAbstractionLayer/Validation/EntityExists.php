@@ -11,6 +11,7 @@ use Symfony\Component\Validator\Exception\MissingOptionsException;
 /**
  * @Annotation
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
+ * @package core
  */
 class EntityExists extends Constraint
 {

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 /**
  * @final tag:v6.5.0
+ * @package core
  */
 class SetNullOnDeleteCommand extends UpdateCommand
 {

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Feature;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed, please also remove `shopware.composite_search.definition` service tag
+ * @package core
  */
 class CompositeEntitySearcher
 {

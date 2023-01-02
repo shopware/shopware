@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed. Api payloads will be no longer converted over the Deprecated flag
+ * @package core
  */
 class DefaultApiConverter
 {

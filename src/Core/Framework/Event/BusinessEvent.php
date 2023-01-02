@@ -9,6 +9,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+ * @package business-ops
  */
 class BusinessEvent extends Event implements BusinessEventInterface
 {

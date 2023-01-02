@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Feature;
 /**
  * @deprecated tag:v6.5.0 - Use route defaults with "_contextTokenRequired". Example: @Route(defaults={"_contextTokenRequired"=true)
  * @Annotation
+ * @package core
  */
 class ContextTokenRequired implements ConfigurationInterface
 {

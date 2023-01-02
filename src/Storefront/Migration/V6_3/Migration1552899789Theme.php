@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ * @package storefront
  */
 class Migration1552899789Theme extends MigrationStep
 {

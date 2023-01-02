@@ -8,6 +8,7 @@ use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
 /**
  * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - won't implement ValueGeneratorPatternInterface anymore
+ * @package checkout
  */
 class ValueGeneratorPatternDate extends AbstractValueGenerator implements ValueGeneratorPatternInterface
 {

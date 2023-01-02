@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Feature;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-decorator - Will be removed
+ * @package core
  */
 class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
 {

@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * This route is used to get information about the current logged-in customer
+ * @package customer-order
  */
 abstract class AbstractCustomerRoute
 {

@@ -8,6 +8,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @package core
  */
 class XmlElement extends Struct
 {

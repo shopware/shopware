@@ -22,6 +22,7 @@ use Symfony\Component\Serializer\Serializer;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
+ * @package core
  */
 class SyncController extends AbstractController
 {

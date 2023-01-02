@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed in v6.5.0 Use FlowSendMailActionEvent instead
+ * @package sales-channel
  */
 class MailSendSubscriberBridgeEvent implements ShopwareEvent
 {

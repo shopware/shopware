@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 /**
  * @internal only for use by the app-system
+ * @package core
  */
 class PaymentMethodStateService
 {

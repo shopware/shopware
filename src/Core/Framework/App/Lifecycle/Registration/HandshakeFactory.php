@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @package core
  */
 final class HandshakeFactory
 {

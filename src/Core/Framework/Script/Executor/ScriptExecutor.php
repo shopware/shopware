@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Feature;
 
 /**
  * @deprecated tag:v6.5.0 will be removed, use \Shopware\Core\Framework\Script\Execution\ScriptExecutor instead
+ * @package core
  */
 class ScriptExecutor
 {

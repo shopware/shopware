@@ -12,6 +12,9 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @package core
+ */
 class SalutationSerializer extends EntitySerializer implements ResetInterface
 {
     private EntityRepositoryInterface $salutationRepository;

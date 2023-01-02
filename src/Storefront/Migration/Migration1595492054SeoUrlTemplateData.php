@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Migration;
 
 /**
  * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ * @package storefront
  */
 class Migration1595492054SeoUrlTemplateData extends \Shopware\Storefront\Migration\V6_3\Migration1595492054SeoUrlTemplateData
 {

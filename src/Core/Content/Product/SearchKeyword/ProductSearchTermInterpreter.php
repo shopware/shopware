@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Util\ArrayNormalizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package inventory
+ */
 class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterface
 {
     private const RELEVANT_KEYWORD_COUNT = 8;

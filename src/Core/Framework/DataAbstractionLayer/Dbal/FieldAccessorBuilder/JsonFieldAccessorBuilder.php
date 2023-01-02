@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @package core
  */
 class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {

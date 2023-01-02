@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<AppFlowActionTranslationEntity>
+ * @package core
  */
 class AppFlowActionTranslationCollection extends EntityCollection
 {

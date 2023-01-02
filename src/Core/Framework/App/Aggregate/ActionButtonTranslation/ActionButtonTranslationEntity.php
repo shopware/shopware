@@ -9,6 +9,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 
 /**
  * @internal
+ * @package core
  */
 class ActionButtonTranslationEntity extends Entity
 {

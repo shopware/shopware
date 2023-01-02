@@ -13,6 +13,7 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @package core
  */
 class PasswordFieldSerializer extends AbstractFieldSerializer
 {

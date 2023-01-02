@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 
 /**
  * @internal
+ * @package core
  */
 abstract class AbstractAppUpdater
 {

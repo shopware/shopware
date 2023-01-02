@@ -50,6 +50,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 
 /**
  * @internal
+ * @package core
  */
 class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 {

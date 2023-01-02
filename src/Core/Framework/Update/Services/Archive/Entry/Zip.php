@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Update\Services\Archive\Entry;
 
+/**
+ * @package system-settings
+ */
 class Zip
 {
     /**

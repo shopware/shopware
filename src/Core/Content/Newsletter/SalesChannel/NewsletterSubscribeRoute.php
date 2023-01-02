@@ -39,6 +39,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @Route(defaults={"_routeScope"={"store-api"}})
  *
  * @phpstan-type SubscribeRequest array{email: string, storefrontUrl: string, option: string, firstName?: string, lastName?: string, zipCode?: string, city?: string, street?: string, salutationId?: string}
+ * @package customer-order
  */
 class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 {

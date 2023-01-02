@@ -12,6 +12,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ * @package core
  */
 class Migration1643878976AddCaptureRefundStateMachines extends MigrationStep
 {

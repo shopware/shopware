@@ -12,6 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal The use of this class is reserved for the custom_entity feature
+ * @package core
  */
 class DynamicEntityDefinition extends EntityDefinition
 {

@@ -9,6 +9,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package storefront
+ */
 class HttpCacheWarmUpCommand extends Command
 {
     protected static $defaultName = 'http:cache:warm:up';

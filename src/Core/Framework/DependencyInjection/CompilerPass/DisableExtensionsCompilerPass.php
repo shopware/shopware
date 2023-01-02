@@ -8,6 +8,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * @deprecated tag:v6.5.0 - will be removed without replacement
+ * @package core
  */
 class DisableExtensionsCompilerPass implements CompilerPassInterface
 {

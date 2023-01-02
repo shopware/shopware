@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Update\Services;
 use Shopware\Core\Framework\Update\Checkers\CheckerInterface;
 use Shopware\Core\Framework\Update\Struct\Version;
 
+/**
+ * @package system-settings
+ */
 class RequirementsValidator
 {
     /**

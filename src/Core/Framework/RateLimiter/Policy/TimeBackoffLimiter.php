@@ -14,6 +14,7 @@ use Symfony\Component\RateLimiter\Util\TimeUtil;
 
 /**
  * @internal
+ * @package core
  */
 class TimeBackoffLimiter implements LimiterInterface
 {

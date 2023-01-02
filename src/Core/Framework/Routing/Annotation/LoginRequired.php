@@ -11,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Annotation for store-api/storefront
  *
  * @Annotation
+ * @package core
  */
 class LoginRequired implements ConfigurationInterface
 {

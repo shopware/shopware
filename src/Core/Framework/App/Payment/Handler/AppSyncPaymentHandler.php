@@ -17,6 +17,7 @@ use Shopware\Core\System\StateMachine\Transition;
 
 /**
  * @internal only for use by the app-system
+ * @package core
  */
 class AppSyncPaymentHandler extends AppPaymentHandler implements SynchronousPaymentHandlerInterface
 {

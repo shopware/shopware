@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Api\Serializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @package core
+ */
 class Record implements \JsonSerializable
 {
     /**

@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * This route is used to cancel a order
+ * @package customer-order
  */
 abstract class AbstractCancelOrderRoute
 {

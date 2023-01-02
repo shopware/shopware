@@ -10,6 +10,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - Will be removed in v6.5.0.
+ * @package business-ops
  */
 class EventActionSubscriber implements EventSubscriberInterface
 {

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEntity;
 
+/**
+ * @package checkout
+ */
 class NumberRangeTypeTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Update\Checkers;
 
 use Shopware\Core\Framework\Update\Struct\ValidationResult;
 
+/**
+ * @package system-settings
+ */
 interface CheckerInterface
 {
     public const VALIDATION_SUCCESS = true;

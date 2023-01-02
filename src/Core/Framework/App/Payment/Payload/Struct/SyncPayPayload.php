@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
 /**
  * @internal only for use by the app-system
+ * @package core
  */
 class SyncPayPayload implements PaymentPayloadInterface
 {

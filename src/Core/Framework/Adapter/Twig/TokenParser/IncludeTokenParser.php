@@ -10,6 +10,9 @@ use Twig\Parser;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
+/**
+ * @package core
+ */
 final class IncludeTokenParser extends AbstractTokenParser
 {
     /**

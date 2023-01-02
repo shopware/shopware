@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 
+/**
+ * @package business-ops
+ */
 interface MailAware extends MailActionInterface
 {
     public const MAIL_STRUCT = 'mailStruct';

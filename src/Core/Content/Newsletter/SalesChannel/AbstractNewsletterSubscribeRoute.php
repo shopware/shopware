@@ -11,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * The required parameters are: "email" and "option"
  * Valid "option" arguments: "subscribe" for double optin and "direct" to skip double optin
  * Optional parameters are: "salutationId", "firstName", "lastName", "street", "city" and "zipCode"
+ * @package customer-order
  */
 abstract class AbstractNewsletterSubscribeRoute
 {

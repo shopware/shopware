@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Feature;
  * @Attributes({
  *   @Attribute("scopes",  type = "array"),
  * })
+ * @package core
  */
 class RouteScope extends ConfigurationAnnotation
 {

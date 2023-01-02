@@ -16,6 +16,7 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
+ * @package core
  */
 class AppLoader extends AbstractAppLoader
 {

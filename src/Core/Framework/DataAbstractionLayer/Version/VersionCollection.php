@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<VersionEntity>
+ * @package core
  */
 class VersionCollection extends EntityCollection
 {

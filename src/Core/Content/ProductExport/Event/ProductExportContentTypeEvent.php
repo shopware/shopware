@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ProductExport\Event;
 
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package inventory
+ */
 class ProductExportContentTypeEvent extends Event
 {
     private string $fileFormat;

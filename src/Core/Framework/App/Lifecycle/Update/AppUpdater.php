@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 
 /**
  * @internal
+ * @package core
  */
 class AppUpdater extends AbstractAppUpdater
 {

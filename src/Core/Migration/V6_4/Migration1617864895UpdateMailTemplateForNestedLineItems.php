@@ -10,6 +10,7 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ * @package core
  */
 class Migration1617864895UpdateMailTemplateForNestedLineItems extends MigrationStep
 {

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<WebhookEventLogEntity>
+ * @package core
  */
 class WebhookEventLogCollection extends EntityCollection
 {

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VersionDataPayl
 
 /**
  * @internal
+ * @package core
  */
 class VersionDataPayloadField extends JsonField
 {

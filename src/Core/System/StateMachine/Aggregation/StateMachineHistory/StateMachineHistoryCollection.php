@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<StateMachineHistoryEntity>
+ * @package checkout
  */
 class StateMachineHistoryCollection extends EntityCollection
 {

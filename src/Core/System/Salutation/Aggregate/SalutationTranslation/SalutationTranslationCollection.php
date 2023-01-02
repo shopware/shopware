@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<SalutationTranslationEntity>
+ * @package customer-order
  */
 class SalutationTranslationCollection extends EntityCollection
 {

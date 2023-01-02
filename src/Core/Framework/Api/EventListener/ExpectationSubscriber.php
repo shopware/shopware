@@ -18,6 +18,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  *
  * @phpstan-type PluginData array{'composerName': string, 'active': bool, 'version': string}
+ * @package core
  */
 class ExpectationSubscriber implements EventSubscriberInterface
 {

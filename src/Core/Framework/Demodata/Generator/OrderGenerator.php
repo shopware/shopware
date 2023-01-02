@@ -23,6 +23,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @package core
  */
 class OrderGenerator implements DemodataGeneratorInterface
 {

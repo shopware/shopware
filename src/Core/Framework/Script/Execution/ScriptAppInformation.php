@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Script\Execution;
 
 /**
  * @internal
+ * @package core
  */
 class ScriptAppInformation
 {

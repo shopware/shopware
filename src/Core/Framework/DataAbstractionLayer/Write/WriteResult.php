@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 
 /**
  * @final tag:v6.5.0
+ * @package core
  */
 class WriteResult extends DeleteResult
 {

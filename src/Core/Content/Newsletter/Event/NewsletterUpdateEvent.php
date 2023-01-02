@@ -17,6 +17,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @deprecated tag:v6.5.0 will be removed as it was not thrown
+ * @package customer-order
  */
 class NewsletterUpdateEvent extends Event implements SalesChannelAware, MailAware, NewsletterRecipientAware
 {

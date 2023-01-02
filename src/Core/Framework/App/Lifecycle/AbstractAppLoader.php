@@ -10,6 +10,7 @@ use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 
 /**
  * @internal
+ * @package core
  */
 abstract class AbstractAppLoader
 {

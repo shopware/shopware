@@ -26,6 +26,9 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @package core
+ */
 class SearchKeywordUpdater implements ResetInterface
 {
     private Connection $connection;

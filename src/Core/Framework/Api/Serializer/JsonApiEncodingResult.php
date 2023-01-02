@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Api\Serializer;
 
+/**
+ * @package core
+ */
 class JsonApiEncodingResult implements \JsonSerializable
 {
     /**

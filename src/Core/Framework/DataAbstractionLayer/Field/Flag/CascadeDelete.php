@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
 /**
  * In case the referenced association data will be deleted, the related data will be deleted too
+ * @package core
  */
 class CascadeDelete extends Flag
 {

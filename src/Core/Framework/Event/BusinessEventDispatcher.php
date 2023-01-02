@@ -17,6 +17,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-decorator - Will be removed in v6.5.0, use FlowDispatcher instead.
+ * @package business-ops
  */
 class BusinessEventDispatcher implements EventDispatcherInterface
 {

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 /**
  * @internal only for use by the app-system
+ * @package core
  */
 class RuleConditions extends XmlElement
 {

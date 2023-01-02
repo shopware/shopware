@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @deprecated tag:v6.5.0 - Class will be removed, use \Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute instead
+ * @package inventory
  */
 class ProductCombinationFinder
 {

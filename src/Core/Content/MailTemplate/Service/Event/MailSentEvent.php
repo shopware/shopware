@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Log\LogAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package sales-channel
+ */
 class MailSentEvent extends Event implements BusinessEventInterface, LogAware, SubjectAware, ContentsAware, RecipientsAware
 {
     public const EVENT_NAME = 'mail.sent';

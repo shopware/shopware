@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @package core
  */
 class HookableValidator extends AbstractManifestValidator
 {

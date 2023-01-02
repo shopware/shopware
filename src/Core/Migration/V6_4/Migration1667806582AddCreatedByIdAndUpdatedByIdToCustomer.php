@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ * @package core
  */
 class Migration1667806582AddCreatedByIdAndUpdatedByIdToCustomer extends MigrationStep
 {

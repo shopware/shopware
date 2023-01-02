@@ -11,6 +11,9 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @package content
+ */
 class UrlGenerator implements UrlGeneratorInterface, ResetInterface
 {
     private RequestStack $requestStack;

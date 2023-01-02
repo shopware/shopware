@@ -8,6 +8,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal Used for custom entities
+ * @package core
  */
 class DynamicTranslationEntityDefinition extends EntityTranslationDefinition
 {

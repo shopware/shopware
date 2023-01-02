@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
+/**
+ * @package core
+ */
 class InternalFieldAccessNotAllowedException extends \RuntimeException
 {
     public function __construct(string $property, object $entity)

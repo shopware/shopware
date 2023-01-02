@@ -6,6 +6,9 @@ use Symfony\Component\Translation\TranslatorBagInterface;
 use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+/**
+ * @package core
+ */
 abstract class AbstractTranslator implements TranslatorInterface, TranslatorBagInterface, LocaleAwareInterface
 {
     abstract public function getDecorated(): AbstractTranslator;

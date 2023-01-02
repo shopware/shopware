@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal
+ * @package core
  */
 abstract class Hook
 {

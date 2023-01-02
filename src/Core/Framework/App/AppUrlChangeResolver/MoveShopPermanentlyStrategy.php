@@ -22,6 +22,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * Will run through the registration process for all apps again
  * with the new appUrl so the apps can save the new URL and generate new Secrets
  * that way communication from the old shop to the app backend will be blocked in the future
+ * @package core
  */
 class MoveShopPermanentlyStrategy extends AbstractAppUrlChangeStrategy
 {

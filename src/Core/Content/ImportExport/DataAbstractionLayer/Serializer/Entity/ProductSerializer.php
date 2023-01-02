@@ -19,6 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ */
 class ProductSerializer extends EntitySerializer
 {
     public const VISIBILITY_MAPPING = [

@@ -18,6 +18,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - Will be removed with FEATURE_NEXT_7739
+ * @package customer-order
  */
 class CustomerDefaultSalutationSubscriber implements EventSubscriberInterface
 {

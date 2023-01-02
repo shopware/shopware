@@ -6,6 +6,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
 
 /**
  * @Annotation
+ * @package core
  */
 class Entity extends ConfigurationAnnotation
 {

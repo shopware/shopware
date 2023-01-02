@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Log\LogAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package sales-channel
+ */
 class MailBeforeValidateEvent extends Event implements BusinessEventInterface, LogAware, TemplateDataAware, DataAware
 {
     public const EVENT_NAME = 'mail.before.send';

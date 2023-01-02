@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<StateMachineStateEntity>
+ * @package checkout
  */
 class StateMachineStateCollection extends EntityCollection
 {

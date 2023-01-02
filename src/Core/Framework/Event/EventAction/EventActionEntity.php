@@ -11,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+ * @package business-ops
  */
 class EventActionEntity extends Entity
 {

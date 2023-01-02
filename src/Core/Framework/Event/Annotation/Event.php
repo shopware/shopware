@@ -7,6 +7,7 @@ use Doctrine\Common\Annotations\Annotation;
 /**
  * @Annotation
  * @Target("ALL")
+ * @package business-ops
  */
 class Event
 {

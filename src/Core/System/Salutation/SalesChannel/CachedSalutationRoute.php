@@ -22,6 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
+ * @package customer-order
  */
 class CachedSalutationRoute extends AbstractSalutationRoute
 {

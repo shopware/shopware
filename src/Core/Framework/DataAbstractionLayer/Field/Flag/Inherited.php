@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
 /**
  * Defines that the data of this field can be inherited by the parent record
+ * @package core
  */
 class Inherited extends Flag
 {

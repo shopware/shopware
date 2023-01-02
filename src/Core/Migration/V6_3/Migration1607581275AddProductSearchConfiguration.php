@@ -8,6 +8,7 @@ use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ * @package core
  */
 class Migration1607581275AddProductSearchConfiguration extends MigrationStep
 {

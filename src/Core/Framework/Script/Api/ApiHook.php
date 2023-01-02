@@ -17,6 +17,7 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
  * @hook-use-case custom_endpoint
  *
  * @since 6.4.9.0
+ * @package core
  */
 class ApiHook extends Hook implements StoppableHook
 {

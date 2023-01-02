@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Feature;
 
+/**
+ * @package core
+ */
 class ProductExportExceptionHandler implements ExceptionHandlerInterface
 {
     /**

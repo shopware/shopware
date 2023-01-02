@@ -6,6 +6,7 @@ namespace Shopware\Core\Framework\Util;
  *
  * @see      https://github.com/zendframework/zf2/blob/master/library/Zend/Math/Rand.php
  * @see      https://github.com/ircmaxell/RandomLib
+ * @package core
  */
 class Random
 {

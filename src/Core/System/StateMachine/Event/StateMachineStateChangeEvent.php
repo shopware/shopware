@@ -9,6 +9,9 @@ use Shopware\Core\System\StateMachine\StateMachineEntity;
 use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package checkout
+ */
 class StateMachineStateChangeEvent extends Event
 {
     public const STATE_MACHINE_TRANSITION_SIDE_ENTER = 'state_enter';

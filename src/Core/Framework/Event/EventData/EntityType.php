@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
+/**
+ * @package business-ops
+ */
 class EntityType implements EventDataType
 {
     public const TYPE = 'entity';

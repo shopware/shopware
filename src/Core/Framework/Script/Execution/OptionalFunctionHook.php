@@ -6,6 +6,7 @@ namespace Shopware\Core\Framework\Script\Execution;
  * Marker that a function does not need to be implemented by a script
  *
  * @internal
+ * @package core
  */
 abstract class OptionalFunctionHook extends FunctionHook
 {

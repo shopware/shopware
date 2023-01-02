@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
 /**
  * @final tag:v6.5.0
+ * @package core
  */
 class IteratorFactory
 {

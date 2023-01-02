@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
+/**
+ * @package core
+ */
 class OneToManyField extends AssociationField
 {
     protected string $type = 'one-to-many';

@@ -9,6 +9,9 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package inventory
+ */
 class ProductGateway implements ProductGatewayInterface
 {
     /**

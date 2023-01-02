@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<MailHeaderFooterEntity>
+ * @package sales-channel
  */
 class MailHeaderFooterCollection extends EntityCollection
 {

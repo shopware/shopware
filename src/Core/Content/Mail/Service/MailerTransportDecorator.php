@@ -14,6 +14,7 @@ use Symfony\Component\Mime\RawMessage;
 
 /**
  * @internal
+ * @package system-settings
  */
 class MailerTransportDecorator implements TransportInterface
 {

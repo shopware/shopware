@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * This route is used to get the generated document from a documentId
+ * @package customer-order
  */
 abstract class AbstractDocumentRoute
 {

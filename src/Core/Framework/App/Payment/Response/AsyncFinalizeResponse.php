@@ -6,6 +6,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 
 /**
  * @internal only for use by the app-system
+ * @package core
  */
 class AsyncFinalizeResponse extends AbstractResponse
 {

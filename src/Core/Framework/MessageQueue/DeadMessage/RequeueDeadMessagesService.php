@@ -16,6 +16,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @package core
  * @deprecated tag:v6.5.0 - Will be removed, as we use the default symfony retry mechanism
  */
+/**
+ * @package core
+ */
 class RequeueDeadMessagesService
 {
     private const MAX_RETRIES = 3;

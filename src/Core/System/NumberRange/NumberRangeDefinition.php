@@ -22,6 +22,9 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeState\NumberRangeState
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTranslation\NumberRangeTranslationDefinition;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeDefinition;
 
+/**
+ * @package checkout
+ */
 class NumberRangeDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'number_range';

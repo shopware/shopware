@@ -8,6 +8,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 
 /**
  * @param Context $context - @deprecated tag:v6.5.0 parameter $context will be required in v6.5.0.0
+ * @package storefront
  */
 interface ThemeCompilerInterface
 {

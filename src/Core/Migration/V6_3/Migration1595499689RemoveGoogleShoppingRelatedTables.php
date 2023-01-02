@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ * @package core
  */
 class Migration1595499689RemoveGoogleShoppingRelatedTables extends MigrationStep
 {

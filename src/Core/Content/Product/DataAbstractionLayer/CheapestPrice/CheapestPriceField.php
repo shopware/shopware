@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PHPUnserializeFieldSerializer;
 
+/**
+ * @package core
+ */
 class CheapestPriceField extends JsonField
 {
     public function __construct(string $storageName, string $propertyName, array $propertyMapping = [])

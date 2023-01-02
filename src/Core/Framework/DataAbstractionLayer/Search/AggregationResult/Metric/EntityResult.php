@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 
 /**
  * @final tag:v6.5.0
+ * @package core
  */
 class EntityResult extends AggregationResult
 {

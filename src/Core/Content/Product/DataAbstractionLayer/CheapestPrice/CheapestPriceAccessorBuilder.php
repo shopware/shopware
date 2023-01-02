@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 
+/**
+ * @package core
+ */
 class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
 {
     private int $maxRulePrices;

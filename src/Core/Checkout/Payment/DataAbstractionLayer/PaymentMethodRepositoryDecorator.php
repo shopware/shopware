@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-decorator - Will be removed
+ * @package core
  */
 class PaymentMethodRepositoryDecorator implements EntityRepositoryInterface
 {

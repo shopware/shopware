@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 
 /**
  * @internal only for use by the app-system, overridden for the cloud env
+ * @package core
  */
 interface ScriptFileReaderInterface
 {

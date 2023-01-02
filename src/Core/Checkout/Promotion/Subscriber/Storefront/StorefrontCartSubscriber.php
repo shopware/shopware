@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package checkout
  */
 class StorefrontCartSubscriber implements EventSubscriberInterface
 {

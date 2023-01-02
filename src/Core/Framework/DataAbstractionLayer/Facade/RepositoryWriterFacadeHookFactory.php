@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Script\Execution\Script;
 
 /**
  * @internal
+ * @package core
  */
 class RepositoryWriterFacadeHookFactory extends HookServiceFactory
 {

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 
 /**
  * @internal only for use by the app-system
+ * @package core
  */
 class OpenNewTabResponseFactory implements ActionButtonResponseFactoryInterface
 {

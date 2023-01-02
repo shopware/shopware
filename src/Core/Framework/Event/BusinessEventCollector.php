@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\LogAware;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package business-ops
+ */
 class BusinessEventCollector
 {
     /**

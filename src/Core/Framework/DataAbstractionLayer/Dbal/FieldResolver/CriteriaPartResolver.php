@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 
 /**
  * @internal This class is not intended for service decoration
+ * @package core
  */
 class CriteriaPartResolver
 {

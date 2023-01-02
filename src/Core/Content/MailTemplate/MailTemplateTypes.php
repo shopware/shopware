@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\MailTemplate;
 
+/**
+ * @package sales-channel
+ */
 class MailTemplateTypes
 {
     /**

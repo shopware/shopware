@@ -36,6 +36,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed, use DocumentGenerator instead
+ * @package customer-order
  */
 class DocumentService
 {

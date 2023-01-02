@@ -13,6 +13,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal (flag: FEATURE_NEXT_7530)
+ * @package sales-channel
  */
 class AttachmentLoader
 {

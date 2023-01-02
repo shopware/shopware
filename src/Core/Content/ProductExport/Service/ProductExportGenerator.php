@@ -32,6 +32,9 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package inventory
+ */
 class ProductExportGenerator implements ProductExportGeneratorInterface
 {
     private ProductStreamBuilderInterface $productStreamBuilder;

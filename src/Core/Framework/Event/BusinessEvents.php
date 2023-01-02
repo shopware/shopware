@@ -27,6 +27,9 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterUpdateEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
+/**
+ * @package business-ops
+ */
 final class BusinessEvents
 {
     /**

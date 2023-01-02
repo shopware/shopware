@@ -10,6 +10,7 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @phpstan-type FilterConfig array{excluded_terms: list<string>, min_search_length: int}
+ * @package core
  */
 class TokenFilter extends AbstractTokenFilter implements ResetInterface
 {

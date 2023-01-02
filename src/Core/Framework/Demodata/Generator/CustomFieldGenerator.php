@@ -14,6 +14,7 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @package core
  */
 class CustomFieldGenerator implements DemodataGeneratorInterface
 {

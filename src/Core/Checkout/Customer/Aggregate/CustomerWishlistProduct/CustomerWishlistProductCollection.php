@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<CustomerWishlistProductEntity>
+ * @package customer-order
  */
 class CustomerWishlistProductCollection extends EntityCollection
 {

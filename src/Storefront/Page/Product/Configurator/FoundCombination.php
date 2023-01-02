@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\SalesChannel\FindVariant\FoundCombination as C
 
 /**
  * @deprecated tag:v6.5.0 - Class will be removed, use \Shopware\Core\Content\Product\SalesChannel\FindVariant\FoundCombination instead
+ * @package inventory
  */
 class FoundCombination extends CoreFoundCombination
 {

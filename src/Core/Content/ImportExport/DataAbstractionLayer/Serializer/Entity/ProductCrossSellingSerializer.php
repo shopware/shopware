@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package core
+ */
 class ProductCrossSellingSerializer extends EntitySerializer
 {
     private EntityRepositoryInterface $assignedProductsRepository;

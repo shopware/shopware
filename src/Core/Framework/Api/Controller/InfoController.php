@@ -30,6 +30,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
+ * @package core
  */
 class InfoController extends AbstractController
 {

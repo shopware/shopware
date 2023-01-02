@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 /**
  * @internal only for use by the app-system
+ * @package core
  */
 class AppPrinter
 {

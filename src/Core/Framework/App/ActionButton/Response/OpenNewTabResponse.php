@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\ActionButton\Response;
 
 /**
  * @internal only for use by the app-system
+ * @package core
  */
 class OpenNewTabResponse extends ActionButtonResponse
 {

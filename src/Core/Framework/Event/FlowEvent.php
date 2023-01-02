@@ -10,6 +10,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed, use `FlowAction::handleFlow()` instead
+ * @package business-ops
  */
 class FlowEvent extends Event
 {

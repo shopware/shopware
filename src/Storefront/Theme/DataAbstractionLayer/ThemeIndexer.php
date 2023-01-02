@@ -17,6 +17,9 @@ use Shopware\Storefront\Theme\Event\ThemeIndexerEvent;
 use Shopware\Storefront\Theme\ThemeDefinition;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package core
+ */
 class ThemeIndexer extends EntityIndexer
 {
     private IteratorFactory $iteratorFactory;

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
  *
  * @phpstan-import-type SequenceData from Migration1648803451FixInvalidMigrationOfBusinessEventToFlow
+ * @package core
  */
 class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
 {

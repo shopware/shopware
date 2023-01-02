@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal only for use by the app-system
+ * @package core
  */
 class AppAsyncPaymentHandler extends AppPaymentHandler implements AsynchronousPaymentHandlerInterface
 {

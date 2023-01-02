@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Product\SearchKeyword;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package inventory
+ */
 class AnalyzedKeyword extends Struct
 {
     /**

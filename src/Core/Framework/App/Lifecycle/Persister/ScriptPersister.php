@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Script\ScriptEntity;
 
 /**
  * @internal only for use by the app-system
+ * @package core
  */
 class ScriptPersister
 {

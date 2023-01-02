@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 /**
  * @internal only for use by the app-system
+ * @package core
  */
 class AppPaymentMethodEntity extends Entity
 {

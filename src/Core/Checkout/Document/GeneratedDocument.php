@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed, use RenderedDocument instead
+ * @package customer-order
  */
 class GeneratedDocument extends Struct
 {

@@ -5,6 +5,9 @@ namespace Shopware\Core\System\StateMachine;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
+/**
+ * @package checkout
+ */
 class StateMachineTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

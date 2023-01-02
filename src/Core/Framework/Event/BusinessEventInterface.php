@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
  * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use FlowEventAware instead.
  *
  * Tag for events that can be used in the action/action system
+ * @package business-ops
  */
 interface BusinessEventInterface extends FlowEventAware
 {

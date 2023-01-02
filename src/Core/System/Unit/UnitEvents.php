@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\Unit;
 
+/**
+ * @package inventory
+ */
 class UnitEvents
 {
     /**

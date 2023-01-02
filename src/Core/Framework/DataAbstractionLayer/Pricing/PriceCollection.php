@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<Price>
+ * @package core
  */
 class PriceCollection extends Collection
 {

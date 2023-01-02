@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 
 /**
  * @final tag:v6.5.0
+ * @package core
  */
 class FieldGrouping implements CriteriaPartInterface
 {

@@ -15,6 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @final
+ * @package storefront
  */
 class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 {

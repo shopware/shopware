@@ -13,6 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
  * @package checkout
  */
 if (!Feature::isActive('v6.5.0.0')) {
+    /**
+     * @package checkout
+     */
     class InvalidCartException extends ShopwareHttpException
     {
         /**
@@ -69,6 +72,9 @@ if (!Feature::isActive('v6.5.0.0')) {
         }
     }
 } else {
+    /**
+     * @package checkout
+     */
     class InvalidCartException extends CartException
     {
     }

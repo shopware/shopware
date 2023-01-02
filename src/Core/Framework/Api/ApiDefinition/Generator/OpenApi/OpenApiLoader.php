@@ -17,6 +17,7 @@ use const OpenApi\Annotations\UNDEFINED;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed
+ * @package core
  */
 class OpenApiLoader
 {

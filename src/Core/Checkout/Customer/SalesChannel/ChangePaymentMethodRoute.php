@@ -24,6 +24,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
+ * @package customer-order
  */
 class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
 {

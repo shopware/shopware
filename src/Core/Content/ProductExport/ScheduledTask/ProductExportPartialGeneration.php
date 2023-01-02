@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
+/**
+ * @package inventory
+ */
 class ProductExportPartialGeneration
 {
     /**

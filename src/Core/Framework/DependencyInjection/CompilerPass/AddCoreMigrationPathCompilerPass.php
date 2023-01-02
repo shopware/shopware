@@ -9,6 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * @deprecated tag:v6.5.0 - Use own migration source instead
+ * @package core
  */
 class AddCoreMigrationPathCompilerPass implements CompilerPassInterface
 {

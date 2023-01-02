@@ -10,6 +10,9 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionCollection;
 
+/**
+ * @package checkout
+ */
 class StateMachineEntity extends Entity
 {
     use EntityIdTrait;

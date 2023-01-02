@@ -8,6 +8,7 @@ use Interop\Queue\Context;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we remove enqueue
+ * @package core
  */
 class ConnectionFactory implements \Interop\Queue\ConnectionFactory
 {

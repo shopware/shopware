@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationResult
 
 /**
  * @deprecated tag:v6.5.0 - Class will be removed, use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationResult instead
+ * @package inventory
  */
 class AvailableCombinationResult extends CoreAvailableCombinationResultAlias
 {

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Feature;
 
 /**
  * @deprecated tag:v6.5.0 - Use \Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult instead
+ * @package core
  */
 class DeleteResult
 {

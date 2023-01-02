@@ -14,6 +14,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package inventory
+ */
 class ProductExportGenerateCommand extends Command
 {
     public static $defaultName = 'product-export:generate';

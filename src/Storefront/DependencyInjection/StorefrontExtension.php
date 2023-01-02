@@ -8,6 +8,9 @@ use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 
+/**
+ * @package storefront
+ */
 class StorefrontExtension extends Extension
 {
     /**

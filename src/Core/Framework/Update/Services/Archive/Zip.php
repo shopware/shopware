@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Update\Services\Archive;
 
 use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 
+/**
+ * @package system-settings
+ */
 class Zip extends Adapter
 {
     /**

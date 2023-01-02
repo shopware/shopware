@@ -10,6 +10,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @deprecated tag:v6.5.0 - Will be removed
  * Create a src/Resources/Schema/ in a plugin to extend the open api schema
  * @see BundleSchemaPathCollection
+ * @package core
  */
 class OpenApiPathsEvent extends Event
 {

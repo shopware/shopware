@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 
 /**
  * @final tag:v6.5.0
+ * @package core
  */
 class StatsAggregation extends Aggregation
 {

@@ -12,6 +12,9 @@ use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @package core
+ */
 class CountrySerializer extends EntitySerializer implements ResetInterface
 {
     private EntityRepositoryInterface $countryRepository;

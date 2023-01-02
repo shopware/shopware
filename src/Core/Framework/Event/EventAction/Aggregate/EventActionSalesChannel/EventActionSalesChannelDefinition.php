@@ -13,6 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-entity - Will be removed in v6.5.0.
+ * @package business-ops
  */
 class EventActionSalesChannelDefinition extends MappingEntityDefinition
 {

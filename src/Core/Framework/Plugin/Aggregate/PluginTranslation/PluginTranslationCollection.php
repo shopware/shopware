@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<PluginTranslationEntity>
+ * @package core
  */
 class PluginTranslationCollection extends EntityCollection
 {

@@ -12,6 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
+ * @package core
  */
 class ChangelogChangeCommand extends Command
 {

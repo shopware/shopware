@@ -24,6 +24,7 @@ namespace Shopware\Core\Framework\Script\Facade;
  *
  * @implements \ArrayAccess<array-key, string|int|float|array|object|bool|null>
  * @implements \IteratorAggregate<array-key, string|int|float|array|object|bool|null>
+ * @package core
  */
 class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
 {

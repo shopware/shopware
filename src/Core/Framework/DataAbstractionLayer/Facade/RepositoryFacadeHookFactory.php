@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Script\Execution\Script;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal
+ * @package core
  */
 class RepositoryFacadeHookFactory extends HookServiceFactory
 {

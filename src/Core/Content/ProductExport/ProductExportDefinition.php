@@ -20,6 +20,9 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package inventory
+ */
 class ProductExportDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_export';

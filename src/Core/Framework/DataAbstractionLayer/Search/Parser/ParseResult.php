@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @package core
  */
 class ParseResult
 {

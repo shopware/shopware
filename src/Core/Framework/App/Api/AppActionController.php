@@ -20,6 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  *
  * @Route(defaults={"_routeScope"={"api"}})
+ * @package core
  */
 class AppActionController extends AbstractController
 {

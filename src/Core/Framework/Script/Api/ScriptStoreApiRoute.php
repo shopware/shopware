@@ -17,6 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal
  * @Route(defaults={"_routeScope"={"store-api"}})
+ * @package core
  */
 class ScriptStoreApiRoute
 {

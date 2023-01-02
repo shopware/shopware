@@ -15,6 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 
+/**
+ * @package inventory
+ */
 class ProductSearchConfigFieldDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_search_config_field';

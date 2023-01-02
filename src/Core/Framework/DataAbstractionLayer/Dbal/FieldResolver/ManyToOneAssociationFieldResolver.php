@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Feature;
 
 /**
  * @internal
+ * @package core
  */
 class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
 {

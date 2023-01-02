@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Adapter\Twig\Node\ReturnNode;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
+/**
+ * @package core
+ */
 final class ReturnNodeTokenParser extends AbstractTokenParser
 {
     public function parse(Token $token): ReturnNode

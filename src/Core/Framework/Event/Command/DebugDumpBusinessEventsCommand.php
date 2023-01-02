@@ -9,6 +9,9 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package business-ops
+ */
 class DebugDumpBusinessEventsCommand extends Command
 {
     protected static $defaultName = 'debug:business-events';

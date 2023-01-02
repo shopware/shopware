@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
+/**
+ * @package core
+ */
 class PriceSerializer extends FieldSerializer
 {
     /**

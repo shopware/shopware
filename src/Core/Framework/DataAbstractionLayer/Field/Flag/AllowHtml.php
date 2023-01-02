@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Feature;
  * In case a column is allowed to contain HTML-esque data. Beware of injection possibilities
  */
 if (Feature::isActive('FEATURE_NEXT_15172')) {
+    /**
+     * @package core
+     */
     class AllowHtml extends Flag
     {
         /**
@@ -31,6 +34,9 @@ if (Feature::isActive('FEATURE_NEXT_15172')) {
         }
     }
 } else {
+    /**
+     * @package core
+     */
     class AllowHtml extends Flag
     {
         /**

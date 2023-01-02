@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
+/**
+ * @package business-ops
+ */
 class EntityCollectionType implements EventDataType
 {
     public const TYPE = 'collection';

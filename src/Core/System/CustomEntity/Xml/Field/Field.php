@@ -7,6 +7,7 @@ use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
+ * @package core
  */
 class Field extends XmlElement
 {

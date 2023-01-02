@@ -16,6 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @Route(defaults={"_routeScope"={"api"}})
  *
  * @deprecated tag:v6.5.0 - Will be removed, migrations should be executed over the CLI instead
+ * @package core
  */
 class MigrationController extends AbstractController
 {

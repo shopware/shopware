@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @package core
+ */
 class PromotionIndividualCodeSerializer extends EntitySerializer implements ResetInterface
 {
     private EntityRepositoryInterface $promoCodeRepository;

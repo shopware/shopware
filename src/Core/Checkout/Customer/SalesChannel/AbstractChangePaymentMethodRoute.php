@@ -9,6 +9,7 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
 
 /**
  * This route is used to change the default payment method of a logged-in user
+ * @package customer-order
  */
 abstract class AbstractChangePaymentMethodRoute
 {

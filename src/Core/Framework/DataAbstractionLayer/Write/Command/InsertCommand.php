@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 
 /**
  * @final tag:v6.5.0
+ * @package core
  */
 class InsertCommand extends WriteCommand
 {

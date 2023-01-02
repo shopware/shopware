@@ -2,17 +2,14 @@
 
 namespace Shopware\Elasticsearch\Framework\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use Elasticsearch\Client;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ElasticsearchTestAnalyzerCommand extends Command
 {

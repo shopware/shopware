@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\App\Delta;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
- * @package core
  */
 #[Package('core')]
 abstract class AbstractAppDeltaProvider

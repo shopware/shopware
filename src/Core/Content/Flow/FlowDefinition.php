@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Flow;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -19,10 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class FlowDefinition extends EntityDefinition
 {

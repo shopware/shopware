@@ -14,8 +14,6 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Validator\Constraints\Choice;
 
 /**
- * @package business-ops
- *
  * @internal
  * @group rules
  * @covers \Shopware\Core\Checkout\Customer\Rule\CustomerTagRule

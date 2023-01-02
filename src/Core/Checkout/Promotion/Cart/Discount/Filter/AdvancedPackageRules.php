@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -11,13 +10,11 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class AdvancedPackageRules extends SetGroupScopeFilter
 {

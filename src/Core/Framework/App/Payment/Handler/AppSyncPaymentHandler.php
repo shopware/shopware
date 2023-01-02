@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Payment\Handler;
 
-use Shopware\Core\Framework\Log\Package;
 use Psr\Http\Client\ClientExceptionInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
@@ -11,6 +10,7 @@ use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\SyncPayPayload;
 use Shopware\Core\Framework\App\Payment\Response\SyncPayResponse;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
@@ -18,7 +18,6 @@ use Shopware\Core\System\StateMachine\Transition;
 
 /**
  * @internal only for use by the app-system
- * @package core
  */
 #[Package('core')]
 class AppSyncPaymentHandler extends AppPaymentHandler implements SynchronousPaymentHandlerInterface

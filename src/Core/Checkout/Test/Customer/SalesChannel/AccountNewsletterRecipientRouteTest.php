@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientResult;
 use Shopware\Core\Framework\Context;
@@ -11,10 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
- * @package customer-order
- *
  * @internal
  * @group store-api
  */

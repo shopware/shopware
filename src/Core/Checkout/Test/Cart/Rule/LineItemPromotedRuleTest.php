@@ -14,8 +14,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
  * @group rules
  */

@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\FindVariant;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -16,8 +16,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
- *
- * @package inventory
  */
 #[Package('inventory')]
 class FindProductVariantRoute extends AbstractFindProductVariantRoute

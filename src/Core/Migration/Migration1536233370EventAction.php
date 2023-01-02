@@ -3,9 +3,8 @@
 namespace Shopware\Core\Migration;
 
 use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
  */
 #[Package('core')]

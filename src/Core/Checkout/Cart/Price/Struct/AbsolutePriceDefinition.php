@@ -9,12 +9,6 @@ use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * @package checkout
- *
- * An AbsolutePriceDefinition always return its price value as the final price and adjusts it net worth according to
- * the taxes of other price definitions. This can, for example, be used to create vouchers with a fixed amount.
- */
 #[Package('checkout')]
 class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
 {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -11,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificat
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Event\DataMappingEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
@@ -32,8 +32,6 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package customer-order
- *
  * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
 #[Package('customer-order')]

@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\System\Salutation\Aggregate\SalutationTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<SalutationTranslationEntity>
- * @package customer-order
  */
 #[Package('customer-order')]
 class SalutationTranslationCollection extends EntityCollection

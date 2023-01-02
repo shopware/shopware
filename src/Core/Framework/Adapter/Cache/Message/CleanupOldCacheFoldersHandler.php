@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Message;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

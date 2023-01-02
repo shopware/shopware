@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<MissingSnippetStruct>
- *
- * @package system-settings
  */
 #[Package('system-settings')]
 class MissingSnippetCollection extends Collection

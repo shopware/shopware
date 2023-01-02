@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Order;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
@@ -37,12 +36,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class RecalculationService
 {

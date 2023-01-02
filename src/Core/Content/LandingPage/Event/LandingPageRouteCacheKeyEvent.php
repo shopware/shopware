@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Content\LandingPage\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheKeyEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package content
- */
 #[Package('content')]
 class LandingPageRouteCacheKeyEvent extends StoreApiRouteCacheKeyEvent
 {

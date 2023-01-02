@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
@@ -16,8 +16,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package customer-order
- *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 #[Package('customer-order')]

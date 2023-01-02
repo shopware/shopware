@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class CartException extends HttpException
 {

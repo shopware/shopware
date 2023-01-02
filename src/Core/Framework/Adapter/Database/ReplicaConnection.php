@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Framework\Adapter\Database;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

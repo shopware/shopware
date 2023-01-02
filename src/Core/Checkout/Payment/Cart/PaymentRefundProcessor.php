@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStateHandler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
@@ -13,11 +12,9 @@ use Shopware\Core\Checkout\Payment\Exception\RefundException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownRefundException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownRefundHandlerException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PaymentRefundProcessor
 {

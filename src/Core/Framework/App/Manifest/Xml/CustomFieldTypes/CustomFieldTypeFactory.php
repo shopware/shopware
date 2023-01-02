@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Exception\CustomFieldTypeNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- * @package core
  */
 #[Package('core')]
 class CustomFieldTypeFactory

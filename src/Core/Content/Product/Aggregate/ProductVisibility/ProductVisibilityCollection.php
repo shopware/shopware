@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductVisibility;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductVisibilityEntity>
- *
- * @package inventory
  */
 #[Package('inventory')]
 class ProductVisibilityCollection extends EntityCollection

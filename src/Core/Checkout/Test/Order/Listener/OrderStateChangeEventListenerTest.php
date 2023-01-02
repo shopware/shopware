@@ -30,8 +30,6 @@ use Shopware\Core\System\StateMachine\Transition;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package customer-order
- *
  * @internal
  */
 class OrderStateChangeEventListenerTest extends TestCase

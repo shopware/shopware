@@ -15,8 +15,6 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
- * @package customer-order
- *
  * @internal
  *
  * @covers \Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute

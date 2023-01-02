@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -20,10 +19,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductMediaDefinition extends EntityDefinition
 {

@@ -27,8 +27,6 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package customer-order
- *
  * @internal
  */
 class CustomerFlowEventsSubscriberTest extends TestCase

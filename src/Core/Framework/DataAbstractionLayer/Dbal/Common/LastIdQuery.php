@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class LastIdQuery implements IterableQuery
 {

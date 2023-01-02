@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Template;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -15,10 +14,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- * @package core
  */
 #[Package('core')]
 class TemplateDefinition extends EntityDefinition

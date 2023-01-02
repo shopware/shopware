@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Test\Controller;
 
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -10,6 +9,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\CookieController;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

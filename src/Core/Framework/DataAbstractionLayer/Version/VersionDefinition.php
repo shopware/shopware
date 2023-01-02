@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Version;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -13,10 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class VersionDefinition extends EntityDefinition
 {

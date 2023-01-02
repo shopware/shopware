@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package customer-order
- *
  * @extends EntityCollection<OrderTransactionEntity>
  */
 #[Package('customer-order')]

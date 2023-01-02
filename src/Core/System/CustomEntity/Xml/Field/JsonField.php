@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Field\Traits\RequiredTrait;
 use Shopware\Core\System\CustomEntity\Xml\Field\Traits\TranslatableTrait;
 
-/**
- * @package core
- */
 #[Package('core')]
 class JsonField extends Field
 {

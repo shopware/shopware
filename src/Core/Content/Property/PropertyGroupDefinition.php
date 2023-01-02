@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Property;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -18,10 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class PropertyGroupDefinition extends EntityDefinition
 {

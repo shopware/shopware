@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\UserAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class UserStorer extends FlowStorer
 {

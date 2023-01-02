@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Content\Property;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class PropertyGroupEntity extends Entity
 {

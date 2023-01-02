@@ -15,8 +15,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * @package core
- *
  * @internal
  */
 class FixtureLoader

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
@@ -50,12 +49,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
-/**
- * @package content
- */
 #[Package('content')]
 class MediaDefinition extends EntityDefinition
 {

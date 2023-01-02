@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Content\Cms\Events;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package content
- */
 #[Package('content')]
 class CmsPageLoaderCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {

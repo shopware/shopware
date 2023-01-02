@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use Shopware\Core\Framework\Log\Package;
 use League\OAuth2\Server\AuthorizationServer;
 use Shopware\Core\Framework\Api\Controller\Exception\AuthThrottledException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -18,8 +18,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
- *
- * @package system-settings
  */
 #[Package('system-settings')]
 class AuthController extends AbstractController

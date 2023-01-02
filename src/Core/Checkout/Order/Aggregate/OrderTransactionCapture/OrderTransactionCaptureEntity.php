@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class OrderTransactionCaptureEntity extends Entity
 {

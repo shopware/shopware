@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Exception\InvalidIdentifierException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
@@ -23,11 +22,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package core
- */
 #[Package('core')]
 class FieldSerializer extends AbstractFieldSerializer
 {

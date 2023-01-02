@@ -6,11 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package content
- * This route can be used to send a contact form mail for the authenticated sales channel.
- * Required fields are: "salutationId", "firstName", "lastName", "email", "phone", "subject" and "comment"
- */
 #[Package('content')]
 abstract class AbstractContactFormRoute
 {

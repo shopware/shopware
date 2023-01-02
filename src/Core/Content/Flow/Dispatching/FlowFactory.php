@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Dispatching\Storer\FlowStorer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 #[Package('business-ops')]

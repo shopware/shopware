@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -11,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\DataMappingEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -30,8 +30,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package customer-order
- *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 #[Package('customer-order')]

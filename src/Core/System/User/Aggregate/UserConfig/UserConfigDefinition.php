@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\User\Aggregate\UserConfig;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -12,11 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserDefinition;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class UserConfigDefinition extends EntityDefinition
 {

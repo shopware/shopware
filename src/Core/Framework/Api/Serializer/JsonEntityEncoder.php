@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Serializer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -13,13 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\Serializer;
 
-/**
- * @package core
- */
 #[Package('core')]
 class JsonEntityEncoder
 {

@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Symfony\Component\Filesystem\Filesystem;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class BasicCaptchaGenerator extends AbstractBasicCaptchaGenerator
 {

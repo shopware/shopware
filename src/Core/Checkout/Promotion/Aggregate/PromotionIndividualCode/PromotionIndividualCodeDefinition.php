@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -13,10 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PromotionIndividualCodeDefinition extends EntityDefinition
 {

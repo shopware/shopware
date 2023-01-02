@@ -15,8 +15,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class PromotionIndividualCodeSerializerTest extends TestCase
 {

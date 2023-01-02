@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
-use Doctrine\DBAL\Exception;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PromotionExclusionUpdater
 {

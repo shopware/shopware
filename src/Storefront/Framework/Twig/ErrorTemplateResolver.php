@@ -7,9 +7,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Twig\Environment;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class ErrorTemplateResolver
 {

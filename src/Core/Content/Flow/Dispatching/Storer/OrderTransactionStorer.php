@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Content\Flow\Dispatching\Aware\OrderTransactionAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class OrderTransactionStorer extends FlowStorer
 {

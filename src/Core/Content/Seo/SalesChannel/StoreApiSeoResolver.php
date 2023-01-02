@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Seo\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\PlatformRequest;
@@ -29,8 +29,6 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @package sales-channel
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('sales-channel')]

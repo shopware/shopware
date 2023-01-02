@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\Installer\Database;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

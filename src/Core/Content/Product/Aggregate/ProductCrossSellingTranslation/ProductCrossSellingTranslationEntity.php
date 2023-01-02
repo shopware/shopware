@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductCrossSellingTranslationEntity extends TranslationEntity
 {

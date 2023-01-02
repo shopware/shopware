@@ -2,12 +2,9 @@
 
 namespace Shopware\Storefront\Checkout\Cart\Error;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class ShippingMethodChangedError extends Error
 {

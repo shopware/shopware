@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\FlowAction;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -11,12 +10,10 @@ use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 
-/**
- * @package core
- */
 #[Package('core')]
 class AppFlowActionProvider
 {

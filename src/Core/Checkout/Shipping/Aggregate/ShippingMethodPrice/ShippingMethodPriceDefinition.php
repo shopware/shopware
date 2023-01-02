@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -17,10 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class ShippingMethodPriceDefinition extends EntityDefinition
 {

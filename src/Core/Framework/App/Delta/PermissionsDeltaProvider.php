@@ -2,16 +2,15 @@
 
 namespace Shopware\Core\Framework\App\Delta;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Struct\PermissionCollection;
 use Shopware\Core\Framework\Store\Struct\PermissionStruct;
 
 /**
  * @internal only for use by the app-system
- * @package core
  */
 #[Package('core')]
 class PermissionsDeltaProvider extends AbstractAppDeltaProvider

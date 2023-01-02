@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -17,10 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class CategoryTranslationDefinition extends EntityTranslationDefinition
 {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Flow\Aggregate\FlowSequence;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionDefinition;
@@ -22,10 +21,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class FlowSequenceDefinition extends EntityDefinition
 {

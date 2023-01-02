@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -18,10 +17,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- * @package core
  */
 #[Package('core')]
 class ManyToOneAssociationFieldResolver extends AbstractFieldResolver

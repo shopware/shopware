@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,7 +28,6 @@ use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package core
  * @final tag:v6.5.0
  */
 #[Package('core')]

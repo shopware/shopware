@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 
 /**
- * @package merchant-services
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal
  */
 #[Package('merchant-services')]

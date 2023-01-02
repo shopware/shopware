@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\Test\Plugin;
 
-use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogParser;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;

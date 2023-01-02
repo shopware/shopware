@@ -14,8 +14,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1636362839FlowBuilderGenerateMultipleDoc;
 
 /**
- * @package core
- *
  * @internal
  */
 class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase

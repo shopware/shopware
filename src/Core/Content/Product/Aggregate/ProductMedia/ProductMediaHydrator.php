@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductMediaHydrator extends EntityHydrator
 {

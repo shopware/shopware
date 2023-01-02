@@ -7,7 +7,6 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 /**
  * @internal only for use by the app-system
- * @package core
  */
 #[Package('core')]
 class PriceField extends CustomFieldType

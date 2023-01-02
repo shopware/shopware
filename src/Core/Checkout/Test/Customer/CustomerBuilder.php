@@ -10,8 +10,6 @@ use Shopware\Core\Test\TestBuilderTrait;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package customer-order
- *
  * @internal
  * How to use:
  *

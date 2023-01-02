@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
-/**
- * @package core
- */
 #[Package('core')]
 class CleanupVersionTask extends ScheduledTask
 {

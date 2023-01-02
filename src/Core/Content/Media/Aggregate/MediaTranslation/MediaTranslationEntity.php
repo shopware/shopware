@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class MediaTranslationEntity extends TranslationEntity
 {

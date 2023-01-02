@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class ProductStreamSyncTest extends TestCase

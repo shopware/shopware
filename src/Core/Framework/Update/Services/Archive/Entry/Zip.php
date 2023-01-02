@@ -3,9 +3,7 @@
 namespace Shopware\Core\Framework\Update\Services\Archive\Entry;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package system-settings
- */
+
 #[Package('system-settings')]
 class Zip
 {

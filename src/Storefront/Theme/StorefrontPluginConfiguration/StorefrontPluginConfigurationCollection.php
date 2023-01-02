@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package storefront
- *
  * @extends Collection<StorefrontPluginConfiguration>
  */
 #[Package('storefront')]

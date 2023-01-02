@@ -7,9 +7,6 @@ use Symfony\Component\Asset\Packages;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 
-/**
- * @package core
- */
 class AssetPackageService
 {
     private Packages $packages;

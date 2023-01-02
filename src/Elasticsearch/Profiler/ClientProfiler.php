@@ -2,13 +2,12 @@
 
 namespace Shopware\Elasticsearch\Profiler;
 
-use Shopware\Core\Framework\Log\Package;
 use Elasticsearch\Client;
 use Elasticsearch\Connections\ConnectionInterface;
 use Elasticsearch\Namespaces\AbstractNamespace;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
  * @phpstan-type RequestInfo array{url: string, request: array<mixed>, response: array<mixed>, time: float, backtrace: string}
  */
 #[Package('core')]

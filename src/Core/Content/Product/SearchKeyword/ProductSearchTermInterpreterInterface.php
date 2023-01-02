@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 interface ProductSearchTermInterpreterInterface
 {

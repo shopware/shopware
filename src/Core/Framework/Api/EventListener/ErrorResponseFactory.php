@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Framework\Api\EventListener;
 
-use Shopware\Core\Framework\Log\Package;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ErrorResponseFactory
 {

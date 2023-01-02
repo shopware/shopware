@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Cms;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -15,10 +14,8 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {

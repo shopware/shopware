@@ -2,12 +2,10 @@
 
 namespace Shopware\Storefront\Framework\Routing\Annotation;
 
-use Shopware\Core\Framework\Log\Package;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package storefront
- *
  * @Annotation
  */
 #[Package('storefront')]

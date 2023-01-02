@@ -2,20 +2,17 @@
 
 namespace Shopware\Core\Content\Cms\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use Faker\Factory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package content
- */
 #[Package('content')]
 class CreatePageCommand extends Command
 {

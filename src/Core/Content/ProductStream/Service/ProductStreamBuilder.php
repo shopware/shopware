@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ProductStream\Service;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\Context;
@@ -12,10 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundExcepti
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class ProductStreamBuilder implements ProductStreamBuilderInterface
 {

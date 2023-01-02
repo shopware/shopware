@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductDetailRouteResponse extends StoreApiResponse
 {

@@ -2,18 +2,17 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 
 /**
  * @final
  *
  * @extends EntityCollection<Entity>
- * @package core
  */
 #[Package('core')]
 class EntitySearchResult extends EntityCollection

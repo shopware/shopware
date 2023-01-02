@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Thumbnail;
 
-use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
@@ -22,10 +21,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class ThumbnailService
 {

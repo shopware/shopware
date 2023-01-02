@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Content\Seo\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class SeoUrlRouteResponse extends StoreApiResponse
 {

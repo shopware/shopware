@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Content\Product;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 if (Feature::isActive('v6.5.0.0')) {
-    /**
-     * @package inventory
-     */
     #[Package('inventory')]
     abstract class AbstractProductMaxPurchaseCalculator
     {
@@ -20,9 +17,6 @@ if (Feature::isActive('v6.5.0.0')) {
         abstract public function calculate(Entity $product, SalesChannelContext $context): int;
     }
 } else {
-    /**
-     * @package inventory
-     */
     #[Package('inventory')]
     abstract class AbstractProductMaxPurchaseCalculator
     {

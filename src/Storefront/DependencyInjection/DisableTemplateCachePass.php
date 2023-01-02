@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class DisableTemplateCachePass implements CompilerPassInterface
 {

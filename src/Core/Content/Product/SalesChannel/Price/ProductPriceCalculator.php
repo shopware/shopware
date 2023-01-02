@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Price;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
@@ -17,14 +16,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Unit\UnitCollection;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductPriceCalculator extends AbstractProductPriceCalculator implements ResetInterface
 {

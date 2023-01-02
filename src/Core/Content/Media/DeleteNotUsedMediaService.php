@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Framework\Context;
@@ -13,11 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
-/**
- * @package content
- */
 #[Package('content')]
 class DeleteNotUsedMediaService
 {

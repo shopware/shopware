@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi;
 
-use Shopware\Core\Framework\Log\Package;
 use OpenApi\Annotations\Delete;
 use OpenApi\Annotations\Get;
 use OpenApi\Annotations\Parameter;
@@ -12,12 +11,10 @@ use OpenApi\Annotations\Post;
 use OpenApi\Annotations\Response as OpenApiResponse;
 use OpenApi\Annotations\Tag;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
 #[Package('core')]
 class OpenApiPathBuilder
 {

@@ -2,14 +2,12 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 /**
- * @package storefront
- *
  * @phpstan-import-type Domain from AbstractDomainLoader
  */
 #[Package('storefront')]

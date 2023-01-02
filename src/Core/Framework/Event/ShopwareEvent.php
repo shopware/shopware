@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Framework\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 interface ShopwareEvent
 {

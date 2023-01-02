@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Rule;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionCartRule\PromotionCartRuleDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
@@ -42,11 +41,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventActionRuleDefinition;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagDefinition;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class RuleDefinition extends EntityDefinition
 {

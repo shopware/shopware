@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
@@ -41,10 +40,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 #[Package('core')]

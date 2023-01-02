@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\CustomField;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -16,11 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class CustomFieldDefinition extends EntityDefinition
 {

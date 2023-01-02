@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Order;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
@@ -12,11 +11,9 @@ use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class OrderPersister implements OrderPersisterInterface
 {

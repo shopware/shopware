@@ -12,8 +12,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class ShippingMethodRuleAccessibleTest extends TestCase

@@ -2,19 +2,18 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Twig\Cache\FilesystemCache;
 
 /**
  * @internal only for use by the app-system
- * @package core
  */
 #[Package('core')]
 class ScriptLoader implements EventSubscriberInterface

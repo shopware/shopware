@@ -13,8 +13,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class SearchPageTest extends TestCase
 {

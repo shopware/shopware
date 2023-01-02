@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package core
- */
 #[Package('core')]
 class FallbackUrlPackage extends UrlPackage
 {

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Api\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,9 +12,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
 #[Package('core')]
 class DumpSchemaCommand extends Command
 {

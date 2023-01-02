@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Subscriber;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\AdapterInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
@@ -22,14 +21,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package content
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('content')]

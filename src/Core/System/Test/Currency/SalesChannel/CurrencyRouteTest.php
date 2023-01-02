@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\System\Test\Currency\SalesChannel;
 
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal

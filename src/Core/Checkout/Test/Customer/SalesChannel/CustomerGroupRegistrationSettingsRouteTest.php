@@ -2,17 +2,15 @@
 
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
- * @package customer-order
- *
  * @internal
  * @group store-api
  */

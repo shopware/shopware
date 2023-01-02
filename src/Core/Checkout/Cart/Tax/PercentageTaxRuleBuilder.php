@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Checkout\Cart\Tax;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PercentageTaxRuleBuilder
 {

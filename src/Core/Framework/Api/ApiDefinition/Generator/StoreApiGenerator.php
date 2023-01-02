@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
-use Shopware\Core\Framework\Log\Package;
 use http\Exception\RuntimeException;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
@@ -15,12 +14,12 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBui
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
 /**
  * @phpstan-import-type Api from DefinitionService
  * @phpstan-import-type OpenApiSpec from DefinitionService
- * @package core
  */
 #[Package('core')]
 class StoreApiGenerator implements ApiDefinitionGeneratorInterface

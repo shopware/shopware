@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountRule\PromotionDiscountRuleDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
@@ -20,10 +19,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PromotionDiscountDefinition extends EntityDefinition
 {

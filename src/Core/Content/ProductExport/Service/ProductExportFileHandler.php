@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
-use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductExportFileHandler implements ProductExportFileHandlerInterface
 {

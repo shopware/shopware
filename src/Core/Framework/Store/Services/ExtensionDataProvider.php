@@ -2,21 +2,19 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
 #[Package('merchant-services')]

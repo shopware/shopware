@@ -30,8 +30,6 @@ use Symfony\Component\Messenger\Test\Middleware\MiddlewareTestCase;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class RetryMiddlewareTest extends MiddlewareTestCase
 {

@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Content\Category\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package content
- */
 #[Package('content')]
 class NavigationLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {

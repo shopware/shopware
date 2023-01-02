@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\System\StateMachine\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class StateMachineStateChangeEvent extends Event
 {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -13,11 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class DocumentBaseConfigSalesChannelDefinition extends EntityDefinition
 {

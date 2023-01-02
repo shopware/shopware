@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -11,11 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class SalesChannelTranslationDefinition extends EntityTranslationDefinition
 {

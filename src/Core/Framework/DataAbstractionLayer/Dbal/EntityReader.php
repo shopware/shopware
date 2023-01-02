@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
@@ -33,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -40,7 +40,6 @@ use function array_filter;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
- * @package core
  */
 #[Package('core')]
 class EntityReader implements EntityReaderInterface

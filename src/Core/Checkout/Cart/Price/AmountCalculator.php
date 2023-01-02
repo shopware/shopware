@@ -2,19 +2,16 @@
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class AmountCalculator
 {

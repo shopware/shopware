@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\TwigBundle\TemplateIterator as TwigBundleIterator;
 
-/**
- * @package core
- */
 #[Package('core')]
 class TemplateIterator implements \IteratorAggregate
 {

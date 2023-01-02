@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
@@ -11,12 +10,10 @@ use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {

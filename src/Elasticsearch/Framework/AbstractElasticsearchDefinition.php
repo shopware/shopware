@@ -2,7 +2,6 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-use Shopware\Core\Framework\Log\Package;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchPhrasePrefixQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
@@ -10,11 +9,9 @@ use ONGR\ElasticsearchDSL\Query\TermLevel\WildcardQuery;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 
-/**
- * @package core
- */
 #[Package('core')]
 abstract class AbstractElasticsearchDefinition
 {

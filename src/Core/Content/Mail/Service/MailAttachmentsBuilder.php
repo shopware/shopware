@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentService;
@@ -17,13 +16,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  *
  * @phpstan-type MailAttachments array<int, array{id?: string, content: string, fileName: string, mimeType: string|null}>
- * @package system-settings
  */
 #[Package('system-settings')]
 class MailAttachmentsBuilder

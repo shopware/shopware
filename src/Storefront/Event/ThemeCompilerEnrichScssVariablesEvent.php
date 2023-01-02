@@ -2,13 +2,11 @@
 
 namespace Shopware\Storefront\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @package storefront
- *
  * @deprecated tag:v6.5.0 - Will be removed. Use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent instead.
  */
 #[Package('storefront')]

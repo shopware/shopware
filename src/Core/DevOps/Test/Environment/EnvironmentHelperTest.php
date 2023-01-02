@@ -9,8 +9,6 @@ use Shopware\Core\DevOps\Test\Environment\_fixtures\EnvironmentHelperTransformer
 use Shopware\Core\DevOps\Test\Environment\_fixtures\EnvironmentHelperTransformer2;
 
 /**
- * @package core
- *
  * @internal
  */
 class EnvironmentHelperTest extends TestCase

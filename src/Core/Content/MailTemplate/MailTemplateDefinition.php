@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\MailTemplate;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTranslationDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeDefinition;
@@ -20,10 +19,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class MailTemplateDefinition extends EntityDefinition
 {

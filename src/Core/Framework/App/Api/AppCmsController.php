@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Api;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity;
 use Shopware\Core\Framework\Context;
@@ -10,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,7 +21,6 @@ use Symfony\Component\Routing\Annotation\Route;
  * @internal
  *
  * @Route(defaults={"_routeScope"={"api"}})
- * @package core
  */
 #[Package('core')]
 class AppCmsController extends AbstractController

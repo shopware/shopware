@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Script\Facade;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
  * @implements \IteratorAggregate<int, string|array>
  */
 #[Package('core')]

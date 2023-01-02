@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\Token;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\UnencryptedToken;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class JWTFactoryV2 implements TokenFactoryInterfaceV2
 {

@@ -3,9 +3,9 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
 use Shopware\Core\Framework\Log\Package;
+
 /**
  * Associated data with this flag, restricts the delete of the entity in case that a record with the primary key exists.
- * @package core
  */
 #[Package('core')]
 class RestrictDelete extends Flag

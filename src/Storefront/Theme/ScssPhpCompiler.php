@@ -2,13 +2,11 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\Log\Package;
 use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\OutputStyle;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package storefront
- *
  * @internal - may be changed in the future
  */
 #[Package('storefront')]

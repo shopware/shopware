@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
@@ -16,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Store\Exception\ExtensionInstallException;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
@@ -23,8 +23,6 @@ use Shopware\Core\Framework\Store\Exception\ExtensionThemeStillInUseException;
 use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
 
 /**
- * @package merchant-services
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - This class will be marked as "internal - only for use by the app-system"
  */
 #[Package('merchant-services')]

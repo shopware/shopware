@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class TimeRangeRule extends Rule
 {

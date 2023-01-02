@@ -44,8 +44,6 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package checkout
- *
  * @internal
  * This test handles transactions itself, because it shuts down the kernel in the setUp method.
  */

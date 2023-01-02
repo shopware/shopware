@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Listener;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Exception\OrderDeliveryNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderTransactionNotFoundException;
@@ -17,14 +16,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package customer-order
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('customer-order')]

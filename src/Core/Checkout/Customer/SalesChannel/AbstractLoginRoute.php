@@ -10,7 +10,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * This route is used to login and get a new context token
  * The required parameters are "email" and "password"
- * @package customer-order
  */
 #[Package('customer-order')]
 abstract class AbstractLoginRoute

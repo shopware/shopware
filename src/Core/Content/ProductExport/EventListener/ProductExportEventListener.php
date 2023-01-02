@@ -2,18 +2,17 @@
 
 namespace Shopware\Core\Content\ProductExport\EventListener;
 
-use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- * @package inventory
  */
 #[Package('inventory')]
 class ProductExportEventListener implements EventSubscriberInterface

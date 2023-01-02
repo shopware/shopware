@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Checkout\Document\Renderer;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 abstract class AbstractDocumentRenderer
 {

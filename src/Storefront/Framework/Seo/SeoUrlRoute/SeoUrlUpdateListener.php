@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Seo\SeoUrlRoute;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEvents;
@@ -14,13 +13,12 @@ use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package sales-channel
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('sales-channel')]

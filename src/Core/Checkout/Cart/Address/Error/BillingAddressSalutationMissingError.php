@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Checkout\Cart\Address\Error;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class BillingAddressSalutationMissingError extends SalutationMissingError
 {

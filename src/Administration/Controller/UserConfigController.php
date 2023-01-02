@@ -2,7 +2,6 @@
 
 namespace Shopware\Administration\Controller;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerial
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,9 +26,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class UserConfigController extends AbstractController
 {

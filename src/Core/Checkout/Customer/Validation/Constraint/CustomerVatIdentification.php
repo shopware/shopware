@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 /**
- * @package customer-order
- *
  * @Annotation
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */

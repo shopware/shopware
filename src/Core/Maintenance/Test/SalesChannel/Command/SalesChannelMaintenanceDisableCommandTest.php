@@ -2,19 +2,17 @@
 
 namespace Shopware\Core\Maintenance\Test\SalesChannel\Command;
 
-use Shopware\Core\Framework\Uuid\Uuid;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelMaintenanceDisableCommand;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * @package core
- *
  * @internal
  */
 class SalesChannelMaintenanceDisableCommandTest extends TestCase

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Cms\Aggregate\CmsSlot;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -22,10 +21,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class CmsSlotDefinition extends EntityDefinition
 {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -16,10 +15,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- * @package core
  */
 #[Package('core')]
 class PaymentMethodPersister

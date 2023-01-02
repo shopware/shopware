@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Schema\Table;
@@ -29,11 +28,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\String\Inflector\EnglishInflector;
 
 /**
- * @package core
  * @final tag:v6.5.0
  */
 #[Package('core')]

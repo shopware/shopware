@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
@@ -12,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Cache\Traits\RedisClusterProxy;
 use Symfony\Component\Cache\Traits\RedisProxy;
@@ -20,9 +20,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class CartMigrateCommand extends Command
 {

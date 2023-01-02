@@ -23,8 +23,6 @@ use Shopware\Core\System\Tax\TaxRuleType\ZipCodeRuleTypeFilter;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
 class SalesChannelContextTest extends TestCase

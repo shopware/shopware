@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeState;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -12,11 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class NumberRangeStateDefinition extends EntityDefinition
 {

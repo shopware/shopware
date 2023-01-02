@@ -12,9 +12,6 @@ use Shopware\Storefront\Framework\Cache\ReverseProxy\VarnishReverseProxyGateway;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class ReverseProxyCompilerPass implements CompilerPassInterface
 {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -10,10 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class CompiledFieldCollection extends FieldCollection
 {

@@ -2,20 +2,19 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
-use Shopware\Core\Framework\Log\Package;
-use PhpParser\Node\Stmt\Return_;
-use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node;
+use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Return_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTask;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
 /**
- * @package core
  * @implements Rule<ClassMethod>
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0

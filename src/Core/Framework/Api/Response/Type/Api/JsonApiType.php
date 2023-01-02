@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Response\Type\Api;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Api\Response\JsonApiResponse;
@@ -13,14 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
 #[Package('core')]
 class JsonApiType extends JsonFactoryBase
 {

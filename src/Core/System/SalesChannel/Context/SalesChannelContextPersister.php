@@ -2,21 +2,18 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextTokenChangeEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package core
- */
 #[Package('core')]
 class SalesChannelContextPersister
 {

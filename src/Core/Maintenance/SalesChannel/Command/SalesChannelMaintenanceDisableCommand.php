@@ -3,9 +3,8 @@
 namespace Shopware\Core\Maintenance\SalesChannel\Command;
 
 use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
- *
  * @internal should be used over the CLI only
  */
 #[Package('core')]

@@ -6,8 +6,6 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelperTransformerData;
 use Shopware\Core\DevOps\Environment\EnvironmentHelperTransformerInterface;
 
 /**
- * @package core
- *
  * @internal
  */
 class EnvironmentHelperTransformer implements EnvironmentHelperTransformerInterface

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ProductExport\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use Monolog\Logger;
 use Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent;
@@ -18,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -29,7 +29,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
- * @package inventory
  */
 #[Package('inventory')]
 class ExportController

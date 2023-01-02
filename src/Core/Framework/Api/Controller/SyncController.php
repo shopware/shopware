@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\ConnectionException;
 use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\PlatformRequest;
@@ -23,7 +23,6 @@ use Symfony\Component\Serializer\Serializer;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
- * @package core
  */
 #[Package('core')]
 class SyncController extends AbstractController

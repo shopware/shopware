@@ -3,15 +3,14 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
- * @package core
  */
 #[Package('core')]
 class WriteParameterBag

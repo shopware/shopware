@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<StateMachineTransitionEntity>
- * @package checkout
  */
 #[Package('checkout')]
 class StateMachineTransitionCollection extends EntityCollection

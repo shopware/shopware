@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\User\Recovery;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
@@ -10,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\BusinessEventDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -20,9 +20,6 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class UserRecoveryService
 {

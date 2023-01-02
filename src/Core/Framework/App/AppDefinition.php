@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodDefinition;
@@ -34,14 +33,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ScriptDefinition;
 use Shopware\Core\Framework\Webhook\WebhookDefinition;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\Integration\IntegrationDefinition;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

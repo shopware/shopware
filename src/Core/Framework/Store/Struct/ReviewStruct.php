@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Store\Exception\InvalidExtensionRatingValueException
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package merchant-services
- *
  * @codeCoverageIgnore
  */
 #[Package('merchant-services')]

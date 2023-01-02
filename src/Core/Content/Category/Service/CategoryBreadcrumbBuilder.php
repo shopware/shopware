@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Category\Service;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -15,12 +14,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-/**
- * @package content
- */
 #[Package('content')]
 class CategoryBreadcrumbBuilder
 {

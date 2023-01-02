@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Shipping\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Shipping\Event\ShippingMethodRouteCacheKeyEvent;
 use Shopware\Core\Checkout\Shipping\Event\ShippingMethodRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -23,8 +23,6 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package checkout
- *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 #[Package('checkout')]

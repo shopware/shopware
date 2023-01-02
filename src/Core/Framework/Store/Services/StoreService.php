@@ -2,18 +2,16 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\System\User\UserEntity;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
 #[Package('merchant-services')]

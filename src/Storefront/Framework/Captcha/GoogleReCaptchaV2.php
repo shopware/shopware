@@ -2,15 +2,12 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
-use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\ClientInterface;
 use Psr\Http\Client\ClientExceptionInterface;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class GoogleReCaptchaV2 extends AbstractCaptcha
 {

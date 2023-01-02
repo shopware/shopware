@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\Transaction;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class TransactionProcessor
 {

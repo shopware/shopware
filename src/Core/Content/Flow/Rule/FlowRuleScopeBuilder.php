@@ -2,18 +2,16 @@
 
 namespace Shopware\Core\Content\Flow\Rule;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 #[Package('business-ops')]

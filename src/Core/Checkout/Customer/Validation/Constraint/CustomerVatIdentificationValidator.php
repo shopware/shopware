@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class CustomerVatIdentificationValidator extends ConstraintValidator
 {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -26,13 +25,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {

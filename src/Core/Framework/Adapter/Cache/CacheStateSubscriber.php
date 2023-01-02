@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -14,8 +14,6 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('core')]

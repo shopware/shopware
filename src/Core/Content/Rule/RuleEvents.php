@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Content\Rule;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class RuleEvents
 {

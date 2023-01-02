@@ -2,21 +2,19 @@
 
 namespace Shopware\Core\Framework\Demodata;
 
-use Shopware\Core\Framework\Log\Package;
-use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
 use Faker\Factory;
 use Faker\Generator;
+use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Demodata\Faker\Commerce;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
  */
 #[Package('core')]

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\SystemConfig\Facade;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -13,8 +13,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * The `config` service allows you to access the shop's and your app's configuration values.
  *
  * @script-service miscellaneous
- *
- * @package system-settings
  */
 #[Package('system-settings')]
 class SystemConfigFacade

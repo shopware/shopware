@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
@@ -21,11 +20,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class OrderTransactionDefinition extends EntityDefinition
 {

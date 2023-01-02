@@ -8,8 +8,6 @@ use Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * @package system-settings
- *
  * @internal
  */
 class SalesChannelCreateStorefrontCommandTest extends TestCase

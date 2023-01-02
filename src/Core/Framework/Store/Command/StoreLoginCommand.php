@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Store\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
@@ -22,8 +22,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
 /**
- * @package merchant-services
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal
  */
 #[Package('merchant-services')]

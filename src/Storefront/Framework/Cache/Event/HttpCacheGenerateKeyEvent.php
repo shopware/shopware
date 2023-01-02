@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class HttpCacheGenerateKeyEvent extends Event
 {

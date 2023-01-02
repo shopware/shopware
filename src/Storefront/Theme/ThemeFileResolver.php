@@ -10,9 +10,6 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class ThemeFileResolver
 {

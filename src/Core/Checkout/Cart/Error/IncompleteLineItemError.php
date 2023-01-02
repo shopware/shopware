@@ -4,9 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Cart\Error;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package checkout
- */
+
 #[Package('checkout')]
 class IncompleteLineItemError extends Error
 {

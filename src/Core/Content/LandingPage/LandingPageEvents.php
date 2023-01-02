@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Content\LandingPage;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class LandingPageEvents
 {

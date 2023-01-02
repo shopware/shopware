@@ -2,12 +2,12 @@
 
 namespace Shopware\Recovery\Test;
 
-use Slim\Container;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Core\Framework\Feature;
 use Slim\App;
+use Slim\Container;
 use Slim\Http\Environment;
 use Slim\Http\Request;
 

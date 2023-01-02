@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\System\Country\Aggregate\CountryTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CountryTranslationEntity>
- *
- * @package system-settings
  */
 #[Package('system-settings')]
 class CountryTranslationCollection extends EntityCollection

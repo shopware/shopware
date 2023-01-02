@@ -10,9 +10,6 @@ use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class HttpCacheKeyGenerator extends AbstractHttpCacheKeyGenerator
 {

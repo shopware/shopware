@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 
-/**
- * @package core
- */
 #[Package('core')]
 class KernelPluginCollection
 {

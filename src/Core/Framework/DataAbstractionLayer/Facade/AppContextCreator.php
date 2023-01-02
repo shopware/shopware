@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Facade;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- * @package core
  */
 #[Package('core')]
 class AppContextCreator

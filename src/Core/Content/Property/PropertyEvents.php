@@ -3,9 +3,7 @@
 namespace Shopware\Core\Content\Property;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package inventory
- */
+
 #[Package('inventory')]
 class PropertyEvents
 {

@@ -1,17 +1,13 @@
 <?php declare(strict_types=1);
-use Slim\App;
-use Shopware\Recovery\Common\SystemLocker;
-
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Shopware\Recovery\Common\Service\RecoveryConfigManager;
+use Shopware\Recovery\Common\SystemLocker;
 use Shopware\Recovery\Update\DependencyInjection\Container;
 use Shopware\Recovery\Update\Utils;
+use Slim\App;
 
-/**
- * @package system-settings
- */
 date_default_timezone_set('Europe/Berlin');
 
 $config = require __DIR__ . '/../config/config.php';

@@ -5,9 +5,6 @@ namespace Shopware\Core\Content\Seo\Event;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class SeoUrlUpdateEvent extends Event
 {

@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class ShippingMethodPriceEntity extends Entity
 {

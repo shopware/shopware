@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Shopware\Core\Checkout\Cart\CartCalculator;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -24,7 +24,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
- * @package core
  */
 #[Package('core')]
 class OrderGenerator implements DemodataGeneratorInterface

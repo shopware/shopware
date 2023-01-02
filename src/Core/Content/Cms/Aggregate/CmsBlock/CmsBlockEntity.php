@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Content\Cms\Aggregate\CmsBlock;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class CmsBlockEntity extends Entity
 {

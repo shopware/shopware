@@ -5,9 +5,6 @@ namespace Shopware\Storefront\Framework\Cache\CacheWarmer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 interface CacheRouteWarmer
 {

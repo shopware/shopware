@@ -2,16 +2,14 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductConfiguratorSettingEntity>
- *
- * @package inventory
  */
 #[Package('inventory')]
 class ProductConfiguratorSettingCollection extends EntityCollection

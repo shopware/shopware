@@ -9,12 +9,6 @@ use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * @package checkout
- *
- * A PercentagePriceDefinition calculate a percentual sum of all previously calculated prices and returns it as its own
- * price. This can be used for percentual discounts.
- */
 #[Package('checkout')]
 class PercentagePriceDefinition extends Struct implements PriceDefinitionInterface
 {

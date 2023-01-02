@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Seo;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
 use Shopware\Core\Defaults;
@@ -12,13 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class SeoUrlPersister
 {

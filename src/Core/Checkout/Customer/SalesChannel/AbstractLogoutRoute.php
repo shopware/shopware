@@ -9,7 +9,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * This route can be used to logout the current context token
- * @package customer-order
  */
 #[Package('customer-order')]
 abstract class AbstractLogoutRoute

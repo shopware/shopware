@@ -20,8 +20,6 @@ use Shopware\Core\Migration\V6_4\Migration1625819412ChangeOrderCreatedByIdConstr
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package core
- *
  * @internal
  */
 class Migration1625819412ChangeOrderCreatedByIdConstraintTest extends TestCase

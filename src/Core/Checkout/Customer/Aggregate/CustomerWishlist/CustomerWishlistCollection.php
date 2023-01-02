@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CustomerWishlistEntity>
- * @package customer-order
  */
 #[Package('customer-order')]
 class CustomerWishlistCollection extends EntityCollection

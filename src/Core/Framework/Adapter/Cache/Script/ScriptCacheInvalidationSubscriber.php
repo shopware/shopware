@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Script;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

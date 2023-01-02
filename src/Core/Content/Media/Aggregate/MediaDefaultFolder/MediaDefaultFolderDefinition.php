@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -13,10 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class MediaDefaultFolderDefinition extends EntityDefinition
 {

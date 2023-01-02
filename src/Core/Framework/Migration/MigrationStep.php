@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Framework\Migration;
 
-use Shopware\Core\Framework\Log\Package;
-use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 abstract class MigrationStep
 {

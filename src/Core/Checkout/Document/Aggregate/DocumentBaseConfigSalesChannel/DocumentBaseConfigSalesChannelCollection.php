@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package customer-order
- *
  * @extends EntityCollection<DocumentBaseConfigSalesChannelEntity>
  */
 #[Package('customer-order')]

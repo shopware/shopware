@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
-use Shopware\Core\Framework\Log\Package;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
@@ -19,14 +18,12 @@ use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PreparedPaymentService
 {

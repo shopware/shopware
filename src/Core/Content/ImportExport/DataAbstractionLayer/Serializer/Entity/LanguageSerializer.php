@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -10,13 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @package core
- */
 #[Package('core')]
 class LanguageSerializer extends EntitySerializer implements ResetInterface
 {

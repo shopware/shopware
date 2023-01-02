@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 interface ProductExportGeneratorInterface
 {

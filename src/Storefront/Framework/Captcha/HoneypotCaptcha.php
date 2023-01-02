@@ -2,16 +2,13 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\Blank;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class HoneypotCaptcha extends AbstractCaptcha
 {

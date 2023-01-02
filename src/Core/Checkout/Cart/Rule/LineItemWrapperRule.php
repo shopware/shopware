@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class LineItemWrapperRule extends Rule
 {

@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Content\Sitemap\Provider;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 abstract class AbstractUrlProvider implements UrlProviderInterface
 {

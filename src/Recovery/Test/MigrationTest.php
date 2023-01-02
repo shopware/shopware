@@ -2,11 +2,11 @@
 
 namespace Shopware\Recovery\Test;
 
-use Shopware\Recovery\Update\DependencyInjection\Container;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Recovery\Common\IOHelper;
 use Shopware\Recovery\Update\Console\Application as UpdateApplication;
+use Shopware\Recovery\Update\DependencyInjection\Container;
 use Slim\App;
 use Slim\Http\Environment;
 use Slim\Http\Headers;

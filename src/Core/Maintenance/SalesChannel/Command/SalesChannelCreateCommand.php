@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Maintenance\SalesChannel\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
@@ -12,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
@@ -22,8 +22,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @package core
- *
  * @internal should be used over the CLI only
  */
 #[Package('core')]

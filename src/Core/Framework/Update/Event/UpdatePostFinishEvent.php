@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Framework\Update\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class UpdatePostFinishEvent extends UpdateEvent
 {

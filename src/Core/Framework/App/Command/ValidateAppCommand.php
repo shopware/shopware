@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Manifest\Exception\ManifestNotFoundException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -18,7 +18,6 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @internal only for use by the app-system
- * @package core
  */
 #[Package('core')]
 class ValidateAppCommand extends Command

@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Log\ScheduledTask;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
-/**
- * @package core
- */
 #[Package('core')]
 class LogCleanupTask extends ScheduledTask
 {

@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\Checkout\Order\Api;
 
-use Shopware\Core\Framework\Log\Package;
-use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Exception;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
 use Shopware\Core\Checkout\Payment\Exception\RefundProcessException;
@@ -13,6 +12,7 @@ use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -25,8 +25,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package customer-order
- *
  * @Route(defaults={"_routeScope"={"api"}})
  */
 #[Package('customer-order')]

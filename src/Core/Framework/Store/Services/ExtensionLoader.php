@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\AppCollection;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
@@ -32,8 +32,6 @@ use Symfony\Component\Intl\Languages;
 use Symfony\Component\Intl\Locales;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
 #[Package('merchant-services')]

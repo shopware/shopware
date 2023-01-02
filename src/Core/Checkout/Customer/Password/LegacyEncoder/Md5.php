@@ -3,9 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Password\LegacyEncoder;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package customer-order
- */
+
 #[Package('customer-order')]
 class Md5 implements LegacyEncoderInterface
 {

@@ -3,9 +3,8 @@
 namespace Shopware\Core\Content\Seo;
 
 use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package sales-channel
- *
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
 #[Package('sales-channel')]

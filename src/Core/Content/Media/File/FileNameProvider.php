@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\File;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -11,10 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 abstract class FileNameProvider
 {

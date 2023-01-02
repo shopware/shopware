@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\System\SalesChannel\Entity;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class SalesChannelEntityLoadedEvent extends EntityLoadedEvent implements ShopwareSalesChannelEvent
 {

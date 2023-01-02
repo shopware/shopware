@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Product\SalesChannel\Review;
 
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\FloatComparator;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal

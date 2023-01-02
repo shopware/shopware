@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultBillingAddressEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultShippingAddressEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -17,8 +17,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package customer-order
- *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 #[Package('customer-order')]

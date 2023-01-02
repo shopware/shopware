@@ -14,9 +14,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ConstraintBuilder
 {

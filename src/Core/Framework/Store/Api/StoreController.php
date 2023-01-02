@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Store\Api;
 
-use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -32,8 +32,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package merchant-services
- *
  * @internal
  * @Route(defaults={"_routeScope"={"api"}})
  */

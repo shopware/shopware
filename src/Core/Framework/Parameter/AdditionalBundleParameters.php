@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Framework\Parameter;
 
-use Shopware\Core\Framework\Log\Package;
 use Composer\Autoload\ClassLoader;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 
-/**
- * @package core
- */
 #[Package('core')]
 final class AdditionalBundleParameters
 {

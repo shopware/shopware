@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -16,6 +15,7 @@ use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -43,8 +43,6 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package storefront
- *
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal

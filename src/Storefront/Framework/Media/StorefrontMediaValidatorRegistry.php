@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Media\Exception\MediaValidatorMissingException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-/**
- * @package content
- */
 #[Package('content')]
 class StorefrontMediaValidatorRegistry
 {

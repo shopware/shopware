@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
@@ -13,15 +12,13 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class CartPersister extends AbstractCartPersister
 {

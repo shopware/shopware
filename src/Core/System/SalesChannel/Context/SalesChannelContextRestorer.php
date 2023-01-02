@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -19,14 +18,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package core
- */
 #[Package('core')]
 class SalesChannelContextRestorer
 {

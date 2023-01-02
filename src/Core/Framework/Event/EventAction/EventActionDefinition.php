@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Event\EventAction;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -19,11 +18,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventActionRuleDefinition;
 use Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-entity - Will be removed in v6.5.0.
- * @package business-ops
  */
 #[Package('business-ops')]
 class EventActionDefinition extends EntityDefinition

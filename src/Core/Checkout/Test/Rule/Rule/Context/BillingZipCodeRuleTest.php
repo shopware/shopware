@@ -11,8 +11,6 @@ use Shopware\Core\Checkout\Customer\Rule\BillingZipCodeRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class BillingZipCodeRuleTest extends TestCase

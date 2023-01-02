@@ -2,19 +2,16 @@
 
 namespace Shopware\Core\Framework\Api\Response;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
 #[Package('core')]
 interface ResponseFactoryInterface
 {

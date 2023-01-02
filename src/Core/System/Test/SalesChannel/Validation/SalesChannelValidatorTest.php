@@ -15,8 +15,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
 class SalesChannelValidatorTest extends TestCase

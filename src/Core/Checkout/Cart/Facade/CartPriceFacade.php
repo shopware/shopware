@@ -2,18 +2,14 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Facade\Traits\PriceFactoryTrait;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 /**
  * The CartPriceFacade is a wrapper around the calculated price of a cart.
  *
  * @script-service cart_manipulation
- * @package checkout
  */
 #[Package('checkout')]
 class CartPriceFacade

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Snippet;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -25,9 +25,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class SnippetService
 {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
@@ -18,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -30,8 +30,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
- *
- * @package inventory
  */
 #[Package('inventory')]
 class ProductDetailRoute extends AbstractProductDetailRoute

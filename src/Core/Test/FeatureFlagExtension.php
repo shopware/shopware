@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
- * @package core
- *
  * @internal
  *
  * This extension guarantees a clean feature environment for pure unit tests

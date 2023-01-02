@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
-use Shopware\Core\Framework\Log\Package;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
@@ -24,6 +23,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemWrapperRule;
 use Shopware\Core\Checkout\Customer\Rule\BillingZipCodeRule;
 use Shopware\Core\Checkout\Customer\Rule\CustomerCustomFieldRule;
 use Shopware\Core\Checkout\Customer\Rule\ShippingZipCodeRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Container\FilterRule;
@@ -42,8 +42,6 @@ use Shopware\Core\Framework\Rule\TimeRangeRule;
  * @implements Rule<InClassNode>
  *
  * @internal
- *
- * @package core
  */
 #[Package('core')]
 class RuleConditionHasRuleConfigRule implements Rule

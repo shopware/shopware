@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Framework\Migration;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 
-/**
- * @package core
- */
 #[Package('core')]
 class MigrationCollectionLoader
 {

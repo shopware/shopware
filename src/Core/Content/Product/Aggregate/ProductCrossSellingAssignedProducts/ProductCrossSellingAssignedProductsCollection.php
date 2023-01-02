@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductCrossSellingAssignedProductsEntity>
- *
- * @package inventory
  */
 #[Package('inventory')]
 class ProductCrossSellingAssignedProductsCollection extends EntityCollection

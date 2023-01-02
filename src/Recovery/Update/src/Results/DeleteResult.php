@@ -3,9 +3,7 @@
 namespace Shopware\Recovery\Update\Results;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package system-settings
- */
+
 #[Package('system-settings')]
 class DeleteResult
 {

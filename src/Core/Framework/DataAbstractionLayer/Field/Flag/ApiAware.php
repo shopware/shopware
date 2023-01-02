@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ApiAware extends Flag
 {

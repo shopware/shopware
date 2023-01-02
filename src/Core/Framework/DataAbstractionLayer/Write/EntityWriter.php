@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
@@ -26,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
 
@@ -34,7 +34,6 @@ use Shopware\Core\System\Language\LanguageLoaderInterface;
  * Handles all write operations in the system.
  * Builds first a command queue over the WriteCommandExtractor and let execute this queue
  * over the EntityWriteGateway (sql implementation in default).
- * @package core
  */
 #[Package('core')]
 class EntityWriter implements EntityWriterInterface

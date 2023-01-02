@@ -3,9 +3,7 @@
 namespace Shopware\Core\Content\Seo\SeoUrlTemplate;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package sales-channel
- */
+
 #[Package('sales-channel')]
 class TemplateGroup
 {

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Installer\Installer;
 use Symfony\Component\Console\Command\Command;
@@ -12,9 +12,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-/**
- * @package core
- */
 #[Package('core')]
 class AssetInstallCommand extends Command
 {

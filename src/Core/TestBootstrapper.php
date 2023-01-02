@@ -2,11 +2,11 @@
 
 namespace Shopware\Core;
 
-use Shopware\Core\Framework\Log\Package;
 use Composer\Autoload\ClassLoader;
 use DG\BypassFinals;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -19,9 +19,6 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use function is_dir;
 use function is_file;
 
-/**
- * @package core
- */
 #[Package('core')]
 class TestBootstrapper
 {

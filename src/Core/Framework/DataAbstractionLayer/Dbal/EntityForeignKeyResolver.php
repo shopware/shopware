@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -20,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -29,7 +29,6 @@ use Shopware\Core\System\Language\LanguageDefinition;
  * Used to determines which associated will be deleted to or which associated data would restrict a delete operation.
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
- * @package core
  */
 #[Package('core')]
 class EntityForeignKeyResolver

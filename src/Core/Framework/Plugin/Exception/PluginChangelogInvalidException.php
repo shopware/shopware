@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Plugin\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package core
- */
 #[Package('core')]
 class PluginChangelogInvalidException extends ShopwareHttpException
 {

@@ -7,9 +7,6 @@ use Shopware\Core\Framework\Routing\AbstractRouteScope;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @package core
- */
 #[Package('core')]
 class RouteScopeCompilerPass implements CompilerPassInterface
 {

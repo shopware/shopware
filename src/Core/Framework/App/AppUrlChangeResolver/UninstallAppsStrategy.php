@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeAppLifecycleHandler;
@@ -19,7 +19,6 @@ use Shopware\Storefront\Theme\ThemeAppLifecycleHandler;
  * Resolver used when apps should be uninstalled
  * and the shopId should be regenerated, meaning the old shops and old apps work like before
  * apps in the current installation will be uninstalled without informing them about that (as they still run on the old installation)
- * @package core
  */
 #[Package('core')]
 class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy

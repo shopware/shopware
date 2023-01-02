@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -48,10 +47,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- * @package core
  */
 #[Package('core')]
 class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface

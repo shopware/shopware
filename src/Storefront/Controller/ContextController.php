@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeLanguageRoute;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -22,8 +22,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
- * @package storefront
- *
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal

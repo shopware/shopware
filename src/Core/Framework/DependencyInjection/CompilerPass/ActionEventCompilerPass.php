@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\DocParser;
 use Shopware\Core\Framework\Event\Annotation\Event;
@@ -11,12 +10,10 @@ use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Event\BusinessEvents;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ActionEventCompilerPass implements CompilerPassInterface
 {

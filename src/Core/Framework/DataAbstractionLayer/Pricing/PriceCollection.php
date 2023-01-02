@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Pricing;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<Price>
- * @package core
  */
 #[Package('core')]
 class PriceCollection extends Collection

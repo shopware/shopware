@@ -2,15 +2,14 @@
 
 namespace Shopware\Core\Framework\Event\EventAction;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed in v6.5.0
  *
  * @extends EntityCollection<EventActionEntity>
- * @package business-ops
  */
 #[Package('business-ops')]
 class EventActionCollection extends EntityCollection

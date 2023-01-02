@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package content
  * @extends Collection<FieldConfig>
  */
 #[Package('content')]

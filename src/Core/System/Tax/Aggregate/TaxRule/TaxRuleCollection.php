@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\System\Tax\Aggregate\TaxRule;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package customer-order
- *
  * @extends EntityCollection<TaxRuleEntity>
  */
 #[Package('customer-order')]

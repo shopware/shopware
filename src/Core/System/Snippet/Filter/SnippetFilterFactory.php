@@ -5,9 +5,6 @@ namespace Shopware\Core\System\Snippet\Filter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Exception\FilterNotFoundException;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class SnippetFilterFactory
 {

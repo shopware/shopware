@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
@@ -14,13 +13,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package core
- */
 #[Package('core')]
 class TreeUpdater
 {

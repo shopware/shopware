@@ -8,8 +8,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:remove-decorator - Will be removed, use the static Profiler::trace method to directly trace functions
  */
 #[Package('core')]

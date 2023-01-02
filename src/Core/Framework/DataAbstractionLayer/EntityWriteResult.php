@@ -2,14 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- * Contains the result of the entity write process
- */
 #[Package('core')]
 class EntityWriteResult
 {

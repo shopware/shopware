@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Promotion\Subscriber;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
@@ -16,11 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- * @package checkout
  */
 #[Package('checkout')]
 class PromotionIndividualCodeRedeemer implements EventSubscriberInterface

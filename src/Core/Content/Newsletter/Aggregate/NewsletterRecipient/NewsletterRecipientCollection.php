@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package customer-order
- *
  * @extends EntityCollection<NewsletterRecipientEntity>
  */
 #[Package('customer-order')]

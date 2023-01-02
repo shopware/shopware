@@ -8,8 +8,6 @@ use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

@@ -2,18 +2,18 @@
 
 namespace Shopware\Storefront\Test\Theme\Subscriber;
 
-use Shopware\Core\Framework\Plugin\PluginLifecycleService;
-use Shopware\Core\Framework\Plugin\Event\PluginPreActivateEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
-use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
+use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPreActivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;

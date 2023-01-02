@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Checkout\Customer\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class CustomerConfirmRegisterUrlEvent extends Event implements ShopwareSalesChannelEvent
 {

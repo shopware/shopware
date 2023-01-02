@@ -7,7 +7,6 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @internal only for use by the app-system
- * @package core
  */
 #[Package('core')]
 class ScriptFileReader implements ScriptFileReaderInterface

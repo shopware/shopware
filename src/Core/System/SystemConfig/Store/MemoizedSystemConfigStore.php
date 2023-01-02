@@ -9,8 +9,6 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 #[Package('system-settings')]
 final class MemoizedSystemConfigStore implements EventSubscriberInterface, ResetInterface

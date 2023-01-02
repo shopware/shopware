@@ -22,8 +22,6 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package core
- *
  * @internal
  *
  * @implements Rule<MethodCall>

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
@@ -12,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -25,9 +25,6 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * @package core
- */
 #[Package('core')]
 abstract class AbstractPluginLifecycleCommand extends Command
 {

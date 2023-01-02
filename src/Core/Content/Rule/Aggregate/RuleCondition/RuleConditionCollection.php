@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\Content\Rule\Aggregate\RuleCondition;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
- *
  * @extends EntityCollection<RuleConditionEntity>
  */
 #[Package('business-ops')]

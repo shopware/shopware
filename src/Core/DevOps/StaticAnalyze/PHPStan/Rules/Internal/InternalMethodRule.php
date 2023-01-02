@@ -2,17 +2,16 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal;
 
-use Shopware\Core\Framework\Log\Package;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Symfony\ServiceMap;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @package core
  * @implements Rule<ClassMethod>
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0

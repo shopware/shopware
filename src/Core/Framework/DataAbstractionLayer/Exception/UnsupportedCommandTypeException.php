@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package core
- */
 #[Package('core')]
 class UnsupportedCommandTypeException extends ShopwareHttpException
 {

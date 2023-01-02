@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StateMachineStateFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
-/**
- * @package core
- */
 #[Package('core')]
 class StateMachineStateField extends FkField
 {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductOption;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -12,10 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductOptionDefinition extends MappingEntityDefinition
 {

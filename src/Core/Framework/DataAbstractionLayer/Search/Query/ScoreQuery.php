@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Query;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @final tag:v6.5.0
- * @package core
  */
 #[Package('core')]
 class ScoreQuery extends Filter

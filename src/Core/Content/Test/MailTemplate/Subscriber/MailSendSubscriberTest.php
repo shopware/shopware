@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\MailTemplate\Subscriber;
 
-use Symfony\Component\Mime\Email;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -36,6 +35,7 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Mime\Email;
 
 /**
  * @internal

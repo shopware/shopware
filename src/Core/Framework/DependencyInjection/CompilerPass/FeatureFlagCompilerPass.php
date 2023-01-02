@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @package core
- */
 #[Package('core')]
 class FeatureFlagCompilerPass implements CompilerPassInterface
 {

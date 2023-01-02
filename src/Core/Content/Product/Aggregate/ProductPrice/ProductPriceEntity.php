@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductPrice;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceRuleEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductPriceEntity extends PriceRuleEntity
 {

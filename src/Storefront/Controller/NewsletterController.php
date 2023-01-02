@@ -2,13 +2,13 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterConfirmRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -23,8 +23,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package storefront
- *
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal

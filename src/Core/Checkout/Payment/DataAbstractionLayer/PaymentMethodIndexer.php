@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\Event\PaymentMethodIndexerEvent;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -11,12 +10,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PaymentMethodIndexer extends EntityIndexer
 {

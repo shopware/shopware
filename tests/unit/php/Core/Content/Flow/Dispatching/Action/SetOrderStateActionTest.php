@@ -16,8 +16,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
- * @package business-ops
- *
  * @internal
  * @covers \Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction
  */

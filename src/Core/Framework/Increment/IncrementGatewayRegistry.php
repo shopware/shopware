@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\Framework\Increment;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @internal - Used internally for Increment pattern
  */
 #[Package('core')]

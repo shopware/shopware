@@ -28,8 +28,6 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package customer-order
- *
  * @group slow
  *
  * @internal

@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\Order\Transformer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class CartTransformer
 {

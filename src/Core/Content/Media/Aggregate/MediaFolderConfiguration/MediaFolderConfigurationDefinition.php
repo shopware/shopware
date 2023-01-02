@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationMediaThumbnailSize\MediaFolderConfigurationMediaThumbnailSizeDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeDefinition;
@@ -19,10 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class MediaFolderConfigurationDefinition extends EntityDefinition
 {

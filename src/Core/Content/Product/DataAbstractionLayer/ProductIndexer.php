@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -19,15 +18,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ProductIndexer extends EntityIndexer
 {

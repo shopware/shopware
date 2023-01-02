@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Cms;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
@@ -16,10 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 abstract class AbstractProductDetailCmsElementResolver extends AbstractCmsElementResolver
 {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -17,15 +16,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class CustomerEntity extends Entity
 {

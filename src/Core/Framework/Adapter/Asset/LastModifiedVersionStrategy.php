@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 
 /**
- * @package core
- * Enables cache busting depending on last modified timestamp.
- *
  * @deprecated tag:v6.5.0 - Use FlysystemLastModifiedVersionStrategy instead
  */
 #[Package('core')]

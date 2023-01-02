@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Content\Seo\Entity\Field;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Seo\Entity\Dbal\SeoUrlAssociationFieldResolver;
 use Shopware\Core\Content\Seo\Entity\Serializer\SeoUrlFieldSerializer;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class SeoUrlAssociationField extends OneToManyAssociationField
 {

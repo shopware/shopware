@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\ImportExport\Service;
 
 use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal We might break this in v6.2
- *
- * @package system-settings
  */
 #[Package('system-settings')]
 class SupportedFeaturesService

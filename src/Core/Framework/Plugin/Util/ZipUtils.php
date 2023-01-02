@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Plugin\Util;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ZipUtils
 {

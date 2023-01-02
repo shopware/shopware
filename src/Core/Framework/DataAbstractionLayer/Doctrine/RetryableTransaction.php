@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class RetryableTransaction
 {

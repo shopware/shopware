@@ -12,8 +12,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Exception\DefaultSalesChannelTypeCannotBeDeleted;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
 class SalesChannelTypeValidatorTest extends TestCase

@@ -2,9 +2,9 @@
 
 namespace Shopware\Recovery\Update\Controller;
 
-use Shopware\Core\Framework\Log\Package;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Recovery\Common\Steps\FinishResult;
 use Shopware\Recovery\Common\Steps\MigrationStep;
@@ -16,9 +16,6 @@ use Shopware\Recovery\Update\FilesystemFactory;
 use Shopware\Recovery\Update\PathBuilder;
 use Shopware\Recovery\Update\Steps\UnpackStep;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class BatchController
 {

@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Content\Sitemap\Service;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Sitemap\ConfigHandler\ConfigHandlerInterface;
 use Shopware\Core\Content\Sitemap\Exception\InvalidSitemapKey;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class ConfigHandler
 {

@@ -11,8 +11,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package storefront
- *
  * @Route(defaults={"_routeScope"={"api"}})
  */
 #[Package('storefront')]

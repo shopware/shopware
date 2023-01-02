@@ -12,9 +12,6 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Language\LanguageDefinition;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class LanguageRule extends Rule
 {

@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PromotionDeliveryProcessor implements CartProcessorInterface
 {

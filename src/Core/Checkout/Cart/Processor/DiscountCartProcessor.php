@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Processor;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -17,12 +16,10 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class DiscountCartProcessor implements CartProcessorInterface
 {

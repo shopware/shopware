@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Checkout\Customer\Rule;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class IsNewsletterRecipientRule extends Rule
 {

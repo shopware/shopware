@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Document\Service;
 
-use Shopware\Core\Framework\Log\Package;
 use setasign\Fpdi\PdfParser\StreamReader;
 use setasign\Fpdi\Tcpdf\Fpdi;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
@@ -16,11 +15,9 @@ use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 final class DocumentMerger
 {

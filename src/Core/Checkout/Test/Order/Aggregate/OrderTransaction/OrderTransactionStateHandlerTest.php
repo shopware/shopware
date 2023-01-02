@@ -21,8 +21,6 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package customer-order
- *
  * @internal
  */
 class OrderTransactionStateHandlerTest extends TestCase

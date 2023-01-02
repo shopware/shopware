@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Checkout\Cart\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
@@ -10,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
@@ -19,9 +19,6 @@ use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher;
 use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class StorefrontCartFacade
 {

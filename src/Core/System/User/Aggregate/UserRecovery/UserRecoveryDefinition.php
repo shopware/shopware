@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\User\Aggregate\UserRecovery;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -12,11 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserDefinition;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class UserRecoveryDefinition extends EntityDefinition
 {

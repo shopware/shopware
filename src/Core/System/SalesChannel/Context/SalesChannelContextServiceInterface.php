@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

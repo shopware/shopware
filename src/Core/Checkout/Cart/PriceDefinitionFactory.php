@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PriceDefinitionFactory
 {

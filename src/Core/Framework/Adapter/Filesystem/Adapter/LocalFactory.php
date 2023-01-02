@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 
-use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\AdapterInterface;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @package core
- */
 #[Package('core')]
 class LocalFactory implements AdapterFactoryInterface
 {

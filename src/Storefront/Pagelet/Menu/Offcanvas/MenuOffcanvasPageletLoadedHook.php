@@ -10,8 +10,6 @@ use Shopware\Storefront\Page\PageLoadedHook;
 /**
  * Triggered when the MenuOffcanvasPagelet is loaded
  *
- * @package storefront
- *
  * @hook-use-case data_loading
  *
  * @since 6.4.8.0

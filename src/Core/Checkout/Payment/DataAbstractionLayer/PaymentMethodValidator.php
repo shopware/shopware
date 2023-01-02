@@ -2,16 +2,15 @@
 
 namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Payment\Exception\PluginPaymentMethodsDeleteRestrictionException;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- * @package core
  */
 #[Package('core')]
 final class PaymentMethodValidator implements EventSubscriberInterface

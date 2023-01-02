@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Cms;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
@@ -21,12 +20,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 {

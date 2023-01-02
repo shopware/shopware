@@ -5,9 +5,6 @@ namespace Shopware\Core\Content\ProductExport\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class MissingRootFilterException extends ShopwareHttpException
 {

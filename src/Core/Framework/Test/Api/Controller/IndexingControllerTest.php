@@ -13,8 +13,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class IndexingControllerTest extends TestCase
 {

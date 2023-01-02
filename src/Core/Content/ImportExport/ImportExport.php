@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ImportExport;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemInterface;
@@ -34,12 +33,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteCommandExceptionEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class ImportExport
 {

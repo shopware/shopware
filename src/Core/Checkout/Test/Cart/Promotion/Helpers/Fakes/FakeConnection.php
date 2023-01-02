@@ -10,8 +10,6 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class FakeConnection extends Connection

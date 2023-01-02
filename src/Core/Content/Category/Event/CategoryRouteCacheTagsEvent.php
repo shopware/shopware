@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Content\Category\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheTagsEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package content
- */
 #[Package('content')]
 class CategoryRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {

@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteActiveAddressException;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -16,8 +16,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package customer-order
- *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 #[Package('customer-order')]

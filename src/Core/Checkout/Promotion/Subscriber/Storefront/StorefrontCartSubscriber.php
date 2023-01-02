@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\Subscriber\Storefront;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
@@ -15,13 +14,13 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- * @package checkout
  */
 #[Package('checkout')]
 class StorefrontCartSubscriber implements EventSubscriberInterface

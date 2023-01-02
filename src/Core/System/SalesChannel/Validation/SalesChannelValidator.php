@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel\Validation;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
@@ -10,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
@@ -19,8 +19,6 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * @package sales-channel
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('sales-channel')]

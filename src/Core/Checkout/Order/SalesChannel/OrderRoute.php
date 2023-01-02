@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule;
@@ -19,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -31,8 +31,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package customer-order
- *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 #[Package('customer-order')]

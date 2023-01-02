@@ -2,11 +2,8 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\Rector;
 
-use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike;
-use PHPStan\PhpDocParser\Ast\Node as DocNode;
-use PHPStan\PhpDocParser\Ast\PhpDoc\GenericTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
 use Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfo;
 use Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTagRemover;
@@ -17,50 +14,56 @@ use Rector\Php80\NodeFactory\AttrGroupsFactory;
 use Rector\Php80\NodeManipulator\AttributeGroupNamedArgumentManipulator;
 use Rector\Php80\ValueObject\AnnotationToAttribute;
 use Rector\PhpAttribute\NodeFactory\PhpAttributeGroupFactory;
-use Rector\PhpDocParser\PhpDocParser\PhpDocNodeTraverser;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Controller\AccountOrderController;
-use Shopware\Storefront\Controller\ProductController;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
-/**
- * @package core
- */
 class PackageAttributeRule extends AbstractRector
 {
     /**
      * @var AnnotationToAttribute[]
      */
     private $annotationsToAttributes = [];
+
     /**
      * @readonly
+     *
      * @var PhpAttributeGroupFactory
      */
     private $phpAttributeGroupFactory;
+
     /**
      * @readonly
+     *
      * @var AttrGroupsFactory
      */
     private $attrGroupsFactory;
+
     /**
      * @readonly
+     *
      * @var PhpDocTagRemover
      */
     private $phpDocTagRemover;
+
     /**
      * @readonly
+     *
      * @var AttributeGroupNamedArgumentManipulator
      */
     private $attributeGroupNamedArgumentManipulator;
+
     /**
      * @readonly
+     *
      * @var UseImportsResolver
      */
     private $useImportsResolver;
+
     /**
      * @readonly
+     *
      * @var PhpAttributeAnalyzer
      */
     private $phpAttributeAnalyzer;

@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class EntityLoadedContainerEvent extends NestedEvent
 {

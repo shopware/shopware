@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Framework\Api\Acl\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class AclGetAdditionalPrivilegesEvent extends NestedEvent
 {

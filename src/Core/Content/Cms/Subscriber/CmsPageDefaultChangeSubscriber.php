@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Cms\Subscriber;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsException;
@@ -11,13 +10,12 @@ use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package content
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('content')]

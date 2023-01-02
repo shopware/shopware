@@ -25,8 +25,6 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package customer-order
- *
  * @internal
  */
 trait DocumentTrait

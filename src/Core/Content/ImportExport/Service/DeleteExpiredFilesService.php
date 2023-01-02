@@ -2,16 +2,14 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal We might break this in v6.2
- *
- * @package system-settings
  */
 #[Package('system-settings')]
 class DeleteExpiredFilesService

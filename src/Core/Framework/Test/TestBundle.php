@@ -6,8 +6,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
- * @package core
- *
  * @internal
  */
 class TestBundle extends Bundle

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
@@ -13,12 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\SetNullOnDeleteCo
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- * @package inventory
  */
 #[Package('inventory')]
 class ProductLineItemCommandValidator implements EventSubscriberInterface

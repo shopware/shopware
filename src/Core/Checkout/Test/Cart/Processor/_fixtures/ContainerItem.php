@@ -7,8 +7,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class ContainerItem extends LineItem

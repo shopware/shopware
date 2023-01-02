@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -11,13 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\User\UserDefinition;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
- * @package core
  */
 #[Package('core')]
 class UserGenerator implements DemodataGeneratorInterface

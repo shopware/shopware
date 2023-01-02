@@ -3,9 +3,7 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package checkout
- */
+
 #[Package('checkout')]
 class CartEvents
 {

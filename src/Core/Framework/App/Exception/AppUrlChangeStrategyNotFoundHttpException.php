@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- * @package core
  */
 #[Package('core')]
 class AppUrlChangeStrategyNotFoundHttpException extends ShopwareHttpException

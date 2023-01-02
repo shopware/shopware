@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
@@ -11,11 +10,9 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class DiscountPercentageCalculator
 {

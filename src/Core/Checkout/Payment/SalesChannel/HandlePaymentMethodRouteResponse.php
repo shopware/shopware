@@ -8,9 +8,6 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class HandlePaymentMethodRouteResponse extends StoreApiResponse
 {

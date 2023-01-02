@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ProductStream;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
@@ -11,10 +10,8 @@ use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\Produ
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class ProductStreamEntity extends Entity
 {

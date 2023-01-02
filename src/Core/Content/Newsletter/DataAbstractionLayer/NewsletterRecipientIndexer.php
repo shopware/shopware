@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Newsletter\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRecipientIndexerEvent;
@@ -12,12 +11,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class NewsletterRecipientIndexer extends EntityIndexer
 {

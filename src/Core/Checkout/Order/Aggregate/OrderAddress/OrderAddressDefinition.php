@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderAddress;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -20,13 +19,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class OrderAddressDefinition extends EntityDefinition
 {

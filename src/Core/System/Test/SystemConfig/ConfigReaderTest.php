@@ -8,8 +8,6 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class ConfigReaderTest extends TestCase
 {

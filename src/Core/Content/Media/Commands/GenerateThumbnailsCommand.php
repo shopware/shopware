@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Commands;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
@@ -14,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -21,9 +21,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-/**
- * @package content
- */
 #[Package('content')]
 class GenerateThumbnailsCommand extends Command
 {

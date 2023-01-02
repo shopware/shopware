@@ -2,7 +2,6 @@
 
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Elasticsearch\Client;
 use ONGR\ElasticsearchDSL\Search;
 use Shopware\Core\Framework\Context;
@@ -10,13 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntityAggregatorSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 {

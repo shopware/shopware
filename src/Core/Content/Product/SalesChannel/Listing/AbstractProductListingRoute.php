@@ -2,15 +2,13 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * This route is used for the product listing in the cms pages
- *
- * @package inventory
  */
 #[Package('inventory')]
 abstract class AbstractProductListingRoute

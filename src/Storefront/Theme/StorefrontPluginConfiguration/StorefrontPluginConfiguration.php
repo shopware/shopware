@@ -5,9 +5,6 @@ namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class StorefrontPluginConfiguration extends Struct
 {

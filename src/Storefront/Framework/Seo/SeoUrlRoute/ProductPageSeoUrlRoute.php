@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Seo\SeoUrlRoute;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -16,11 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
 {

@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Content\Seo\Validation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 interface SeoUrlDataValidationFactoryInterface
 {

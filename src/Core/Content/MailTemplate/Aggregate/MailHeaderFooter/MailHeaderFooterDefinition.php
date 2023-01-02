@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\MailHeaderFooterTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -14,11 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class MailHeaderFooterDefinition extends EntityDefinition
 {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Flow\Indexing;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Events\FlowIndexerEvent;
 use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
@@ -28,8 +28,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('business-ops')]

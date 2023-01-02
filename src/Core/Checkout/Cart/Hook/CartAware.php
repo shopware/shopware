@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Checkout\Cart\Hook;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 
 /**
- * @package checkout
- *
  * @internal Not intended for use in plugins
  *
  * Can be implemented by hooks to provide services with the sales channel context.

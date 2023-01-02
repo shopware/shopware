@@ -3,9 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package checkout
- */
+
 #[Package('checkout')]
 interface PriceDefinitionInterface
 {

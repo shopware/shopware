@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package customer-order
- *
  * @extends EntityCollection<DeliveryTimeTranslationEntity>
  */
 #[Package('customer-order')]

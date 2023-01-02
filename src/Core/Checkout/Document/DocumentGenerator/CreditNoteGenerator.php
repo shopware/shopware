@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
@@ -12,13 +11,12 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Twig\Error\Error;
 
 /**
- * @package customer-order
- *
  * @deprecated tag:v6.5.0 - Will be removed, use CreditNoteRenderer instead
  */
 #[Package('customer-order')]

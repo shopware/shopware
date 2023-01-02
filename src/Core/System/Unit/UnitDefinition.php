@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Unit;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -16,11 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class UnitDefinition extends EntityDefinition
 {

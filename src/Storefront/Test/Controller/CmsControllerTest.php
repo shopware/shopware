@@ -11,8 +11,6 @@ use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
 
 /**
  * @internal
- *
- * @package content
  */
 class CmsControllerTest extends TestCase
 {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Cms;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
@@ -12,12 +11,10 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 {

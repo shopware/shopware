@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderCustomer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class OrderCustomerEntity extends Entity
 {

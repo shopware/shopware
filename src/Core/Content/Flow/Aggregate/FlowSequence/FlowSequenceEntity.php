@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Content\Flow\Aggregate\FlowSequence;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\FlowEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class FlowSequenceEntity extends Entity
 {

@@ -21,8 +21,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class ImportExportServiceTest extends TestCase
 {

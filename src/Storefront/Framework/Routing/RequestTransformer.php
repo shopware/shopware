@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Seo\AbstractSeoResolver;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -12,8 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 use TrueBV\Punycode;
 
 /**
- * @package storefront
- *
  * @phpstan-import-type Domain from AbstractDomainLoader
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */

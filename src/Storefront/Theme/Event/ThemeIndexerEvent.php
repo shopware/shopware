@@ -2,13 +2,10 @@
 
 namespace Shopware\Storefront\Theme\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class ThemeIndexerEvent extends NestedEvent
 {

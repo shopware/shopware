@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Content\ProductExport;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductExportEntity>
- * @package inventory
  */
 #[Package('inventory')]
 class ProductExportCollection extends EntityCollection

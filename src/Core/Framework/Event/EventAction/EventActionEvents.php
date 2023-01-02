@@ -3,9 +3,9 @@
 namespace Shopware\Core\Framework\Event\EventAction;
 
 use Shopware\Core\Framework\Log\Package;
+
 /**
  * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
- * @package business-ops
  */
 #[Package('business-ops')]
 class EventActionEvents

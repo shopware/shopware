@@ -9,9 +9,6 @@ use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ScriptResponseEncoder
 {

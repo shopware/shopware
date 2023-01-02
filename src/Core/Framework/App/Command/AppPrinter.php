@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppCollection;
@@ -12,10 +11,10 @@ use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
- * @package core
  */
 #[Package('core')]
 class AppPrinter

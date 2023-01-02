@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<AnalyzedKeyword>
- * @package inventory
  */
 #[Package('inventory')]
 class AnalyzedKeywordCollection extends Collection

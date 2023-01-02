@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSelling;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationCollection;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -10,10 +9,8 @@ use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductCrossSellingEntity extends Entity
 {

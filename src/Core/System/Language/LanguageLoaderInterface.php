@@ -3,8 +3,8 @@
 namespace Shopware\Core\System\Language;
 
 use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
  * @phpstan-type LanguageData array<string, array{id: string, code: string, parentId: string}>
  */
 #[Package('core')]

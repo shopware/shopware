@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\Checkout\Promotion\Validator;
 
-use Shopware\Core\Framework\Log\Package;
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -21,7 +21,6 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- * @package checkout
  */
 #[Package('checkout')]
 class PromotionValidator implements EventSubscriberInterface

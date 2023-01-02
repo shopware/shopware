@@ -3,9 +3,7 @@
 namespace Shopware\Core\System\Currency;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package inventory
- */
+
 #[Package('inventory')]
 class CurrencyEvents
 {

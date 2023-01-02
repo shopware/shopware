@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Category\Service;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Event\NavigationLoadedEvent;
@@ -12,13 +11,13 @@ use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package content
  * @Decoratable()
  */
 #[Package('content')]

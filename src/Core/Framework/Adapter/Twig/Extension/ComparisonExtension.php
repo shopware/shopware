@@ -10,8 +10,6 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

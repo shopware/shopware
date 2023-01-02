@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
-use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use League\Flysystem\FilesystemInterface;
@@ -12,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
@@ -34,8 +34,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
 #[Package('merchant-services')]

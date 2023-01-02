@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<MailTemplateTypeEntity>
- * @package sales-channel
  */
 #[Package('sales-channel')]
 class MailTemplateTypeCollection extends EntityCollection

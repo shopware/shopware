@@ -2,12 +2,12 @@
 
 namespace Shopware\Storefront\Framework\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,7 +16,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @final
- * @package storefront
  */
 #[Package('storefront')]
 class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand

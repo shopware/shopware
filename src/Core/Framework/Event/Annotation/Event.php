@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\Event\Annotation;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\Common\Annotations\Annotation;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @Annotation
  * @Target("ALL")
- * @package business-ops
  */
 #[Package('business-ops')]
 class Event

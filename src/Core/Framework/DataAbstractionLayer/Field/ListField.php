@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ListFieldSerializer;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * Stores a JSON formatted value list. This can be typed using the third constructor parameter.
@@ -24,7 +24,6 @@ use Shopware\Core\Framework\Feature;
  *
  *      // single type values
  *      [12,55,192,22]
- * @package core
  */
 #[Package('core')]
 class ListField extends JsonField

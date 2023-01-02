@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\Util;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Promotion\Exception\PatternAlreadyInUseException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
@@ -12,11 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PromotionCodeService
 {

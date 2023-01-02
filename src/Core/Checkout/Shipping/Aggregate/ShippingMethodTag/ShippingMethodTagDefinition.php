@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTag;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -10,11 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagDefinition;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class ShippingMethodTagDefinition extends MappingEntityDefinition
 {

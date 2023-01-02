@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Cms\Aggregate\CmsSection;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -24,10 +23,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class CmsSectionDefinition extends EntityDefinition
 {

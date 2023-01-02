@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
-use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Transport\Dsn;
@@ -14,8 +14,6 @@ use Symfony\Component\Mailer\Transport\TransportInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-decorator - Will be removed in v6.5.0, use MailerTransportLoader instead.
- *
- * @package system-settings
  */
 #[Package('system-settings')]
 class MailerTransportFactory extends Transport

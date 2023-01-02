@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Rule\Aggregate\RuleCondition;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -19,10 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class RuleConditionDefinition extends EntityDefinition
 {

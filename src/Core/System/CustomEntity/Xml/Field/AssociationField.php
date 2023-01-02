@@ -3,9 +3,7 @@
 namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package core
- */
+
 #[Package('core')]
 abstract class AssociationField extends Field
 {

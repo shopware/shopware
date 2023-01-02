@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Tag\Service;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Shopware\Core\Framework\Context;
@@ -13,12 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\Struct\FilteredTagIdsStruct;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- * @package business-ops
  */
 #[Package('business-ops')]
 class FilterTagIdsService

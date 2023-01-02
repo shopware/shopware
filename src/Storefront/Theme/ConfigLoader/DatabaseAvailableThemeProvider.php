@@ -3,19 +3,16 @@ declare(strict_types=1);
 
 namespace Shopware\Storefront\Theme\ConfigLoader;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\ThemeCollection;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class DatabaseAvailableThemeProvider extends AbstractAvailableThemeProvider
 {

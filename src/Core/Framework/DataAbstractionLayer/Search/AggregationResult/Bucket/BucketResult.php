@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class BucketResult extends AggregationResult
 {

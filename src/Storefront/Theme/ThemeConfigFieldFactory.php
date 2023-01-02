@@ -5,9 +5,6 @@ namespace Shopware\Storefront\Theme;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Exception\InvalidThemeConfigException;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class ThemeConfigFieldFactory
 {

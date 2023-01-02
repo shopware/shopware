@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -23,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -30,7 +30,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * It knows how an association should be joined, how a parent-child inheritance should act, how translation chains work, ...
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
- * @package core
  */
 #[Package('core')]
 class EntityDefinitionQueryHelper

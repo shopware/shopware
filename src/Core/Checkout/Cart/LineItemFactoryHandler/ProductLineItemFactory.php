@@ -2,19 +2,16 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItemFactoryHandler;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\InsufficientPermissionException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class ProductLineItemFactory implements LineItemFactoryInterface
 {

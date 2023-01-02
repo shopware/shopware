@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -12,11 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PromotionSalesChannelDefinition extends EntityDefinition
 {

@@ -2,15 +2,12 @@
 
 namespace Shopware\Elasticsearch\DependencyInjection;
 
-use Shopware\Core\Framework\Log\Package;
 use Monolog\Logger;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * @package core
- */
 #[Package('core')]
 class Configuration implements ConfigurationInterface
 {

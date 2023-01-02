@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package core
  * @extends Collection<NestedEvent>
  */
 #[Package('core')]

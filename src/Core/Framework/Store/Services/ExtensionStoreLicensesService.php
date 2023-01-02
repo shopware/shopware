@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
 #[Package('merchant-services')]

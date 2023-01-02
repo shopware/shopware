@@ -8,9 +8,6 @@ use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ScriptResponse
 {

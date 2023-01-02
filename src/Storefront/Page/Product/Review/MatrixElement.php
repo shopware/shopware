@@ -2,12 +2,10 @@
 
 namespace Shopware\Storefront\Page\Product\Review;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package storefront
- *
  * @deprecated tag:v6.5.0 use Shopware\Core\Content\Product\SalesChannel\Review\MatrixElement instead
  */
 #[Package('storefront')]

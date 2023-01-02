@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use Shopware\Core\Framework\Log\Package;
 use Composer\IO\IOInterface;
 use Composer\Package\CompletePackageInterface;
 use Shopware\Core\Defaults;
@@ -10,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
 use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
 use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
@@ -21,8 +21,6 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\Language\LanguageEntity;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

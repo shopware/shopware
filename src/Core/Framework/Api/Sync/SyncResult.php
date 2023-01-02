@@ -2,15 +2,13 @@
 
 namespace Shopware\Core\Framework\Api\Sync;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 if (!Feature::isActive('FEATURE_NEXT_15815')) {
     //@internal (flag:FEATURE_NEXT_15815) IMPORTANT: If condition negated, keep class in else case. (because static-analyze)
-    /**
-     * @package core
-     */
+
     #[Package('core')]
     class SyncResult extends Struct
     {
@@ -86,9 +84,6 @@ if (!Feature::isActive('FEATURE_NEXT_15815')) {
         }
     }
 } else {
-    /**
-     * @package core
-     */
     #[Package('core')]
     class SyncResult extends Struct
     {

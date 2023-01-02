@@ -3,9 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Event;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package customer-order
- */
+
 #[Package('customer-order')]
 class GuestCustomerRegisterEvent extends CustomerRegisterEvent
 {

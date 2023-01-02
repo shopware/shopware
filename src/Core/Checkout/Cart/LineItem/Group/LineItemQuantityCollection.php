@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package checkout
- *
  * @extends Collection<LineItemQuantity>
  */
 #[Package('checkout')]

@@ -3,9 +3,7 @@
 namespace Shopware\Core\Content\Media\Message;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package content
- */
+
 #[Package('content')]
 class UpdateThumbnailsMessage extends GenerateThumbnailsMessage
 {

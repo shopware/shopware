@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Checkout\Promotion\Rule;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\FilterRule;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -14,9 +14,6 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class PromotionValueRule extends FilterRule
 {

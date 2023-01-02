@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
-use Shopware\Core\Framework\Log\Package;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -18,7 +18,6 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal
  * @Route(defaults={"_routeScope"={"store-api"}})
- * @package core
  */
 #[Package('core')]
 class ScriptStoreApiRoute

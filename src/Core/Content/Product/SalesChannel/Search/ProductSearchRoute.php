@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\ProductEvents;
@@ -13,6 +12,7 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -24,7 +24,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package system-settings
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 #[Package('system-settings')]

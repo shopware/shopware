@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class CashRounding
 {

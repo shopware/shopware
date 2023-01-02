@@ -3,8 +3,6 @@
 namespace Shopware\Core\Framework\Log;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - Class is deprecated, use LogAware instead.
  */
 interface LogAwareBusinessEventInterface

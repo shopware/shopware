@@ -8,8 +8,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

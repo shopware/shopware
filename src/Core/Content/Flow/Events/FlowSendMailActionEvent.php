@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Content\Flow\Events;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class FlowSendMailActionEvent implements ShopwareEvent
 {

@@ -12,8 +12,6 @@ use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class CalculatedItem extends QuantityItem

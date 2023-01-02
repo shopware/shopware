@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\StateMachine\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Util\StateMachineGraphvizDumper;
 use Symfony\Component\Console\Command\Command;
@@ -12,9 +12,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class WorkflowDumpCommand extends Command
 {

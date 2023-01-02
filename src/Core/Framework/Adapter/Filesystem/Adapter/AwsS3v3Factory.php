@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 
-use Shopware\Core\Framework\Log\Package;
 use Aws\S3\S3Client;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @package core
- */
 #[Package('core')]
 class AwsS3v3Factory implements AdapterFactoryInterface
 {

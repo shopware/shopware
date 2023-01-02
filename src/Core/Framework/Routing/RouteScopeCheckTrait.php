@@ -7,9 +7,6 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package core
- */
 #[Package('core')]
 trait RouteScopeCheckTrait
 {

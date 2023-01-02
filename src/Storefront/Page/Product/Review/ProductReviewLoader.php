@@ -2,11 +2,10 @@
 
 namespace Shopware\Storefront\Page\Product\Review;
 
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
@@ -15,15 +14,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class ProductReviewLoader
 {

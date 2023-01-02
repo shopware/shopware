@@ -5,9 +5,6 @@ namespace Shopware\Core\Content\ImportExport\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class ProcessingException extends ShopwareHttpException
 {

@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Content\ProductExport\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductExport\Exception\DuplicateFileNameException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ProductExportExceptionHandler implements ExceptionHandlerInterface
 {

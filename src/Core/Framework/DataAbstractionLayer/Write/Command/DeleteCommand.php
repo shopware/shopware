@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class DeleteCommand extends WriteCommand implements ChangeSetAware
 {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
@@ -14,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -40,7 +40,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @Route(defaults={"_routeScope"={"store-api"}})
  *
  * @phpstan-type SubscribeRequest array{email: string, storefrontUrl: string, option: string, firstName?: string, lastName?: string, zipCode?: string, city?: string, street?: string, salutationId?: string}
- * @package customer-order
  */
 #[Package('customer-order')]
 class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute

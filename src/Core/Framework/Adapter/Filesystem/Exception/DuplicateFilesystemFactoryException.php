@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Adapter\Filesystem\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package core
- */
 #[Package('core')]
 class DuplicateFilesystemFactoryException extends ShopwareHttpException
 {

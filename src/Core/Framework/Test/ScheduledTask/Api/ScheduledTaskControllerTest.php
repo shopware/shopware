@@ -17,8 +17,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class ScheduledTaskControllerTest extends TestCase
 {

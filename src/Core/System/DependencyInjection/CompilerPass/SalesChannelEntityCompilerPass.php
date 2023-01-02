@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\System\DependencyInjection\CompilerPass;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Symfony\Component\DependencyInjection\Alias;
@@ -17,9 +17,6 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @package core
- */
 #[Package('core')]
 class SalesChannelEntityCompilerPass implements CompilerPassInterface
 {

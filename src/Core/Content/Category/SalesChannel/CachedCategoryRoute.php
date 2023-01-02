@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Category\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\Event\CategoryRouteCacheKeyEvent;
 use Shopware\Core\Content\Category\Event\CategoryRouteCacheTagsEvent;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Profiling\Profiler;
@@ -24,7 +24,6 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package content
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 #[Package('content')]

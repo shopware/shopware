@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Flow\Aggregate\FlowTemplate;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -10,10 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class FlowTemplateDefinition extends EntityDefinition
 {

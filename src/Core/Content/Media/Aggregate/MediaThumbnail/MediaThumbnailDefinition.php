@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnail;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -18,10 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class MediaThumbnailDefinition extends EntityDefinition
 {

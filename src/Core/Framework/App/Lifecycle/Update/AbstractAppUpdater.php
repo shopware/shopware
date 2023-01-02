@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Update;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- * @package core
  */
 #[Package('core')]
 abstract class AbstractAppUpdater

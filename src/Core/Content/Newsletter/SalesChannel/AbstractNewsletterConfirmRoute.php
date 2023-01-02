@@ -10,7 +10,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * This route is used to confirm the newsletter registration
  * The required parameters are: "hash" (received from the mail) and "email"
- * @package customer-order
  */
 #[Package('customer-order')]
 abstract class AbstractNewsletterConfirmRoute

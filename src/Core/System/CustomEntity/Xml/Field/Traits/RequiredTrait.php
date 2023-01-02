@@ -3,9 +3,9 @@
 namespace Shopware\Core\System\CustomEntity\Xml\Field\Traits;
 
 use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal
- * @package core
  */
 #[Package('core')]
 trait RequiredTrait

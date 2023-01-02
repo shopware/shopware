@@ -11,8 +11,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Finder;
 
 /**
- * @package core
- *
  * @internal
  * @group slow
  */

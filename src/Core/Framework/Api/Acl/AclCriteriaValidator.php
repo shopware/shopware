@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Acl;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -11,11 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundEx
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-/**
- * @package core
- */
 #[Package('core')]
 class AclCriteriaValidator
 {

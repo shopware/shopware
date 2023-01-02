@@ -5,9 +5,6 @@ namespace Shopware\Core\Content\Product\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class NoConfiguratorFoundException extends ShopwareHttpException
 {

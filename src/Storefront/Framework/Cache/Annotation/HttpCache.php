@@ -2,13 +2,11 @@
 
 namespace Shopware\Storefront\Framework\Cache\Annotation;
 
-use Shopware\Core\Framework\Log\Package;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Api\ResponseCacheConfiguration;
 
 /**
- * @package storefront
- *
  * @Annotation
  */
 #[Package('storefront')]

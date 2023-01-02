@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Subscriber;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
@@ -14,12 +13,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - Will be removed with FEATURE_NEXT_7739
- * @package customer-order
  */
 #[Package('customer-order')]
 class CustomerDefaultSalutationSubscriber implements EventSubscriberInterface

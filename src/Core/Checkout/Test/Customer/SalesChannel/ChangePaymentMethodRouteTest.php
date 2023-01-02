@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
@@ -12,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal

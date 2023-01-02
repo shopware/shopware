@@ -5,9 +5,6 @@ namespace Shopware\Core\Checkout\Cart\Cleanup;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class CleanupCartTask extends ScheduledTask
 {

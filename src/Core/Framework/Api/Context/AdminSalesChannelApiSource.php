@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Framework\Api\Context;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class AdminSalesChannelApiSource extends SalesChannelApiSource
 {

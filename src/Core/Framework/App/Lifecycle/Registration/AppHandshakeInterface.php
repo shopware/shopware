@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Registration;
 
-use Shopware\Core\Framework\Log\Package;
 use Psr\Http\Message\RequestInterface;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
- * @package core
  */
 #[Package('core')]
 interface AppHandshakeInterface

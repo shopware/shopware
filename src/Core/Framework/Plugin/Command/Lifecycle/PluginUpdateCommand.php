@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
 #[Package('core')]
 class PluginUpdateCommand extends AbstractPluginLifecycleCommand
 {

@@ -26,8 +26,6 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
 class ProductUrlProviderTest extends TestCase

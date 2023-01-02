@@ -19,8 +19,6 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package core
- *
  * @internal
  */
 class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase

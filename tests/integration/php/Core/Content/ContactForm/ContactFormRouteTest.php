@@ -21,7 +21,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  *
- * @package content
  * @group store-api
  */
 class ContactFormRouteTest extends TestCase

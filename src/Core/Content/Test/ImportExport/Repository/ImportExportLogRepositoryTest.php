@@ -17,8 +17,6 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class ImportExportLogRepositoryTest extends TestCase
 {

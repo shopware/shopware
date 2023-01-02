@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Address\Detail;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
@@ -11,6 +10,7 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,9 +24,6 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class AddressDetailPageLoader
 {

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Maintenance\System\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
@@ -16,8 +16,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @package core
- *
  * @internal should be used over the CLI only
  */
 #[Package('core')]

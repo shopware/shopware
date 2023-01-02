@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Product\SalesChannel\CrossSelling;
 
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
@@ -21,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 
 /**

@@ -9,8 +9,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class LineItemGroupPriceDescSorterTest extends TestCase

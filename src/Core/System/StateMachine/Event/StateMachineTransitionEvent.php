@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\System\StateMachine\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class StateMachineTransitionEvent extends NestedEvent
 {

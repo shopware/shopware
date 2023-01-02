@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Checkout\Document;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed, use RenderedDocument instead
- * @package customer-order
  */
 #[Package('customer-order')]
 class GeneratedDocument extends Struct

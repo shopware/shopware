@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -17,7 +17,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - EntityIndexerRegistry will not implement EventSubscriberInterface anymore, it will also become final and internal in v6.5.0
- * @package core
  */
 #[Package('core')]
 class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubscriberInterface

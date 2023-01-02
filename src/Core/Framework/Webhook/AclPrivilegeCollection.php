@@ -3,9 +3,7 @@
 namespace Shopware\Core\Framework\Webhook;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package core
- */
+
 #[Package('core')]
 class AclPrivilegeCollection
 {

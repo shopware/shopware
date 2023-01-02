@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Routing;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package core
- */
 #[Package('core')]
 interface RequestContextResolverInterface
 {

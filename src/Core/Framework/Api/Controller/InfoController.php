@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
@@ -14,6 +13,7 @@ use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
@@ -31,7 +31,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
- * @package core
  */
 #[Package('core')]
 class InfoController extends AbstractController

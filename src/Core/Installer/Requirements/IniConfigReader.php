@@ -3,10 +3,8 @@
 namespace Shopware\Core\Installer\Requirements;
 
 use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
- * Extracted to be able to mock all ini values
- *
  * @internal
  */
 #[Package('core')]

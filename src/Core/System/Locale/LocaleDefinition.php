@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Locale;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -16,13 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class LocaleDefinition extends EntityDefinition
 {

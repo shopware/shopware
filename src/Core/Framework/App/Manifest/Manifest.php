@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Manifest;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Manifest\Xml\Admin;
 use Shopware\Core\Framework\App\Manifest\Xml\AllowedHosts;
 use Shopware\Core\Framework\App\Manifest\Xml\Cookies;
@@ -15,13 +14,13 @@ use Shopware\Core\Framework\App\Manifest\Xml\Setup;
 use Shopware\Core\Framework\App\Manifest\Xml\Storefront;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhooks;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\Exception\XmlParsingException as SymfonyXmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- * @package core
  */
 #[Package('core')]
 class Manifest

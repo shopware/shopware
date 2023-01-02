@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\System\User\Aggregate\UserAccessKey;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<UserAccessKeyEntity>
- *
- * @package system-settings
  */
 #[Package('system-settings')]
 class UserAccessKeyCollection extends EntityCollection

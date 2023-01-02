@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -24,7 +24,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * Will run through the registration process for all apps again
  * with the new appUrl and new shopId and throw installed events for every app
- * @package core
  */
 #[Package('core')]
 class ReinstallAppsStrategy extends AbstractAppUrlChangeStrategy

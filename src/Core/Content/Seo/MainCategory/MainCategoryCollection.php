@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\Content\Seo\MainCategory;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package sales-channel
- *
  * @extends EntityCollection<MainCategoryEntity>
  */
 #[Package('sales-channel')]

@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductReviewResult extends EntitySearchResult
 {

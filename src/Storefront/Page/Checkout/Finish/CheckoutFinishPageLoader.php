@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Checkout\Finish;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Profiling\Profiler;
@@ -23,9 +23,6 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class CheckoutFinishPageLoader
 {

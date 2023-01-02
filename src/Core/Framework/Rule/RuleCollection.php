@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package business-ops
  * @extends Collection<Rule>
  */
 #[Package('business-ops')]

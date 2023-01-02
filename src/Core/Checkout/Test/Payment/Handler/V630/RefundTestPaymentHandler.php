@@ -7,8 +7,6 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RefundPaymentHandlerInter
 use Shopware\Core\Framework\Context;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class RefundTestPaymentHandler implements RefundPaymentHandlerInterface

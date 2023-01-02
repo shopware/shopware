@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Log;
 
 /**
  * @interal
- * @package core
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final class Package

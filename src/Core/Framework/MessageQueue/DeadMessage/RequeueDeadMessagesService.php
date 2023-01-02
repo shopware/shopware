@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\MessageQueue\DeadMessage;
 
-use Shopware\Core\Framework\Log\Package;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -10,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -17,9 +17,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @package core
  * @deprecated tag:v6.5.0 - Will be removed, as we use the default symfony retry mechanism
  */
-/**
- * @package core
- */
+
 #[Package('core')]
 class RequeueDeadMessagesService
 {

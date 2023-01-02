@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Framework\Migration;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class MakeVersionableMigrationHelper
 {

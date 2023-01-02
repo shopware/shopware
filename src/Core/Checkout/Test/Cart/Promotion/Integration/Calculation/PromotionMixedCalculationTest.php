@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration\Calculation;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -22,8 +22,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class PromotionMixedCalculationTest extends TestCase

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Document\Controller;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,8 +27,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package customer-order
- *
  * @Route(defaults={"_routeScope"={"api"}})
  */
 #[Package('customer-order')]

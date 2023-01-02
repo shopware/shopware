@@ -3,9 +3,7 @@
 namespace Shopware\Core\Checkout\Shipping;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package checkout
- */
+
 #[Package('checkout')]
 class ShippingEvents
 {

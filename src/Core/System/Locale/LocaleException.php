@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\System\Locale;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\HttpException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class LocaleException extends HttpException
 {

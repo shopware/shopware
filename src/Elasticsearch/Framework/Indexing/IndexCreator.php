@@ -2,17 +2,14 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
-use Shopware\Core\Framework\Log\Package;
 use Elasticsearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexConfigEvent;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexCreatedEvent;
 
-/**
- * @package core
- */
 #[Package('core')]
 class IndexCreator
 {

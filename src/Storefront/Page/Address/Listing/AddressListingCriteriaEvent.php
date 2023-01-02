@@ -2,17 +2,15 @@
 
 namespace Shopware\Storefront\Page\Address\Listing;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package storefront
- *
  * @deprecated tag:v6.5.0 - Use @see \Shopware\Core\Checkout\Customer\Event\AddressListingCriteriaEvent instead
  */
 #[Package('storefront')]

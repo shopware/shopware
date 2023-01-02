@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentCollection;
@@ -16,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -23,9 +23,6 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class OrderEntity extends Entity
 {

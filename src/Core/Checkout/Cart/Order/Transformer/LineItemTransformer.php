@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Order\Transformer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
@@ -10,11 +9,9 @@ use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class LineItemTransformer
 {

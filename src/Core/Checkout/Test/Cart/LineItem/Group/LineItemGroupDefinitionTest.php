@@ -9,8 +9,6 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class LineItemGroupDefinitionTest extends TestCase

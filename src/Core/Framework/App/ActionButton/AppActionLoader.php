@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\ActionButton;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\Exception\ActionNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
@@ -10,10 +9,10 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- * @package core
  */
 #[Package('core')]
 class AppActionLoader

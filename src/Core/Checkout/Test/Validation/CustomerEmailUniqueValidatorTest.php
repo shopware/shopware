@@ -15,8 +15,6 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class CustomerEmailUniqueValidatorTest extends TestCase

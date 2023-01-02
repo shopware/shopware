@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class CalculatedCheapestPrice extends CalculatedPrice
 {

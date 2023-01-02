@@ -2,15 +2,12 @@
 
 namespace Shopware\Recovery\Update\Steps;
 
-use Shopware\Core\Framework\Log\Package;
 use Gaufrette\Filesystem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Recovery\Common\Steps\FinishResult;
 use Shopware\Recovery\Common\Steps\ValidResult;
 use Shopware\Recovery\Update\pathBuilder;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class UnpackStep
 {

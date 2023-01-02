@@ -2,16 +2,15 @@
 
 namespace Shopware\Core\Framework\Event\EventAction;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - Will be removed in v6.5.0.
- * @package business-ops
  */
 #[Package('business-ops')]
 class EventActionSubscriber implements EventSubscriberInterface

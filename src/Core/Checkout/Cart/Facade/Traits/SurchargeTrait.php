@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade\Traits;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Facade\DiscountFacade;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -12,11 +11,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 trait SurchargeTrait
 {

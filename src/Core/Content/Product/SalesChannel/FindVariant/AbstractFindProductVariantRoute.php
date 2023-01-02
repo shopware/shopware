@@ -8,8 +8,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * This route is used the search for a matching product variant by given options
- *
- * @package inventory
  */
 #[Package('inventory')]
 abstract class AbstractFindProductVariantRoute

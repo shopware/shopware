@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 use Twig\Error\LoaderError;
@@ -14,8 +14,6 @@ use Twig\Loader\LoaderInterface;
 use Twig\Source;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('core')]

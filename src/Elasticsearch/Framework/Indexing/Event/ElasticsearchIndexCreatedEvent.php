@@ -5,9 +5,6 @@ namespace Shopware\Elasticsearch\Framework\Indexing\Event;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ElasticsearchIndexCreatedEvent
 {

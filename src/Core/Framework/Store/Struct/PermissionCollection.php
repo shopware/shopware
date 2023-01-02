@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Helper\PermissionCategorization;
 
 /**
- * @package merchant-services
- *
  * @codeCoverageIgnore
  */
 #[Package('merchant-services')]

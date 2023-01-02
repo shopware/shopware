@@ -3,9 +3,7 @@
 namespace Shopware\Core\System\Locale;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package system-settings
- */
+
 #[Package('system-settings')]
 class LocaleEvents
 {

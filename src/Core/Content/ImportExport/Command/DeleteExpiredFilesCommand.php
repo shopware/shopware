@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Content\ImportExport\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class DeleteExpiredFilesCommand extends Command
 {

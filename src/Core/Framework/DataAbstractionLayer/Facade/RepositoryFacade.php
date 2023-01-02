@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Facade;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
@@ -12,13 +11,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * The `repository` service allows you to query data, that is stored inside shopware.
  * Keep in mind that your app needs to have the correct permissions for the data it queries through this service.
  *
  * @script-service data_loading
- * @package core
  */
 #[Package('core')]
 class RepositoryFacade

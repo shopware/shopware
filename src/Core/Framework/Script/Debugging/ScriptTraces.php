@@ -14,7 +14,6 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal
- * @package core
  */
 #[Package('core')]
 class ScriptTraces extends AbstractDataCollector implements ResetInterface

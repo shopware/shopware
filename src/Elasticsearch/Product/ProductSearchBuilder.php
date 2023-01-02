@@ -2,18 +2,15 @@
 
 namespace Shopware\Elasticsearch\Product;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ProductSearchBuilder implements ProductSearchBuilderInterface
 {

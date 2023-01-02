@@ -3,9 +3,7 @@
 namespace Shopware\Core\Checkout\Payment\Cart\Token;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package checkout
- */
+
 #[Package('checkout')]
 interface TokenFactoryInterfaceV2
 {

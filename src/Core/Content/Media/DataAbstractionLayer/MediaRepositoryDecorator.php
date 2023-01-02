@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -12,10 +11,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-decorator - Will be removed
- * @package core
  */
 #[Package('core')]
 class MediaRepositoryDecorator implements EntityRepositoryInterface

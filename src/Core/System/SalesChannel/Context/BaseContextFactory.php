@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -18,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,8 +29,6 @@ use Shopware\Core\System\Tax\TaxCollection;
 use function array_unique;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

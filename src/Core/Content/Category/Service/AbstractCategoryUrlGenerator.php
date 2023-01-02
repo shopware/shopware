@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Content\Category\Service;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-/**
- * @package content
- */
 #[Package('content')]
 abstract class AbstractCategoryUrlGenerator
 {

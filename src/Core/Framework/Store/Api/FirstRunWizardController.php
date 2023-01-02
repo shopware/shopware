@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Framework\Store\Api;
 
-use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -21,8 +21,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package merchant-services
- *
  * @internal
  * @Route(defaults={"_routeScope"={"api"}})
  */

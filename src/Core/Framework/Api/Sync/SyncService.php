@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Sync;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
@@ -21,13 +20,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package core
- */
 #[Package('core')]
 class SyncService implements SyncServiceInterface
 {

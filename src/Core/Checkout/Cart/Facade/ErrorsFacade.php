@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Error\GenericCartError;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 /**
  * The ErrorsFacade is a wrapper around the errors of a cart.
  * You can use it to add new errors to the cart or remove existing ones.
@@ -17,7 +14,6 @@ use Shopware\Core\Checkout\Cart\Error\GenericCartError;
  * @script-service cart_manipulation
  *
  * @implements \IteratorAggregate<array-key, Error>
- * @package checkout
  */
 #[Package('checkout')]
 class ErrorsFacade implements \IteratorAggregate

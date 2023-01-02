@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ContainerFactoryTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\DiscountTrait;
@@ -12,17 +11,14 @@ use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsHasTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsRemoveTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\SurchargeTrait;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 /**
  * The `cart` service allows you to manipulate the cart.
  * You can use the cart service to add line-items, change prices, add discounts, etc. to the cart.
  *
  * @script-service cart_manipulation
- * @package checkout
  */
 #[Package('checkout')]
 class CartFacade

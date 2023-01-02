@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class MediaDefaultFolderEntity extends Entity
 {

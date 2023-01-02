@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -12,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -21,8 +21,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package checkout
- *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 #[Package('checkout')]

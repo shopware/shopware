@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class CartTestHook extends Hook implements CartAware

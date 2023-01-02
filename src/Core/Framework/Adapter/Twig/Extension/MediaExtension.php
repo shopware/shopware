@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
-/**
- * @package core
- */
 #[Package('core')]
 class MediaExtension extends AbstractExtension
 {

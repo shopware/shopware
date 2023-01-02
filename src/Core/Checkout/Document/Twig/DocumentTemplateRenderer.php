@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Checkout\Document\Twig;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\DocumentGenerator\Counter;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -18,9 +18,6 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class DocumentTemplateRenderer
 {

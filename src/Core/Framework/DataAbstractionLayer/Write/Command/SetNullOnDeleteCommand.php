@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @final tag:v6.5.0
- * @package core
  */
 #[Package('core')]
 class SetNullOnDeleteCommand extends UpdateCommand

@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Struct\Collection;
  * @internal only for use by the app-system
  *
  * @extends Collection<Error>
- * @package core
  */
 #[Package('core')]
 class ErrorCollection extends Collection

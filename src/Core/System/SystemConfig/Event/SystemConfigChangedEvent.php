@@ -5,9 +5,6 @@ namespace Shopware\Core\System\SystemConfig\Event;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class SystemConfigChangedEvent extends Event
 {

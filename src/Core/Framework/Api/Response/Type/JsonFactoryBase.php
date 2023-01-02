@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Framework\Api\Response\Type;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
 #[Package('core')]
 abstract class JsonFactoryBase implements ResponseFactoryInterface
 {

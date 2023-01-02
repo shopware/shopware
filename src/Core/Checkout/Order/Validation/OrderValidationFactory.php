@@ -10,8 +10,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @package customer-order
- *
  * @Decoratable
  */
 #[Package('customer-order')]

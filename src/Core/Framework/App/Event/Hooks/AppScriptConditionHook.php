@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Script\Execution\TraceHook;
 
 /**
  * @internal
- * @package core
  */
 #[Package('core')]
 class AppScriptConditionHook extends TraceHook

@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Framework\Update\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 abstract class UpdateEvent extends Event
 {

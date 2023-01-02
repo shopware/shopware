@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 interface ProductExportValidatorInterface
 {

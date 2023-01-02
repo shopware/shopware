@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
-use Shopware\Core\Framework\Log\Package;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Package\CompletePackageInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
 use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
 use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
@@ -14,9 +14,6 @@ use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
 
-/**
- * @package core
- */
 #[Package('core')]
 class PluginFinder
 {

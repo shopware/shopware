@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\Api;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
@@ -12,6 +11,7 @@ use Shopware\Core\Checkout\Promotion\Util\PromotionCodesLoader;
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodesRemover;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -21,8 +21,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package checkout
- *
  * @Route(defaults={"_routeScope"={"api"}})
  */
 #[Package('checkout')]

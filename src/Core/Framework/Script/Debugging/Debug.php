@@ -3,9 +3,7 @@
 namespace Shopware\Core\Framework\Script\Debugging;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package core
- */
+
 #[Package('core')]
 class Debug
 {

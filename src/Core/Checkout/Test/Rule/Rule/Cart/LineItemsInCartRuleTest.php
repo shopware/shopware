@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
- *
  * @internal
  * @major-deprecated (flag:FEATURE_NEXT_17016) This rule will be removed. Use the LineItemRule instead.
  */

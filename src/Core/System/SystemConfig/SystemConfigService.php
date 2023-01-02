@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SystemConfig;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
@@ -12,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,9 +26,6 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use function json_decode;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class SystemConfigService
 {

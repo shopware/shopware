@@ -3,20 +3,16 @@
 namespace Shopware\Core\Framework\Script;
 
 use Shopware\Core\Checkout\Cart\Facade\CartFacade;
-use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacade;
-use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacade;
-use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacade;
-use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacade;
-use Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade;
 use Shopware\Core\Framework\Adapter\Cache\Script\Facade\CacheInvalidatorFacade;
+use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacade;
+use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacade;
+use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacade;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
+use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacade;
 
 /**
- * @package core
- * This class is intended for auto completion in twig templates. So the developer can
- * set a doc block to get auto completion for all services.
- *
  * @example: {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
  *
  * @method CartFacade cart()

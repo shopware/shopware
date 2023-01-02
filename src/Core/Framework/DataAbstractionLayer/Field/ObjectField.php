@@ -3,9 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package core
- */
+
 #[Package('core')]
 class ObjectField extends JsonField
 {

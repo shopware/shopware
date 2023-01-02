@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @final tag:v6.5.0
- * @package core
  */
 #[Package('core')]
 class EntityResult extends AggregationResult

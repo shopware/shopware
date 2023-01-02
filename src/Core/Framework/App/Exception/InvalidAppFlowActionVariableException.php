@@ -3,9 +3,7 @@
 namespace Shopware\Core\Framework\App\Exception;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package core
- */
+
 #[Package('core')]
 class InvalidAppFlowActionVariableException extends \Exception
 {

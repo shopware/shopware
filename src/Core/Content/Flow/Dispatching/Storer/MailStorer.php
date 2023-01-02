@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class MailStorer extends FlowStorer
 {

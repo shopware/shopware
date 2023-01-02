@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Webhook\Hookable;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
@@ -10,13 +9,11 @@ use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable;
 
-/**
- * @package core
- */
 #[Package('core')]
 class HookableBusinessEvent implements Hookable
 {

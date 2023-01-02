@@ -2,12 +2,10 @@
 
 namespace Shopware\Storefront\Theme\Aggregate;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package storefront
- *
  * @extends EntityCollection<ThemeTranslationEntity>
  */
 #[Package('storefront')]

@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VersionDataPayloadFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- * @package core
  */
 #[Package('core')]
 class VersionDataPayloadField extends JsonField

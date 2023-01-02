@@ -2,17 +2,14 @@
 
 namespace Shopware\Recovery\Update\Controller;
 
-use Shopware\Core\Framework\Log\Package;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Recovery\Common\DependencyInjection\Container;
 use Shopware\Recovery\Common\Utils as CommonUtils;
 use Shopware\Recovery\Update\Utils;
 use Slim\App;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class RequirementsController
 {

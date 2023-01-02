@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 abstract class AbstractCheapestPriceQuantitySelector
 {

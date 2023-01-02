@@ -2,15 +2,12 @@
 
 namespace Shopware\Storefront\Page\Cms;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\Packages;
 
-/**
- * @package content
- */
 #[Package('content')]
 class DefaultMediaResolver extends AbstractDefaultMediaResolver
 {

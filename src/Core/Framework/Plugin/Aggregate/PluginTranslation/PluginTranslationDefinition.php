@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
@@ -11,11 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 
-/**
- * @package core
- */
 #[Package('core')]
 class PluginTranslationDefinition extends EntityTranslationDefinition
 {

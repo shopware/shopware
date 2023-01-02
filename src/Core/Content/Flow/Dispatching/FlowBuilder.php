@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
 /**
- * @package business-ops
- *
  * @internal not intended for decoration or replacement
  */
 #[Package('business-ops')]

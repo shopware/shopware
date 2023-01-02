@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- *
  * @extends EntityCollection<PaymentMethodEntity>
  */
 #[Package('checkout')]

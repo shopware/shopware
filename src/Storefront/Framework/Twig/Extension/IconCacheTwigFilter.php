@@ -7,9 +7,6 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class IconCacheTwigFilter extends AbstractExtension
 {

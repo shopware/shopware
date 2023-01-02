@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation;
 
-use Shopware\Core\Framework\Log\Package;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
@@ -10,9 +9,9 @@ use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
  * @implements Rule<ClassMethod>
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0

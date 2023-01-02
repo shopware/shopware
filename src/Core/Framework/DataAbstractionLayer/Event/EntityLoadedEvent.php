@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -15,10 +14,8 @@ use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class EntityLoadedEvent extends NestedEvent implements GenericEvent
 {

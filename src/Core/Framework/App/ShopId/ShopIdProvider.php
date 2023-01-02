@@ -2,18 +2,17 @@
 
 namespace Shopware\Core\Framework\App\ShopId;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- * @package core
  */
 #[Package('core')]
 class ShopIdProvider

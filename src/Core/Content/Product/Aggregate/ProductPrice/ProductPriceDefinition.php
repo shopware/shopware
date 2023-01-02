@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductPrice;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -18,10 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductPriceDefinition extends EntityDefinition
 {

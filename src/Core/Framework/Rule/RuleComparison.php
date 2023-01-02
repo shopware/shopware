@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Util\FloatComparator;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class RuleComparison
 {

@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Content\ImportExport\Struct;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\UpdateByCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class Config
 {

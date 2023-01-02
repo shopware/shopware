@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
@@ -11,15 +10,13 @@ use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Cache\Traits\RedisClusterProxy;
 use Symfony\Component\Cache\Traits\RedisProxy;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class RedisCartPersister extends AbstractCartPersister
 {

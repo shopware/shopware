@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxEntity;
@@ -24,8 +24,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
- *
- * @package inventory
  */
 #[Package('inventory')]
 class ProductGenerator implements DemodataGeneratorInterface

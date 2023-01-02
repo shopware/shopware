@@ -2,15 +2,13 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductPrice;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductPriceEntity>
- *
- * @package inventory
  */
 #[Package('inventory')]
 class ProductPriceCollection extends EntityCollection

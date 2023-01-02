@@ -2,18 +2,16 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
-use Shopware\Core\Framework\Log\Package;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:becomes-final - will be final starting with v6.5.0.0 and won't extend ScheduledTaskHandler anymore
  */
 #[Package('core')]

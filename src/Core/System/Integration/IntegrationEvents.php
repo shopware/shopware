@@ -3,9 +3,7 @@
 namespace Shopware\Core\System\Integration;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package system-settings
- */
+
 #[Package('system-settings')]
 class IntegrationEvents
 {

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Installer\Controller;
 
-use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Installer\Finish\Notifier;
 use Shopware\Core\Installer\Finish\SystemLocker;
@@ -14,8 +14,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

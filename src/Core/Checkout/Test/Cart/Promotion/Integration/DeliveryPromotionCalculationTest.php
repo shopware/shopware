@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Doctrine\DBAL\Exception;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
@@ -17,6 +16,7 @@ use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtu
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\ShippingMethodPricesTestBehaviour;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,8 +24,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package checkout
- *
  * @internal
  * @group slow
  */

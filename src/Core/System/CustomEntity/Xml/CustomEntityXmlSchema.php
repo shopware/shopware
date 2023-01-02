@@ -8,7 +8,6 @@ use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
- * @package core
  */
 #[Package('core')]
 class CustomEntityXmlSchema

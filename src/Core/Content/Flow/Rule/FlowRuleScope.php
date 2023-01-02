@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Content\Flow\Rule;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class FlowRuleScope extends CartRuleScope
 {

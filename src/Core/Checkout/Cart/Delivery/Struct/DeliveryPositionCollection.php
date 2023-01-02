@@ -2,15 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package checkout
- *
  * @extends Collection<DeliveryPosition>
  */
 #[Package('checkout')]

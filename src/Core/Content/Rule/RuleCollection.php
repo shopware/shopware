@@ -2,16 +2,15 @@
 
 namespace Shopware\Core\Content\Rule;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
  * @extends EntityCollection<RuleEntity>
  */
 #[Package('business-ops')]

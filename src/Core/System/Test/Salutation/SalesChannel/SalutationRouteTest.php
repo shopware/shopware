@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Test\Salutation\SalesChannel;
 
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -14,6 +13,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalesChannel\SalutationRoute;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 
 /**

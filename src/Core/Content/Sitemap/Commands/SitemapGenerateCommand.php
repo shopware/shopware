@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Sitemap\Commands;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Sitemap\Event\SitemapSalesChannelCriteriaEvent;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
@@ -12,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -23,9 +23,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class SitemapGenerateCommand extends Command
 {

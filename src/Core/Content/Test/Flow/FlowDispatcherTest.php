@@ -18,8 +18,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class FlowDispatcherTest extends TestCase

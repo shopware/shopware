@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\ActionButton;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationDefinition;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -16,10 +15,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- * @package core
  */
 #[Package('core')]
 class ActionButtonDefinition extends EntityDefinition

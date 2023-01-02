@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Content\Seo\Entity\Dbal;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Seo\Entity\Field\SeoUrlAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\AbstractFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class SeoUrlAssociationFieldResolver extends AbstractFieldResolver
 {

@@ -2,15 +2,14 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart;
 
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
@@ -25,21 +24,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- *
- * Calculates discounts on deliveries
- *
- * as calculation base we are always taking the delivery costs coming from the delivery calculator
- * this means if we have an absolute and percentage discount, the percentage discount is always
- * calculated with the deliveries coming from DeliveryCalculator even if absolute discounts have
- * reduced the delivery costs before
- * Shippingcosts 100
- * Absolute discount is 10 => Shippingcosts = 90
- * Percentage discount is 30 => Shippingcosts = 60 (Shippingcosts = 100 - (10 + 100 * 0.3))
- */
 #[Package('checkout')]
 class PromotionDeliveryCalculator
 {

@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Content\Cms\DataResolver\Element;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 
-/**
- * @package content
- */
 #[Package('content')]
 class TextCmsElementResolver extends AbstractCmsElementResolver
 {

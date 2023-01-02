@@ -23,8 +23,6 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
 class SalesChannelContextPersisterTest extends TestCase

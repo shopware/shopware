@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\Annotation\Concept\DeprecationPattern;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\Common\Annotations\Annotation;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @Annotation
@@ -13,7 +13,6 @@ use Doctrine\Common\Annotations\Annotation;
  * This documentation should help to maintain and evolve the code base with proper deprecations.
  * It's important because some deprecation pattens only work to it's fullest if plugin developer that update their plugins are aware of the deprecation patterns used und update their plugins accordingly.
  * It's designed to be an evolving list of techniques that can be used to easy reference deprecation patterns in Code Reviews or similar situations.
- * @package core
  */
 #[Package('core')]
 class DeprecationPattern

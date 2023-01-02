@@ -3,9 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package system-settings
- */
+
 #[Package('system-settings')]
 class ImportExportFileEvents
 {

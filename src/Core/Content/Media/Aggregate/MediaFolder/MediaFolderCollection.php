@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaFolder;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
  * @extends EntityCollection<MediaFolderEntity>
  */
 #[Package('content')]

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -14,11 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class MailTemplateMediaDefinition extends MappingEntityDefinition
 {

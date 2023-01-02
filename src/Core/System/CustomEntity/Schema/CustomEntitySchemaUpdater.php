@@ -2,19 +2,18 @@
 
 namespace Shopware\Core\System\CustomEntity\Schema;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Lock\LockFactory;
 
 /**
  * @internal
  * @phpstan-import-type CustomEntityField from SchemaUpdater
- * @package core
  */
 #[Package('core')]
 class CustomEntitySchemaUpdater

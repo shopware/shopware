@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Store\Exception\StoreLicenseDomainMissingException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package merchant-services
- *
  * @internal
  * @covers \Shopware\Core\Framework\Store\Exception\StoreLicenseDomainMissingException
  */

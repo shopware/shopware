@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\FlowAction;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<AppFlowActionEntity>
- * @package core
  */
 #[Package('core')]
 class AppFlowActionCollection extends EntityCollection

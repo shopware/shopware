@@ -2,15 +2,12 @@
 
 namespace Shopware\Storefront\Page\Checkout\Finish;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class CheckoutFinishPageOrderCriteriaEvent implements ShopwareSalesChannelEvent
 {

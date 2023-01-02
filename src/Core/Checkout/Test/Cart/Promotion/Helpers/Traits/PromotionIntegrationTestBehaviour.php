@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits;
 
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
@@ -19,9 +19,6 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
-/**
- * @package checkout
- */
 trait PromotionIntegrationTestBehaviour
 {
     private SalesChannelContext $context;

@@ -2,16 +2,15 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\AppPaymentMethod;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
- * @package core
  */
 #[Package('core')]
 class AppPaymentMethodEntity extends Entity

@@ -8,9 +8,6 @@ use Shopware\Core\Framework\Routing\SalesChannelContextRouteScopeDependant;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class StorefrontRouteScope extends AbstractRouteScope implements SalesChannelContextRouteScopeDependant
 {

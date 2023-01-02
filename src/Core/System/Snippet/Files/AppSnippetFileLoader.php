@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class AppSnippetFileLoader
 {

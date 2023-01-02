@@ -6,11 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- *
- * Loads the customer group registration page
- */
 #[Package('storefront')]
 abstract class AbstractCustomerGroupRegistrationPageLoader
 {

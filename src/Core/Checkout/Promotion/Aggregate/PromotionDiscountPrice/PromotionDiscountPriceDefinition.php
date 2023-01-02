@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -12,11 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PromotionDiscountPriceDefinition extends EntityDefinition
 {

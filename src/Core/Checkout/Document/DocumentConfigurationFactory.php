@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Checkout\Document;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class DocumentConfigurationFactory
 {

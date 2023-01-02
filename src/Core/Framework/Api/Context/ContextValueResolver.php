@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Framework\Api\Context;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ContextValueResolver implements ArgumentValueResolverInterface
 {

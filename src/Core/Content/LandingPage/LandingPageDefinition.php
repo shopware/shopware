@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\LandingPage;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageSalesChannel\LandingPageSalesChannelDefinition;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageTag\LandingPageTagDefinition;
@@ -25,12 +24,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
-/**
- * @package content
- */
 #[Package('content')]
 class LandingPageDefinition extends EntityDefinition
 {

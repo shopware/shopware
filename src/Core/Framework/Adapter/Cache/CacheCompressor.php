@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\CacheItem;
 
 /**
- * @package core
  * @template TCachedContent
  */
 #[Package('core')]

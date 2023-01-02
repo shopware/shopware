@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Error;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PromotionNotFoundError extends Error
 {

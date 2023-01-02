@@ -2,11 +2,11 @@
 
 namespace Shopware\Storefront\Framework\Cache;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -21,8 +21,6 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @package storefront
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('storefront')]

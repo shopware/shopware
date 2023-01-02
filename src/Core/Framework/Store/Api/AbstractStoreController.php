@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Store\Api;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
@@ -10,14 +9,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
- * @package merchant-services
- *
  * @internal
  *
  * @deprecated tag:v6.5.0 - Will be removed. Use AbstractStoreRequestOptionsProvider provide store token.

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
@@ -21,12 +20,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class SalesChannelProductDefinition extends ProductDefinition implements SalesChannelDefinitionInterface
 {

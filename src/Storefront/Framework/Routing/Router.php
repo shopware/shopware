@@ -14,9 +14,6 @@ use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class Router implements RouterInterface, RequestMatcherInterface, WarmableInterface, ServiceSubscriberInterface
 {

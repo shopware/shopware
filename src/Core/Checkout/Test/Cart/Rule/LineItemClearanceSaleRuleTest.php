@@ -12,8 +12,6 @@ use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
- *
  * @internal
  * @group rules
  */

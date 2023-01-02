@@ -7,9 +7,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class AccountOrderPageLoadedEvent extends PageLoadedEvent
 {

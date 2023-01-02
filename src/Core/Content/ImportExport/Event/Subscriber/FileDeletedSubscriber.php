@@ -2,19 +2,17 @@
 
 namespace Shopware\Core\Content\ImportExport\Event\Subscriber;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEvents;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Message\DeleteFileMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- *
- * @package system-settings
  */
 #[Package('system-settings')]
 class FileDeletedSubscriber implements EventSubscriberInterface

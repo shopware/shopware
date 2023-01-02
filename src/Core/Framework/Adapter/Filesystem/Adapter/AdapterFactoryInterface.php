@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 
-use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\AdapterInterface;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 interface AdapterFactoryInterface
 {

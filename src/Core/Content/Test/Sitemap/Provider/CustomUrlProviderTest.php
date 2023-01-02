@@ -8,8 +8,6 @@ use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
 class CustomUrlProviderTest extends TestCase

@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Content\Sitemap\Provider;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package sales-channel
- *
  * @deprecated tag:v6.5.0 - This interface will be remove, use AbstractUrlProvider instead
  */
 #[Package('sales-channel')]

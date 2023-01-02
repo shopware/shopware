@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Installer\Database;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

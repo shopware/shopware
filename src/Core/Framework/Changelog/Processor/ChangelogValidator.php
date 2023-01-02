@@ -7,7 +7,6 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
- * @package core
  */
 #[Package('core')]
 class ChangelogValidator extends ChangelogProcessor

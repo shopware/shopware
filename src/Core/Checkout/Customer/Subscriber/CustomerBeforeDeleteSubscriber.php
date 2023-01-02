@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Subscriber;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
@@ -10,6 +9,7 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
@@ -17,8 +17,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package customer-order
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('customer-order')]

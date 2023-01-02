@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -16,10 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class WebhookDefinition extends EntityDefinition
 {

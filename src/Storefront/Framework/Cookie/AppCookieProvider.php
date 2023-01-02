@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Cookie;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -10,10 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class AppCookieProvider implements CookieProviderInterface
 {

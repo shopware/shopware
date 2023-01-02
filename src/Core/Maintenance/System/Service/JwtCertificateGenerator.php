@@ -5,9 +5,6 @@ namespace Shopware\Core\Maintenance\System\Service;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Exception\JwtCertificateGenerationException;
 
-/**
- * @package core
- */
 #[Package('core')]
 class JwtCertificateGenerator
 {

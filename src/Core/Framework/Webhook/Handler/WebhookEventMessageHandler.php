@@ -2,21 +2,19 @@
 
 namespace Shopware\Core\Framework\Webhook\Handler;
 
-use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will only implement MessageHandlerInterface and all MessageHandler will be internal and final starting with v6.5.0.0
  */
 #[Package('core')]

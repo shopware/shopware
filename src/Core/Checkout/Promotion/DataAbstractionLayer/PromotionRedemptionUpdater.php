@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
@@ -10,12 +9,12 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- * @package core
  */
 #[Package('core')]
 class PromotionRedemptionUpdater implements EventSubscriberInterface

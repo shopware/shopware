@@ -21,8 +21,6 @@ use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
 class StructEncoderTest extends TestCase

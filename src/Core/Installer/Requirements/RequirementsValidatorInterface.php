@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

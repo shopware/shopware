@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Content\Media\Message;
 
-use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\AdapterInterface;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class DeleteFileMessage
 {

@@ -11,7 +11,6 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
  * This route is used to send a password recovery mail
  * The required parameters are: "email" and "storefrontUrl"
  * The process can be completed with the hash in the Route Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute
- * @package customer-order
  */
 #[Package('customer-order')]
 abstract class AbstractSendPasswordRecoveryMailRoute

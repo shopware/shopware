@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Exception\InvalidMediaUrlException;
 use Shopware\Core\Content\ImportExport\Exception\MediaDownloadException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -25,7 +25,6 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- * @package core
  */
 #[Package('core')]
 class MediaSerializer extends EntitySerializer implements EventSubscriberInterface, ResetInterface

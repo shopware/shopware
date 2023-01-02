@@ -2,13 +2,10 @@
 
 namespace Shopware\Storefront\Pagelet\Wishlist;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Pagelet\Pagelet;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class GuestWishlistPagelet extends Pagelet
 {

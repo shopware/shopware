@@ -7,9 +7,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class CustomerPasswordMatches extends Constraint
 {

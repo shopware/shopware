@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Framework\Api\OAuth;
 
-use Shopware\Core\Framework\Log\Package;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Entities\Traits\EntityTrait;
 use League\OAuth2\Server\Entities\Traits\RefreshTokenTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class RefreshToken implements RefreshTokenEntityInterface
 {

@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItemFactoryHandler;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PromotionLineItemFactory implements LineItemFactoryInterface
 {

@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\ConditionTypeNotFound;
 use Shopware\Core\Framework\App\Event\AppScriptConditionEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\ContainerInterface;
@@ -18,8 +18,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package business-ops
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('business-ops')]

@@ -7,13 +7,6 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package core
- *
- * This route allows changing configurations inside the context.
- * Following parameters are allowed to change: "currencyId", "languageId", "billingAddressId", "shippingAddressId",
- * "paymentMethodId", "shippingMethodId", "countryId" and "countryStateId"
- */
 #[Package('core')]
 abstract class AbstractContextSwitchRoute
 {

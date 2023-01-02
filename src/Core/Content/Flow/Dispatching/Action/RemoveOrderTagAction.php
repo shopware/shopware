@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
@@ -10,10 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
- *
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - FlowActions won't be executed over the event system anymore,
  * therefore the actions won't implement the EventSubscriberInterface anymore.
  */

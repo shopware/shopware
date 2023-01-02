@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
@@ -17,11 +16,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedAr
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
- * @package core
  */
 #[Package('core')]
 class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface

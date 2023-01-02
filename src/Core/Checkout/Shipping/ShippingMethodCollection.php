@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\Checkout\Shipping;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- *
  * @extends EntityCollection<ShippingMethodEntity>
  */
 #[Package('checkout')]

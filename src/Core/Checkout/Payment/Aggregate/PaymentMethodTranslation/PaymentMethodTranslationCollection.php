@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package checkout
- *
  * @extends EntityCollection<PaymentMethodTranslationEntity>
  */
 #[Package('checkout')]

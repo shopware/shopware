@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\System\Language\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheKeyEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class LanguageRouteCacheKeyEvent extends StoreApiRouteCacheKeyEvent
 {

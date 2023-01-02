@@ -3,9 +3,7 @@
 namespace Shopware\Core\System\Snippet\Filter;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package system-settings
- */
+
 #[Package('system-settings')]
 class EmptySnippetFilter extends AbstractFilter implements SnippetFilterInterface
 {

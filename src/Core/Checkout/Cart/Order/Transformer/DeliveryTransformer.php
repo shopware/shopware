@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Checkout\Cart\Order\Transformer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class DeliveryTransformer
 {

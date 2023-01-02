@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CurrencyTranslationEntity>
- *
- * @package inventory
  */
 #[Package('inventory')]
 class CurrencyTranslationCollection extends EntityCollection

@@ -5,9 +5,6 @@ namespace Shopware\Core\Checkout\Payment\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class ValidatePreparedPaymentException extends ShopwareHttpException
 {

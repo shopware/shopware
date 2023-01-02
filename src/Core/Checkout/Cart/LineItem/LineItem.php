@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Exception\InvalidChildQuantityException;
@@ -16,12 +15,10 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class LineItem extends Struct
 {

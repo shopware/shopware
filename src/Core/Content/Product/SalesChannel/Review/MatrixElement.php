@@ -3,10 +3,10 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Framework\Log\Package;
+
 if (class_exists('Shopware\Storefront\Page\Product\Review\MatrixElement')) {
     /**
      * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - won't extend the storefront class anymore
-     * @package inventory
      */
     #[Package('inventory')]
     class MatrixElement extends \Shopware\Storefront\Page\Product\Review\MatrixElement
@@ -70,9 +70,6 @@ if (class_exists('Shopware\Storefront\Page\Product\Review\MatrixElement')) {
         }
     }
 } else {
-    /**
-     * @package inventory
-     */
     #[Package('inventory')]
     class MatrixElement
     {

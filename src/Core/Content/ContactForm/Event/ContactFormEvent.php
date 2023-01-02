@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ContactForm\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ContactFormDataAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -11,12 +10,10 @@ use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package content
- */
 #[Package('content')]
 final class ContactFormEvent extends Event implements FlowEventAware, SalesChannelAware, MailAware, ContactFormDataAware
 {

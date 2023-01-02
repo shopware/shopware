@@ -2,18 +2,16 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
-use Shopware\Core\Framework\Log\Package;
-use PhpParser\Node\Expr\Variable;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ArrayDimFetch;
+use PhpParser\Node\Expr\Variable;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
 /**
- * @package core
- *
  * @internal
  *
  * @implements Rule<ArrayDimFetch>

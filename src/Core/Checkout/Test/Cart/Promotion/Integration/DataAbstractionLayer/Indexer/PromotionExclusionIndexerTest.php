@@ -12,8 +12,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class PromotionExclusionIndexerTest extends TestCase

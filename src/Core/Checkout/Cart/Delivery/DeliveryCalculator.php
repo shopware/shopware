@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
@@ -22,12 +21,10 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class DeliveryCalculator
 {

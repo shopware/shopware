@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
 use Shopware\Core\Content\Media\File\FileNameProvider;
@@ -14,15 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use function GuzzleHttp\Psr7\mimetype_from_filename;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class ThemeLifecycleService
 {

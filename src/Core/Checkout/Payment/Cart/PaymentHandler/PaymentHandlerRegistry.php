@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler;
 use Shopware\Core\Framework\App\Payment\Handler\AppSyncPaymentHandler;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PaymentHandlerRegistry
 {

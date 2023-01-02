@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 use Doctrine\DBAL\Schema\Index;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class SchemaIndexListener
 {

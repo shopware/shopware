@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefundPosition\OrderTransactionCaptureRefundPositionDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -36,10 +35,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class OrderLineItemDefinition extends EntityDefinition
 {

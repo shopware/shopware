@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Migration\V6_3;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
@@ -26,13 +25,12 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
  */
 #[Package('core')]

@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\Framework\App;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - will be removed without replacement
  */
 #[Package('core')]

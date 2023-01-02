@@ -29,8 +29,6 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class PaymentControllerTest extends TestCase

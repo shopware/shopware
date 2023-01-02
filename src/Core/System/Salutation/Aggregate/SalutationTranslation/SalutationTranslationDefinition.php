@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\System\Salutation\Aggregate\SalutationTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class SalutationTranslationDefinition extends EntityTranslationDefinition
 {

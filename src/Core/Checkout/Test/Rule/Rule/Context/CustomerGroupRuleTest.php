@@ -10,8 +10,6 @@ use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class CustomerGroupRuleTest extends TestCase

@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\AppTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  *
  * @extends EntityCollection<AppTranslationEntity>
- * @package core
  */
 #[Package('core')]
 class AppTranslationCollection extends EntityCollection

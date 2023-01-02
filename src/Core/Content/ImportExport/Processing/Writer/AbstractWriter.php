@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Writer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 abstract class AbstractWriter
 {

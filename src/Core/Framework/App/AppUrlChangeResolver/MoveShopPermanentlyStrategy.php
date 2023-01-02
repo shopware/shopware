@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -23,7 +23,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * Will run through the registration process for all apps again
  * with the new appUrl so the apps can save the new URL and generate new Secrets
  * that way communication from the old shop to the app backend will be blocked in the future
- * @package core
  */
 #[Package('core')]
 class MoveShopPermanentlyStrategy extends AbstractAppUrlChangeStrategy

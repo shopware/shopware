@@ -2,17 +2,17 @@
 
 namespace Shopware\Core;
 
-use Shopware\Core\Framework\Log\Package;
-use Doctrine\DBAL\Exception;
 use Composer\Autoload\ClassLoader;
 use Composer\InstalledVersions;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Event\BeforeSendRedirectResponseEvent;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Routing\CanonicalRedirectService;
@@ -28,7 +28,6 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 
 /**
- * @package core
  * @psalm-import-type Params from DriverManager
  */
 #[Package('core')]

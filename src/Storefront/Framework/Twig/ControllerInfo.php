@@ -3,9 +3,7 @@
 namespace Shopware\Storefront\Framework\Twig;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package storefront
- */
+
 #[Package('storefront')]
 class ControllerInfo
 {

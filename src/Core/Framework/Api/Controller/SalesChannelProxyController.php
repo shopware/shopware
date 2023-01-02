@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\ApiOrderCartService;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -55,7 +55,6 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
- * @package core
  */
 #[Package('core')]
 class SalesChannelProxyController extends AbstractController

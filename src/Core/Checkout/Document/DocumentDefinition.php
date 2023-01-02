@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Document;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -21,10 +20,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class DocumentDefinition extends EntityDefinition
 {

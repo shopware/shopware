@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class DeliveryValidator implements CartValidatorInterface
 {

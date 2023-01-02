@@ -33,8 +33,6 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package customer-order
- *
  * @internal
  */
 class DocumentGeneratorControllerTest extends TestCase

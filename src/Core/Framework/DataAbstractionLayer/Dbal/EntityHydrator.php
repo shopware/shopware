@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -25,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -33,7 +33,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Allows to hydrate database values into struct objects.
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
- * @package core
  */
 #[Package('core')]
 class EntityHydrator

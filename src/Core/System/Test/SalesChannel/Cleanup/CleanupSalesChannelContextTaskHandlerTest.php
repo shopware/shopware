@@ -13,8 +13,6 @@ use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContext
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
 class CleanupSalesChannelContextTaskHandlerTest extends TestCase

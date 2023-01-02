@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -13,10 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class LandingPageTranslationDefinition extends EntityTranslationDefinition
 {

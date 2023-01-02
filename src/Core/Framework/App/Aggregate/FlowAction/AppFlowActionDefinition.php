@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\FlowAction;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceDefinition;
 use Shopware\Core\Framework\App\Aggregate\FlowActionTranslation\AppFlowActionTranslationDefinition;
 use Shopware\Core\Framework\App\AppDefinition;
@@ -24,10 +23,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class AppFlowActionDefinition extends EntityDefinition
 {

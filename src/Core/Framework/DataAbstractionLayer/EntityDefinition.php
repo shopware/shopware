@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
@@ -26,11 +25,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
-/**
- * @package core
- */
 #[Package('core')]
 abstract class EntityDefinition
 {

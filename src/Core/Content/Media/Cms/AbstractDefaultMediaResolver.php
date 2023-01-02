@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Content\Media\Cms;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 abstract class AbstractDefaultMediaResolver
 {

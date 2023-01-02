@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Subscriber;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\AbstractIsNewDetector;
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\AbstractProductVariationBuilder;
@@ -20,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\PartialEntityLoadedEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\PartialSalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -28,8 +28,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- *
- * @package inventory
  */
 #[Package('inventory')]
 class ProductSubscriber implements EventSubscriberInterface

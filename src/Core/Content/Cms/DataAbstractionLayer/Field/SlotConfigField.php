@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Content\Cms\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\DataAbstractionLayer\FieldSerializer\SlotConfigFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class SlotConfigField extends JsonField
 {

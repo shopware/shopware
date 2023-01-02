@@ -3,9 +3,7 @@
 namespace Shopware\Storefront\Framework\Cache\CacheWarmer;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package storefront
- */
+
 #[Package('storefront')]
 class CacheRouteWarmerRegistry
 {

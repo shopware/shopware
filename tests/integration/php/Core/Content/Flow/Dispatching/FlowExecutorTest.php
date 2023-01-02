@@ -33,8 +33,6 @@ use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class FlowExecutorTest extends TestCase

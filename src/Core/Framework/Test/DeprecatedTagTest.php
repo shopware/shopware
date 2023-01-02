@@ -10,8 +10,6 @@ use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 
 /**
- * @package core
- *
  * @internal
  */
 class DeprecatedTagTest extends TestCase

@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ContextLoadRouteResponse extends StoreApiResponse
 {

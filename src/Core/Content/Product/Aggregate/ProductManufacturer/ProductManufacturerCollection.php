@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductManufacturerEntity>
- *
- * @package inventory
  */
 #[Package('inventory')]
 class ProductManufacturerCollection extends EntityCollection

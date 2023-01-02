@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Content\Cms\SalesChannel\Struct;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package content
- */
 #[Package('content')]
 class ProductSliderStruct extends Struct
 {

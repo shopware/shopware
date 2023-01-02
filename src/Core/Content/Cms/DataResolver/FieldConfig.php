@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Content\Cms\DataResolver;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Exception\UnexpectedFieldConfigValueType;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package content
- */
 #[Package('content')]
 class FieldConfig extends Struct
 {

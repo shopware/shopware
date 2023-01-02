@@ -7,13 +7,10 @@
 
 namespace Shopware\Core\Checkout\Cart\Address\Error;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class AddressValidationError extends Error
 {

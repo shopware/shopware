@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Writer;
 
-use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class XmlFileWriterFactory extends AbstractWriterFactory
 {

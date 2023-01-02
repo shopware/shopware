@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Country\Aggregate\CountryState;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -21,12 +20,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class CountryStateDefinition extends EntityDefinition
 {

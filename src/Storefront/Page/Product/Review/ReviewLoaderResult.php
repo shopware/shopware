@@ -2,15 +2,12 @@
 
 namespace Shopware\Storefront\Page\Product\Review;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix as CoreRatingMatrix;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class ReviewLoaderResult extends StorefrontSearchResult
 {

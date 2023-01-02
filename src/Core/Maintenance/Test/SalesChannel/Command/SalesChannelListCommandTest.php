@@ -8,8 +8,6 @@ use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelListCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * @package core
- *
  * @internal
  */
 class SalesChannelListCommandTest extends TestCase

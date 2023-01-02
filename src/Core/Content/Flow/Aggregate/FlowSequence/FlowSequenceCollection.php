@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\Flow\Aggregate\FlowSequence;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
  * @extends EntityCollection<FlowSequenceEntity>
  */
 #[Package('business-ops')]

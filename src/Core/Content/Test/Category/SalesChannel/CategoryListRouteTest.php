@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Category\SalesChannel;
 
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal

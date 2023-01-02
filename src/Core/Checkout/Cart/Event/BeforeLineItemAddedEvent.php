@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class BeforeLineItemAddedEvent implements ShopwareSalesChannelEvent
 {

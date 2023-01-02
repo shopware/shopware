@@ -3,11 +3,11 @@
 namespace Shopware\Core\Framework\Script\Execution\Awareness;
 
 use Shopware\Core\Framework\Log\Package;
+
 /**
  * AppSpecific hooks are only executed for the given AppId, e.g. app lifecycle hooks
  *
  * @internal
- * @package core
  */
 #[Package('core')]
 interface AppSpecificHook

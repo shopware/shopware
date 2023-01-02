@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
-use Shopware\Core\Framework\Log\Package;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Name;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
@@ -16,9 +15,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
  * @implements Rule<MethodCall>
  *
  * @internal

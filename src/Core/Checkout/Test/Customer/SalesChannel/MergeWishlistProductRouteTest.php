@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal

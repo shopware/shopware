@@ -7,9 +7,6 @@ use Shopware\Core\Content\Sitemap\Struct\Sitemap;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Asset\Package;
 
-/**
- * @package sales-channel
- */
 class SitemapLister implements SitemapListerInterface
 {
     /**

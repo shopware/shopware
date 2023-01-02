@@ -14,7 +14,6 @@ use Symfony\Component\Routing\RouterInterface;
  * The `response` service allows you to create HTTP-Responses.
  *
  * @script-service custom_endpoint
- * @package core
  */
 #[Package('core')]
 class ScriptResponseFactoryFacade

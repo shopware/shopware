@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -15,12 +14,10 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionD
 use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PromotionItemBuilder
 {

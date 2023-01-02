@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Rule;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionEntity;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Exception\InvalidConditionException;
 use Shopware\Core\Framework\Rule\ScriptRule;
@@ -30,8 +30,6 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @package business-ops
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('business-ops')]

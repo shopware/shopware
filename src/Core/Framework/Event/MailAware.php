@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Framework\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 interface MailAware extends MailActionInterface
 {

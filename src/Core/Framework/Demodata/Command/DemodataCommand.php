@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\Framework\Demodata\Command;
 
-use Shopware\Core\Framework\Log\Package;
-use Faker\Factory;
 use Bezhanov\Faker\Provider\Commerce;
+use Faker\Factory;
 use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -25,6 +24,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
@@ -36,7 +36,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
- * @package core
  */
 #[Package('core')]
 class DemodataCommand extends Command

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
@@ -10,11 +9,10 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package checkout
- *
  * @extends Collection<LineItem>
  */
 #[Package('checkout')]

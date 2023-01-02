@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Store\Api;
 
-use Shopware\Core\Framework\Log\Package;
 use Composer\IO\NullIO;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotAZipFileException;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -21,8 +21,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package merchant-services
- *
  * @internal
  * @Route(defaults={"_routeScope"={"api"}, "_acl"={"system.plugin_maintain"}})
  */

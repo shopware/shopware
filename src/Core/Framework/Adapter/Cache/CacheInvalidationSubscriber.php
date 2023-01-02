@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CachedRuleLoader;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
@@ -43,6 +42,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
@@ -76,8 +76,6 @@ use Shopware\Core\System\Tax\TaxDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package core
- *
  * @internal - The functions inside this class are no public-api and can be changed without previous deprecation
  */
 #[Package('core')]

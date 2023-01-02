@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Customer\Rule;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -13,9 +13,6 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class CustomerCustomFieldRule extends Rule
 {

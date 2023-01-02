@@ -3,9 +3,8 @@
 namespace Shopware\Core\Framework\Store\Search;
 
 use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package merchant-services
- *
  * @internal
  */
 #[Package('merchant-services')]

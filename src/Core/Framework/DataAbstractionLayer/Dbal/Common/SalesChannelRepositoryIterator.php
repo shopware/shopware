@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package core
- */
 #[Package('core')]
 class SalesChannelRepositoryIterator
 {

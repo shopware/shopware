@@ -3,9 +3,7 @@
 namespace Shopware\Core\Framework\Webhook\Message;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package core
- */
+
 #[Package('core')]
 class WebhookEventMessage
 {

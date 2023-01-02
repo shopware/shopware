@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Content\Media\Metadata\MetadataLoader;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaType\MediaType;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 interface MetadataLoaderInterface
 {

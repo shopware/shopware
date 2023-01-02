@@ -7,7 +7,6 @@ use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
 /**
  * @deprecated tag:v6.5.0 will be removed, use AbstractIncrementStorage instead
- * @package checkout
  */
 #[Package('checkout')]
 interface IncrementStorageInterface

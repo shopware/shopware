@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition;
 use Shopware\Core\Checkout\Promotion\Event\PromotionIndexerEvent;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
@@ -13,12 +12,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PromotionIndexer extends EntityIndexer
 {

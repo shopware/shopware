@@ -8,8 +8,6 @@ use Twig\Environment;
 use Twig\Node\Node;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

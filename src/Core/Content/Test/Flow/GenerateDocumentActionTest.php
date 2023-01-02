@@ -58,8 +58,6 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class GenerateDocumentActionTest extends TestCase
@@ -581,8 +579,6 @@ class GenerateDocumentActionTest extends TestCase
 }
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class CustomDoc implements DocumentGeneratorInterface
@@ -606,8 +602,6 @@ class CustomDoc implements DocumentGeneratorInterface
 }
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class CustomDocRenderer extends AbstractDocumentRenderer

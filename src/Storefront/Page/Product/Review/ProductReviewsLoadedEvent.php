@@ -2,17 +2,14 @@
 
 namespace Shopware\Storefront\Page\Product\Review;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class ProductReviewsLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {

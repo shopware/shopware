@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\Content\Product;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @deprecated tag:v6.5.0 - Call the AbstractPropertyGroupSorter, AbstractProductMaxPurchaseCalculator, AbstractIsNewDetector by using the respective services instead.
- *
- * @package inventory
  */
 #[Package('inventory')]
 abstract class AbstractSalesChannelProductBuilder

@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Content\Media\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class MediaFolderIndexerEvent extends NestedEvent
 {

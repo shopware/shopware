@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\System\StateMachine\Loader;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class InitialStateIdLoader implements ResetInterface
 {

@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
- * @package core
  */
 #[Package('core')]
 class ConfigJsonFieldAccessorBuilder extends JsonFieldAccessorBuilder

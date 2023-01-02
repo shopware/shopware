@@ -3,9 +3,7 @@
 namespace Shopware\Core\Content\Media\Cms;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package content
- */
+
 #[Package('content')]
 class VimeoVideoCmsElementResolver extends YoutubeVideoCmsElementResolver
 {

@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 
-/**
- * @package core
- */
 #[Package('core')]
 class PluginPostUpdateEvent extends PluginLifecycleEvent
 {

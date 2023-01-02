@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Content\Product;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 abstract class AbstractPropertyGroupSorter
 {

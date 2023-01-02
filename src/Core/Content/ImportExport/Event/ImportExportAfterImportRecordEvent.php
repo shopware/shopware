@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Content\ImportExport\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class ImportExportAfterImportRecordEvent extends Event
 {

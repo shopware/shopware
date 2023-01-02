@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ChangelogParser
 {

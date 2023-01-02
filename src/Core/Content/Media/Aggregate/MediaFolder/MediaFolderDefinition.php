@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaFolder;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -25,10 +24,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class MediaFolderDefinition extends EntityDefinition
 {

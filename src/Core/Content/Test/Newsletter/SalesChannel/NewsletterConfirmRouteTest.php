@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
- * @package customer-order
- *
  * @internal
  * @group store-api
  */

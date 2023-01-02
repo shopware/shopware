@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ExtendableTrait;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class DocumentTemplateRendererParameterEvent extends Event
 {

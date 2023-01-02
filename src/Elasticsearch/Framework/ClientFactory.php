@@ -2,14 +2,11 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-use Shopware\Core\Framework\Log\Package;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ClientFactory
 {

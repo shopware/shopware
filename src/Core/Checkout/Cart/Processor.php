@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Hook\CartHook;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class Processor
 {

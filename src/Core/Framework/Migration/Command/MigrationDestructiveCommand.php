@@ -8,9 +8,6 @@ use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
-/**
- * @package core
- */
 #[Package('core')]
 class MigrationDestructiveCommand extends MigrationCommand
 {

@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\SalesChannel;
 
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
@@ -12,15 +10,15 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
- * @package checkout
- *
  * @internal
  * @group store-api
  * @group cart

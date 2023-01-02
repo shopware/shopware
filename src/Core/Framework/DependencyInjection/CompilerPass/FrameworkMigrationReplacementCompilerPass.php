@@ -7,9 +7,6 @@ use Shopware\Core\Framework\Migration\MigrationSource;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @package core
- */
 #[Package('core')]
 class FrameworkMigrationReplacementCompilerPass implements CompilerPassInterface
 {

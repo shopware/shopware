@@ -7,9 +7,6 @@ use Twig\Compiler;
 use Twig\Node\Node;
 use Twig\Node\NodeOutputInterface;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ReturnNode extends Node implements NodeOutputInterface
 {

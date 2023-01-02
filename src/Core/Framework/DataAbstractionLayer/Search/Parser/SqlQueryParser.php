@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -21,11 +20,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
- * @package core
  */
 #[Package('core')]
 class SqlQueryParser

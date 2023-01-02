@@ -13,9 +13,6 @@ use Symfony\Component\RateLimiter\Policy\NoLimiter;
 use Symfony\Component\RateLimiter\RateLimiterFactory as SymfonyRateLimiterFactory;
 use Symfony\Component\RateLimiter\Storage\StorageInterface;
 
-/**
- * @package core
- */
 #[Package('core')]
 class RateLimiterFactory
 {

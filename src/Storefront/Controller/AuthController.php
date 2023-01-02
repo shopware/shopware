@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
@@ -15,6 +14,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -38,8 +38,6 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package storefront
- *
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal

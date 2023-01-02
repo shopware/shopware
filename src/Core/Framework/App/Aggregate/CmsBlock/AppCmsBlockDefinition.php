@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\CmsBlock;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation\AppCmsBlockTranslationDefinition;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -18,10 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
- *
  * @internal
  */
 #[Package('content')]

@@ -3,9 +3,7 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package core
- */
+
 #[Package('core')]
 class MainModule extends XmlElement
 {

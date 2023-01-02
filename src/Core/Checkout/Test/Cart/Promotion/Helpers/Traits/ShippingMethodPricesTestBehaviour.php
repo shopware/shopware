@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits;
 
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Defaults;
 
-/**
- * @package checkout
- */
 trait ShippingMethodPricesTestBehaviour
 {
     /**

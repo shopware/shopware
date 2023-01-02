@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Shipping;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
@@ -11,14 +10,12 @@ use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class ShippingMethodEntity extends Entity
 {

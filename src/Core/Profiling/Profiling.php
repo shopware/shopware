@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Profiling;
 
-use Shopware\Core\Framework\Log\Package;
 use Composer\InstalledVersions;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
@@ -16,8 +16,6 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

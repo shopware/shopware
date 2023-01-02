@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Framework\Cache;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheHitEvent;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheItemWrittenEvent;
@@ -16,9 +16,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class CacheStore implements StoreInterface
 {

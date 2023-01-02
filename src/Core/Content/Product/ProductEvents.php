@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
@@ -10,10 +9,8 @@ use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestResultEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductEvents
 {

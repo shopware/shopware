@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
@@ -37,8 +37,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
- * @package storefront
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('storefront')]

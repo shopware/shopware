@@ -2,7 +2,6 @@
 
 namespace Shopware\Elasticsearch\Product;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
@@ -14,15 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 {

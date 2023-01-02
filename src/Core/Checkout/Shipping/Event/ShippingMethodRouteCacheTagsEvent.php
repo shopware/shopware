@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Checkout\Shipping\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheTagsEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class ShippingMethodRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {

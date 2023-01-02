@@ -17,5 +17,9 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->importNames();
     $rectorConfig->importShortClasses(false);
 
+    $rectorConfig->skip([
+        __DIR__ . '/src/Core/Framework/Script/ServiceStubs.php'
+    ]);
+
     $rectorConfig->rule(PackageAttributeRule::class);
 };

@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

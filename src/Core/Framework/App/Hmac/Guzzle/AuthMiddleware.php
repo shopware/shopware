@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Hmac\Guzzle;
 
-use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Exception\InvalidArgumentException;
 use GuzzleHttp\Exception\ServerException;
 use Psr\Http\Message\RequestInterface;
@@ -10,10 +9,8 @@ use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class AuthMiddleware
 {

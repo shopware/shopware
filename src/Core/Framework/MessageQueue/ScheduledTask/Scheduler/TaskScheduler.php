@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -14,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
@@ -21,8 +21,6 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:becomes-final - Will be final starting with v6.5.0.0
  */
 #[Package('core')]

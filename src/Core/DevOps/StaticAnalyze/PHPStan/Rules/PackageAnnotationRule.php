@@ -2,20 +2,18 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
-use Shopware\Core\Framework\Log\Package;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @implements Rule<InClassNode>
  *
  * @internal
- *
- * @package core
  */
 #[Package('core')]
 class PackageAnnotationRule implements Rule

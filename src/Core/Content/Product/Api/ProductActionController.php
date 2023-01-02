@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Product\Api;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Util\VariantCombinationLoader;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,8 +13,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
- *
- * @package inventory
  */
 #[Package('inventory')]
 class ProductActionController extends AbstractController

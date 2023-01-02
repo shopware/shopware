@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<EntityProtection>
- * @package core
  */
 #[Package('core')]
 class EntityProtectionCollection extends Collection

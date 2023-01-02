@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<PropertyGroupTranslationEntity>
- * @package inventory
  */
 #[Package('inventory')]
 class PropertyGroupTranslationCollection extends EntityCollection

@@ -5,9 +5,6 @@ namespace Shopware\Elasticsearch\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package core
- */
 #[Package('core')]
 class NoIndexedDocumentsException extends ShopwareHttpException
 {

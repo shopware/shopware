@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Plugin\Requirement\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ConflictingPackageException extends RequirementException
 {

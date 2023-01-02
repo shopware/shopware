@@ -2,16 +2,15 @@
 
 namespace Shopware\Core\Framework\Api\EventListener\Acl;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Framework\Api\Acl\Event\CommandAclValidationEvent;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- * @package core
  */
 #[Package('core')]
 class CreditOrderLineItemListener implements EventSubscriberInterface

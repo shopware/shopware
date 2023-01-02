@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Dispatching\Aware\EmailAware;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Framework\Context;
@@ -13,12 +12,10 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class CustomerBeforeLoginEvent extends Event implements BusinessEventInterface, SalesChannelAware, ShopwareSalesChannelEvent, MailAware, EmailAware
 {

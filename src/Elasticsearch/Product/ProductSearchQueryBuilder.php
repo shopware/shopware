@@ -2,7 +2,6 @@
 
 namespace Shopware\Elasticsearch\Product;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchPhrasePrefixQuery;
@@ -13,11 +12,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
  * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: int}
  */
 #[Package('core')]

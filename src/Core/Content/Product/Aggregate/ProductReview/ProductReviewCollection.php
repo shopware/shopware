@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductReview;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductReviewEntity>
- * @package inventory
  */
 #[Package('inventory')]
 class ProductReviewCollection extends EntityCollection

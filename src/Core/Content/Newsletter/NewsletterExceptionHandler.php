@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Content\Newsletter;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Newsletter\Exception\LanguageOfNewsletterDeleteException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class NewsletterExceptionHandler implements ExceptionHandlerInterface
 {

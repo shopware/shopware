@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
  * @phpstan-import-type OpenApiSpec from DefinitionService
- * @package core
  */
 #[Package('core')]
 class OpenApiFileLoader

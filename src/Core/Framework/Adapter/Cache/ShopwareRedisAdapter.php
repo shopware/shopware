@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\RedisTagAwareAdapter;
 use Symfony\Component\Cache\Marshaller\MarshallerInterface;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ShopwareRedisAdapter extends RedisTagAwareAdapter
 {

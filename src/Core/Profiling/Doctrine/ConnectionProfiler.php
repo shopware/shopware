@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Profiling\Doctrine;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ConnectionProfiler implements DataCollectorInterface
 {

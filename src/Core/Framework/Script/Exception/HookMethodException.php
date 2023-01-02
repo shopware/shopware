@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Script\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package core
- */
 #[Package('core')]
 class HookMethodException extends ShopwareHttpException
 {

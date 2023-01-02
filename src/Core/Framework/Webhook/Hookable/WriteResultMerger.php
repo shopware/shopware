@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Framework\Webhook\Hookable;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class WriteResultMerger
 {

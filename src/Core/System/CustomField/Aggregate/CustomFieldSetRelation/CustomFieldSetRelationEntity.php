@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class CustomFieldSetRelationEntity extends Entity
 {

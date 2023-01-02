@@ -2,18 +2,16 @@
 
 namespace Shopware\Core\Content\Media\Subscriber;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaEvents;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package content
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('content')]

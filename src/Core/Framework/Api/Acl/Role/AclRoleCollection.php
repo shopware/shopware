@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\Api\Acl\Role;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<AclRoleEntity>
- * @package core
  */
 #[Package('core')]
 class AclRoleCollection extends EntityCollection

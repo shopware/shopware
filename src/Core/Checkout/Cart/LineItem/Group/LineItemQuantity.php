@@ -3,9 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package checkout
- */
+
 #[Package('checkout')]
 class LineItemQuantity
 {

@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\FlowActionTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
 #[Package('core')]
 class AppFlowActionTranslationEntity extends TranslationEntity
 {

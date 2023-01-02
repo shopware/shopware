@@ -15,8 +15,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class AndRuleTest extends TestCase

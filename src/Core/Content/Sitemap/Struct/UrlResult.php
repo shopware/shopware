@@ -5,9 +5,6 @@ namespace Shopware\Core\Content\Sitemap\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class UrlResult extends Struct
 {

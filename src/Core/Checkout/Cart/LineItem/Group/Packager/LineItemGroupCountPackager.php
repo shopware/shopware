@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem\Group\Packager;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class LineItemGroupCountPackager implements LineItemGroupPackagerInterface
 {

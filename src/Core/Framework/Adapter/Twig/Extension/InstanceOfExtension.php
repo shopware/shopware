@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigTest;
 
-/**
- * @package core
- */
 #[Package('core')]
 class InstanceOfExtension extends AbstractExtension
 {

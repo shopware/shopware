@@ -10,7 +10,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * This route is used to unsubscribe the newsletter
  * The required parameters is "email"
- * @package customer-order
  */
 #[Package('customer-order')]
 abstract class AbstractNewsletterUnsubscribeRoute

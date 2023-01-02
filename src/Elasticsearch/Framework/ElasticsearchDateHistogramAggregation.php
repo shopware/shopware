@@ -2,13 +2,11 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-use Shopware\Core\Framework\Log\Package;
 use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Type\BucketingTrait;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

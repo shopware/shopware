@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 
-/**
- * @package core
- */
 #[Package('core')]
 class FrameworkExtension extends Extension
 {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Test\Customer\Subscriber;
 
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
@@ -14,11 +13,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package customer-order
- *
  * @internal
  */
 class CustomerChangePasswordSubscriberTest extends TestCase

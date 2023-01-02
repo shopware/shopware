@@ -2,16 +2,14 @@
 
 namespace Shopware\Core\Framework\Store\Subscriber;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
 #[Package('merchant-services')]

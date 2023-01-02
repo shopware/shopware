@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Framework\Changelog\Processor;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Changelog\ChangelogFile;
 use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
 use Shopware\Core\Framework\Changelog\ChangelogParser;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -17,7 +17,6 @@ use function sprintf;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
- * @package core
  */
 #[Package('core')]
 class ChangelogProcessor

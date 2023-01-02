@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class LineItemGroupBuilder
 {

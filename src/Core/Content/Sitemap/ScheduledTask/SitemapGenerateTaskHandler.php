@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Sitemap\ScheduledTask;
 
-use Shopware\Core\Framework\Log\Package;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Sitemap\Event\SitemapSalesChannelCriteriaEvent;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -23,8 +23,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package sales-channel
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - MessageHandler will be internal and final starting with v6.5.0.0
  */
 #[Package('sales-channel')]

@@ -11,8 +11,6 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
 
 /**
- * @package business-ops
- *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\UrlStorer

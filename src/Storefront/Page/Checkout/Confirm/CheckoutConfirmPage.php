@@ -2,15 +2,12 @@
 
 namespace Shopware\Storefront\Page\Checkout\Confirm;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class CheckoutConfirmPage extends Page
 {

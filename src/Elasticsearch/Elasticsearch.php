@@ -2,8 +2,8 @@
 
 namespace Shopware\Elasticsearch;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Shopware\Elasticsearch\DependencyInjection\ElasticsearchExtension;
 use Shopware\Elasticsearch\Profiler\ElasticsearchProfileCompilerPass;
@@ -22,8 +22,6 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

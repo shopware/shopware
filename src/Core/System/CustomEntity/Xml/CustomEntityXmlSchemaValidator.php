@@ -8,7 +8,6 @@ use Shopware\Core\System\CustomEntity\Xml\Field\OneToManyField;
 
 /**
  * @internal
- * @package core
  */
 #[Package('core')]
 class CustomEntityXmlSchemaValidator

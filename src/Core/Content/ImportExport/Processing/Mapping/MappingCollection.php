@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @extends Collection<Mapping>
- *
- * @package system-settings
  */
 #[Package('system-settings')]
 class MappingCollection extends Collection

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\CustomField\Aggregate\CustomFieldSet;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\App\AppDefinition;
@@ -21,12 +20,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class CustomFieldSetDefinition extends EntityDefinition
 {

@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\System\SystemConfig;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class SystemConfigEntity extends Entity
 {

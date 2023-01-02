@@ -5,9 +5,6 @@ namespace Shopware\Core\Content\Media\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package content
- */
 #[Package('content')]
 class ThumbnailNotSupportedException extends FileTypeNotSupportedException
 {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -21,11 +20,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class DocumentBaseConfigDefinition extends EntityDefinition
 {

@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Framework\Cache\ReverseProxy;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,8 +13,6 @@ use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 use function array_values;
 
 /**
- * @package storefront
- *
  * @template TCachedContent
  */
 #[Package('storefront')]

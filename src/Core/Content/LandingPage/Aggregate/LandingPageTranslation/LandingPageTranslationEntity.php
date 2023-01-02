@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class LandingPageTranslationEntity extends TranslationEntity
 {

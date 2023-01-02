@@ -7,9 +7,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class CheckoutCartPageLoadedEvent extends PageLoadedEvent
 {

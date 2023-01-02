@@ -8,8 +8,6 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class KeyMappingPipeTest extends TestCase
 {

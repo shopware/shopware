@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
-use Shopware\Core\Framework\Log\Package;
 use OpenApi\Annotations\OpenApi;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
@@ -15,12 +14,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
 /**
  * @internal
  * @phpstan-import-type OpenApiSpec from DefinitionService
- * @package core
  */
 #[Package('core')]
 class OpenApi3Generator implements ApiDefinitionGeneratorInterface

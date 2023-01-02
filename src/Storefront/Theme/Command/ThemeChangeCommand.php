@@ -2,11 +2,11 @@
 
 namespace Shopware\Storefront\Theme\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
@@ -20,9 +20,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class ThemeChangeCommand extends Command
 {

@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class DeliveryDate extends Struct
 {

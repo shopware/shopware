@@ -2,20 +2,17 @@
 
 namespace Shopware\Storefront\Page\Suggest;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\AbstractProductSuggestRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class SuggestPageLoader
 {

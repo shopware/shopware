@@ -3,12 +3,9 @@ declare(strict_types=1);
 
 namespace Shopware\Storefront\Theme\ConfigLoader;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 abstract class AbstractAvailableThemeProvider
 {

@@ -5,9 +5,6 @@ namespace Shopware\Core\Checkout\Document;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class DocumentIdStruct extends Struct
 {

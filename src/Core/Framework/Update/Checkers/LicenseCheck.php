@@ -7,9 +7,6 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Update\Struct\ValidationResult;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class LicenseCheck implements CheckerInterface
 {

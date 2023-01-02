@@ -11,8 +11,6 @@ use Shopware\Core\Checkout\Customer\Rule\BillingStreetRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class BillingStreetRuleTest extends TestCase

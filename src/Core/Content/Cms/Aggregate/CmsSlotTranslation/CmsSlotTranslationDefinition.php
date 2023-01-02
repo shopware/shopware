@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
 use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
 #[Package('content')]
 class CmsSlotTranslationDefinition extends EntityTranslationDefinition
 {

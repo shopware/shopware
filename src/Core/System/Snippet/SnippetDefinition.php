@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Snippet;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -17,11 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class SnippetDefinition extends EntityDefinition
 {

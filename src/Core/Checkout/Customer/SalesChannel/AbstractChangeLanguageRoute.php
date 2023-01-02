@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
@@ -11,7 +11,6 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
 /**
  * This route is used to change the language of a logged-in user
  * The required field is: "languageId"
- * @package customer-order
  */
 #[Package('customer-order')]
 abstract class AbstractChangeLanguageRoute

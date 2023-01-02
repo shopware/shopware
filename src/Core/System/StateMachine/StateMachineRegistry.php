@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\StateMachine;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
@@ -29,9 +29,6 @@ use Shopware\Core\System\StateMachine\Exception\StateMachineWithoutInitialStateE
 use Shopware\Core\System\StateMachine\Exception\UnnecessaryTransitionException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class StateMachineRegistry
 {

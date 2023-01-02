@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Framework\Validation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-/**
- * @package core
- */
 #[Package('core')]
 class WriteConstraintViolationException extends ShopwareHttpException implements WriteFieldException, ConstraintViolationExceptionInterface
 {

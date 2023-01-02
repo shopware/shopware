@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\App\AppEntity;
@@ -22,6 +21,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraints\All;
@@ -31,7 +31,6 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
- * @package core
  */
 #[Package('core')]
 class RuleConditionPersister

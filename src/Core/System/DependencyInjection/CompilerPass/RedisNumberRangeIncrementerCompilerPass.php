@@ -7,9 +7,6 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\Inc
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @package core
- */
 #[Package('core')]
 class RedisNumberRangeIncrementerCompilerPass implements CompilerPassInterface
 {

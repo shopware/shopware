@@ -2,17 +2,16 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- * @package core
  */
 #[Package('core')]
 class FlowActionPersister

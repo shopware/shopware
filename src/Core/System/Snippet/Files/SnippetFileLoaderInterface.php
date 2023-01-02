@@ -7,8 +7,6 @@ use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 
 /**
  * @Decoratable
- *
- * @package system-settings
  */
 #[Package('system-settings')]
 interface SnippetFileLoaderInterface

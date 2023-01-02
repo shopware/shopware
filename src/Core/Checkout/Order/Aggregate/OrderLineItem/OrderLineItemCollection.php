@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package customer-order
- *
  * @extends EntityCollection<OrderLineItemEntity>
  */
 #[Package('customer-order')]

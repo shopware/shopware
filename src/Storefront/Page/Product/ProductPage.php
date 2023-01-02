@@ -2,19 +2,16 @@
 
 namespace Shopware\Storefront\Page\Product;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class ProductPage extends Page
 {

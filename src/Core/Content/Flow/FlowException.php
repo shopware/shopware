@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Content\Flow;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\HttpException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class FlowException extends HttpException
 {

@@ -2,20 +2,10 @@
 
 namespace Shopware\Core\Content\Media\Pathname\PathnameStrategy;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- * Generate path components of media urls/filesystem paths
- *
- * providing data for the default format: __HASH__/__BUSTER__/__PHYSICAL_FILE_NAME_WITH_EXTENSION
- *
- * Important:
- *   * If an empty string is returned, the data will be striped
- *   * You must not return leading or trailing slashes
- */
 #[Package('content')]
 interface PathnameStrategyInterface
 {

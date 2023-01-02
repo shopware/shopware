@@ -3,9 +3,7 @@
 namespace Shopware\Core\Checkout\Document\Event;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package customer-order
- */
+
 #[Package('customer-order')]
 final class InvoiceOrdersEvent extends DocumentOrderEvent
 {

@@ -2,21 +2,19 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type;
 
-use Shopware\Core\Framework\Log\Package;
-use PHPStan\Analyser\SpecifiedTypes;
 use PhpParser\Node\Expr\MethodCall;
 use PHPStan\Analyser\Scope;
+use PHPStan\Analyser\SpecifiedTypes;
 use PHPStan\Analyser\TypeSpecifier;
 use PHPStan\Analyser\TypeSpecifierAwareExtension;
 use PHPStan\Analyser\TypeSpecifierContext;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\Type\MethodTypeSpecifyingExtension;
 use PHPStan\Type\TypeCombinator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
  */
 #[Package('core')]

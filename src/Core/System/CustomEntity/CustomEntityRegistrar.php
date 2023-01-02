@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\CustomEntity;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -12,12 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Schema\DynamicEntityDefinition;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

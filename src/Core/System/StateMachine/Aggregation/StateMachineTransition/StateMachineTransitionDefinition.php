@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -12,12 +11,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class StateMachineTransitionDefinition extends EntityDefinition
 {

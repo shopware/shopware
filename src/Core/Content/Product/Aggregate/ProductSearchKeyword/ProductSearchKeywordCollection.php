@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductSearchKeywordEntity>
- * @package inventory
  */
 #[Package('inventory')]
 class ProductSearchKeywordCollection extends EntityCollection

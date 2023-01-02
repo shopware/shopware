@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\MessageQueue\DeadMessage;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
@@ -18,15 +17,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 
 /***
  * @package core
  * @deprecated tag:v6.5.0 - reason:remove-entity - Will be removed, as we use the default symfony retry mechanism
  */
-/**
- * @package core
- */
+
 #[Package('core')]
 class DeadMessageDefinition extends EntityDefinition
 {

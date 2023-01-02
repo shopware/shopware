@@ -19,8 +19,6 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * @package system-settings
- *
  * @internal
  *
  * @covers \Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand

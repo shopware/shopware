@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package customer-order
- *
  * @extends Collection<DocumentIdStruct>
  */
 #[Package('customer-order')]

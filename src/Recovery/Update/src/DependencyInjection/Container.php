@@ -2,12 +2,12 @@
 
 namespace Shopware\Recovery\Update\DependencyInjection;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\DriverManager;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader as CoreMigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime as CoreMigrationRuntime;
 use Shopware\Recovery\Common\DependencyInjection\Container as BaseContainer;
@@ -30,9 +30,6 @@ use Slim\Views\PhpRenderer;
 use Symfony\Component\Dotenv\Dotenv;
 use const SW_PATH;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class Container extends BaseContainer
 {

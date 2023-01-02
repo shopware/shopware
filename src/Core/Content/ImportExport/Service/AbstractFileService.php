@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 abstract class AbstractFileService
 {

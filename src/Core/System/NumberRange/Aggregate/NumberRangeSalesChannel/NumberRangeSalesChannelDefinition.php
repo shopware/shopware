@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -10,13 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeDefinition;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class NumberRangeSalesChannelDefinition extends EntityDefinition
 {

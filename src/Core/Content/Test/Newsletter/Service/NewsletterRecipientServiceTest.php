@@ -23,8 +23,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package customer-order
- *
  * @internal
  */
 class NewsletterRecipientServiceTest extends TestCase

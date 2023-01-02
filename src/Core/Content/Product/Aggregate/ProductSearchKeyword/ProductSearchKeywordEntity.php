@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductSearchKeywordEntity extends Entity
 {

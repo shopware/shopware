@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
@@ -12,7 +12,6 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
- * @package core
  * @Decoratable
  */
 #[Package('core')]

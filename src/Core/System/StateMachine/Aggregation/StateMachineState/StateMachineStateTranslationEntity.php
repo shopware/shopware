@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineState;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class StateMachineStateTranslationEntity extends TranslationEntity
 {

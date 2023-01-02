@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<NumberRangeTranslationEntity>
- * @package checkout
  */
 #[Package('checkout')]
 class NumberRangeTranslationCollection extends EntityCollection

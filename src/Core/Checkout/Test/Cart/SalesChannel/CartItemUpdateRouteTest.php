@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\SalesChannel;
 
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -18,10 +17,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
- * @package checkout
- *
  * @internal
  * @group store-api
  * @group cart

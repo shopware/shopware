@@ -7,9 +7,6 @@ use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class LanguageLocaleCodeProvider implements ResetInterface
 {

@@ -2,16 +2,14 @@
 
 namespace Shopware\Core\Checkout\Customer\Subscriber;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package customer-order
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('customer-order')]

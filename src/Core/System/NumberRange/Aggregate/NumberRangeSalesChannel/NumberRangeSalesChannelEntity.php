@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEntity;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class NumberRangeSalesChannelEntity extends Entity
 {

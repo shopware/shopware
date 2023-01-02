@@ -2,19 +2,16 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 
-/**
- * @package core
- */
 #[Package('core')]
 class TaskRegistry
 {

@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\Cms\DataResolver\Element;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
  * @implements \IteratorAggregate<array-key, EntitySearchResult>
  */
 #[Package('content')]

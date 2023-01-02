@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class CustomerPasswordMatchesValidator extends ConstraintValidator
 {

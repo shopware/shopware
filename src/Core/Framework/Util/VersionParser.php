@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

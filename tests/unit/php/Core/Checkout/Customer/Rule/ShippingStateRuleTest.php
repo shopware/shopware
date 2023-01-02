@@ -16,8 +16,6 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @package business-ops
- *
  * @internal
  * @group rules
  * @covers \Shopware\Core\Checkout\Customer\Rule\ShippingStateRule

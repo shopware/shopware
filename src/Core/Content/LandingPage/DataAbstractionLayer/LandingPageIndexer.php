@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\LandingPage\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -12,12 +11,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package content
- */
 #[Package('content')]
 class LandingPageIndexer extends EntityIndexer
 {

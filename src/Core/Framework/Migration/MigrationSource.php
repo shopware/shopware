@@ -3,9 +3,7 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package core
- */
+
 #[Package('core')]
 class MigrationSource
 {

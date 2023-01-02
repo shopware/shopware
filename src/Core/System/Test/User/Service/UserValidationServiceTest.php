@@ -11,8 +11,6 @@ use Shopware\Core\System\User\Service\UserValidationService;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class UserValidationServiceTest extends TestCase
 {

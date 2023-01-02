@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
@@ -14,11 +13,9 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class CheckoutOrderPlacedEvent extends Event implements SalesChannelAware, OrderAware, MailAware, CustomerAware
 {

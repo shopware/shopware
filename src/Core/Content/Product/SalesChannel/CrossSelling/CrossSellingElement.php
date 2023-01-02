@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\CrossSelling;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class CrossSellingElement extends Struct
 {

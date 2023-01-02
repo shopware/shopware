@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaRule;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -11,10 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class PromotionPersonaRuleDefinition extends MappingEntityDefinition
 {

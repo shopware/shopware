@@ -2,16 +2,15 @@
 
 namespace Shopware\Core\Framework\Demodata\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
- * @package core
  */
 #[Package('core')]
 class DemodataRequestCreatedEvent extends Event

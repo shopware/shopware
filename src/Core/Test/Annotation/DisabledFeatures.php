@@ -3,8 +3,6 @@
 namespace Shopware\Core\Test\Annotation;
 
 /**
- * @package core
- *
  * @internal
  * @Annotation
  *

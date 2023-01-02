@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Content\Category\Validation;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -17,8 +17,6 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
- * @package content
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('content')]

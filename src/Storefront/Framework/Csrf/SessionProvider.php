@@ -3,16 +3,12 @@ declare(strict_types=1);
 
 namespace Shopware\Storefront\Framework\Csrf;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
- * @package storefront
- *
- * We have this extra class to have the session object injected in a lazy way to not initialize it on injection
- *
  * @internal
  *
  * @deprecated tag:v6.5.0 Will be removed with upgrade to Symfony 6.0

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
@@ -16,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
@@ -26,8 +26,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('business-ops')]

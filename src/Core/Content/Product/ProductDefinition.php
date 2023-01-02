@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -67,6 +66,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
@@ -74,9 +74,6 @@ use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductDefinition extends EntityDefinition
 {

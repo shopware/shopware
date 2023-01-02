@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
@@ -19,10 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class ProductStreamFilterDefinition extends EntityDefinition
 {

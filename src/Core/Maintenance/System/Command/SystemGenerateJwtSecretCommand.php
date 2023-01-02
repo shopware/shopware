@@ -11,8 +11,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @package core
- *
  * @internal should be used over the CLI only
  */
 #[Package('core')]

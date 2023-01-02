@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
@@ -11,11 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class SalesChannelTypeTranslationDefinition extends EntityTranslationDefinition
 {

@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package checkout
- *
  * @internal
  */
 #[Package('checkout')]

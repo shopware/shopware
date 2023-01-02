@@ -3,14 +3,11 @@ declare(strict_types=1);
 
 namespace Shopware\Storefront\Theme\ConfigLoader;
 
-use Shopware\Core\Framework\Log\Package;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class StaticFileAvailableThemeProvider extends AbstractAvailableThemeProvider
 {

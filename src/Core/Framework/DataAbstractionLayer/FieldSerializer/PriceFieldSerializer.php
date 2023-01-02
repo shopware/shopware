@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraints\Collection;
@@ -27,7 +27,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
- * @package core
  */
 #[Package('core')]
 class PriceFieldSerializer extends AbstractFieldSerializer

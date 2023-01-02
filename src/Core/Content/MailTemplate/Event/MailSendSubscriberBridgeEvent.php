@@ -2,17 +2,16 @@
 
 namespace Shopware\Core\Content\MailTemplate\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed in v6.5.0 Use FlowSendMailActionEvent instead
- * @package sales-channel
  */
 #[Package('sales-channel')]
 class MailSendSubscriberBridgeEvent implements ShopwareEvent

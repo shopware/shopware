@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -18,11 +17,9 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class OrderPaymentMethodChangedEvent extends Event implements SalesChannelAware, OrderAware, CustomerAware, MailAware, OrderTransactionAware
 {

@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Twig\Node\FeatureCallSilentToken;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
-/**
- * @package core
- */
 #[Package('core')]
 class FeatureFlagCallTokenParser extends AbstractTokenParser
 {

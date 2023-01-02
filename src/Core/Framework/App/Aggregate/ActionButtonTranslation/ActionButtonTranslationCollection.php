@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends EntityCollection<ActionButtonTranslationEntity>
- * @package core
  */
 #[Package('core')]
 class ActionButtonTranslationCollection extends EntityCollection

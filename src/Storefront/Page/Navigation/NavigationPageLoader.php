@@ -2,11 +2,11 @@
 
 namespace Shopware\Storefront\Page\Navigation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -15,8 +15,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package storefront
- *
  * @Decoratable()
  */
 #[Package('storefront')]

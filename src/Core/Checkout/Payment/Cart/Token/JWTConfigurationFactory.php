@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\Token;
 
-use Shopware\Core\Framework\Log\Package;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Decoder;
 use Lcobucci\JWT\Encoder;
@@ -10,10 +9,8 @@ use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use League\OAuth2\Server\CryptKey;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class JWTConfigurationFactory
 {

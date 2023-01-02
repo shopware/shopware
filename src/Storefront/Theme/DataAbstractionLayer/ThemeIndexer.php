@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Theme\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -12,15 +11,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Event\ThemeIndexerEvent;
 use Shopware\Storefront\Theme\ThemeDefinition;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ThemeIndexer extends EntityIndexer
 {

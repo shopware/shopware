@@ -5,9 +5,6 @@ namespace Shopware\Storefront\Framework\Media\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package content
- */
 #[Package('content')]
 class FileTypeNotAllowedException extends ShopwareHttpException
 {

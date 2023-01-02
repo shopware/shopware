@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Plugin\KernelPluginLoader;
 
-use Shopware\Core\Framework\Log\Package;
 use Composer\Autoload\ClassLoader;
 use Composer\Autoload\ClassMapGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\KernelPluginLoaderException;
@@ -14,9 +14,6 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-/**
- * @package core
- */
 #[Package('core')]
 abstract class KernelPluginLoader extends Bundle
 {

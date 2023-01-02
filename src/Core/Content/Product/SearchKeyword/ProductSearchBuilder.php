@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -10,13 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class ProductSearchBuilder implements ProductSearchBuilderInterface
 {

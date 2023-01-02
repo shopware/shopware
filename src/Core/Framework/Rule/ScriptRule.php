@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Framework\Rule;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\App\Event\Hooks\AppScriptConditionHook;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
@@ -17,8 +17,6 @@ use Twig\Cache\FilesystemCache;
 use Twig\Extension\DebugExtension;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 #[Package('business-ops')]

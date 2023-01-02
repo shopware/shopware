@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
@@ -10,6 +9,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
@@ -25,7 +25,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
- * @package customer-order
  */
 #[Package('customer-order')]
 class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute

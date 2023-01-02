@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
@@ -16,15 +15,13 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class CartService implements ResetInterface
 {

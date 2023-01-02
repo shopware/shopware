@@ -9,8 +9,6 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Content\Rule\RuleCollection;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class LineItemGroupBuilderResultTest extends TestCase

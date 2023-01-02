@@ -10,8 +10,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package core
- *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 #[Package('core')]

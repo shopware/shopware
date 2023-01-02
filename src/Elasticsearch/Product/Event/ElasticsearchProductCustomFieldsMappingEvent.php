@@ -2,14 +2,11 @@
 
 namespace Shopware\Elasticsearch\Product\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ElasticsearchProductCustomFieldsMappingEvent implements ShopwareEvent
 {

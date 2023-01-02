@@ -7,9 +7,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class SitemapPageLoadedEvent extends PageLoadedEvent
 {

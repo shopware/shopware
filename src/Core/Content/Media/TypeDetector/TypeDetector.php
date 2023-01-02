@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Content\Media\TypeDetector;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaType\MediaType;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\HandlerChain;
 
 /**
- * @package content
  * @HandlerChain(
  *     serviceTag="shopware.media_type.detector",
  *     handlerInterface="TypeDetectorInterface"

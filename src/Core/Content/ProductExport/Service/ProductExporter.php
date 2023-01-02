@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
-use Shopware\Core\Framework\Log\Package;
 use Monolog\Logger;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\ExportInvalidException;
@@ -14,12 +13,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class ProductExporter implements ProductExporterInterface
 {

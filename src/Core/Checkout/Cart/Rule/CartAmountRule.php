@@ -10,9 +10,6 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 class CartAmountRule extends Rule
 {

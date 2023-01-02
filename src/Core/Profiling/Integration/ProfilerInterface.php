@@ -3,9 +3,8 @@
 namespace Shopware\Core\Profiling\Integration;
 
 use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
- *
  * @internal experimental atm
  */
 #[Package('core')]

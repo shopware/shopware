@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Installer\Controller;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Installer\Configuration\AdminConfigurationService;
 use Shopware\Core\Installer\Configuration\EnvConfigWriter;
@@ -17,8 +17,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * @package core
- *
  * @internal
  * @phpstan-type Shop array{name: string, locale: string, currency: string, additionalCurrencies: null|list<string>, country: string, email: string, host: string, basePath: string, schema: string, blueGreenDeployment: bool}
  * @phpstan-type AdminUser array{email: string, username: string, firstName: string, lastName: string, password: string}

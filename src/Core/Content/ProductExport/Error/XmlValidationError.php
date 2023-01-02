@@ -3,9 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\Error;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package inventory
- */
+
 #[Package('inventory')]
 class XmlValidationError extends Error
 {

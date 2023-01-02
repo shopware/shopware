@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -11,10 +10,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class GrossPriceCalculator
 {

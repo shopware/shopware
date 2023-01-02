@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
@@ -13,12 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @final tag:v6.5.0
- * @package core
  */
 #[Package('core')]
 class Criteria extends Struct implements \Stringable

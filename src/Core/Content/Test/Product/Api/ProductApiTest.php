@@ -17,8 +17,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @package inventory
  */
 class ProductApiTest extends TestCase
 {

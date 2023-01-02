@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @final tag:v6.5.0
- * @package core
  */
 #[Package('core')]
 class DateHistogramAggregation extends BucketAggregation

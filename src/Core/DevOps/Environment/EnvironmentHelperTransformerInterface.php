@@ -3,9 +3,7 @@
 namespace Shopware\Core\DevOps\Environment;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package core
- */
+
 #[Package('core')]
 interface EnvironmentHelperTransformerInterface
 {

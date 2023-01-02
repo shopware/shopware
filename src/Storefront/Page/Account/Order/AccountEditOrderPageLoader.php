@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Account\Order;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderPaidException;
@@ -22,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -30,9 +30,6 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class AccountEditOrderPageLoader
 {

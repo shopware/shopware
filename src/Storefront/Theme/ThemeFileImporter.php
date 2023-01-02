@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
@@ -12,8 +12,6 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Symfony\Component\Finder\Finder;
 
 /**
- * @package storefront
- *
  * @Decoratable
  */
 #[Package('storefront')]

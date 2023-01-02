@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Migration\Traits;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed use `\Shopware\Core\Migration\Test\MigrationUntouchedDbTestTrait` instead
- * @package core
  */
 #[Package('core')]
 trait MigrationUntouchedDbTestTrait

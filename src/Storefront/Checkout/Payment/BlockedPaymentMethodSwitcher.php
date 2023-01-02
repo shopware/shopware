@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Checkout\Payment;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -12,13 +11,12 @@ use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package checkout
- *
  * @internal Only to be used by the Storefront
  */
 #[Package('checkout')]

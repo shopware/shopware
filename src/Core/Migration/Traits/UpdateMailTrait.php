@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Migration\Traits;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package core
- */
 #[Package('core')]
 trait UpdateMailTrait
 {

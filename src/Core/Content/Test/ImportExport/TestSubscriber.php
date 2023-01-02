@@ -10,8 +10,6 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class TestSubscriber implements EventSubscriberInterface
 {

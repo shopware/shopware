@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Registration;
 
-use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\RequestInterface;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
- * @package core
  */
 #[Package('core')]
 class PrivateHandshake implements AppHandshakeInterface

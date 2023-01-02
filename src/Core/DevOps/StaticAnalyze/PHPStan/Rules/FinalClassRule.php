@@ -2,16 +2,15 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
-use Shopware\Core\Framework\Log\Package;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 /**
- * @package core
  * @implements Rule<InClassNode>
  *
  * @internal

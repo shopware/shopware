@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\CustomEntity\Schema;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -40,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Field\AssociationField;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -49,7 +49,6 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
  * @internal
  *
  * @phpstan-import-type CustomEntityField from CustomEntitySchemaUpdater
- * @package core
  */
 #[Package('core')]
 class DynamicFieldFactory

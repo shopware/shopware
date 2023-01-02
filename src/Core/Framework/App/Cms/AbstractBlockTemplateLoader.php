@@ -3,9 +3,8 @@
 namespace Shopware\Core\Framework\App\Cms;
 
 use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package content
- *
  * @internal
  */
 #[Package('content')]

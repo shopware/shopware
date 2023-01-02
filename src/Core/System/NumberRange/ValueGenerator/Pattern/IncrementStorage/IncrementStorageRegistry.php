@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\Exception\IncrementStorageMigrationNotSupportedException;
 use Shopware\Core\System\NumberRange\Exception\IncrementStorageNotFoundException;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class IncrementStorageRegistry
 {

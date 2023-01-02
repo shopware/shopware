@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 
-/**
- * @package core
- */
 #[Package('core')]
 class TranslationEntity extends Entity
 {

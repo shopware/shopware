@@ -2,12 +2,11 @@
 
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
-use ONGR\ElasticsearchDSL\Aggregation\Bucketing\ReverseNestedAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing\CompositeAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing\NestedAggregation;
+use ONGR\ElasticsearchDSL\Aggregation\Bucketing\ReverseNestedAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Metric;
 use ONGR\ElasticsearchDSL\Aggregation\Metric\ValueCountAggregation;
 use ONGR\ElasticsearchDSL\BuilderInterface;
@@ -55,14 +54,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\XOrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\ElasticsearchDateHistogramAggregation;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Sort\CountSort;
 
-/**
- * @package core
- */
 #[Package('core')]
 class CriteriaParser
 {

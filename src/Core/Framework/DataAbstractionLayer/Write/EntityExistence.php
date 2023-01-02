@@ -3,10 +3,10 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\Log\Package;
+
 /**
  * Defines the current state of an entity in relation to the parent-child inheritance and
  * existence in the storage or command queue.
- * @package core
  */
 #[Package('core')]
 class EntityExistence

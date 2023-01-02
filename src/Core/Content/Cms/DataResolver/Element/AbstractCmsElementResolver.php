@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Cms\DataResolver\Element;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -14,11 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package content
- */
 #[Package('content')]
 abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
 {

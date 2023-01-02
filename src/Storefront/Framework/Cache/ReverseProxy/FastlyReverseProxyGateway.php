@@ -2,12 +2,12 @@
 
 namespace Shopware\Storefront\Framework\Cache\ReverseProxy;
 
-use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
 use function array_chunk;
@@ -16,9 +16,6 @@ use function func_get_arg;
 use function implode;
 use function sprintf;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 {

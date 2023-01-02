@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\System\Salutation\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -23,7 +23,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
- * @package customer-order
  */
 #[Package('customer-order')]
 class CachedSalutationRoute extends AbstractSalutationRoute

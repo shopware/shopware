@@ -8,8 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package customer-order
- *
  * @internal
  */
 class OrderDocumentCriteriaFactoryTest extends TestCase

@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- * @package core
  */
 #[Package('core')]
 trait ScriptResponseAwareTrait

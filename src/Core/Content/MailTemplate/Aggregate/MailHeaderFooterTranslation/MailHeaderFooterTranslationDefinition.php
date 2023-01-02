@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
@@ -11,10 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class MailHeaderFooterTranslationDefinition extends EntityTranslationDefinition
 {

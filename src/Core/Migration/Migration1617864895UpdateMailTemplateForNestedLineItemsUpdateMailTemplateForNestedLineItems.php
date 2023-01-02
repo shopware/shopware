@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Migration\V6_4\Migration1617864895UpdateMailTemplateForNestedLineItems;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - Will be deleted. Migrations are now namespaced by major version
  */
 #[Package('core')]

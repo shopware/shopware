@@ -10,9 +10,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class HttpCacheWarmUpCommand extends Command
 {

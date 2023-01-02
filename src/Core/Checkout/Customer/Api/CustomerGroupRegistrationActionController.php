@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Api;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,8 +19,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package customer-order
- *
  * @Route(defaults={"_routeScope"={"api"}})
  */
 #[Package('customer-order')]

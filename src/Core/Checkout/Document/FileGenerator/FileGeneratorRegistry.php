@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Checkout\Document\FileGenerator;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\Exception\InvalidFileGeneratorTypeException;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class FileGeneratorRegistry
 {

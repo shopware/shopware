@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -22,15 +21,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeChildDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeSalesChannelDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationDefinition;
 
-/**
- * @package storefront
- */
 #[Package('storefront')]
 class ThemeDefinition extends EntityDefinition
 {

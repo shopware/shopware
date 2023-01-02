@@ -6,10 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
-/**
- * @package core
- * Remove unwanted information from route_params
- */
 #[Package('core')]
 class RouteParamsCleanupListener
 {

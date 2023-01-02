@@ -18,8 +18,6 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 
 /**
- * @package core
- *
  * @internal
  * NEXT-21735
  * @group not-deterministic

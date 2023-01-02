@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\Rector;
 
-use Shopware\Core\Framework\Log\Package;
 use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike;
 use Rector\Core\Rector\AbstractRector;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule;
+use Shopware\Core\Framework\Log\Package;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ClassPackageRector extends AbstractRector
 {

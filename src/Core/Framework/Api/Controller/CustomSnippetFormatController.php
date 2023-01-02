@@ -12,8 +12,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
 
 /**
- * @package customer-order
- *
  * @internal
  *
  * @Route(defaults={"_routeScope"={"api"}})

@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class CustomerVatIdentificationValidatorTest extends TestCase

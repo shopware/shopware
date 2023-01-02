@@ -2,15 +2,13 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
-use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * @package merchant-services
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal
  */
 #[Package('merchant-services')]

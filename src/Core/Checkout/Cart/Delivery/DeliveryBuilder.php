@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
@@ -18,11 +17,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class DeliveryBuilder
 {

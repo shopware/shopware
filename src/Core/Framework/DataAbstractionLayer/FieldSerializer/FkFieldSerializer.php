@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -11,13 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\Uuid as UuidConstraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
- * @package core
  */
 #[Package('core')]
 class FkFieldSerializer extends AbstractFieldSerializer

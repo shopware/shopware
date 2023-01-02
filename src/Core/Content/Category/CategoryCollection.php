@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Content\Category;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
  * @extends EntityCollection<CategoryEntity>
  */
 #[Package('content')]

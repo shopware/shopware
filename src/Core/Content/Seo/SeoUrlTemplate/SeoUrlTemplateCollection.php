@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\Content\Seo\SeoUrlTemplate;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package sales-channel
- *
  * @extends EntityCollection<SeoUrlTemplateEntity>
  */
 #[Package('sales-channel')]

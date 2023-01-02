@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Rule\Container;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 
-/**
- * @package business-ops
- */
 #[Package('business-ops')]
 interface ContainerInterface
 {

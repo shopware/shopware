@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Document\Renderer;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
@@ -16,14 +15,12 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 final class StornoRenderer extends AbstractDocumentRenderer
 {

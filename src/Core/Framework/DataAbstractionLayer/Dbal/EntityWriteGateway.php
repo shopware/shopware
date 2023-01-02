@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder as DbalQueryBuilderAlias;
@@ -43,12 +42,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteCommandEx
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
- * @package core
  */
 #[Package('core')]
 class EntityWriteGateway implements EntityWriteGatewayInterface

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\ContactForm\Validation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -17,7 +17,6 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package content
  * @Decoratable
  */
 #[Package('content')]

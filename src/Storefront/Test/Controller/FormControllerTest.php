@@ -15,8 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @package content
  */
 class FormControllerTest extends TestCase
 {

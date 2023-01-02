@@ -3,9 +3,7 @@
 namespace Shopware\Core\Content\Media\MediaType;
 
 use Shopware\Core\Framework\Log\Package;
-/**
- * @package content
- */
+
 #[Package('content')]
 class DocumentType extends MediaType
 {

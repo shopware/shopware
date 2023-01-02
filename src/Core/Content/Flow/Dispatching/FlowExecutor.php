@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowAction;
@@ -17,12 +16,11 @@ use Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
  * @internal not intended for decoration or replacement
  */
 #[Package('business-ops')]

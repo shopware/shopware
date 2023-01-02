@@ -5,9 +5,6 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 abstract class AbstractCustomerGroupRegistrationSettingsRoute
 {

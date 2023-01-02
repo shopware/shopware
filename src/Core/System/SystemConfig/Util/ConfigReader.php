@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\System\SystemConfig\Util;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class ConfigReader extends XmlReader
 {

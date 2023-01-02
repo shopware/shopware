@@ -22,9 +22,6 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Symfony\Component\Asset\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package storefront
- */
 class ThemeCompiler implements ThemeCompilerInterface
 {
     private FilesystemInterface $filesystem;

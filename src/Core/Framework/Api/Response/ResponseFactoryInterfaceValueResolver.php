@@ -7,9 +7,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
-/**
- * @package core
- */
 #[Package('core')]
 class ResponseFactoryInterfaceValueResolver implements ArgumentValueResolverInterface
 {

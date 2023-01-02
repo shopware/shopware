@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package core
- */
 #[Package('core')]
 abstract class AbstractEntitySerializer
 {

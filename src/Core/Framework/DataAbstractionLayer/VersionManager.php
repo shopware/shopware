@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -45,14 +44,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
- * @package core
- *
  * @internal
  */
 #[Package('core')]

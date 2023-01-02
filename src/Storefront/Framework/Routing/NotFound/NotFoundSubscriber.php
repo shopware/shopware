@@ -2,11 +2,11 @@
 
 namespace Shopware\Storefront\Framework\Routing\NotFound;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -28,8 +28,6 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package storefront
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 #[Package('storefront')]

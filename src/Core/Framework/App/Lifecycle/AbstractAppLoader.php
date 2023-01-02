@@ -2,16 +2,15 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 
 /**
  * @internal
- * @package core
  */
 #[Package('core')]
 abstract class AbstractAppLoader

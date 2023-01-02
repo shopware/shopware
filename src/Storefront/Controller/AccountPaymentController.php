@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -21,8 +21,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package storefront
- *
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal

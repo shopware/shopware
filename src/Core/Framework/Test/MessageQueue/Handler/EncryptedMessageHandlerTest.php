@@ -13,8 +13,6 @@ use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class EncryptedMessageHandlerTest extends TestCase
 {

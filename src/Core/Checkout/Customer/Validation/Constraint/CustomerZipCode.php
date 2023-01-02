@@ -7,8 +7,6 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @package customer-order
- *
  * @Annotation
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */

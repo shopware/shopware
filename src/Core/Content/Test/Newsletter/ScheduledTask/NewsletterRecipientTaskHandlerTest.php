@@ -15,8 +15,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 /**
- * @package customer-order
- *
  * @internal
  */
 class NewsletterRecipientTaskHandlerTest extends TestCase

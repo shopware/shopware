@@ -2,19 +2,16 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @package sales-channel
- */
 #[Package('sales-channel')]
 class SalesChannelCountryDefinition extends MappingEntityDefinition
 {

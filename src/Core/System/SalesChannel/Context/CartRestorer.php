@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -10,13 +9,11 @@ use Shopware\Core\Checkout\Cart\Event\BeforeCartMergeEvent;
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package core
- */
 #[Package('core')]
 class CartRestorer
 {

@@ -2,15 +2,13 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- *
- * @package system-settings
  */
 #[Package('system-settings')]
 class DeadMessageLoadedSubscriber implements EventSubscriberInterface

@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\System\Currency;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
-/**
- * @package inventory
- */
 #[Package('inventory')]
 class CurrencyFormatter
 {

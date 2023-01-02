@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Store\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package merchant-services
- */
 #[Package('merchant-services')]
 class ExtensionInstallException extends ShopwareHttpException
 {

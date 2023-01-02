@@ -6,8 +6,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class CalculatedTaxes extends CalculatedTaxCollection

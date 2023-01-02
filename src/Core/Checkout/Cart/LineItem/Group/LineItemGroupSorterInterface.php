@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 interface LineItemGroupSorterInterface
 {

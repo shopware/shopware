@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal use entity repository to write data
- * @package core
  */
 #[Package('core')]
 interface EntityWriterInterface

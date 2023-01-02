@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Cms;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionDefinition;
@@ -26,11 +25,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @package content
- */
 #[Package('content')]
 class CmsPageDefinition extends EntityDefinition
 {

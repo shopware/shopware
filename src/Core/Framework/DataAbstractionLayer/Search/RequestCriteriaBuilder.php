@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
@@ -24,11 +23,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package core
- */
 #[Package('core')]
 class RequestCriteriaBuilder
 {

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Theme\AbstractThemePathBuilder;
@@ -11,8 +11,6 @@ use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 use
  * @see \Shopware\Storefront\Theme\ThemeAssetPackage instead
  */

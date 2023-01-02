@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
@@ -25,6 +24,7 @@ use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -32,8 +32,6 @@ use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - FlowActions won't be executed over the event system anymore,
  * therefore the actions won't implement the EventSubscriberInterface anymore.
  */

@@ -2,17 +2,14 @@
 
 namespace Shopware\Storefront\Page\Account\CustomerGroupRegistration;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractCustomerGroupRegistrationSettingsRoute;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package customer-order
- */
 #[Package('customer-order')]
 class CustomerGroupRegistrationPageLoader extends AbstractCustomerGroupRegistrationPageLoader
 {

@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -12,8 +12,6 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @package storefront
- *
  * @Decoratable
  */
 #[Package('storefront')]

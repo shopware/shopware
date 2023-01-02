@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 class ShippingMethodTranslationEntity extends TranslationEntity
 {

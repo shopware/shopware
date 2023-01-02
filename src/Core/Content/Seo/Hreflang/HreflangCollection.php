@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StructCollection;
 
 /**
- * @package sales-channel
- *
  * @extends StructCollection<HreflangStruct>
  */
 #[Package('sales-channel')]

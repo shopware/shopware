@@ -1,6 +1,5 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
-
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;

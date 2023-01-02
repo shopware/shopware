@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Country\Aggregate\CountryTranslation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -10,11 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class CountryTranslationDefinition extends EntityTranslationDefinition
 {

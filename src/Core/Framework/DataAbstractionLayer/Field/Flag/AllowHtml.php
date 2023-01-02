@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /*
  * In case a column is allowed to contain HTML-esque data. Beware of injection possibilities
  */
 if (Feature::isActive('FEATURE_NEXT_15172')) {
-    /**
-     * @package core
-     */
     #[Package('core')]
     class AllowHtml extends Flag
     {
@@ -36,9 +33,6 @@ if (Feature::isActive('FEATURE_NEXT_15172')) {
         }
     }
 } else {
-    /**
-     * @package core
-     */
     #[Package('core')]
     class AllowHtml extends Flag
     {

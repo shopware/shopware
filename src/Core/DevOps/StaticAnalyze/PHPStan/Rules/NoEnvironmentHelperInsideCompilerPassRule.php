@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
-use Shopware\Core\Framework\Log\Package;
 use PhpParser\Node;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Identifier;
@@ -11,11 +10,10 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
 /**
- * @package core
- *
  * @internal
  *
  * @implements Rule<StaticCall>

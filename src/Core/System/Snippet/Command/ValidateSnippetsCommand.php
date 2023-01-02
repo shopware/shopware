@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\Snippet\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\SnippetFixer;
 use Shopware\Core\System\Snippet\SnippetValidatorInterface;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
@@ -15,9 +15,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
-/**
- * @package system-settings
- */
 #[Package('system-settings')]
 class ValidateSnippetsCommand extends Command
 {

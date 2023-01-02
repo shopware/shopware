@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 
 /**
- * @package merchant-services
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal
  */
 #[Package('merchant-services')]

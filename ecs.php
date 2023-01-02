@@ -141,6 +141,5 @@ return static function (ECSConfig $ecsConfig): void {
             'src/**/*Controller.php',
             'src/**/*Route.php',
         ],
-        PhpdocNoPackageFixer::class => null,
     ]);
 };

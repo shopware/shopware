@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Stopwatch\Stopwatch as SymfonyStopwatch;
 
 /**
- * @package core
- *
  * @internal experimental atm
  */
 #[Package('core')]

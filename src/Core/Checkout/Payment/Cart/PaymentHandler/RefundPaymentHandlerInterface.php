@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
 #[Package('checkout')]
 interface RefundPaymentHandlerInterface extends PaymentHandlerInterface
 {

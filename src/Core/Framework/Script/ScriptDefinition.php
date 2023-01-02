@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Script;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -15,10 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @internal only for use by the app-system
  */
 #[Package('core')]

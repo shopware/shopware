@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
+namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -26,11 +27,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class PasswordFieldTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
-    /**
-     * @var PasswordField
-     */
-    private $field;
 
     public function testGetStorage(): void
     {
@@ -46,7 +42,8 @@ class PasswordFieldTest extends TestCase
 
         $passwordFieldHandler = new PasswordFieldSerializer(
             $this->getContainer()->get(ValidatorInterface::class),
-            $this->getContainer()->get(DefinitionInstanceRegistry::class)
+            $this->getContainer()->get(DefinitionInstanceRegistry::class),
+            $this->getContainer()->get(SystemConfigService::class)
         );
 
         $payload = $passwordFieldHandler->encode($field, $existence, $kvPair, new WriteParameterBag(
@@ -68,7 +65,8 @@ class PasswordFieldTest extends TestCase
 
         $passwordFieldHandler = new PasswordFieldSerializer(
             $this->getContainer()->get(ValidatorInterface::class),
-            $this->getContainer()->get(DefinitionInstanceRegistry::class)
+            $this->getContainer()->get(DefinitionInstanceRegistry::class),
+            $this->getContainer()->get(SystemConfigService::class)
         );
 
         $payload = $passwordFieldHandler->encode($field, $existence, $kvPair, new WriteParameterBag(
@@ -153,7 +151,8 @@ class PasswordFieldTest extends TestCase
 
         $passwordFieldHandler = new PasswordFieldSerializer(
             $this->getContainer()->get(ValidatorInterface::class),
-            $this->getContainer()->get(DefinitionInstanceRegistry::class)
+            $this->getContainer()->get(DefinitionInstanceRegistry::class),
+            $this->getContainer()->get(SystemConfigService::class)
         );
 
         $payload = $passwordFieldHandler->encode($field, $existence, $kvPair, new WriteParameterBag(

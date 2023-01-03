@@ -178,7 +178,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 'firstName' => $firstName,
                 'lastName' => $lastName,
                 'email' => $id . $context->getFaker()->format('safeEmail'),
-                'password' => 'shopware',
+                'password' => 'shopware12345',
                 'defaultPaymentMethodId' => $this->getDefaultPaymentMethod(),
                 'groupId' => $customerGroups[array_rand($customerGroups)],
                 'salesChannelId' => $salesChannelIds[array_rand($salesChannelIds)],

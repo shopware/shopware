@@ -258,7 +258,7 @@ class AuthControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => 'test@example.com',
-                'password' => 'test',
+                'password' => 'test12345',
             ])
         );
 
@@ -383,7 +383,7 @@ class AuthControllerTest extends TestCase
         $request->attributes->add(
             [
                 'username' => 'test@example.com',
-                'password' => 'test',
+                'password' => 'test12345',
             ]
         );
 
@@ -465,7 +465,7 @@ class AuthControllerTest extends TestCase
         $request->attributes->add(
             [
                 'username' => 'test@example.com',
-                'password' => 'test',
+                'password' => 'test12345',
             ]
         );
 
@@ -503,7 +503,7 @@ class AuthControllerTest extends TestCase
         $request->attributes->add(
             [
                 'username' => 'test@example.com',
-                'password' => 'test',
+                'password' => 'test12345',
             ]
         );
 
@@ -603,7 +603,7 @@ class AuthControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $customer->getEmail(),
-                'password' => 'test',
+                'password' => 'test12345',
             ])
         );
         $response = $browser->getResponse();
@@ -643,7 +643,7 @@ class AuthControllerTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@example.com',
-                'password' => 'test',
+                'password' => 'test12345',
                 'firstName' => 'Max',
                 'active' => $active,
                 'lastName' => 'Mustermann',

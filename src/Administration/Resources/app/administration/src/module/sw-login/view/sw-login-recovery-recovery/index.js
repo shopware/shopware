@@ -4,7 +4,8 @@
 
 import template from './sw-login-recovery-recovery.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin, State } = Shopware;
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
@@ -12,7 +13,13 @@ const { Component } = Shopware;
 Component.register('sw-login-recovery-recovery', {
     template,
 
-    inject: ['userRecoveryService'],
+    inject: [
+        'userRecoveryService',
+    ],
+
+    mixins: [
+        Mixin.getByName('notification'),
+    ],
 
     props: {
         hash: {
@@ -23,10 +30,21 @@ Component.register('sw-login-recovery-recovery', {
 
     data() {
         return {
+            // Mock an empty user so we can display error
+            user: {
+                id: this.hash,
+                getEntityName: () => 'user',
+            },
             newPassword: '',
             newPasswordConfirm: '',
             hashValid: null,
         };
+    },
+
+    computed: {
+        ...mapPropertyErrors('user', [
+            'password',
+        ]),
     },
 
     watch: {
@@ -72,6 +90,11 @@ Component.register('sw-login-recovery-recovery', {
                 ).then(() => {
                     this.$router.push({ name: 'sw.login.index' });
                 }).catch((error) => {
+                    State.dispatch('error/addApiError', {
+                        expression: `user.${this.hash}.password`,
+                        error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
+                    });
+
                     this.createNotificationError({
                         message: error.message,
                     });

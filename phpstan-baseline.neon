@@ -46,16 +46,6 @@ parameters:
 			path: src/Administration/Service/AdminSearcher.php
 
 		-
-			message: "#^Parameter \\#1 \\$keys of static method Shopware\\\\Administration\\\\Snippet\\\\SnippetException\\:\\:extendOrOverwriteCore\\(\\) expects list\\<string\\>, non\\-empty\\-array\\<int\\<0, max\\>, string\\> given\\.$#"
-			count: 1
-			path: src/Administration/Snippet/AppAdministrationSnippetPersister.php
-
-		-
-			message: "#^Parameter \\#1 \\$duplicatedKeys of static method Shopware\\\\Administration\\\\Snippet\\\\SnippetException\\:\\:duplicatedFirstLevelKey\\(\\) expects list\\<string\\>, non\\-empty\\-array\\<int\\<0, max\\>, string\\> given\\.$#"
-			count: 1
-			path: src/Administration/Snippet/SnippetFinder.php
-
-		-
 			message: "#^Method Shopware\\\\Administration\\\\Test\\\\Controller\\\\AdminExtensionApiControllerTest\\:\\:providerRunAction\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Administration/Test/Controller/AdminExtensionApiControllerTest.php
@@ -1586,11 +1576,6 @@ parameters:
 			path: src/Core/Checkout/Test/Customer/DeleteUnusedGuestCustomerServiceTest.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Repository\\\\CustomerRepositoryTest\\:\\:\\$connection is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/Repository/CustomerRepositoryTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Repository\\\\CustomerTagTest\\:\\:createCustomer\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/Repository/CustomerTagTest.php
@@ -1794,36 +1779,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\SalesChannel\\\\OrderRouteTest\\:\\:createProduct\\(\\) is unused\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderDelivery\\\\OrderDeliveryCollection\\|null\\.$#"
-			count: 5
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderServiceTest.php
-
-		-
-			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderTransaction\\\\OrderTransactionCollection\\|null\\.$#"
-			count: 4
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderServiceTest.php
-
-		-
-			message: "#^Cannot call method getTechnicalName\\(\\) on Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderServiceTest.php
-
-		-
-			message: "#^Cannot call method getVatIds\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\SalesChannel\\\\OrderServiceTest\\:\\:createCustomer\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderServiceTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$languageId of method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\SalesChannel\\\\OrderServiceTest\\:\\:setDomainForSalesChannel\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderServiceTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Payment\\\\Cart\\\\PaymentRefundProcessorTest\\:\\:getInvalidStatesForTransitions\\(\\) return type has no value type specified in iterable type iterable\\.$#"
@@ -9881,21 +9836,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Field/Flag/WriteProtected.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\PasswordField\\:\\:__construct\\(\\) has parameter \\$hashOptions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/PasswordField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\PasswordField\\:\\:getHashOptions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/PasswordField.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\PasswordField\\:\\:\\$hashOptions type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/PasswordField.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StateMachineStateField\\:\\:__construct\\(\\) has parameter \\$allowedWriteScopes with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Field/StateMachineStateField.php
@@ -13444,11 +13384,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Framework\\\\Event\\\\NestedEventCollection\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Field/OneToOneAssociationFieldTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Field\\\\PasswordFieldTest\\:\\:\\$field is unused\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Field/PasswordFieldTest.php
 
 		-
 			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"

@@ -47,7 +47,7 @@ class UserValidationServiceTest extends TestCase
                 'lastName' => 'last',
                 'localeId' => $firstLocale,
                 'email' => 'user@shopware.com',
-                'password' => '1234',
+                'password' => 'shopware12345',
             ],
         ], $context);
 
@@ -73,7 +73,7 @@ class UserValidationServiceTest extends TestCase
                 'lastName' => 'last',
                 'localeId' => $firstLocale,
                 'email' => 'user@shopware.com',
-                'password' => '1234',
+                'password' => 'shopware12345',
             ],
         ], $context);
 
@@ -97,7 +97,7 @@ class UserValidationServiceTest extends TestCase
                 'lastName' => 'last',
                 'localeId' => $firstLocale,
                 'email' => 'user@shopware.com',
-                'password' => '1234',
+                'password' => 'shopware12345',
             ],
         ], $context);
 
@@ -122,7 +122,7 @@ class UserValidationServiceTest extends TestCase
                 'lastName' => 'last',
                 'localeId' => $firstLocale,
                 'email' => 'user@shopware.com',
-                'password' => '1234',
+                'password' => 'shopware12345',
             ],
         ], $context);
 

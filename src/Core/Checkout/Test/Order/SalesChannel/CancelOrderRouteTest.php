@@ -50,10 +50,10 @@ class CancelOrderRouteTest extends TestCase
         $this->assignSalesChannelContext($this->browser);
 
         $email = Uuid::randomHex() . '@example.com';
-        $customerId = $this->createCustomer('shopware', $email);
+        $customerId = $this->createCustomer('shopware12345', $email);
 
         $this->ids->set('order-1', $this->createOrder($this->ids, $customerId));
-        $this->ids->set('order-2', $this->createOrder($this->ids, $this->createCustomer('test', 'test-other@test.de')));
+        $this->ids->set('order-2', $this->createOrder($this->ids, $this->createCustomer('test12345', 'test-other@test.de')));
 
         $this->browser
             ->request(
@@ -61,7 +61,7 @@ class CancelOrderRouteTest extends TestCase
                 '/store-api/account/login',
                 [
                     'email' => $email,
-                    'password' => 'shopware',
+                    'password' => 'shopware12345',
                 ]
             );
 

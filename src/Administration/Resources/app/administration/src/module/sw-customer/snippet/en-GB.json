@@ -227,7 +227,6 @@
       "messageSaveError": "Customer could not be saved.",
       "messageSaveSuccess": "Customer \"{name}\" has been saved.",
       "notificationPasswordErrorMessage": "The submitted passwords do not match.",
-      "notificationPasswordLengthErrorMessage": "The submitted password does not meet the minimum length requirement of eight characters.",
       "labelCreatedByAdmin": "Created by admin"
     },
     "filter": {

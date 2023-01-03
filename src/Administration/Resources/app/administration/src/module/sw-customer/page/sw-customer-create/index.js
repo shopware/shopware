@@ -31,6 +31,9 @@ export default {
             salesChannels: null,
             isLoading: false,
             errorEmailCustomer: null,
+            /**
+             * @deprecated tag:v6.6.0 - defaultMinPasswordLength Will be removed due to unused
+             * */
             defaultMinPasswordLength: null,
         };
     },
@@ -45,6 +48,9 @@ export default {
                 this.address.company?.trim().length : true;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - validPasswordField will be removed due to unused
+         * */
         validPasswordField() {
             return this.customer.password?.trim().length >= this.defaultMinPasswordLength;
         },
@@ -84,8 +90,6 @@ export default {
             this.customer.defaultShippingAddressId = this.address.id;
             this.customer.password = '';
             this.customer.vatIds = [];
-
-            this.getDefaultRegistrationConfig();
         },
 
         saveFinish() {
@@ -129,15 +133,6 @@ export default {
 
         onSave() {
             this.isLoading = true;
-
-            if (!this.validPasswordField) {
-                this.createNotificationError({
-                    message: this.$tc('sw-customer.detail.notificationPasswordLengthErrorMessage'),
-                });
-
-                this.isLoading = false;
-                return false;
-            }
 
             return this.validateEmail().then((res) => {
                 if (!res || !res.isValid) {
@@ -202,6 +197,9 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - getDefaultRegistrationConfig Will be removed due to unused
+         * */
         getDefaultRegistrationConfig() {
             this.systemConfigApiService.getValues('core.register').then((response) => {
                 this.defaultMinPasswordLength = response['core.register.minPasswordLength'];

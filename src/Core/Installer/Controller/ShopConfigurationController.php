@@ -10,6 +10,7 @@ use Shopware\Core\Installer\Configuration\ShopConfigurationService;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -44,6 +45,8 @@ class ShopConfigurationController extends InstallerController
 
     private TranslatorInterface $translator;
 
+    private SystemConfigService $systemConfigService;
+
     /**
      * @param array<string, string> $supportedLanguages
      * @param list<string> $supportedCurrencies
@@ -54,6 +57,7 @@ class ShopConfigurationController extends InstallerController
         ShopConfigurationService $shopConfigurationService,
         AdminConfigurationService $adminConfigurationService,
         TranslatorInterface $translator,
+        SystemConfigService $systemConfigService,
         array $supportedLanguages,
         array $supportedCurrencies
     ) {
@@ -64,6 +68,7 @@ class ShopConfigurationController extends InstallerController
         $this->supportedLanguages = $supportedLanguages;
         $this->supportedCurrencies = $supportedCurrencies;
         $this->translator = $translator;
+        $this->systemConfigService = $systemConfigService;
     }
 
     /**
@@ -123,7 +128,7 @@ class ShopConfigurationController extends InstallerController
                 $this->envConfigWriter->writeConfig($connectionInfo, $shop);
 
                 $this->shopConfigurationService->updateShop($shop, $connection);
-                $this->adminConfigurationService->createAdmin($adminUser, $connection);
+                $this->adminConfigurationService->createAdmin($adminUser, $connection, $this->systemConfigService);
 
                 $session->remove(DatabaseConnectionInformation::class);
                 $session->set('ADMIN_USER', $adminUser);

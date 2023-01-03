@@ -3,6 +3,9 @@
 namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
+use OpenSearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\Query\FullText\QueryStringQuery;
+use OpenSearchDSL\Search;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -79,6 +82,27 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         ];
     }
 
+    public function globalCriteria(string $term, Search $criteria): Search
+    {
+        $queries = [
+            new QueryStringQuery($term, ['fields' => ['textBoosted'], 'boost' => 10]), // support simple query string syntax
+        ];
+
+        $splitTerms = explode(' ', $term);
+        $lastPart = array_pop($splitTerms);
+
+        // If the end of the search term is a word, apply the prefix search query
+        if (preg_match('/^[a-zA-Z0-9]+$/', $lastPart)) {
+            $queries[] = new QueryStringQuery($term . '*', ['fields' => ['textBoosted'], 'boost' => 3]);
+        }
+
+        foreach ($queries as $query) {
+            $criteria->addQuery($query, BoolQuery::SHOULD);
+        }
+
+        return $criteria;
+    }
+
     /**
      * @param array<string>|array<int, array<string>> $ids
      *
@@ -119,14 +143,17 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 
         $mapped = [];
         foreach ($data as $row) {
+            $textBoosted = $row['name'] . ' ' . $row['product_number'];
+
             if ($row['custom_search_keywords']) {
                 $row['custom_search_keywords'] = json_decode($row['custom_search_keywords'], true);
-                $row['custom_search_keywords'] = implode(' ', array_merge(...$row['custom_search_keywords']));
+                $textBoosted = $textBoosted . ' ' . implode(' ', array_unique(array_merge(...$row['custom_search_keywords'])));
             }
 
             $id = $row['id'];
+            unset($row['name'],  $row['product_number'], $row['custom_search_keywords']);
             $text = \implode(' ', array_filter(array_unique(array_values($row))));
-            $mapped[$id] = ['id' => $id, 'text' => \strtolower($text)];
+            $mapped[$id] = ['id' => $id, 'textBoosted' => \strtolower($textBoosted), 'text' => \strtolower($text)];
         }
 
         return $mapped;

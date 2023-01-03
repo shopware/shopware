@@ -108,7 +108,8 @@ class ProductAdminSearchIndexerTest extends TestCase
         $document = $documents[$id];
 
         static::assertSame($id, $document['id']);
-        static::assertSame('809c1844f4734243b6aa04aba860cd45 product keywords tag sw1000299 123', $document['text']);
+        static::assertSame('809c1844f4734243b6aa04aba860cd45 tag 123', $document['text']);
+        static::assertSame('product sw1000299 keywords', $document['textBoosted']);
     }
 
     private function getConnection(): Connection

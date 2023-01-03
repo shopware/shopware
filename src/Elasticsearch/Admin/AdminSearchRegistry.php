@@ -229,7 +229,7 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
             $documents[] = ['index' => ['_id' => $id]];
 
             $documents[] = \array_replace(
-                ['entityName' => $indexer->getEntity(), 'parameters' => [], 'text' => ''],
+                ['entityName' => $indexer->getEntity(), 'parameters' => [], 'textBoosted' => '', 'text' => ''],
                 $document
             );
         }
@@ -341,6 +341,7 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
         $mapping = $indexer->mapping([
             'properties' => [
                 'id' => ['type' => 'keyword'],
+                'textBoosted' => ['type' => 'text'],
                 'text' => ['type' => 'text'],
                 'entityName' => ['type' => 'keyword'],
                 'parameters' => ['type' => 'keyword'],

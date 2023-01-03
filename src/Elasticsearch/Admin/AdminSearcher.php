@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch\Admin;
 
 use OpenSearch\Client;
+use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\FullText\QueryStringQuery;
 use OpenSearchDSL\Search;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -96,10 +97,25 @@ class AdminSearcher
     {
         $term = mb_ereg_replace(' or ', ' OR ', $term);
         $term = mb_ereg_replace(' and ', ' AND ', (string) $term);
-        $search = new Search();
-        $query = new QueryStringQuery((string) $term);
+        $term = (string) $term;
 
-        $search->addQuery($query);
+        $search = new Search();
+        $queries = [
+            new QueryStringQuery($term, ['fields' => ['text'], 'boost' => 5]), // support simple query string syntax
+        ];
+
+        $splitTerms = explode(' ', $term);
+        $lastPart = array_pop($splitTerms);
+
+        // If the end of the search term is a word, apply the prefix search query
+        if (preg_match('/^[a-zA-Z0-9]+$/', $lastPart)) {
+            $queries[] = new QueryStringQuery($term . '*', ['fields' => ['text']]);
+        }
+
+        foreach ($queries as $query) {
+            $search->addQuery($query, BoolQuery::SHOULD);
+        }
+
         $search->setSize($limit);
 
         return $search;

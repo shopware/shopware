@@ -250,15 +250,4 @@ class AdministrationControllerTest extends TestCase
             $statement->executeStatement([$newConfigId, $newLanguageId, 0, 2, '2021-04-01 04:41:12.045']);
         }
     }
-
-    private function getLanguageCode(string $languageId): ?string
-    {
-        return $this->connection->fetchOne(
-            '
-            SELECT `locale`.code FROM `language`
-            INNER JOIN locale ON language.translation_code_id = locale.id
-            WHERE `language`.id = :id',
-            ['id' => $languageId]
-        );
-    }
 }

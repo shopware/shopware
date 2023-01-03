@@ -91,6 +91,7 @@ class AdminSearchRegistryTest extends TestCase
             'text' => ['type' => 'text'],
             'entityName' => ['type' => 'keyword'],
             'parameters' => ['type' => 'keyword'],
+            'textBoosted' => ['type' => 'text'],
         ];
 
         static::assertEquals($expectedProperties, $properties);
@@ -126,6 +127,7 @@ class AdminSearchRegistryTest extends TestCase
             'text' => ['type' => 'text'],
             'entityName' => ['type' => 'keyword'],
             'parameters' => ['type' => 'keyword'],
+            'textBoosted' => ['type' => 'text'],
         ];
 
         static::assertEquals($expectedProperties, $properties);

@@ -1,6 +1,6 @@
 import './sw-highlight-text.scss';
 
-const { Component } = Shopware;
+const { Component, Context } = Shopware;
 
 /**
  * @package admin
@@ -58,6 +58,11 @@ Component.register('sw-highlight-text', {
 
         // Remove regex special characters from search string
         escapeRegExp(string) {
+            if (Context.app.adminEsEnable) {
+                // remove simple query string syntax
+                return string.replace(/[+-.*~"|()]/g, '').replace(/ AND | and | OR | or |  +/g, ' ').replace(/[?^${}[\]\\]/g, '\\$&'); // $& means the whole matched string
+            }
+
             return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
         },
     },

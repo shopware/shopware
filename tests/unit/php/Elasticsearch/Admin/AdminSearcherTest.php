@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminSearcher;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
-use Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer;
+use Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer;
 
 /**
  * @package system-settings
@@ -33,13 +33,13 @@ class AdminSearcherTest extends TestCase
 
         $registry = $this->getMockBuilder(AdminSearchRegistry::class)->disableOriginalConstructor()->getMock();
 
-        $indexer = new PromotionAdminSearchIndexer(
+        $indexer = new ProductAdminSearchIndexer(
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
             $this->createMock(EntityRepository::class),
             100
         );
-        $registry->method('getIndexers')->willReturn(['promotion' => $indexer]);
+        $registry->method('getIndexers')->willReturn(['product' => $indexer]);
         $registry->method('getIndexer')->willReturn($indexer);
 
         $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');
@@ -54,12 +54,40 @@ class AdminSearcherTest extends TestCase
             ->with([
                 'body' => [
                     [
-                        'index' => 'sw-admin-promotion-listing',
+                        'index' => 'sw-admin-product-listing',
                     ],
                     [
                         'query' => [
-                            'query_string' => [
-                                'query' => 'elasticsearch',
+                            'bool' => [
+                                'should' => [
+                                    [
+                                        'query_string' => [
+                                            'query' => 'elasticsearch',
+                                            'fields' => ['text'],
+                                            'boost' => 5,
+                                        ],
+                                    ],
+                                    [
+                                        'query_string' => [
+                                            'query' => 'elasticsearch*',
+                                            'fields' => ['text'],
+                                        ],
+                                    ],
+                                    [
+                                        'query_string' => [
+                                            'query' => 'elasticsearch',
+                                            'fields' => ['textBoosted'],
+                                            'boost' => 10,
+                                        ],
+                                    ],
+                                    [
+                                        'query_string' => [
+                                            'query' => 'elasticsearch*',
+                                            'fields' => ['textBoosted'],
+                                            'boost' => 3,
+                                        ],
+                                    ],
+                                ],
                             ],
                         ],
                         'size' => 5,
@@ -85,12 +113,12 @@ class AdminSearcherTest extends TestCase
                             'max_score' => 4.9525366,
                             'hits' => [
                                 [
-                                    '_index' => 'sw-admin-promotion-listing',
+                                    '_index' => 'sw-admin-product-listing',
                                     '_type' => '_doc',
                                     '_id' => 'c1a28776116d4431a2208eb2960ec340',
                                     '_score' => 4.9525366,
                                     '_source' => [
-                                        'entityName' => 'promotion',
+                                        'entityName' => 'product',
                                         'parameters' => [],
                                         'text' => 'c1a28776116d4431a2208eb2960ec340 elasticsearch',
                                         'id' => 'c1a28776116d4431a2208eb2960ec340',
@@ -103,12 +131,12 @@ class AdminSearcherTest extends TestCase
                 ],
             ]);
 
-        $data = $this->searcher->search('elasticsearch', ['promotion'], Context::createDefaultContext());
+        $data = $this->searcher->search('elasticsearch', ['product'], Context::createDefaultContext());
 
-        static::assertNotEmpty($data['promotion']);
+        static::assertNotEmpty($data['product']);
 
-        static::assertEquals(1, $data['promotion']['total']);
-        static::assertEquals('promotion-listing', $data['promotion']['indexer']);
-        static::assertEquals('sw-admin-promotion-listing', $data['promotion']['index']);
+        static::assertEquals(1, $data['product']['total']);
+        static::assertEquals('product-listing', $data['product']['indexer']);
+        static::assertEquals('sw-admin-product-listing', $data['product']['index']);
     }
 }

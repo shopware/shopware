@@ -15,6 +15,8 @@ const { Component } = Shopware;
 Component.register('sw-progress-bar', {
     template,
 
+    inject: ['userActivityService'],
+
     props: {
         value: {
             type: Number,
@@ -45,6 +47,12 @@ Component.register('sw-progress-bar', {
             return {
                 'sw-progress-bar__value--no-transition': this.value < 1 || this.value >= this.maxValue,
             };
+        },
+    },
+
+    watch: {
+        value() {
+            this.userActivityService.updateLastUserActivity();
         },
     },
 });

@@ -20,17 +20,14 @@ class MailBeforeValidateEvent extends Event implements BusinessEventInterface, L
     /**
      * @var array<string, mixed>
      */
-    private $data;
+    private array $data;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var array<string, mixed>
      */
-    private $templateData;
+    private array $templateData;
 
     /**
      * @param array<string, mixed> $data
@@ -38,9 +35,9 @@ class MailBeforeValidateEvent extends Event implements BusinessEventInterface, L
      */
     public function __construct(array $data, Context $context, array $templateData = [])
     {
-        $this->data = $data;
-        $this->context = $context;
         $this->templateData = $templateData;
+        $this->context = $context;
+        $this->data = $data;
     }
 
     public static function getAvailableData(): EventDataCollection
@@ -118,6 +115,7 @@ class MailBeforeValidateEvent extends Event implements BusinessEventInterface, L
 
         return [
             'data' => $data,
+            'eventName' => $this->templateData['eventName'] ?? null,
             'templateData' => $this->templateData,
         ];
     }

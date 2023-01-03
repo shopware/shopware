@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Controller;
+namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -8,16 +8,22 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler;
+use Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -34,6 +40,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
+use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
@@ -44,6 +51,7 @@ use Shopware\Storefront\Page\Account\Overview\AccountOverviewPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoadedEvent;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
+use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -52,6 +60,8 @@ use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class AuthControllerTest extends TestCase
@@ -359,7 +369,7 @@ class AuthControllerTest extends TestCase
     {
         $controller = $this->getAuthController();
 
-        $customer = $this->createCustomer(false, true);
+        $this->createCustomer(false, true);
 
         $request = $this->createRequest(
             'frontend.account.login.page',
@@ -383,6 +393,61 @@ class AuthControllerTest extends TestCase
         $response = $controller->login($request, new RequestDataBag($request->attributes->all()), $this->salesChannelContext);
 
         static::assertEquals(200, $response->getStatusCode());
+    }
+
+    public function testGenerateAccountRecovery(): void
+    {
+        $logger = $this->getContainer()->get('monolog.logger.business_events');
+        $handlers = $logger->getHandlers();
+        $logger->setHandlers([
+            new ExcludeFlowEventHandler($this->getContainer()->get(DoctrineSQLHandler::class), [
+                CustomerAccountRecoverRequestEvent::EVENT_NAME,
+            ]),
+        ]);
+        $testSubscriber = new AuthTestSubscriber();
+
+        $this->getContainer()->get('event_dispatcher')->addSubscriber($testSubscriber);
+
+        $customer = $this->createCustomer();
+
+        $controller = $this->getAuthController($this->getContainer()->get(SendPasswordRecoveryMailRoute::class));
+
+        $request = $this->createRequest('frontend.account.recover.request', );
+
+        $data = new RequestDataBag([
+            'email' => new RequestDataBag([
+                'email' => $customer->getEmail(),
+            ]),
+        ]);
+
+        $this->getContainer()->get('request_stack')->push($request);
+
+        $response = $controller->generateAccountRecovery($request, $data, $this->salesChannelContext);
+
+        $this->getContainer()->get('event_dispatcher')->removeSubscriber($testSubscriber);
+
+        /** @var FlashBag $flashBag */
+        $flashBag = $this->getContainer()->get('request_stack')->getSession()->getFlashBag(); /** @phpstan-ignore-line  */
+        static::assertEquals(302, $response->getStatusCode());
+        static::assertCount(1, $flashBag->get(StorefrontController::SUCCESS));
+        static::assertEquals('/account/recover', $response->headers->get('location') ?? '');
+        static::assertInstanceOf(CustomerAccountRecoverRequestEvent::class, AuthTestSubscriber::$customerRecoveryEvent);
+
+        // excluded events and its mail events should not be logged
+        $originalEvent = AuthTestSubscriber::$customerRecoveryEvent->getName();
+        $logCriteria = new Criteria();
+        $logCriteria->addFilter(new OrFilter([
+            new EqualsFilter('message', $originalEvent),
+            new EqualsFilter('context.additionalData.eventName', $originalEvent),
+        ]));
+
+        $logEntries = $this->getContainer()->get('log_entry.repository')->search(
+            $logCriteria,
+            Context::createDefaultContext()
+        );
+
+        static::assertCount(0, $logEntries);
+        $logger->setHandlers($handlers);
     }
 
     public function testAccountRecoveryPassword(): void
@@ -596,11 +661,13 @@ class AuthControllerTest extends TestCase
         return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
     }
 
-    private function getAuthController(): AuthController
+    private function getAuthController(?SendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute = null): AuthController
     {
+        $sendPasswordRecoveryMailRoute ??= $this->createMock(AbstractSendPasswordRecoveryMailRoute::class);
+
         $controller = new AuthController(
             $this->getContainer()->get(AccountLoginPageLoader::class),
-            $this->createMock(AbstractSendPasswordRecoveryMailRoute::class),
+            $sendPasswordRecoveryMailRoute,
             $this->createMock(AbstractResetPasswordRoute::class),
             $this->getContainer()->get(LoginRoute::class),
             $this->createMock(AbstractLogoutRoute::class),
@@ -686,12 +753,20 @@ class AuthTestSubscriber implements EventSubscriberInterface
 
     public static AccountRecoverPasswordPage $page;
 
+    public static CustomerAccountRecoverRequestEvent $customerRecoveryEvent;
+
     public static function getSubscribedEvents(): array
     {
         return [
             StorefrontRenderEvent::class => 'onRender',
             AccountRecoverPasswordPageLoadedEvent::class => 'onPageLoad',
+            CustomerAccountRecoverRequestEvent::EVENT_NAME => 'onRecoverEvent',
         ];
+    }
+
+    public function onRecoverEvent(CustomerAccountRecoverRequestEvent $event): void
+    {
+        self::$customerRecoveryEvent = $event;
     }
 
     public function onRender(StorefrontRenderEvent $event): void

@@ -327,6 +327,9 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('exclude_exception')
                     ->prototype('scalar')->end()
                 ->end()
+                ->arrayNode('exclude_events')
+                    ->prototype('scalar')->end()
+                ->end()
             ->end();
 
         return $rootNode;

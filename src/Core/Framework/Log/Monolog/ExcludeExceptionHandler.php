@@ -12,18 +12,26 @@ class ExcludeExceptionHandler extends AbstractHandler
 {
     private HandlerInterface $handler;
 
+    /**
+     * @var array<int, string>
+     */
     private array $excludeExceptionList;
 
     /**
      * @internal
+     *
+     * @param array<int, string> $excludeExceptionList
      */
     public function __construct(HandlerInterface $handler, array $excludeExceptionList)
     {
         parent::__construct();
-        $this->handler = $handler;
         $this->excludeExceptionList = $excludeExceptionList;
+        $this->handler = $handler;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function handle(array $record): bool
     {
         if (

@@ -18,36 +18,38 @@ class MailSentEvent extends Event implements BusinessEventInterface, LogAware, S
 {
     public const EVENT_NAME = 'mail.sent';
 
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var string
-     */
-    private $subject;
+    private string $subject;
 
     /**
      * @var array<string, mixed>
      */
-    private $contents;
+    private array $recipients;
 
     /**
      * @var array<string, mixed>
      */
-    private $recipients;
+    private array $contents;
+
+    private Context $context;
+
+    private ?string $eventName;
 
     /**
      * @param array<string, mixed> $recipients
      * @param array<string, mixed> $contents
      */
-    public function __construct(string $subject, array $recipients, array $contents, Context $context)
-    {
-        $this->subject = $subject;
-        $this->recipients = $recipients;
-        $this->contents = $contents;
+    public function __construct(
+        string $subject,
+        array $recipients,
+        array $contents,
+        Context $context,
+        ?string $eventName = null
+    ) {
+        $this->eventName = $eventName;
         $this->context = $context;
+        $this->contents = $contents;
+        $this->recipients = $recipients;
+        $this->subject = $subject;
     }
 
     public static function getAvailableData(): EventDataCollection
@@ -95,6 +97,7 @@ class MailSentEvent extends Event implements BusinessEventInterface, LogAware, S
     public function getLogData(): array
     {
         return [
+            'eventName' => $this->eventName,
             'subject' => $this->subject,
             'recipients' => $this->recipients,
             'contents' => $this->contents,

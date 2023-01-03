@@ -47,6 +47,9 @@ class MailSendSubscriberTest extends TestCase
 
     /**
      * @dataProvider sendMailProvider
+     *
+     * @param array<string, string>|null $recipients
+     * @param array<string, string> $contactFormRecipients
      */
     public function testEmailSend(bool $skip, ?array $recipients, array $contactFormRecipients = []): void
     {
@@ -126,6 +129,9 @@ class MailSendSubscriberTest extends TestCase
         }
     }
 
+    /**
+     * @return iterable<string, array<int, mixed>>
+     */
     public function sendMailProvider(): iterable
     {
         yield 'Test skip mail' => [true, null, ['test@example.com' => 'Shopware ag']];
@@ -342,6 +348,9 @@ class TestStopSendSubscriber implements EventSubscriberInterface
      */
     public $event;
 
+    /**
+     * @return array<string, string>
+     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -363,12 +372,19 @@ class TestEmailService extends EMailService
 {
     public float $calls = 0;
 
+    /**
+     * @var array<mixed>|null
+     */
     public ?array $data = null;
 
     public function __construct()
     {
     }
 
+    /**
+     * @param mixed[] $data
+     * @param mixed[] $templateData
+     */
     public function send(array $data, Context $context, array $templateData = []): ?\Symfony\Component\Mime\Email
     {
         $this->data = $data;

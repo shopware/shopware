@@ -16,30 +16,42 @@ class MailErrorEvent extends Event implements LogAware, FlowEventAware, Business
 {
     public const NAME = 'mail.sent.error';
 
-    private $context;
+    private Context $context;
 
     /**
      * @var 100|200|250|300|400|500|550|600
      */
-    private $logLevel;
+    private int $logLevel;
 
     private ?\Throwable $throwable;
 
     private ?string $message;
 
+    private ?string $template;
+
+    /**
+     * @var array<string, mixed>
+     */
+    private ?array $templateData;
+
     /**
      * @param 100|200|250|300|400|500|550|600|null $logLevel
+     * @param array<string, mixed> $templateData
      */
     public function __construct(
         Context $context,
         ?int $logLevel,
         ?\Throwable $throwable = null,
-        ?string $message = null
+        ?string $message = null,
+        ?string $template = null,
+        ?array $templateData = []
     ) {
-        $this->context = $context;
-        $this->logLevel = $logLevel ?? Logger::DEBUG;
-        $this->throwable = $throwable;
+        $this->templateData = $templateData;
+        $this->template = $template;
         $this->message = $message;
+        $this->throwable = $throwable;
+        $this->logLevel = $logLevel ?? Logger::DEBUG;
+        $this->context = $context;
     }
 
     public function getThrowable(): ?\Throwable
@@ -81,6 +93,17 @@ class MailErrorEvent extends Event implements LogAware, FlowEventAware, Business
             $logData['message'] = $this->message;
         }
 
+        if ($this->template) {
+            $logData['template'] = $this->template;
+        }
+
+        $logData['eventName'] = null;
+
+        if ($this->templateData) {
+            $logData['templateData'] = $this->templateData;
+            $logData['eventName'] = $this->templateData['eventName'] ?? null;
+        }
+
         return $logData;
     }
 
@@ -93,5 +116,18 @@ class MailErrorEvent extends Event implements LogAware, FlowEventAware, Business
     {
         return (new EventDataCollection())
             ->add('name', new ScalarValueType(ScalarValueType::TYPE_STRING));
+    }
+
+    public function getTemplate(): ?string
+    {
+        return $this->template;
+    }
+
+    /**
+     * @return mixed[]|null
+     */
+    public function getTemplateData(): ?array
+    {
+        return $this->templateData;
     }
 }

@@ -71,7 +71,7 @@ async function createWrapper(
         {
             group: 'shop',
             to: 'sw.settings.shipping.index',
-            icon: 'default-package-open',
+            icon: 'regular-truck',
             id: 'sw-settings-shipping',
             name: 'settings-shipping',
             label: 'a',

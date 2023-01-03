@@ -155,7 +155,7 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
                 class="sw-settings-item__icon background--enabled"
               >
                 <span
-                  name="default-package-open"
+                  name="regular-truck"
                 />
               </div>
                

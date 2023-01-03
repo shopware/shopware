@@ -24,6 +24,15 @@ Shopware.Component.register('sw-generic-cms-page-assignment', () => import('./co
  * @private
  * @package content
  */
+Shopware.Component.register('sw-generic-seo-general-card', () => import('./component/sw-generic-seo-general-card'));
+/**
+ * @private
+ */
+Shopware.Component.register('sw-generic-social-media-card', () => import('./component/sw-generic-social-media-card'));
+
+/**
+ * @private
+ */
 Shopware.Module.register('sw-custom-entity', {
     title: 'sw-custom-entity.general.mainMenuItemGeneral',
     type: 'plugin',

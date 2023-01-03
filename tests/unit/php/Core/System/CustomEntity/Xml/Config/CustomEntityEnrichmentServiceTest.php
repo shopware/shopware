@@ -89,17 +89,16 @@ class CustomEntityEnrichmentServiceTest extends TestCase
                 return $field->getName();
             }, $enrichedCustomEntity->getFields());
 
-            static::assertCount(13, $fieldNames);
+            static::assertCount(15, $fieldNames);
 
             static::assertContains('sw_title', $fieldNames);
             static::assertContains('sw_content', $fieldNames);
             static::assertContains('sw_cms_page', $fieldNames);
             static::assertContains('sw_slot_config', $fieldNames);
             static::assertContains('sw_categories', $fieldNames);
-            static::assertContains('sw_media', $fieldNames);
+            static::assertContains('sw_og_image', $fieldNames);
             static::assertContains('sw_seo_meta_title', $fieldNames);
             static::assertContains('sw_seo_meta_description', $fieldNames);
-            static::assertContains('sw_seo_keywords', $fieldNames);
 
             static::assertCount(1, $enrichedCustomEntity->getFlags());
             static::assertNotNull($enrichedCustomEntity->getFlags()['cms-aware']);
@@ -177,7 +176,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
                 continue;
             }
             if (\array_key_exists('cms-aware', $enrichedCustomEntity->getFlags())) {
-                static::assertCount(13, $enrichedCustomEntity->getFields());
+                static::assertCount(15, $enrichedCustomEntity->getFields());
             } else {
                 static::assertCount(4, $enrichedCustomEntity->getFields());
             }
@@ -255,7 +254,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
                 continue;
             }
             if (\array_key_exists('cms-aware', $enrichedCustomEntity->getFlags())) {
-                static::assertCount(13, $enrichedCustomEntity->getFields());
+                static::assertCount(15, $enrichedCustomEntity->getFields());
             } else {
                 static::assertCount(4, $enrichedCustomEntity->getFields());
             }
@@ -291,7 +290,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
                 continue;
             }
 
-            static::assertCount(13, $enrichedCustomEntity->getFields());
+            static::assertCount(15, $enrichedCustomEntity->getFields());
             static::assertCount(2, $enrichedCustomEntity->getFlags());
             static::assertNotNull($enrichedCustomEntity->getFlags()['cms-aware']);
             static::assertNotNull($enrichedCustomEntity->getFlags()['admin-ui']);
@@ -351,7 +350,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
                 continue;
             }
 
-            static::assertCount(13, $enrichedCustomEntity->getFields());
+            static::assertCount(15, $enrichedCustomEntity->getFields());
             static::assertCount(1, $enrichedCustomEntity->getFlags());
             static::assertNotNull($enrichedCustomEntity->getFlags()['cms-aware']);
             static::assertArrayNotHasKey('admin-ui', $enrichedCustomEntity->getFlags());

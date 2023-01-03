@@ -23,7 +23,7 @@ class CmsAwareEnrichmentTest extends TestCase
             return $accumulator;
         }, []);
 
-        static::assertCount(9, $actualCmsAwareFields);
+        static::assertCount(11, $actualCmsAwareFields);
 
         foreach ($actualCmsAwareFields as $actualCmsAwareField) {
             $currentField = $actualCmsAwareField->toArray(self::TEST_LOCALE);
@@ -60,7 +60,7 @@ class CmsAwareEnrichmentTest extends TestCase
         static::assertFalse($swCategories['inherited']);
         static::assertEquals('set-null', $swCategories['onDelete']);
 
-        $swMedia = $actualCmsAwareFields['sw_media']->toArray(self::TEST_LOCALE);
+        $swMedia = $actualCmsAwareFields['sw_og_image']->toArray(self::TEST_LOCALE);
         static::assertEquals('many-to-one', $swMedia['type']);
         static::assertFalse($swMedia['required']);
         static::assertEquals('media', $swMedia['reference']);
@@ -76,10 +76,5 @@ class CmsAwareEnrichmentTest extends TestCase
         static::assertEquals('string', $swSeoMetaDescription['type']);
         static::assertTrue($swSeoMetaDescription['translatable']);
         static::assertFalse($swSeoMetaDescription['required']);
-
-        $swSeoKeywords = $actualCmsAwareFields['sw_seo_keywords']->toArray(self::TEST_LOCALE);
-        static::assertEquals('string', $swSeoKeywords['type']);
-        static::assertTrue($swSeoKeywords['translatable']);
-        static::assertFalse($swSeoKeywords['required']);
     }
 }

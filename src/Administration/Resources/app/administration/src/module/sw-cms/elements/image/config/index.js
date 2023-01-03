@@ -33,7 +33,7 @@ export default {
         },
 
         previewSource() {
-            if (this.element.data && this.element.data.media && this.element.data.media.id) {
+            if (this.element?.data?.media?.id) {
                 return this.element.data.media;
             }
 

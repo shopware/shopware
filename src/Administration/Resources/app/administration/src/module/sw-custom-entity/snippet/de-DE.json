@@ -5,7 +5,8 @@
         },
         "detail": {
             "tabs": {
-                "layout": "Layout"
+                "layout": "Layout",
+                "seo": "SEO"
             }
         }
     }

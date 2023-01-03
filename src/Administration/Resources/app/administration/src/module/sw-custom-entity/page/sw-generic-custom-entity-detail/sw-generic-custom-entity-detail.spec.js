@@ -15,6 +15,12 @@ const testEntityData = {
     swSlotConfig: {
         'SLOT-ID-MOCK': 'TEXT-OVERRIDE-MOCK',
     },
+    swSeoMetaTitle: 'SEO-META-TITLE-MOCK',
+    swSeoMetaDescription: 'SEO-META-DESCRIPTION-MOCK',
+    swSeoUrl: 'SEO-URL-MOCK',
+    swOgTitle: 'OG-TITLE-MOCK',
+    swOgDescription: 'OG-DESCRIPTION-MOCK',
+    swOgImageId: 'OG-IMAGE-ID-MOCK',
     position: 10,
 };
 
@@ -96,10 +102,10 @@ const customEntityRepository = {
     }
 };
 
-async function createWrapper({ activeTab = 'main', routeId = null } = {}) {
+async function createWrapper({ activeTab = 'main', routeId = null, entityName = testEntityName } = {}) {
     config.mocks.$route = {
         params: {
-            entityName: testEntityName,
+            entityName,
             id: routeId,
         },
         meta: {
@@ -112,7 +118,7 @@ async function createWrapper({ activeTab = 'main', routeId = null } = {}) {
     return shallowMount(await Shopware.Component.build('sw-generic-custom-entity-detail'), {
         provide: {
             customEntityDefinitionService: {
-                getDefinitionByName: () => customEntityDefinition,
+                getDefinitionByName: (name) => (name === testEntityName ? customEntityDefinition : undefined),
             },
             repositoryFactory: {
                 create(name) {
@@ -156,7 +162,15 @@ async function createWrapper({ activeTab = 'main', routeId = null } = {}) {
             'sw-generic-cms-page-assignment': {
                 template: '<div class="sw-generic-cms-page-assignment"></div>',
                 props: ['cms-page-id', 'slot-overrides'],
-            }
+            },
+            'sw-generic-seo-general-card': {
+                template: '<div class="sw-generic-seo-general-card"></div>',
+                props: ['seo-meta-title', 'seo-meta-description', 'seo-keywords', 'seo-url'],
+            },
+            'sw-generic-social-media-card': {
+                template: '<div class="sw-generic-social-media-card"></div>',
+                props: ['og-title', 'og-description', 'og-image-id'],
+            },
         }
     });
 }
@@ -202,11 +216,13 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
     it('should render the correct number of tabs, tab-items and activeTabs with correct labels', async () => {
         const wrapper = await createWrapper();
 
-        // Check 2 tab-items and tabs, one of them visible
+        // Check 4 tab-items and tabs, one of them visible
         const tabItems = wrapper.findAll('.sw-generic-custom-entity-detail__tab-item');
-        expect(tabItems.length).toEqual(3);
+        expect(tabItems.length).toEqual(4);
         expect(tabItems.at(0).text()).toBe('custom_test_entity.tabs.main');
         expect(tabItems.at(1).text()).toBe('custom_test_entity.tabs.secondary');
+        expect(tabItems.at(2).text()).toBe('sw-custom-entity.detail.tabs.layout');
+        expect(tabItems.at(3).text()).toBe('sw-custom-entity.detail.tabs.seo');
         expect(wrapper.findAll('.sw-generic-custom-entity-detail__tab').length).toBe(1);
     });
 
@@ -270,34 +286,41 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
 
     it('should render the layout tab, pass in the cmsPageId and the cmsSlotOverrides and react to changes', async () => {
         const wrapper = await createWrapper({
-            activeTab: 'cms-aware-tab',
+            activeTab: 'cms-aware-tab-layout',
             routeId: testEntityData.id
         });
         await flushPromises();
 
         const cmsAwareTab = wrapper.find('.sw-generic-custom-entity-detail__tab-cms-aware');
-        expect(cmsAwareTab.props('cmsPageId')).toBe(testEntityData.swCmsPageId);
-        expect(cmsAwareTab.props('slotOverrides')).toEqual(testEntityData.swSlotConfig);
+        expect(cmsAwareTab.props()).toStrictEqual({
+            cmsPageId: testEntityData.swCmsPageId,
+            slotOverrides: testEntityData.swSlotConfig,
+        });
 
         const mockCMSPageId = 'mockCMSPageId';
         const mockSlotOverrides = 'mockSlotOverride';
 
         cmsAwareTab.vm.$emit('update:cms-page-id', mockCMSPageId);
-        await flushPromises();
-
         cmsAwareTab.vm.$emit('update:slot-overrides', mockSlotOverrides);
         await flushPromises();
 
-        expect(wrapper.vm.customEntityData.swCmsPageId).toBe(mockCMSPageId);
-        expect(wrapper.vm.customEntityData.swSlotConfig).toBe(mockSlotOverrides);
+        expect(cmsAwareTab.props()).toStrictEqual({
+            cmsPageId: mockCMSPageId,
+            slotOverrides: mockSlotOverrides,
+        });
+
+        expect(wrapper.vm.customEntityData).toStrictEqual({
+            ...testEntityData,
+            swCmsPageId: mockCMSPageId,
+            swSlotConfig: mockSlotOverrides,
+        });
     });
 
     it('should create a new layout on the `create-layout` event', async () => {
         const wrapper = await createWrapper({
-            activeTab: 'cms-aware-tab',
+            activeTab: 'cms-aware-tab-layout',
             routeId: testEntityData.id
         });
-        await flushPromises();
         await flushPromises();
 
         const cmsAwareTab = wrapper.find('.sw-generic-custom-entity-detail__tab-cms-aware');
@@ -311,5 +334,107 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
                 type: testEntityName,
             }
         });
+    });
+
+    it('should render the sw-generic-seo-general-card and react to changes', async () => {
+        const wrapper = await createWrapper({
+            activeTab: 'cms-aware-tab-seo',
+            routeId: testEntityData.id
+        });
+        await flushPromises();
+
+        const seoGeneralCard = wrapper.get('.sw-generic-seo-general-card');
+
+        expect(seoGeneralCard.props()).toStrictEqual({
+            seoKeywords: undefined,
+            seoMetaDescription: testEntityData.swSeoMetaDescription,
+            seoMetaTitle: testEntityData.swSeoMetaTitle,
+            seoUrl: testEntityData.swSeoUrl,
+        });
+
+        const mockSEOTitle = 'MOCK-SEO-TITLE';
+        const mockSEOMetaDescription = 'MOCK-SEO-META-DESCRIPTION';
+        const mockSEOUrl = 'MOCK-SEO-URL';
+
+        seoGeneralCard.vm.$emit('update:seo-meta-title', mockSEOTitle);
+        seoGeneralCard.vm.$emit('update:seo-meta-description', mockSEOMetaDescription);
+        seoGeneralCard.vm.$emit('update:seo-url', mockSEOUrl);
+        await flushPromises();
+
+        expect(seoGeneralCard.props()).toStrictEqual({
+            seoKeywords: undefined,
+            seoMetaDescription: mockSEOMetaDescription,
+            seoMetaTitle: mockSEOTitle,
+            seoUrl: mockSEOUrl,
+        });
+
+        expect(wrapper.vm.customEntityData).toStrictEqual({
+            ...testEntityData,
+            swSeoMetaTitle: mockSEOTitle,
+            swSeoMetaDescription: mockSEOMetaDescription,
+            swSeoUrl: mockSEOUrl,
+        });
+    });
+
+
+    it('should render the sw-generic-social-media-card and react to changes', async () => {
+        const wrapper = await createWrapper({
+            activeTab: 'cms-aware-tab-seo',
+            routeId: testEntityData.id
+        });
+        await flushPromises();
+
+        const seoSocialMediaCard = wrapper.get('.sw-generic-social-media-card');
+
+        expect(seoSocialMediaCard.props()).toStrictEqual({
+            ogTitle: testEntityData.swOgTitle,
+            ogDescription: testEntityData.swOgDescription,
+            ogImageId: testEntityData.swOgImageId,
+        });
+
+        const mockOgTitle = 'MOCK-OG-TITLE';
+        const mockOgDescription = 'MOCK-OG-META-DESCRIPTION';
+        const mockOgImageId = 'MOCK-SEO-URL';
+
+        seoSocialMediaCard.vm.$emit('update:og-title', mockOgTitle);
+        seoSocialMediaCard.vm.$emit('update:og-description', mockOgDescription);
+        seoSocialMediaCard.vm.$emit('update:og-image-id', mockOgImageId);
+        await flushPromises();
+
+        expect(seoSocialMediaCard.props()).toStrictEqual({
+            ogTitle: mockOgTitle,
+            ogDescription: mockOgDescription,
+            ogImageId: mockOgImageId,
+        });
+
+        expect(wrapper.vm.customEntityData).toStrictEqual({
+            ...testEntityData,
+            swOgTitle: mockOgTitle,
+            swOgDescription: mockOgDescription,
+            swOgImageId: mockOgImageId,
+        });
+    });
+
+    it('should not break if an event is received before data is loaded', async () => {
+        const wrapper = await createWrapper({
+            entityName: 'some-entity-that-does-not-exist',
+        });
+
+        expect(wrapper.vm.customEntityData).toBe(null);
+
+        [
+            'updateCmsPageId',
+            'updateCmsSlotOverwrites',
+            'updateSeoMetaTitle',
+            'updateSeoMetaDescription',
+            'updateSeoUrl',
+            'updateOgTitle',
+            'updateOgDescription',
+            'updateOgImageId'
+        ].forEach((eventHandler) => {
+            wrapper.vm[eventHandler]('mock-value');
+        });
+
+        expect(wrapper.vm.customEntityData).toBe(null);
     });
 });

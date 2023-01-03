@@ -27,12 +27,14 @@ class CmsAwareEnrichment
             new ManyToOneField(['name' => 'sw_cms_page', 'reference' => 'cms_page', 'storeApiAware' => true, 'required' => false, 'onDelete' => 'set-null']),
             new JsonField(['name' => 'sw_slot_config', 'storeApiAware' => true, 'required' => false]),
             new ManyToManyField(['name' => 'sw_categories', 'reference' => 'category', 'storeApiAware' => true, 'required' => false, 'onDelete' => 'set-null']),
-            new ManyToOneField(['name' => 'sw_media', 'reference' => 'media', 'storeApiAware' => true, 'required' => false, 'onDelete' => 'set-null']),
 
             // SEO fields
             new StringField(['name' => 'sw_seo_meta_title', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
             new StringField(['name' => 'sw_seo_meta_description', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
-            new StringField(['name' => 'sw_seo_keywords', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
+            new StringField(['name' => 'sw_seo_url', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
+            new StringField(['name' => 'sw_og_title', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
+            new StringField(['name' => 'sw_og_description', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
+            new ManyToOneField(['name' => 'sw_og_image', 'reference' => 'media', 'storeApiAware' => true, 'required' => false, 'onDelete' => 'set-null']),
         ];
     }
 }

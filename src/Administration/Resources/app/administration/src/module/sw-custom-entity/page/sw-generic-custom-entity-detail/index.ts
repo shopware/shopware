@@ -80,7 +80,6 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         createdComponent(): void {
             this.initializeCustomEntity();
-            void this.loadData();
         },
 
         initializeCustomEntity(): void {
@@ -105,6 +104,8 @@ export default Shopware.Component.wrapComponentConfig({
                 customEntityDataDefinition.entity as 'generic_custom_entity',
             );
             this.customEntityDataDefinition = customEntityDataDefinition;
+
+            void this.loadData();
         },
 
         loadData(): Promise<void> {
@@ -200,6 +201,54 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.customEntityData.swSlotConfig = cmsSlotOverwrites;
+        },
+
+        updateSeoMetaTitle(swSeoMetaTitle: string | null) {
+            if (!this.customEntityData) {
+                return;
+            }
+
+            this.customEntityData.swSeoMetaTitle = swSeoMetaTitle;
+        },
+
+        updateSeoMetaDescription(swSeoMetaDescription: string | null) {
+            if (!this.customEntityData) {
+                return;
+            }
+
+            this.customEntityData.swSeoMetaDescription = swSeoMetaDescription;
+        },
+
+        updateSeoUrl(swSeoUrl: string | null) {
+            if (!this.customEntityData) {
+                return;
+            }
+
+            this.customEntityData.swSeoUrl = swSeoUrl;
+        },
+
+        updateOgTitle(swOgTitle: string | null) {
+            if (!this.customEntityData) {
+                return;
+            }
+
+            this.customEntityData.swOgTitle = swOgTitle;
+        },
+
+        updateOgDescription(swOgDescription: string | null) {
+            if (!this.customEntityData) {
+                return;
+            }
+
+            this.customEntityData.swOgDescription = swOgDescription;
+        },
+
+        updateOgImageId(swOgImageId: string | null) {
+            if (!this.customEntityData) {
+                return;
+            }
+
+            this.customEntityData.swOgImageId = swOgImageId;
         },
 
         onCreateLayout(): void {

@@ -177,7 +177,7 @@ class CmsAwareAndAdminUiTest extends TestCase
                 // cms aware specific fields
                 'sw_cms_page_id',
                 'sw_cms_page_version_id',
-                'sw_media_id',
+                'sw_og_image_id',
                 'sw_slot_config',
 
                 // fields specific for this custom entity
@@ -210,7 +210,9 @@ class CmsAwareAndAdminUiTest extends TestCase
                 'sw_content',
                 'sw_seo_meta_title',
                 'sw_seo_meta_description',
-                'sw_seo_keywords',
+                'sw_seo_url',
+                'sw_og_title',
+                'sw_og_description',
             ],
             $this->getTableColumns(self::CUSTOM_ENTITY_NAME . '_translation'),
             'The fields translation table of this custom entity should have exactly this fields'

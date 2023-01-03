@@ -49,10 +49,19 @@
                     <sw-tabs-item
                         v-if="customEntityDataDefinition?.flags?.['cms-aware']"
                         class="sw-generic-custom-entity-detail__tab-item"
-                        name="cms-aware-tab"
+                        name="cms-aware-tab-layout"
                         :active-tab="active"
                     >
                         {{ $tc('sw-custom-entity.detail.tabs.layout') }}
+                    </sw-tabs-item>
+
+                    <sw-tabs-item
+                        v-if="customEntityDataDefinition?.flags?.['cms-aware']"
+                        class="sw-generic-custom-entity-detail__tab-item"
+                        name="cms-aware-tab-seo"
+                        :active-tab="active"
+                    >
+                        {{ $tc('sw-custom-entity.detail.tabs.seo') }}
                     </sw-tabs-item>
                 </template>
 
@@ -89,7 +98,7 @@
                     </template>
 
                     <sw-generic-cms-page-assignment
-                        v-if="active === 'cms-aware-tab'"
+                        v-if="active === 'cms-aware-tab-layout'"
                         :cms-page-id="customEntityData?.swCmsPageId"
                         :slot-overrides="customEntityData?.swSlotConfig"
                         class="sw-generic-custom-entity-detail__tab sw-generic-custom-entity-detail__tab-cms-aware"
@@ -97,6 +106,28 @@
                         @update:slot-overrides="updateCmsSlotOverwrites"
                         @create-layout="onCreateLayout"
                     />
+
+                    <template
+                        v-else-if="active === 'cms-aware-tab-seo'"
+                    >
+                        <sw-generic-seo-general-card
+                            :seo-meta-title="customEntityData?.swSeoMetaTitle"
+                            :seo-meta-description="customEntityData?.swSeoMetaDescription"
+                            :seo-url="customEntityData?.swSeoUrl"
+                            @update:seo-meta-title="updateSeoMetaTitle"
+                            @update:seo-meta-description="updateSeoMetaDescription"
+                            @update:seo-url="updateSeoUrl"
+                        />
+
+                        <sw-generic-social-media-card
+                            :og-title="customEntityData?.swOgTitle"
+                            :og-description="customEntityData?.swOgDescription"
+                            :og-image-id="customEntityData?.swOgImageId"
+                            @update:og-title="updateOgTitle"
+                            @update:og-description="updateOgDescription"
+                            @update:og-image-id="updateOgImageId"
+                        />
+                    </template>
                 </template>
             </sw-tabs>
         </sw-card-view>

@@ -370,7 +370,7 @@ SQL;
 
     private function createCustomer(string $customerID): void
     {
-        $password = 'foo';
+        $password = 'foo12345';
         $email = 'foo@bar.de';
         $addressId = Uuid::randomHex();
 

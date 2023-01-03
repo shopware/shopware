@@ -4,8 +4,11 @@ namespace Shopware\Core\Maintenance\User\Service;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PasswordFieldSerializer;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @package core
@@ -14,12 +17,15 @@ class UserProvisioner
 {
     private Connection $connection;
 
+    private SystemConfigService $systemConfigService;
+
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(Connection $connection, SystemConfigService $systemConfigService)
     {
         $this->connection = $connection;
+        $this->systemConfigService = $systemConfigService;
     }
 
     /**
@@ -31,7 +37,15 @@ class UserProvisioner
             throw new \RuntimeException(sprintf('User with username "%s" already exists.', $username));
         }
 
-        $password = $password ?? Random::getAlphanumericString(8);
+        $configKey = PasswordFieldSerializer::CONFIG_MIN_LENGTH_FOR[PasswordField::FOR_ADMIN];
+
+        $minPasswordLength = $this->systemConfigService->getInt($configKey);
+
+        if ($password && strlen($password) <= $minPasswordLength) {
+            throw new \InvalidArgumentException(sprintf('The password length cannot be shorter than %s characters.', $minPasswordLength));
+        }
+
+        $password = $password ?? Random::getAlphanumericString($minPasswordLength > 0 ? $minPasswordLength : 8);
 
         $userPayload = [
             'id' => Uuid::randomBytes(),

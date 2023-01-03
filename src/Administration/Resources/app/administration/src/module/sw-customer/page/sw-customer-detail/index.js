@@ -12,7 +12,6 @@ Component.register('sw-customer-detail', {
     template,
 
     inject: [
-        'systemConfigApiService',
         'repositoryFactory',
         'customerGroupRegistrationService',
         'acl',
@@ -286,25 +285,14 @@ Component.register('sw-customer-detail', {
         },
 
         async validPassword(customer) {
-            const config = await this.systemConfigApiService.getValues('core.register');
-
             const { passwordNew, passwordConfirm } = customer;
             const passwordSet = (passwordNew || passwordConfirm);
             const passwordNotEquals = (passwordNew !== passwordConfirm);
-            const invalidLength = (passwordNew && passwordNew.length < config['core.register.minPasswordLength']);
 
             if (passwordSet) {
                 if (passwordNotEquals) {
                     this.createNotificationError({
                         message: this.$tc('sw-customer.detail.notificationPasswordErrorMessage'),
-                    });
-
-                    return false;
-                }
-
-                if (invalidLength) {
-                    this.createNotificationError({
-                        message: this.$tc('sw-customer.detail.notificationPasswordLengthErrorMessage'),
                     });
 
                     return false;

@@ -420,7 +420,7 @@ class ImportExportLogRepositoryTest extends TestCase
                 'id' => $uuid,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
                 'username' => sprintf('user_%s', Uuid::randomHex()),
-                'password' => sprintf('pw%s', $i),
+                'password' => sprintf('shopwarepw%s', $i),
                 'firstName' => sprintf('Foo%s', $i),
                 'lastName' => sprintf('Bar%s', $i),
                 'email' => sprintf('%s@foo.bar', $uuid),

@@ -147,6 +147,7 @@
                             :disabled="!acl.can('users_and_permissions.editor')"
                             :label="$tc('sw-users-permissions.users.user-detail.labelPassword')"
                             :copy-able="false"
+                            :error="userPasswordError"
                             @change="setPassword"
                         />
                         {% endblock %}

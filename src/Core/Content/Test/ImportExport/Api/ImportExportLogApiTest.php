@@ -301,7 +301,7 @@ class ImportExportLogApiTest extends TestCase
                 'id' => $uuid,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
                 'username' => sprintf('foobar%s', $i),
-                'password' => sprintf('pw%s', $i),
+                'password' => sprintf('shopwarepw%s', $i),
                 'firstName' => sprintf('Foo%s', $i),
                 'lastName' => sprintf('Bar%s', $i),
                 'email' => sprintf('fo%s@ob.ar', $i),

@@ -84,7 +84,7 @@ class UserControllerTest extends TestCase
             'email' => 'foo@bar.com',
             'firstName' => 'Firstname',
             'lastName' => 'Lastname',
-            'password' => 'password',
+            'password' => 'password12345',
             'username' => 'foobar',
             'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
             'aclRoles' => [

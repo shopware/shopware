@@ -380,7 +380,7 @@ class AccountOrderControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $email,
-                'password' => 'test',
+                'password' => 'shopware12345',
             ])
         );
         $response = $browser->getResponse();
@@ -415,7 +415,7 @@ class AccountOrderControllerTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(TestDefaults::SALES_CHANNEL),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@example.com',
-                'password' => 'test',
+                'password' => 'shopware12345',
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

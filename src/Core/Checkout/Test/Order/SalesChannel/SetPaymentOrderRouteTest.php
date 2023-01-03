@@ -41,8 +41,6 @@ class SetPaymentOrderRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private EntityRepositoryInterface $customerRepository;
-
     private IdsCollection $ids;
 
     private ?OrderPaymentMethodChangedEvent $paymentMethodChangedEventResult;
@@ -55,9 +53,6 @@ class SetPaymentOrderRouteTest extends TestCase
     {
         parent::setUp();
 
-        /** @var EntityRepositoryInterface $customerRepository */
-        $customerRepository = $this->getContainer()->get('customer.repository');
-        $this->customerRepository = $customerRepository;
         $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
@@ -71,20 +66,20 @@ class SetPaymentOrderRouteTest extends TestCase
         $this->assignSalesChannelContext($this->browser);
 
         $email = Uuid::randomHex() . '@example.com';
-        $customerId = $this->createCustomer('shopware', $email);
+        $customerId = $this->createCustomer('shopware1234', $email);
 
         $this->ids->set('order-1', $this->createOrder($customerId));
-        $this->ids->set('order-2', $this->createOrder($this->createCustomer('test', 'test-other@test.de')));
+        $this->ids->set('order-2', $this->createOrder($this->createCustomer('test1234', 'test-other@test.de')));
 
         $this->browser->request(
             'POST',
             '/store-api/account/login',
             [
                 'email' => $email,
-                'password' => 'shopware',
+                'password' => 'shopware1234',
             ]
         );
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
 
         $this->paymentMethodChangedEventResult = null;
@@ -188,14 +183,18 @@ class SetPaymentOrderRouteTest extends TestCase
         $lastTransaction = $transactions->last();
         static::assertNotNull($lastTransaction);
 
+        $paymentMethodChangedCriteriaEventResult = $this->paymentMethodChangedCriteriaEventResult;
+        $paymentMethodChangedEventResult = $this->paymentMethodChangedEventResult;
+        $transactionStateEventResult = $this->transactionStateEventResult;
+        static::assertNotNull($paymentMethodChangedEventResult);
+        static::assertNotNull($transactionStateEventResult);
+        static::assertNotNull($paymentMethodChangedCriteriaEventResult);
         static::assertSame('open', $lastTransaction->getStateMachineState()->getTechnicalName());
-        static::assertNotNull($this->paymentMethodChangedCriteriaEventResult);
-        static::assertSame($lastTransaction->getId(), $this->paymentMethodChangedEventResult->getOrderTransaction()->getId());
-        static::assertNotNull($this->transactionStateEventResult);
-        static::assertNotSame($firstTransaction->getId(), $this->transactionStateEventResult->getEntityId());
-        static::assertNotSame($lastTransaction->getId(), $this->transactionStateEventResult->getEntityId());
-        static::assertSame('open', $this->transactionStateEventResult->getFromPlace()->getTechnicalName());
-        static::assertSame('cancelled', $this->transactionStateEventResult->getToPlace()->getTechnicalName());
+        static::assertSame($lastTransaction->getId(), $paymentMethodChangedEventResult->getOrderTransaction()->getId());
+        static::assertNotSame($firstTransaction->getId(), $transactionStateEventResult->getEntityId());
+        static::assertNotSame($lastTransaction->getId(), $transactionStateEventResult->getEntityId());
+        static::assertSame('open', $transactionStateEventResult->getFromPlace()->getTechnicalName());
+        static::assertSame('cancelled', $transactionStateEventResult->getToPlace()->getTechnicalName());
     }
 
     public function testSetPaymentMethodRandomOrder(): void
@@ -210,7 +209,7 @@ class SetPaymentOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
         static::assertSame('FRAMEWORK__ENTITY_NOT_FOUND', $response['errors'][0]['code']);
@@ -231,7 +230,7 @@ class SetPaymentOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
         static::assertSame('FRAMEWORK__ENTITY_NOT_FOUND', $response['errors'][0]['code']);
@@ -256,7 +255,7 @@ class SetPaymentOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame(Response::HTTP_FORBIDDEN, $this->browser->getResponse()->getStatusCode());
         static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
@@ -383,12 +382,12 @@ class SetPaymentOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
     }
 
-    private function getAvailablePaymentMethodId($offset = 0): string
+    private function getAvailablePaymentMethodId(?int $offset = null): string
     {
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('payment_method.repository');

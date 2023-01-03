@@ -2,7 +2,6 @@
 
 namespace Shopware\Docs\Command\Script;
 
-use Shopware\Core\Framework\Log\Package;
 use League\ConstructFinder\ConstructFinder;
 use phpDocumentor\Reflection\DocBlock;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
@@ -13,6 +12,7 @@ use phpDocumentor\Reflection\DocBlock\Tags\Param;
 use phpDocumentor\Reflection\DocBlock\Tags\Return_;
 use phpDocumentor\Reflection\DocBlock\Tags\TagWithType;
 use phpDocumentor\Reflection\DocBlockFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ServiceStubs;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Finder;

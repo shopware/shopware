@@ -2,8 +2,8 @@
 
 namespace Shopware\Docs\Convert;
 
-use Shopware\Core\Framework\Log\Package;
 use GuzzleHttp\Client;
+use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
 class WikiApiService

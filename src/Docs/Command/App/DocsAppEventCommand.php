@@ -2,9 +2,9 @@
 
 namespace Shopware\Docs\Command\App;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Shopware\Docs\Inspection\ArrayWriter;
 use Symfony\Component\Console\Command\Command;

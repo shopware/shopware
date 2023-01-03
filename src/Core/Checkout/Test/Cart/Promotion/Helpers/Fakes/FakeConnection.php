@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes;
 
-use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Driver\PDO\MySQL\Driver;
 use Doctrine\DBAL\Cache\ArrayStatement;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDO\MySQL\Driver;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 

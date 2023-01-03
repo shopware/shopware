@@ -2,8 +2,8 @@
 
 namespace Shopware\Docs\Convert;
 
-use Shopware\Core\Framework\Log\Package;
 use Cocur\Slugify\Slugify;
+use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
 class DocumentMetadata

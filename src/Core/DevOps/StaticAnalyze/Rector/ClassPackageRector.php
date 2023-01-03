@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\Rector;
 
-use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike;
 use Rector\Core\Rector\AbstractRector;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Snippet;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -14,6 +15,7 @@ use Shopware\Core\System\Locale\LocaleException;
 /**
  * @internal
  */
+#[Package('administration')]
 class AppAdministrationSnippetPersister
 {
     private EntityRepositoryInterface $appAdministrationSnippetRepository;

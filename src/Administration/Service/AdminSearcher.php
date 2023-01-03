@@ -2,11 +2,13 @@
 
 namespace Shopware\Administration\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Administration\Framework\Search\CriteriaCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 
+#[Package('administration')]
 class AdminSearcher
 {
     private DefinitionInstanceRegistry $definitionRegistry;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Snippet;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Locale\LocaleDefinition;
 
+#[Package('administration')]
 class AppAdministrationSnippetDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'app_administration_snippet';

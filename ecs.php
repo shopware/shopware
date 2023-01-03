@@ -111,6 +111,7 @@ return static function (ECSConfig $ecsConfig): void {
         // Compatibility fixes for doctrine annotation parser https://github.com/doctrine/annotations/issues/421
         __DIR__ . '/src/Core/Framework/Compatibility/DocParser.php',
         __DIR__ . '/src/Core/Framework/Compatibility/AnnotationReader.php',
+        __DIR__ . '/src/Core/DevOps/StaticAnalyze/Rector/*',
 
         ArrayOpenerAndCloserNewlineFixer::class => null,
         ArrayListItemNewlineFixer::class => null,

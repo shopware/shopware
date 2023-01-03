@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Notification;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 /**
  * @internal
  */
+#[Package('administration')]
 class NotificationService
 {
     private EntityRepositoryInterface $notificationRepository;

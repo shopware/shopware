@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Notification;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Integration\IntegrationDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
+#[Package('administration')]
 class NotificationDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'notification';

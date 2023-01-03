@@ -22,19 +22,6 @@ class PackageAnnotationRule implements Rule
      * @internal
      */
     public const PRODUCT_AREA_MAPPING = [
-        'core' => [
-            '/Shopware\\\\Core\\\\Framework\\\\(Adapter|Api|App|Changelog|DataAbstractionLayer|Demodata|DependencyInjection)\\\\/',
-            '/Shopware\\\\Core\\\\Framework\\\\(Increment|Log|MessageQueue|Migration|Parameter|Plugin|RateLimiter|Script|Routing|Struct|Util|Uuid|Validation|Webhook)\\\\/',
-            '/Shopware\\\\Core\\\\DevOps\\\\/',
-            '/Shopware\\\\Core\\\\Installer\\\\/',
-            '/Shopware\\\\Core\\\\Maintenance\\\\/',
-            '/Shopware\\\\Core\\\\Migration\\\\/',
-            '/Shopware\\\\Core\\\\Profiling\\\\/',
-            '/Shopware\\\\Elasticsearch\\\\/',
-            '/Shopware\\\\Docs\\\\/',
-            '/Shopware\\\\Core\\\\System\\\\(Annotation|CustomEntity|DependencyInjection|SystemConfig)\\\\/',
-            '/Shopware\\\\.*\\\\(DataAbstractionLayer)\\\\/',
-        ],
         'business-ops' => [
             '/Shopware\\\\.*\\\\(Rule|Flow|ProductStream)\\\\/',
             '/Shopware\\\\Core\\\\Framework\\\\(Event)\\\\/',
@@ -95,6 +82,22 @@ class PackageAnnotationRule implements Rule
             '/Shopware\\\\Storefront\\\\Controller\\\\/',
             '/Shopware\\\\Storefront\\\\(DependencyInjection|Migration|Event|Exception|Framework|Test)\\\\/',
         ],
+        'core' => [
+            '/Shopware\\\\Core\\\\Framework\\\\(Adapter|Api|App|Changelog|DataAbstractionLayer|Demodata|DependencyInjection)\\\\/',
+            '/Shopware\\\\Core\\\\Framework\\\\(Increment|Log|MessageQueue|Migration|Parameter|Plugin|RateLimiter|Script|Routing|Struct|Util|Uuid|Validation|Webhook)\\\\/',
+            '/Shopware\\\\Core\\\\DevOps\\\\/',
+            '/Shopware\\\\Core\\\\Installer\\\\/',
+            '/Shopware\\\\Core\\\\Maintenance\\\\/',
+            '/Shopware\\\\Core\\\\Migration\\\\/',
+            '/Shopware\\\\Core\\\\Profiling\\\\/',
+            '/Shopware\\\\Elasticsearch\\\\/',
+            '/Shopware\\\\Docs\\\\/',
+            '/Shopware\\\\Core\\\\System\\\\(Annotation|CustomEntity|DependencyInjection|SystemConfig)\\\\/',
+            '/Shopware\\\\.*\\\\(DataAbstractionLayer)\\\\/',
+        ],
+        'administration' => [
+            '/Shopware\\\\Administration\\\\/',
+        ]
     ];
 
     public function getNodeType(): string

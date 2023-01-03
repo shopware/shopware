@@ -1,12 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Update\Services;
+namespace Shopware\Tests\Unit\Core\Framework\Update\Services;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Update\Services\UpdateHtaccess;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\Update\Services\UpdateHtaccess
  */
 class UpdateHtaccessTest extends TestCase
 {

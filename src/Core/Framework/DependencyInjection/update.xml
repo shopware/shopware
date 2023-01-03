@@ -9,42 +9,29 @@
     </parameters>
     <services>
         <service id="Shopware\Core\Framework\Update\Api\UpdateController" public="true">
-            <argument>%kernel.project_dir%</argument>
-            <argument type="service" id="Shopware\Core\Framework\Update\Services\ApiClient" />
-            <argument type="service" id="Shopware\Core\Framework\Update\Services\RequirementsValidator" />
+            <argument type="service" id="Shopware\Core\Framework\Update\Services\ApiClient"/>
+            <argument type="service" id="Shopware\Core\Framework\Update\Checkers\WriteableCheck" />
+            <argument type="service" id="Shopware\Core\Framework\Update\Checkers\LicenseCheck" />
             <argument type="service" id="Shopware\Core\Framework\Update\Services\PluginCompatibility" />
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLifecycleService"/>
-            <argument type="service" id="user.repository"/>
             <argument>%kernel.shopware_version%</argument>
-            <argument>%env(bool:SHOPWARE_UPDATE_TEST)%</argument>
             <argument>%env(bool:SHOPWARE_DISABLE_UPDATE_CHECK)%</argument>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
 
-        <service id="Shopware\Core\Framework\Update\Services\UpdateApiHttpClientFactory">
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-        </service>
-
-        <service id="shopware.update.http.client" class="GuzzleHttp\Client">
-            <factory service="Shopware\Core\Framework\Update\Services\UpdateApiHttpClientFactory" />
-        </service>
-
         <service id="Shopware\Core\Framework\Update\Services\ApiClient">
-            <argument>%kernel.shopware_version%</argument>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier"/>
-            <argument type="service" id="shopware.update.http.client"/>
+            <argument type="service" id="http_client"/>
             <argument>%shopware.auto_update.enabled%</argument>
+            <argument>%kernel.project_dir%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Update\Services\PluginCompatibility">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
-            <argument type="service" id="plugin.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"/>
         </service>
 
         <service id="Shopware\Core\Framework\Update\Services\Filesystem"/>

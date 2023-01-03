@@ -27,7 +27,8 @@ class FinishController extends AbstractController
                 opcache_reset();
             }
 
-            header('Location: ' . $redirectUrl);
+            header('Content-Type: text/html; charset=utf-8');
+            echo '<script>window.location.href = "' . $redirectUrl . '" </script>';
             exit;
         }
         // @codeCoverageIgnoreEnd

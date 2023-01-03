@@ -2,23 +2,34 @@
 
 namespace Shopware\Core\Framework\Update\Struct;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('system-settings')]
+/**
+ * @package system-settings
+ * @phpstan-type VersionFixedVulnerabilities array{severity: string, summary: string, link: string}
+ */
 class Version extends Struct
 {
+    public string $title = '';
+
+    public string $body = '';
+
+    public \DateTimeImmutable $date;
+
     public string $version = '';
 
-    public bool $isNewer = false;
+    /**
+     * @var VersionFixedVulnerabilities[]
+     */
+    public array $fixedVulnerabilities = [];
 
-    public string $changelog = '';
-
-    public string $url = '';
-
-    public \DateTimeImmutable $createdAt;
-
-    public string $name = '';
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function __construct(array $data = [])
+    {
+        $this->assign($data);
+    }
 
     public function getApiAlias(): string
     {

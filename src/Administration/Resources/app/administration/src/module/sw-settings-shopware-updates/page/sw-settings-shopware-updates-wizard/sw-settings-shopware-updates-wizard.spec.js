@@ -14,7 +14,6 @@ import 'src/app/component/utils/sw-color-badge';
 describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-wizard', () => {
     let wrapper;
     const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
 
     beforeEach(async () => {
         wrapper = shallowMount(await Shopware.Component.build('sw-settings-shopware-updates-wizard'), {
@@ -22,42 +21,12 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
             provide: {
                 updateService: {
                     checkForUpdates: () => Promise.resolve({
-                        version: '6.2.0',
-                        isNewer: true,
-                        changelog: {
-                            de: {
-                                id: '276',
-                                releaseId: null,
-                                language: 'en',
-                                changelog: 'Hello',
-                                release_id: '145'
-                            }
-                        },
-                        checks: [
-                            {
-                                type: 'writable',
-                                value: ['/'],
-                                level: 10
-                            },
-                            {
-                                type: 'phpversion',
-                                value: '7.2.0',
-                                level: 20
-                            },
-                            {
-                                type: 'mysqlversion',
-                                value: '5.7',
-                                level: 20
-                            },
-                            {
-                                type: 'licensecheck',
-                                value: [],
-                                level: 20
-                            }
-                        ],
                         extensions: [],
-                        release_date: null,
-                        security_update: false
+                        title: 'Release 6.4.18.0',
+                        body: 'This is a test release',
+                        date: '2022-12-08T09:04:06.000+00:00',
+                        version: '6.4.18.0',
+                        fixedVulnerabilities: []
                     }),
                     checkRequirements: () => Promise.resolve([
                         {
@@ -66,26 +35,6 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                             message: 'writeableCheckValid',
                             vars: {
                                 checkedDirectories: ''
-                            },
-                            extensions: []
-                        },
-                        {
-                            name: 'phpVersion',
-                            result: true,
-                            message: 'phpVersion',
-                            vars: {
-                                minVersion: '7.2.0',
-                                currentVersion: '7.3.7'
-                            },
-                            extensions: []
-                        },
-                        {
-                            name: 'mysqlVersion',
-                            result: true,
-                            message: 'mysqlVersion',
-                            vars: {
-                                minVersion: '5.7',
-                                currentVersion: '8.0.17'
                             },
                             extensions: []
                         },

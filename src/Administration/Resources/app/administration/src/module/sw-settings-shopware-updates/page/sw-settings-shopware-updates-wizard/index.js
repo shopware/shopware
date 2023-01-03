@@ -59,18 +59,6 @@ Component.register('sw-settings-shopware-updates-wizard', {
             };
         },
 
-        changelog() {
-            if (!this.updateInfo.version) {
-                return '';
-            }
-
-            if (this.$i18n.locale.substr(0, 2) === 'de') {
-                return this.updateInfo.changelog.de.changelog;
-            }
-
-            return this.updateInfo.changelog.en.changelog;
-        },
-
         displayIncompatiblePluginsWarning() {
             return this.plugins.some((plugin) => {
                 return plugin.statusName !== 'compatible' && plugin.statusName !== 'notInStore';
@@ -146,7 +134,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
                 message: this.$tc('sw-settings-shopware-updates.notifications.updateStarted'),
             });
 
-            this.downloadUpdate(0);
+            this.downloadRecovery();
         },
 
         stopUpdateProcess() {
@@ -158,20 +146,10 @@ Component.register('sw-settings-shopware-updates-wizard', {
             });
         },
 
-        downloadUpdate(offset) {
-            this.updateService.downloadUpdate(offset).then(response => {
-                this.progressbarValue = (Math.floor((response.offset / response.total) * 100));
-
-                if (response.offset === response.total && response.success) {
-                    this.progressbarValue = 0;
-                    this.deactivatePlugins(0);
-                } else if (response.offset !== response.total && response.success) {
-                    this.downloadUpdate(response.offset);
-                } else {
-                    this.createNotificationError({
-                        message: this.$tc('sw-settings-shopware-updates.notifications.downloadFailed'),
-                    });
-                }
+        downloadRecovery(offset) {
+            this.updateService.downloadRecovery(offset).then(() => {
+                this.progressbarValue = 0;
+                this.deactivatePlugins(0);
             }).catch(() => {
                 this.createNotificationError({
                     message: this.$tc('sw-settings-shopware-updates.notifications.downloadFailed'),
@@ -185,8 +163,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
                 this.progressbarValue = (Math.floor((response.offset / response.total) * 100));
 
                 if (response.offset === response.total && response.success) {
-                    this.progressbarValue = 0;
-                    this.unpackUpdate(0);
+                    window.location.href = `${Shopware.Context.api.basePath}/shopware-recovery.phar.php`;
                 } else if (response.offset !== response.total && response.success) {
                     this.deactivatePlugins(response.offset);
                 } else {
@@ -219,23 +196,6 @@ Component.register('sw-settings-shopware-updates-wizard', {
                 } else {
                     this.createNotificationError({
                         message: this.$tc('sw-settings-shopware-updates.notifications.deactivationFailed'),
-                    });
-                }
-            });
-        },
-
-        unpackUpdate(offset) {
-            this.step = 'unpack';
-            this.updateService.unpackUpdate(offset).then(response => {
-                this.progressbarValue = (Math.floor((response.offset / response.total) * 100));
-
-                if (response.redirectTo) {
-                    window.location.href = response.redirectTo;
-                } else if (response.offset !== response.total && response.success) {
-                    this.unpackUpdate(response.offset);
-                } else {
-                    this.createNotificationError({
-                        message: this.$tc('sw-settings-shopware-updates.notifications.unpackFailed'),
                     });
                 }
             });

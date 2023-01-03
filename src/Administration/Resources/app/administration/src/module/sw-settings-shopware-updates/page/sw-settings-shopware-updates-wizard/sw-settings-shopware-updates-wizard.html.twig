@@ -38,8 +38,9 @@
         {% block sw_settings_shopware_updates_wizard_content %}
         <sw-card-view v-if="isLoading || updateInfo.version">
             <sw-settings-shopware-updates-info
+                v-if="updateInfo"
                 :is-loading="isLoading"
-                :changelog="changelog"
+                :changelog="updateInfo.body"
             />
             <sw-settings-shopware-updates-requirements
                 :is-loading="isLoading"

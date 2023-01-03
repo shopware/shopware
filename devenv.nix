@@ -5,6 +5,7 @@
     pkgs.gnupatch
     pkgs.nodePackages_latest.yalc
     pkgs.symfony-cli
+    pkgs.deno
   ];
 
   languages.javascript = {

@@ -10,8 +10,11 @@ class ValidResult
     /**
      * @param array<mixed> $args
      */
-    public function __construct(private int $offset, private int $total, private array $args = [])
-    {
+    public function __construct(
+        private readonly int $offset,
+        private readonly int $total,
+        private readonly array $args = []
+    ) {
     }
 
     /**

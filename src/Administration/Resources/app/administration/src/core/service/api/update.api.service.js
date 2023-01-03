@@ -47,11 +47,11 @@ class UpdateService extends ApiService {
             });
     }
 
-    downloadUpdate(offset) {
+    downloadRecovery() {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/download-latest-update?offset=${offset}`, { headers })
+            .get(`/_action/${this.getApiBasePath()}/download-recovery`, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -65,18 +65,6 @@ class UpdateService extends ApiService {
         return this.httpClient
             .get(`${actionUrlPart}/deactivate-plugins?${offsetParam}`, { headers })
             .then((response) => {
-                return ApiService.handleResponse(response);
-            });
-    }
-
-    unpackUpdate(offset) {
-        const headers = this.getBasicHeaders();
-
-        return this.httpClient
-            .get(
-                `/_action/${this.getApiBasePath()}/unpack?offset=${offset}`,
-                { headers },
-            ).then((response) => {
                 return ApiService.handleResponse(response);
             });
     }

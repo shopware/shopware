@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Update\Checkers;
+namespace Shopware\Tests\Unit\Core\Framework\Update\Checkers;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Store\Services\StoreClient;
@@ -9,6 +9,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\Update\Checkers\LicenseCheck
  */
 class LicenseCheckTest extends TestCase
 {

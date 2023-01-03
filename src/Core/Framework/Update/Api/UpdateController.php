@@ -2,35 +2,27 @@
 
 namespace Shopware\Core\Framework\Update\Api;
 
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
-use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
+use Shopware\Core\Framework\Update\Checkers\LicenseCheck;
+use Shopware\Core\Framework\Update\Checkers\WriteableCheck;
 use Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent;
-use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\PluginCompatibility;
-use Shopware\Core\Framework\Update\Services\RequirementsValidator;
 use Shopware\Core\Framework\Update\Steps\DeactivateExtensionsStep;
-use Shopware\Core\Framework\Update\Steps\DownloadStep;
 use Shopware\Core\Framework\Update\Steps\FinishResult;
-use Shopware\Core\Framework\Update\Steps\UnpackStep;
 use Shopware\Core\Framework\Update\Steps\ValidResult;
-use Shopware\Core\Framework\Update\Struct\Version;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -46,15 +38,14 @@ class UpdateController extends AbstractController
      * @internal
      */
     public function __construct(
-        private readonly string $rootDir,
         private readonly ApiClient $apiClient,
-        private readonly RequirementsValidator $requirementsValidator,
+        private readonly WriteableCheck $writeableCheck,
+        private readonly LicenseCheck $licenseCheck,
         private readonly PluginCompatibility $pluginCompatibility,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfig,
         private readonly AbstractExtensionLifecycle $extensionLifecycleService,
-        private readonly EntityRepository $userRepository,
-        private string $shopwareVersion,
+        private readonly string $shopwareVersion,
         private readonly bool $disableUpdateCheck = false
     ) {
     }
@@ -68,7 +59,7 @@ class UpdateController extends AbstractController
 
         $updates = $this->apiClient->checkForUpdates();
 
-        if (!$updates->isNewer) {
+        if (version_compare($this->shopwareVersion, $updates->version, '>')) {
             return new JsonResponse();
         }
 
@@ -78,9 +69,10 @@ class UpdateController extends AbstractController
     #[Route(path: '/api/_action/update/check-requirements', name: 'api.custom.update.check_requirements', methods: ['GET'], defaults: ['_acl' => ['system:core:update']])]
     public function checkRequirements(): JsonResponse
     {
-        $update = $this->apiClient->checkForUpdates();
-
-        return new JsonResponse($this->requirementsValidator->validate($update));
+        return new JsonResponse([
+            $this->writeableCheck->check(),
+            $this->licenseCheck->check(),
+        ]);
     }
 
     #[Route(path: '/api/_action/update/plugin-compatibility', name: 'api.custom.updateapi.plugin_compatibility', methods: ['GET'], defaults: ['_acl' => ['system:core:update', 'system_config:read']])]
@@ -92,70 +84,11 @@ class UpdateController extends AbstractController
     }
 
     #[Route(path: '/api/_action/update/download-latest-update', name: 'api.custom.updateapi.download_latest_update', methods: ['GET'], defaults: ['_acl' => ['system:core:update', 'system_config:read']])]
-    public function downloadLatestUpdate(Request $request): JsonResponse
+    public function downloadLatestRecovery(Request $request): Response
     {
-        $update = $this->apiClient->checkForUpdates();
-        $offset = $request->query->getInt('offset');
+        $this->apiClient->downloadRecoveryTool();
 
-        $destination = $this->createDestinationFromVersion($update);
-
-        if ($offset === 0 && file_exists($destination)) {
-            unlink($destination);
-        }
-
-        $result = (new DownloadStep(
-            $update,
-            $destination,
-            $this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION
-        ))->run($offset);
-
-        return $this->toJson($result);
-    }
-
-    #[Route(path: '/api/_action/update/unpack', name: 'api.custom.updateapi.unpack', methods: ['GET'], defaults: ['_acl' => ['system:core:update', 'system_config:read']])]
-    public function unpack(Request $request, Context $context): JsonResponse
-    {
-        $update = $this->apiClient->checkForUpdates();
-
-        $source = $this->createDestinationFromVersion($update);
-        $offset = $request->query->getInt('offset');
-
-        $fs = new Filesystem();
-
-        $updateDir = $this->rootDir . '/files/update/';
-        $fileDir = $this->rootDir . '/files/update/files';
-
-        $unpackStep = new UnpackStep($source, $fileDir, $this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
-
-        if ($offset === 0) {
-            $fs->remove($updateDir);
-        }
-
-        $result = $unpackStep->run($offset);
-
-        if ($result instanceof FinishResult) {
-            $fs->rename($fileDir . '/update-assets/', $updateDir . '/update-assets/');
-
-            $payload = [
-                'clientIp' => $request->getClientIp(),
-                'version' => $update->version,
-                'locale' => $this->getUpdateLocale($context),
-            ];
-
-            $updateFilePath = $this->rootDir . '/files/update/update.json';
-
-            if (!file_put_contents($updateFilePath, json_encode($payload))) {
-                throw new UpdateFailedException(sprintf('Could not write file %s', $updateFilePath));
-            }
-
-            $this->systemConfig->set(self::UPDATE_PREVIOUS_VERSION_KEY, $update->version);
-
-            return new JsonResponse([
-                'redirectTo' => $request->getBaseUrl() . '/recovery/update/index.php',
-            ]);
-        }
-
-        return $this->toJson($result);
+        return new NoContentResponse();
     }
 
     #[Route(path: '/api/_action/update/deactivate-plugins', name: 'api.custom.updateapi.deactivate-plugins', methods: ['GET'], defaults: ['_acl' => ['system:core:update', 'system_config:read']])]
@@ -166,7 +99,7 @@ class UpdateController extends AbstractController
         $offset = $request->query->getInt('offset');
 
         if ($offset === 0) {
-            // plugins can subscribe to this events, check compatibility and throw exceptions to prevent the update
+            // plugins can subscribe to these events, check compatibility and throw exceptions to prevent the update
             $this->eventDispatcher->dispatch(
                 new UpdatePrePrepareEvent($context, $this->shopwareVersion, $update->version)
             );
@@ -201,33 +134,6 @@ class UpdateController extends AbstractController
         return $this->toJson($result);
     }
 
-    private function getUpdateLocale(Context $context): string
-    {
-        $contextSource = $context->getSource();
-        if (!($contextSource instanceof AdminApiSource)) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($contextSource));
-        }
-
-        $userId = $contextSource->getUserId();
-        if ($userId === null) {
-            throw new InvalidContextSourceUserException(\get_class($contextSource));
-        }
-
-        $criteria = new Criteria([$userId]);
-        $criteria->getAssociation('locale');
-
-        /** @var UserEntity|null $user */
-        $user = $this->userRepository->search($criteria, $context)->first();
-
-        if ($user && $user->getLocale()) {
-            $code = $user->getLocale()->getCode();
-
-            return mb_strtolower(explode('-', $code)[0]);
-        }
-
-        return 'en';
-    }
-
     private function rebootKernelWithoutPlugins(): ContainerInterface
     {
         /** @var Kernel $kernel */
@@ -258,12 +164,5 @@ class UpdateController extends AbstractController
             'success' => true,
             '_class' => $result::class,
         ]);
-    }
-
-    private function createDestinationFromVersion(Version $version): string
-    {
-        $filename = 'update_' . $version->sha1 . '.zip';
-
-        return $this->rootDir . '/' . $filename;
     }
 }

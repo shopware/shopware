@@ -184,7 +184,12 @@ class UpdateController extends AbstractController
 
             $nextVersion = Platform::getEnv('SW_RECOVERY_NEXT_VERSION');
             if (\is_string($nextVersion)) {
-                $version = 'dev-trunk as ' . $nextVersion;
+                $nextBranch = Platform::getEnv('SW_RECOVERY_NEXT_BRANCH');
+                if ($nextBranch === false) {
+                    $nextBranch = 'trunk';
+                }
+
+                $version = 'dev-' . $nextBranch . ' as ' . $nextVersion;
             }
 
             $composerJson['require'][$shopwarePackage] = $version;

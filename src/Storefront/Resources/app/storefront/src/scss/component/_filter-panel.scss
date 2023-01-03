@@ -188,11 +188,18 @@ This file contains the generic styling for all filter items.
 .btn.filter-panel-wrapper-toggle {
     display: none;
     width: 100%;
-    border: 1px solid $primary;
     padding: 6px;
+
+    .icon {
+        color: $primary;
+        width: 20px;
+        height: 20px;
+        margin-right: 6px;
+    }
 
     &:hover {
         background-color: $gray-200;
+        color: $primary;
     }
 }
 

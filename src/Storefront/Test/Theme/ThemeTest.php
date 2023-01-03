@@ -327,7 +327,7 @@ class ThemeTest extends TestCase
         $themeInheritedConfig['baseThemeFields']['some-custom'] = ['value' => null, 'isInherited' => true];
 
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['value'] = '#ff00ff';
-        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#526e7f';
+        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#3d444d';
 
         foreach ($themeInheritedConfig['fields'] as $key => $field) {
             if ($field['type'] === 'media') {
@@ -374,7 +374,7 @@ class ThemeTest extends TestCase
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['value'] = '#ff00ff';
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['isInherited'] = false;
 
-        $themeInheritedConfig['baseThemeFields']['sw-color-brand-primary']['value'] = '#008490';
+        $themeInheritedConfig['baseThemeFields']['sw-color-brand-primary']['value'] = '#0b539b';
 
         foreach ($themeInheritedConfig['fields'] as $key => $field) {
             if ($field['type'] === 'media') {
@@ -442,7 +442,7 @@ class ThemeTest extends TestCase
                 $themeInheritedConfig['fields'][$key]['value'] = $theme['fields'][$key]['value'];
             }
         }
-        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#526e7f';
+        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#3d444d';
 
         static::assertEquals($themeInheritedConfig, $theme);
     }
@@ -713,7 +713,7 @@ class ThemeTest extends TestCase
         $_expectedColor = '#b1900f';
         $_expectedTheme = $childTheme->getId();
         $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $childTheme->getId(), $this->context);
-        $_expectedColor = '#008490';
+        $_expectedColor = '#0b539b';
         $_expectedTheme = $baseTheme->getId();
         $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $baseTheme->getId(), $this->context);
     }
@@ -884,7 +884,7 @@ class ThemeTest extends TestCase
         static::assertNotEmpty($resetTheme->getUpdatedAt());
     }
 
-    private function createBundleTheme(StorefrontPluginConfiguration $config, ThemeEntity $parentTheme, array $saleschannels = []): string
+    private function createBundleTheme(StorefrontPluginConfiguration $config, ThemeEntity $parentTheme): string
     {
         $name = $config->getTechnicalName();
 
@@ -905,7 +905,7 @@ class ThemeTest extends TestCase
                     'customFields' => $parentTheme->getCustomFields(),
                     'previewMediaId' => $parentTheme->getPreviewMediaId(),
                     'active' => true,
-                    'salesChannels' => $saleschannels,
+                    'salesChannels' => [],
                 ],
             ],
             $this->context
@@ -914,6 +914,10 @@ class ThemeTest extends TestCase
         return $name;
     }
 
+    /**
+     * @param array<string, mixed> $customConfig
+     * @param array<int, array<string, string>> $saleschannels
+     */
     private function createTheme(ThemeEntity $parentTheme, array $customConfig = [], array $saleschannels = [], ?string $givenName = null): string
     {
         $name = $givenName ?? 'test' . Uuid::randomHex();
@@ -1001,6 +1005,9 @@ class ThemeTest extends TestCase
         return $name;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getCustomConfigMultiSelect(): array
     {
         return [

@@ -11,6 +11,8 @@ The header contains the shop logo, the search form and various actions like the 
     border-left: 0;
 
     &:hover {
+        border-color: $input-border-color;
+
         .icon {
             color: $primary;
         }

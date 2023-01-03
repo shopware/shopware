@@ -7,6 +7,9 @@ namespace Shopware\Storefront\Test\Theme\fixtures;
  */
 class ThemeFixtures
 {
+    /**
+     * @return array<string, mixed>
+     */
     public static function getThemeFields(): array
     {
         return [
@@ -247,6 +250,9 @@ class ThemeFixtures
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public static function getThemeStructuredFields(): array
     {
         return [
@@ -519,6 +525,9 @@ class ThemeFixtures
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public static function getThemeInheritedConfig(string $faviconId, string $demostoreLogoId): array
     {
         $config = [
@@ -590,7 +599,7 @@ class ThemeFixtures
                         'de-DE' => 'Sekundärfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#526e7f',
+                    'value' => '#3d444d',
                     'editable' => true,
                     'block' => 'themeColors',
                     'section' => null,
@@ -700,7 +709,7 @@ class ThemeFixtures
                         'de-DE' => 'Textfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'typography',
                     'section' => null,
@@ -722,7 +731,7 @@ class ThemeFixtures
                         'de-DE' => 'Rahmen',
                     ],
                     'type' => 'color',
-                    'value' => '#bcc1c7',
+                    'value' => '#798490',
                     'editable' => true,
                     'block' => 'themeColors',
                     'section' => null,
@@ -766,7 +775,7 @@ class ThemeFixtures
                         'de-DE' => 'Preis',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'eCommerce',
                     'section' => null,
@@ -788,7 +797,7 @@ class ThemeFixtures
                         'de-DE' => 'Kaufen-Button',
                     ],
                     'type' => 'color',
-                    'value' => '#008490',
+                    'value' => '#0b539b',
                     'editable' => true,
                     'block' => 'eCommerce',
                     'section' => null,
@@ -875,7 +884,7 @@ class ThemeFixtures
                         'de-DE' => 'Überschriftfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'typography',
                     'order' => 400,
@@ -1024,7 +1033,7 @@ class ThemeFixtures
                     'isInherited' => false,
                 ],
                 'sw-border-color' => [
-                    'value' => '#bcc1c7',
+                    'value' => '#798490',
                     'isInherited' => false,
                 ],
                 'sw-background-color' => [
@@ -1052,7 +1061,7 @@ class ThemeFixtures
                     'isInherited' => false,
                 ],
                 'sw-text-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'isInherited' => false,
                 ],
                 'sw-font-family-headline' => [
@@ -1060,15 +1069,15 @@ class ThemeFixtures
                     'isInherited' => false,
                 ],
                 'sw-headline-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'isInherited' => false,
                 ],
                 'sw-color-price' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'isInherited' => false,
                 ],
                 'sw-color-buy-button' => [
-                    'value' => '#008490',
+                    'value' => '#0b539b',
                     'isInherited' => false,
                 ],
                 'sw-color-buy-button-text' => [
@@ -1098,15 +1107,15 @@ class ThemeFixtures
             ],
             'baseThemeFields' => [
                 'sw-color-brand-primary' => [
-                    'value' => '#008490',
+                    'value' => '#0b539b',
                     'isInherited' => false,
                 ],
                 'sw-color-brand-secondary' => [
-                    'value' => '#526e7f',
+                    'value' => '#3d444d',
                     'isInherited' => false,
                 ],
                 'sw-border-color' => [
-                    'value' => '#bcc1c7',
+                    'value' => '#798490',
                     'isInherited' => false,
                 ],
                 'sw-background-color' => [
@@ -1134,7 +1143,7 @@ class ThemeFixtures
                     'isInherited' => false,
                 ],
                 'sw-text-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'isInherited' => false,
                 ],
                 'sw-font-family-headline' => [
@@ -1142,15 +1151,15 @@ class ThemeFixtures
                     'isInherited' => false,
                 ],
                 'sw-headline-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'isInherited' => false,
                 ],
                 'sw-color-price' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'isInherited' => false,
                 ],
                 'sw-color-buy-button' => [
-                    'value' => '#008490',
+                    'value' => '#0b539b',
                     'isInherited' => false,
                 ],
                 'sw-color-buy-button-text' => [
@@ -1183,6 +1192,9 @@ class ThemeFixtures
         return $config;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public static function getThemeInheritedBlankConfig(string $faviconId, string $demostoreLogoId): array
     {
         $config = [
@@ -1254,7 +1266,7 @@ class ThemeFixtures
                         'de-DE' => 'Sekundärfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#526e7f',
+                    'value' => '#3d444d',
                     'editable' => true,
                     'block' => 'themeColors',
                     'section' => null,
@@ -1364,7 +1376,7 @@ class ThemeFixtures
                         'de-DE' => 'Textfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'typography',
                     'section' => null,
@@ -1386,7 +1398,7 @@ class ThemeFixtures
                         'de-DE' => 'Rahmen',
                     ],
                     'type' => 'color',
-                    'value' => '#bcc1c7',
+                    'value' => '#798490',
                     'editable' => true,
                     'block' => 'themeColors',
                     'section' => null,
@@ -1430,7 +1442,7 @@ class ThemeFixtures
                         'de-DE' => 'Preis',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'eCommerce',
                     'section' => null,
@@ -1452,7 +1464,7 @@ class ThemeFixtures
                         'de-DE' => 'Kaufen-Button',
                     ],
                     'type' => 'color',
-                    'value' => '#008490',
+                    'value' => '#0b539b',
                     'editable' => true,
                     'block' => 'eCommerce',
                     'section' => null,
@@ -1539,7 +1551,7 @@ class ThemeFixtures
                         'de-DE' => 'Überschriftfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'typography',
                     'order' => 400,
@@ -1766,11 +1778,11 @@ class ThemeFixtures
                     'isInherited' => false,
                 ],
                 'sw-color-brand-secondary' => [
-                    'value' => '#526e7f',
+                    'value' => '#3d444d',
                     'isInherited' => false,
                 ],
                 'sw-border-color' => [
-                    'value' => '#bcc1c7',
+                    'value' => '#798490',
                     'isInherited' => false,
                 ],
                 'sw-background-color' => [
@@ -1798,7 +1810,7 @@ class ThemeFixtures
                     'isInherited' => false,
                 ],
                 'sw-text-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'isInherited' => false,
                 ],
                 'sw-font-family-headline' => [
@@ -1806,15 +1818,15 @@ class ThemeFixtures
                     'isInherited' => false,
                 ],
                 'sw-headline-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'isInherited' => false,
                 ],
                 'sw-color-price' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'isInherited' => false,
                 ],
                 'sw-color-buy-button' => [
-                    'value' => '#008490',
+                    'value' => '#0b539b',
                     'isInherited' => false,
                 ],
                 'sw-color-buy-button-text' => [
@@ -1847,6 +1859,9 @@ class ThemeFixtures
         return $config;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public static function getThemeConfig(string $faviconId, string $demostoreLogoId): array
     {
         return [
@@ -1896,7 +1911,7 @@ class ThemeFixtures
                         'de-DE' => 'Primärfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#008490',
+                    'value' => '#0b539b',
                     'editable' => true,
                     'block' => 'themeColors',
                     'section' => null,
@@ -1918,7 +1933,7 @@ class ThemeFixtures
                         'de-DE' => 'Sekundärfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#526e7f',
+                    'value' => '#3d444d',
                     'editable' => true,
                     'block' => 'themeColors',
                     'section' => null,
@@ -2028,7 +2043,7 @@ class ThemeFixtures
                         'de-DE' => 'Textfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'typography',
                     'section' => null,
@@ -2050,7 +2065,7 @@ class ThemeFixtures
                         'de-DE' => 'Rahmen',
                     ],
                     'type' => 'color',
-                    'value' => '#bcc1c7',
+                    'value' => '#798490',
                     'editable' => true,
                     'block' => 'themeColors',
                     'section' => null,
@@ -2094,7 +2109,7 @@ class ThemeFixtures
                         'de-DE' => 'Preis',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'eCommerce',
                     'section' => null,
@@ -2116,7 +2131,7 @@ class ThemeFixtures
                         'de-DE' => 'Kaufen-Button',
                     ],
                     'type' => 'color',
-                    'value' => '#008490',
+                    'value' => '#0b539b',
                     'editable' => true,
                     'block' => 'eCommerce',
                     'section' => null,
@@ -2203,7 +2218,7 @@ class ThemeFixtures
                         'de-DE' => 'Überschriftfarbe',
                     ],
                     'type' => 'color',
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'editable' => true,
                     'block' => 'typography',
                     'order' => 400,
@@ -2341,15 +2356,15 @@ class ThemeFixtures
             ],
             'currentFields' => [
                 'sw-color-brand-primary' => [
-                    'value' => '#008490',
+                    'value' => '#0b539b',
                     'isInherited' => false,
                 ],
                 'sw-color-brand-secondary' => [
-                    'value' => '#526e7f',
+                    'value' => '#3d444d',
                     'isInherited' => false,
                 ],
                 'sw-border-color' => [
-                    'value' => '#bcc1c7',
+                    'value' => '#798490',
                     'isInherited' => false,
                 ],
                 'sw-background-color' => [
@@ -2377,7 +2392,7 @@ class ThemeFixtures
                     'isInherited' => false,
                 ],
                 'sw-text-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'isInherited' => false,
                 ],
                 'sw-font-family-headline' => [
@@ -2385,15 +2400,15 @@ class ThemeFixtures
                     'isInherited' => false,
                 ],
                 'sw-headline-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'isInherited' => false,
                 ],
                 'sw-color-price' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'isInherited' => false,
                 ],
                 'sw-color-buy-button' => [
-                    'value' => '#008490',
+                    'value' => '#0b539b',
                     'isInherited' => false,
                 ],
                 'sw-color-buy-button-text' => [
@@ -2423,15 +2438,15 @@ class ThemeFixtures
             ],
             'baseThemeFields' => [
                 'sw-color-brand-primary' => [
-                    'value' => '#008490',
+                    'value' => '#0b539b',
                     'isInherited' => false,
                 ],
                 'sw-color-brand-secondary' => [
-                    'value' => '#526e7f',
+                    'value' => '#3d444d',
                     'isInherited' => false,
                 ],
                 'sw-border-color' => [
-                    'value' => '#bcc1c7',
+                    'value' => '#798490',
                     'isInherited' => false,
                 ],
                 'sw-background-color' => [
@@ -2459,7 +2474,7 @@ class ThemeFixtures
                     'isInherited' => false,
                 ],
                 'sw-text-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'isInherited' => false,
                 ],
                 'sw-font-family-headline' => [
@@ -2467,15 +2482,15 @@ class ThemeFixtures
                     'isInherited' => false,
                 ],
                 'sw-headline-color' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'isInherited' => false,
                 ],
                 'sw-color-price' => [
-                    'value' => '#4a545b',
+                    'value' => '#2b3136',
                     'isInherited' => false,
                 ],
                 'sw-color-buy-button' => [
-                    'value' => '#008490',
+                    'value' => '#0b539b',
                     'isInherited' => false,
                 ],
                 'sw-color-buy-button-text' => [

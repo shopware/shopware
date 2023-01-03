@@ -86,11 +86,19 @@ $btn-line-height-lg: 38px !default;
 $enable-validation-icons: false !default;
 $input-color: $sw-text-color !default;
 $input-border-color: $sw-border-color !default;
+$form-check-input-border: 1px solid $sw-border-color !default;
+$form-check-input-width: 1rem !default;
+$form-check-padding-start: 1.5rem !default;
 $input-focus-border-color: $sw-color-brand-primary !default;
 $custom-select-indicator-color: $input-color !default;
 $custom-control-indicator-active-bg: $sw-color-brand-primary !default;
 
 // Pagination
+$pagination-color: $sw-text-color !default;
+$pagination-hover-color: $sw-text-color !default;
+$pagination-border-width: 0 !default;
+$pagination-padding-y: 0.595rem;
+$pagination-padding-x: 0.75rem;
 $pagination-border-color: $sw-border-color !default;
 $pagination-hover-border-color: $sw-border-color !default;
 $pagination-focus-border-color: $sw-border-color !default;
@@ -118,7 +126,7 @@ $card-border-color: transparent !default;
 $card-bg: transparent !default;
 
 // Tables
-$table-accent-bg: #f9f9f9 !default;
+$table-striped-bg: #f9f9f9 !default;
 
 // Switch
 $custom-switch-indicator-border-radius: 0.5rem;

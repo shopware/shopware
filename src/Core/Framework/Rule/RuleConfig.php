@@ -28,6 +28,8 @@ final class RuleConfig extends Struct
 
     public const UNIT_VOLUME = 'volume';
 
+    public const UNIT_AGE = 'age';
+
     protected ?array $operators = null;
 
     protected bool $isMatchAny = false;

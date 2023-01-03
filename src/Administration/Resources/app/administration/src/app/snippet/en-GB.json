@@ -832,7 +832,8 @@
       "units": {
         "dimension": "mm",
         "weight": "kg",
-        "volume": "mm³"
+        "volume": "mm³",
+        "age": "Years"
       }
     },
     "sw-product-image": {

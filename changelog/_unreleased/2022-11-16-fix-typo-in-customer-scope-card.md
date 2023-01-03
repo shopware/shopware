@@ -1,5 +1,6 @@
 ---
+issue: NEXT-24792
 title: Fix typo in customer scope config card
 ---
 # Administration
-* Move the letter f just a little to the left.
+* Changed label of `isCustomerBoundToSalesChannel` field to move the letter f a little to the left

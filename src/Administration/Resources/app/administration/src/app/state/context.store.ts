@@ -35,6 +35,7 @@ interface ContextState {
         systemCurrencyISOCode: null | string,
         systemCurrencyId: null | string,
         disableExtensions: boolean,
+        lastActivity: number,
     },
     api: {
         apiPath: null | string,
@@ -75,6 +76,7 @@ const ContextStore: Module<ContextState, VuexRootState> = {
             systemCurrencyId: null,
             systemCurrencyISOCode: null,
             disableExtensions: false,
+            lastActivity: 0,
         },
         api: {
             apiPath: null,

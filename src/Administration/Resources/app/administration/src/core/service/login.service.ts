@@ -246,11 +246,31 @@ export default function createLoginService(
             clearTimeout(autoRefreshTokenTimeoutId);
         }
 
+        if (lastActivityOverThreshold()) {
+            logout();
+            return;
+        }
+
         const timeUntilExpiry = expiryTimestamp * 1000 - Date.now();
 
         autoRefreshTokenTimeoutId = setTimeout(() => {
             void refreshToken();
         }, timeUntilExpiry / 2);
+    }
+
+    /**
+     * Returns true if the last user activity is over the 30-minute threshold
+     *
+     * @private
+     */
+    function lastActivityOverThreshold(): boolean {
+        const lastActivity = Shopware.Context.app.lastActivity;
+
+        // (Current time in seconds) - 25 minutes
+        // 25 minutes + half the 10-minute expiry = 30 minute threshold
+        const threshold = Math.round(+new Date() / 1000) - 1500;
+
+        return lastActivity <= threshold;
     }
 
     /**

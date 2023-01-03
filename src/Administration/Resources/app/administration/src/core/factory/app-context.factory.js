@@ -16,5 +16,11 @@ export default function createContext(context = {}) {
         Shopware.State.commit('context/addAppValue', { key, value });
     });
 
+    // set initial last activity to prevent immediate logout
+    Shopware.State.commit('context/addAppValue', {
+        key: 'lastActivity',
+        value: Math.round(+new Date() / 1000),
+    });
+
     return Shopware.Context.app;
 }

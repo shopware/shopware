@@ -10,6 +10,8 @@ const { Component } = Shopware;
 Component.register('sw-admin', {
     template,
 
+    inject: ['userActivityService'],
+
     metaInfo() {
         return {
             title: this.$tc('global.sw-admin-menu.textShopwareAdmin'),
@@ -20,5 +22,11 @@ Component.register('sw-admin', {
         isLoggedIn() {
             return Shopware.Service('loginService').isLoggedIn();
         },
+    },
+
+    methods: {
+        onUserActivity: Shopware.Utils.debounce(function updateUserActivity() {
+            this.userActivityService.updateLastUserActivity();
+        }, 5000),
     },
 });

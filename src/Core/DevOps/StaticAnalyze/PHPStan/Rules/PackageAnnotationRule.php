@@ -31,6 +31,7 @@ class PackageAnnotationRule implements Rule
             '/Shopware\\\\Core\\\\Migration\\\\/',
             '/Shopware\\\\Core\\\\Profiling\\\\/',
             '/Shopware\\\\Elasticsearch\\\\/',
+            '/Shopware\\\\Docs\\\\/',
             '/Shopware\\\\Core\\\\System\\\\(Annotation|CustomEntity|DependencyInjection|SystemConfig)\\\\/',
             '/Shopware\\\\.*\\\\(DataAbstractionLayer)\\\\/',
         ],
@@ -91,7 +92,8 @@ class PackageAnnotationRule implements Rule
         ],
         'storefront' => [
             '/Shopware\\\\Storefront\\\\Theme\\\\/',
-            '/Shopware\\\\Storefront\\\\(DependencyInjection|Migration|Event|Exception|Framework|Theme|Test)\\\\/',
+            '/Shopware\\\\Storefront\\\\Controller\\\\/',
+            '/Shopware\\\\Storefront\\\\(DependencyInjection|Migration|Event|Exception|Framework|Test)\\\\/',
         ],
     ];
 
@@ -137,13 +139,18 @@ class PackageAnnotationRule implements Rule
 
     private function hasPackageAnnotation(InClassNode $class): bool
     {
-        $doc = $class->getDocComment();
+        foreach ($class->getOriginalNode()->attrGroups as $group) {
+            $attribute = $group->attrs[0];
 
-        if ($doc === null) {
-            return false;
+            /** @var Node\Name\FullyQualified $name */
+            $name = $attribute->name;
+
+            if ($name->toString() === Package::class) {
+                return true;
+            }
         }
 
-        return \str_contains($doc->getText(), sprintf('@package'));
+        return false;
     }
 
     private function isTestClass(InClassNode $node): bool
@@ -151,6 +158,11 @@ class PackageAnnotationRule implements Rule
         $namespace = $node->getClassReflection()->getName();
 
         if (\str_contains($namespace, '\\Tests\\') || \str_contains($namespace, '\\Test\\')) {
+            return true;
+        }
+
+        $file = (string) $node->getClassReflection()->getFileName();
+        if (\str_contains($file, '/tests/') || \str_contains($file, '/Tests/') || \str_contains($file, '/Test/')) {
             return true;
         }
 

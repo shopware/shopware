@@ -115,7 +115,7 @@ Examples:
 
     Returns all elements of this array.
 _________
-## [services.config (`Shopware\Core\System\SystemConfig\Facade\SystemConfigFacade`)](https://github.com/shopware/platform/blob/trunk/src/Core/System/SystemConfig/Facade/SystemConfigFacade.php) {#systemconfigfacade}
+## [`Shopware\Core\System\SystemConfig\Facade\SystemConfigFacade`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SystemConfig/Facade/SystemConfigFacade.php) {#systemconfigfacade}
 
 The `config` service allows you to access the shop's and your app's configuration values.
 

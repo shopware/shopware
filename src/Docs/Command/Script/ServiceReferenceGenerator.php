@@ -145,7 +145,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         $scriptServices = [];
 
         $shopwareClasses = ConstructFinder::locatedIn(__DIR__ . '/../../..')
-            ->exclude('*/Test/*', '*/vendor/*')
+            ->exclude('*/Test/*', '*/vendor/*', '*/DevOps/*')
             ->findClassNames();
 
         foreach ($shopwareClasses as $class) {

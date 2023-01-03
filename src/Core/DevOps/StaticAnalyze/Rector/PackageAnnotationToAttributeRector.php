@@ -6,26 +6,15 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
 use Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfo;
-use Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTagRemover;
 use Rector\Core\Rector\AbstractRector;
-use Rector\Naming\Naming\UseImportsResolver;
-use Rector\Php80\NodeAnalyzer\PhpAttributeAnalyzer;
-use Rector\Php80\NodeFactory\AttrGroupsFactory;
-use Rector\Php80\NodeManipulator\AttributeGroupNamedArgumentManipulator;
-use Rector\Php80\ValueObject\AnnotationToAttribute;
 use Rector\PhpAttribute\NodeFactory\PhpAttributeGroupFactory;
-use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule;
 use Shopware\Core\Framework\Log\Package;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
-class PackageAttributeRule extends AbstractRector
+#[Package('core')]
+class PackageAnnotationToAttributeRector extends AbstractRector
 {
-    /**
-     * @var AnnotationToAttribute[]
-     */
-    private $annotationsToAttributes = [];
-
     /**
      * @readonly
      *
@@ -33,55 +22,9 @@ class PackageAttributeRule extends AbstractRector
      */
     private $phpAttributeGroupFactory;
 
-    /**
-     * @readonly
-     *
-     * @var AttrGroupsFactory
-     */
-    private $attrGroupsFactory;
-
-    /**
-     * @readonly
-     *
-     * @var PhpDocTagRemover
-     */
-    private $phpDocTagRemover;
-
-    /**
-     * @readonly
-     *
-     * @var AttributeGroupNamedArgumentManipulator
-     */
-    private $attributeGroupNamedArgumentManipulator;
-
-    /**
-     * @readonly
-     *
-     * @var UseImportsResolver
-     */
-    private $useImportsResolver;
-
-    /**
-     * @readonly
-     *
-     * @var PhpAttributeAnalyzer
-     */
-    private $phpAttributeAnalyzer;
-
-    public function __construct(
-        PhpAttributeGroupFactory $phpAttributeGroupFactory,
-        AttrGroupsFactory $attrGroupsFactory,
-        PhpDocTagRemover $phpDocTagRemover,
-        AttributeGroupNamedArgumentManipulator $attributeGroupNamedArgumentManipulator,
-        UseImportsResolver $useImportsResolver,
-        PhpAttributeAnalyzer $phpAttributeAnalyzer
-    ) {
+    public function __construct(PhpAttributeGroupFactory $phpAttributeGroupFactory)
+    {
         $this->phpAttributeGroupFactory = $phpAttributeGroupFactory;
-        $this->attrGroupsFactory = $attrGroupsFactory;
-        $this->phpDocTagRemover = $phpDocTagRemover;
-        $this->attributeGroupNamedArgumentManipulator = $attributeGroupNamedArgumentManipulator;
-        $this->useImportsResolver = $useImportsResolver;
-        $this->phpAttributeAnalyzer = $phpAttributeAnalyzer;
     }
 
     public function getNodeTypes(): array
@@ -145,25 +88,6 @@ class Foo{}'
                 ),
             ]
         );
-    }
-
-    private function getArea(ClassLike $node): ?string
-    {
-        try {
-            $namespace = $node->namespacedName->toString();
-        } catch (\Throwable $e) {
-            return null;
-        }
-
-        foreach (PackageAnnotationRule::PRODUCT_AREA_MAPPING as $area => $regexes) {
-            foreach ($regexes as $regex) {
-                if (preg_match($regex, $namespace)) {
-                    return $area;
-                }
-            }
-        }
-
-        return null;
     }
 
     private function isTestClass(ClassLike $node): bool

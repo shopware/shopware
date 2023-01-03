@@ -85,7 +85,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
         $hookClasses = [];
 
         $shopwareClasses = ConstructFinder::locatedIn(__DIR__ . '/../../..')
-            ->exclude('*/Test/*', '*/vendor/*')
+            ->exclude('*/Test/*', '*/vendor/*', '*/DevOps/*')
             ->findClassNames();
 
         foreach ($shopwareClasses as $class) {

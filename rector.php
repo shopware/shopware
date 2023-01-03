@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
-use Shopware\Core\DevOps\StaticAnalyze\Rector\PackageAttributeRule;
+use Shopware\Core\DevOps\StaticAnalyze\Rector\ClassPackageRector;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->paths([
@@ -20,6 +20,7 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->skip([
         __DIR__ . '/src/Core/Framework/Script/ServiceStubs.php'
     ]);
+    $rectorConfig->rule(ClassPackageRector::class);
 
-    $rectorConfig->rule(PackageAttributeRule::class);
+//    $rectorConfig->rule(PackageAnnotationToAttributeRector::class);
 };

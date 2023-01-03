@@ -142,7 +142,6 @@ final class RuleConfig extends Struct
 
     /**
      * @return array<mixed>
-     *
      */
     public function getData(): array
     {
@@ -157,6 +156,7 @@ final class RuleConfig extends Struct
 
     /**
      * @param array<array<string>|string> $config
+     *
      * @return array<mixed>
      */
     private function getFieldTemplate(string $name, string $type, array $config): array

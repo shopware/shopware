@@ -97,7 +97,7 @@ class PackageAnnotationRule implements Rule
         ],
         'administration' => [
             '/Shopware\\\\Administration\\\\/',
-        ]
+        ],
     ];
 
     public function getNodeType(): string

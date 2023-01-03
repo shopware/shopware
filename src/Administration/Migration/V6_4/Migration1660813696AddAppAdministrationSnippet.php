@@ -2,8 +2,8 @@
 
 namespace Shopware\Administration\Migration\V6_4;
 
-use Shopware\Core\Framework\Log\Package;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**

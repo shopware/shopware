@@ -2,6 +2,8 @@
 
 namespace Shopware\Docs\Convert;
 
+use Shopware\Core\Framework\Log\Package;
+#[Package('core')]
 class CredentialsService
 {
     private const CREDENTIAL_PATH = __DIR__ . '/../wiki.secret';

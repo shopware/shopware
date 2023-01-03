@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
+use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+#[Package('system-settings')]
 #[Package('system-settings')]
 class FileService extends AbstractFileService
 {
@@ -43,7 +45,7 @@ class FileService extends AbstractFileService
 
     /**
      * @throws FileNotReadableException
-     * @throws \League\Flysystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function storeFile(Context $context, \DateTimeInterface $expireDate, ?string $sourcePath, ?string $originalFileName, string $activity, ?string $path = null): ImportExportFileEntity
     {

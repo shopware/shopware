@@ -2,6 +2,7 @@
 
 namespace Shopware\Docs\Command\Script;
 
+use Shopware\Core\Framework\Log\Package;
 use League\ConstructFinder\ConstructFinder;
 use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 use phpDocumentor\Reflection\DocBlock\Tags\Since;
@@ -22,6 +23,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
+#[Package('core')]
 class HooksReferenceGenerator implements ScriptReferenceGenerator
 {
     public const USE_CASE_DATA_LOADING = 'data_loading';

@@ -2,6 +2,8 @@
 
 namespace Shopware\Docs\Convert;
 
+use Shopware\Core\Framework\Log\Package;
+#[Package('core')]
 class DocumentHtml
 {
     private const METATAG_REGEX = '/^\[(.*?)\]:\s*<>\((.*?)\)\s*?$/m';

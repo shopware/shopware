@@ -2,8 +2,10 @@
 
 namespace Shopware\Docs\Inspection;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\SplFileInfo;
 
+#[Package('core')]
 class TemplateCustomRulesList
 {
     private const TEMPLATE_PAGE = <<<EOD

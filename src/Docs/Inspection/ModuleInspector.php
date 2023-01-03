@@ -2,6 +2,7 @@
 
 namespace Shopware\Docs\Inspection;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -13,6 +14,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('core')]
 class ModuleInspector
 {
     public const TAG_DATA_STORE = 'Data store';

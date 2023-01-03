@@ -2,6 +2,7 @@
 
 namespace Shopware\Docs\Command\Script;
 
+use Shopware\Core\Framework\Log\Package;
 use League\ConstructFinder\ConstructFinder;
 use phpDocumentor\Reflection\DocBlock;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
@@ -22,6 +23,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
+#[Package('core')]
 class ServiceReferenceGenerator implements ScriptReferenceGenerator
 {
     public const GROUP_DATA_LOADING = 'data_loading';

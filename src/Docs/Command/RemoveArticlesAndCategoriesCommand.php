@@ -2,12 +2,14 @@
 
 namespace Shopware\Docs\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Docs\Convert\CredentialsService;
 use Shopware\Docs\Convert\WikiApiService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[Package('core')]
 class RemoveArticlesAndCategoriesCommand extends Command
 {
     protected static $defaultName = 'docs:remove-all';

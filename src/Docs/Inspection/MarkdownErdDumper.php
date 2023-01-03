@@ -2,8 +2,10 @@
 
 namespace Shopware\Docs\Inspection;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 
+#[Package('core')]
 class MarkdownErdDumper implements ErdDumper
 {
     private const TEMPLATE_HEAD = <<<EOD

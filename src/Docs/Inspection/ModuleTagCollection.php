@@ -2,12 +2,14 @@
 
 namespace Shopware\Docs\Inspection;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * @extends Collection<ModuleTag>
  */
+#[Package('core')]
 class ModuleTagCollection extends Collection
 {
     /**

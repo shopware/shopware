@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -23,6 +24,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @deprecated tag:v6.5.0 - will be removed
  */
+#[Package('storefront')]
 class StoreApiProxyController
 {
     public const INHERIT_ATTRIBUTES = [

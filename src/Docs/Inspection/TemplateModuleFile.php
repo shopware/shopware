@@ -2,8 +2,10 @@
 
 namespace Shopware\Docs\Inspection;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('core')]
 class TemplateModuleFile
 {
     private const TEMPLATE_MODULE_PAGE = <<<EOD

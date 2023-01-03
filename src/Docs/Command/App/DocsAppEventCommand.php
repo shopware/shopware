@@ -2,6 +2,7 @@
 
 namespace Shopware\Docs\Command\App;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
@@ -16,6 +17,7 @@ use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Twig\Loader\ArrayLoader;
 
+#[Package('core')]
 class DocsAppEventCommand extends Command
 {
     protected static $defaultName = 'docs:app-system-events';

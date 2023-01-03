@@ -2,8 +2,10 @@
 
 namespace Shopware\Docs\Convert;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\SplFileInfo;
 
+#[Package('core')]
 class DocsParsedownExtra extends \ParsedownExtra
 {
     public const START_MARK = 'namespace %s {';

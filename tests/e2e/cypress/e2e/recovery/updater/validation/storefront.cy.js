@@ -28,34 +28,29 @@ describe('Storefront test data set', () => {
     it('@storefront: put cargohose from cms page into cart', { tags: ['quarantined', 'pa-system-settings'] }, () => {
         cy.visit('/Maenner/Hosen/');
 
-        cy.window().then((win) => {
-            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+        cy.get('.js-cookie-configuration-button > .btn').should('be.visible').click();
+        cy.get('.offcanvas-cookie > .btn').scrollIntoView().should('be.visible').click();
 
-            cy.get('.js-cookie-configuration-button > .btn').should('be.visible').click();
-            cy.get('.offcanvas-cookie > .btn').scrollIntoView().should('be.visible').click();
+        cy.get('.cms-element-text > h2')
+            .contains('Auf der Suche nach einer neuen Hose?')
+            .should('be.visible');
 
-            cy.get('.cms-element-text > h2')
-                .contains('Auf der Suche nach einer neuen Hose?')
-                .should('be.visible');
+        cy.get('.product-info').contains('Cargo').should('be.visible');
+        cy.get('.buy-widget > .btn').should('be.visible').click();
 
-            cy.get('.product-info').contains('Cargo').should('be.visible');
-            cy.get('.buy-widget > .btn').should('be.visible').click();
+        cy.get('.offcanvas').should('be.visible');
+        cy.get('.line-item-label').contains(/1x.*Cargo/).should('be.visible');
 
-            cy.get('.offcanvas').should('be.visible');
-            cy.get(`${lineItemSelector}-label`).contains(/1x.*Cargo/).should('be.visible');
+        cy.get('.line-item-remove > .btn').click();
+        cy.get('.line-item-label').should('not.exist');
+        cy.get('.alert-info > .alert-content-container > .alert-content')
+            .contains('Warenkorb ist leer')
+            .should('be.visible');
 
-            cy.get(`${lineItemSelector}-remove > .btn`).click();
-            cy.get(`${lineItemSelector}-label`).should('not.exist');
-            cy.get('.alert-info > .alert-content-container > .alert-content')
-                .contains('Warenkorb ist leer')
-                .should('be.visible');
+        cy.get('.offcanvas').scrollIntoView()
 
-            cy.get('.offcanvas').scrollIntoView()
-
-            cy.get('body > .offcanvas .offcanvas-close').should('be.visible').click();
-            cy.get('.offcanvas').should('not.exist');
-        });
+        cy.get('body > .offcanvas .offcanvas-close').should('be.visible').click();
+        cy.get('.offcanvas').should('not.exist');
     });
 
     // @todo remove skip after next-9476 is done

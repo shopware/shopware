@@ -84,51 +84,46 @@ describe('Hide products after clearance & free shipping.', () => {
         // add product to cart
         cy.visit('/');
 
-        cy.window().then((win) => {
-            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+        cy.contains('Home');
+        cy.get('.header-search-input')
+            .should('be.visible')
+            .type('Test Product');
+        cy.contains('.search-suggest-product-name', 'Test Product').click();
+        cy.contains('.delivery-information', 'Free shipping');
+        cy.get('.product-detail-buy .btn-buy').click();
 
-            cy.contains('Home');
-            cy.get('.header-search-input')
-                .should('be.visible')
-                .type('Test Product');
-            cy.contains('.search-suggest-product-name', 'Test Product').click();
-            cy.contains('.delivery-information', 'Free shipping');
-            cy.get('.product-detail-buy .btn-buy').click();
+        // Off canvas
+        cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
+        cy.contains('.line-item-label', 'Test Product');
 
-            // Off canvas
-            cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
-            cy.contains(`${lineItemSelector}-label`, 'Test Product');
+        // Guest check out
+        cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
+        cy.url().should('include', '/checkout/register');
+        cy.get('select#personalSalutation').typeAndSelect('Mr.');
+        cy.get('input#personalFirstName').clearTypeAndCheck('Wolf');
+        cy.get('input#personalLastName').clearTypeAndCheck('Kurt');
+        cy.get('input#personalMail').clearTypeAndCheck('wolf@kurt.com');
+        cy.get('input#personalPassword').clearTypeAndCheck('shopware');
+        cy.get('input#billingAddressAddressStreet').clearTypeAndCheck('Test street');
+        cy.get('input#billingAddressAddressZipcode').clearTypeAndCheck('48500');
+        cy.get('input#billingAddressAddressCity').clearTypeAndCheck('Amsterdam');
+        cy.get('select#billingAddressAddressCountry').typeAndSelect('Netherlands');
+        cy.get('.btn.btn-lg.btn-primary').click();
+        cy.wait('@registerCustomer').its('response.statusCode').should('equal', 302);
 
-            // Guest check out
-            cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
-            cy.url().should('include', '/checkout/register');
-            cy.get('select#personalSalutation').typeAndSelect('Mr.');
-            cy.get('input#personalFirstName').clearTypeAndCheck('Wolf');
-            cy.get('input#personalLastName').clearTypeAndCheck('Kurt');
-            cy.get('input#personalMail').clearTypeAndCheck('wolf@kurt.com');
-            cy.get('input#personalPassword').clearTypeAndCheck('shopware');
-            cy.get('input#billingAddressAddressStreet').clearTypeAndCheck('Test street');
-            cy.get('input#billingAddressAddressZipcode').clearTypeAndCheck('48500');
-            cy.get('input#billingAddressAddressCity').clearTypeAndCheck('Amsterdam');
-            cy.get('select#billingAddressAddressCountry').typeAndSelect('Netherlands');
-            cy.get('.btn.btn-lg.btn-primary').click();
-            cy.wait('@registerCustomer').its('response.statusCode').should('equal', 302);
+        // Go to cart
+        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
+        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+        cy.contains('.line-item-label', 'Test Product');
+        cy.get('#confirmFormSubmit').scrollIntoView().click();
+        cy.contains('.finish-header', `Thank you for your order with E2E install test!`);
 
-            // Go to cart
-            cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-            cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
-            cy.contains(`${lineItemSelector}-label`, 'Test Product');
-            cy.get('#confirmFormSubmit').scrollIntoView().click();
-            cy.contains('.finish-header', `Thank you for your order with E2E install test!`);
-
-            // after purchase verify 'add to shopping cart' button is not available
-            cy.visit('/');
-            cy.get('.header-search-input').should('be.visible').type('Test Product');
-            cy.contains('.search-suggest-product-name', 'Test Product').click();
-            cy.get('.product-detail-buy .btn-buy').should('not.exist');
-            cy.contains('No longer available').should('exist');
-        });
+        // after purchase verify 'add to shopping cart' button is not available
+        cy.visit('/');
+        cy.get('.header-search-input').should('be.visible').type('Test Product');
+        cy.contains('.search-suggest-product-name', 'Test Product').click();
+        cy.get('.product-detail-buy .btn-buy').should('not.exist');
+        cy.contains('No longer available').should('exist');
     });
 
     it('@package: should NOT show a product at the store front after changing settings', { tags: ['pa-inventory'] }, () => {

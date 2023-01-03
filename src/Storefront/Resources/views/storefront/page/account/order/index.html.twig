@@ -54,30 +54,20 @@
 {% endblock %}
 
 {% block page_checkout_confirm_table_header %}
-    {# @deprecated tag:v6.5.0 - Template `line-item-header.html.twig` is deprecated. Use `storefront/component/checkout/cart-header.html.twig` instead. #}
-    {% if feature('v6.5.0.0') %}
-        {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
-            showTaxPrice: true,
-            showRemoveColumn: false
-        } %}
-    {% else %}
-        {% sw_include '@Storefront/storefront/page/account/order/line-item-header.html.twig' %}
-    {% endif %}
+    {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
+        showTaxPrice: true,
+        showRemoveColumn: false
+    } %}
 {% endblock %}
 
 {% block page_checkout_confirm_table_items %}
     {% for lineItem in page.order.nestedLineItems %}
         {% block page_checkout_confirm_table_item %}
-            {# @deprecated tag:v6.5.0 - Template `storefront/page/account/order/line-item.html.twig` is deprecated. Use `storefront/component/line-item/line-item.html.twig` instead. #}
-            {% if feature('v6.5.0.0') %}
-                {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
-                    redirectTo: 'frontend.checkout.confirm.page',
-                    showTaxPrice: true,
-                    showRemoveButton: false
-                } %}
-            {% else %}
-                {% sw_include '@Storefront/storefront/page/account/order/line-item.html.twig' %}
-            {% endif %}
+            {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
+                redirectTo: 'frontend.checkout.confirm.page',
+                showTaxPrice: true,
+                showRemoveButton: false
+            } %}
         {% endblock %}
     {% endfor %}
 {% endblock %}

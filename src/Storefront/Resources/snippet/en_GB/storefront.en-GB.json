@@ -336,6 +336,7 @@
     "lineItemContainerChangeLink": "change",
     "lineItemShowMore": "more",
     "lineItemShowLess": "less",
+    "lineItemUnitPriceDescriptor": "unit",
     "cartEmpty": "Your shopping cart is empty.",
     "cartHeaderInfo": "Product",
     "cartHeaderQuantity": "Quantity",

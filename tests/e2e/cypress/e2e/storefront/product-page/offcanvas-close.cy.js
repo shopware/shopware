@@ -58,9 +58,6 @@ describe('Test if the offcanvas menus could be closed with the browser back butt
         cy.featureIsActive('v6.5.0.0').then((isActive) => {
             const page = new CheckoutPageObject();
 
-            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-            const lineItemSelector = isActive ? '.line-item' : '.cart-item';
-
             // add product to cart
             cy.get('.header-search-input')
                 .should('be.visible')
@@ -70,7 +67,7 @@ describe('Test if the offcanvas menus could be closed with the browser back butt
 
             // Off canvas
             cy.get(page.elements.offCanvasCart).should('be.visible');
-            cy.get(`${lineItemSelector}-label`).contains(product.name);
+            cy.get('.line-item-label').contains(product.name);
 
             // close offcanvas with backdrop click
             cy.get('.offcanvas-backdrop').click();

@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 #[Package('system-settings')]
-#[Package('system-settings')]
 class FileService extends AbstractFileService
 {
     private FilesystemInterface $filesystem;

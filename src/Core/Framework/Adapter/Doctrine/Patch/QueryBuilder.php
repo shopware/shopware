@@ -11,6 +11,7 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
+use Shopware\Core\Framework\Log\Package;
 use function array_filter;
 use function array_keys;
 use function array_unshift;
@@ -19,6 +20,7 @@ use function key;
 use function strtoupper;
 use function substr;
 
+#[Package('core')]
 class QueryBuilder
 {
     /*

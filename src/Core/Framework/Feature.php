@@ -4,8 +4,10 @@ namespace Shopware\Core\Framework;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 
+#[Package('core')]
 class Feature
 {
     public const ALL_MAJOR = 'major';

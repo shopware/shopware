@@ -169,6 +169,10 @@ class PackageAnnotationRule implements Rule
             return true;
         }
 
+        if (\str_contains($file, '/src/Docs/')) {
+            return true;
+        }
+
         if ($node->getClassReflection()->getParentClass() === null) {
             return false;
         }

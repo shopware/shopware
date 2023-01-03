@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
+#[Package('core')]
 abstract class Plugin extends Bundle
 {
     /**

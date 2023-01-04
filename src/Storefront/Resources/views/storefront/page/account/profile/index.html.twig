@@ -396,7 +396,7 @@
                 {% block page_account_profile_delete_account %}
                     {% if config('core.loginRegistration.allowCustomerDeletion') %}
                         <div class="account-deleting py-4">
-                            {{ 'account.profileDelete'|trans({
+                            {{ 'account.profileDeleteText'|trans({
                                 '%target%': '#confirmDeleteAccountModal'
                             })|raw }}
                         </div>

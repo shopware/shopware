@@ -20,12 +20,12 @@
         {% block cms_form_privacy_opt_in_label %}
             <label for="{{ identifierTemplate|format(_key) }}" class="form-check-label">
                 {% if requiresTermsOfService == true %}
-                    {{ "general.privacyNotice"|trans({
+                    {{ "general.privacyNoticeText"|trans({
                         '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
                         '%tosUrl%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage')} )
                     })|raw }}
                 {% else %}
-                    {{ "contact.privacyNotice"|trans({
+                    {{ "contact.privacyNoticeText"|trans({
                         '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') })
                     })|raw }}
                 {% endif %}

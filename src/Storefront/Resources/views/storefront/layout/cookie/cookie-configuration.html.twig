@@ -14,7 +14,7 @@
     <div class="offcanvas-cookie">
         <div class="offcanvas-cookie-description">
             <p>
-                {{ "cookie.message"|trans({
+                {{ "cookie.messageText"|trans({
                     '%url%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') })
                 })|raw }}
             </p>

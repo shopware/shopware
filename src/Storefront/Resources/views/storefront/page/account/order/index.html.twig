@@ -30,7 +30,7 @@
 {% endblock %}
 
 {% block page_checkout_confirm_tos_control %}
-    {{ "checkout.confirmTermsReminder"|trans({
+    {{ "checkout.confirmTermsReminderText"|trans({
         '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
     })|raw }}
 {% endblock %}

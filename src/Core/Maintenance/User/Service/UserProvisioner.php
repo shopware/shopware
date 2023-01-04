@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PasswordFieldSerializer;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @package core
@@ -17,15 +16,12 @@ class UserProvisioner
 {
     private Connection $connection;
 
-    private SystemConfigService $systemConfigService;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, SystemConfigService $systemConfigService)
+    public function __construct(Connection $connection)
     {
         $this->connection = $connection;
-        $this->systemConfigService = $systemConfigService;
     }
 
     /**
@@ -37,15 +33,13 @@ class UserProvisioner
             throw new \RuntimeException(sprintf('User with username "%s" already exists.', $username));
         }
 
-        $configKey = PasswordFieldSerializer::CONFIG_MIN_LENGTH_FOR[PasswordField::FOR_ADMIN];
+        $minPasswordLength = $this->getAdminPasswordMinLength();
 
-        $minPasswordLength = $this->systemConfigService->getInt($configKey);
-
-        if ($password && strlen($password) <= $minPasswordLength) {
+        if ($password && \strlen($password) < $minPasswordLength) {
             throw new \InvalidArgumentException(sprintf('The password length cannot be shorter than %s characters.', $minPasswordLength));
         }
 
-        $password = $password ?? Random::getAlphanumericString($minPasswordLength > 0 ? $minPasswordLength : 8);
+        $password = $password ?? Random::getAlphanumericString(max($minPasswordLength, 8));
 
         $userPayload = [
             'id' => Uuid::randomBytes(),
@@ -88,5 +82,25 @@ class UserProvisioner
                 ->setParameter('id', Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM))
                 ->execute()
                 ->fetchOne();
+    }
+
+    private function getAdminPasswordMinLength(): int
+    {
+        $configKey = PasswordFieldSerializer::CONFIG_MIN_LENGTH_FOR[PasswordField::FOR_ADMIN];
+
+        $result = $this->connection->fetchOne(
+            'SELECT configuration_value FROM system_config WHERE configuration_key = :configKey AND sales_channel_id is NULL;',
+            [
+                'configKey' => $configKey,
+            ]
+        );
+
+        if ($result === false) {
+            return 0;
+        }
+
+        $config = json_decode($result, true);
+
+        return $config['_value'] ?? 0;
     }
 }

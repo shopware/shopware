@@ -60,11 +60,11 @@ class LoginRouteTest extends TestCase
                 '/store-api/account/login',
                 [
                     'email' => 'foo',
-                    'password' => 'foo',
+                    'password' => 'foo12345',
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('Unauthorized', $response['errors'][0]['title']);
@@ -80,7 +80,7 @@ class LoginRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_AUTH_BAD_CREDENTIALS', $response['errors'][0]['code']);
@@ -102,7 +102,7 @@ class LoginRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('contextToken', $response);
     }
@@ -276,7 +276,7 @@ class LoginRouteTest extends TestCase
         static::assertEquals('cart-2', $cartFromSalesChannel2->getName());
     }
 
-    private function createCart(string $contextToken, ?string $cartName = CartService::SALES_CHANNEL): void
+    private function createCart(string $contextToken, string $cartName = CartService::SALES_CHANNEL): void
     {
         $connection = $this->getContainer()->get(Connection::class);
 
@@ -306,6 +306,9 @@ class LoginRouteTest extends TestCase
         ]);
     }
 
+    /**
+     * @param array<string, mixed> $salesChannelData
+     */
     private function createSalesChannelContext(string $contextToken, array $salesChannelData, ?string $customerId, ?string $salesChannelId = null): SalesChannelContext
     {
         if ($customerId) {

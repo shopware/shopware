@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes\FakeQueryBuilder;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
@@ -19,7 +18,6 @@ class UserProvisionerTest extends TestCase
     {
         $localeId = Uuid::randomBytes();
         $connection = $this->createMock(Connection::class);
-        $systemConfig = $this->createMock(SystemConfigService::class);
 
         $connection->expects(static::once())
             ->method('insert')
@@ -37,8 +35,8 @@ class UserProvisionerTest extends TestCase
                     return password_verify('shopware', $data['password']);
                 })
             );
-
-        $connection->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
+        $connection->expects(static::once())->method('fetchOne')->willReturn(json_encode(['_value' => 8]));
+        $connection->expects(static::exactly(2))->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
             new FakeQueryBuilder($connection, []),
             new FakeQueryBuilder($connection, [[$localeId]])
         );
@@ -50,7 +48,7 @@ class UserProvisionerTest extends TestCase
             'admin' => false,
         ];
 
-        $provisioner = new UserProvisioner($connection, $systemConfig);
+        $provisioner = new UserProvisioner($connection);
         $provisioner->provision('admin', 'shopware', $user);
     }
 
@@ -60,9 +58,7 @@ class UserProvisionerTest extends TestCase
         $connection->expects(static::never())
             ->method('insert');
 
-        $systemConfig = $this->createMock(SystemConfigService::class);
-
-        $connection->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
+        $connection->expects(static::once())->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
             new FakeQueryBuilder($connection, [[Uuid::randomBytes()]]),
         );
 
@@ -73,7 +69,7 @@ class UserProvisionerTest extends TestCase
             'admin' => false,
         ];
 
-        $provisioner = new UserProvisioner($connection, $systemConfig);
+        $provisioner = new UserProvisioner($connection);
         static::expectException(\RuntimeException::class);
         static::expectExceptionMessage('User with username "admin" already exists.');
         $provisioner->provision('admin', 'shopware', $user);
@@ -82,14 +78,14 @@ class UserProvisionerTest extends TestCase
     public function testProvisionThrowsIfPasswordTooShort(): void
     {
         $connection = $this->createMock(Connection::class);
-        $systemConfig = $this->createMock(SystemConfigService::class);
-        $systemConfig->expects(static::once())->method('getInt')->willReturn(8);
         $connection->expects(static::never())
             ->method('insert');
 
-        $connection->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
+        $connection->expects(static::once())->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
             new FakeQueryBuilder($connection, []),
         );
+
+        $connection->expects(static::once())->method('fetchOne')->willReturn(json_encode(['_value' => 8]));
 
         $user = [
             'firstName' => 'first',
@@ -98,7 +94,7 @@ class UserProvisionerTest extends TestCase
             'admin' => false,
         ];
 
-        $provisioner = new UserProvisioner($connection, $systemConfig);
+        $provisioner = new UserProvisioner($connection);
         static::expectException(\InvalidArgumentException::class);
         static::expectExceptionMessage('The password length cannot be shorter than 8 characters.');
         $provisioner->provision('admin', 'short', $user);
@@ -108,8 +104,6 @@ class UserProvisionerTest extends TestCase
     {
         $localeId = Uuid::randomBytes();
         $connection = $this->createMock(Connection::class);
-        $systemConfig = $this->createMock(SystemConfigService::class);
-        $systemConfig->expects(static::once())->method('getInt')->willReturn(20);
 
         $connection->expects(static::once())
             ->method('insert')
@@ -128,7 +122,8 @@ class UserProvisionerTest extends TestCase
                 })
             );
 
-        $connection->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
+        $connection->expects(static::once())->method('fetchOne')->willReturn(json_encode(['_value' => 8]));
+        $connection->expects(static::exactly(2))->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
             new FakeQueryBuilder($connection, []),
             new FakeQueryBuilder($connection, [[$localeId]])
         );
@@ -140,7 +135,7 @@ class UserProvisionerTest extends TestCase
             'admin' => false,
         ];
 
-        $provisioner = new UserProvisioner($connection, $systemConfig);
+        $provisioner = new UserProvisioner($connection);
         $provisioner->provision('admin', null, $user);
     }
 }

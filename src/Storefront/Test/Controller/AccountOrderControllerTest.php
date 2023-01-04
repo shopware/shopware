@@ -150,7 +150,7 @@ class AccountOrderControllerTest extends TestCase
             ])
         );
 
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
     }
 
     public function testEditOrderWithDifferentSalesChannelContextShippingMethodRestoresOrderShippingMethod(): void
@@ -175,6 +175,8 @@ class AccountOrderControllerTest extends TestCase
 
         /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $salesChannelRepository->search($criteria, $context)->first();
+        static::assertNotNull($salesChannel);
+
         if ($salesChannel !== null) {
             $orderData[0]['salesChannelId'] = $salesChannel->getId();
         }
@@ -199,7 +201,6 @@ class AccountOrderControllerTest extends TestCase
         $differentShippingMethodId = $this->getContainer()->get('shipping_method.repository')->searchIds($criteria, $context)->firstId();
         static::assertNotNull($differentShippingMethodId);
         static::assertNotSame($orderShippingMethodId, $differentShippingMethodId);
-
         $salesChannelRepository->update([
             [
                 'id' => $salesChannel->getId(),
@@ -226,7 +227,8 @@ class AccountOrderControllerTest extends TestCase
 
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
-        static::assertSame($differentShippingMethodId, $response->getContext()->getShippingMethod()->getId());
+        static::assertNotNull($context = $response->getContext());
+        static::assertSame($differentShippingMethodId, $context->getShippingMethod()->getId());
 
         // Test that the order edit page switches the SalesChannelContext Shipping method to the order one
         $browser->request(
@@ -236,7 +238,8 @@ class AccountOrderControllerTest extends TestCase
 
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
-        static::assertSame($orderShippingMethodId, $response->getContext()->getShippingMethod()->getId());
+        static::assertNotNull($context = $response->getContext());
+        static::assertSame($orderShippingMethodId, $context->getShippingMethod()->getId());
     }
 
     public function testAccountOrderPageLoadedScriptsAreExecuted(): void
@@ -380,11 +383,11 @@ class AccountOrderControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $email,
-                'password' => 'shopware12345',
+                'password' => 'shopware',
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         return $browser;
     }
@@ -415,7 +418,7 @@ class AccountOrderControllerTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(TestDefaults::SALES_CHANNEL),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@example.com',
-                'password' => 'shopware12345',
+                'password' => 'shopware',
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

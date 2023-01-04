@@ -13,7 +13,6 @@ use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -88,7 +87,6 @@ class ShopConfigurationControllerTest extends TestCase
             $this->shopConfigService,
             $this->adminConfigService,
             $this->translator,
-            $this->createMock(SystemConfigService::class),
             ['de' => 'de-DE', 'en' => 'en-GB'],
             ['EUR', 'USD']
         );

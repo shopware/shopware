@@ -88,6 +88,10 @@
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_flow_list_grid_actions_custom %}
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_list_grid_actions_delete %}
                 <sw-context-menu-item
                     class="sw-context-menu-item--danger sw-flow-list__item-delete"
@@ -169,13 +173,7 @@
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_flow_download_modal %}
-        <sw-flow-download-modal
-            v-if="currentFlow && isDownloading"
-            :flow-id="currentFlow.id"
-            @download-finish="onDownloadFlowSuccess"
-            @modal-close="onCloseDownloadModal"
-        />
+        {% block sw_flow_list_modal_content_custom %}
         {% endblock %}
     </div>
     {% endblock %}

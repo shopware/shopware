@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package business-ops
- *
  * @internal not intended for decoration or replacement
  */
+#[Package('business-ops')]
 abstract class AbstractFlowLoader
 {
     abstract public function getDecorated(): AbstractFlowLoader;

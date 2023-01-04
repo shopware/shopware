@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 
 /**
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
  *
  * @extends EntityCollection<Entity>
  */
+#[Package('core')]
 class EntitySearchResult extends EntityCollection
 {
     use StateAwareTrait;

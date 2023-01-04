@@ -3,10 +3,9 @@
 namespace Shopware\Elasticsearch\Sort;
 
 use ONGR\ElasticsearchDSL\Sort\FieldSort;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CountSort extends FieldSort
 {
     /**

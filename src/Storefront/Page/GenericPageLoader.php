@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Page;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
@@ -18,10 +19,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package storefront
- *
  * @Decoratable()
  */
+#[Package('storefront')]
 class GenericPageLoader implements GenericPageLoaderInterface
 {
     /**

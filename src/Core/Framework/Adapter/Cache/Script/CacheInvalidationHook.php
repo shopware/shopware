@@ -5,16 +5,17 @@ namespace Shopware\Core\Framework\Adapter\Cache\Script;
 use Shopware\Core\Framework\Adapter\Cache\Script\Facade\CacheInvalidatorFacadeHookFactory;
 use Shopware\Core\Framework\Adapter\Cache\Script\Facade\WrittenEventScriptFacade;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 
 /**
  * Triggered whenever an entity is written.
  *
- * @package core
  * @hook-use-case custom_endpoint
  *
  * @since 6.4.9.0
  */
+#[Package('core')]
 class CacheInvalidationHook extends Hook
 {
     public const HOOK_NAME = 'cache-invalidation';

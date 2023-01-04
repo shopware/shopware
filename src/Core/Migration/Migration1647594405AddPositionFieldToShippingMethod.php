@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Migration;
 
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Migration\V6_4\Migration1648031636AddPositionFieldToShippingMethod;
+
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - Will be deleted. Migrations are now namespaced by major version
  */
-class Migration1647594405AddPositionFieldToShippingMethod extends \Shopware\Core\Migration\V6_4\Migration1648031636AddPositionFieldToShippingMethod
+#[Package('core')]
+class Migration1647594405AddPositionFieldToShippingMethod extends Migration1648031636AddPositionFieldToShippingMethod
 {
 }

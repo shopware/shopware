@@ -6,12 +6,11 @@ use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
 use Shopware\Core\Content\Sitemap\Event\SitemapFilterOpenTagEvent;
 use Shopware\Core\Content\Sitemap\Struct\Url;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SitemapHandle implements SitemapHandleInterface
 {
     private const MAX_URLS = 49999;

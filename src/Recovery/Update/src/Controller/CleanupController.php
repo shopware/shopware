@@ -4,14 +4,13 @@ namespace Shopware\Recovery\Update\Controller;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Recovery\Update\Cleanup;
 use Shopware\Recovery\Update\CleanupFilesFinder;
 use Shopware\Recovery\Update\Utils;
 use Slim\App;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class CleanupController
 {
     /**

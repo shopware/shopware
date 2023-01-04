@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Framework\Store\Exception;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package merchant-services
- *
  * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - Will only extend from Shopware\Core\Framework\ShopwareHttpException
  *
  * @internal
  */
+#[Package('merchant-services')]
 class ExtensionUpdateRequiresConsentAffirmationException extends ExtensionRequiresNewPrivilegesException
 {
     /**

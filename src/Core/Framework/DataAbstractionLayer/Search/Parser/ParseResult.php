@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
+#[Package('core')]
 class ParseResult
 {
     protected array $wheres = [];

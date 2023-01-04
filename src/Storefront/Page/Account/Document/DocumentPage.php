@@ -4,13 +4,13 @@ namespace Shopware\Storefront\Page\Account\Document;
 
 use Shopware\Core\Checkout\Document\GeneratedDocument;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
 /**
- * @package customer-order
- *
  * @deprecated tag:v6.5.0 - Will be removed
  */
+#[Package('customer-order')]
 class DocumentPage extends Page
 {
     /**

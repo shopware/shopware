@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Node;
 
+use Shopware\Core\Framework\Log\Package;
 use Twig\Compiler;
 use Twig\Node\Node;
 
-/**
- * @package core
- */
+#[Package('core')]
 class FeatureCallSilentToken extends Node
 {
     private string $flag;

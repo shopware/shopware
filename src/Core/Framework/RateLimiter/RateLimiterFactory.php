@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\RateLimiter;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Policy\SystemConfigLimiter;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoffLimiter;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -12,9 +13,7 @@ use Symfony\Component\RateLimiter\Policy\NoLimiter;
 use Symfony\Component\RateLimiter\RateLimiterFactory as SymfonyRateLimiterFactory;
 use Symfony\Component\RateLimiter\Storage\StorageInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class RateLimiterFactory
 {
     /**

@@ -9,14 +9,14 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 
 /**
- * @package core
- *
  * @internal Use SalesChannelContext for extensions
  */
+#[Package('core')]
 class BaseContext
 {
     protected CustomerGroupEntity $currentCustomerGroup;

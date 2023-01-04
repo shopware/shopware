@@ -3,13 +3,14 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * @package core
  * @extends AbstractCacheTracer<mixed|null>
  */
+#[Package('core')]
 class CacheTracer extends AbstractCacheTracer
 {
     private SystemConfigService $config;

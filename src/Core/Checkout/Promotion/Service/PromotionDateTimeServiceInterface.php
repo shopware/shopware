@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Promotion\Service;
 
-/**
- * @package checkout
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 interface PromotionDateTimeServiceInterface
 {
     public function getNow(): string;

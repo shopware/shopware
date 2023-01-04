@@ -7,8 +7,6 @@ use Shopware\Core\System\Snippet\Filter\TranslationKeyFilter;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class TranslationKeyFilterTest extends TestCase
 {

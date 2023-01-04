@@ -4,12 +4,11 @@ namespace Shopware\Core\Content\Sitemap\Provider;
 
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class HomeUrlProvider extends AbstractUrlProvider
 {
     public const CHANGE_FREQ = 'daily';

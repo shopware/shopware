@@ -4,12 +4,12 @@ namespace Shopware\Core\Maintenance\System\Service;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - Will be removed use SetupDatabaseAdapter instead
  */
+#[Package('core')]
 class DatabaseInitializer
 {
     private Connection $connection;

@@ -4,10 +4,9 @@ namespace Shopware\Core\Content\Rule\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class RuleIndexerEvent extends NestedEvent
 {
     /**

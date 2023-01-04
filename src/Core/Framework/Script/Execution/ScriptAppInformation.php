@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal
  */
+#[Package('core')]
 class ScriptAppInformation
 {
     private string $id;

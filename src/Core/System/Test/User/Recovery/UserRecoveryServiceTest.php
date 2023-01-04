@@ -16,8 +16,6 @@ use Shopware\Core\System\User\UserEntity;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class UserRecoveryServiceTest extends TestCase
 {

@@ -11,6 +11,7 @@ use OpenApi\Annotations\Schema;
 use OpenApi\Context;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\Event\OpenApiPathsEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use function OpenApi\scan;
 use const OpenApi\Annotations\UNDEFINED;
@@ -18,6 +19,7 @@ use const OpenApi\Annotations\UNDEFINED;
 /**
  * @deprecated tag:v6.5.0 - Will be removed
  */
+#[Package('core')]
 class OpenApiLoader
 {
     private const OPERATION_KEYS = [

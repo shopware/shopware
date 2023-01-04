@@ -9,10 +9,9 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class AnnotatePackageHandler extends AbstractHandler
 {
     private HandlerInterface $handler;

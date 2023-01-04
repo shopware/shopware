@@ -3,12 +3,12 @@
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package sales-channel
- *
  * @extends EntityCollection<SalesChannelTypeTranslationEntity>
  */
+#[Package('sales-channel')]
 class SalesChannelTypeTranslationCollection extends EntityCollection
 {
     /**

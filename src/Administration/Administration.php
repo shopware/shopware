@@ -4,6 +4,7 @@ namespace Shopware\Administration;
 
 use Shopware\Administration\DependencyInjection\AdministrationMigrationCompilerPass;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -11,6 +12,7 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 /**
  * @internal
  */
+#[Package('administration')]
 class Administration extends Bundle
 {
     public function getTemplatePriority(): int

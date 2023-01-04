@@ -1,10 +1,5 @@
 <?php declare(strict_types=1);
 
-/**
- * @package core
- * Forward compatibility adaption to add `executeQuery` and `executeStatement` methods to the Query Builder
- */
-
 namespace Doctrine\DBAL\Query;
 
 use Doctrine\DBAL\Connection;
@@ -24,17 +19,6 @@ use function key;
 use function strtoupper;
 use function substr;
 
-/**
- * @package core
- * QueryBuilder class is responsible to dynamically create SQL queries.
- *
- * Important: Verify that every feature you use will work with your database vendor.
- * SQL Query Builder does not attempt to validate the generated SQL at all.
- *
- * The query builder does no validation whatsoever if certain features even work with the
- * underlying database vendor. Limit queries and joins are NOT applied to UPDATE and DELETE statements
- * even if some vendors such as MySQL support it.
- */
 class QueryBuilder
 {
     /*

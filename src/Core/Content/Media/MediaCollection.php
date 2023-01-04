@@ -3,11 +3,12 @@
 namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
  * @extends EntityCollection<MediaEntity>
  */
+#[Package('content')]
 class MediaCollection extends EntityCollection
 {
     /**

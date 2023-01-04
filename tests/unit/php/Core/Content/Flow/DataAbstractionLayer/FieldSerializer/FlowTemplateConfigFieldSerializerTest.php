@@ -20,8 +20,6 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Validation;
 
 /**
- * @package business-ops
- *
  * @internal
  * @covers \Shopware\Core\Content\Flow\DataAbstractionLayer\FieldSerializer\FlowTemplateConfigFieldSerializer
  */

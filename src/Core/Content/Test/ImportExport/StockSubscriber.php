@@ -7,8 +7,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class StockSubscriber implements EventSubscriberInterface
 {

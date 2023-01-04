@@ -3,13 +3,12 @@
 namespace Shopware\Storefront\Framework\Cache\Event;
 
 use Psr\Cache\CacheItemInterface;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class HttpCacheItemWrittenEvent extends Event
 {
     /**

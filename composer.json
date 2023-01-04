@@ -37,7 +37,8 @@
             "bamarni/composer-bin-plugin": true,
             "composer/package-versions-deprecated": true,
             "phpstan/extension-installer": true,
-            "cweagans/composer-patches": true
+            "cweagans/composer-patches": true,
+            "symfony/runtime": true
         }
     },
     "require": {

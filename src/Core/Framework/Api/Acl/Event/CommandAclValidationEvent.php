@@ -4,11 +4,10 @@ namespace Shopware\Core\Framework\Api\Acl\Event;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CommandAclValidationEvent extends Event
 {
     /**

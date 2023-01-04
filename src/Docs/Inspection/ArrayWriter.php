@@ -2,6 +2,9 @@
 
 namespace Shopware\Docs\Inspection;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class ArrayWriter
 {
     private array $data = [];

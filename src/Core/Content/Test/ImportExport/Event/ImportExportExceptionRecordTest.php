@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Context;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class ImportExportExceptionRecordTest extends TestCase
 {

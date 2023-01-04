@@ -3,10 +3,9 @@
 namespace Shopware\Storefront\Framework\Cache\ReverseProxy;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 abstract class AbstractReverseProxyGateway
 {
     abstract public function getDecorated(): AbstractReverseProxyGateway;

@@ -18,11 +18,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventActionRuleDefinition;
 use Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-entity - Will be removed in v6.5.0.
  */
+#[Package('business-ops')]
 class EventActionDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'event_action';

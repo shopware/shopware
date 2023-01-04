@@ -3,8 +3,6 @@
 namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class FakeSequenceSupervisor

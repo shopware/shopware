@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\ProductExport\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('inventory')]
 class ProductExportRenderHeaderContextEvent extends Event
 {
     public const NAME = 'product_export.render.header_context';

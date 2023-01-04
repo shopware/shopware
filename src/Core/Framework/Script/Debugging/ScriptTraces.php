@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Debugging;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\FunctionHook;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
@@ -14,6 +15,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal
  */
+#[Package('core')]
 class ScriptTraces extends AbstractDataCollector implements ResetInterface
 {
     /**

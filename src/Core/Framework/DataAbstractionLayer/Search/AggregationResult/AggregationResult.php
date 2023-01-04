@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
+#[Package('core')]
 abstract class AggregationResult extends Struct
 {
     /**

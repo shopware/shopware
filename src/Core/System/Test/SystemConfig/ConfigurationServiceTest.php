@@ -17,8 +17,6 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class ConfigurationServiceTest extends TestCase
 {

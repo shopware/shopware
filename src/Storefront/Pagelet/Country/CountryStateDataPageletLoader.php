@@ -3,14 +3,13 @@
 namespace Shopware\Storefront\Pagelet\Country;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryStateRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class CountryStateDataPageletLoader
 {
     private EventDispatcherInterface $eventDispatcher;

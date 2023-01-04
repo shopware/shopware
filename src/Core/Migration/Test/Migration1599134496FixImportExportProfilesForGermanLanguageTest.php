@@ -13,8 +13,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1599134496FixImportExportProfilesForGermanLanguage;
 
 /**
- * @package core
- *
  * @internal
  */
 class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends TestCase

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\MailTemplate;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('sales-channel')]
 class MailTemplateEvents
 {
     /**

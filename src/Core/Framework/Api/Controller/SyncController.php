@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\PlatformRequest;
@@ -23,6 +24,7 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Package('core')]
 class SyncController extends AbstractController
 {
     public const ACTION_UPSERT = 'upsert';

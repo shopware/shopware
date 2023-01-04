@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Test\TestBuilderTrait;
 
 /**
- * @package customer-order
- *
  * @internal
  */
 class OrderTransactionCaptureRefundPositionBuilder

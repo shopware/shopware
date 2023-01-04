@@ -2,13 +2,13 @@
 
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package storefront
- *
  * @extends Collection<StorefrontPluginConfiguration>
  */
+#[Package('storefront')]
 class StorefrontPluginConfigurationCollection extends Collection
 {
     public function getByTechnicalName(string $name): ?StorefrontPluginConfiguration

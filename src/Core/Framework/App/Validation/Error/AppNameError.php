@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Framework\App\Validation\Error;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class AppNameError extends Error
 {
     private const KEY = 'invalid-app-name';

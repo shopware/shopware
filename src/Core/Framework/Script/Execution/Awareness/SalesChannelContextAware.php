@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Execution\Awareness;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -10,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @deprecated tag:v6.5.0 will be marked internal
  */
+#[Package('core')]
 interface SalesChannelContextAware
 {
     public function getSalesChannelContext(): SalesChannelContext;

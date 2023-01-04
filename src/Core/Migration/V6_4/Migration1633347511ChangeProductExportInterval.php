@@ -4,13 +4,13 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTask;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
  */
+#[Package('core')]
 class Migration1633347511ChangeProductExportInterval extends MigrationStep
 {
     private const OLD_INTERVAL = 86400;

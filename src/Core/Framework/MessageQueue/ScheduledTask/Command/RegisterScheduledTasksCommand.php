@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class RegisterScheduledTasksCommand extends Command
 {
     protected static $defaultName = 'scheduled-task:register';

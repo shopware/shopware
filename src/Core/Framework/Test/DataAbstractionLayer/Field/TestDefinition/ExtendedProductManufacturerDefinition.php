@@ -17,8 +17,6 @@ use Shopware\Core\System\Language\LanguageDefinition;
 
 /**
  * @internal
- *
- * @package inventory
  */
 class ExtendedProductManufacturerDefinition extends EntityDefinition
 {

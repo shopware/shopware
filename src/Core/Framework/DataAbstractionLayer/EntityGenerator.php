@@ -35,11 +35,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
  * @final tag:v6.5.0
  */
+#[Package('core')]
 class EntityGenerator
 {
     private string $classTemplate = <<<EOF

@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @final tag:v6.5.0
  */
+#[Package('core')]
 class SearchTerm
 {
     /**

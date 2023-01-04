@@ -8,11 +8,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal The use of this class is reserved for the custom_entity feature
  */
+#[Package('core')]
 class DynamicEntityDefinition extends EntityDefinition
 {
     protected string $name;

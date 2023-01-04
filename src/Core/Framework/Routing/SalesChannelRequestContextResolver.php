@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
@@ -18,9 +19,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SalesChannelRequestContextResolver implements RequestContextResolverInterface
 {
     use RouteScopeCheckTrait;

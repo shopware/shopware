@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -14,9 +15,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ElasticsearchStatusCommand extends Command
 {
     use ConsoleProgressTrait;

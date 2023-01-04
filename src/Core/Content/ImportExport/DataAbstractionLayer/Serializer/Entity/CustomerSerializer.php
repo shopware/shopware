@@ -11,9 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Contracts\Service\ResetInterface;
 
+#[Package('core')]
 class CustomerSerializer extends EntitySerializer implements ResetInterface
 {
     private EntityRepositoryInterface $customerGroupRepository;

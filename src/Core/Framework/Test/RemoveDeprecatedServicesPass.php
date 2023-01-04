@@ -6,8 +6,6 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
- * @package core
- *
  * @internal
  */
 class RemoveDeprecatedServicesPass implements CompilerPassInterface

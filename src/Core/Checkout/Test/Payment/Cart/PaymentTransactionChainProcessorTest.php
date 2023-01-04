@@ -26,8 +26,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class PaymentTransactionChainProcessorTest extends TestCase

@@ -6,6 +6,7 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -13,10 +14,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package sales-channel
- *
  * @Decoratable
  */
+#[Package('sales-channel')]
 class SeoUrlValidationFactory implements SeoUrlDataValidationFactoryInterface
 {
     public function buildValidation(Context $context, ?SeoUrlRouteConfig $config): DataValidationDefinition

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Routing\Annotation;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @deprecated tag:v6.5.0 - Use route defaults with "_routeScope". Example: @Route(defaults={"_routeScope"={"storefront"}})
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Feature;
  *   @Attribute("scopes",  type = "array"),
  * })
  */
+#[Package('core')]
 class RouteScope extends ConfigurationAnnotation
 {
     /**

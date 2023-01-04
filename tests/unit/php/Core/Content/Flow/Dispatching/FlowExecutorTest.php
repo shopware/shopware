@@ -36,8 +36,6 @@ use Shopware\Core\System\Tag\TagEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\FlowExecutor

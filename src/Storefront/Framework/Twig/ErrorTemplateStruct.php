@@ -2,13 +2,12 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Pagelet\Footer\FooterPagelet;
 use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ErrorTemplateStruct extends Struct
 {
     /**

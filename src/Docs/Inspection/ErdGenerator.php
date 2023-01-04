@@ -4,7 +4,9 @@ namespace Shopware\Docs\Inspection;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class ErdGenerator
 {
     /**

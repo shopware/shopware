@@ -49,8 +49,6 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class SendMailActionTest extends TestCase
@@ -820,8 +818,6 @@ class SendMailActionTest extends TestCase
 }
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class TestEmailService extends MailService

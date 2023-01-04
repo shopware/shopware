@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\Migration\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
-/**
- * @package core
- */
+#[Package('core')]
 class MigrationDestructiveCommand extends MigrationCommand
 {
     protected static $defaultName = 'database:migrate-destructive';

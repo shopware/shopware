@@ -3,11 +3,13 @@
 namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Node\Node;
 use Twig\Parser;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
+#[Package('core')]
 final class ExtendsTokenParser extends AbstractTokenParser
 {
     /**

@@ -16,7 +16,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  *
- * @package content
  * @covers \Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory
  */
 class ContactFormValidationFactoryTest extends TestCase

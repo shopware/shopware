@@ -5,13 +5,13 @@ namespace Shopware\Core\Checkout\Document\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @package customer-order
- *
  * @deprecated tag:v6.5.0 - Will be removed
  */
+#[Package('customer-order')]
 class DocumentOrderCriteriaEvent extends Event
 {
     /**

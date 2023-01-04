@@ -2,12 +2,11 @@
 
 namespace Shopware\Core;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class HttpKernelResult
 {
     /**

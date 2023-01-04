@@ -3,12 +3,13 @@
 namespace Shopware\Core\System\Language;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LocaleCollection;
 
 /**
- * @package core
  * @extends EntityCollection<LanguageEntity>
  */
+#[Package('core')]
 class LanguageCollection extends EntityCollection
 {
     /**

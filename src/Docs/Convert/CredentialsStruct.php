@@ -2,6 +2,9 @@
 
 namespace Shopware\Docs\Convert;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class CredentialsStruct
 {
     /**

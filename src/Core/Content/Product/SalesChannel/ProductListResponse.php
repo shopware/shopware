@@ -4,11 +4,10 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductListResponse extends StoreApiResponse
 {
     /**

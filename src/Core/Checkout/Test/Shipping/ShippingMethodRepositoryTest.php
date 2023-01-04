@@ -14,8 +14,6 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class ShippingMethodRepositoryTest extends TestCase

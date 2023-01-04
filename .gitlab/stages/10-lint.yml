@@ -102,7 +102,7 @@ PHP static analysis:
     variables:
         GIT_DEPTH: 0
     stage: lint
-    image: shopware/development:7.4-composer-2
+    image: shopware/development:8.0-composer-2
     rules:
         - if: '$CI_COMMIT_BRANCH == "trunk"'
           when: never

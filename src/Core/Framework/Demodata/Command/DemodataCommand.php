@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Demodata\Command;
 
+use Bezhanov\Faker\Provider\Commerce;
+use Faker\Factory;
+use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
@@ -21,6 +24,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
@@ -33,6 +37,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
  */
+#[Package('core')]
 class DemodataCommand extends Command
 {
     protected static $defaultName = 'framework:demodata';
@@ -166,15 +171,15 @@ class DemodataCommand extends Command
      */
     private function ensureAllDependenciesArePresent(): void
     {
-        if (!class_exists(\Faker\Factory::class)) {
+        if (!class_exists(Factory::class)) {
             throw new \RuntimeException('Please install composer package "fakerphp/faker" to use the demo-data command.');
         }
 
-        if (!class_exists(\Bezhanov\Faker\Provider\Commerce::class)) {
+        if (!class_exists(Commerce::class)) {
             throw new \RuntimeException('Please install composer package "mbezhanov/faker-provider-collection" to use the demo-data command.');
         }
 
-        if (!class_exists(\Maltyxx\ImagesGenerator\ImagesGeneratorProvider::class)) {
+        if (!class_exists(ImagesGeneratorProvider::class)) {
             throw new \RuntimeException('Please install composer package "maltyxx/images-generator" to use the demo-data command.');
         }
     }

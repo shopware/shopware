@@ -4,8 +4,10 @@ namespace Shopware\Administration\Events;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('system-settings')]
 class PreResetExcludedSearchTermEvent extends Event implements ShopwareEvent
 {
     private string $searchConfigId;

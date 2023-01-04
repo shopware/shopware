@@ -5,7 +5,9 @@ namespace Shopware\Core\Content\ProductExport\Service;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductExportFileHandler implements ProductExportFileHandlerInterface
 {
     private FilesystemInterface $fileSystem;

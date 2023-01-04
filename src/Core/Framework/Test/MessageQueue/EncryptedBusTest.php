@@ -13,8 +13,6 @@ use Symfony\Component\Messenger\Stamp\SerializerStamp;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class EncryptedBusTest extends TestCase
 {

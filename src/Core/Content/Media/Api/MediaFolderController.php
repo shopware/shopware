@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media\Api;
 
 use Shopware\Core\Content\Media\MediaFolderService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -11,9 +12,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package content
  * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Package('content')]
 class MediaFolderController extends AbstractController
 {
     /**

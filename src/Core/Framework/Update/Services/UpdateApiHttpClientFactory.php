@@ -3,8 +3,10 @@
 namespace Shopware\Core\Framework\Update\Services;
 
 use GuzzleHttp\Client;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+#[Package('system-settings')]
 class UpdateApiHttpClientFactory
 {
     private SystemConfigService $systemConfigService;

@@ -6,11 +6,10 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 trait CustomerAddressValidationTrait
 {
     private function validateAddress(string $id, SalesChannelContext $context, CustomerEntity $customer): void

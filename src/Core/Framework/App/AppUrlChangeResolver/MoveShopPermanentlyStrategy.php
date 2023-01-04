@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -23,6 +24,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * with the new appUrl so the apps can save the new URL and generate new Secrets
  * that way communication from the old shop to the app backend will be blocked in the future
  */
+#[Package('core')]
 class MoveShopPermanentlyStrategy extends AbstractAppUrlChangeStrategy
 {
     public const STRATEGY_NAME = 'move-shop-permanently';

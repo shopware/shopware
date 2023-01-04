@@ -8,12 +8,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeSalesChannelDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'theme_sales_channel';

@@ -13,12 +13,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:remove-entity - use `shopware.increment.message_queue.gateway` service instead
  */
+#[Package('core')]
 class MessageQueueStatsDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'message_queue_stats';

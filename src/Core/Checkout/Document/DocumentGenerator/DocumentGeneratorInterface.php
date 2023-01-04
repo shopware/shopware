@@ -5,12 +5,12 @@ namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package customer-order
- *
  * @deprecated tag:v6.5.0 - Will be removed - please extends AbstractDocumentRenderer instead
  */
+#[Package('customer-order')]
 interface DocumentGeneratorInterface
 {
     public function supports(): string;

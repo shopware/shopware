@@ -4,6 +4,7 @@ namespace Shopware\Core\Installer;
 
 use Composer\InstalledVersions;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\VersionParser;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -15,10 +16,9 @@ use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class InstallerKernel extends HttpKernel
 {
     use MicroKernelTrait;

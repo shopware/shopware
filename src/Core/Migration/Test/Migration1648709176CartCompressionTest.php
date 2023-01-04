@@ -17,8 +17,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package core
- *
  * @internal
  * NEXT-21735 - Not deterministic due to SalesChannelContextFactory
  * @group not-deterministic

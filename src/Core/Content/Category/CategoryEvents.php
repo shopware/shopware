@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\Category;
 
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('content')]
 class CategoryEvents
 {
     /**

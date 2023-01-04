@@ -3,15 +3,15 @@
 namespace Shopware\Core\Maintenance\System\Command;
 
 use Defuse\Crypto\Key;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @package core
- *
  * @internal should be used over the CLI only
  */
+#[Package('core')]
 class SystemGenerateAppSecretCommand extends Command
 {
     public static $defaultName = 'system:generate-app-secret';

@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class UpdatePostFinishSubscriberTest extends TestCase
 {

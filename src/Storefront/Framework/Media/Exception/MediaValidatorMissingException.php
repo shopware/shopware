@@ -3,11 +3,10 @@ declare(strict_types=1);
 
 namespace Shopware\Storefront\Framework\Media\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package content
- */
+#[Package('content')]
 class MediaValidatorMissingException extends ShopwareHttpException
 {
     public function __construct(string $type)

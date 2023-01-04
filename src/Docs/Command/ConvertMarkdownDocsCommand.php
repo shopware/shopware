@@ -2,6 +2,7 @@
 
 namespace Shopware\Docs\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Docs\Convert\CredentialsService;
 use Shopware\Docs\Convert\Document;
 use Shopware\Docs\Convert\DocumentTree;
@@ -15,6 +16,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
+#[Package('core')]
 class ConvertMarkdownDocsCommand extends Command
 {
     private const CATEGORY_SITE_FILENAME = '__categoryInfo.md';

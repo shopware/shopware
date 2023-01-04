@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Framework\MessageQueue;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\Sender\SenderInterface;
 use Symfony\Component\Messenger\Transport\Sender\SendersLocatorInterface;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we use default symfony messenger
  */
+#[Package('core')]
 class DefaultSenderLocator implements SendersLocatorInterface
 {
     private SendersLocatorInterface $inner;

@@ -3,11 +3,13 @@
 namespace Shopware\Core\System\NumberRange\Exception;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
  * @deprecated tag:v6.5.0 will be removed, as it is not needed if we remove the `IncrementStorageInterface`
  */
+#[Package('checkout')]
 class IncrementStorageMigrationNotSupportedException extends ShopwareHttpException
 {
     public function __construct(string $legacyStorage)

@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 trait CustomFieldActionTrait
 {
     /**

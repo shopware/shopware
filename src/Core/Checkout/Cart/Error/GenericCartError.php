@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\Error;
 
-/**
- * @package checkout
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class GenericCartError extends Error
 {
     protected string $id;

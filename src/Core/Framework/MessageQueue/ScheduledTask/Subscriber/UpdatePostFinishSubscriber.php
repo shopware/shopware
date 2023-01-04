@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class UpdatePostFinishSubscriber implements EventSubscriberInterface
 {
     private TaskRegistry $registry;

@@ -14,8 +14,6 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\IpUtils;
 
 /**
- * @package customer-order
- *
  * @internal
  */
 class CustomerRemoteAddressSubscriberTest extends TestCase

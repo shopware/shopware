@@ -3,12 +3,12 @@
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package sales-channel
- *
  * @extends EntityCollection<SalesChannelAnalyticsEntity>
  */
+#[Package('sales-channel')]
 class SalesChannelAnalyticsCollection extends EntityCollection
 {
     public function getApiAlias(): string

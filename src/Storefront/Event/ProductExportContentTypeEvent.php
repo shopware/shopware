@@ -3,13 +3,13 @@
 namespace Shopware\Storefront\Event;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @package storefront
- *
  * @deprecated tag:v6.5.0 - Use @see \Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent instead
  */
+#[Package('storefront')]
 class ProductExportContentTypeEvent extends Event
 {
     /**

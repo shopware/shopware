@@ -12,6 +12,7 @@ use phpDocumentor\Reflection\DocBlock\Tags\Param;
 use phpDocumentor\Reflection\DocBlock\Tags\Return_;
 use phpDocumentor\Reflection\DocBlock\Tags\TagWithType;
 use phpDocumentor\Reflection\DocBlockFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ServiceStubs;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Finder;
@@ -22,6 +23,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
+#[Package('core')]
 class ServiceReferenceGenerator implements ScriptReferenceGenerator
 {
     public const GROUP_DATA_LOADING = 'data_loading';
@@ -145,7 +147,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         $scriptServices = [];
 
         $shopwareClasses = ConstructFinder::locatedIn(__DIR__ . '/../../..')
-            ->exclude('*/Test/*', '*/vendor/*')
+            ->exclude('*/Test/*', '*/vendor/*', '*/DevOps/*')
             ->findClassNames();
 
         foreach ($shopwareClasses as $class) {

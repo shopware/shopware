@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemWrapperRule;
 use Shopware\Core\Checkout\Customer\Rule\BillingZipCodeRule;
 use Shopware\Core\Checkout\Customer\Rule\CustomerCustomFieldRule;
 use Shopware\Core\Checkout\Customer\Rule\ShippingZipCodeRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Container\FilterRule;
@@ -42,6 +43,7 @@ use Shopware\Core\Framework\Rule\TimeRangeRule;
  *
  * @internal
  */
+#[Package('core')]
 class RuleConditionHasRuleConfigRule implements Rule
 {
     /**

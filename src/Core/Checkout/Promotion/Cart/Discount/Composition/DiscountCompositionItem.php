@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Composition;
 
-/**
- * @package checkout
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class DiscountCompositionItem
 {
     /**

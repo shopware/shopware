@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Media\MediaType;
 
-/**
- * @package content
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('content')]
 class ImageType extends MediaType
 {
     public const ANIMATED = 'animated';

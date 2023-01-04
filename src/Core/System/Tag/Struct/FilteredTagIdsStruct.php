@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\System\Tag\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('business-ops')]
 class FilteredTagIdsStruct extends Struct
 {
     protected array $ids;

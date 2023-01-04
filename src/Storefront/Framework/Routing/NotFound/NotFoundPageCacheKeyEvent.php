@@ -4,12 +4,11 @@ namespace Shopware\Storefront\Framework\Routing\NotFound;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class NotFoundPageCacheKeyEvent implements ShopwareEvent
 {
     private string $key;

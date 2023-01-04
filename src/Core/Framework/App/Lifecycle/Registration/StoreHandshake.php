@@ -8,11 +8,13 @@ use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\App\Exception\AppLicenseCouldNotBeVerifiedException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class StoreHandshake implements AppHandshakeInterface
 {
     private const SBP_EXCEPTION_UNAUTHORIZED = 'ShopwarePlatformException-1';

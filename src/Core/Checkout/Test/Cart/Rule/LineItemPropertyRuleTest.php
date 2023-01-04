@@ -12,8 +12,6 @@ use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleScopeCase;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class LineItemPropertyRuleTest extends TestCase

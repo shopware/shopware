@@ -13,8 +13,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class SystemConfigRepositoryTest extends TestCase
 {

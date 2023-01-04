@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\System\SystemConfig;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Store\MemoizedSystemConfigStore;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class MemoizedSystemConfigLoader extends AbstractSystemConfigLoader
 {
     private AbstractSystemConfigLoader $decorated;

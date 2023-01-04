@@ -3,7 +3,9 @@
 namespace Shopware\Docs\Inspection;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 interface ErdDumper
 {
     public function addTable(string $definition, string $entityName, string $description, bool $isTranslation): void;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Docs\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Docs\Inspection\CharacteristicsCollection;
 use Shopware\Docs\Inspection\ModuleInspector;
 use Shopware\Docs\Inspection\TemplateCustomRulesList;
@@ -13,6 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
+#[Package('core')]
 class DocsModuleCharacteristics extends Command
 {
     protected static $defaultName = 'docs:dump-core-characteristics';

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Promotion\Api;
 
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodeService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -15,10 +16,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package checkout
- *
  * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Package('checkout')]
 class PromotionController extends AbstractController
 {
     /**

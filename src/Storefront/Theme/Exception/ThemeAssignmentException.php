@@ -3,13 +3,12 @@
 namespace Shopware\Storefront\Theme\Exception;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeAssignmentException extends ShopwareHttpException
 {
     private array $stillAssignedSalesChannels;

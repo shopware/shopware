@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\MessageQueue\Command;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Message\SleepMessage;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,10 +14,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:remove-command - Will be removed, use default symfony:messenger commands instead
  */
+#[Package('core')]
 class DispatchSleepMessageCommand extends Command
 {
     use ConsoleProgressTrait;

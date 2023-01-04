@@ -7,11 +7,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
  */
+#[Package('business-ops')]
 class EventActionEntity extends Entity
 {
     use EntityIdTrait;

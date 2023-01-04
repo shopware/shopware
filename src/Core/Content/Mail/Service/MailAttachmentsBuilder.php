@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @phpstan-type MailAttachments array<int, array{id?: string, content: string, fileName: string, mimeType: string|null}>
  */
+#[Package('system-settings')]
 class MailAttachmentsBuilder
 {
     private MediaService $mediaService;

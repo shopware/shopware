@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Handler;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:reason:class-hierarchy-change - will be removed, use default symfony MessageSubscriberInterface instead
  */
+#[Package('core')]
 abstract class AbstractMessageHandler implements MessageSubscriberInterface
 {
     /**

@@ -39,8 +39,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
- * @package customer-order
- *
  * @internal
  * @group slow
  */

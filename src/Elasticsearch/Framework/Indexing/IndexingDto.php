@@ -2,9 +2,9 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class IndexingDto
 {
     protected array $ids;

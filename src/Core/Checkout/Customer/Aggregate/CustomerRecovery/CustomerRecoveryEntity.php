@@ -5,10 +5,9 @@ namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class CustomerRecoveryEntity extends Entity
 {
     use EntityIdTrait;

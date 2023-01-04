@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Framework\Script\Api;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacadeHookFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Awareness\ScriptResponseAwareTrait;
@@ -18,12 +19,11 @@ use Shopware\Storefront\Page\Page;
 /**
  * Triggered when the storefront endpoint /storefront/script/{hook} is called
  *
- * @package core
- *
  * @hook-use-case custom_endpoint
  *
  * @since 6.4.9.0
  */
+#[Package('core')]
 class StorefrontHook extends Hook implements SalesChannelContextAware, StoppableHook
 {
     use StoppableHookTrait;

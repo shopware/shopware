@@ -10,8 +10,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class AclControllerTest extends TestCase
 {

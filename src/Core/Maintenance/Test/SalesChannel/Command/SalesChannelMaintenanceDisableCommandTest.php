@@ -7,13 +7,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelMaintenanceDisableCommand;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * @package core
- *
  * @internal
  */
 class SalesChannelMaintenanceDisableCommandTest extends TestCase
@@ -35,7 +34,7 @@ class SalesChannelMaintenanceDisableCommandTest extends TestCase
     public function testUnknownSalesChannelIds(): void
     {
         $commandTester = new CommandTester($this->getContainer()->get(SalesChannelMaintenanceDisableCommand::class));
-        $commandTester->execute(['ids' => [\Shopware\Core\Framework\Uuid\Uuid::randomHex()]]);
+        $commandTester->execute(['ids' => [Uuid::randomHex()]]);
 
         static::assertEquals(
             'No sales channels were updated',

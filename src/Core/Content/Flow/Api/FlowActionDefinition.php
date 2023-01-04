@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\Flow\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class FlowActionDefinition extends Struct
 {
     protected string $name;

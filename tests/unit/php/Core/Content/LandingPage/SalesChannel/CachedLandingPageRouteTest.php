@@ -33,7 +33,6 @@ use Symfony\Contracts\Cache\CacheInterface;
 /**
  * @internal
  *
- * @package content
  * @covers \Shopware\Core\Content\LandingPage\SalesChannel\CachedLandingPageRoute
  */
 class CachedLandingPageRouteTest extends TestCase

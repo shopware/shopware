@@ -6,8 +6,6 @@ use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class MockSnippetFile extends AbstractSnippetFile
 {

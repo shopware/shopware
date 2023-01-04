@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
 use Symfony\Component\Console\Command\Command;
@@ -13,9 +14,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ElasticsearchResetCommand extends Command
 {
     protected static $defaultName = 'es:reset';

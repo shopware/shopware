@@ -5,12 +5,14 @@ namespace Shopware\Storefront\Page\Product\Configurator;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @deprecated tag:v6.5.0 - Class will be removed, use \Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute instead
  */
+#[Package('inventory')]
 class ProductCombinationFinder
 {
     private FindProductVariantRoute $findVariantRoute;

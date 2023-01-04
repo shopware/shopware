@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\DevOps\System\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use const PHP_EOL;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SyncComposerVersionCommand extends Command
 {
     public static $defaultName = 'dev:sync:composer:versions';

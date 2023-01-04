@@ -14,7 +14,9 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     public function getType(): string

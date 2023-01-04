@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
@@ -11,9 +12,8 @@ use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MessageFailedHandler implements EventSubscriberInterface
 {
     private string $defaultTransportName;

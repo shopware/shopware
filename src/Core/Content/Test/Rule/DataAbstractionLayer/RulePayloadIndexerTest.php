@@ -34,8 +34,6 @@ use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class RulePayloadIndexerTest extends TestCase
@@ -488,8 +486,6 @@ class RulePayloadIndexerTest extends TestCase
 }
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class RulePlugin extends Plugin

@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class ScriptFileReader implements ScriptFileReaderInterface
 {
     private const SCRIPT_DIR = '/Resources/scripts';

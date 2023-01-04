@@ -10,10 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
- * @package customer-order
- *
  * @internal
  * @group store-api
  */
@@ -22,7 +21,7 @@ class AccountNewsletterRecipientRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    private \Symfony\Bundle\FrameworkBundle\KernelBrowser $browser;
+    private KernelBrowser $browser;
 
     private TestDataCollection $ids;
 

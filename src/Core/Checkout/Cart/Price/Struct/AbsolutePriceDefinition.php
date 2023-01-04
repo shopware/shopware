@@ -2,18 +2,14 @@
 
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * @package checkout
- *
- * An AbsolutePriceDefinition always return its price value as the final price and adjusts it net worth according to
- * the taxes of other price definitions. This can, for example, be used to create vouchers with a fixed amount.
- */
+#[Package('checkout')]
 class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
 {
     public const TYPE = 'absolute';

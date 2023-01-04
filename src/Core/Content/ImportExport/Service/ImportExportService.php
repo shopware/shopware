@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -25,9 +26,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  * @internal We might break this in v6.2
  *
  * @phpstan-type Config array{mapping?: ?list<array<string, mixed>>, updateBy?: ?array<string, mixed>, parameters?: ?array<string, mixed>}
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExportService
 {
     private EntityRepositoryInterface $logRepository;

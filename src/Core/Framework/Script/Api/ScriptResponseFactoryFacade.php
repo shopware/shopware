@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Exception\HookMethodException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\ScriptController;
@@ -14,6 +15,7 @@ use Symfony\Component\Routing\RouterInterface;
  *
  * @script-service custom_endpoint
  */
+#[Package('core')]
 class ScriptResponseFactoryFacade
 {
     private RouterInterface $router;

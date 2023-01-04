@@ -3,15 +3,15 @@
 namespace Shopware\Storefront\Page\Contact;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package storefront
- *
  * @deprecated tag:v6.5.0 the according controller was already removed, use store-api ContactRoute instead
  */
+#[Package('storefront')]
 class ContactPageLoadedEvent extends PageLoadedEvent
 {
     /**

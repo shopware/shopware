@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Installer\Requirements\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 abstract class RequirementCheck extends Struct
 {
     public const STATUS_SUCCESS = 'success';

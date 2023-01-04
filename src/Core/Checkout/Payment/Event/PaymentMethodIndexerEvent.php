@@ -4,10 +4,9 @@ namespace Shopware\Core\Checkout\Payment\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PaymentMethodIndexerEvent extends NestedEvent
 {
     private array $ids;

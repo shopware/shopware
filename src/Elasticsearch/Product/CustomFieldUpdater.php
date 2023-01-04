@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Product;
 
 use Elasticsearch\Client;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -11,10 +12,9 @@ use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('core')]
 class CustomFieldUpdater implements EventSubscriberInterface
 {
     private ElasticsearchOutdatedIndexDetector $indexDetector;

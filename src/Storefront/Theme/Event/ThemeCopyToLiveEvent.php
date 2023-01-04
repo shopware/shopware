@@ -2,11 +2,10 @@
 
 namespace Shopware\Storefront\Theme\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeCopyToLiveEvent extends Event
 {
     private string $themeId;

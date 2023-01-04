@@ -2,14 +2,15 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package core
  * @template TElement of Entity
  *
  * @extends Collection<TElement>
  */
+#[Package('core')]
 class EntityCollection extends Collection
 {
     public function __construct(iterable $elements = [])

@@ -27,8 +27,6 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 /**
- * @package customer-order
- *
  * @internal
  * @group store-api
  */

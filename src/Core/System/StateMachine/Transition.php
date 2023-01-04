@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\StateMachine;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class Transition
 {
     /**

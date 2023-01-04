@@ -3,22 +3,21 @@
 namespace Shopware\Recovery\Update\Steps;
 
 use Gaufrette\Filesystem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Recovery\Common\Steps\FinishResult;
 use Shopware\Recovery\Common\Steps\ValidResult;
 use Shopware\Recovery\Update\pathBuilder;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class UnpackStep
 {
     /**
-     * @var \Gaufrette\Filesystem
+     * @var Filesystem
      */
     private $localFilesyste;
 
     /**
-     * @var \Gaufrette\Filesystem
+     * @var Filesystem
      */
     private $remoteFilesyste;
 

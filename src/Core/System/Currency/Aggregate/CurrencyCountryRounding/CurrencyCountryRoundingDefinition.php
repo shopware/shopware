@@ -11,12 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class CurrencyCountryRoundingDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'currency_country_rounding';

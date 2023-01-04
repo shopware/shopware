@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package core
- */
+#[Package('core')]
 trait RouteScopeCheckTrait
 {
     abstract protected function getScopeRegistry(): RouteScopeRegistry;

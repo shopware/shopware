@@ -15,8 +15,6 @@ use Shopware\Storefront\Page\LandingPage\LandingPageLoadedHook;
 
 /**
  * @internal
- *
- * @package content
  */
 class LandingPageControllerTest extends TestCase
 {

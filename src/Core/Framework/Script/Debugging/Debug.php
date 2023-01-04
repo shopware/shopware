@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Script\Debugging;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class Debug
 {
     protected array $dumps = [];

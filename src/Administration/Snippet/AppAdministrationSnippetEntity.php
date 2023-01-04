@@ -4,7 +4,9 @@ namespace Shopware\Administration\Snippet;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('administration')]
 class AppAdministrationSnippetEntity extends Entity
 {
     use EntityIdTrait;

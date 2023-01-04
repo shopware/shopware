@@ -4,10 +4,12 @@ namespace Shopware\Core\Framework\App\ActionButton\Response;
 
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class NotificationResponseFactory implements ActionButtonResponseFactoryInterface
 {
     public function supports(string $actionType): bool

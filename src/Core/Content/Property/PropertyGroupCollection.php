@@ -4,12 +4,12 @@ namespace Shopware\Core\Content\Property;
 
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<PropertyGroupEntity>
- *
- * @package inventory
  */
+#[Package('inventory')]
 class PropertyGroupCollection extends EntityCollection
 {
     public function getOptionIdMap(): array

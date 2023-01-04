@@ -13,12 +13,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class SnippetSetDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'snippet_set';

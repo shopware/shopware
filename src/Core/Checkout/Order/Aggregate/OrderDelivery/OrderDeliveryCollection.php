@@ -5,12 +5,12 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package customer-order
- *
  * @extends EntityCollection<OrderDeliveryEntity>
  */
+#[Package('customer-order')]
 class OrderDeliveryCollection extends EntityCollection
 {
     /**

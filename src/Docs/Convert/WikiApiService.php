@@ -3,7 +3,9 @@
 namespace Shopware\Docs\Convert;
 
 use GuzzleHttp\Client;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class WikiApiService
 {
     private const INITIAL_VERSION = '6.0.0.0';

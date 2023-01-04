@@ -4,12 +4,11 @@ namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 
 use Google\Cloud\Storage\StorageClient;
 use League\Flysystem\AdapterInterface;
+use Shopware\Core\Framework\Log\Package;
 use Superbalist\Flysystem\GoogleStorage\GoogleStorageAdapter;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @package core
- */
+#[Package('core')]
 class GoogleStorageFactory implements AdapterFactoryInterface
 {
     public function create(array $config): AdapterInterface

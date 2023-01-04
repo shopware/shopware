@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\FileGenerator\FileGeneratorInterface;
 use Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,13 +23,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package customer-order
- *
  * @internal Only to be used by the bulk-edit-feature.
  *
  * @deprecated tag:v6.5.0 - Will be removed
  * @Route(defaults={"_routeScope"={"administration"}})
  */
+#[Package('customer-order')]
 class DocumentServiceDeprecationController
 {
     private DocumentService $documentService;

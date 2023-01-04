@@ -5,10 +5,12 @@ namespace Shopware\Core\Content\Mail\Service;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('system-settings')]
 class MailAttachmentsConfig
 {
     private Context $context;

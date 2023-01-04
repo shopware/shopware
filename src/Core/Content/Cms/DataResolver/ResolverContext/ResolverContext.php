@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Content\Cms\DataResolver\ResolverContext;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package content
- */
+#[Package('content')]
 class ResolverContext
 {
     /**

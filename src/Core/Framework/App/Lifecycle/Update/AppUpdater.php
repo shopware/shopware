@@ -6,6 +6,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 /**
  * @internal
  */
+#[Package('core')]
 class AppUpdater extends AbstractAppUpdater
 {
     private AbstractExtensionDataProvider $extensionDataProvider;

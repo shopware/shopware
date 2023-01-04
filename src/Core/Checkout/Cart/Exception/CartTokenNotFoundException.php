@@ -3,11 +3,10 @@
 namespace Shopware\Core\Checkout\Cart\Exception;
 
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class CartTokenNotFoundException extends CartException
 {
     /**

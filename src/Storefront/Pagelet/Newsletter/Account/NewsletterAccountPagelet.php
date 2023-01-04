@@ -3,13 +3,13 @@
 namespace Shopware\Storefront\Pagelet\Newsletter\Account;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Pagelet\Pagelet;
 
 /**
- * @package customer-order
- *
  * @internal (flag:FEATURE_NEXT_14001) remove comment on feature release
  */
+#[Package('customer-order')]
 class NewsletterAccountPagelet extends Pagelet
 {
     protected CustomerEntity $customer;

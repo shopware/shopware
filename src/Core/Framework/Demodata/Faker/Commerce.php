@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\Demodata\Faker;
 
 use Bezhanov\Faker\Provider\Commerce as FakerCommerce;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
  */
+#[Package('core')]
 class Commerce extends FakerCommerce
 {
     /**

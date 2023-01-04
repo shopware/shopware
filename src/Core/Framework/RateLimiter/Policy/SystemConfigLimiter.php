@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\RateLimiter\Policy;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\RateLimiter\Storage\StorageInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SystemConfigLimiter extends TimeBackoffLimiter
 {
     /**

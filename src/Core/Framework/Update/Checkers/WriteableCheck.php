@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Update\Checkers;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Services\Filesystem;
 use Shopware\Core\Framework\Update\Struct\ValidationResult;
 
+#[Package('system-settings')]
 class WriteableCheck implements CheckerInterface
 {
     /**

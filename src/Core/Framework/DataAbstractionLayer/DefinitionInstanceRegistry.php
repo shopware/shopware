@@ -7,11 +7,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\AbstractFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class DefinitionInstanceRegistry
 {
     /**

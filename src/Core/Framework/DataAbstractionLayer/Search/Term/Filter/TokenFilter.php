@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\Service\ResetInterface;
@@ -11,6 +12,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @phpstan-type FilterConfig array{excluded_terms: list<string>, min_search_length: int}
  */
+#[Package('core')]
 class TokenFilter extends AbstractTokenFilter implements ResetInterface
 {
     private const DEFAULT_MIN_SEARCH_TERM_LENGTH = 2;

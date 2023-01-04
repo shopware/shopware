@@ -37,6 +37,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackagePicker;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterSorterNotFoundException;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\PackageFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\SetGroupScopeFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionExcludedError;
@@ -44,13 +45,10 @@ use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundExcepti
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\SetGroupNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- *
- * Cart Promotion Calculator
- */
+#[Package('checkout')]
 class PromotionCalculator
 {
     use PromotionCartInformationTrait;
@@ -266,7 +264,7 @@ class PromotionCalculator
      * the provided discount line item.
      *
      * @throws DiscountCalculatorNotFoundException
-     * @throws Discount\Filter\Exception\FilterSorterNotFoundException
+     * @throws FilterSorterNotFoundException
      * @throws InvalidPriceDefinitionException
      * @throws InvalidScopeDefinitionException
      * @throws InvalidQuantityException

@@ -12,8 +12,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
- *
- * @package inventory
  */
 class ProductFeatureSetEntityTest extends TestCase
 {

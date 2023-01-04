@@ -2,9 +2,12 @@
 
 namespace Shopware\Docs\Command\Script;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal
  */
+#[Package('core')]
 interface ScriptReferenceGenerator
 {
     /**

@@ -4,12 +4,11 @@ namespace Shopware\Core\System\Tax\Aggregate\TaxRuleType;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation\TaxRuleTypeTranslationCollection;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class TaxRuleTypeEntity extends Entity
 {
     use EntityIdTrait;

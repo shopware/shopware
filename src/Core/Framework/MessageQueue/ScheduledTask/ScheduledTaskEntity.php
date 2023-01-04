@@ -4,11 +4,10 @@ namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageCollection;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ScheduledTaskEntity extends Entity
 {
     use EntityIdTrait;

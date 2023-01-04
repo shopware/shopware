@@ -4,11 +4,10 @@ namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PaymentMethodRouteResponse extends StoreApiResponse
 {
     /**

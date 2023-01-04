@@ -6,6 +6,7 @@ namespace Shopware\Core\Framework\Log;
  * @interal
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
+#[\Shopware\Core\Framework\Log\Package('core')]
 final class Package
 {
     public const PACKAGE_TRACE_ATTRIBUTE_KEY = 'pTrace';

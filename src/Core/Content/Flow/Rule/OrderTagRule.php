@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Flow\Rule;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\FlowRule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -10,9 +11,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tag\TagDefinition;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class OrderTagRule extends FlowRule
 {
     protected string $operator;

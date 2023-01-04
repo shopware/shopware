@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Field\Traits\RequiredTrait;
 
+#[Package('core')]
 class OneToOneField extends AssociationField
 {
     use RequiredTrait;

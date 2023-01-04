@@ -15,8 +15,6 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class ImportExportFileRepositoryTest extends TestCase
 {

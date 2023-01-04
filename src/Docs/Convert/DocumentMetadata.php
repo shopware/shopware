@@ -3,7 +3,9 @@
 namespace Shopware\Docs\Convert;
 
 use Cocur\Slugify\Slugify;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class DocumentMetadata
 {
     private const INITIAL_VERSION = '6.0.0.0';

@@ -38,7 +38,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  *
- * @package content
  * @covers \Shopware\Storefront\Page\LandingPage\LandingPageLoader
  */
 class LandingPageLoaderTest extends TestCase

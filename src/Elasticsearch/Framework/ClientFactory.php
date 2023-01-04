@@ -5,10 +5,9 @@ namespace Shopware\Elasticsearch\Framework;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ClientFactory
 {
     public static function createClient(string $hosts, LoggerInterface $logger, bool $debug, array $sslConfig): Client

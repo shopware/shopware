@@ -4,13 +4,13 @@ namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\RequeueDeadMessagesService;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - Will be removed, as we use the default symfony retry mechanism
  */
+#[Package('core')]
 class RequeueDeadMessagesHandler extends ScheduledTaskHandler
 {
     /**

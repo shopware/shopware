@@ -7,6 +7,7 @@ use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\TransportInterface;
@@ -15,6 +16,7 @@ use Symfony\Component\Mime\RawMessage;
 /**
  * @internal
  */
+#[Package('system-settings')]
 class MailerTransportDecorator implements TransportInterface
 {
     private TransportInterface $decorated;

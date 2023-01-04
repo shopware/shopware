@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 final class KernelListenerPriorities
 {
     public const KERNEL_CONTROLLER_EVENT_PRIORITY_AUTH_VALIDATE_PRE = -1;

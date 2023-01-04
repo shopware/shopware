@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class LineItemQuantitySplitter
 {
     /**
@@ -28,8 +29,8 @@ class LineItemQuantitySplitter
      * Gets a new line item with only the provided quantity amount
      * along a ready-to-use calculated price.
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
      */
     public function split(LineItem $item, int $quantity, SalesChannelContext $context): LineItem
     {

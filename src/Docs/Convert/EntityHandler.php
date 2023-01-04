@@ -4,7 +4,9 @@ namespace Shopware\Docs\Convert;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class EntityHandler
 {
     /**

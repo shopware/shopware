@@ -4,9 +4,11 @@ namespace Shopware\Administration\Notification;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\User\UserEntity;
 
+#[Package('administration')]
 class NotificationEntity extends Entity
 {
     use EntityIdTrait;

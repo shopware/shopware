@@ -4,11 +4,13 @@ namespace Shopware\Core\Framework\Routing\Annotation;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationInterface;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @deprecated tag:v6.5.0 - Use route defaults with "_contextTokenRequired". Example: @Route(defaults={"_contextTokenRequired"=true)
  * @Annotation
  */
+#[Package('core')]
 class ContextTokenRequired implements ConfigurationInterface
 {
     /**

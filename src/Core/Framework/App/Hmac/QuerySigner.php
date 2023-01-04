@@ -7,11 +7,13 @@ use Psr\Http\Message\UriInterface;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class QuerySigner
 {
     private string $shopUrl;

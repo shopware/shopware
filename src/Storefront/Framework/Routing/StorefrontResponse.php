@@ -2,12 +2,11 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class StorefrontResponse extends Response
 {
     /**

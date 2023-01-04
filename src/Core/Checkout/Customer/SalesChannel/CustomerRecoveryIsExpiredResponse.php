@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+#[Package('customer-order')]
 class CustomerRecoveryIsExpiredResponse extends StoreApiResponse
 {
     /**

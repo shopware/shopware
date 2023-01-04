@@ -3,15 +3,15 @@
 namespace Shopware\Storefront\Page\Account\Document;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package customer-order
- *
  * @deprecated tag:v6.5.0 - Will removed, using DocumentRoute instead to load generated document blob
  */
+#[Package('customer-order')]
 class DocumentPageLoadedEvent extends PageLoadedEvent
 {
     /**

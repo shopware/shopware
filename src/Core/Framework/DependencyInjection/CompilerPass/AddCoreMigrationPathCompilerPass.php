@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -10,6 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @deprecated tag:v6.5.0 - Use own migration source instead
  */
+#[Package('core')]
 class AddCoreMigrationPathCompilerPass implements CompilerPassInterface
 {
     private string $path;

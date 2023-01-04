@@ -8,9 +8,6 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\Test\TestDefaults;
 
-/**
- * @package customer-order
- */
 trait CustomerTestTrait
 {
     use IntegrationTestBehaviour;

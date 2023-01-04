@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Migration\Traits;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class MailSubjectUpdate
 {
     /**

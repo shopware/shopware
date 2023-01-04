@@ -7,8 +7,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 
+#[Package('checkout')]
 class NumberRangeTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'number_range_translation';

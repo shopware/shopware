@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\Error;
 
-/**
- * @package checkout
- *
- * This class can be used to specify routes related to an `Error`.
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class ErrorRoute
 {
     private string $key;

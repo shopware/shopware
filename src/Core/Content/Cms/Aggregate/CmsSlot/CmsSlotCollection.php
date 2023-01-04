@@ -3,11 +3,12 @@
 namespace Shopware\Core\Content\Cms\Aggregate\CmsSlot;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
  * @extends EntityCollection<CmsSlotEntity>
  */
+#[Package('content')]
 class CmsSlotCollection extends EntityCollection
 {
     /**

@@ -3,12 +3,14 @@
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
  * @internal
  * @phpstan-import-type Api from DefinitionService
  */
+#[Package('core')]
 class BundleSchemaPathCollection
 {
     /**

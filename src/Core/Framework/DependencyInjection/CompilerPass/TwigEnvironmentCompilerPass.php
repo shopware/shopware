@@ -3,12 +3,11 @@
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @package core
- */
+#[Package('core')]
 class TwigEnvironmentCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

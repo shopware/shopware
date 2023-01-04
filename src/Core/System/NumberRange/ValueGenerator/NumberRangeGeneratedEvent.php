@@ -3,8 +3,10 @@
 namespace Shopware\Core\System\NumberRange\ValueGenerator;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('checkout')]
 class NumberRangeGeneratedEvent extends Event
 {
     public const NAME = 'number_range.generated';

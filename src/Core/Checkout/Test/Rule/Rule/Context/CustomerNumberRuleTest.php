@@ -10,8 +10,6 @@ use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class CustomerNumberRuleTest extends TestCase

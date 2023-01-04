@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
 /**
  * @deprecated tag:v6.5.0 will be removed, use AbstractValueGenerator instead
  */
+#[Package('checkout')]
 interface ValueGeneratorPatternInterface
 {
     /**

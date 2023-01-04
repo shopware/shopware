@@ -7,6 +7,7 @@ use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 use phpDocumentor\Reflection\DocBlock\Tags\Since;
 use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use phpDocumentor\Reflection\DocBlockFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Shopware\Core\Framework\Script\Execution\DeprecatedHook;
@@ -22,6 +23,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
+#[Package('core')]
 class HooksReferenceGenerator implements ScriptReferenceGenerator
 {
     public const USE_CASE_DATA_LOADING = 'data_loading';
@@ -85,7 +87,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
         $hookClasses = [];
 
         $shopwareClasses = ConstructFinder::locatedIn(__DIR__ . '/../../..')
-            ->exclude('*/Test/*', '*/vendor/*')
+            ->exclude('*/Test/*', '*/vendor/*', '*/DevOps/*')
             ->findClassNames();
 
         foreach ($shopwareClasses as $class) {

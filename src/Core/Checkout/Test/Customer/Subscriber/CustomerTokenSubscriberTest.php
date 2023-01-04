@@ -22,8 +22,6 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use function json_decode;
 
 /**
- * @package customer-order
- *
  * @internal
  */
 class CustomerTokenSubscriberTest extends TestCase

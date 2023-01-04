@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Framework\Struct\Serializer;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class StructDecoder implements DecoderInterface
 {
     /**

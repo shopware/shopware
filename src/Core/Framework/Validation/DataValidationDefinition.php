@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Framework\Validation;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 
-/**
- * @package core
- */
+#[Package('core')]
 class DataValidationDefinition
 {
     /**

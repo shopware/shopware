@@ -3,15 +3,15 @@
 namespace Shopware\Storefront\Framework\Twig\Extension;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
- * @package storefront
- *
  * @deprecated tag:v6.5.0 - CsrfFunctionExtension will be removed without replacement.
  */
+#[Package('storefront')]
 class CsrfFunctionExtension extends AbstractExtension
 {
     public function getFunctions(): array

@@ -9,8 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  * @covers \Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField
  */

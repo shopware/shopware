@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SystemConfig;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -12,9 +13,7 @@ use function array_shift;
 use function explode;
 use function json_decode;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class SystemConfigLoader extends AbstractSystemConfigLoader
 {
     protected Connection $connection;

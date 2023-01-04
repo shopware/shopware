@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Update\Exception;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('system-settings')]
 class UpdateFailedException extends \RuntimeException
 {
 }

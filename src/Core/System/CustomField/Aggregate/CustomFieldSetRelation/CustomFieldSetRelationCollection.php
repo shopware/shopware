@@ -3,12 +3,12 @@
 namespace Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CustomFieldSetRelationEntity>
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class CustomFieldSetRelationCollection extends EntityCollection
 {
     public function getApiAlias(): string

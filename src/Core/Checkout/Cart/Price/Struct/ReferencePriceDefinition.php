@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class ReferencePriceDefinition extends Struct
 {
     /**

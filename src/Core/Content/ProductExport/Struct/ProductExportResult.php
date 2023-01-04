@@ -3,7 +3,9 @@
 namespace Shopware\Core\Content\ProductExport\Struct;
 
 use Shopware\Core\Content\ProductExport\Error\Error;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductExportResult
 {
     /**

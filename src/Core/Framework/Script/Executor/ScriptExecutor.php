@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\Script\Executor;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @deprecated tag:v6.5.0 will be removed, use \Shopware\Core\Framework\Script\Execution\ScriptExecutor instead
  */
+#[Package('core')]
 class ScriptExecutor
 {
     public function __construct()

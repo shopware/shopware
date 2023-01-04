@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Rule\WeekdayRule;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class WeekdayRuleTest extends TestCase

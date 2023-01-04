@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Framework\Cache\CacheWarmer;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('storefront')]
 class WarmUpMessage
 {
     /**

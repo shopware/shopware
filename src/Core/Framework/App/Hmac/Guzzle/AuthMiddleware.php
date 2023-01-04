@@ -9,10 +9,9 @@ use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class AuthMiddleware
 {
     public const APP_REQUEST_TYPE = 'request_type';

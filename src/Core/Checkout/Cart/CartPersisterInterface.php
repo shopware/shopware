@@ -3,13 +3,13 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- *
  * @deprecated tag:v6.5.0 - Use \Shopware\Core\Checkout\Cart\AbstractCartPersister instead
  */
+#[Package('checkout')]
 interface CartPersisterInterface
 {
     /**

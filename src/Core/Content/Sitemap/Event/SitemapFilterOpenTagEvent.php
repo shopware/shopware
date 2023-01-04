@@ -4,12 +4,11 @@ namespace Shopware\Core\Content\Sitemap\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SitemapFilterOpenTagEvent extends Event implements ShopwareEvent
 {
     private SalesChannelContext $salesChannelContext;

@@ -3,10 +3,13 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('core')]
 class VariantListingUpdater
 {
     private Connection $connection;
@@ -22,7 +25,7 @@ class VariantListingUpdater
     /**
      * @param array<string> $ids
      *
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     public function update(array $ids, Context $context): void
     {
@@ -114,7 +117,7 @@ class VariantListingUpdater
     /**
      * @param array<string> $ids
      *
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      *
      * @return array<int|string, array<string, mixed>>
      */

@@ -3,12 +3,11 @@
 namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class SalesChannelThemeLoader implements ResetInterface
 {
     /**

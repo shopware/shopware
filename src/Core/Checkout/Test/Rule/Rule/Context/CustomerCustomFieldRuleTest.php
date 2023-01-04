@@ -12,8 +12,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class CustomerCustomFieldRuleTest extends TestCase

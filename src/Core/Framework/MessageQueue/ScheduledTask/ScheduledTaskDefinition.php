@@ -12,11 +12,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageDefinition;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ScheduledTaskDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'scheduled_task';

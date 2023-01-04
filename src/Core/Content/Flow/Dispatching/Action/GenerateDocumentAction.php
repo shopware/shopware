@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
@@ -24,14 +25,14 @@ use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 
 /**
- * @package business-ops
- *
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - FlowActions won't be executed over the event system anymore,
  * therefore the actions won't implement the EventSubscriberInterface anymore.
  */
+#[Package('business-ops')]
 class GenerateDocumentAction extends FlowAction implements DelayableAction
 {
     /**
@@ -241,7 +242,7 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
     }
 
     /**
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      *
      * @return array<string, mixed>
      */

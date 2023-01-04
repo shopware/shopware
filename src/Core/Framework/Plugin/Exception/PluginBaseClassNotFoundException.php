@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\Plugin\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class PluginBaseClassNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $baseClass)

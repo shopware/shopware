@@ -6,11 +6,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @deprecated tag:v6.5.0 - will be removed, use SalesChannelRepository type hint instead
  */
+#[Package('sales-channel')]
 interface SalesChannelRepositoryInterface
 {
     public function search(Criteria $criteria, SalesChannelContext $salesChannelContext): EntitySearchResult;

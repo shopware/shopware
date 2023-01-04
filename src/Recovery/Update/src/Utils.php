@@ -2,11 +2,10 @@
 
 namespace Shopware\Recovery\Update;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Dotenv\Dotenv;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class Utils
 {
     /**

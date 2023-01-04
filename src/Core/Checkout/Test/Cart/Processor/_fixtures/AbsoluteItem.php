@@ -10,8 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class AbsoluteItem extends LineItem

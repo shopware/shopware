@@ -7,8 +7,6 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
- * @package core
- *
  * @internal
  */
 class ClassNamespaceTest extends TestCase

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * The `writer` service allows you to write data, that is stored inside shopware.
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Feature;
  *
  * @script-service custom_endpoint
  */
+#[Package('core')]
 class RepositoryWriterFacade
 {
     private DefinitionInstanceRegistry $registry;

@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\ImportExport\Processing\Reader;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 abstract class AbstractReaderFactory
 {
     abstract public function create(ImportExportLogEntity $logEntity): AbstractReader;

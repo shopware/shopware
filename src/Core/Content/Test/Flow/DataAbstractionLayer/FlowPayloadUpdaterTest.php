@@ -19,8 +19,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 class FlowPayloadUpdaterTest extends TestCase

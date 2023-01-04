@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\App\Event;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class AppScriptConditionEvents
 {
     /**

@@ -4,14 +4,13 @@ namespace Shopware\Core\Framework\Adapter\Command;
 
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class S3FilesystemVisibilityCommand extends Command
 {
     protected static $defaultName = 's3:set-visibility';

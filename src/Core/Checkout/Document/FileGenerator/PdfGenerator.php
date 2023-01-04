@@ -7,12 +7,12 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use Shopware\Core\Checkout\Document\GeneratedDocument;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package customer-order
- *
  * @deprecated tag:v6.5.0 - Will be removed, use PdfRenderer instead
  */
+#[Package('customer-order')]
 class PdfGenerator implements FileGeneratorInterface
 {
     public const FILE_EXTENSION = 'pdf';

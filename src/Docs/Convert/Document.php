@@ -2,8 +2,10 @@
 
 namespace Shopware\Docs\Convert;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\SplFileInfo;
 
+#[Package('core')]
 class Document
 {
     private const METATAG_REGEX = '/^\[(?<first>.*?)\]:\s*<>\((?<second>.*?)\)\s*?$/m';

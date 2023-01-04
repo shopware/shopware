@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Recovery\Common\IOHelper;
 use Shopware\Recovery\Update\Console\Application as UpdateApplication;
+use Shopware\Recovery\Update\DependencyInjection\Container;
 use Slim\App;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
@@ -39,8 +40,8 @@ class MigrationTest extends TestCase
     public function testUpdateContainerMigrationSourcesNew(): void
     {
         $config = require __DIR__ . '/../Update/config/config.php';
-        /** @var \Shopware\Recovery\Update\DependencyInjection\Container $container */
-        $container = new \Shopware\Recovery\Update\DependencyInjection\Container(new \Slim\Container(), $config);
+        /** @var Container $container */
+        $container = new Container(new \Slim\Container(), $config);
 
         /** @var MigrationSource[] $sources */
         $sources = $container->get('migration.sources');

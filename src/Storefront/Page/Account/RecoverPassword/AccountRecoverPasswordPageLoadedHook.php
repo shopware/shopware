@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\RecoverPassword;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedHook;
@@ -9,12 +10,11 @@ use Shopware\Storefront\Page\PageLoadedHook;
 /**
  * Triggered when the AccountRecoverPasswordPage is loaded
  *
- * @package customer-order
- *
  * @hook-use-case data_loading
  *
  * @since 6.4.13.0
  */
+#[Package('customer-order')]
 class AccountRecoverPasswordPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;

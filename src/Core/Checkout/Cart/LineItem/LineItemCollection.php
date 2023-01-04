@@ -9,13 +9,13 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package checkout
- *
  * @extends Collection<LineItem>
  */
+#[Package('checkout')]
 class LineItemCollection extends Collection
 {
     public function __construct(iterable $elements = [])

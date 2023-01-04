@@ -2,11 +2,13 @@
 
 namespace Shopware\Docs\Inspection;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<ModuleTagCollection>
  */
+#[Package('core')]
 class CharacteristicsCollection extends Collection
 {
     /**

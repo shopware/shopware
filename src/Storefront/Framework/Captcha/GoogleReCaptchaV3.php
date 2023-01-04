@@ -5,11 +5,10 @@ namespace Shopware\Storefront\Framework\Captcha;
 use GuzzleHttp\ClientInterface;
 use Psr\Http\Client\ClientExceptionInterface;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class GoogleReCaptchaV3 extends AbstractCaptcha
 {
     public const CAPTCHA_NAME = 'googleReCaptchaV3';

@@ -4,14 +4,13 @@ namespace Shopware\Core\Framework\Feature\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class FeatureDumpCommand extends Command
 {
     protected static $defaultName = 'feature:dump';

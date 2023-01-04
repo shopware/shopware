@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Framework\Util;
 
-/**
- * @package core
- * Flattens or expands arrays by concatenating string keys
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class ArrayNormalizer
 {
     public static function flatten(iterable $input): array

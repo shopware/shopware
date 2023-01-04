@@ -7,8 +7,6 @@ use Shopware\Core\System\Snippet\Filter\AddedFilter;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class AddedFilterTest extends TestCase
 {

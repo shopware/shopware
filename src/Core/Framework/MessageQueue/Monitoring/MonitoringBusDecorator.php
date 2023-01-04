@@ -4,16 +4,16 @@ namespace Shopware\Core\Framework\MessageQueue\Monitoring;
 
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 use Symfony\Component\Messenger\Stamp\SentStamp;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we use default symfony messenger
  */
+#[Package('core')]
 class MonitoringBusDecorator implements MessageBusInterface
 {
     private MessageBusInterface $innerBus;

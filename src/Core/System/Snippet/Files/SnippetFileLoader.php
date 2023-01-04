@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Snippet\Files;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Symfony\Component\Finder\Finder;
@@ -12,9 +13,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @Decoratable
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class SnippetFileLoader implements SnippetFileLoaderInterface
 {
     private KernelInterface $kernel;

@@ -8,12 +8,14 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Lock\LockFactory;
 
 /**
  * @internal
  * @phpstan-import-type CustomEntityField from SchemaUpdater
  */
+#[Package('core')]
 class CustomEntitySchemaUpdater
 {
     private const COMMENT = 'custom-entity-element';

@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Message;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, use default symfony queue commands
  */
+#[Package('core')]
 class SleepMessage
 {
     private float $sleepTime;

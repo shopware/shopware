@@ -3,10 +3,9 @@
 namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PromotionIndexingMessage extends EntityIndexingMessage
 {
 }

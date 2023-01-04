@@ -3,11 +3,10 @@
 namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SalesChannelContextServiceParameters extends Struct
 {
     /**

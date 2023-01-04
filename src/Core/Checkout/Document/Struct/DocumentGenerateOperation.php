@@ -4,11 +4,10 @@ namespace Shopware\Core\Checkout\Document\Struct;
 
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 final class DocumentGenerateOperation extends Struct
 {
     protected string $orderId;

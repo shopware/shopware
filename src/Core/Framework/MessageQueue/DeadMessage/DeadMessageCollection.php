@@ -3,12 +3,14 @@
 namespace Shopware\Core\Framework\MessageQueue\DeadMessage;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<DeadMessageEntity>
  *
  * @deprecated tag:v6.5.0 - reason:remove-entity - Will be removed, as we use the default symfony retry mechanism
  */
+#[Package('core')]
 class DeadMessageCollection extends EntityCollection
 {
     public function getApiAlias(): string

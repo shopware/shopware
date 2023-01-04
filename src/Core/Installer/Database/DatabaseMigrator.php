@@ -3,13 +3,13 @@
 namespace Shopware\Core\Installer\Database;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class DatabaseMigrator
 {
     private SetupDatabaseAdapter $adapter;

@@ -3,14 +3,14 @@
 namespace Shopware\Core\Checkout\Cart\Exception;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package checkout
- *
  * @deprecated tag:v6.5.0 - Will be removed. Exception is not used anymore.
  */
+#[Package('checkout')]
 class LineItemCoverNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $coverId, string $lineItemKey)

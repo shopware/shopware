@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -9,10 +10,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package business-ops
- *
  * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Package('business-ops')]
 class RuleConfigController extends AbstractController
 {
     private array $config = [];

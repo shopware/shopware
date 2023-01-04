@@ -4,8 +4,10 @@ declare(strict_types=1);
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
+#[Package('checkout')]
 class ValueGeneratorPatternRegistry
 {
     /**

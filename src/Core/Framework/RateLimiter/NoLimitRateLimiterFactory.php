@@ -3,13 +3,12 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\RateLimiter;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Symfony\Component\RateLimiter\LimiterInterface;
 use Symfony\Component\RateLimiter\Policy\NoLimiter;
 
-/**
- * @package core
- */
+#[Package('core')]
 class NoLimitRateLimiterFactory extends RateLimiterFactory
 {
     private RateLimiterFactory $rateLimiterFactory;

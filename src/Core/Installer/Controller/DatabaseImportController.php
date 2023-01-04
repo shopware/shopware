@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Installer\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
@@ -14,10 +15,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class DatabaseImportController extends InstallerController
 {
     private DatabaseConnectionFactory $connectionFactory;

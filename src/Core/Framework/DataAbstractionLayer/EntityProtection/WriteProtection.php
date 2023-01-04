@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\EntityProtection;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class WriteProtection extends EntityProtection
 {
     public const PROTECTION = 'write_protection';

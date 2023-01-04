@@ -5,11 +5,10 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 use Shopware\Core\Content\Flow\Dispatching\Aware\MessageAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mime\Email;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class MessageStorer extends FlowStorer
 {
     /**

@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mime\Email;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 abstract class AbstractMailFactory
 {
     /**

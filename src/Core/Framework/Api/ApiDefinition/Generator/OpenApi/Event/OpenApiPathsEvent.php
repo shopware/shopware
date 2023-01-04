@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\Event;
 
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -11,6 +12,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * Create a src/Resources/Schema/ in a plugin to extend the open api schema
  * @see BundleSchemaPathCollection
  */
+#[Package('core')]
 class OpenApiPathsEvent extends Event
 {
     /**

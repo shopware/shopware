@@ -4,12 +4,11 @@ namespace Shopware\Core\System\SalesChannel\Entity;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
 {
     /**

@@ -6,11 +6,10 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ExtendsTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\IncludeTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 
-/**
- * @package core
- */
+#[Package('core')]
 class NodeExtension extends AbstractExtension
 {
     /**

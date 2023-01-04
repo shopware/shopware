@@ -5,10 +5,9 @@ namespace Shopware\Core\Content\Product\Events;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInterface
 {
     /**

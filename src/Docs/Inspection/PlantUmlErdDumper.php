@@ -5,7 +5,9 @@ namespace Shopware\Docs\Inspection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class PlantUmlErdDumper implements ErdDumper
 {
     private const TEMPLATE = <<<EOD

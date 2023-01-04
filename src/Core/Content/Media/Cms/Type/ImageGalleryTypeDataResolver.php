@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Media\Cms\Type;
 
-/**
- * @package content
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('content')]
 class ImageGalleryTypeDataResolver extends ImageSliderTypeDataResolver
 {
     public function getType(): string

@@ -4,12 +4,11 @@ namespace Shopware\Core\Checkout\Cart\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class CartDeletedEvent extends Event implements ShopwareSalesChannelEvent
 {
     /**

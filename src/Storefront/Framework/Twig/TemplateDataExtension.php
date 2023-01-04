@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Twig;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -11,9 +12,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class TemplateDataExtension extends AbstractExtension implements GlobalsInterface
 {
     /**

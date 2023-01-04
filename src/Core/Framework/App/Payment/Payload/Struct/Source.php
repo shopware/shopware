@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\App\Payment\Payload\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\CloneTrait;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class Source implements \JsonSerializable
 {
     use CloneTrait;

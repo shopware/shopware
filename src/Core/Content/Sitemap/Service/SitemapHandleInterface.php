@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Sitemap\Service;
 
-/**
- * @package sales-channel
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('sales-channel')]
 interface SitemapHandleInterface
 {
     public function write(array $urls): void;

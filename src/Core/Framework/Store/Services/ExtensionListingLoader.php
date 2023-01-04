@@ -4,15 +4,15 @@ namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
+#[Package('merchant-services')]
 class ExtensionListingLoader
 {
     /**

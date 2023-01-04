@@ -8,15 +8,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package storefront
- *
  * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - Won't extend AbstractMessageHandler anymore, message handling is done in `CacheWarmerTaskHandler`
  */
+#[Package('storefront')]
 class CacheWarmer extends AbstractMessageHandler
 {
     private EntityRepositoryInterface $domainRepository;

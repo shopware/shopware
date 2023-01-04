@@ -2,11 +2,10 @@
 
 namespace Shopware\Recovery\Update;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Recovery\Update\Results\DeleteResult;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class Cleanup
 {
     /**

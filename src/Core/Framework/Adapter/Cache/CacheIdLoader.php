@@ -5,12 +5,11 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Doctrine\DBAL\Connection;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CacheIdLoader
 {
     private Connection $connection;

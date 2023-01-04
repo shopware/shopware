@@ -6,8 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class LineItemGroupTest extends TestCase

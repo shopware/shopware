@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Installer\Requirements\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package core
- *
  * @internal
  *
  * @extends Collection<RequirementCheck>
  */
+#[Package('core')]
 class RequirementsCheckCollection extends Collection
 {
     public function getExpectedClass(): ?string

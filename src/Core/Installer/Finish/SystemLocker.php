@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Installer\Finish;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class SystemLocker
 {
     private string $projectDir;

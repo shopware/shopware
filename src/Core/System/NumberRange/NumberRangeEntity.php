@@ -5,11 +5,13 @@ namespace Shopware\Core\System\NumberRange;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelCollection;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeState\NumberRangeStateEntity;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTranslation\NumberRangeTranslationCollection;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEntity;
 
+#[Package('checkout')]
 class NumberRangeEntity extends Entity
 {
     use EntityIdTrait;

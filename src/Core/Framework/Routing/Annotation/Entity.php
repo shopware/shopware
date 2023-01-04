@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\Routing\Annotation;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @Annotation
  */
+#[Package('core')]
 class Entity extends ConfigurationAnnotation
 {
     /**

@@ -10,8 +10,6 @@ use Shopware\Core\System\User\Recovery\UserRecoveryService;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class UserRecoveryControllerTest extends TestCase
 {

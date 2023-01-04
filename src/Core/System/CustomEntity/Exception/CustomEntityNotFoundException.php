@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\System\CustomEntity\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('core')]
 class CustomEntityNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $customEntity)

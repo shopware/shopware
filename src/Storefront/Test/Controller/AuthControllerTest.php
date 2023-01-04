@@ -52,8 +52,6 @@ use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
- * @package customer-order
- *
  * @internal
  */
 class AuthControllerTest extends TestCase

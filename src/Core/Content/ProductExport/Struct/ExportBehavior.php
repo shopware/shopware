@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\ProductExport\Struct;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('inventory')]
 class ExportBehavior
 {
     /**

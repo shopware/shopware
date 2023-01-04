@@ -18,9 +18,6 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-/**
- * @package core
- */
 trait ElasticsearchTestTestBehaviour
 {
     /**

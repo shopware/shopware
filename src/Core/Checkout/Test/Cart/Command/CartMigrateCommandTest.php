@@ -24,8 +24,6 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class CartMigrateCommandTest extends TestCase

@@ -35,8 +35,6 @@ use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
  * @covers \Shopware\Core\Content\Rule\DataAbstractionLayer\RuleAreaUpdater
  */

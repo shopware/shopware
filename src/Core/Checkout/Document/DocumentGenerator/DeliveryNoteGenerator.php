@@ -8,15 +8,15 @@ use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Twig\Error\Error;
 
 /**
- * @package customer-order
- *
  * @deprecated tag:v6.5.0 - Will be removed, use DeliveryNoteRenderer instead
  */
+#[Package('customer-order')]
 class DeliveryNoteGenerator implements DocumentGeneratorInterface
 {
     public const DEFAULT_TEMPLATE = '@Framework/documents/delivery_note.html.twig';

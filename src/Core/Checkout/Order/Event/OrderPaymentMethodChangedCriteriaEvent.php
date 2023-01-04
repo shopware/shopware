@@ -3,12 +3,11 @@
 namespace Shopware\Core\Checkout\Order\Event;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class OrderPaymentMethodChangedCriteriaEvent extends Event
 {
     private string $orderId;

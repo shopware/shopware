@@ -9,14 +9,14 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\ProductLineItemProvider;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class ProductLineItemProviderTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;

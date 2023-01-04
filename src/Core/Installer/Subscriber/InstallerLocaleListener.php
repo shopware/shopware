@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Installer\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class InstallerLocaleListener implements EventSubscriberInterface
 {
     public const FALLBACK_LOCALE = 'en';

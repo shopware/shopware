@@ -11,11 +11,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PromotionDiscountPriceDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'promotion_discount_prices';

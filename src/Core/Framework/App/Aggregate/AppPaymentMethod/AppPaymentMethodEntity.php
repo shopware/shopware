@@ -7,10 +7,12 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class AppPaymentMethodEntity extends Entity
 {
     use EntityIdTrait;

@@ -13,12 +13,11 @@ use OpenApi\Annotations\SecurityScheme;
 use OpenApi\Annotations\Server;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class OpenApiSchemaBuilder
 {
     public const API = [

@@ -6,8 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class LineItemGroupPackagerNotFoundExceptionTest extends TestCase

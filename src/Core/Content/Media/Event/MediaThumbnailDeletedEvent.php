@@ -4,11 +4,10 @@ namespace Shopware\Core\Content\Media\Event;
 
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package content
- */
+#[Package('content')]
 class MediaThumbnailDeletedEvent extends Event
 {
     public const EVENT_NAME = 'media_thumbnail.after_delete';

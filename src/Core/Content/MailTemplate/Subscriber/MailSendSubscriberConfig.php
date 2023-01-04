@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\MailTemplate\Subscriber;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('sales-channel')]
 class MailSendSubscriberConfig extends Struct
 {
     /**

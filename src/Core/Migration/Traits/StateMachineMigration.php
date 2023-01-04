@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Migration\Traits;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal
  */
+#[Package('core')]
 class StateMachineMigration
 {
     private string $technicalName;

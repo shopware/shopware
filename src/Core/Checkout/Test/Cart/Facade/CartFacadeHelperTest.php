@@ -10,8 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class CartFacadeHelperTest extends TestCase

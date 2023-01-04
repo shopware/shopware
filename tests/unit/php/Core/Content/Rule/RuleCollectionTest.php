@@ -8,8 +8,6 @@ use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
  * @covers \Shopware\Core\Content\Rule\RuleCollection
  */

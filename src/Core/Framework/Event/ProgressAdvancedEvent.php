@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ProgressAdvancedEvent extends Event
 {
     public const NAME = self::class;

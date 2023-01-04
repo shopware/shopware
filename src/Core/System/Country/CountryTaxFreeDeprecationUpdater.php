@@ -6,14 +6,14 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - Will be remove on version 6.5.0
  */
+#[Package('core')]
 class CountryTaxFreeDeprecationUpdater implements EventSubscriberInterface
 {
     private bool $blueGreenEnabled;

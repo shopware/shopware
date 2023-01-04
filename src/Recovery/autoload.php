@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+use Composer\Autoload\ClassLoader;
+
 if (!file_exists(__DIR__ . '/Common/vendor/autoload.php')) {
     $template = '%s: ';
     if (\PHP_SAPI !== 'cli') {
@@ -31,7 +33,7 @@ if (!is_dir($rootDir . '/vendor') && is_dir(dirname($parent) . '/vendor')) {
 
 define('SW_PATH', $rootDir);
 
-/** @var \Composer\Autoload\ClassLoader $autoloader */
+/** @var ClassLoader $autoloader */
 $autoloader = require_once __DIR__ . '/Common/vendor/autoload.php';
 
 if (file_exists(SW_PATH . '/vendor/shopware/platform/composer.json')) {

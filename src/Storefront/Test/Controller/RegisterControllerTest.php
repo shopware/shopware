@@ -43,8 +43,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
- * @package customer-order
- *
  * @internal
  */
 class RegisterControllerTest extends TestCase

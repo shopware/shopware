@@ -1,21 +1,19 @@
 <?php declare(strict_types=1);
-
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Shopware\Recovery\Common\Service\RecoveryConfigManager;
+use Shopware\Recovery\Common\SystemLocker;
 use Shopware\Recovery\Update\DependencyInjection\Container;
 use Shopware\Recovery\Update\Utils;
+use Slim\App;
 
-/**
- * @package system-settings
- */
 date_default_timezone_set('Europe/Berlin');
 
 $config = require __DIR__ . '/../config/config.php';
 $container = new Container(new \Slim\Container(), $config);
 
-/** @var \Slim\App $app */
+/** @var App $app */
 $app = $container->get('app');
 
 $app->add(function (ServerRequestInterface $request, ResponseInterface $response, callable $next) use ($container, $app) {
@@ -125,7 +123,7 @@ $app->any('/done', function (ServerRequestInterface $request, ResponseInterface 
         file_put_contents($lastGeneratedVersionFile, $container->get('shopware.version'));
     }
 
-    /** @var \Shopware\Recovery\Common\SystemLocker $systemLocker */
+    /** @var SystemLocker $systemLocker */
     $systemLocker = $container->get('system.locker');
     $systemLocker();
 

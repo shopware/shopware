@@ -4,11 +4,13 @@ namespace Shopware\Core\Framework\Event\Command;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[Package('business-ops')]
 class DebugDumpBusinessEventsCommand extends Command
 {
     protected static $defaultName = 'debug:business-events';

@@ -2,16 +2,16 @@
 
 namespace Shopware\Core\Installer\Requirements;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class ConfigurationRequirementsValidator implements RequirementsValidatorInterface
 {
     private const MAX_EXECUTION_TIME_REQUIREMENT = 30;

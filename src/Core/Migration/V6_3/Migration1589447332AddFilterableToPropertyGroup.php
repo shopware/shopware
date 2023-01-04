@@ -3,11 +3,14 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
  */
+#[Package('core')]
 class Migration1589447332AddFilterableToPropertyGroup extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -16,7 +19,7 @@ class Migration1589447332AddFilterableToPropertyGroup extends MigrationStep
     }
 
     /**
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     public function update(Connection $connection): void
     {

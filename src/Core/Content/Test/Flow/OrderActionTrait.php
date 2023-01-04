@@ -22,9 +22,6 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
-/**
- * @package business-ops
- */
 trait OrderActionTrait
 {
     use IntegrationTestBehaviour;

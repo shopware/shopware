@@ -16,7 +16,6 @@ use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
 /**
  * @internal
  *
- * @package content
  * @covers \Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber
  */
 class CmsPageDefaultChangeSubscriberTest extends TestCase

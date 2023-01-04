@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Changelog\Processor;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
  */
+#[Package('core')]
 class ChangelogValidator extends ChangelogProcessor
 {
     /**

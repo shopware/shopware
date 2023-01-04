@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
@@ -40,6 +41,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @Route(defaults={"_routeScope"={"administration"}})
  */
+#[Package('administration')]
 class AdministrationController extends AbstractController
 {
     private TemplateFinder $finder;

@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\SalesChannel;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
@@ -16,9 +17,8 @@ use Twig\Environment;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
- *
- * @package sales-channel
  */
+#[Package('sales-channel')]
 class StoreApiInfoController
 {
     protected DefinitionService $definitionService;

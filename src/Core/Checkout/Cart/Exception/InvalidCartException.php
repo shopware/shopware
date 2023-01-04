@@ -6,13 +6,12 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package checkout
- */
 if (!Feature::isActive('v6.5.0.0')) {
+    #[Package('checkout')]
     class InvalidCartException extends ShopwareHttpException
     {
         /**
@@ -69,6 +68,7 @@ if (!Feature::isActive('v6.5.0.0')) {
         }
     }
 } else {
+    #[Package('checkout')]
     class InvalidCartException extends CartException
     {
     }

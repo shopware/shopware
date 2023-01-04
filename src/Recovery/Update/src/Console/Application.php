@@ -2,6 +2,7 @@
 
 namespace Shopware\Recovery\Update\Console;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Recovery\Common\DependencyInjection\ContainerInterface;
 use Shopware\Recovery\Update\Command\UpdateCommand;
 use Shopware\Recovery\Update\DependencyInjection\Container;
@@ -9,9 +10,7 @@ use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class Application extends BaseApplication
 {
     /**

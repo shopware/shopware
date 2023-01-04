@@ -7,6 +7,7 @@ use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @phpstan-type SequenceData array{id: string, parent_id: string|null, true_case: int|null, flow_id: string|null, rule_id: string|null, action_name: string|null, position: int, created_at: string|null, config: string|null}
  */
+#[Package('core')]
 class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends MigrationStep
 {
     /**

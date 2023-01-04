@@ -3,9 +3,11 @@
 namespace Shopware\Core\System\Salutation\SalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\System\Salutation\SalutationCollection;
 
+#[Package('customer-order')]
 class SalutationRouteResponse extends StoreApiResponse
 {
     /**

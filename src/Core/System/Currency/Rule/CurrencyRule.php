@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Currency\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -9,9 +10,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class CurrencyRule extends Rule
 {
     private const NAME = 'currency';

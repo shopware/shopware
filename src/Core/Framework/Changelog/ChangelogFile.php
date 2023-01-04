@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\Changelog;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
  */
+#[Package('core')]
 class ChangelogFile extends Struct
 {
     /**

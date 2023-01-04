@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Language\SalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -14,9 +15,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class LanguageRoute extends AbstractLanguageRoute
 {
     /**

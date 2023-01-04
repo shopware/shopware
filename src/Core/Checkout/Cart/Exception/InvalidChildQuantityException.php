@@ -3,14 +3,14 @@
 namespace Shopware\Core\Checkout\Cart\Exception;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package checkout
- *
  * @deprecated tag:v6.5.0 - Will be removed. Use \Shopware\Core\Checkout\Cart\CartException::invalidChildQuantity instead
  */
+#[Package('checkout')]
 class InvalidChildQuantityException extends ShopwareHttpException
 {
     public function __construct(int $childQuantity, int $parentQuantity)

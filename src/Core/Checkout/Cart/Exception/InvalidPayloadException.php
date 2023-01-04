@@ -3,14 +3,14 @@
 namespace Shopware\Core\Checkout\Cart\Exception;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package checkout
- *
  * @deprecated tag:v6.5.0 - Will be removed, use \Shopware\Core\Checkout\Cart\CartException::invalidPayload instead
  */
+#[Package('checkout')]
 class InvalidPayloadException extends ShopwareHttpException
 {
     public function __construct(string $id, string $lineItemId)

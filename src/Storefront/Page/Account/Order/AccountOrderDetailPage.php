@@ -4,11 +4,10 @@ namespace Shopware\Storefront\Page\Account\Order;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class AccountOrderDetailPage extends Page
 {
     /**

@@ -5,10 +5,12 @@ namespace Shopware\Core\Framework\MessageQueue\Enqueue;
 use Doctrine\DBAL\Connection;
 use Enqueue\Dbal\DbalContext;
 use Interop\Queue\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we remove enqueue
  */
+#[Package('core')]
 class ConnectionFactory implements \Interop\Queue\ConnectionFactory
 {
     /**

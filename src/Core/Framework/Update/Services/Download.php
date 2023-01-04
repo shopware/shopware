@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\Update\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 
+#[Package('system-settings')]
 class Download
 {
     /**

@@ -4,8 +4,10 @@ namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeState;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
+#[Package('checkout')]
 class NumberRangeStateEntity extends Entity
 {
     use EntityIdTrait;

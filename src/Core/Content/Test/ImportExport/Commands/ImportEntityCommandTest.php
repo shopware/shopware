@@ -16,8 +16,6 @@ use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 /**
  * @internal
  * @group slow
- *
- * @package system-settings
  */
 class ImportEntityCommandTest extends TestCase
 {

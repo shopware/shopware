@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mime\Email;
 
+#[Package('system-settings')]
 class Mail extends Email
 {
     private ?MailAttachmentsConfig $mailAttachmentsConfig = null;

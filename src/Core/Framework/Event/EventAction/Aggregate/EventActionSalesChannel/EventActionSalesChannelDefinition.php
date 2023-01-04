@@ -9,11 +9,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-entity - Will be removed in v6.5.0.
  */
+#[Package('business-ops')]
 class EventActionSalesChannelDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'event_action_sales_channel';

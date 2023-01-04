@@ -3,11 +3,12 @@
 namespace Shopware\Core\System\Country;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
  * @extends EntityCollection<CountryEntity>
  */
+#[Package('core')]
 class CountryCollection extends EntityCollection
 {
     public function sortCountryAndStates(): void

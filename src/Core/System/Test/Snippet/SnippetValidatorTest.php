@@ -9,8 +9,6 @@ use Shopware\Core\System\Snippet\SnippetValidator;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class SnippetValidatorTest extends TestCase
 {

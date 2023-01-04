@@ -4,9 +4,11 @@ namespace Shopware\Core\Checkout\Customer\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('customer-order')]
 class WishlistMergedEvent extends Event implements ShopwareSalesChannelEvent
 {
     /**

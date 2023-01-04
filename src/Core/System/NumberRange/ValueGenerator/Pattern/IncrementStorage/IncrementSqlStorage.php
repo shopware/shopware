@@ -5,6 +5,7 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStora
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
@@ -12,6 +13,7 @@ use Shopware\Core\System\NumberRange\NumberRangeEntity;
 /**
  * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - won't implement IncrementStorageInterface anymore, use AbstractIncrementStorage instead
  */
+#[Package('checkout')]
 class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementStorageInterface
 {
     /**

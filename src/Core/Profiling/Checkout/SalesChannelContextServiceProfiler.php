@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Profiling\Checkout;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.5.0 - reason:remove-decorator - Will be removed, use the static Profiler::trace method to directly trace functions
  */
+#[Package('core')]
 class SalesChannelContextServiceProfiler implements SalesChannelContextServiceInterface
 {
     private SalesChannelContextServiceInterface $decorated;

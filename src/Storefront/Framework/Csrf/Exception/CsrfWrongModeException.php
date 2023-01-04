@@ -3,13 +3,13 @@
 namespace Shopware\Storefront\Framework\Csrf\Exception;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
- * @package storefront
- *
  * @deprecated tag:v6.5.0 - CsrfWrongModeException will be removed as the csrf system will be removed in favor for the samesite approach
  */
+#[Package('storefront')]
 class CsrfWrongModeException extends ShopwareHttpException
 {
     public function __construct(string $requiredMode)

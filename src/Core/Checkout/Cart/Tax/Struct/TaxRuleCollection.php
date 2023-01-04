@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package checkout
- *
  * @extends Collection<TaxRule>
  */
+#[Package('checkout')]
 class TaxRuleCollection extends Collection
 {
     /**

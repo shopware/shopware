@@ -5,13 +5,17 @@ namespace Shopware\Core\Checkout\Promotion\Util;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 
 /**
  * @deprecated tag:v6.5.0 - Use EntityRepositoryInterface instead
  */
+#[Package('checkout')]
 class PromotionCodesRemover
 {
     /**
@@ -28,8 +32,8 @@ class PromotionCodesRemover
     }
 
     /**
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
-     * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
+     * @throws InconsistentCriteriaIdsException
+     * @throws InvalidUuidException
      */
     public function removeIndividualCodes(string $promotionId, Context $context): void
     {

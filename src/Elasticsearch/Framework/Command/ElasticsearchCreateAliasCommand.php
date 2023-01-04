@@ -2,14 +2,13 @@
 
 namespace Shopware\Elasticsearch\Framework\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ElasticsearchCreateAliasCommand extends Command
 {
     protected static $defaultName = 'es:create:alias';

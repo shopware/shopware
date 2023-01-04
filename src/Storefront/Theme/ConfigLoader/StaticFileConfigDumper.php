@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Theme\ConfigLoader;
 
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
@@ -13,6 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
+#[Package('storefront')]
 class StaticFileConfigDumper implements EventSubscriberInterface
 {
     private AbstractConfigLoader $configLoader;

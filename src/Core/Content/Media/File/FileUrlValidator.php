@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Content\Media\File;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 
 /**
- * @package content
  * @Decoratable
  */
+#[Package('content')]
 class FileUrlValidator implements FileUrlValidatorInterface
 {
     public function isValid(string $source): bool

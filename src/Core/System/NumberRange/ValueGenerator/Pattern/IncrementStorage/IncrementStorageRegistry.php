@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\Exception\IncrementStorageMigrationNotSupportedException;
 use Shopware\Core\System\NumberRange\Exception\IncrementStorageNotFoundException;
 
+#[Package('checkout')]
 class IncrementStorageRegistry
 {
     /**

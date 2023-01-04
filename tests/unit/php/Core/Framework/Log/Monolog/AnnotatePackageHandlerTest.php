@@ -20,8 +20,6 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  *
  * @phpstan-import-type Record from \Monolog\Logger
- *
- * @package core
  */
 #[Package('cause')]
 class AnnotatePackageHandlerTest extends TestCase

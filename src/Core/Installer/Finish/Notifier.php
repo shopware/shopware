@@ -3,12 +3,12 @@
 namespace Shopware\Core\Installer\Finish;
 
 use GuzzleHttp\Client;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Notifier
 {
     public const EVENT_INSTALL_STARTED = 'Installer started';

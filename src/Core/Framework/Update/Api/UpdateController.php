@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserExcept
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -45,9 +46,8 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be considered internal
  * @Route(defaults={"_routeScope"={"api"}})
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class UpdateController extends AbstractController
 {
     public const UPDATE_TOKEN_KEY = 'core.update.token';

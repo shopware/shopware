@@ -4,11 +4,13 @@ namespace Shopware\Storefront\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
  */
+#[Package('storefront')]
 class Migration1641476963ThemeDependentIds extends MigrationStep
 {
     public const NEW_PRIVILEGES = [

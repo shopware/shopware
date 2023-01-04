@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Update\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Checkers\CheckerInterface;
 use Shopware\Core\Framework\Update\Struct\Version;
 
+#[Package('system-settings')]
 class RequirementsValidator
 {
     /**

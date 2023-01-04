@@ -10,10 +10,9 @@ use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Migration\Migration1536233560BasicData;
 
 /**
- * @package core
- *
  * @internal
  * @group slow
  */
@@ -299,7 +298,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
 
     private function isBasicDataMigration(string $className): bool
     {
-        return $className === \Shopware\Core\Migration\Migration1536233560BasicData::class
+        return $className === Migration1536233560BasicData::class
             || $className === \Shopware\Core\Migration\V6_3\Migration1536233560BasicData::class;
     }
 

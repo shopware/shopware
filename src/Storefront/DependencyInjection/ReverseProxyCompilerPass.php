@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\DependencyInjection;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Cache\CacheStore;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway;
@@ -11,6 +12,7 @@ use Shopware\Storefront\Framework\Cache\ReverseProxy\VarnishReverseProxyGateway;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+#[Package('storefront')]
 class ReverseProxyCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

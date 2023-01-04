@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\Media\Pathname\PathnameStrategy;
 
 use Shopware\Core\Content\Media\Exception\StrategyNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('content')]
 class StrategyFactory
 {
     /**

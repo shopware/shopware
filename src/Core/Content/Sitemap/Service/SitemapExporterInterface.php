@@ -4,11 +4,10 @@ namespace Shopware\Core\Content\Sitemap\Service;
 
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 interface SitemapExporterInterface
 {
     public const SITEMAP_URL_LIMIT = 49999;

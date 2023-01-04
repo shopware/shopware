@@ -233,7 +233,7 @@
       "labelColumnHide": "Spalte ausblenden",
       "labelSelectionCount": "Ausgewählt:",
       "labelDeSelectAll": "Alle abwählen",
-      "maximumSelectionExceed": "Maximale Anzahl Artikel ausgewählt"
+      "maximumSelectionExceed": "Maximale Anzahl an Einträgen ausgewählt"
     },
     "sw-pagination": {
       "labelItemsPerPage": "Einträge pro Seite:"

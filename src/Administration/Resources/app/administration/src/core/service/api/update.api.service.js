@@ -36,12 +36,12 @@ class UpdateService extends ApiService {
             });
     }
 
-    pluginCompatibility() {
+    extensionCompatibility() {
         const headers = this.getBasicHeaders();
         const params = this.getBasicParams();
 
         return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/plugin-compatibility`, { params, headers })
+            .get(`/_action/${this.getApiBasePath()}/extension-compatibility`, { params, headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

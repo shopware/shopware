@@ -12,6 +12,13 @@ use Shopware\Core\Framework\Update\Services\CreateCustomAppsDir;
  */
 class CreateCustomAppsDirTest extends TestCase
 {
+    public function testSubscribedEvents(): void
+    {
+        $subscribedEvents = CreateCustomAppsDir::getSubscribedEvents();
+        static::assertArrayHasKey('Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent', $subscribedEvents);
+        static::assertSame('onUpdate', $subscribedEvents['Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent']);
+    }
+
     public function testItDoesCreateDirIfItDoesNotExist(): void
     {
         try {

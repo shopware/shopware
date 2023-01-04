@@ -348,7 +348,7 @@
             "@putenv SW_RECOVERY_NEXT_VERSION=6.5.99.9",
             "@putenv CYPRESS_SKIP_INIT=1",
             "symfony local:server:stop --dir=shop",
-            "symfony local:server:start --dir=shop --port=8050 -d",
+            "APP_URL=${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}} symfony local:server:start --dir=shop --port=8050 -d",
             "export CYPRESS_baseUrl=${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}}; export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress open"
         ],
         "e2e:recovery:setup": [

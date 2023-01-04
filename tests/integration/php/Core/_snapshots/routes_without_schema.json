@@ -96,7 +96,7 @@
     "/_action/update/check-requirements",
     "/_action/update/deactivate-plugins",
     "/_action/update/download-latest-update",
-    "/_action/update/plugin-compatibility",
+    "/_action/update/extension-compatibility",
     "/_action/user/check-email-unique",
     "/_action/user/check-username-unique",
     "/_action/user/user-recovery",

@@ -12,6 +12,16 @@ use Shopware\Core\Framework\Update\Services\UpdateHtaccess;
  */
 class UpdateHtaccessTest extends TestCase
 {
+    public function testSubscribedEvents(): void
+    {
+        static::assertSame(
+            [
+                'Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent' => 'update',
+            ],
+            UpdateHtaccess::getSubscribedEvents()
+        );
+    }
+
     /**
      * @dataProvider getCombinations
      */
@@ -104,5 +114,23 @@ NEW
 # END Shopware
 AFTER',
         ];
+    }
+
+    public function testReplaceComplete(): void
+    {
+        $fs = sys_get_temp_dir() . '/' . uniqid(__METHOD__, true) . '/';
+        mkdir($fs);
+
+        copy(__DIR__ . '/../_fixtures/htaccess', $fs . '.htaccess');
+        $newHtaccess = '# BEGIN Shopware
+# The directives (lines) between "# BEGIN Shopware" and "# END Shopware" are dynamically generated. Any changes to the directives between these markers will be overwritten.
+NEW
+# END Shopware';
+        file_put_contents($fs . '.htaccess.dist', $newHtaccess);
+
+        $updater = new UpdateHtaccess($fs . '.htaccess');
+        $updater->update();
+
+        static::assertSame($newHtaccess, file_get_contents($fs . '.htaccess'));
     }
 }

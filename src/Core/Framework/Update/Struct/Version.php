@@ -28,6 +28,12 @@ class Version extends Struct
      */
     public function __construct(array $data = [])
     {
+        $this->date = new \DateTimeImmutable();
+
+        if (isset($data['date']) && \is_string($data['date'])) {
+            $data['date'] = new \DateTimeImmutable($data['date']);
+        }
+
         $this->assign($data);
     }
 

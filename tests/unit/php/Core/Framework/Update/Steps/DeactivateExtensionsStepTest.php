@@ -6,9 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
-use Shopware\Core\Framework\Update\Services\PluginCompatibility;
+use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
 use Shopware\Core\Framework\Update\Steps\DeactivateExtensionsStep;
-use Shopware\Core\Framework\Update\Steps\FinishResult;
 use Shopware\Core\Framework\Update\Steps\ValidResult;
 use Shopware\Core\Framework\Update\Struct\Version;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -29,8 +28,8 @@ class DeactivateExtensionsStepTest extends TestCase
 
         $deactivateExtensionsStep = new DeactivateExtensionsStep(
             $version,
-            PluginCompatibility::PLUGIN_DEACTIVATION_FILTER_ALL,
-            $this->createMock(PluginCompatibility::class),
+            ExtensionCompatibility::PLUGIN_DEACTIVATION_FILTER_ALL,
+            $this->createMock(ExtensionCompatibility::class),
             $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(SystemConfigService::class),
             Context::createDefaultContext()
@@ -38,7 +37,7 @@ class DeactivateExtensionsStepTest extends TestCase
 
         $result = $deactivateExtensionsStep->run(0);
 
-        static::assertInstanceOf(FinishResult::class, $result);
+        static::assertSame($result->getTotal(), $result->getOffset());
     }
 
     public function testRunShouldDeactivateOneAndFinishDirectly(): void
@@ -53,7 +52,7 @@ class DeactivateExtensionsStepTest extends TestCase
         $extension->setName('TestApp');
         $extension->setType(ExtensionStruct::EXTENSION_TYPE_APP);
 
-        $pluginCompatibility = $this->createMock(PluginCompatibility::class);
+        $pluginCompatibility = $this->createMock(ExtensionCompatibility::class);
         $pluginCompatibility
             ->method('getExtensionsToDeactivate')
             ->willReturn([$extension]);
@@ -74,7 +73,7 @@ class DeactivateExtensionsStepTest extends TestCase
 
         $deactivateExtensionsStep = new DeactivateExtensionsStep(
             $version,
-            PluginCompatibility::PLUGIN_DEACTIVATION_FILTER_ALL,
+            ExtensionCompatibility::PLUGIN_DEACTIVATION_FILTER_ALL,
             $pluginCompatibility,
             $extensionLifecycleService,
             $systemConfigService,
@@ -83,7 +82,7 @@ class DeactivateExtensionsStepTest extends TestCase
 
         $result = $deactivateExtensionsStep->run(0);
 
-        static::assertInstanceOf(FinishResult::class, $result);
+        static::assertSame($result->getTotal(), $result->getOffset());
     }
 
     public function testRunShouldDeactivateMultiple(): void
@@ -98,7 +97,7 @@ class DeactivateExtensionsStepTest extends TestCase
         $extension->setName('TestApp');
         $extension->setType(ExtensionStruct::EXTENSION_TYPE_APP);
 
-        $pluginCompatibility = $this->createMock(PluginCompatibility::class);
+        $pluginCompatibility = $this->createMock(ExtensionCompatibility::class);
         $pluginCompatibility
             ->method('getExtensionsToDeactivate')
             ->willReturn([$extension, $extension]);
@@ -119,7 +118,7 @@ class DeactivateExtensionsStepTest extends TestCase
 
         $deactivateExtensionsStep = new DeactivateExtensionsStep(
             $version,
-            PluginCompatibility::PLUGIN_DEACTIVATION_FILTER_ALL,
+            ExtensionCompatibility::PLUGIN_DEACTIVATION_FILTER_ALL,
             $pluginCompatibility,
             $extensionLifecycleService,
             $systemConfigService,

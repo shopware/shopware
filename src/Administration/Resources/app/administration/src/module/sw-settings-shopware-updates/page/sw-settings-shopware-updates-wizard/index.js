@@ -113,7 +113,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
 
         onRequirementsResponse(requirementsStore) {
             this.requirements = requirementsStore;
-            this.updateService.pluginCompatibility().then(plugins => {
+            this.updateService.extensionCompatibility().then(plugins => {
                 this.plugins = plugins;
 
                 if (this.displayUnknownPluginsWarning && this.displayIncompatiblePluginsWarning) {
@@ -162,9 +162,9 @@ Component.register('sw-settings-shopware-updates-wizard', {
             this.updateService.deactivatePlugins(offset, this.chosenPluginBehaviour).then(response => {
                 this.progressbarValue = (Math.floor((response.offset / response.total) * 100));
 
-                if (response.offset === response.total && response.success) {
+                if (response.offset === response.total) {
                     window.location.href = `${Shopware.Context.api.basePath}/shopware-recovery.phar.php`;
-                } else if (response.offset !== response.total && response.success) {
+                } else if (response.offset !== response.total) {
                     this.deactivatePlugins(response.offset);
                 } else {
                     this.createNotificationError({

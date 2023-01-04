@@ -3,14 +3,16 @@
 namespace Shopware\Core\Framework\Update\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('system-settings')]
+/**
+ * @package system-settings
+ */
 abstract class UpdateEvent extends Event
 {
-    public function __construct(private readonly Context $context)
+    public function __construct(private Context $context)
     {
+        $this->context = $context;
     }
 
     public function getContext(): Context

@@ -10,10 +10,8 @@ use Shopware\Core\Framework\Update\Checkers\WriteableCheck;
 use Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent;
 use Shopware\Core\Framework\Update\Services\ApiClient;
-use Shopware\Core\Framework\Update\Services\PluginCompatibility;
+use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
 use Shopware\Core\Framework\Update\Steps\DeactivateExtensionsStep;
-use Shopware\Core\Framework\Update\Steps\FinishResult;
-use Shopware\Core\Framework\Update\Steps\ValidResult;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -41,7 +39,7 @@ class UpdateController extends AbstractController
         private readonly ApiClient $apiClient,
         private readonly WriteableCheck $writeableCheck,
         private readonly LicenseCheck $licenseCheck,
-        private readonly PluginCompatibility $pluginCompatibility,
+        private readonly ExtensionCompatibility $extensionCompatibility,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfig,
         private readonly AbstractExtensionLifecycle $extensionLifecycleService,
@@ -75,12 +73,12 @@ class UpdateController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_action/update/plugin-compatibility', name: 'api.custom.updateapi.plugin_compatibility', methods: ['GET'], defaults: ['_acl' => ['system:core:update', 'system_config:read']])]
-    public function pluginCompatibility(Context $context): JsonResponse
+    #[Route('/api/_action/update/extension-compatibility', name: 'api.custom.updateapi.extension_compatibility', defaults: ['_acl' => ['system:core:update', 'system_config:read']], methods: ['GET'])]
+    public function extensionCompatibility(Context $context): JsonResponse
     {
         $update = $this->apiClient->checkForUpdates();
 
-        return new JsonResponse($this->pluginCompatibility->getExtensionCompatibilities($update, $context));
+        return new JsonResponse($this->extensionCompatibility->getExtensionCompatibilities($update, $context));
     }
 
     #[Route(path: '/api/_action/update/download-latest-update', name: 'api.custom.updateapi.download_latest_update', methods: ['GET'], defaults: ['_acl' => ['system:core:update', 'system_config:read']])]
@@ -108,13 +106,13 @@ class UpdateController extends AbstractController
         // disable plugins - save active plugins
         $deactivationFilter = (string) $request->query->get(
             'deactivationFilter',
-            PluginCompatibility::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE
+            ExtensionCompatibility::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE
         );
 
         $deactivatePluginStep = new DeactivateExtensionsStep(
             $update,
             $deactivationFilter,
-            $this->pluginCompatibility,
+            $this->extensionCompatibility,
             $this->extensionLifecycleService,
             $this->systemConfig,
             $context
@@ -122,7 +120,7 @@ class UpdateController extends AbstractController
 
         $result = $deactivatePluginStep->run($offset);
 
-        if ($result instanceof FinishResult) {
+        if ($result->getOffset() === $result->getTotal()) {
             $containerWithoutPlugins = $this->rebootKernelWithoutPlugins();
 
             // @internal plugins are deactivated
@@ -131,7 +129,10 @@ class UpdateController extends AbstractController
             );
         }
 
-        return $this->toJson($result);
+        return new JsonResponse([
+            'offset' => $result->getOffset(),
+            'total' => $result->getTotal(),
+        ]);
     }
 
     private function rebootKernelWithoutPlugins(): ContainerInterface
@@ -143,26 +144,5 @@ class UpdateController extends AbstractController
         $kernel->reboot(null, new StaticKernelPluginLoader($classLoad));
 
         return $kernel->getContainer();
-    }
-
-    private function toJson(ValidResult|FinishResult $result): JsonResponse
-    {
-        if ($result instanceof FinishResult) {
-            return new JsonResponse([
-                'valid' => false,
-                'offset' => $result->getOffset(),
-                'total' => $result->getTotal(),
-                'success' => true,
-                '_class' => $result::class,
-            ]);
-        }
-
-        return new JsonResponse([
-            'valid' => true,
-            'offset' => $result->getOffset(),
-            'total' => $result->getTotal(),
-            'success' => true,
-            '_class' => $result::class,
-        ]);
     }
 }

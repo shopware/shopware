@@ -67,7 +67,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
 
                         return Promise.reject(error);
                     },
-                    pluginCompatibility: () => Promise.resolve([]),
+                    extensionCompatibility: () => Promise.resolve([]),
                 }
             },
             mocks: {
@@ -171,7 +171,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         const allGreenColorBadges = wrapper.findAll('.sw-color-badge.is--success');
         const allRedColorBadges = wrapper.findAll('.sw-color-badge.is--error');
 
-        expect(allGreenColorBadges.length).toBe(3);
+        expect(allGreenColorBadges.length).toBe(1);
         expect(allRedColorBadges.length).toBe(1);
     });
 

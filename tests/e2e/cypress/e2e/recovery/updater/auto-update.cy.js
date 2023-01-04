@@ -10,21 +10,22 @@ describe('Minimal auto update', () => {
     it('@update: de-DE and EUR', { tags: ['pa-system-settings'] }, () => {
         // Routes to wait for
         cy.intercept({ url: '*download-latest-update*', method: 'get' }).as('downloadLatestUpdate');
-        cy.intercept({ url: '*deactivate-plugins*', method: 'get' }).as('deactivatePlugins');
+        cy.intercept({ url: '*deactivate-extensions*', method: 'get' }).as('deactivateExtension');
         cy.intercept({ url: '*unpack*', method: 'get' }).as('unpack');
         cy.intercept({ url: '*applyMigrations*', method: 'get' }).as('applyMigrations');
 
+        cy.clearCookies();
+        cy.clearCookie('bearerAuth')
+        cy.clearCookie('refreshBearerAuth')
+
         cy.visit('/admin');
 
-        cy.getCookie('bearerAuth')
-            .then((val) => {
-                if (!val) {
-                    cy.get('.sw-login__content').should('be.visible');
-                    cy.get('#sw-field--username').clear().type(Cypress.env('user'));
-                    cy.get('#sw-field--password').clear().type(Cypress.env('pass'));
-                    cy.get('.sw-button__content').click();
-                }
-            });
+        cy.get('#sw-field--username').type('admin');
+        cy.get('#sw-field--password').type('shopware');
+
+        cy.get('.sw-login__login-action').click();
+
+        cy.get('.sw-version__info').contains('6.4.17.2', {timeout: 60000});
 
         let tag = Cypress.env('expectedVersion');
         let version = tag[0] === 'v' ? tag.slice(1) : tag;
@@ -50,59 +51,31 @@ describe('Minimal auto update', () => {
         cy.wait('@downloadLatestUpdate', { responseTimeout: 600000, timeout: 600000 })
             .its('response.statusCode').should('equal', 200);
 
-        cy.wait('@deactivatePlugins', { responseTimeout: 600000, timeout: 600000 })
+        cy.wait('@deactivateExtension', { responseTimeout: 600000, timeout: 600000 })
             .its('response.statusCode').should('equal', 200);
 
-        cy.wait('@unpack', { responseTimeout: 600000, timeout: 600000 })
-            .its('response.statusCode').should('equal', 200);
+        cy.get('.card__title').contains('Configure PHP executable');
+        cy.get('.btn-primary').click();
 
-        cy.get('section.content--main', { timeout: 120000 }).should('be.visible');
-        cy.get('.navigation--list .is--active .navigation--link').contains('Datenbank-Migration');
-        cy.get('.content--main h2').contains('Datenbank-Update durchführen');
+        // Show basic info
+        cy.get('.card__title').contains('Updating Shopware to');
 
-        // Take snapshot for visual testing
-        cy.get('.navigation--entry.is--complete').contains('Systemvoraussetzungen');
-        cy.takeSnapshot('Migration');
+        cy.get('.btn-primary').click();
 
-        cy.wait('@applyMigrations', { responseTimeout: 300000, timeout: 310000 })
-            .its('response.statusCode').should('equal', 200);
+        // wait for /update/_finish ajax call to finish
 
-        cy.get('[name="cleanupForm"]', { timeout: 120000 }).should('be.visible');
-        cy.get('.is--active > .navigation--link', { timeout: 1000 }).contains('Dateien aufräumen');
-        cy.get('.navigation--entry.is--complete').contains('Datenbank-Migration');
-        cy.get('.content--main h2').contains('Dateien aufräumen');
+        cy.intercept('/shopware-recovery.phar.php/update/_finish').as('updateFinish');
+        cy.wait('@updateFinish', {timeout: 120000});
 
-        // Change display of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            '[name="cleanupForm"] table',
-            'display: none',
-        );
+        // Shows finish page
+        cy.get('.card__title', {timeout: 60000}).contains('Finish');
 
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Cleanup');
-        cy.get('.btn.btn-primary').contains('Weiter').click();
+        cy.get('.btn-primary').click();
 
-        cy.get('.alert-hero-title').should('be.visible');
-        cy.get('.navigation--list .is--active .navigation--link').contains('Fertig');
-        cy.get('.alert-hero-title').contains('Das Update war erfolgreich!');
+        cy.get('.sw-version__info').contains('6.5.');
 
-        // Take snapshot for visual testing
-        cy.get('.navigation--entry.is--complete').contains('Dateien aufräumen');
-        cy.takeSnapshot('Finish');
-
-        cy.get('.btn.btn-primary').contains('Update abschließen').click();
-
-        cy.getCookie('bearerAuth')
-            .then((val) => {
-                // we need to login, if the new auth cookie does not exist - e.g. update from 6.1.x -> 6.2.x
-                if (!val) {
-                    cy.get('.sw-login__content').should('be.visible');
-                    cy.get('#sw-field--username').clear().type(Cypress.env('user'));
-                    cy.get('#sw-field--password').clear().type(Cypress.env('pass'));
-                    cy.get('.sw-button__content').click();
-                }
-            });
-
-        cy.get('.sw-version__info').should('be.visible');
+        // visit updater and expect 404
+        cy.visit('/shopware-recovery.phar.php', {failOnStatusCode: false});
+        cy.contains('Page not found');
     });
 });

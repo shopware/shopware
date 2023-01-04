@@ -7,22 +7,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('system-settings')]
 class ValidResult
 {
-    /**
-     * @param array<mixed> $args
-     */
     public function __construct(
         private readonly int $offset,
-        private readonly int $total,
-        private readonly array $args = []
+        private readonly int $total
     ) {
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function getArgs(): array
-    {
-        return $this->args;
     }
 
     public function getOffset(): int

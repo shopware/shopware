@@ -55,8 +55,13 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_actions_abort %}
         <sw-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('order.editor'),
+                showOnDisabledElements: true
+            }"
             class="sw-order-detail__smart-bar-cancel-button"
-            :disabled="isLoading"
+            :disabled="isLoading || !acl.can('order.editor')"
             @click="onCancelEditing"
         >
             {{ $tc('global.default.cancel') }}
@@ -66,9 +71,14 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_actions_save %}
         <sw-button-process
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('order.editor'),
+                showOnDisabledElements: true
+            }"
             class="sw-order-detail__smart-bar-save-button"
             variant="primary"
-            :disabled="isLoading"
+            :disabled="isLoading || !acl.can('order.editor')"
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
             @process-finish="saveEditsFinish"
@@ -93,14 +103,21 @@
             @page-leave-confirm="onLeaveModalConfirm"
         />
         {% endblock %}
-
         <sw-card-view>
 
+            <sw-alert
+                v-if="isOrderEditing"
+                class="sw-order-detail__unsaved-warning"
+                variant="warning"
+            >
+                {{ $tc('sw-order.detail.textUnsavedOrderWarning') }}
+            </sw-alert>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_content_tabs %}
             <sw-tabs
                 v-if="showTabs"
                 class="sw-order-detail__tabs"
+                :class="{ 'has-warning': showWarningTabStyle }"
                 position-identifier="sw-order-detail"
             >
 
@@ -130,10 +147,19 @@
                 {% block sw_order_detail_content_tabs_documents %}
                 <sw-tabs-item
                     class="sw-order-detail__tabs-tab-documents"
+                    :class="{ 'has-warning': isOrderEditing }"
                     :route="{ name: 'sw.order.detail.documents', params: { id: $route.params.id } }"
                     :title="$tc('sw-order.detail.tabDocuments')"
                 >
                     {{ $tc('sw-order.detail.tabDocuments') }}
+
+                    <sw-icon
+                        v-if="isOrderEditing"
+                        v-tooltip="{ message: $tc('sw-order.documentTab.tooltipSaveBeforeCreateDocument') }"
+                        class="sw-order-detail__tab-warning-badge"
+                        name="solid-exclamation-circle"
+                        size="12px"
+                    />
                 </sw-tabs-item>
                 {% endblock %}
 

@@ -8,6 +8,7 @@ import './sw-order-document-card.scss';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -65,6 +66,10 @@ export default {
     },
 
     computed: {
+        ...mapGetters('swOrderDetail', [
+            'isEditing',
+        ]),
+
         creditItems() {
             const items = [];
 
@@ -173,6 +178,14 @@ export default {
             return this.order?.documents?.length > 0
                 ? this.$tc('sw-order.documentCard.messageNoDocumentFound')
                 : this.$tc('sw-order.documentCard.messageEmptyTitle');
+        },
+
+        tooltipCreateDocumentButton() {
+            if (!this.acl.can('order.editor')) {
+                return this.$tc('sw-privileges.tooltip.warning');
+            }
+
+            return this.$tc('sw-order.documentTab.tooltipSaveBeforeCreateDocument');
         },
     },
 

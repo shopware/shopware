@@ -150,8 +150,9 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
             ...orderDetailStore,
             state: {
                 ...orderDetailStore.state,
-                order: orderMock
-            }
+                order: orderMock,
+                orderAddressIds: [],
+            },
         });
     });
 

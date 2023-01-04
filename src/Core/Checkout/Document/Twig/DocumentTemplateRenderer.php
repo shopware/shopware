@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -77,10 +76,6 @@ class DocumentTemplateRenderer
                 $salesChannelId,
                 [SalesChannelContextService::LANGUAGE_ID => $languageId]
             );
-
-            if (!Feature::isActive('FEATURE_NEXT_15053')) {
-                $salesChannelContext->addState('generating-pdf');
-            }
 
             $parameters['context'] = $salesChannelContext;
         }

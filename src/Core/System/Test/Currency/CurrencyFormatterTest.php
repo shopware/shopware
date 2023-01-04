@@ -8,7 +8,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\Currency\CurrencyFormatter;
@@ -28,11 +27,6 @@ class CurrencyFormatterTest extends TestCase
         $price = (float) '132582.98765432';
         $context = Context::createDefaultContext();
 
-        /**
-         * @depretacted tag:v6.5.0 - DocumentService::GENERATING_PDF_STATE is removed - line should be removed with FEATURE_NEXT_15053
-         */
-        $context->addState(/*DocumentService::GENERATING_PDF_STATE*/ 'generating-pdf');
-
         $deLanguageId = $this->getDeDeLanguageId();
 
         $formattedCurrency = $currencyFormatter->formatCurrencyByLanguage(
@@ -42,11 +36,7 @@ class CurrencyFormatterTest extends TestCase
             $context
         );
 
-        if (Feature::isActive('FEATURE_NEXT_15053')) {
-            static::assertSame('132.582,99 €', $formattedCurrency);
-        } else {
-            static::assertSame('132.582,99 €', $formattedCurrency);
-        }
+        static::assertSame('132.582,99 €', $formattedCurrency);
 
         $formattedCurrency = $currencyFormatter->formatCurrencyByLanguage(
             $price,
@@ -64,11 +54,7 @@ class CurrencyFormatterTest extends TestCase
             $context
         );
 
-        if (Feature::isActive('FEATURE_NEXT_15053')) {
-            static::assertSame('132.582,99 $', $formattedCurrency);
-        } else {
-            static::assertSame('132.582,99 $', $formattedCurrency);
-        }
+        static::assertSame('132.582,99 $', $formattedCurrency);
 
         $formattedCurrency = $currencyFormatter->formatCurrencyByLanguage(
             $price,
@@ -116,43 +102,6 @@ class CurrencyFormatterTest extends TestCase
             [19.9999, 3, '20,000 €'],
             [19.9999, 4, '19,9999 €'],
         ];
-    }
-
-    /**
-     * This test case can be safely deleted if we remove the feature flag
-     *
-     * @dataProvider digitWithFeatureProvider
-     */
-    public function testDigitsWithFeatureFlag(float $price, int $digits, string $expected): void
-    {
-        if (Feature::isActive('FEATURE_NEXT_15053')) {
-            static::markTestSkipped('This test case depends on `FEATURE_NEXT_15053`');
-        }
-
-        $formatter = $this->getContainer()->get(CurrencyFormatter::class);
-
-        $context = new Context(
-            new SystemSource(),
-            [],
-            Defaults::CURRENCY,
-            [Defaults::LANGUAGE_SYSTEM],
-            Defaults::LIVE_VERSION,
-            1,
-            true,
-            CartPrice::TAX_STATE_GROSS,
-            new CashRoundingConfig($digits, 0.01, true)
-        );
-
-        /**
-         * @depretacted tag:v6.5.0 - DocumentService::GENERATING_PDF_STATE is removed - line should be removed with FEATURE_NEXT_15053
-         */
-        $context->addState(/*DocumentService::GENERATING_PDF_STATE*/ 'generating-pdf');
-
-        $languageId = $this->getDeDeLanguageId();
-
-        $formatted = $formatter->formatCurrencyByLanguage($price, 'EUR', $languageId, $context, $digits);
-
-        static::assertEquals($expected, $formatted);
     }
 
     /**

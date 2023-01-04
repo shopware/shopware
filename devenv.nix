@@ -3,6 +3,7 @@
 {
   packages = [
     pkgs.gnupatch
+    pkgs.nodePackages_latest.yalc
   ];
 
   languages.javascript.enable = true;

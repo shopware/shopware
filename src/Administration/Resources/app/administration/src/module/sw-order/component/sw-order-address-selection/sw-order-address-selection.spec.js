@@ -65,7 +65,7 @@ async function createWrapper(propsData) {
                         ]),
                     }),
                     create: () => ({
-                        _isNew: () => true,
+                        _isNew: true,
                     }),
                 })
             },
@@ -82,6 +82,7 @@ async function createWrapper(propsData) {
                 id: '38e8895864a649a1b2ec806dad02ab87'
             },
             addressId: '38e8895864a649a1b2ec806dad02ab87',
+            type: 'billing',
             ...propsData
         }
     });
@@ -161,10 +162,9 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(wrapper.emitted('change-address')).toBeTruthy();
         expect(wrapper.emitted('change-address')[0]).toEqual([{
             orderAddressId: '38e8895864a649a1b2ec806dad02ab87',
-            customerAddressId: '652e9e571cc94bd898077f256dcf629f'
+            customerAddressId: '652e9e571cc94bd898077f256dcf629f',
+            type: 'billing'
         }]);
-        expect(addressSelection.find('.sw-single-select__selection-text').text())
-            .toBe('Stehr Divide, 64885-2245 Faheyshire');
     });
 
     it('should be able to create new address', async () => {
@@ -178,7 +178,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
 
         await newAddress.find('.sw-select-result__add-new-address').trigger('click');
 
-        expect(wrapper.vm.currentAddress._isNew()).toBe(true);
+        expect(wrapper.vm.currentAddress._isNew).toBe(true);
         expect(wrapper.vm.currentAddress.customerId).toBe('63e27affb5804538b5b06cb4e344b130');
         expect(wrapper.find('.sw-customer-address-form')).toBeTruthy();
     });

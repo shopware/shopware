@@ -1,7 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/page/sw-order-detail';
 import swOrderDetailState from 'src/module/sw-order/state/order-detail.store';
-
+import 'src/app/component/base/sw-button';
+import 'src/app/component/base/sw-button-process';
 /**
  * @package customer-order
  */
@@ -10,14 +11,24 @@ async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-order-detail'), {
         mocks: {
             $route: {
+                params: {
+                    id: 'order123',
+                },
                 meta: {
                     $module: {
                         routes: {
                             detail: {
-                                children: {
-                                    base: {},
-                                    other: {}
-                                }
+                                children: [
+                                    {
+                                        name: 'sw.order.detail.general',
+                                    },
+                                    {
+                                        name: 'sw.order.detail.details'
+                                    },
+                                    {
+                                        name: 'sw.order.detail.document'
+                                    }
+                                ]
                             }
                         }
                     }
@@ -27,15 +38,28 @@ async function createWrapper(privileges = []) {
         stubs: {
             'sw-page': {
                 template: `
-                    <div>
+                    <div class="sw-page">
                         <slot name="smart-bar-header"></slot>
                         <slot name="smart-bar-actions"></slot>
+                        <slot name="content"></slot>
                     </div>`
             },
-            'sw-button': true,
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-label': true,
             'sw-skeleton': true,
-            'sw-button-process': true,
+            'sw-button-process': await Shopware.Component.build('sw-button-process'),
+            'sw-card-view': {
+                template: `
+                    <div class="sw-card-view">
+                        <slot></slot>
+                    </div>`
+            },
+            'sw-alert': true,
+            'sw-loader': true,
+            'router-view': true,
+            'sw-tabs': true,
+            'sw-tabs-item': true,
+            'sw-icon': true,
         },
         propsData: {
             orderId: Shopware.Utils.createId()
@@ -51,10 +75,11 @@ async function createWrapper(privileges = []) {
             repositoryFactory: {
                 create: () => ({
                     search: () => Promise.resolve([]),
-                    hasChanges: () => Promise.resolve([]),
+                    hasChanges: () => false,
                     deleteVersion: () => Promise.resolve([]),
                     createVersion: () => Promise.resolve({ versionId: 'newVersionId' }),
-                    get: () => Promise.resolve([]),
+                    get: () => Promise.resolve({}),
+                    save: () => Promise.resolve({}),
                 })
             },
             orderService: {}
@@ -69,7 +94,9 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         wrapper = await createWrapper();
 
         Shopware.State.unregisterModule('swOrderDetail');
-        Shopware.State.registerModule('swOrderDetail', swOrderDetailState);
+        Shopware.State.registerModule('swOrderDetail', {
+            ...swOrderDetailState,
+        });
 
         // versionId needed
         await wrapper.vm.createdComponent();

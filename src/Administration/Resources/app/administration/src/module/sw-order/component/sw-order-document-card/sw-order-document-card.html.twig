@@ -46,13 +46,13 @@
                         v-if="!attachView"
                         slot="button"
                         v-tooltip="{
-                            message: $tc('sw-privileges.tooltip.warning'),
-                            disabled: acl.can('order.editor'),
+                            message: tooltipCreateDocumentButton,
+                            disabled: acl.can('order.editor') && !isEditing,
                             showOnDisabledElements: true
                         }"
                         size="small"
                         variant="ghost"
-                        :disabled="!acl.can('order.editor')"
+                        :disabled="!acl.can('order.editor') || isEditing"
                         class="sw-order-document-grid-button"
                         @click="onShowSelectDocumentTypeModal"
                     >
@@ -256,13 +256,13 @@
             <sw-button
                 v-if="showCreateDocumentButton"
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
-                    disabled: acl.can('order.editor'),
+                    message: tooltipCreateDocumentButton,
+                    disabled: acl.can('order.editor') && !isEditing,
                     showOnDisabledElements: true
                 }"
                 size="small"
                 variant="ghost"
-                :disabled="!acl.can('order.editor')"
+                :disabled="!acl.can('order.editor') || isEditing"
                 class="sw-order-document-grid-button"
                 @click="onShowSelectDocumentTypeModal"
             >

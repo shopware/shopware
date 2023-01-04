@@ -13,6 +13,7 @@ import '../sw-order-document-settings-modal';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-document-card', {
@@ -70,6 +71,10 @@ Component.register('sw-order-document-card', {
     },
 
     computed: {
+        ...mapGetters('swOrderDetail', [
+            'isEditing',
+        ]),
+
         creditItems() {
             const items = [];
 
@@ -178,6 +183,14 @@ Component.register('sw-order-document-card', {
             return this.order?.documents?.length > 0
                 ? this.$tc('sw-order.documentCard.messageNoDocumentFound')
                 : this.$tc('sw-order.documentCard.messageEmptyTitle');
+        },
+
+        tooltipCreateDocumentButton() {
+            if (!this.acl.can('order.editor')) {
+                return this.$tc('sw-privileges.tooltip.warning');
+            }
+
+            return this.$tc('sw-order.documentTab.tooltipSaveBeforeCreateDocument');
         },
     },
 

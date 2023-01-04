@@ -192,7 +192,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $result = $this->logRepository->search(new Criteria([$id]), $this->context);
             /** @var ImportExportLogEntity $ImportExportLog */
             $ImportExportLog = $result->get($id);
-            static::assertSame(1, $result->count());
+            static::assertCount(1, $result);
             static::assertSame($expect['activity'], $ImportExportLog->getActivity());
             static::assertSame($expect['state'], $ImportExportLog->getState());
             static::assertSame($expect['userId'], $ImportExportLog->getUserId());
@@ -211,7 +211,7 @@ class ImportExportLogRepositoryTest extends TestCase
         $this->logRepository->create(array_values($data), $this->context);
 
         $result = $this->logRepository->search(new Criteria([Uuid::randomHex()]), $this->context);
-        static::assertSame(0, $result->count());
+        static::assertCount(0, $result);
     }
 
     public function testImportExportLogUpdateFull(): void
@@ -260,7 +260,9 @@ class ImportExportLogRepositoryTest extends TestCase
     public function testImportExportLogUpdatePartial(): void
     {
         $origDate = $data = $this->prepareImportExportLogTestData();
-        $properties = array_keys(array_pop($data));
+        $item = array_pop($data);
+        static::assertNotNull($item);
+        $properties = array_keys($item);
 
         $num = \count($properties);
         $data = $this->prepareImportExportLogTestData($num, 'x');
@@ -268,6 +270,7 @@ class ImportExportLogRepositoryTest extends TestCase
         $this->logRepository->create(array_values($data), $this->context);
 
         $new_data = array_values($this->prepareImportExportLogTestData($num, 'xxx'));
+        $upsertData = [];
         foreach ($data as $id => $value) {
             $new_value = array_pop($new_data);
             $new_value['id'] = $value['id'];
@@ -282,6 +285,7 @@ class ImportExportLogRepositoryTest extends TestCase
             unset($upsertData[$id][$property]);
         }
 
+        static::assertNotEmpty($upsertData);
         $this->logRepository->upsert(array_values($upsertData), $this->context);
 
         $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
@@ -374,10 +378,18 @@ class ImportExportLogRepositoryTest extends TestCase
 
     /**
      * Prepare a defined number of test data.
+     *
+     * @return array<string, array<string, mixed>>
      */
     protected function prepareImportExportLogTestData(int $num = 1, string $add = ''): array
     {
         $data = [];
+        $users = [];
+        $userIds = [];
+        $fileIds = [];
+        $profiles = [];
+        $profileIds = [];
+        $activities = [];
 
         if ($num > 0) {
             // Dependencies
@@ -397,7 +409,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'activity' => $activities[$i % 2] . $add,
+                'activity' => ($activities[$i % 2] ?? '') . $add,
                 'state' => sprintf('state %s', $i),
                 'userId' => $userIds[$i % 2],
                 'profileId' => $profileIds[$i % 2],
@@ -412,6 +424,9 @@ class ImportExportLogRepositoryTest extends TestCase
         return $data;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     protected function prepareUsers(int $num = 1): array
     {
         $data = [];
@@ -433,6 +448,9 @@ class ImportExportLogRepositoryTest extends TestCase
         return $data;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     protected function prepareFiles(int $num = 1): array
     {
         $data = [];
@@ -452,6 +470,9 @@ class ImportExportLogRepositoryTest extends TestCase
         return $data;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     protected function prepareProfiles(int $num = 1): array
     {
         $data = [];

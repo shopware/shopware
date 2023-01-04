@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Test\User\Service;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,11 +19,11 @@ class UserValidationServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private $userRepository;
+    private EntityRepositoryInterface $userRepository;
 
-    private $localeRepository;
+    private EntityRepositoryInterface $localeRepository;
 
-    private $userValidationService;
+    private UserValidationService $userValidationService;
 
     public function setUp(): void
     {
@@ -47,7 +48,7 @@ class UserValidationServiceTest extends TestCase
                 'lastName' => 'last',
                 'localeId' => $firstLocale,
                 'email' => 'user@shopware.com',
-                'password' => 'shopware12345',
+                'password' => 'shopware',
             ],
         ], $context);
 
@@ -73,7 +74,7 @@ class UserValidationServiceTest extends TestCase
                 'lastName' => 'last',
                 'localeId' => $firstLocale,
                 'email' => 'user@shopware.com',
-                'password' => 'shopware12345',
+                'password' => 'shopware',
             ],
         ], $context);
 
@@ -97,7 +98,7 @@ class UserValidationServiceTest extends TestCase
                 'lastName' => 'last',
                 'localeId' => $firstLocale,
                 'email' => 'user@shopware.com',
-                'password' => 'shopware12345',
+                'password' => 'shopware',
             ],
         ], $context);
 
@@ -122,7 +123,7 @@ class UserValidationServiceTest extends TestCase
                 'lastName' => 'last',
                 'localeId' => $firstLocale,
                 'email' => 'user@shopware.com',
-                'password' => 'shopware12345',
+                'password' => 'shopware',
             ],
         ], $context);
 

@@ -44,13 +44,13 @@ trait StorefrontSalesChannelTestHelper
         $browser->setServerParameter('test-sales-channel-id', $salesChannel->getId());
 
         $customerId = Uuid::randomHex();
-        $this->createCustomerWithEmail($customerId, 'foo@foo.de', 'bar', $salesChannel);
+        $this->createCustomerWithEmail($customerId, 'foo@foo.de', 'bar12345', $salesChannel);
         $browser->request(
             'POST',
             $_SERVER['APP_URL'] . '/account/login',
             [
                 'username' => 'foo@foo.de',
-                'password' => 'bar',
+                'password' => 'bar12345',
             ]
         );
 

@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes\FakeQueryBuilder;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Installer\Configuration\AdminConfigurationService;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
@@ -50,6 +49,6 @@ class AdminConfigurationServiceTest extends TestCase
         ];
 
         $service = new AdminConfigurationService();
-        $service->createAdmin($user, $connection, $this->createMock(SystemConfigService::class));
+        $service->createAdmin($user, $connection);
     }
 }

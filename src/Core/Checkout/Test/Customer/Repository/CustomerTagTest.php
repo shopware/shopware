@@ -133,6 +133,9 @@ class CustomerTagTest extends TestCase
         static::assertContains($id2, $ids->getIds());
     }
 
+    /**
+     * @param array<int, array<string, string>> $tags
+     */
     private function createCustomer(string $id, array $tags): void
     {
         $data = [

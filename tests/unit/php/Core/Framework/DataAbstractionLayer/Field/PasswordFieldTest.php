@@ -18,7 +18,7 @@ class PasswordFieldTest extends TestCase
             'custom_password',
             'customPassword',
             \PASSWORD_DEFAULT,
-            [ 'b' ],
+            ['b'],
             PasswordField::FOR_ADMIN
         );
 

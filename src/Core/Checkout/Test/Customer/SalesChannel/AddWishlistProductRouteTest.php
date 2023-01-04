@@ -56,7 +56,7 @@ class AddWishlistProductRouteTest extends TestCase
                 '/store-api/account/login',
                 [
                     'email' => $email,
-                    'password' => 'shopware12345',
+                    'password' => 'shopware',
                 ]
             );
 
@@ -165,7 +165,7 @@ class AddWishlistProductRouteTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return array<int, string>
      */
     private function createProduct(Context $context): array
     {

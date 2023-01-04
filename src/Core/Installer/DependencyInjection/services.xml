@@ -146,7 +146,6 @@
             <argument type="service" id="Shopware\Core\Installer\Configuration\ShopConfigurationService"/>
             <argument type="service" id="Shopware\Core\Installer\Configuration\AdminConfigurationService"/>
             <argument type="service" id="translator"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument>%shopware.installer.supportedLanguages%</argument>
             <argument>%shopware.installer.supportedCurrencies%</argument>
 

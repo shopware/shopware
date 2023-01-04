@@ -125,7 +125,7 @@ class NewsletterControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $customer->getEmail(),
-                'password' => 'test',
+                'password' => 'test12345',
             ])
         );
         $response = $browser->getResponse();
@@ -162,7 +162,7 @@ class NewsletterControllerTest extends TestCase
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => 'nltest@example.com',
-            'password' => 'test',
+            'password' => 'test12345',
             'title' => 'Dr.',
             'firstName' => 'Max',
             'lastName' => 'Mustermann',

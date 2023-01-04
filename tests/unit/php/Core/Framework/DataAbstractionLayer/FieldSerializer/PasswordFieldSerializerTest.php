@@ -68,6 +68,7 @@ class PasswordFieldSerializerTest extends TestCase
 
     /**
      * @dataProvider encodeProvider
+     *
      * @param array<int, Constraint> $constraints
      */
     public function testEncode(string $for, int $minPasswordValue, array $constraints, bool $shouldThrowViolationException, ?string $inputPassword): void
@@ -111,7 +112,7 @@ class PasswordFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<null|int|string|array<int, Constraint>|bool>>
+     * @return iterable<string, array<int|string|array<int, Constraint>|bool|null>>
      */
     public function encodeProvider(): iterable
     {

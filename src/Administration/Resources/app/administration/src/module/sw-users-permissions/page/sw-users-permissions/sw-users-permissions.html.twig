@@ -18,16 +18,35 @@
     </template>
     {% endblock %}
 
+    <template #smart-bar-actions>
+        <sw-button-process
+            variant="primary"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="!acl.can('users_and_permissions.editor')"
+            @click="onSave"
+            @process-finish="onSaveFinish"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button-process>
+    </template>
+
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_users_permissions_content %}
     <template #content>
         <sw-card-view>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_content_user_list %}
-            <sw-users-permissions-user-listing ref="userListing" />
+            <sw-users-permissions-user-listing
+                ref="userListing"
+            />
             <sw-users-permissions-role-listing
                 ref="roleListing"
                 @get-list="reloadUserListing"
+            />
+            <sw-users-permissions-configuration
+                ref="configuration"
+                @loading-change="onChangeLoading"
             />
             {% endblock %}
         </sw-card-view>

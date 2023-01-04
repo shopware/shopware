@@ -70,7 +70,7 @@ class LoadWishlistRouteTest extends TestCase
                 '/store-api/account/login',
                 [
                     'email' => $email,
-                    'password' => 'shopware12345',
+                    'password' => 'shopware',
                 ]
             );
 
@@ -194,7 +194,7 @@ class LoadWishlistRouteTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $attributes
+     * @param array<string, mixed> $attributes
      */
     private function createProduct(Context $context, array $attributes = []): string
     {

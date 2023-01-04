@@ -51,7 +51,7 @@ Component.register('sw-login-recovery-recovery', {
         hashValid(val) {
             if (val === true) {
                 this.$nextTick(() => this.$refs.swLoginRecoveryRecoveryNewPasswordField
-                    .$el.querySelector('input').focus());
+                    .$el.querySelector('input')?.focus());
             }
         },
     },

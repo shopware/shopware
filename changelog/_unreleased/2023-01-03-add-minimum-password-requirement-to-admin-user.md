@@ -18,3 +18,12 @@ issue: NEXT-24747
 * Deprecated computed property `validPasswordField` in `src/Administration/Resources/app/administration/src/module/sw-customer/page/sw-customer-create/index.js` due to unused
 * Deprecated method `getDefaultRegistrationConfig` in `src/Administration/Resources/app/administration/src/module/sw-customer/page/sw-customer-create/index.js` due to unused
 * Changed template `src/Administration/Resources/app/administration/src/module/sw-customer/component/sw-customer-card/sw-customer-card.html.twig` to display password validation error
+* Added `sw-users-permissions-configuration` component in `sw-users-permissions` module to show the component itself in the module
+* Added the following data variables in `sw-users-permissions` component:
+    * `isLoading`
+    * `isSaveSuccessful`
+* Added the following methods in `sw-users-permissions` component:
+    * `onChangeLoading`
+    * `onSave`
+    * `onSaveFinish`
+* Changed ACL config in `sw-users-permissions` module

@@ -66,10 +66,6 @@
             <template #actions="{ item }">
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_flow_list_grid_actions_custom %}
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_list_grid_actions_duplicate %}
                 <sw-context-menu-item
                     class="sw-flow-list__item-duplicate"
@@ -89,6 +85,10 @@
                 >
                     {{ detailPageLinkText }}
                 </sw-context-menu-item>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_flow_list_grid_actions_custom %}
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -173,13 +173,7 @@
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_flow_download_modal %}
-        <sw-flow-download-modal
-            v-if="currentFlow && isDownloading"
-            :flow-id="currentFlow.id"
-            @download-finish="onDownloadFlowSuccess"
-            @modal-close="onCloseDownloadModal"
-        />
+        {% block sw_flow_list_modal_content_custom %}
         {% endblock %}
     </div>
     {% endblock %}

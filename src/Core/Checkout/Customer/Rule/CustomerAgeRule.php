@@ -80,6 +80,6 @@ class CustomerAgeRule extends Rule
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true)
-            ->intField('age');
+            ->intField('age', ['unit' => RuleConfig::UNIT_AGE]);
     }
 }

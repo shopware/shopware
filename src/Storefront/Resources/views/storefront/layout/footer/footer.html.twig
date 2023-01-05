@@ -91,9 +91,6 @@
                                                         {% set category = treeItem.category %}
                                                         {% set name = category.translated.name %}
 
-                                                        {# @deprecated tag:v6.5.0 - Use "category.translated.externalLink" directly or category_url function instead. #}
-                                                        {% set externalLink = category.translated.externalLink %}
-
                                                         {% block layout_footer_navigation_information_link_item %}
                                                             <li class="footer-link-item">
                                                                 {% block layout_footer_navigation_information_link %}

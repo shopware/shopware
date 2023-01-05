@@ -31,18 +31,8 @@ shopware:
         major: true
         description: "App System 4.0 - Build action button messaging system"
         # issue: NEXT-14360
-      - name: FEATURE_NEXT_16200
-        default: false
-        major: false
-        description: "Register Doi Domain"
-        # issue: NEXT-16200
       - name: FEATURE_NEXT_17275
         default: false
         major: true
         description: "StorefrontRenderEvent only gets original view"
         # issue: NEXT-17275
-      - name: FEATURE_NEXT_19048
-        default: false
-        major: true
-        description: "Fix media resolution in theme"
-        # issue: NEXT-19048

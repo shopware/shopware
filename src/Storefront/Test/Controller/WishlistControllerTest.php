@@ -72,7 +72,7 @@ class WishlistControllerTest extends TestCase
         $browser->request('GET', '/wishlist');
         $response = $browser->getResponse();
 
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent() ?: '');
         static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertInstanceOf(WishlistPage::class, $response->getData()['page']);
     }
@@ -403,6 +403,9 @@ class WishlistControllerTest extends TestCase
         return $browser;
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     private function createProduct(?string $salesChannelId = null, array $config = []): string
     {
         $id = Uuid::randomHex();

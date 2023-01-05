@@ -28,18 +28,8 @@
     {% set unit = page.header.activeCurrency.symbol %}
 {% endif %}
 
-{# @deprecated tag:v6.5.0 - `currencySymbol` will be removed use `unit` instead #}
-{% if currencySymbol is defined %}
-    {% set unit = currencySymbol %}
-{% endif %}
-
 {% if minInputValue is not defined %}
     {% set minInputValue = 0 %}
-{% endif %}
-
-{% if maxInputValue is not defined %}
-    {# @deprecated tag:v6.5.0 - use maxInputValue instead of price #}
-    {% set maxInputValue = price.max %}
 {% endif %}
 
 {% set filterRangeOptions = {
@@ -48,7 +38,6 @@
     maxKey,
     lowerBound,
     unit,
-    currencySymbol,
     snippets: {
         filterRangeActiveMinLabel,
         filterRangeActiveMaxLabel,
@@ -108,13 +97,9 @@
                                 {% endblock %}
 
                                 {% block component_filter_range_min_unit %}
-                                    {# @deprecated tag:v6.5.0 - The block `component_filter_range_min_currency_symbol` will be renamed, use block `component_filter_range_min_unit` instead #}
-                                    {% block component_filter_range_min_currency_symbol %}
-                                        {# @deprecated tag:v6.5.0 - `filter-range-currency-symbol` will be removed, use `filter-range-unit` instead #}
-                                        <span class="filter-range-unit filter-range-currency-symbol">
+                                   <span class="filter-range-unit">
                                             {{ unit }}
-                                        </span>
-                                    {% endblock %}
+                                    </span>
                                 {% endblock %}
                             </label>
                         {% endblock %}
@@ -141,13 +126,9 @@
                                 {% endblock %}
 
                                 {% block component_filter_range_max_unit %}
-                                    {# @deprecated tag:v6.5.0 - The block `component_filter_range_max_currency_symbol` will be renamed, use block `component_filter_range_min_unit` instead #}
-                                    {% block component_filter_range_max_currency_symbol %}
-                                        {# @deprecated tag:v6.5.0 - `filter-range-currency-symbol` will be removed, use `filter-range-unit` instead #}
-                                        <span class="filter-range-unit filter-range-currency-symbol">
-                                            {{ unit }}
-                                        </span>
-                                    {% endblock %}
+                                    <span class="filter-range-unit">
+                                        {{ unit }}
+                                    </span>
                                 {% endblock %}
                             </label>
                         {% endblock %}

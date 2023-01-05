@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
@@ -472,7 +471,6 @@ PHP_EOL;
      */
     public function testCopyToLive(bool $success, string $failedPath): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_15381', $this);
         $testFolder = 'assets';
 
         $resolver = $this->createMock(ThemeFileResolver::class);

@@ -73,11 +73,6 @@
                 'xl': theme_config('breakpoint.xl')
             } %}
 
-            {% if thumbnails|first.width > breakpoint|reverse|first %}
-                {# @deprecated tag:v6.5.0 - Variable `maxWidth` and parent condition will be removed #}
-                {% set maxWidth = thumbnails|first.width %}
-            {% endif %}
-
             {% for key, value in breakpoint|reverse %}(min-width: {{ value }}px) {{ sizes[key] }}{% if not loop.last %}, {% endif %}{% endfor %}, {{ sizeFallback }}vw
         {% endapply %}{% endset %}
     {% endif %}

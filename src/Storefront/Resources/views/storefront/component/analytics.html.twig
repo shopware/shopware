@@ -21,15 +21,6 @@
                     function gtag() { dataLayer.push(arguments); }
                 {% endblock %}
             </script>
-
-            {# @deprecated tag:v6.5.0 - the gtag callback and #sw-google-tag-manager-init will be removed without replacement, since the logic moved into the google analytics plugin #}
-            {% if not feature('v6.5.0.0') %}
-                <script id="sw-google-tag-manager-init" type="javascript/blocked">
-                    {% block component_head_analytics_tag_config %}
-                        window.gtagCallback = function gtagCallbackFunction() {}
-                    {% endblock %}
-                </script>
-            {% endif %}
         {% endif %}
     {% endblock %}
 {% endblock %}

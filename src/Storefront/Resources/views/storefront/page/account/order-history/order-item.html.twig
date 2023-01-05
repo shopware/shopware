@@ -20,9 +20,6 @@
                 {% set orderState = order.stateMachineState.technicalName %}
                 {% set orderPaymentState = order.transactions.last.stateMachineState.technicalName %}
 
-                {# @deprecated tag:v6.5.0 - Use "orderPaymentState" instead. #}
-                {% set state = orderPaymentState %}
-
                 {% set isPaymentNeeded = orderPaymentState in states and orderState != ORDER_STATE_CANCELLED %}
 
                 <div class="row flex-wrap">

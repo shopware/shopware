@@ -19853,11 +19853,6 @@ parameters:
 			path: src/Storefront/Test/Controller/WellKnownControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\WishlistControllerTest\\:\\:createProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/WishlistControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Event\\\\Subscriber\\\\CartMergedSubscriberTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Event/Subscriber/CartMergedSubscriberTest.php
@@ -20423,36 +20418,6 @@ parameters:
 			path: src/Storefront/Test/Theme/ConfigLoader/DatabaseAvailableThemeProviderTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ConfigLoader\\\\DatabaseConfigLoaderTest\\:\\:configurationLoadingProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ConfigLoader/DatabaseConfigLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ConfigLoader\\\\DatabaseConfigLoaderTest\\:\\:field\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ConfigLoader/DatabaseConfigLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ConfigLoader\\\\DatabaseConfigLoaderTest\\:\\:fieldUntyped\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ConfigLoader/DatabaseConfigLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ConfigLoader\\\\DatabaseConfigLoaderTest\\:\\:media\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ConfigLoader/DatabaseConfigLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ConfigLoader\\\\DatabaseConfigLoaderTest\\:\\:testConfigurationLoading\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ConfigLoader/DatabaseConfigLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ConfigLoader\\\\DatabaseConfigLoaderTest\\:\\:testConfigurationLoading\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ConfigLoader/DatabaseConfigLoaderTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ConfigLoader\\\\StaticFileAvailableThemeProvider\\:\\:getDecorated\\(\\) invoked with 1 parameter, 0 required\\.$#"
 			count: 1
 			path: src/Storefront/Test/Theme/ConfigLoader/StaticFileAvailableThemeProviderTest.php
@@ -20541,36 +20506,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Command\\\\ThemePrepareIconsCommand\\:\\:getChildren\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Command/ThemePrepareIconsCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ConfigLoader\\\\DatabaseConfigLoader\\:\\:getConfigInheritance\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ConfigLoader/DatabaseConfigLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ConfigLoader\\\\DatabaseConfigLoader\\:\\:getParentThemeIds\\(\\) has parameter \\$parentThemes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ConfigLoader/DatabaseConfigLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ConfigLoader\\\\DatabaseConfigLoader\\:\\:getParentThemeIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ConfigLoader/DatabaseConfigLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ConfigLoader\\\\DatabaseConfigLoader\\:\\:loadCompileConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ConfigLoader/DatabaseConfigLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ConfigLoader\\\\DatabaseConfigLoader\\:\\:loadRecursiveConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ConfigLoader/DatabaseConfigLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ConfigLoader\\\\DatabaseConfigLoader\\:\\:mergeStaticConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ConfigLoader/DatabaseConfigLoader.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ConfigLoader\\\\StaticFileConfigLoader\\:\\:prepareCollections\\(\\) has parameter \\$fileObject with no value type specified in iterable type array\\.$#"

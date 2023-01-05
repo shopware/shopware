@@ -153,7 +153,7 @@ export default {
                 return true;
             }
 
-            if (this.page.type === 'product_detail' && this.feature.isActive('v6.5.0.0')) {
+            if (this.page.type === 'product_detail' && this.feature.isActive('v6.6.0.0')) {
                 return true;
             }
 

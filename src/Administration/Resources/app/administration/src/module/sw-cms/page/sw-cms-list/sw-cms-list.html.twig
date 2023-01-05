@@ -171,9 +171,9 @@
                                                     {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
                                                 </sw-context-menu-item>
 
-                                                <!-- @deprecated tag:v6.5.0 default layouts for products will be enabled -->
+                                                <!-- @deprecated tag:v6.6.0 default layouts for products will be enabled -->
                                                 <sw-context-menu-item
-                                                    v-else-if="feature.isActive('v6.5.0.0') && cmsPage.type === 'product_detail' && !(defaultProductId === cmsPage.id)"
+                                                    v-else-if="feature.isActive('v6.6.0.0') && cmsPage.type === 'product_detail' && !(defaultProductId === cmsPage.id)"
                                                     class="sw-cms-list-item__option-set-as-default"
                                                     :disabled="!acl.can('cms.editor')"
                                                     @click="onOpenLayoutSetAsDefault(cmsPage)"

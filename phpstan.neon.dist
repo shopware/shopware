@@ -30,6 +30,7 @@ parameters:
 
         # Symfony interface typehints `Predis\ClientInterface` which is by default not available
         - src/Core/Framework/Adapter/Cache/ShopwareRedisAdapter.php
+        - src/Core/Framework/Adapter/Cache/ShopwareRedisTagAwareAdapter.php
 
         # node_modules
         - src/**/node_modules/*

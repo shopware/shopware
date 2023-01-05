@@ -22,6 +22,7 @@ Example:
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Checkout\Cart\Error\IncompleteLineItemError;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
@@ -62,6 +63,7 @@ class PluginCartProcessor implements CartProcessorInterface
          */
         foreach ($lineItems as $lineItem) {
             $this->calculate($lineItem, $original, $context, $behavior, $data);
+            $toCalculate->add($lineItem);
         }
     }
 
@@ -78,7 +80,7 @@ class PluginCartProcessor implements CartProcessorInterface
         $tempCalculateCart = new Cart('temp-calculate', $original->getToken());
 
         // only provide the nested products and credit items
-        $tempOriginal->setLineItems(
+        $tempOriginalCart->setLineItems(
             $lineItem->getChildren()
         );
 
@@ -90,10 +92,8 @@ class PluginCartProcessor implements CartProcessorInterface
 
         // after all line items calculated - use them as new children
         $lineItem->setChildren(
-            $toCalculate->getLineItems()
+            $tempCalculateCart->getLineItems()
         );
-
-        $toCalculate->add($lineItem);
     }
 }
 ```

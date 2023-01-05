@@ -8306,106 +8306,6 @@ parameters:
 			path: src/Core/Framework/Api/Acl/Role/AclRoleEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\DefinitionService\\:\\:getDefinitions\\(\\) should return list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\> but returns array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\>\\.$#"
-			count: 2
-			path: src/Core/Framework/Api/ApiDefinition/DefinitionService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:createJsonObjectType\\(\\) should return array\\{type\\: string, properties\\: array\\<string, mixed\\>, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\} but returns array\\{type\\: 'json_object', properties\\: array\\<string, array\\{type\\: string, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\}\\>, flags\\: array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:parseField\\(\\) should return array\\{type\\: string, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\} but returns array\\{type\\: 'association', relation\\: 'many_to_many', local\\: string, reference\\: string, mapping\\: string, entity\\: string, flags\\: array, localField\\: string\\|null, \\.\\.\\.\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:parseField\\(\\) should return array\\{type\\: string, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\} but returns array\\{type\\: 'association', relation\\: 'many_to_one', entity\\: string, flags\\: array, localField\\: string\\|null, referenceField\\: string\\|null\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:parseField\\(\\) should return array\\{type\\: string, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\} but returns array\\{type\\: 'association', relation\\: 'one_to_many', entity\\: string, flags\\: array, localField\\: string\\|null, referenceField\\: string\\|null, primary\\: mixed\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:parseField\\(\\) should return array\\{type\\: string, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\} but returns array\\{type\\: 'association', relation\\: 'one_to_one', entity\\: string, flags\\: array, localField\\: string\\|null, referenceField\\: string\\|null\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:parseField\\(\\) should return array\\{type\\: string, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\} but returns array\\{type\\: 'blob', flags\\: array\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:parseField\\(\\) should return array\\{type\\: string, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\} but returns array\\{type\\: 'boolean', flags\\: array\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:parseField\\(\\) should return array\\{type\\: string, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\} but returns array\\{type\\: 'date', flags\\: array\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:parseField\\(\\) should return array\\{type\\: string, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\} but returns array\\{type\\: 'float', flags\\: array\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:parseField\\(\\) should return array\\{type\\: string, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\} but returns array\\{type\\: 'int', flags\\: array\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:parseField\\(\\) should return array\\{type\\: string, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\} but returns array\\{type\\: 'json_list', flags\\: array\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:parseField\\(\\) should return array\\{type\\: string, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\} but returns array\\{type\\: 'password', flags\\: array\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:parseField\\(\\) should return array\\{type\\: string, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\} but returns array\\{type\\: 'string', flags\\: array\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:parseField\\(\\) should return array\\{type\\: string, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\} but returns array\\{type\\: 'text', flags\\: array\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:parseField\\(\\) should return array\\{type\\: string, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\} but returns array\\{type\\: 'uuid', flags\\: array\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:parseField\\(\\) should return array\\{type\\: string, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\} but returns array\\{type\\: class\\-string\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\>, flags\\: array\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:parseField\\(\\) should return array\\{type\\: string, flags\\: list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\Flag\\>\\} but returns array\\{type\\: string, flags\\: non\\-empty\\-array\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\DefinitionService\\:\\:generate\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/DefinitionService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\DefinitionService\\:\\:getSchema\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/DefinitionService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\OpenApiPathBuilder\\:\\:getDefaultListingParameter\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiPathBuilder.php
@@ -8909,6 +8809,11 @@ parameters:
 			message: "#^Cannot call method getVersion\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/App/ActionButton/AppActionLoader.php
+
+		-
+		    message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\ActionButton\\:\\:parse\\(\\) should return array\\<string, mixed\\> but returns array\\<int|string, mixed\\>\\.$#"
+		    count: 1
+		    path: src/Core/Framework/App/Manifest/Xml/ActionButton.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Executor\\:\\:executeHttpRequest\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
@@ -10309,41 +10214,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\QueryBuilder\\:\\:getStates\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/QueryBuilder.php
-
-		-
-			message: "#^Call to an undefined method object\\:\\:getEntityClass\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/DefinitionInstanceRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\DefinitionInstanceRegistry\\:\\:__construct\\(\\) has parameter \\$definitionMap with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/DefinitionInstanceRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\DefinitionInstanceRegistry\\:\\:__construct\\(\\) has parameter \\$repositoryMap with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/DefinitionInstanceRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\DefinitionInstanceRegistry\\:\\:loadClassMapping\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/DefinitionInstanceRegistry.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\DefinitionInstanceRegistry\\:\\:\\$definitions type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/DefinitionInstanceRegistry.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\DefinitionInstanceRegistry\\:\\:\\$entityClassMapping type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/DefinitionInstanceRegistry.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\DefinitionInstanceRegistry\\:\\:\\$repositoryMap type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/DefinitionInstanceRegistry.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\FetchModeHelper\\:\\:group\\(\\) has parameter \\$result with no value type specified in iterable type array\\.$#"
@@ -15936,116 +15806,6 @@ parameters:
 			path: src/Core/Framework/Test/Migration/MigrationSourceTest.php
 
 		-
-			message: "#^Access to an undefined property Shopware\\\\Core\\\\Framework\\\\Plugin\\:\\:\\$categoryRepository\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Access to an undefined property Shopware\\\\Core\\\\Framework\\\\Plugin\\:\\:\\$postActivateContext\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Access to an undefined property Shopware\\\\Core\\\\Framework\\\\Plugin\\:\\:\\$postDeactivateContext\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Access to an undefined property Shopware\\\\Core\\\\Framework\\\\Plugin\\:\\:\\$preActivateContext\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Access to an undefined property Shopware\\\\Core\\\\Framework\\\\Plugin\\:\\:\\$preDeactivateContext\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Access to an undefined property Shopware\\\\Core\\\\Framework\\\\Plugin\\:\\:\\$systemConfig\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Cannot access property \\$categoryRepository on Shopware\\\\Core\\\\Framework\\\\Plugin\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Cannot access property \\$categoryRepository on object\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Cannot access property \\$postActivateContext on Shopware\\\\Core\\\\Framework\\\\Plugin\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Cannot access property \\$postDeactivateContext on Shopware\\\\Core\\\\Framework\\\\Plugin\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Cannot access property \\$preActivateContext on Shopware\\\\Core\\\\Framework\\\\Plugin\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Cannot access property \\$preDeactivateContext on Shopware\\\\Core\\\\Framework\\\\Plugin\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Cannot access property \\$systemConfig on Shopware\\\\Core\\\\Framework\\\\Plugin\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Cannot access property \\$systemConfig on object\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Cannot call method boot\\(\\) on Shopware\\\\Core\\\\Kernel\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Cannot call method get\\(\\) on object\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Cannot call method getContainer\\(\\) on Shopware\\\\Core\\\\Kernel\\|null\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Cannot call method getPluginLoader\\(\\) on Shopware\\\\Core\\\\Kernel\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/ComposerPluginLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\PersonalData\\\\CleanPersonalDataCommandTest\\:\\:fetchAllCarts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/PersonalData/CleanPersonalDataCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\PersonalData\\\\CleanPersonalDataCommandTest\\:\\:fetchAllCustomers\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/PersonalData/CleanPersonalDataCommandTest.php
-
-		-
 			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\ComposerPluginLoader constructor invoked with 3 parameters, 1\\-2 required\\.$#"
 			count: 3
 			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/ComposerPluginLoaderTest.php
@@ -17736,11 +17496,6 @@ parameters:
 			path: src/Core/System/CustomEntity/Schema/SchemaUpdater.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\CustomEntityXmlSchema\\:\\:toStorage\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Xml/CustomEntityXmlSchema.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Entities\\:\\:__construct\\(\\) has parameter \\$entities with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/CustomEntity/Xml/Entities.php
@@ -18034,16 +17789,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\PartialSalesChannelEntityLoadedEvent\\:\\:__construct\\(\\) has parameter \\$entities with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Entity/PartialSalesChannelEntityLoadedEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInstanceRegistry\\:\\:__construct\\(\\) has parameter \\$definitionMap with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelDefinitionInstanceRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInstanceRegistry\\:\\:__construct\\(\\) has parameter \\$repositoryMap with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelDefinitionInstanceRegistry.php
 
 		-
 			message: "#^Parameter \\#1 \\$entities of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:createForSalesChannel\\(\\) expects list\\<mixed\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\> given\\.$#"
@@ -20916,16 +20661,6 @@ parameters:
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilderInterface.php
 
 		-
-			message: "#^Parameter \\#1 \\$definitions of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi3Generator\\:\\:generate\\(\\) expects list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\> given\\.$#"
-			count: 1
-			path: tests/integration/php/Core/ApiRoutesHaveASchemaTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$definitions of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator\\:\\:generate\\(\\) expects list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\> given\\.$#"
-			count: 1
-			path: tests/integration/php/Core/ApiRoutesHaveASchemaTest.php
-
-		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductCategoryDenormalizerTest\\:\\:getProductCategoryList\\(\\) should return list\\<string\\>\\|null but returns array\\<string\\>\\|null\\.$#"
 			count: 1
 			path: tests/integration/php/Core/Content/Product/DataAbstractionLayer/ProductCategoryDenormalizerTest.php
@@ -20939,18 +20674,3 @@ parameters:
 			message: "#^Method Shopware\\\\Tests\\\\Unit\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\RedisCartPersisterTest\\:\\:dataProviderInvalidData\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: tests/unit/php/Core/Checkout/Cart/Order/RedisCartPersisterTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$definitions of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi3Generator\\:\\:generate\\(\\) expects list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\> given\\.$#"
-			count: 2
-			path: tests/unit/php/Core/Framework/Api/ApiDefinition/Generator/OpenApi3GeneratorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$definitions of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi3Generator\\:\\:getSchema\\(\\) expects list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\> given\\.$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/Api/ApiDefinition/Generator/OpenApi3GeneratorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$definitions of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator\\:\\:generate\\(\\) expects list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\> given\\.$#"
-			count: 2
-			path: tests/unit/php/Core/Framework/Api/ApiDefinition/Generator/StoreApiGeneratorTest.php

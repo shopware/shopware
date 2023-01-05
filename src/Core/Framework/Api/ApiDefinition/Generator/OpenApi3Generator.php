@@ -57,7 +57,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinition>  $definitions
+     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinition>  $definitions
      *
      * @return OpenApiSpec
      */
@@ -120,7 +120,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinition> $definitions
+     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinition> $definitions
      *
      * @return array<string, array{name: string, translatable: array<int|string, mixed>, properties: array<string, mixed>}>
      */
@@ -234,7 +234,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinition> $definitions
+     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinition> $definitions
      */
     private function containsSalesChannelDefinition(array $definitions): bool
     {

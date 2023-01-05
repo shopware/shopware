@@ -26,6 +26,18 @@ const customEntityDefinitionWithAdminUi = {
     }
 };
 
+const shortHandWithAdminUiName = 'ce_with_admin_ui';
+const shortHandCustomEntityDefinitionWithAdminUi = {
+    entity: shortHandWithAdminUiName,
+    properties: {},
+    'write-protected': false,
+    'read-protected': false,
+    flags: {
+        'cms-aware': {},
+        'admin-ui': {}
+    }
+};
+
 const container = {
     httpClient: {
         get() {
@@ -33,7 +45,8 @@ const container = {
                 data: {
                     [bareConfigName]: customEntityDefinitionBare,
                     [coreEntityName]: coreEntityConfig,
-                    [withAdminUiName]: customEntityDefinitionWithAdminUi
+                    [withAdminUiName]: customEntityDefinitionWithAdminUi,
+                    [shortHandWithAdminUiName]: shortHandCustomEntityDefinitionWithAdminUi,
                 }
             });
         }
@@ -78,7 +91,8 @@ describe('init/repository', () => {
     it('should register custom entities to the customEntityDefinitionService', async () => {
         await initializeRepositoryFactory.apply(thisMock, [container]);
 
-        expect(customEntityDefinitionStore).toStrictEqual([customEntityDefinitionBare, customEntityDefinitionWithAdminUi]);
+        expect(customEntityDefinitionStore).toStrictEqual(
+            [customEntityDefinitionBare, customEntityDefinitionWithAdminUi, shortHandCustomEntityDefinitionWithAdminUi]
+        );
     });
 });
-

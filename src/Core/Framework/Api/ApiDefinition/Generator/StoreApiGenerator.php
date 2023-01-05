@@ -61,14 +61,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT && $api === DefinitionService::STORE_API;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
-     * @param Api $api
-     *
-     * @return OpenApiSpec
-     */
     public function generate(array $definitions, string $api, string $apiType): array
     {
         $openApi = new OpenApi([]);

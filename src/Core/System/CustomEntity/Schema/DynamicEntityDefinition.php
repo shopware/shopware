@@ -4,6 +4,7 @@ namespace Shopware\Core\System\CustomEntity\Schema;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -20,20 +21,20 @@ class DynamicEntityDefinition extends EntityDefinition
     protected string $name;
 
     /**
-     * @var array<int, array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}>
+     * @var list<array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}>
      */
     protected array $fieldDefinitions;
 
     /**
-     * @var array<string, array<string, mixed>>
+     * @var list<Flag>
      */
     protected array $flags;
 
     protected ContainerInterface $container;
 
     /**
-     * @param array<int, array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}> $fields
-     * @param array<string, array<string, mixed>> $flags
+     * @param list<array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}> $fields
+     * @param list<Flag> $flags
      */
     public static function create(
         string $name,
@@ -56,7 +57,7 @@ class DynamicEntityDefinition extends EntityDefinition
     }
 
     /**
-     * @return array<string, array<string,mixed>>
+     * @return list<Flag>
      */
     public function getFlags(): array
     {

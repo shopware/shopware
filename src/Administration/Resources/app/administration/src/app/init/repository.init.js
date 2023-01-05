@@ -23,7 +23,7 @@ export default function initializeRepositoryFactory(container) {
         Object.entries(data).forEach(([key, value]) => {
             entityDefinitionFactory.add(key, value);
 
-            if (key.startsWith('custom_entity_')) {
+            if (key.startsWith('custom_entity_') || key.startsWith('ce_')) {
                 customEntityDefinitionService.addDefinition(value);
             }
         });

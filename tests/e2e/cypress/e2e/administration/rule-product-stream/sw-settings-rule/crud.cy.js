@@ -38,7 +38,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('button.sw-button').contains('Save').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 400);
 
-        cy.awaitAndCheckNotification('An error occurred while saving rule "".');
+        cy.awaitAndCheckNotification('An error occurred while saving rule');
 
         // fill basic data
         cy.get('.sw-field').contains('.sw-field', 'Name').then((field) => {

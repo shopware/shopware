@@ -135,8 +135,9 @@ Component.register('sw-flow-rule-modal', {
         },
 
         createRule() {
-            this.rule = this.ruleRepository.create(Context.api);
+            this.rule = this.ruleRepository.create();
             this.conditions = this.rule?.conditions;
+            this.conditionTree = this.conditions;
         },
 
         loadRule(ruleId) {

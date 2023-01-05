@@ -1209,9 +1209,9 @@
     "imageAlt": "Image {index} / {total}"
   },
   "sw-confirm-modal": {
-        "defaultText": "Are you sure you want to proceed?"
-    },
-    "sw-rule-modal": {
+      "defaultText": "Are you sure you want to proceed?"
+  },
+  "sw-rule-modal": {
     "modalTitleNew": "Create new global rule",
     "modalTitleModify": "Modify global rule",
     "labelDescription": "Description",
@@ -1221,7 +1221,7 @@
     "labelPriority": "Priority",
     "placeholderPriority": "Prioritise this rule...",
     "messageSaveSuccess": "Rule \"{name}\" saved.",
-    "messageSaveError": "An error occurred while saving rule \"{name}\".",
+    "messageSaveError": "An error occurred while saving rule",
     "ruleCard": "Conditions"
   },
   "sw-select-rule-create": {

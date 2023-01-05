@@ -94,7 +94,7 @@
       "placeholderTags": "Gib Tags ein ...",
       "messageSaveSuccess": "Die Regel \"{name}\" wurde erfolgreich gespeichert.",
       "ruleCard": "Bedingungen",
-      "messageSaveError": "Beim Speichern der Regel \"{name}\" ist ein Fehler aufgetreten.",
+      "messageSaveError": "Beim Speichern der Regel ist ein Fehler aufgetreten",
       "tabGeneral": "Allgemein",
       "tabAssignments": "Zuweisungen",
       "buttonAddAssignment":  "Zuweisung hinzufügen",

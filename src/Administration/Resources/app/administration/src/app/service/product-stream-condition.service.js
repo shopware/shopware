@@ -60,6 +60,7 @@ export default function conditionService() {
             'ean',
             'sales',
             'manufacturer',
+            'manufacturerNumber',
             'categoriesRo',
             'shippingFree',
             'visibilities',

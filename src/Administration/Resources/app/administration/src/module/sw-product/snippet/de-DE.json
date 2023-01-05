@@ -111,7 +111,7 @@
       "labelMinPurchase": "Mindestabnahme",
       "labelMaxPurchase": "Maximalabnahme",
       "labelEan": "GTIN/EAN",
-      "labelManufacturerNumber": "Herstellernummer",
+      "labelManufacturerNumber": "Hersteller-Produktnummer",
       "labelStock": "Lagerbestand",
       "labelActive": "Aktiv",
       "labelShippingFree": "Versandkostenfrei",
@@ -133,7 +133,7 @@
       "placeholderPurchaseSteps": "Verkaufsintervall (Stückzahl) ...",
       "placeholderRestockTime": "Wiederauffüllintervall ...",
       "placeholderEan": "Gib die GTIN/EAN ein ...",
-      "placeholderManufacturerNumber": "Gib die Herstellernummer ein ...",
+      "placeholderManufacturerNumber": "Produktnummer eingeben ...",
       "labelAvailableStock": "Verfügbarer Bestand",
       "labelPurchaseSteps": "Staffelung"
     },

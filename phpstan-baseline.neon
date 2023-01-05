@@ -7718,11 +7718,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Cache/AbstractCacheTracer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheDecorator\\:\\:getTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/CacheDecorator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheTagCollection\\:\\:add\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Cache/CacheTagCollection.php
@@ -19886,11 +19881,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$appId of method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\App\\\\TemplateStateServiceTest\\:\\:fetchActiveTemplates\\(\\) expects string, string\\|null given\\.$#"
 			count: 2
 			path: src/Storefront/Test/Framework/App/TemplateStateServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Cache\\\\CacheDecoratorTest\\:\\:writeItem\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Cache/CacheDecoratorTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Cache\\\\CacheStateValidatorTest\\:\\:cases\\(\\) return type has no value type specified in iterable type array\\.$#"

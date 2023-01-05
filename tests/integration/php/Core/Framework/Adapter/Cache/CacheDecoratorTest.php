@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Cache;
+namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheDecorator;
@@ -10,15 +10,14 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 /**
  * @internal
  * @group cache
+ *
+ * @covers \Shopware\Core\Framework\Adapter\Cache\CacheDecorator
  */
 class CacheDecoratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var CacheDecorator
-     */
-    private $cache;
+    private CacheDecorator $cache;
 
     protected function setUp(): void
     {
@@ -66,6 +65,9 @@ class CacheDecoratorTest extends TestCase
         static::assertEquals(['tag-a', 'tag-b', 'tag-c', 'tag-d', 'tag-e'], $collection->getTrace('all'));
     }
 
+    /**
+     * @param list<string> $tags
+     */
     private function writeItem(string $key, array $tags): void
     {
         $item = $this->cache->getItem($key);

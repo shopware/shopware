@@ -1,4 +1,5 @@
 ---
+issue: NEXT-24822
 title: Change translation items from Artikel to Einträge to reduce ambiguity to products
 author: Joshua Behrens
 author_email: code@joshua-behrens.de

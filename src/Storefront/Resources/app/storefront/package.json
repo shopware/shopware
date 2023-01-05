@@ -32,6 +32,7 @@
     "are-you-es5": "2.1.2",
     "axios": "0.27.2",
     "bootstrap": "5.2.2",
+    "core-js": "3.27.1",
     "deepmerge": "4.2.2",
     "expose-loader": "0.7.5",
     "flatpickr": "4.6.13",
@@ -52,12 +53,9 @@
     "webpackbar": "5.0.2"
   },
   "devDependencies": {
-    "@babel/cli": "7.5.5",
-    "@babel/core": "7.5.5",
-    "@babel/plugin-proposal-class-properties": "7.5.5",
-    "@babel/plugin-transform-object-assign": "7.2.0",
-    "@babel/polyfill": "7.4.4",
-    "@babel/preset-env": "7.5.5",
+    "@babel/cli": "7.20.7",
+    "@babel/core": "7.20.12",
+    "@babel/preset-env": "7.20.2",
     "@babel/preset-typescript": "7.16.7",
     "@nuxtjs/friendly-errors-webpack-plugin": "2.1.0",
     "autoprefixer": "9.6.1",

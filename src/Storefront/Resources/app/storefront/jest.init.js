@@ -2,7 +2,6 @@
  * @package storefront
  */
 
-import '@babel/polyfill';
 import * as bootstrap from 'bootstrap';
 
 // log rejections so that they are not printed to stderr as a fallback

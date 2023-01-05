@@ -197,7 +197,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
         $attributeCount = random_int(1, 5);
         $attributes = [];
 
-        $setName = $context->getFaker()->unique()->format('category');
+        $setName = $context->getFaker()->unique()->format('customFieldSet');
         $prefix = 'custom_';
 
         for ($j = 0; $j < $attributeCount; ++$j) {

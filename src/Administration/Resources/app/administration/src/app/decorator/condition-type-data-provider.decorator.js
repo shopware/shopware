@@ -639,6 +639,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'customer', 'item', 'promotion'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general'),
+            scopes: ['global'],
             snippet: 'global.businessEvents.checkout_customer_before_login',
         },
     );
@@ -648,6 +649,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'customer'),
+            scopes: ['global', 'customer'],
             snippet: 'global.businessEvents.checkout_customer_login',
         },
     );
@@ -657,6 +659,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'customer'),
+            scopes: ['global', 'customer'],
             snippet: 'global.businessEvents.checkout_customer_logout',
         },
     );
@@ -666,6 +669,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'customer'),
+            scopes: ['global', 'customer'],
             snippet: 'global.businessEvents.checkout_customer_deleted',
         },
     );
@@ -675,6 +679,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion', 'customer'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general'),
+            scopes: ['global'],
             snippet: 'global.businessEvents.user_recovery_request',
         },
     );
@@ -684,6 +689,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'customer'),
+            scopes: ['global', 'customer'],
             snippet: 'global.businessEvents.checkout_customer_changed-payment-method',
         },
     );
@@ -692,6 +698,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.checkout.checkout.order.placed',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'customer', 'cart', 'item', 'promotion'),
+            scopes: ['global', 'customer', 'cart', 'item', 'promotion'],
             snippet: 'global.businessEvents.checkout_order_placed',
         },
     );
@@ -700,6 +707,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.checkout.order.payment_method.changed',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'customer', 'cart', 'item', 'promotion'),
+            scopes: ['global', 'customer', 'cart', 'item', 'promotion'],
             snippet: 'global.businessEvents.checkout_order_payment_method_changed',
         },
     );
@@ -709,6 +717,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'customer'),
+            scopes: ['global', 'customer'],
             snippet: 'global.businessEvents.customer_recovery_request',
         },
     );
@@ -718,6 +727,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'customer'),
+            scopes: ['global', 'customer'],
             snippet: 'global.businessEvents.checkout_customer_double_opt_in_registration',
         },
     );
@@ -727,6 +737,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'customer'),
+            scopes: ['global', 'customer'],
             snippet: 'global.businessEvents.checkout_customer_double_opt_in_registration',
         },
     );
@@ -736,6 +747,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'customer'),
+            scopes: ['global', 'customer'],
             snippet: 'global.businessEvents.customer_group_registration_accepted',
         },
     );
@@ -745,6 +757,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'customer'),
+            scopes: ['global', 'customer'],
             snippet: 'global.businessEvents.customer_group_registration_declined',
         },
     );
@@ -754,6 +767,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'customer'),
+            scopes: ['global', 'customer'],
             snippet: 'global.businessEvents.checkout_customer_register',
         },
     );
@@ -763,6 +777,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion', 'customer'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general'),
+            scopes: ['global'],
             snippet: 'global.businessEvents.checkout_customer_guest_register',
         },
     );
@@ -772,6 +787,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion', 'customer'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general'),
+            scopes: ['global'],
             snippet: 'global.businessEvents.contact_form_send',
         },
     );
@@ -781,6 +797,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion', 'customer'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general'),
+            scopes: ['global'],
             snippet: 'global.businessEvents.mail_after_create_message',
         },
     );
@@ -790,6 +807,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion', 'customer'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general'),
+            scopes: ['global'],
             snippet: 'global.businessEvents.mail_before_send',
         },
     );
@@ -799,6 +817,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion', 'customer'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general'),
+            scopes: ['global'],
             snippet: 'global.businessEvents.mail_sent',
         },
     );
@@ -808,6 +827,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion', 'customer'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general'),
+            scopes: ['global'],
             snippet: 'global.businessEvents.newsletter_confirm',
         },
     );
@@ -817,6 +837,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion', 'customer'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general'),
+            scopes: ['global'],
             snippet: 'global.businessEvents.newsletter_register',
         },
     );
@@ -826,6 +847,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion', 'customer'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general'),
+            scopes: ['global'],
             snippet: 'global.businessEvents.newsletter_update',
         },
     );
@@ -835,6 +857,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion', 'customer'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general'),
+            scopes: ['global'],
             snippet: 'global.businessEvents.newsletter_unsubscribe',
         },
     );
@@ -844,6 +867,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion', 'customer'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general'),
+            scopes: ['global'],
             snippet: 'global.businessEvents.product_export_log',
         },
     );
@@ -852,6 +876,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_transaction.state.open',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_transaction_state_open',
         },
     );
@@ -860,6 +885,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_transaction.state.open',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_transaction_state_open',
         },
     );
@@ -868,6 +894,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_transaction.state.open',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_transaction_state_paid',
         },
     );
@@ -876,6 +903,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_transaction.state.open',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_transaction_state_paid',
         },
     );
@@ -884,6 +912,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_transaction.state.open',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_transaction_state_refunded_partially',
         },
     );
@@ -892,6 +921,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_transaction.state.open',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_transaction_state_refunded_partially',
         },
     );
@@ -900,6 +930,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order_transaction.state.open',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_transaction_state_chargeback',
         },
     );
@@ -908,6 +939,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order_transaction.state.paid',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_transaction_state_chargeback',
         },
     );
@@ -916,6 +948,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_transaction.state.paid',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_transaction_state_paid_partially',
         },
     );
@@ -924,6 +957,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_transaction.state.refunded_partially',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_transaction_state_paid_partially',
         },
     );
@@ -932,6 +966,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order_transaction.state.refunded_partially',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_transaction_state_failed',
         },
     );
@@ -940,6 +975,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_transaction.state.chargeback',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_transaction_state_failed',
         },
     );
@@ -948,6 +984,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order_transaction.state.chargeback',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_transaction_state_reminded',
         },
     );
@@ -956,6 +993,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_transaction.state.paid_partially',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_transaction_state_reminded',
         },
     );
@@ -964,6 +1002,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order_transaction.state.paid_partially',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_transaction_state_authorized',
         },
     );
@@ -972,6 +1011,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_transaction.state.failed',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_transaction_state_authorized',
         },
     );
@@ -980,6 +1020,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order_transaction.state.failed',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_transaction_state_cancelled',
         },
     );
@@ -988,6 +1029,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_transaction.state.reminded',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_transaction_state_cancelled',
         },
     );
@@ -996,6 +1038,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order_transaction.state.reminded',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_transaction_state_refunded',
         },
     );
@@ -1004,6 +1047,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_transaction.state.authorized',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_transaction_state_refunded',
         },
     );
@@ -1012,6 +1056,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order_transaction.state.authorized',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_transaction_state_in_progress',
         },
     );
@@ -1020,6 +1065,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_transaction.state.cancelled',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_transaction_state_in_progress',
         },
     );
@@ -1028,6 +1074,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order_transaction.state.cancelled',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_delivery_state_returned_partially',
         },
     );
@@ -1036,6 +1083,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_transaction.state.refunded',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_delivery_state_returned_partially',
         },
     );
@@ -1044,6 +1092,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order_transaction.state.refunded',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_delivery_state_returned',
         },
     );
@@ -1052,6 +1101,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_transaction.state.in_progress',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_delivery_state_returned',
         },
     );
@@ -1060,6 +1110,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order_transaction.state.in_progress',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_delivery_state_cancelled',
         },
     );
@@ -1068,6 +1119,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_delivery.state.returned_partially',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_delivery_state_cancelled',
         },
     );
@@ -1076,6 +1128,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order_delivery.state.returned_partially',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_delivery_state_open',
         },
     );
@@ -1084,6 +1137,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_delivery.state.returned',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_delivery_state_open',
         },
     );
@@ -1092,6 +1146,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order_delivery.state.returned',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_delivery_state_shipped',
         },
     );
@@ -1100,6 +1155,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_delivery.state.cancelled',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_delivery_state_returned_partially',
         },
     );
@@ -1108,6 +1164,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order_delivery.state.cancelled',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_delivery_state_shipped_partially',
         },
     );
@@ -1116,6 +1173,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_delivery.state.open',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_delivery_state_shipped_partially',
         },
     );
@@ -1124,6 +1182,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order_delivery.state.open',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_delivery_state_shipped',
         },
     );
@@ -1132,6 +1191,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_delivery.state.shipped',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_state_in_progress',
         },
     );
@@ -1140,6 +1200,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order_delivery.state.shipped',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_state_in_progress',
         },
     );
@@ -1148,6 +1209,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order_delivery.state.shipped_partially',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_state_completed',
         },
     );
@@ -1156,6 +1218,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order_delivery.state.shipped_partially',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_state_completed',
         },
     );
@@ -1164,6 +1227,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order.state.in_progress',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_state_open',
         },
     );
@@ -1172,6 +1236,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order.state.in_progress',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_state_open',
         },
     );
@@ -1180,6 +1245,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order.state.completed',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_state_cancelled',
         },
     );
@@ -1188,6 +1254,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order.state.completed',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_state_cancelled',
         },
     );
@@ -1196,6 +1263,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_enter.order.state.open',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_enter_order_transaction_state_unconfirmed',
         },
     );
@@ -1204,6 +1272,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'flowTrigger.state_leave.order.state.open',
         {
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
+            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
             snippet: 'global.businessEvents.state_leave_order_transaction_state_unconfirmed',
         },
     );

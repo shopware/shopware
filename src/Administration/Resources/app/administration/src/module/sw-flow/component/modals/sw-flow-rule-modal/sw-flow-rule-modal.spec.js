@@ -2,6 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import swFlowRuleModal from 'src/module/sw-flow/component/modals/sw-flow-rule-modal';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
+import flowState from 'src/module/sw-flow/state/flow.state';
 
 Shopware.Component.register('sw-flow-rule-modal', swFlowRuleModal);
 
@@ -35,12 +36,13 @@ async function createWrapper() {
 
             ruleConditionDataProviderService: {
                 getModuleTypes: () => [],
-                addScriptConditions: () => {}
+                addScriptConditions: () => {},
+                getAwarenessConfigurationByAssignmentName: () => ({})
             },
 
             ruleConditionsConfigApiService: {
                 load: () => Promise.resolve()
-            }
+            },
         },
 
         propsData: {
@@ -77,6 +79,10 @@ async function createWrapper() {
 }
 
 describe('module/sw-flow/component/sw-flow-rule-modal', () => {
+    beforeAll(() => {
+        Shopware.State.registerModule('swFlowState', flowState);
+    });
+
     it('should show element correctly', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

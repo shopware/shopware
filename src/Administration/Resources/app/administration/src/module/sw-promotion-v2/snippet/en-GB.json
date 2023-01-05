@@ -223,7 +223,7 @@
             }
         },
         "ruleSelect": {
-            "labelAddNewRule": "Add new rule"
+            "labelAddNewRule": "Create new rule"
         }
     },
     "sw-promotion": {

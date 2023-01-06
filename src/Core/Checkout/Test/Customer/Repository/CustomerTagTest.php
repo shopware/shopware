@@ -131,6 +131,9 @@ class CustomerTagTest extends TestCase
         static::assertContains($id2, $ids->getIds());
     }
 
+    /**
+     * @param array<int, array<string, string>> $tags
+     */
     private function createCustomer(string $id, array $tags): void
     {
         $data = [
@@ -148,7 +151,7 @@ class CustomerTagTest extends TestCase
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
-            'password' => 'not',
+            'password' => 'not12345',
             'lastName' => 'not',
             'firstName' => 'not',
             'salutationId' => $this->getValidSalutationId(),

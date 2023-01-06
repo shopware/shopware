@@ -68,6 +68,7 @@ Component.register('sw-users-permissions-user-detail', {
             'email',
             'username',
             'localeId',
+            'password',
         ]),
 
         identifier() {

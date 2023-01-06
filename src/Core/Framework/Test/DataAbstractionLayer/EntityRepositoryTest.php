@@ -20,8 +20,8 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedContainerEvent;
@@ -47,6 +47,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Locale\LocaleDefinition;
+use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -185,9 +186,9 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(1, $locale);
 
         static::assertTrue($locale->has($id));
-        static::assertInstanceOf(Entity::class, $locale->get($id));
-
-        static::assertSame('Test', $locale->get($id)->getName());
+        $locale = $locale->get($id);
+        static::assertInstanceOf(LocaleEntity::class, $locale);
+        static::assertSame('Test', $locale->getName());
     }
 
     public function testLoadedEventFired(): void
@@ -226,9 +227,9 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(1, $locale);
 
         static::assertTrue($locale->has($id));
-        static::assertInstanceOf(Entity::class, $locale->get($id));
-
-        static::assertSame('Test', $locale->get($id)->getName());
+        $locale = $locale->get($id);
+        static::assertInstanceOf(LocaleEntity::class, $locale);
+        static::assertSame('Test', $locale->getName());
     }
 
     public function testReadWithManyToOneAssociation(): void
@@ -281,7 +282,7 @@ class EntityRepositoryTest extends TestCase
         $criteria = new Criteria([$id, $id2]);
         $criteria->addAssociation('manufacturer');
 
-        $locale = $repository->search($criteria, $context);
+        $products = $repository->search($criteria, $context);
 
         static::assertEquals([$id, $id2], $criteria->getIds());
         static::assertEmpty($criteria->getSorting());
@@ -300,13 +301,13 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getAssociation('manufacturer')->getLimit());
         static::assertNull($criteria->getAssociation('manufacturer')->getOffset());
 
-        static::assertInstanceOf(EntityCollection::class, $locale);
-        static::assertCount(2, $locale);
+        static::assertInstanceOf(EntityCollection::class, $products);
+        static::assertCount(2, $products);
 
-        static::assertTrue($locale->has($id));
-        static::assertInstanceOf(Entity::class, $locale->get($id));
-
-        static::assertSame('Test', $locale->get($id)->getName());
+        static::assertTrue($products->has($id));
+        $product = $products->get($id);
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertSame('Test', $product->getName());
     }
 
     public function testReadAndWriteWithOneToMany(): void
@@ -422,7 +423,7 @@ class EntityRepositoryTest extends TestCase
         $criteria->addAssociation('prices');
         $criteria->addAssociation('manufacturer');
 
-        $locale = $repository->search($criteria, $context);
+        $products = $repository->search($criteria, $context);
         static::assertEquals([$id, $id2], $criteria->getIds());
         static::assertEmpty($criteria->getSorting());
         static::assertEmpty($criteria->getFilters());
@@ -448,13 +449,12 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getAssociation('manufacturer')->getLimit());
         static::assertNull($criteria->getAssociation('manufacturer')->getOffset());
 
-        static::assertInstanceOf(EntityCollection::class, $locale);
-        static::assertCount(2, $locale);
+        static::assertInstanceOf(EntityCollection::class, $products);
+        static::assertCount(2, $products);
 
-        static::assertTrue($locale->has($id));
-        static::assertInstanceOf(Entity::class, $locale->get($id));
-
-        static::assertSame('Test', $locale->get($id)->getName());
+        $product = $products->get($id);
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertSame('Test', $product->getName());
     }
 
     public function testClone(): void
@@ -479,6 +479,7 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $written = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
+        static::assertNotNull($written);
         static::assertCount(3, $written->getIds());
         static::assertContains($newId, $written->getIds());
 
@@ -544,6 +545,7 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $written = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
+        static::assertNotNull($written);
         static::assertCount(3, $written->getIds());
         static::assertContains($newId, $written->getIds());
 
@@ -565,7 +567,7 @@ class EntityRepositoryTest extends TestCase
 
         /** @var CategoryEntity $postClone */
         $postClone = $entities->get($id);
-        /** @var CategoryEntity $new */
+        /** @var CategoryEntity $cloned */
         $cloned = $entities->get($newId);
 
         static::assertInstanceOf(CategoryEntity::class, $postClone);
@@ -606,8 +608,9 @@ class EntityRepositoryTest extends TestCase
 
         $written = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
 
+        static::assertNotNull($written);
         static::assertCount(3, $written->getIds());
-        $newId = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME)->getIds();
+        $newId = $written->getIds();
         $newId = array_shift($newId);
         static::assertNotEquals($id, $newId);
 
@@ -644,7 +647,9 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(CategoryEntity::class, $new);
 
         static::assertSame($old->getName(), $new->getName());
-        static::assertCount($old->getChildren()->count(), $new->getChildren());
+        static::assertNotNull($oldChildren = $old->getChildren());
+        static::assertNotNull($newChildren = $new->getChildren());
+        static::assertCount($oldChildren->count(), $newChildren);
     }
 
     public function testCloneWithOneToMany(): void
@@ -681,7 +686,7 @@ class EntityRepositoryTest extends TestCase
             'defaultPaymentMethodId' => $paymentMethod,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
-            'password' => 'not',
+            'password' => 'not12345',
             'lastName' => 'not',
             'firstName' => $matchTerm,
             'salutationId' => $salutation,
@@ -701,6 +706,7 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $written = $result->getEventByEntityName(CustomerAddressDefinition::ENTITY_NAME);
+        static::assertNotNull($written);
         static::assertCount(2, $written->getIds());
 
         $criteria = new Criteria([$recordA, $newId]);
@@ -735,13 +741,15 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(CustomerEntity::class, $old);
         static::assertInstanceOf(CustomerEntity::class, $new);
 
-        static::assertCount(2, $old->getAddresses());
-        static::assertCount(2, $new->getAddresses());
+        static::assertNotNull($oldAddresses = $old->getAddresses());
+        static::assertNotNull($newAddresses = $new->getAddresses());
+        static::assertCount(2, $oldAddresses);
+        static::assertCount(2, $newAddresses);
 
-        $oldAddressIds = $old->getAddresses()->map(static function (CustomerAddressEntity $address) {
+        $oldAddressIds = $oldAddresses->map(static function (CustomerAddressEntity $address) {
             return $address->getId();
         });
-        $newAddressIds = $new->getAddresses()->map(static function (CustomerAddressEntity $address) {
+        $newAddressIds = $newAddresses->map(static function (CustomerAddressEntity $address) {
             return $address->getId();
         });
 
@@ -787,12 +795,14 @@ class EntityRepositoryTest extends TestCase
         $newId = Uuid::randomHex();
 
         $written = $result->getEventByEntityName(ShippingMethodDefinition::ENTITY_NAME);
+        static::assertNotNull($written);
         static::assertCount(1, $written->getIds());
 
         $result = $repository->clone($recordA, $context, $newId);
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $written = $result->getEventByEntityName(ShippingMethodDefinition::ENTITY_NAME);
+        static::assertNotNull($written);
         static::assertCount(1, $written->getIds());
 
         $criteria = new Criteria([$recordA, $newId]);
@@ -887,7 +897,8 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($Criteria->getAssociation('children')->getLimit());
         static::assertNull($Criteria->getAssociation('children')->getOffset());
 
-        static::assertCount(2, $category->getChildren());
+        static::assertNotNull($children = $category->getChildren());
+        static::assertCount(2, $children);
     }
 
     public function testCloneWithNestedChildren(): void
@@ -1037,6 +1048,7 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $written = $result->getEventByEntityName(ProductDefinition::ENTITY_NAME);
+        static::assertNotNull($written);
         static::assertCount(1, $written->getIds());
         static::assertContains($newId, $written->getIds());
 
@@ -1147,14 +1159,17 @@ class EntityRepositoryTest extends TestCase
             ->create($data, Context::createDefaultContext());
 
         $products = $result->getEventByEntityName('product');
+        static::assertNotNull($products);
         static::assertCount(3, $products->getIds());
         static::assertCount(3, $products->getWriteResults());
 
         $properties = $result->getEventByEntityName('property_group_option');
+        static::assertNotNull($properties);
         static::assertCount(3, $properties->getIds());
         static::assertCount(3, $properties->getWriteResults());
 
         $categories = $result->getEventByEntityName('category');
+        static::assertNotNull($categories);
         static::assertCount(3, $categories->getIds());
         static::assertCount(3, $categories->getWriteResults());
     }
@@ -1277,6 +1292,7 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $written = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
+        static::assertNotNull($written);
         static::assertCount(3, $written->getIds());
         static::assertContains($newId, $written->getIds());
 
@@ -1330,8 +1346,12 @@ class EntityRepositoryTest extends TestCase
         string $definition,
         bool $loadWithEventFactory = true
     ): EntityRepository {
+        $definition = $this->getContainer()->get($definition);
+
+        static::assertInstanceOf(EntityDefinition::class, $definition);
+
         $arguments = [
-            $this->getContainer()->get($definition),
+            $definition,
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),

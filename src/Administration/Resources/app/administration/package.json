@@ -22,6 +22,7 @@
     "unit": "jest --config jest.config.js --ci",
     "unit-watch": "jest --config jest.config.js --watch",
     "convert-entity-schema": "ts-node --transpileOnly ./scripts/entitySchemaConverter/convert-schema.ts",
+    "generate-entity-schema-package": "ts-node --transpileOnly ./scripts/entitySchemaConverter/generate-package.ts",
     "test-debug": "node --inspect-brk TZ=UTC node_modules/.bin/jest --watch --config jest.config.js --runInBand --no-cache",
     "lint:all": "npm run lint:types && npm run lint",
     "lint": "eslint --ext .js,.ts,.vue,.html.twig src test --cache",

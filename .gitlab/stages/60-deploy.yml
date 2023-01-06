@@ -1,5 +1,13 @@
 # requires /.gitlab/base.yml
 
+.administration-node-cache: &administration-node-cache
+  key:
+    files:
+      - src/Administration/Resources/app/administration/package-lock.json
+  paths:
+    - src/Administration/Resources/app/administration/node_modules/
+  policy: push
+
 Upload Component Library:
     extends: .long-running-no-setup
     stage: deploy
@@ -19,6 +27,26 @@ Upload Component Library:
         - aws s3 sync --delete --acl public-read . s3://shopware-ui-component-library-docs/
         - aws cloudfront create-invalidation --distribution-id E18U17118IAC82 --paths "/*"
     interruptible: false
+
+Publish entity-schema-types NPM package:
+    extends: .base
+    stage: deploy
+    rules:
+      - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+    cache:
+      - <<: *administration-node-cache
+        policy: pull
+    before_script:
+      - composer install --no-scripts --quiet
+      - '[[ -d src/Administration/Resources/app/administration/node_modules/ ]] || npm --prefix src/Administration/Resources/app/administration/ ci'
+      - composer run admin:generate-entity-schema-types
+      - !reference [ .scripts, install-node, script ]
+    script:
+      - cd src/Administration/Resources/app/administration
+      - npm run generate-entity-schema-package
+      - cd ./entity-schema-types
+      - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+      - npm publish --access public
 
 Repository Split:
     extends: .long-running-no-setup

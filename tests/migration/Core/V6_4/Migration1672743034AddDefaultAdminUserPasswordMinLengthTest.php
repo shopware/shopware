@@ -23,6 +23,10 @@ class Migration1672743034AddDefaultAdminUserPasswordMinLengthTest extends TestCa
     {
         $migration = new Migration1672743034AddDefaultAdminUserPasswordMinLength();
         $connection = KernelLifecycleManager::getConnection();
+        $connection->delete('system_config', [
+            'configuration_key' => self::CONFIG_KEY,
+        ]);
+
         $migration->update($connection);
 
         $passwordMinLength = $connection->fetchOne('SELECT `configuration_value` FROM `system_config` WHERE `configuration_key` = :key', [
@@ -36,10 +40,14 @@ class Migration1672743034AddDefaultAdminUserPasswordMinLengthTest extends TestCa
     public function testDoesNotOverwriteValuesWhenAlreadyConfigured(): void
     {
         $connection = KernelLifecycleManager::getConnection();
+        $connection->delete('system_config', [
+            'configuration_key' => self::CONFIG_KEY,
+        ]);
+
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => self::CONFIG_KEY,
-            'configuration_value' => \json_encode(['_value' => 12]),
+            'configuration_value' => '{"_value": 12}',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 

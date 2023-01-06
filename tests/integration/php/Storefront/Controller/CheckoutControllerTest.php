@@ -673,7 +673,7 @@ class CheckoutControllerTest extends TestCase
                 'defaultPaymentMethodId' => $paymentMethodId,
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
-                'password' => 'not',
+                'password' => 'not12345',
                 'firstName' => 'Test',
                 'lastName' => self::CUSTOMER_NAME,
                 'salutationId' => $salutationId,

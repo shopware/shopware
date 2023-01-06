@@ -313,7 +313,7 @@ class AuthControllerTest extends TestCase
 
         $requestDataBag = new RequestDataBag();
         $requestDataBag->set('username', $customer->getEmail());
-        $requestDataBag->set('password', 'test');
+        $requestDataBag->set('password', 'test12345');
 
         $salesChannelContextNew = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),

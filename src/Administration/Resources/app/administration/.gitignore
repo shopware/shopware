@@ -13,3 +13,4 @@ selenium-debug.log
 .yalc
 yalc.lock
 src/entity-schema-definition.d.ts
+entity-schema-types

@@ -5,18 +5,14 @@ import variantProduct from '../../../../fixtures/variant-product';
 
 describe('Rule builder: Test display variant information at condition', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('rule');
-            })
-            .then(() => {
-                return cy.createProductFixture(variantProduct);
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createDefaultFixture('rule').then(() => {
+            return cy.createProductFixture(variantProduct);
+        })
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@rule: Display variant information at rule condition input', { tags: ['pa-business-ops'] }, () => {

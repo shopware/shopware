@@ -4,9 +4,7 @@ describe('Import/Export - Profiles: Test editing identifiers and import', () => 
     let page = null;
 
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            return cy.createDefaultFixture('import-export-profile');
-        }).then(() => {
+        cy.createDefaultFixture('import-export-profile').then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');

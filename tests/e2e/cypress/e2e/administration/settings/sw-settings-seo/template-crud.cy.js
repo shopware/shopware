@@ -6,15 +6,12 @@ describe('Seo: Test crud operations on templates', () => {
     };
 
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCategoryFixture({
-                    parent: {
-                        name: 'ParentCategory',
-                        active: true
-                    }
-                });
-            })
+        cy.createCategoryFixture({
+            parent: {
+                name: 'ParentCategory',
+                active: true
+            }
+        })
             .then(() => {
                 let salesChannel;
                 return cy.searchViaAdminApi({

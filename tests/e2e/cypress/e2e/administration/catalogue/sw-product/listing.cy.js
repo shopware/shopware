@@ -78,7 +78,7 @@ describe('Product: Test pagination and the corresponding URL parameters', () => 
     });
 
     it('@catalogue: check that the url parameters get set correctly', { tags: ['pa-inventory'] }, () => {
-        cy.loginViaApi();
+        cy.authenticate();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
         cy.get('.sw-skeleton').should('not.exist');
@@ -179,7 +179,7 @@ describe('Product: Test pagination and the corresponding URL parameters', () => 
     });
 
     it('@catalogue: check that the url parameters get applied after a reload', { tags: ['pa-inventory'] }, () => {
-        cy.loginViaApi();
+        cy.authenticate();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index?limit=10&page=2&term=product&sortBy=availableStock&sortDirection=ASC&naturalSorting=true`);
         cy.get('.sw-skeleton').should('not.exist');

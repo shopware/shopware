@@ -5,12 +5,9 @@ import PropertyPageObject from '../../../../support/pages/module/sw-property.pag
 
 describe('Product: Test variants', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createPropertyFixture({
-                    options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]
-                });
-            })
+        cy.createPropertyFixture({
+            options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]
+        })
             .then(() => {
                 return cy.createPropertyFixture({
                     name: 'Size',

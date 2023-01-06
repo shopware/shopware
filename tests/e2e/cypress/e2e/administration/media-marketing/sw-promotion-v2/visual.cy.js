@@ -7,24 +7,20 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Promotion v2: Visual tests', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('promotion');
-            })
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.createCustomerFixture();
-            })
-            .then(() => {
-                return cy.setShippingMethodInSalesChannel('Standard');
-            })
-            .then(() => {
-                cy.openInitialPage(Cypress.env('admin'));
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createDefaultFixture('promotion').then(() => {
+            return cy.createProductFixture();
+        })
+        .then(() => {
+            return cy.createCustomerFixture();
+        })
+        .then(() => {
+            return cy.setShippingMethodInSalesChannel('Standard');
+        })
+        .then(() => {
+            cy.openInitialPage(Cypress.env('admin'));
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@visual: check appearance of basic promotion workflow', { tags: ['pa-checkout'] }, () => {

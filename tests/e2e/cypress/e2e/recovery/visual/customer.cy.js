@@ -22,9 +22,6 @@ describe('Customer:  Visual test', () => {
     beforeEach(() => {
         cy.setLocaleToEnGb()
             .then(() => {
-                cy.loginViaApi();
-            })
-            .then(() => {
                 return cy.fixture('customer');
             })
             .then((result) => {

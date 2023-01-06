@@ -7,26 +7,22 @@ import AccountPageObject from '../../../../support/pages/account.page-object';
 
 describe('CMS: Check usage and editing of product description reviews element', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCmsFixture();
-            })
-            .then(() => {
-                return cy.createProductFixture({
-                    name: 'Product name',
-                    productNumber: 'RS-11111',
-                    description: 'Pudding wafer apple pie fruitcake cupcake'
-                });
-            })
-            .then(() => {
-                return cy.createCustomerFixture();
-            })
-            .then(() => {
-                cy.viewport(1920, 1080);
-                cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.createCmsFixture().then(() => {
+            return cy.createProductFixture({
+                name: 'Product name',
+                productNumber: 'RS-11111',
+                description: 'Pudding wafer apple pie fruitcake cupcake'
             });
+        })
+        .then(() => {
+            return cy.createCustomerFixture();
+        })
+        .then(() => {
+            cy.viewport(1920, 1080);
+            cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@content: can login to write review when assign category for layout', { tags: ['pa-content-management'] }, () => {

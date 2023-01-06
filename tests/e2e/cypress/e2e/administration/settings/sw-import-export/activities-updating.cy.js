@@ -5,10 +5,8 @@ describe('Import/Export - Check activities in progress are updating', () => {
     let logId = null;
 
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            return cy.createDefaultFixture('import-export-profile', {
-                'id': '534dd6561cea480f95660f2960f441d4'
-            });
+        cy.createDefaultFixture('import-export-profile', {
+            'id': '534dd6561cea480f95660f2960f441d4'
         }).then(() => {
             return cy.createProductFixture();
         }).then(() => {

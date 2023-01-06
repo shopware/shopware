@@ -6,40 +6,36 @@ const page = new ProductPageObject();
 
 describe('SDK Tests: Location', ()=> {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-            })
-            .then(() => {
-                cy.log('Open example product');
+        cy.createProductFixture().then(() => {
+            return cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+        })
+        .then(() => {
+            cy.log('Open example product');
 
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
 
-                cy.get('.smart-bar__content')
-                    .should('be.visible');
-                cy.contains('.smart-bar__content', 'Products');
+            cy.get('.smart-bar__content')
+                .should('be.visible');
+            cy.contains('.smart-bar__content', 'Products');
 
-                cy.get('.sw-loader').should('not.exist');
-                cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+            cy.get('.sw-skeleton').should('not.exist');
 
-                cy.clickContextMenuItem(
-                    '.sw-entity-listing__context-menu-edit-action',
-                    page.elements.contextMenuButton,
-                    `${page.elements.dataGridRow}--0`
-                );
+            cy.clickContextMenuItem(
+                '.sw-entity-listing__context-menu-edit-action',
+                page.elements.contextMenuButton,
+                `${page.elements.dataGridRow}--0`
+            );
 
-                cy.contains('.smart-bar__content', 'Product name');
+            cy.contains('.smart-bar__content', 'Product name');
 
-                cy.get('.sw-loader').should('not.exist');
-                cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+            cy.get('.sw-skeleton').should('not.exist');
 
-                cy.getSDKiFrame('sw-main-hidden')
-                    .should('exist');
-            })
+            cy.getSDKiFrame('sw-main-hidden')
+                .should('exist');
+        })
     });
 
     it('@sdk: update the height of the location iFrame', { tags: ['ct-admin'] }, ()=> {

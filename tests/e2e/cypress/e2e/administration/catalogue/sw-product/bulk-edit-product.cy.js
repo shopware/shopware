@@ -91,7 +91,7 @@ describe('Product: Test bulk edit product', () => {
             method: 'POST'
         }).as('saveData');
 
-        cy.loginViaApi();
+        cy.authenticate();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
 

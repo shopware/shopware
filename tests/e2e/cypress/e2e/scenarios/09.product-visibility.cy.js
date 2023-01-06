@@ -5,9 +5,7 @@ import ProductPageObject from '../../support/pages/module/sw-product.page-object
 describe('Admin & Storefront - product visibility', () => {
 
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture();
-        }).then(() => {
+        cy.createProductFixture().then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');

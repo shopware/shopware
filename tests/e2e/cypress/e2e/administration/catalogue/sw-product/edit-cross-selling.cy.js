@@ -4,10 +4,7 @@ import ProductStreamObject from '../../../../support/pages/module/sw-product-str
 
 describe('Product: Check cross selling integration', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('product-stream');
-            })
+        cy.createDefaultFixture('product-stream')
             .then(() => {
                 return cy.createProductFixture({
                     name: 'Original product',

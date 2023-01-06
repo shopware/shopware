@@ -5,9 +5,7 @@ import SalesChannelPageObject from '../../../../support/pages/module/sw-sales-ch
 
 describe('Customer group: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            return cy.createDefaultFixture('customer-group');
-        }).then(() => {
+        cy.createDefaultFixture('customer-group').then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');

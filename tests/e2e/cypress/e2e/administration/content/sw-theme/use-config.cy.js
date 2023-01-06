@@ -8,13 +8,10 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Theme: Test loading and saving of theme', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.viewport(1920, 1080);
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.viewport(1920, 1080);
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@base @content: opens and loads theme config', { tags: ['pa-sales-channels'] }, () => {

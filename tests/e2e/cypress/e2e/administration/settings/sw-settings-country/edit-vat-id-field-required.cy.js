@@ -2,10 +2,7 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Country: Test can setting VAT id field required', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('country');
-            });
+        cy.createDefaultFixture('country');
     });
 
     it('@settings: can setting VAT id field required', { tags: ['pa-system-settings'] }, () => {

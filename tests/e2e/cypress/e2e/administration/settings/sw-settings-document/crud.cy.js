@@ -2,9 +2,7 @@
 
 describe('Documents: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            return cy.createProductFixture();
-        })
+        cy.createProductFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/document/index`);
                 cy.get('.sw-skeleton').should('not.exist');

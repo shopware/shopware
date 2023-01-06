@@ -2,24 +2,21 @@
 
 describe('Review: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.intercept({
-                    url: `${Cypress.env('apiPath')}/_info/config`,
-                    method: 'GET'
-                }).as('infoCall');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_info/config`,
+            method: 'GET'
+        }).as('infoCall');
 
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/profile/index`);
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/profile/index`);
 
-                cy.wait('@infoCall');
+        cy.wait('@infoCall');
 
-                cy.contains('.smart-bar__header', 'Your profile');
-                cy.contains('.sw-card__title', 'Profile information');
-                cy.get('#sw-field--user-username').should('be.visible');
-                cy.get('.sw-loader').should('not.exist');
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.contains('.smart-bar__header', 'Your profile');
+        cy.contains('.sw-card__title', 'Profile information');
+        cy.get('#sw-field--user-username').should('be.visible');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@general: has no access to sw-profile module', { tags: ['pa-system-settings'] }, () => {

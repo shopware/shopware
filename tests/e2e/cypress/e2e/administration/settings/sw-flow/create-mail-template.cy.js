@@ -3,14 +3,10 @@
 import SettingsPageObject from '../../../../support/pages/module/sw-settings.page-object';
 
 describe('Flow builder: Create mail template for send mail action testing', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi().then(() => {
-                return cy.createProductFixture();
-            }).then(() => {
-                return cy.createCustomerFixture();
-            });
+        cy.createProductFixture().then(() => {
+            return cy.createCustomerFixture();
+        });
     });
 
     it('@settings: create mail template for send mail action', { tags: ['pa-business-ops'] }, () => {

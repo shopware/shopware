@@ -12,7 +12,6 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
             zipcode: '33602',
             city: 'Bielefeld'
         }).then(() => {
-            cy.loginViaApi();
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
         });
     });

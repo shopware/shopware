@@ -4,10 +4,7 @@ import CategoryPageObject from '../../../../support/pages/module/sw-category.pag
 
 describe('Search: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createLanguageFixture();
-            })
+        cy.createLanguageFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
                 cy.get('.sw-skeleton').should('not.exist');

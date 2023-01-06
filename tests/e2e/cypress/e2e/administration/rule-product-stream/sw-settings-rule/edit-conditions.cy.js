@@ -31,40 +31,36 @@ const resultCases = [
 
 describe('Rule builder: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('rule');
-            })
-            .then(() => {
-                return cy.createPropertyFixture({
-                    options: [
-                        {
-                            name: 'Red'
-                        },
-                        {
-                            name: 'Green'
-                        }
-                    ]
-                });
-            })
-            .then(() => {
-                return cy.createPropertyFixture({
-                    name: 'Redhouse',
-                    options: [
-                        {
-                            name: 'Test 1'
-                        },
-                        {
-                            name: 'Test 2'
-                        }
-                    ]
-                });
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.createDefaultFixture('rule').then(() => {
+            return cy.createPropertyFixture({
+                options: [
+                    {
+                        name: 'Red'
+                    },
+                    {
+                        name: 'Green'
+                    }
+                ]
             });
+        })
+        .then(() => {
+            return cy.createPropertyFixture({
+                name: 'Redhouse',
+                options: [
+                    {
+                        name: 'Test 1'
+                    },
+                    {
+                        name: 'Test 2'
+                    }
+                ]
+            });
+        })
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@rule: edit rule conditions', { tags: ['pa-business-ops'] }, () => {

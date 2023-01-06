@@ -2,10 +2,7 @@
 
 describe('Custom Fields: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('custom-field-set');
-            });
+        cy.createDefaultFixture('custom-field-set');
     });
 
     it('@settings: test entity type custom field', { tags: ['pa-system-settings'] }, () => {

@@ -3,9 +3,7 @@ import DocumentPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Settings Documents: Test crud operations with ACL', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-        });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
     });
 
     it('@general: read documents with ACL, but without rights', { tags: ['pa-customers-orders'] }, () => {

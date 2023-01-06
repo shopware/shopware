@@ -6,11 +6,7 @@ const page = new ProductPageObject();
 
 describe('SDK Tests: Component section', ()=> {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
+        cy.createProductFixture().then(() => {
                 return cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             })
             .then(() => {

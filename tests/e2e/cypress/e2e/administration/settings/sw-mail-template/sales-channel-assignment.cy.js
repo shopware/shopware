@@ -2,13 +2,6 @@
 
 describe('Mail header & footer template: Sales Channel assignment', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
-
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
             method: 'POST'
@@ -18,6 +11,10 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
             url: `${Cypress.env('apiPath')}/search/mail-header-footer`,
             method: 'POST'
         }).as('saveTemplate');
+
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@settings: Assign sales channel', { tags: ['pa-business-ops'] }, () => {

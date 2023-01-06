@@ -15,16 +15,14 @@
 //
 import 'cypress-file-upload';
 import 'cypress-real-events/support';
+import registerCypressGrep from '@cypress/grep/src/support';
+
+registerCypressGrep();
 
 require('@shopware-ag/e2e-testsuite-platform/cypress/support');
 
 // Custom administration commands
 require('./commands/commands');
-
-// TODO: find replacement for this
-// Cypress.Cookies.defaults({
-//     preserve: ['_test-api-dbName', '_apiAuth', 'bearerAuth', 'refreshBearerAuth']
-// });
 
 // this sets the default browser locale to the environment variable
 Cypress.on('window:before:load', (window) => {
@@ -35,8 +33,12 @@ Cypress.on('window:before:load', (window) => {
 
 beforeEach(() => {
     if (!Cypress.env('SKIP_INIT')) {
-        return cy.setToInitialState();
+        return cy.setToInitialState().then(() => {
+            return cy.authenticate();
+        });
     }
+
+    return cy.authenticate();
 });
 
 // we need to use the classic function syntax to bind `this` correctly

@@ -4,18 +4,14 @@ import ProductStreamObject from '../../../../support/pages/module/sw-product-str
 
 describe('Dynamic product groups: Test dynamic product group preview', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('product-stream');
-            })
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createDefaultFixture('product-stream').then(() => {
+            return cy.createProductFixture();
+        })
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @catalogue: check preview while editing', { tags: ['pa-business-ops'] }, () => {

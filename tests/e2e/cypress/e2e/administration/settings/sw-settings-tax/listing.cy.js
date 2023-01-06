@@ -3,10 +3,7 @@
 describe('Tax: Test tax-rule listing operations', () => {
     // eslint-disable-next-line no-undef
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('tax');
-            })
+        cy.createDefaultFixture('tax')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/tax/index`);
                 cy.get('.sw-skeleton').should('not.exist');

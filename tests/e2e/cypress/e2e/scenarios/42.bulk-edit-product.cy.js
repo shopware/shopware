@@ -4,9 +4,7 @@ import ProductPageObject from '../../support/pages/module/sw-product.page-object
 
 describe('Bulk Edit - Products', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture();
-        }).then(() => {
+        cy.createProductFixture().then(() => {
             return cy.createPropertyFixture({
                 name: 'Size',
                 options: [{name: 'S'}, {name: 'M'}, {name: 'L'}]

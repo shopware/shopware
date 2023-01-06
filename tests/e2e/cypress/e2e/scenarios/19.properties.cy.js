@@ -3,16 +3,14 @@ import PropertyPageObject from '../../support/pages/module/sw-property.page-obje
 
 describe('Create a new property and select value display type', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture({
-                name: 'Test Product',
-                productNumber: 'TEST-1234',
-                price: [{
-                    currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                    linked: true,
-                    gross: 64
-                }]
-            });
+        cy.createProductFixture({
+            name: 'Test Product',
+            productNumber: 'TEST-1234',
+            price: [{
+                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                linked: true,
+                gross: 64
+            }]
         }).then(() => {
             return cy.createPropertyFixture({
                 options: [{name: 'Red'}, {name: 'Yellow'}, {name: 'Green'}]

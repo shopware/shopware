@@ -4,8 +4,7 @@ import ProductPageObject from '../../support/pages/module/sw-product.page-object
 
 describe('Product creation via API and commercial customer registration', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() =>
-            cy.createProductFixture());
+        cy.createProductFixture()
     });
 
     it('@package: should order as commercial customer', { tags: ['pa-customers-orders'] }, () => {

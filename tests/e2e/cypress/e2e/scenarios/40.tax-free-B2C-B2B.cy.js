@@ -4,17 +4,15 @@ import ProductPageObject from '../../support/pages/module/sw-product.page-object
 
 describe('Administration & Storefront: Country settings tax free for B2C and B2B', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture({
-                name: 'Product name',
-                productNumber: 'TEST-1234',
-                price: [{
-                    currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                    net: 11,
-                    linked: true,
-                    gross: 15
-                }]
-            });
+        cy.createProductFixture({
+            name: 'Product name',
+            productNumber: 'TEST-1234',
+            price: [{
+                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                net: 11,
+                linked: true,
+                gross: 15
+            }]
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             cy.get('.sw-skeleton').should('not.exist');

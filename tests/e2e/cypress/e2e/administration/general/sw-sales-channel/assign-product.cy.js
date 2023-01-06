@@ -5,29 +5,25 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Sales Channel: Test product assignment operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.searchViaAdminApi({
-                    endpoint: 'category',
-                    data: {
-                        field: 'name',
-                        value: 'Home'
-                    }
-                });
-            })
-            .then(({ id: categoryId }) => {
-                cy.createCategoryFixture({
-                    name: 'Test category',
-                    type: 'page',
-                    parentId: categoryId,
-                    active: true
-                });
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.searchViaAdminApi({
+            endpoint: 'category',
+            data: {
+                field: 'name',
+                value: 'Home'
+            }
+        }).then(({ id: categoryId }) => {
+            cy.createCategoryFixture({
+                name: 'Test category',
+                type: 'page',
+                parentId: categoryId,
+                active: true
             });
+        })
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@general: assign individual products to sales channel', { tags: ['pa-sales-channels'] }, () => {

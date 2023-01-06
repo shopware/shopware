@@ -1,10 +1,6 @@
 /// <reference types="Cypress" />
 
 describe('Product creation via UI and private customer registration', () => {
-    beforeEach(() => {
-        cy.loginViaApi();
-    });
-
     it('@package: should order as private customer', { tags: ['pa-checkout'] }, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {

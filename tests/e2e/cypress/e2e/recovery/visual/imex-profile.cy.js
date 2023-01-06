@@ -1,14 +1,11 @@
 describe('Import/Export - Profiles:  Visual tests', () => {
     beforeEach(() => {
-        cy.loginViaApi()
+        cy.createDefaultFixture('import-export-profile')
             .then(() => {
-                return cy.createDefaultFixture('import-export-profile');
-            })
-            .then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@visual: check appearance of basic im/ex profile workflow', { tags: ['pa-system-settings'] }, () => {

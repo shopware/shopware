@@ -10,12 +10,9 @@ describe('Tag: Test bulk merge', () => {
         const tagIdA = uuid().replace(/-/g, '');
         const tagIdB = uuid().replace(/-/g, '');
 
-        cy.loginViaApi()
-            .then(() => {
-                cy.createDefaultFixture('tax', {
-                    id: taxId
-                });
-            })
+        cy.createDefaultFixture('tax', {
+            id: taxId
+        })
             .then(() => {
                 cy.createDefaultFixture('product', {
                     productNumber: 'RS-11111',

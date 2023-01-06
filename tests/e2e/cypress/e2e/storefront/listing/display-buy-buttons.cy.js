@@ -5,14 +5,12 @@ describe('Test allowBuyInListing config setting', () => {
     beforeEach(() => {
         let ruleId;
 
-        return cy.loginViaApi().then(() => {
-            return cy.searchViaAdminApi({
-                data: {
-                    field: 'name',
-                    value: 'Always valid (Default)',
-                },
-                endpoint: 'rule',
-            });
+        return cy.searchViaAdminApi({
+            data: {
+                field: 'name',
+                value: 'Always valid (Default)',
+            },
+            endpoint: 'rule',
         }).then(rule => {
             ruleId = rule.id;
 

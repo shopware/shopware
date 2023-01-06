@@ -7,22 +7,18 @@ import MediaPageObject from '../../../../support/pages/module/sw-media.page-obje
 
 describe('Media: Move folder and image', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('media-folder', {
-                    name: '1st folder'
-                });
-            })
-            .then(() => {
-                return cy.createDefaultFixture('media-folder', {
-                    name: '2nd folder'
-                });
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.createDefaultFixture('media-folder', {
+            name: '1st folder'
+        }).then(() => {
+            return cy.createDefaultFixture('media-folder', {
+                name: '2nd folder'
             });
+        })
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@media: move folder and medium', { tags: ['pa-content-management'] }, () => {

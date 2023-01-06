@@ -4,10 +4,7 @@ import variantProduct from '../../../../../fixtures/variant-product';
 
 describe('Search settings: Live Search', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
+        cy.createProductFixture()
             .then(() => {
                 return cy.createProductFixture(variantProduct);
             })

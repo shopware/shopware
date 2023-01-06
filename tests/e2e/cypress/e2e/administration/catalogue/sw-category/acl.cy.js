@@ -7,10 +7,7 @@ import CategoryPageObject from '../../../../support/pages/module/sw-category.pag
 
 describe('Category: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
+        cy.createProductFixture()
             .then(() => {
                 return cy.createCategoryFixture({
                     parent: {

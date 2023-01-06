@@ -4,15 +4,11 @@ import ManufacturerPageObject from '../../../../support/pages/module/sw-manufact
 
 describe('Manufacturer: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('product-manufacturer');
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/manufacturer/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createDefaultFixture('product-manufacturer').then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/manufacturer/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@catalogue: create and read manufacturer', { tags: ['pa-inventory'] }, () => {

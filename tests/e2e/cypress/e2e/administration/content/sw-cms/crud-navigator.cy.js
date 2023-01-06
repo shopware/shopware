@@ -6,17 +6,14 @@
 const uuid = require('uuid/v4');
 
 describe('CMS: Test crud operations in the cms-sidebar', () => {
-    let pageId, sectionId;
-    let blockSelector;
+    let pageId, sectionId, blockSelector;
 
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            pageId = uuid().replace(/-/g, '');
-            sectionId = uuid().replace(/-/g, '');
-            blockSelector = `#page-${pageId} .sw-text-editor__content-editor`;
+        pageId = uuid().replace(/-/g, '');
+        sectionId = uuid().replace(/-/g, '');
+        blockSelector = `#page-${pageId} .sw-text-editor__content-editor`;
 
-            return cy.fixture('cms-page-full');
-        }).then((data) => {
+        cy.fixture('cms-page-full').then((data) => {
             data.id = pageId;
             data.sections[0].id = sectionId;
 

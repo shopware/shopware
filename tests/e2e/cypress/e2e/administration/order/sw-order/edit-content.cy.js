@@ -64,42 +64,38 @@ function assertPriceBreakdownContains(title, content = null) {
 
 describe('Order: Read order', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.createProductFixture({
-                    name: 'Awesome product',
-                    productNumber: 'RS-1337',
-                    description: 'l33t',
-                    price: [
-                        {
-                            currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                            net: 24,
-                            linked: false,
-                            gross: 128
-                        }
-                    ]
-                });
-            })
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'product',
-                    data: {
-                        field: 'name',
-                        value: 'Product name'
+        cy.createProductFixture().then(() => {
+            return cy.createProductFixture({
+                name: 'Awesome product',
+                productNumber: 'RS-1337',
+                description: 'l33t',
+                price: [
+                    {
+                        currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                        net: 24,
+                        linked: false,
+                        gross: 128
                     }
-                });
-            })
-            .then((result) => {
-                return cy.createGuestOrder(result.id);
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+                ]
             });
+        })
+        .then(() => {
+            return cy.searchViaAdminApi({
+                endpoint: 'product',
+                data: {
+                    field: 'name',
+                    value: 'Product name'
+                }
+            });
+        })
+        .then((result) => {
+            return cy.createGuestOrder(result.id);
+        })
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @order: can add existing product', { tags: ['pa-customers-orders'] }, () => {

@@ -6,12 +6,8 @@ const guestCustomer = require('../../fixtures/guest-customer.json');
 
 describe('Create a variant product using default customer and buy it via cash on delivery.', { tags: ['pa-checkout'] }, () => {
     beforeEach(() => {
-        cy.clearCookies().then(() => {
-            return cy.loginViaApi();
-        }).then(() => {
-            return cy.createPropertyFixture({
-                options: [{name: 'Red'}, {name: 'Yellow'}, {name: 'Green'}]
-            });
+        cy.createPropertyFixture({
+            options: [{name: 'Red'}, {name: 'Yellow'}, {name: 'Green'}]
         }).then(() => {
             return cy.createPropertyFixture({
                 name: 'Size',

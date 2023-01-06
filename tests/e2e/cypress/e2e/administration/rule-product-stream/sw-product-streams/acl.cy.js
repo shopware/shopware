@@ -2,13 +2,9 @@
 
 describe('Dynamic product group: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('product-stream');
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
-            });
+        cy.createDefaultFixture('product-stream').then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+        });
     });
 
     it('@catalogue: can view product stream ', { tags: ['pa-business-ops'] }, () => {

@@ -5,10 +5,8 @@ import OrderPageObject from '../../support/pages/module/sw-order.page-object';
 
 describe('Create customer via UI, product via API and make a manual order', ()=>{
     beforeEach(() => {
-        cy.loginViaApi()
+        cy.setLocaleToEnGb()
             .then(() => {
-                cy.setLocaleToEnGb();
-            }).then(() => {
                 cy.createProductFixture({
                     name: 'Test Product',
                     productNumber: 'TEST-1234',

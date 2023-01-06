@@ -7,19 +7,15 @@ import MediaPageObject from '../../../../support/pages/module/sw-media.page-obje
 
 describe('CMS: Test crud operations of layouts', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCmsFixture();
-            })
-            .then(() => {
-                return cy.setSalesChannelDomain('Storefront');
-            })
-            .then(() => {
-                cy.viewport(1920, 1080);
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createCmsFixture().then(() => {
+            return cy.setSalesChannelDomain('Storefront');
+        })
+        .then(() => {
+            cy.viewport(1920, 1080);
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @content: create, translate and read layout', { tags: ['pa-content-management'] }, () => {

@@ -3,10 +3,7 @@ import RuleBuilderPageObject from '../../support/pages/module/sw-rule.page-objec
 
 describe('Creating custom fields and assigning to various models', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.setLocaleToEnGb();
-            })
+        cy.setLocaleToEnGb()
             .then(() => {
                 cy.createProductFixture();
             })

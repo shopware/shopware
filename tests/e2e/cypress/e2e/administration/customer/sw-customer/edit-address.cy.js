@@ -25,19 +25,15 @@ const newAddress = {
 
 describe('Customer: Edit customer\'s addresses', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCustomerFixture();
-            })
-            .then(() => {
-                return cy.fixture('customer');
-            })
-            .then(result => {
-                customer = result;
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createCustomerFixture().then(() => {
+            return cy.fixture('customer');
+        })
+        .then(result => {
+            customer = result;
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @customer: add new billing address', { tags: ['pa-customers-orders'] }, () => {

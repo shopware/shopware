@@ -4,31 +4,27 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 
 describe('Rule builder: Use advanced selection for entity selection', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('rule');
-            })
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.createProductFixture({
-                    name: 'another product',
-                    productNumber: 'RS-334',
-                });
-            })
-            .then(() => {
-                return cy.createProductFixture({
-                    name: 'something nice',
-                    productNumber: 'RS-335',
-                    active: false,
-                });
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.createDefaultFixture('rule').then(() => {
+            return cy.createProductFixture();
+        })
+        .then(() => {
+            return cy.createProductFixture({
+                name: 'another product',
+                productNumber: 'RS-334',
             });
+        })
+        .then(() => {
+            return cy.createProductFixture({
+                name: 'something nice',
+                productNumber: 'RS-335',
+                active: false,
+            });
+        })
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@rule: Use advanced selection for product selection inside item condition', { tags: ['pa-business-ops'] }, () => {

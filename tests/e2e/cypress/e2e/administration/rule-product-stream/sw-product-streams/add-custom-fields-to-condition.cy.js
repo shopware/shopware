@@ -5,16 +5,12 @@ import ProductStreamObject from '../../../../support/pages/module/sw-product-str
 
 describe('Dynamic product group: Add custom fields to condition', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.createDefaultFixture('custom-field-set');
-            })
-            .then(() => {
-                return cy.createDefaultFixture('product-stream');
-            });
+        cy.createProductFixture().then(() => {
+            return cy.createDefaultFixture('custom-field-set');
+        })
+        .then(() => {
+            return cy.createDefaultFixture('product-stream');
+        });
     });
 
     it('@visual: can create dynamic product group with custom field', { tags: ['pa-business-ops'] }, () => {

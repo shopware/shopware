@@ -9,9 +9,7 @@ const multiSelectFirstSelector = '.sw-select-selection-list__item-holder--0';
 
 describe('Promotion v2: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            return cy.createDefaultFixture('promotion');
-        }).then(() => {
+        cy.createDefaultFixture('promotion').then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');

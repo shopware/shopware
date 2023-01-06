@@ -5,18 +5,14 @@ import MediaPageObject from '../../support/pages/module/sw-media.page-object';
 
 describe('CMS: product page layout', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture({
-                    name: 'Page Product',
-                    productNumber: 'PP-123'
-                });
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createProductFixture({
+            name: 'Page Product',
+            productNumber: 'PP-123'
+        }).then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     const page = new ProductPageObject();

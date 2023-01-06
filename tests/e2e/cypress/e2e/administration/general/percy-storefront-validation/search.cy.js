@@ -3,9 +3,7 @@ let product = {};
 // TODO See NEXT-6902: Use an own storefront project or make E2E tests independent from bundle
 describe('Search - Storefront: Visual tests', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-                cy.visit('');
-            });
+        cy.visit('');
 
         return cy.createProductFixture().then(() => {
             return cy.createDefaultFixture('category');

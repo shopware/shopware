@@ -12,10 +12,7 @@ const packagingItemClassName = [
 
 describe('Product: Mode advanced settings at product detail', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
+        cy.createProductFixture()
             .then(() => {
                 return cy.createDefaultFixture('custom-field-set');
             })

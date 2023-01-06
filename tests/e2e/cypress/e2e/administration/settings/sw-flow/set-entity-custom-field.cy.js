@@ -1,61 +1,57 @@
 // / <reference types="Cypress" />
 
 describe('Flow builder: set entity custom field testing', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi().then(() => {
-                return cy.createProductFixture();
-            }).then(() => {
-                return cy.createCustomerFixture();
-            })
-            .then(() => {
-                return cy.createDefaultFixture('custom-field-set', {
-                    customFields: [
-                        {
-                            active: true,
-                            name: 'my_custom_text_field',
+        cy.createProductFixture().then(() => {
+            return cy.createCustomerFixture();
+        })
+        .then(() => {
+            return cy.createDefaultFixture('custom-field-set', {
+                customFields: [
+                    {
+                        active: true,
+                        name: 'my_custom_text_field',
+                        type: 'text',
+                        config: {
+                            componentName: 'sw-field',
+                            customFieldPosition: 1,
+                            customFieldType: 'text',
                             type: 'text',
-                            config: {
-                                componentName: 'sw-field',
-                                customFieldPosition: 1,
-                                customFieldType: 'text',
-                                type: 'text',
-                                helpText: { 'en-GB': 'help text' },
-                                label: { 'en-GB': 'my_custom_text_field' }
-                            }
-                        },
-                        {
-                            active: true,
-                            name: 'my_custom_multiple_field',
-                            type: 'select',
-                            config: {
-                                componentName: 'sw-multi-select',
-                                customFieldPosition: 2,
-                                customFieldType: 'select',
-                                label: { 'en-GB': 'my_custom_multiple_field' },
-                                options: [
-                                    { label: { 'en-GB': 'Option1' }, value: 'option1' },
-                                    { label: { 'en-GB': 'Option2' }, value: 'option2' }
-                                ]
-                            }
+                            helpText: { 'en-GB': 'help text' },
+                            label: { 'en-GB': 'my_custom_text_field' }
                         }
-                    ],
-                    relations: [
-                        {
-                            entityName: 'order'
-                        },
-                        {
-                            entityName: 'customer'
+                    },
+                    {
+                        active: true,
+                        name: 'my_custom_multiple_field',
+                        type: 'select',
+                        config: {
+                            componentName: 'sw-multi-select',
+                            customFieldPosition: 2,
+                            customFieldType: 'select',
+                            label: { 'en-GB': 'my_custom_multiple_field' },
+                            options: [
+                                { label: { 'en-GB': 'Option1' }, value: 'option1' },
+                                { label: { 'en-GB': 'Option2' }, value: 'option2' }
+                            ]
                         }
-                    ]
-                });
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+                    }
+                ],
+                relations: [
+                    {
+                        entityName: 'order'
+                    },
+                    {
+                        entityName: 'customer'
+                    }
+                ]
             });
+        })
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@settings: set entity custom field flow', { tags: ['pa-business-ops'] }, () => {

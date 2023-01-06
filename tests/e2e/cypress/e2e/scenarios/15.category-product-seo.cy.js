@@ -7,9 +7,7 @@ import CategoryPageObject from '../../support/pages/module/sw-category.page-obje
 
 describe('Category: Assign product and set seo url, then check in the storefront', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture();
-        }).then(() => {
+        cy.createProductFixture().then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');

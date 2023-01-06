@@ -4,28 +4,24 @@ import OrderPageObject from '../../../../support/pages/module/sw-order.page-obje
 
 describe('Order: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'product',
-                    data: {
-                        field: 'name',
-                        value: 'Product name'
-                    }
-                });
-            })
-            .then((result) => {
-                return cy.createGuestOrder(result.id);
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.createProductFixture().then(() => {
+            return cy.searchViaAdminApi({
+                endpoint: 'product',
+                data: {
+                    field: 'name',
+                    value: 'Product name'
+                }
             });
+        })
+        .then((result) => {
+            return cy.createGuestOrder(result.id);
+        })
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        });
     });
 
-    it('@acl: can read order', { tags: ['pa-customers-orders'] }, () => {
+    it.only('@acl: can read order', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         cy.loginAsUserWithPermissions([

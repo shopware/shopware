@@ -1,9 +1,6 @@
 /// <reference types="Cypress" />
 
 describe('sales channel: set and validate initial settings', () => {
-    beforeEach(() => {
-        cy.loginViaApi();
-    });
     it('@package: should set and validate default sales channel settings', { tags: ['pa-sales-channels'] }, () => {
         cy.visit(`${Cypress.env('admin')}#/sw/settings/listing/index`);
         cy.get('.sw-skeleton').should('not.exist');

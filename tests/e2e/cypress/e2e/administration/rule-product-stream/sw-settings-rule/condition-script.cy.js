@@ -4,41 +4,43 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 
 const uuid = require('uuid/v4');
 
-function createTestRoleViaApi({ roleID, roleName, accessToken }) {
-    let headers = {
-        Accept: 'application/vnd.api+json',
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-    };
-
-    return cy.request({
-        url: `/${Cypress.env('apiPath')}/oauth/token`,
-        method: 'POST',
-        headers: headers,
-        body: {
-            grant_type: 'password',
-            client_id: 'administration',
-            scope: 'user-verified',
-            username: 'admin',
-            password: 'shopware'
-        }
-    }).then(response => {
-        // overwrite headers with new scope
-        headers = {
+function createTestRoleViaApi({ roleID, roleName }) {
+    return cy.getCookie('bearerAuth').then((cookie) => {
+        let headers = {
             Accept: 'application/vnd.api+json',
-            Authorization: `Bearer ${response.body.access_token}`,
+            Authorization: `Bearer ${JSON.parse(cookie.value).access_token}`,
             'Content-Type': 'application/json'
         };
 
         return cy.request({
-            url: `/${Cypress.env('apiPath')}/acl-role`,
+            url: `/${Cypress.env('apiPath')}/oauth/token`,
             method: 'POST',
             headers: headers,
             body: {
-                id: roleID,
-                name: roleName,
-                privileges: []
+                grant_type: 'password',
+                client_id: 'administration',
+                scope: 'user-verified',
+                username: 'admin',
+                password: 'shopware'
             }
+        }).then(response => {
+            // overwrite headers with new scope
+            headers = {
+                Accept: 'application/vnd.api+json',
+                Authorization: `Bearer ${response.body.access_token}`,
+                'Content-Type': 'application/json'
+            };
+
+            return cy.request({
+                url: `/${Cypress.env('apiPath')}/acl-role`,
+                method: 'POST',
+                headers: headers,
+                body: {
+                    id: roleID,
+                    name: roleName,
+                    privileges: []
+                }
+            });
         });
     });
 }
@@ -47,29 +49,19 @@ describe('Rule builder: Test app script conditions', () => {
     beforeEach(() => {
         const roleID = uuid().replace(/-/g, '');
 
-        cy.loginViaApi()
-            .then(() => {
-                return cy.loginViaApi();
-            })
-            .then((bearerAuth) => {
-                const accessToken = JSON.parse(bearerAuth.value).access_token;
-
-                return createTestRoleViaApi({
-                    roleID: roleID,
-                    roleName: 'e2e-test-role',
-                    accessToken
-                });
-            })
-            .then(() => {
-                return cy.createDefaultFixture('app', {
-                    aclRoleId: roleID
-                });
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        createTestRoleViaApi({
+            roleID: roleID,
+            roleName: 'e2e-test-role',
+        }).then(() => {
+            return cy.createDefaultFixture('app', {
+                aclRoleId: roleID
             });
+        })
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @rule: test script conditions are selectable and rendered', { tags: ['pa-business-ops'] }, () => {

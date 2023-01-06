@@ -12,8 +12,6 @@ describe('Dynamic Product Groups in categories', () => {
                 name: 'Custom Product-2',
                 productNumber: 'CP-1112',
             });
-        }).then(() => {
-            cy.loginViaApi('admin');
         });
     });
 

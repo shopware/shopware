@@ -3,10 +3,7 @@
 describe('Snippets: Visual testing', () => {
     // eslint-disable-next-line no-undef
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createSnippetFixture();
-            })
+        cy.createSnippetFixture()
             .then(() => {
                 cy.fixture('snippet').as('testSnippet');
             })

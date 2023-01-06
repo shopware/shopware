@@ -1,9 +1,6 @@
 describe('Basic Informaion: Edit assignments', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.createDefaultFixture('category',{}, 'footer-category-first');
-            })
+        cy.createDefaultFixture('category',{}, 'footer-category-first')
             .then(() => {
                 cy.createDefaultFixture('category',{}, 'footer-category-second');
             })

@@ -4,10 +4,7 @@ import SalesChannelPageObject from '../../../../support/pages/module/sw-sales-ch
 
 describe('Sales Channel: Test saving and loading the analytics tab', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(Cypress.env('admin'));
-            });
+        cy.openInitialPage(Cypress.env('admin'));
     });
 
     it('@general: open analytics tab', { tags: ['pa-sales-channels', 'jest'] }, () => {

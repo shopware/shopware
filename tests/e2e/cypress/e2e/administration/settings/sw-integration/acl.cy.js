@@ -46,10 +46,7 @@ function createTestRoleViaApi({ roleID, roleName }) {
 
 describe('Integration: Test acl privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('integration');
-            })
+        cy.createDefaultFixture('integration')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });

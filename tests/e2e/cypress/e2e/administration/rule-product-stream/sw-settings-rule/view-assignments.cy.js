@@ -11,10 +11,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
     const deliveryTimeId = uuid().replace(/-/g, '');
 
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('rule', { id: defaultRuleId, name: 'Default Rule' }, 'rule-simple-condition');
-            })
+        cy.createDefaultFixture('rule', { id: defaultRuleId, name: 'Default Rule' }, 'rule-simple-condition')
             .then(() => {
                 return cy.createDefaultFixture('rule', {
                     id: ruleId,

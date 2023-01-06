@@ -4,29 +4,25 @@ import ProductStreamObject from '../../../../support/pages/module/sw-product-str
 
 describe('Dynamic product group: Test product visibilities filter', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    data: {
-                        field: 'name',
-                        value: 'Storefront'
-                    },
-                    endpoint: 'sales-channel'
-                });
-            })
-            .then((saleschannel) => {
-                return cy.createProductFixture({
-                    visibilities: [{
-                        visibility: 30,
-                        salesChannelId: saleschannel.id
-                    }]
-                });
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/create`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.searchViaAdminApi({
+            data: {
+                field: 'name',
+                value: 'Storefront'
+            },
+            endpoint: 'sales-channel'
+        }).then((saleschannel) => {
+            return cy.createProductFixture({
+                visibilities: [{
+                    visibility: 30,
+                    salesChannelId: saleschannel.id
+                }]
             });
+        })
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/create`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@catalogue: can see and add product visibilities', { tags: ['pa-business-ops'] }, () => {

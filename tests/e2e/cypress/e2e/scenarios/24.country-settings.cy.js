@@ -2,22 +2,20 @@
 
 describe('Storefront: test registration with country settings & invalid inputs', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.authenticate().then((result) => {
-                const requestConfig = {
-                    headers: {
-                        Authorization: `Bearer ${result.access}`
-                    },
-                    method: 'POST',
-                    url: `api/_action/system-config/batch`,
-                    body: {
-                        null: {
-                            'core.loginRegistration.showAccountTypeSelection': true
-                        }
+        cy.authenticate().then((result) => {
+            const requestConfig = {
+                headers: {
+                    Authorization: `Bearer ${result.access}`
+                },
+                method: 'POST',
+                url: `api/_action/system-config/batch`,
+                body: {
+                    null: {
+                        'core.loginRegistration.showAccountTypeSelection': true
                     }
-                };
-                return cy.request(requestConfig);
-            });
+                }
+            };
+            return cy.request(requestConfig);
         });
     });
 

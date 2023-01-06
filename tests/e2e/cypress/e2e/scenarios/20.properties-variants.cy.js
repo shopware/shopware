@@ -4,10 +4,8 @@ import ProductPageObject    from '../../support/pages/module/sw-product.page-obj
 
 describe('Create a new property, select value display type and test their appearance in the storefront by creating new variants', () => {
     beforeEach(() => {
-        cy.loginViaApi()
+        cy.setLocaleToEnGb()
             .then(() => {
-                cy.setLocaleToEnGb();
-            }).then(() => {
                 cy.createProductFixture({
                     name: 'Variant Product',
                     productNumber: 'Variant-1234',

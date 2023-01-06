@@ -5,9 +5,6 @@ describe('Sales Channel: Visual tests', () => {
         const now = new Date(2018, 1, 1);
         cy.clock(now, ['Date'])
             .then(() => {
-                cy.loginViaApi();
-            })
-            .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
                 cy.get('.sw-skeleton').should('not.exist');
                 cy.get('.sw-loader').should('not.exist');

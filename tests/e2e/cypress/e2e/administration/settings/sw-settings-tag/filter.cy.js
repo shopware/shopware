@@ -9,12 +9,9 @@ describe('Tag: Test listing filters', () => {
         const taxId = uuid().replace(/-/g, '');
         const categoryId = uuid().replace(/-/g, '');
 
-        cy.loginViaApi()
-            .then(() => {
-                cy.createDefaultFixture('tag', {
-                    name: 'Tag without associations'
-                });
-            })
+        cy.createDefaultFixture('tag', {
+            name: 'Tag without associations'
+        })
             .then(() => {
                 cy.createDefaultFixture('tax', {
                     id: taxId

@@ -5,9 +5,6 @@ describe('Custom fields: Visual testing', () => {
     beforeEach(() => {
         cy.createDefaultFixture('custom-field-set')
             .then(() => {
-                cy.loginViaApi()
-            })
-            .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
                 cy.get('.sw-skeleton').should('not.exist');
                 cy.get('.sw-loader').should('not.exist');

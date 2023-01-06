@@ -4,10 +4,7 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Currency: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('currency');
-            })
+        cy.createDefaultFixture('currency')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/currency/index`);
                 cy.get('.sw-skeleton').should('not.exist');

@@ -4,10 +4,7 @@ const page = new SettingsPageObject();
 
 describe('Number Range: Test acl privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
     });
 
     // TODO: Unskip with NEXT-15489

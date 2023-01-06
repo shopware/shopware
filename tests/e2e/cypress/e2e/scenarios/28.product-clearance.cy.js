@@ -5,16 +5,14 @@ import CheckoutPageObject from '../../support/pages/checkout.page-object';
 
 describe('Hide products after clearance & free shipping.', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture({
-                name: 'Test Product',
-                productNumber: 'TEST-1234',
-                price: [{
-                    currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                    linked: true,
-                    gross: 10
-                }]
-            });
+        cy.createProductFixture({
+            name: 'Test Product',
+            productNumber: 'TEST-1234',
+            price: [{
+                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                linked: true,
+                gross: 10
+            }]
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -142,8 +140,6 @@ describe('Hide products after clearance & free shipping.', () => {
             };
             return cy.request(requestConfig);
         });
-
-        cy.loginViaApi();
 
         // verify no product is available at the storefront
         cy.visit('/')

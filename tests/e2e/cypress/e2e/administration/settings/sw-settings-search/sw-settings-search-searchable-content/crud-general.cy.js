@@ -4,10 +4,7 @@ import SettingsPageObject from '../../../../../support/pages/module/sw-settings.
 
 describe('Product Search: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('custom-field-set');
-            })
+        cy.createDefaultFixture('custom-field-set')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
                 cy.get('.sw-skeleton').should('not.exist');

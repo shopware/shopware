@@ -11,22 +11,19 @@ const promoCode = 'Flash sale';
 
 describe('Create promotion codes to the product and check it at the storefront', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.createProductFixture({
-                    name: 'Test Product',
-                    productNumber: 'Test-3096',
-                    price: [{
-                        currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                        linked: true,
-                        gross: 60
-                    }]
-                });
-            }).then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createProductFixture({
+            name: 'Test Product',
+            productNumber: 'Test-3096',
+            price: [{
+                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                linked: true,
+                gross: 60
+            }]
+        }).then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@package: should create promotion, configure conditions and discounts', { tags: ['pa-checkout'] }, () => {

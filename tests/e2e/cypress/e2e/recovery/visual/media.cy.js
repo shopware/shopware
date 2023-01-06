@@ -6,8 +6,6 @@ import ProductPageObject from '../../../support/pages/module/sw-product.page-obj
 describe('Media: Visual tests', () => {
     beforeEach(() => {
         cy.setLocaleToEnGb().then(() => {
-            cy.loginViaApi();
-        }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');

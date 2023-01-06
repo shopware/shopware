@@ -4,27 +4,23 @@ import PropertyPageObject from '../../../../support/pages/module/sw-property.pag
 
 describe('Property: Visual tests', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createPropertyFixture({
-                    sortingType: 'position',
-                    options: [{
-                        name: 'Red',
-                        position: 2
-                    }, {
-                        name: 'Yellow',
-                        position: 3
-                    }, {
-                        name: 'Green',
-                        position: 1
-                    }]
-                });
-            })
-            .then(() => {
-                cy.openInitialPage(Cypress.env('admin'));
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createPropertyFixture({
+            sortingType: 'position',
+            options: [{
+                name: 'Red',
+                position: 2
+            }, {
+                name: 'Yellow',
+                position: 3
+            }, {
+                name: 'Green',
+                position: 1
+            }]
+        }).then(() => {
+            cy.openInitialPage(Cypress.env('admin'));
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@visual: check appearance of basic property workflow', { tags: ['pa-inventory'] }, () => {

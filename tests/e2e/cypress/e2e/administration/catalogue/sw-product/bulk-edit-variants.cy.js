@@ -5,18 +5,15 @@ import bulkEditVariants from '../../../../fixtures/bulk-edit-variants-list.json'
 
 describe('Product: Bulk edit variants', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.createProductFixture({
-                    name: 'Variant Product',
-                    productNumber: 'Variant-1234',
-                    price: [{
-                        currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                        linked: true,
-                        gross: 60
-                    }]
-                });
-            })
+        cy.createProductFixture({
+            name: 'Variant Product',
+            productNumber: 'Variant-1234',
+            price: [{
+                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                linked: true,
+                gross: 60
+            }]
+        })
             .then(() => {
                 return cy.createPropertyFixture({
                     options: [{name: 'Red'}, {name: 'Yellow'}, {name: 'Green'}]

@@ -4,9 +4,7 @@ describe('Import/Export - Export:', () => {
     let page = null;
 
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            return cy.createDefaultFixture('import-export-profile');
-        }).then(() => {
+        cy.createDefaultFixture('import-export-profile').then(() => {
             return cy.createProductFixture();
         })
             .then(() => {

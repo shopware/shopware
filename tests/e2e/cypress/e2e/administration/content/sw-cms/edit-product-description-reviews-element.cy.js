@@ -5,23 +5,19 @@
 
 describe('CMS: Check usage and editing of product description reviews element', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCmsFixture();
-            })
-            .then(() => {
-                return cy.createProductFixture({
-                    name: 'Product name',
-                    productNumber: 'RS-11111',
-                    description: 'Pudding wafer apple pie fruitcake cupcake'
-                });
-            })
-            .then(() => {
-                cy.viewport(1920, 1080);
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.createCmsFixture().then(() => {
+            return cy.createProductFixture({
+                name: 'Product name',
+                productNumber: 'RS-11111',
+                description: 'Pudding wafer apple pie fruitcake cupcake'
             });
+        })
+        .then(() => {
+            cy.viewport(1920, 1080);
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@content: use product description reviews element in another block', { tags: ['pa-content-management'] }, () => {

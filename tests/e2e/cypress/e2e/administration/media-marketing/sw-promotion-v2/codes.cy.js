@@ -7,15 +7,12 @@ const promotionCodeFixedSelector = '#sw-field--promotion-code';
 
 describe('Promotion v2: Test code operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('promotion');
-            }).then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-                cy.get('.sw-data-grid__cell--name > .sw-data-grid__cell-content > a').click();
-            });
+        cy.createDefaultFixture('promotion').then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+            cy.get('.sw-data-grid__cell--name > .sw-data-grid__cell-content > a').click();
+        });
     });
 
     it('@base @marketing: generate and save a fixed promotion code', { tags: ['pa-checkout'] }, () => {

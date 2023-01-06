@@ -1,9 +1,5 @@
 /// <reference types="Cypress" />
 describe('create role with different permissions', () => {
-    beforeEach(() => {
-        cy.loginViaApi();
-    });
-
     it('@package: create role', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/acl-role`,

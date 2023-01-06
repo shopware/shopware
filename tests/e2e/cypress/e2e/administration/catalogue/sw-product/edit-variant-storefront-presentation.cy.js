@@ -4,18 +4,14 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Product: Test Storefront presentation of variants', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.createProductVariantFixture();
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createProductVariantFixture().then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
-    it('@base @catalogue: test multidimensional variant with diversification', { tags: ['pa-inventory'] }, () => {
+    it('@base @catalogue: test multidimensional variant with diversification', {tags: ['pa-inventory']}, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -123,7 +119,7 @@ describe('Product: Test Storefront presentation of variants', () => {
         cy.contains('.product-variant-characteristics', 'Color: Green | Size: L');
     });
 
-    it('@catalogue: test main variant presentation with parent and variant given', { tags: ['pa-inventory'] }, () => {
+    it('@catalogue: test main variant presentation with parent and variant given', {tags: ['pa-inventory']}, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -226,7 +222,7 @@ describe('Product: Test Storefront presentation of variants', () => {
         cy.contains('h1', 'Green variant product name').should('be.visible');
     });
 
-    it('@catalogue: test main variant presentation with parent but without variant given', { tags: ['pa-inventory'] }, () => {
+    it('@catalogue: test main variant presentation with parent but without variant given', {tags: ['pa-inventory']}, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -288,7 +284,7 @@ describe('Product: Test Storefront presentation of variants', () => {
         cy.contains('h1', 'Variant product name').should('be.visible');
     });
 
-    it('@catalogue: test sorting of multidimensional variant order', { tags: ['pa-inventory'] }, () => {
+    it('@catalogue: test sorting of multidimensional variant order', {tags: ['pa-inventory']}, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -320,7 +316,7 @@ describe('Product: Test Storefront presentation of variants', () => {
             },
             endpoint: 'sales-channel'
         }).then((salesChannel) => {
-                cy.createDefaultFixture('product', {
+            cy.createDefaultFixture('product', {
                 visibilities: [{
                     visibility: 30,
                     salesChannelId: salesChannel.id
@@ -380,7 +376,7 @@ describe('Product: Test Storefront presentation of variants', () => {
         cy.visit('/');
         cy.get('input[name=search]').type('Test product');
         cy.get('.search-suggest-container').should('be.visible');
-        cy.contains('.search-suggest-product-name','Test product')
+        cy.contains('.search-suggest-product-name', 'Test product')
             .click();
 
         cy.contains('h1', 'Test product').should('be.visible');

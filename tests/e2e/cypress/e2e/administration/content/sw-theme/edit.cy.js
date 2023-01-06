@@ -6,13 +6,10 @@
 
 describe('Theme: Test common editing of theme', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.viewport(1920, 1080);
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.viewport(1920, 1080);
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@base @media @content: change theme logo image', { tags: ['pa-sales-channels'] }, () => {

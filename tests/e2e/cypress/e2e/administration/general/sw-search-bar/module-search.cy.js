@@ -3,10 +3,6 @@
 import MediaPageObject from '../../../../support/pages/module/sw-media.page-object';
 
 describe('Search bar: Check search module with short keyword', () => {
-    beforeEach(() => {
-        cy.loginViaApi();
-    });
-
     it('@base @searchBar @search: Search for a product using the keyword pro', { tags: ['pa-system-settings'] }, () => {
         cy.createProductFixture()
             .then(() => {

@@ -7,10 +7,7 @@ import CategoryPageObject from '../../../../support/pages/module/sw-category.pag
 
 describe('Category: Edit categories', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
+        cy.createProductFixture()
             .then(() => {
                 return cy.createDefaultFixture('product-stream', {}, 'product-stream-valid');
             })

@@ -4,17 +4,13 @@ import PropertyPageObject from '../../../../support/pages/module/sw-property.pag
 
 describe('Property: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createPropertyFixture({
-                    options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]
-                });
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/property/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createPropertyFixture({
+            options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]
+        }).then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/property/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @catalogue: create and read property', { tags: ['pa-inventory'] }, () => {

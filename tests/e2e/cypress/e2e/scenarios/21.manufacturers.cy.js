@@ -5,16 +5,14 @@ import ManufacturerPageObject from '../../support/pages/module/sw-manufacturer.p
 
 describe('Manufacturers: Appearance in Storefront & Product Filter', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture({
-                name: 'Test Product',
-                productNumber: 'TEST-3096',
-                price: [{
-                    currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                    linked: true,
-                    gross: 10.99
-                }]
-            });
+        cy.createProductFixture({
+            name: 'Test Product',
+            productNumber: 'TEST-3096',
+            price: [{
+                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                linked: true,
+                gross: 10.99
+            }]
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/manufacturer/index`);
             cy.get('.sw-skeleton').should('not.exist');

@@ -2,35 +2,33 @@
 
 describe('Category: SDK Test', ()=> {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.intercept({
-                    url: `${Cypress.env('apiPath')}/search/locale`,
-                    method: 'POST'
-                }).as('searchLocale');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/locale`,
+            method: 'POST'
+        }).as('searchLocale');
 
-                // reset mouse position to neutral state
-                cy.get('body').realHover({ position: 'topLeft' });
+        // reset mouse position to neutral state
+        cy.get('body').realHover({ position: 'topLeft' });
 
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
 
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
-                cy.getSDKiFrame('sw-main-hidden')
-                    .should('exist');
+        cy.getSDKiFrame('sw-main-hidden')
+            .should('exist');
 
-                cy.wait('@searchLocale')
-                    .its('response.statusCode')
-                    .should('equal', 200);
+        cy.wait('@searchLocale')
+            .its('response.statusCode')
+            .should('equal', 200);
 
-                cy.get('.navigation-list-item__type-plugin')
-                    .should('exist');
+        cy.get('.navigation-list-item__type-plugin')
+            .should('exist');
 
-                cy.get('.navigation-list-item__type-plugin')
-                    .should('have.length.least', 3);
-            });
+        cy.get('.navigation-list-item__type-plugin')
+            .should('have.length.least', 3);
     });
+
     it('@sdk: add menu item', { tags: ['ct-admin'] }, ()=> {
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');

@@ -55,14 +55,12 @@ function getLineItem(id, children = [], position = 0) {
 
 describe('Order: Visual tests', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            return cy.createProductFixture({
-                id: ids['1'],
-                name: 'Awesome product product',
-                label: 'Awesome product product',
-                productNumber: 'NEST-1',
-                description: 'l33t'
-            });
+        cy.createProductFixture({
+            id: ids['1'],
+            name: 'Awesome product product',
+            label: 'Awesome product product',
+            productNumber: 'NEST-1',
+            description: 'l33t'
         }).then(() => {
             return cy.createAdminOrder({
                 lineItems: [

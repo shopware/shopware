@@ -5,13 +5,9 @@
 
 describe('Category: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCmsFixture();
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-            });
+        cy.createCmsFixture().then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        });
     });
 
     it('@base @catalogue: can view shopping experiences listing', { tags: ['pa-content-management'] }, () => {

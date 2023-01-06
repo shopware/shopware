@@ -2,17 +2,13 @@
 import CustomerPageObject from '../../../../support/pages/module/sw-customer.page-object';
 
 describe('Flow builder: change customer group testing', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi().then(() => {
-                return cy.createCustomerFixture();
-            }).then(() => {
-                return cy.setCustomerGroup('RS-1232123', {
-                    name: 'Net customergroup',
-                    displayGross: false
-                });
+        cy.createCustomerFixture().then(() => {
+            return cy.setCustomerGroup('RS-1232123', {
+                name: 'Net customergroup',
+                displayGross: false
             });
+        });
     });
 
     it('@settings: change customer group flow', { tags: ['pa-business-ops'] }, () => {
@@ -71,7 +67,7 @@ describe('Flow builder: change customer group testing', () => {
 
         const page = new CustomerPageObject();
 
-        cy.loginViaApi().then(() => {
+        cy.authenticate().then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');

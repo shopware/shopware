@@ -4,13 +4,9 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Product: Deliverability', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-            });
+        cy.createProductFixture().then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+        });
     });
 
     it('@base @catalogue: Editing product with extended purchase amounts', { tags: ['pa-inventory'] }, () => {

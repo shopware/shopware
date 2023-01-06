@@ -12,9 +12,6 @@ describe('Review: Test ACL privileges', () => {
                 win.location.href = 'about:blank';
             })
             .then(() => {
-                cy.loginViaApi();
-            })
-            .then(() => {
                 cy.createReviewFixture();
             })
             .then(() => {

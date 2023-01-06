@@ -11,16 +11,14 @@ const promoCode = 'Flash sale';
 
 describe('Promotions: pre-conditions', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture({
-                name: 'Test Product',
-                productNumber: 'Test-3096',
-                price: [{
-                    currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                    linked: true,
-                    gross: 60
-                }]
-            });
+        cy.createProductFixture({
+            name: 'Test Product',
+            productNumber: 'Test-3096',
+            price: [{
+                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                linked: true,
+                gross: 60
+            }]
         }).then(() => {
             return cy.createDefaultFixture('promotion');
         }).then(() => {

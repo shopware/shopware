@@ -5,39 +5,35 @@ let storefrontCustomer;
 
 describe('Dashboard: Test first sight of the Administration', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'product',
-                    data: {
-                        field: 'name',
-                        value: 'Product name'
-                    }
-                });
-            })
-            .then((result) => {
-                return cy.createGuestOrder(result.id);
-            })
-            .then(() => {
-                return cy.fixture('product');
-            })
-            .then((result) => {
-                product = result;
-            })
-            .then(() => {
-                return cy.fixture('storefront-customer');
-            })
-            .then((result) => {
-                storefrontCustomer = result;
-            })
-            .then(() => {
-                cy.openInitialPage(Cypress.env('admin'));
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.createProductFixture().then(() => {
+            return cy.searchViaAdminApi({
+                endpoint: 'product',
+                data: {
+                    field: 'name',
+                    value: 'Product name'
+                }
             });
+        })
+        .then((result) => {
+            return cy.createGuestOrder(result.id);
+        })
+        .then(() => {
+            return cy.fixture('product');
+        })
+        .then((result) => {
+            product = result;
+        })
+        .then(() => {
+            return cy.fixture('storefront-customer');
+        })
+        .then((result) => {
+            storefrontCustomer = result;
+        })
+        .then(() => {
+            cy.openInitialPage(Cypress.env('admin'));
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @general: read dashboard', { tags: ['pa-merchant-services'] }, () => {

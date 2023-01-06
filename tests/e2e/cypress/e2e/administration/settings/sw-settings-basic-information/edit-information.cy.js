@@ -4,12 +4,9 @@ import SalesChannelPageObject from '../../../../support/pages/module/sw-sales-ch
 
 describe('Basic Informaion: Edit assignments', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/basic/information/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/basic/information/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@settings: assign 404 error layout and test rollout', { tags: ['pa-system-settings'] }, () => {

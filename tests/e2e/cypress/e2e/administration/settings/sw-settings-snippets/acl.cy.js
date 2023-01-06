@@ -2,10 +2,7 @@
 
 describe('Snippets: Test acl privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createSnippetFixture();
-            })
+        cy.createSnippetFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
             });

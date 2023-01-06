@@ -4,9 +4,7 @@ import SalesChannelPageObject from '../../../support/pages/module/sw-sales-chann
 
 describe('Sales Channel: Visual tests', () => {
     beforeEach(() => {
-        cy.setLocaleToEnGb().then(() => {
-            cy.loginViaApi();
-        })
+        cy.setLocaleToEnGb()
             .then(() => {
                 // freezes the system time to Jan 1, 2018
                 const now = new Date(2018, 1, 1);

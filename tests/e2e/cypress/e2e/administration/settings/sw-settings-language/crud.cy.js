@@ -5,10 +5,7 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Language: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createLanguageFixture();
-            })
+        cy.createLanguageFixture()
             .then(() => {
                 return cy.createProductFixture();
             })

@@ -6,9 +6,6 @@ describe('Dashboard:  Visual tests', () => {
         const now = new Date(2018, 1, 1);
         cy.clock(now, ['Date'])
             .then(() => {
-                cy.loginViaApi();
-            })
-            .then(() => {
                 return cy.createProductFixture();
             })
             .then(() => {

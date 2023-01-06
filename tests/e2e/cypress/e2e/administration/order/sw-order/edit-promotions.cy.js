@@ -6,38 +6,34 @@ let salesChannelId;
 
 describe('Order: Test promotions in existing orders', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'product',
-                    data: {
-                        field: 'name',
-                        value: 'Product name'
-                    }
-                });
-            })
-            .then((result) => {
-                return cy.createGuestOrder(result.id);
-            })
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'sales-channel',
-                    data: {
-                        field: 'name',
-                        value: 'Storefront'
-                    }
-                });
-            })
-            .then((data) => {
-                salesChannelId = data.id;
-
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.createProductFixture().then(() => {
+            return cy.searchViaAdminApi({
+                endpoint: 'product',
+                data: {
+                    field: 'name',
+                    value: 'Product name'
+                }
             });
+        })
+        .then((result) => {
+            return cy.createGuestOrder(result.id);
+        })
+        .then(() => {
+            return cy.searchViaAdminApi({
+                endpoint: 'sales-channel',
+                data: {
+                    field: 'name',
+                    value: 'Storefront'
+                }
+            });
+        })
+        .then((data) => {
+            salesChannelId = data.id;
+
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @order: add promotion to existing order', { tags: ['pa-customers-orders'] }, () => {

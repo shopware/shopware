@@ -6,46 +6,42 @@
 describe('CMS: Test assignment of layouts to categories and shop pages', () => {
     beforeEach(() => {
         let salesChannel;
-        cy.loginViaApi()
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'sales-channel',
-                    data: {
-                        field: 'name',
-                        type: 'equals',
-                        value: 'Storefront'
-                    }
-                });
-            })
-            .then((data) => {
-                salesChannel = data.id;
-                return cy.createCmsFixture();
-            })
-            .then(() => {
-                return cy.createDefaultFixture('cms-page', {}, 'cms-page-shop-page');
-            })
-            .then(() => {
-                return cy.createDefaultFixture('cms-page', { name: 'Testing page', type: 'landingpage' }, 'cms-page-shop-page');
-            })
-            .then((page) => {
-                page.name = 'Initial Page';
-                page.type = 'landingpage';
+        cy.searchViaAdminApi({
+            endpoint: 'sales-channel',
+            data: {
+                field: 'name',
+                type: 'equals',
+                value: 'Storefront'
+            }
+        }).then((data) => {
+            salesChannel = data.id;
+            return cy.createCmsFixture();
+        })
+        .then(() => {
+            return cy.createDefaultFixture('cms-page', {}, 'cms-page-shop-page');
+        })
+        .then(() => {
+            return cy.createDefaultFixture('cms-page', { name: 'Testing page', type: 'landingpage' }, 'cms-page-shop-page');
+        })
+        .then((page) => {
+            page.name = 'Initial Page';
+            page.type = 'landingpage';
 
-                return cy.createDefaultFixture('landing-page', {
-                    cmsPage: page,
-                    salesChannels: [
-                        {
-                            id: salesChannel
-                        }
-                    ]
-                });
-            })
-            .then(() => {
-                cy.viewport(1920, 1080);
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+            return cy.createDefaultFixture('landing-page', {
+                cmsPage: page,
+                salesChannels: [
+                    {
+                        id: salesChannel
+                    }
+                ]
             });
+        })
+        .then(() => {
+            cy.viewport(1920, 1080);
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @content: assign layout to landing page from layout editor', { tags: ['pa-content-management'] }, () => {

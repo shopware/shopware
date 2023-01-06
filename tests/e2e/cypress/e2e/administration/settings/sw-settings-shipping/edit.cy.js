@@ -4,10 +4,7 @@ import ShippingPageObject from '../../../../support/pages/module/sw-shipping.pag
 
 describe('Shipping: Edit in various ways', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createShippingFixture();
-            })
+        cy.createShippingFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
                 cy.get('.sw-skeleton').should('not.exist');

@@ -4,13 +4,9 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Product: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-            });
+        cy.createProductFixture().then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        });
     });
 
     it('@base @catalogue: can view product', { tags: ['pa-inventory'] }, () => {

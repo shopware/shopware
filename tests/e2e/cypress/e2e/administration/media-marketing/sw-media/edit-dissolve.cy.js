@@ -7,15 +7,11 @@ import MediaPageObject from '../../../../support/pages/module/sw-media.page-obje
 
 describe('Media: Dissolve folder', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('media-folder');
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createDefaultFixture('media-folder').then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@media: dissolve folder', { tags: ['pa-content-management'] }, () => {

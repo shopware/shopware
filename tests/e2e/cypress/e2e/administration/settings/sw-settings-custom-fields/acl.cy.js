@@ -4,10 +4,7 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Custom fields: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('custom-field-set');
-            })
+        cy.createDefaultFixture('custom-field-set')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/index`);
             });

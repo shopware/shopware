@@ -11,9 +11,7 @@ const productPage = new ProductPageObject();
 
 describe('Rule builder: Test with shipping method and advance pricing', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            return cy.createProductFixture();
-        }).then(() => {
+        cy.createProductFixture().then(() => {
             return cy.createCustomerFixtureStorefront();
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);

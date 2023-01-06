@@ -7,10 +7,7 @@ import MediaPageObject from '../../../../support/pages/module/sw-media.page-obje
 
 describe('Media: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
     });
 
     it('@media: has no access to media module', { tags: ['pa-content-management'] }, () => {

@@ -1,15 +1,12 @@
 describe('Category: SDK Test', ()=> {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/index/shop`);
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/index/shop`);
 
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
-                cy.getSDKiFrame('sw-main-hidden')
-                    .should('exist');
-            });
+        cy.getSDKiFrame('sw-main-hidden')
+            .should('exist');
     });
     it('@sdk: add settings without searchbar', { tags: ['ct-admin'] }, () => {
         cy.contains('.sw-settings__content-header', 'Settings');

@@ -3,10 +3,6 @@
 import NewsletterRecipientPageObject  from '../../support/pages/module/sw-newsletter-recipient.page-object';
 
 describe('Storefront profile settings', () => {
-    beforeEach(() => {
-        cy.loginViaApi();
-    });
-
     it('@package: should apply for newsletter in storefront and see the customer in newsletter recipients ', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `/account/register`,

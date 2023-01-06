@@ -15,10 +15,6 @@ function setMediaEntitySearchable() {
 }
 
 describe('Search bar: Check main functionality', () => {
-    beforeEach(() => {
-        cy.loginViaApi();
-    });
-
     it('@base @searchBar @search: search for a product', { tags: ['pa-system-settings'] }, () => {
         let taxId; let
             currencyId;

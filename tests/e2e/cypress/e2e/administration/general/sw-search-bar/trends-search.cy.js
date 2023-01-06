@@ -1,10 +1,6 @@
 /// <reference types="Cypress" />
 
 describe('Search bar: Check search by frequently used and recently searched',() => {
-    beforeEach(() => {
-        cy.loginViaApi();
-    });
-
     // NEXT-20024
     it('@searchBar search frequently used modules', { tags: ['quarantined', 'pa-system-settings'] }, () => {
         cy.intercept({

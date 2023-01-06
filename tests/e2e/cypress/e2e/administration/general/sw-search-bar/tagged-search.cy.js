@@ -3,10 +3,6 @@
 import MediaPageObject from '../../../../support/pages/module/sw-media.page-object';
 
 describe('Search bar: Check search functionality with tags', () => {
-    beforeEach(() => {
-        cy.loginViaApi();
-    });
-
     it('@base @searchBar @search: search for a product using tag in dashboard', { tags: ['pa-system-settings'] }, () => {
         cy.createProductFixture()
             .then(() => {

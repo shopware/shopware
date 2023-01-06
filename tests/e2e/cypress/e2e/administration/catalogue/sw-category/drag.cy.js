@@ -5,16 +5,13 @@
 
 describe('Category: Test drag categories', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.searchViaAdminApi({
-                    endpoint: 'category',
-                    data: {
-                        field: 'name',
-                        value: 'Home'
-                    }
-                });
-            })
+        cy.searchViaAdminApi({
+            endpoint: 'category',
+            data: {
+                field: 'name',
+                value: 'Home'
+            }
+        })
             .then(({ id: categoryId }) => {
                 cy.createCategoryFixture({
                     name: 'Child 1',

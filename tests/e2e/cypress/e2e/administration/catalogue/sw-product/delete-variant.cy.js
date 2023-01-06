@@ -4,10 +4,7 @@ import variantProduct from '../../../../fixtures/variant-product';
 
 describe('Product: Test variants', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture(variantProduct);
-            })
+        cy.createProductFixture(variantProduct)
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
                 cy.get('.sw-skeleton').should('not.exist');

@@ -4,10 +4,7 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Payment: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('payment-method');
-            })
+        cy.createDefaultFixture('payment-method')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
             });

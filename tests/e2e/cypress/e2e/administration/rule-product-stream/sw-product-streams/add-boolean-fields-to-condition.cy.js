@@ -5,55 +5,50 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Dynamic product group: Add Boolean fields to condition', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.createProductFixture({
-                    name: 'First product',
-                    productNumber: 'RS-11111',
-                    active: null,
-                    description: 'Pudding wafer apple pie fruitcake cupcake.'
-                }).then(() => {
-                    cy.createProductFixture({
-                        name: 'Second product',
-                        productNumber: 'RS-22222',
-                        active: false,
-                        description: 'Jelly beans jelly-o toffee I love jelly pie tart cupcake topping.'
-                    });
-                }).then(() => {
-                    cy.createProductFixture({
-                        name: 'Third product',
-                        productNumber: 'RS-33333',
+        cy.createProductFixture({
+            name: 'First product',
+            productNumber: 'RS-11111',
+            active: null,
+            description: 'Pudding wafer apple pie fruitcake cupcake.'
+        }).then(() => {
+            cy.createProductFixture({
+                name: 'Second product',
+                productNumber: 'RS-22222',
+                active: false,
+                description: 'Jelly beans jelly-o toffee I love jelly pie tart cupcake topping.'
+            });
+        }).then(() => {
+            cy.createProductFixture({
+                name: 'Third product',
+                productNumber: 'RS-33333',
+                active: true,
+                description: 'Jelly beans jelly-o toffee I love jelly pie tart cupcake topping.'
+            });
+        }).then(() => {
+            return cy.createDefaultFixture('custom-field-set', {
+                customFields: [
+                    {
                         active: true,
-                        description: 'Jelly beans jelly-o toffee I love jelly pie tart cupcake topping.'
-                    });
-                });
-            })
-            .then(() => {
-                return cy.createDefaultFixture('custom-field-set', {
-                    customFields: [
-                        {
-                            active: true,
-                            name: 'my_custom_boolean_field',
-                            type: 'bool',
-                            config: {
-                                componentName: 'sw-field',
-                                customFieldPosition: 1,
-                                customFieldType: 'checkbox',
-                                type: 'checkbox',
-                                helpText: {
-                                    'en-GB': 'helptext'
-                                },
-                                label: {
-                                    'en-GB': 'my_custom_boolean_field'
-                                }
+                        name: 'my_custom_boolean_field',
+                        type: 'bool',
+                        config: {
+                            componentName: 'sw-field',
+                            customFieldPosition: 1,
+                            customFieldType: 'checkbox',
+                            type: 'checkbox',
+                            helpText: {
+                                'en-GB': 'helptext'
+                            },
+                            label: {
+                                'en-GB': 'my_custom_boolean_field'
                             }
                         }
-                    ]
-                });
-            })
-            .then(() => {
-                return cy.createDefaultFixture('product-stream');
+                    }
+                ]
             });
+        }).then(() => {
+            return cy.createDefaultFixture('product-stream');
+        });
     });
 
     it('@base @rule: can preview products with boolean field', { tags: ['pa-business-ops'] }, () => {

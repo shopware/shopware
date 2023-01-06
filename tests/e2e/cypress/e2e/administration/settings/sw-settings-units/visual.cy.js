@@ -1,12 +1,8 @@
 // / <reference types="Cypress" />
 
 describe('Scale units: Visual testing', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('unit');
-            })
+        cy.createDefaultFixture('unit')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
                 cy.get('.sw-skeleton').should('not.exist');

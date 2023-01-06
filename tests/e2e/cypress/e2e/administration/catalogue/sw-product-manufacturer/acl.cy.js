@@ -4,12 +4,9 @@ import ManufacturerPageObject from '../../../../support/pages/module/sw-manufact
 
 describe('Manufacturer: Test crud operations with ACL', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('product-manufacturer');
-            }).then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-            });
+        cy.createDefaultFixture('product-manufacturer').then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        });
     });
 
     it('@general: read manufacturer with ACL, but without rights', { tags: ['pa-inventory'] }, () => {

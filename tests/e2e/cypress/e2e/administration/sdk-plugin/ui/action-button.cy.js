@@ -4,19 +4,15 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Category: SDK Test', ()=> {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.createProductFixture().then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
 
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
 
-                cy.getSDKiFrame('sw-main-hidden')
-                    .should('exist');
-            });
+            cy.getSDKiFrame('sw-main-hidden')
+                .should('exist');
+        });
     });
     it('@sdk: action button', { tags: ['ct-admin'] }, ()=> {
         const Page = new ProductPageObject();

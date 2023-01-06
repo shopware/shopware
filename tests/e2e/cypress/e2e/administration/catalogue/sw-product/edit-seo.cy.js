@@ -5,32 +5,28 @@ import CategoryPageObject from '../../../../support/pages/module/sw-category.pag
 
 describe('Product: Edit in various ways', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createPropertyFixture({
-                    options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]
-                });
-            })
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.createCategoryFixture({
-                    name: 'Sport',
-                    active: true
-                });
-            })
-            .then(() => {
-                return cy.createCategoryFixture({
-                    name: 'Anime',
-                    active: true
-                });
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.createPropertyFixture({
+            options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]
+        }).then(() => {
+            return cy.createProductFixture();
+        })
+        .then(() => {
+            return cy.createCategoryFixture({
+                name: 'Sport',
+                active: true
             });
+        })
+        .then(() => {
+            return cy.createCategoryFixture({
+                name: 'Anime',
+                active: true
+            });
+        })
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@catalogue: set list price', { tags: ['pa-inventory'] }, () => {

@@ -51,46 +51,43 @@ const productManufacture = {
 
 describe('Dynamic product group: Test various filters', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('product-stream');
-            })
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.createProductFixture(productManufacture);
-            })
-            .then(() => {
-                return cy.createPropertyFixture({
-                    options: [
-                        {
-                            name: 'Red'
-                        },
-                        {
-                            name: 'Green'
-                        }
-                    ]
-                });
-            })
-            .then(() => {
-                return cy.createPropertyFixture({
-                    name: 'Redhouse',
-                    options: [
-                        {
-                            name: 'Test 1'
-                        },
-                        {
-                            name: 'Test 2'
-                        }
-                    ]
-                });
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.createDefaultFixture('product-stream')
+        .then(() => {
+            return cy.createProductFixture();
+        })
+        .then(() => {
+            return cy.createProductFixture(productManufacture);
+        })
+        .then(() => {
+            return cy.createPropertyFixture({
+                options: [
+                    {
+                        name: 'Red'
+                    },
+                    {
+                        name: 'Green'
+                    }
+                ]
             });
+        })
+        .then(() => {
+            return cy.createPropertyFixture({
+                name: 'Redhouse',
+                options: [
+                    {
+                        name: 'Test 1'
+                    },
+                    {
+                        name: 'Test 2'
+                    }
+                ]
+            });
+        })
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @rule: edit filter', { tags: ['pa-business-ops'] }, () => {

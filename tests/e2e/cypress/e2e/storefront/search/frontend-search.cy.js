@@ -2,9 +2,7 @@ let product = {};
 
 describe('Searches for products', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.visit('');
-        });
+        cy.visit('');
 
         return cy.createProductFixture().then(() => {
             return cy.createDefaultFixture('category')

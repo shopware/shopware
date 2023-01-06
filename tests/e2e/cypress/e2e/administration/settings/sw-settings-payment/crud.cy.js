@@ -4,10 +4,7 @@ import PaymentPageObject from '../../../../support/pages/module/sw-payment.page-
 
 describe('Payment: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('payment-method');
-            })
+        cy.createDefaultFixture('payment-method')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
                 cy.get('.sw-skeleton').should('not.exist');

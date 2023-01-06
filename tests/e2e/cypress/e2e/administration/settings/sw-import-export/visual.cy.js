@@ -12,11 +12,9 @@ describe('Import/Export:  Visual tests', () => {
 
         page = new SettingsPageObject();
 
-        cy.loginViaApi().then(() => {
-            // freezes the system time to Jan 1, 2018
-            const now = new Date(2018, 1, 1);
-            cy.clock(now, ['Date']);
-        }).then(() => {
+        // freezes the system time to Jan 1, 2018
+        const now = new Date(2018, 1, 1);
+        cy.clock(now, ['Date']).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');

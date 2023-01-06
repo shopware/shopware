@@ -2,11 +2,9 @@
 
 describe('Admin & Storefront: test customer group registration', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@package: should register with new customer group', { tags: ['pa-customers-orders'] }, () => {

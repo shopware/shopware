@@ -4,10 +4,7 @@ const page = new SettingsPageObject();
 
 describe('Number Range: Test crud number range', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
     });
 
     it('@settings: create and read number range', { tags: ['pa-system-settings'] }, () => {

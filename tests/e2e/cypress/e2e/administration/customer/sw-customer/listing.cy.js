@@ -126,8 +126,6 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
     });
 
     it('@Customer: check that the url parameters get set correctly', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
-        cy.loginViaApi();
-
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -135,6 +133,7 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
         const searchTerm = 'Pep';
 
         // use the search box and check if term gets set (in the function)
+        cy.log('typeAndCheckSearchField');
         cy.get('.sw-search-bar__input').typeAndCheckSearchField(searchTerm);
         cy.url().should('contain', `term=${searchTerm}`);
 
@@ -145,9 +144,9 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
         cy.url().should('contain', `page=1`);
         cy.url().should('contain', `limit=25`);
 
-        // When search for a term, none sorting is used
-        cy.get(`.sw-data-grid__cell--4 > .sw-data-grid__cell-content`).get('.icon--regular-chevron-up-xxs').should('not.exist');
-        cy.get(`.sw-data-grid__cell--4 > .sw-data-grid__cell-content`).get('.icon--regular-chevron-down-xxs').should('not.exist');
+        // When search for a term, no sorting is used
+        cy.get('.sw-data-grid__cell--4 .icon--regular-chevron-up-xxs').should('not.exist');
+        cy.get('.sw-data-grid__cell--4 .icon--regular-chevron-down-xxs').should('not.exist');
 
         cy.log('change Sorting direction from None to ASC');
         cy.get('.sw-data-grid__cell--4 > .sw-data-grid__cell-content').click('right');
@@ -238,8 +237,6 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
     });
 
     it('@Customer: check that the url parameters get applied after a reload', { tags: ['pa-customers-orders'] }, () => {
-        cy.loginViaApi();
-
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index?term=Pep&page=2&limit=10&sortBy=lastName,firstName&sortDirection=ASC&naturalSorting=false`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

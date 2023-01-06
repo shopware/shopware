@@ -2,9 +2,7 @@
 
 describe('Add and remove products from saleschannel', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture();
-        });
+        cy.createProductFixture();
     });
 
     afterEach(() => {

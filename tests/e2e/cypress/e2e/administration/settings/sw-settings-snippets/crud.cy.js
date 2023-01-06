@@ -4,10 +4,7 @@ import SnippetPageObject from '../../../../support/pages/module/sw-snippet.page-
 
 describe('Snippets: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createSnippetFixture();
-            })
+        cy.createSnippetFixture()
             .then(() => {
                 cy.fixture('snippet').as('testSnippet');
             })

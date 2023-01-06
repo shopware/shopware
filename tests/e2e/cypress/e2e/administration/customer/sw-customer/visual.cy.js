@@ -16,26 +16,22 @@ describe('Customer:  Visual test', () => {
             method: 'POST'
         }).as('getData');
 
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCustomerFixture();
-            })
-            .then(() => {
-                return cy.fixture('customer');
-            })
-            .then((result) => {
-                customer = Cypress._.merge(customer, result);
+        cy.createCustomerFixture().then(() => {
+            return cy.fixture('customer');
+        })
+        .then((result) => {
+            customer = Cypress._.merge(customer, result);
 
-                return cy.fixture('customer-address');
-            })
-            .then((result) => {
-                customer = Cypress._.merge(customer, result);
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+            return cy.fixture('customer-address');
+        })
+        .then((result) => {
+            customer = Cypress._.merge(customer, result);
+        })
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@visual: check appearance of basic customer workflow', { tags: ['pa-customers-orders'] }, () => {

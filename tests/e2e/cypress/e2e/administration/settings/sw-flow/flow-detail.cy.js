@@ -3,19 +3,15 @@
 import SettingsPageObject from '../../../../support/pages/module/sw-settings.page-object';
 
 describe('Flow builder: flow detail page', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi().then(() => {
-                return cy.createProductFixture();
-            }).then(() => {
-                return cy.createCustomerFixture();
-            })
-            .then(() => {
-                cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createProductFixture().then(() => {
+            return cy.createCustomerFixture();
+        })
+        .then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@settings: show warning modal when unsaved changes on flow detail page', { tags: ['pa-business-ops'] }, () => {

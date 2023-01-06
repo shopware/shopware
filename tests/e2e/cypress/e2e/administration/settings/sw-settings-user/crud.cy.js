@@ -2,16 +2,9 @@
 
 describe('User: Test crud operations', () => {
     beforeEach(() => {
-        cy.clearCookies();
-        cy.clearCookie('bearerAuth');
-        cy.clearCookie('refreshBearerAuth');
-
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/users/permissions/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@settings: create and delete user', { tags: ['pa-system-settings'] }, () => {
@@ -245,9 +238,5 @@ describe('User: Test crud operations', () => {
             .should('be.visible');
         cy.contains('.sw-settings-user-detail__grid-password .sw-field__error', 'This field must not be empty.')
             .should('be.visible');
-
-        cy.clearCookies();
-        cy.clearCookie('bearerAuth');
-        cy.clearCookie('refreshBearerAuth');
     });
 });

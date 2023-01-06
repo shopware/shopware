@@ -4,10 +4,7 @@ import ShippingPageObject from '../../../../support/pages/module/sw-shipping.pag
 
 describe('Shipping: Test acl privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createShippingFixture();
-            })
+        cy.createShippingFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });

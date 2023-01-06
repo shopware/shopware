@@ -4,9 +4,7 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Delivery times group: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            return cy.createProductFixture();
-        }).then(() => {
+        cy.createProductFixture().then(() => {
             return cy.createDefaultFixture('delivery-time');
         })
             .then(() => {

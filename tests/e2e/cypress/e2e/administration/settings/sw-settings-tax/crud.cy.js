@@ -4,10 +4,7 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Tax: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('tax');
-            })
+        cy.createDefaultFixture('tax')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/tax/index`);
                 cy.get('.sw-skeleton').should('not.exist');

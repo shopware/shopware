@@ -8,11 +8,8 @@ import elements from '../../../../support/pages/sw-general.page-object';
 
 describe('Theme: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.viewport(1920, 1080);
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-            });
+        cy.viewport(1920, 1080);
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
     });
 
     it('@content: has no access to theme module', { tags: ['pa-sales-channels'] }, () => {

@@ -4,15 +4,11 @@ import CustomerPageObject from '../../../../support/pages/module/sw-customer.pag
 
 describe('Customer:  Edit in various ways', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCustomerFixture();
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createCustomerFixture().then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@customer: edit customer via inline edit', { tags: ['pa-customers-orders'] }, () => {

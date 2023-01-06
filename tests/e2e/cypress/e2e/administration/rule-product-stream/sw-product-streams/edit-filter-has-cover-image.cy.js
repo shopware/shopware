@@ -4,30 +4,26 @@ import ProductStreamObject from '../../../../support/pages/module/sw-product-str
 
 describe('Dynamic product group: Test product has cover image filter with and without cover image', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture({
-                    name: 'Product with image',
-                    productNumber: 'SW-11111',
-                    cover: {
-                        media: {
-                            alt: 'Lorem Ipsum dolor',
-                            url: 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=='
-                        }
-                    }
-                });
-            })
-            .then(() => {
-                return cy.createProductFixture({
-                    name: 'Product without image',
-                    productNumber: 'SW-11112',
-                });
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/create`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.createProductFixture({
+            name: 'Product with image',
+            productNumber: 'SW-11111',
+            cover: {
+                media: {
+                    alt: 'Lorem Ipsum dolor',
+                    url: 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=='
+                }
+            }
+        }).then(() => {
+            return cy.createProductFixture({
+                name: 'Product without image',
+                productNumber: 'SW-11112',
             });
+        })
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/create`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@catalogue: filters products by cover image existing', { tags: ['pa-business-ops'] }, () => {

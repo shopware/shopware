@@ -4,26 +4,22 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 
 describe('Rule builder: Sorting rules', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('rule', {
-                    paymentMethods: [
-                        { name: 'foo' },
-                        { name: 'bar' }
-                    ]
-                });
-            })
-            .then(() => {
-                return cy.createDefaultFixture('rule', {
-                    name: 'Foobar',
-                    paymentMethods: [
-                        { name: 'baz' }
-                    ]
-                });
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+        cy.createDefaultFixture('rule', {
+            paymentMethods: [
+                { name: 'foo' },
+                { name: 'bar' }
+            ]
+        }).then(() => {
+            return cy.createDefaultFixture('rule', {
+                name: 'Foobar',
+                paymentMethods: [
+                    { name: 'baz' }
+                ]
             });
+        })
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+        });
     });
 
     it('@base @rule: sort rules by assignment counts', { tags: ['pa-business-ops'] }, () => {

@@ -4,12 +4,9 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Tax: Test default tax rates', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('tax', {
-                    id: '70359730b8f244bf94f4372ab4646fe5'
-                });
-            })
+        cy.createDefaultFixture('tax', {
+            id: '70359730b8f244bf94f4372ab4646fe5'
+        })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/tax/index`);
                 cy.get('.sw-skeleton').should('not.exist');

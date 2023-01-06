@@ -5,18 +5,14 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Sales Channel: Test product comparison', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.createDefaultFixture('product-stream', {}, 'product-stream-active');
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createProductFixture().then(() => {
+            return cy.createDefaultFixture('product-stream', {}, 'product-stream-active');
+        })
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@general: create product comparison sales channel', {  browser: '!firefox', tags: ['pa-sales-channels'] }, () => {

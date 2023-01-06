@@ -8,10 +8,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
     const defaultRuleId = uuid().replace(/-/g, '');
 
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('rule', { id: defaultRuleId, name: 'Default Rule' }, 'rule-simple-condition');
-            })
+        cy.createDefaultFixture('rule', { id: defaultRuleId, name: 'Default Rule' }, 'rule-simple-condition')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/detail/${defaultRuleId}`);
                 // wait for ending loading state

@@ -2,10 +2,7 @@
 
 describe('Listing: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('custom-field-set');
-            })
+        cy.createDefaultFixture('custom-field-set')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/listing/index`);
                 cy.get('.sw-settings-listing-index').should('exist');

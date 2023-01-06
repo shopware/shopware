@@ -5,19 +5,17 @@ import SettingsPageObject from '../../support/pages/module/sw-settings.page-obje
 
 describe('@package: Currency: checkout with tax-free and price rounding', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture({
-                name: 'Product name',
-                productNumber: 'TEST-1234',
-                price: [
-                    {
-                        currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                        net: 34.115658,
-                        linked: true,
-                        gross: 49.115658
-                    }
-                ]
-            });
+        cy.createProductFixture({
+            name: 'Product name',
+            productNumber: 'TEST-1234',
+            price: [
+                {
+                    currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                    net: 34.115658,
+                    linked: true,
+                    gross: 49.115658
+                }
+            ]
         });
     });
 

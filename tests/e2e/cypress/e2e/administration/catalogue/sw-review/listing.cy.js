@@ -134,8 +134,6 @@ describe('Review: Test pagination and the corresponding URL parameters', () => {
     });
 
     it('@catalogue: check that the url parameters get set', { tags: ['pa-content-management'] }, () => {
-        cy.loginViaApi();
-
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/review/index`);
 
         // use the search box and check if term gets set (in the function)
@@ -222,8 +220,6 @@ describe('Review: Test pagination and the corresponding URL parameters', () => {
     });
 
     it('@catalogue: check that the url parameters get applied after a reload', { tags: ['pa-content-management'] }, () => {
-        cy.loginViaApi();
-
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/review/index?term=product&page=2&limit=10&sortBy=customer.lastName,customer.firstName&sortDirection=ASC&naturalSorting=false`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

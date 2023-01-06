@@ -5,11 +5,7 @@
 
 describe('Category: Landing pages', () => {
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi()
-            .then(() => {
-                cy.createDefaultFixture('cms-page', {}, 'cms-landing-page');
-            })
+        cy.createDefaultFixture('cms-page', {}, 'cms-landing-page')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
                 cy.get('.sw-skeleton').should('not.exist');

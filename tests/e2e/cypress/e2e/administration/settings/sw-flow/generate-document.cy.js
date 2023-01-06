@@ -2,19 +2,15 @@
 import OrderPageObject from '../../../../support/pages/module/sw-order.page-object';
 
 describe('Flow builder: generate document testing', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi().then(() => {
-                return cy.createProductFixture();
-            }).then(() => {
-                return cy.createCustomerFixture();
-            })
-            .then(() => {
-                cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createProductFixture().then(() => {
+            return cy.createCustomerFixture();
+        })
+        .then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@settings: generate document flow', { tags: ['pa-business-ops'] }, () => {
@@ -83,7 +79,7 @@ describe('Flow builder: generate document testing', () => {
 
         const page = new OrderPageObject();
 
-        cy.loginViaApi().then(() => {
+        cy.authenticate().then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');

@@ -4,10 +4,7 @@ import SalesChannelPageObject from '../../../../support/pages/module/sw-sales-ch
 
 describe('Sales Channel: Test acl', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(Cypress.env('admin'));
-            });
+        cy.openInitialPage(Cypress.env('admin'));
     });
 
     it('@base @general: read sales channel',  { tags: ['pa-sales-channels'] }, () => {

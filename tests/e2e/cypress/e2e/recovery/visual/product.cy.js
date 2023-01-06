@@ -6,8 +6,6 @@ import ProductStreamObject from '../../../support/pages/module/sw-product-stream
 describe('Product: Visual tests', () => {
     beforeEach(() => {
         cy.setLocaleToEnGb().then(() => {
-            cy.loginViaApi();
-        }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');

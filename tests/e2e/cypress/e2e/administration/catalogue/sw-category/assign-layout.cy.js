@@ -5,10 +5,7 @@
 
 describe('Category: Create several categories', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
     });
 
     it('should be able to assign layouts with the grid view', { tags: ['pa-content-management'] }, () => {

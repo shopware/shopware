@@ -43,7 +43,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     data(): GenericCustomEntityDetailData {
         return {
-            isLoading: false,
+            isLoading: true,
             isSaveSuccessful: false,
             customEntityName: '',
             entityAccentColor: '',

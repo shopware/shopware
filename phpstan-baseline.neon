@@ -17451,21 +17451,6 @@ parameters:
 			path: src/Core/System/Currency/Aggregate/CurrencyTranslation/CurrencyTranslationCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\CustomEntityEntity\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/CustomEntityEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\CustomEntityEntity\\:\\:setFields\\(\\) has parameter \\$fields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/CustomEntityEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\CustomEntity\\\\CustomEntityEntity\\:\\:\\$fields type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/CustomEntityEntity.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Schema\\\\DynamicMappingEntityDefinition\\:\\:\\$fieldDefinitions type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/CustomEntity/Schema/DynamicMappingEntityDefinition.php

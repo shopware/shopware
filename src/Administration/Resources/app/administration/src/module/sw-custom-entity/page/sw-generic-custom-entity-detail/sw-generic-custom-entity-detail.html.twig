@@ -29,7 +29,7 @@
     <template #content>
         <sw-card-view>
             <sw-tabs
-                v-if="!isLoading && detailTabs"
+                v-if="detailTabs"
                 class="sw-generic-custom-entity-detail__tabs"
                 position-identifier="sw-generic-custom-entity-detail-tabs"
                 :default-item="mainTabName"
@@ -72,24 +72,26 @@
                                 position-identifier="`sw-generic-custom-entity-detail-tab-${card.name}`"
                                 :title="getLabel('cards', card.name)"
                             >
-                                <sw-custom-entity-input-field
-                                    v-for="field in card.fields"
-                                    :key="field.ref"
-                                    v-model="customEntityData[field.ref]"
-                                    class="sw-generic-custom-entity-detail__field"
-                                    :type="getType(field.ref)"
-                                    :label="getLabel('fields', field.ref)"
-                                    :placeholder="getPlaceholder('fields', field.ref)"
-                                    :help-text="getHelpText('fields', field.ref)"
-                                />
+                                <template v-if="!isLoading">
+                                    <sw-custom-entity-input-field
+                                        v-for="field in card.fields"
+                                        :key="field.ref"
+                                        v-model="customEntityData[field.ref]"
+                                        class="sw-generic-custom-entity-detail__field"
+                                        :type="getType(field.ref)"
+                                        :label="getLabel('fields', field.ref)"
+                                        :placeholder="getPlaceholder('fields', field.ref)"
+                                        :help-text="getHelpText('fields', field.ref)"
+                                    />
+                                </template>
                             </sw-card>
                         </div>
                     </template>
 
                     <sw-generic-cms-page-assignment
                         v-if="active === 'cms-aware-tab'"
-                        :cms-page-id="customEntityData.swCmsPageId"
-                        :slot-overrides="customEntityData.swSlotConfig"
+                        :cms-page-id="customEntityData?.swCmsPageId"
+                        :slot-overrides="customEntityData?.swSlotConfig"
                         class="sw-generic-custom-entity-detail__tab sw-generic-custom-entity-detail__tab-cms-aware"
                         @update:cms-page-id="updateCmsPageId"
                         @update:slot-overrides="updateCmsSlotOverwrites"

@@ -23,7 +23,7 @@ class Migration1672743034AddDefaultAdminUserPasswordMinLength extends MigrationS
 
     public function update(Connection $connection): void
     {
-        $configPresent = $connection->fetchOne('SELECT 1 FROM `system_config` WHERE `configuration_key` = ? LIMIT 1', [self::CONFIG_KEY]);
+        $configPresent = $connection->fetchOne('SELECT 1 FROM `system_config` WHERE `configuration_key` = ?', [self::CONFIG_KEY]);
 
         if ($configPresent !== false) {
             return;

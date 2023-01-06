@@ -263,7 +263,7 @@ class EntityRepositoryTest extends TestCase
         $criteria = new Criteria([$id, $id2]);
         $criteria->addAssociation('manufacturer');
 
-        $locale = $repository->search($criteria, $context);
+        $products = $repository->search($criteria, $context);
 
         static::assertEquals([$id, $id2], $criteria->getIds());
         static::assertEmpty($criteria->getSorting());
@@ -282,13 +282,13 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getAssociation('manufacturer')->getLimit());
         static::assertNull($criteria->getAssociation('manufacturer')->getOffset());
 
-        static::assertInstanceOf(EntityCollection::class, $locale);
-        static::assertCount(2, $locale);
+        static::assertInstanceOf(EntityCollection::class, $products);
+        static::assertCount(2, $products);
 
-        static::assertTrue($locale->has($id));
-        $locale = $locale->get($id);
-        static::assertInstanceOf(LocaleEntity::class, $locale);
-        static::assertSame('Test', $locale->getName());
+        static::assertTrue($products->has($id));
+        $product = $products->get($id);
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertSame('Test', $product->getName());
     }
 
     public function testReadAndWriteWithOneToMany(): void

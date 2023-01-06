@@ -20,8 +20,7 @@ use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeVariablesSubscriber;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
-use Shopware\Storefront\Theme\Event\ThemeCopyToLiveEvent;
-use Shopware\Storefront\Theme\Exception\ThemeFileCopyException;
+use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Shopware\Storefront\Theme\ScssPhpCompiler;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
@@ -35,7 +34,6 @@ use Shopware\Storefront\Theme\ThemeFileResolver;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
@@ -419,12 +417,10 @@ PHP_EOL;
         $fs->write('temp/test.png', '');
         $png = $fs->readStream('temp/test.png');
 
-        $prefix = '/temp';
-
         $importer = $this->createMock(ThemeFileImporter::class);
         $importer->method('getCopyBatchInputsForAssets')->with('assets')->willReturn(
             [
-                new CopyBatchInput($png, ['theme' . $prefix . '/9a11a759d278b4a55cb5e2c3414733c1/assets/test.png']),
+                new CopyBatchInput($png, ['theme/9a11a759d278b4a55cb5e2c3414733c1/assets/test.png']),
             ]
         );
 
@@ -466,90 +462,61 @@ PHP_EOL;
         static::assertTrue($fs->fileExists('theme/9a11a759d278b4a55cb5e2c3414733c1/assets/test.png'));
     }
 
-    /**
-     * @dataProvider copyToLiveData
-     */
-    public function testCopyToLive(bool $success, string $failedPath): void
+    public function testExistingFilesAreNotDeletedOnCompileError(): void
     {
-        $testFolder = 'assets';
-
         $resolver = $this->createMock(ThemeFileResolver::class);
         $resolver->method('resolveFiles')->willReturn([ThemeFileResolver::SCRIPT_FILES => new FileCollection(), ThemeFileResolver::STYLE_FILES => new FileCollection()]);
 
-        $importer = $this->createMock(ThemeFileImporter::class);
-        $importer->method('getCopyBatchInputsForAssets')->with($testFolder);
-
         $fs = new Filesystem(new MemoryFilesystemAdapter());
         $tmpFs = new Filesystem(new MemoryFilesystemAdapter());
+
+        $fs->createDirectory('theme/9a11a759d278b4a55cb5e2c3414733c1');
+        $fs->write('theme/9a11a759d278b4a55cb5e2c3414733c1/all.js', '');
+
+        $importer = $this->createMock(ThemeFileImporter::class);
+        $importer->expects(static::never())
+            ->method('getCopyBatchInputsForAssets');
+
+        $scssCompiler = $this->createMock(ScssPhpCompiler::class);
+        $scssCompiler->expects(static::once())->method('compileString')->willThrowException(new \Exception());
 
         $compiler = new ThemeCompiler(
             $fs,
             $tmpFs,
             $resolver,
             true,
-            $this->eventDispatcher,
+            $this->createMock(EventDispatcher::class),
             $importer,
             [],
             $this->createMock(CacheInvalidator::class),
             new MD5ThemePathBuilder(),
             __DIR__,
-            $this->createMock(ScssPhpCompiler::class)
+            $scssCompiler
         );
 
         $config = new StorefrontPluginConfiguration('test');
         $config->setAssetPaths(['assets']);
 
         $pathBuilder = new MD5ThemePathBuilder();
-        $themePrefix = $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test');
+        static::assertEquals('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
+
+        $wasThrown = false;
 
         try {
-            $pathBuilder->getDecorated();
-        } catch (DecorationPatternException $e) {
-            static::assertInstanceOf(DecorationPatternException::class, $e);
-        }
-
-        if ($success === false && $failedPath === 'temp') {
-            $this->expectException(ThemeFileCopyException::class);
-            $this->expectExceptionMessage('Unable to move the files of theme "test". Compilation error. Compiled files not found in anywhere.');
-        } elseif ($success === false && $failedPath === 'backup') {
-            $this->expectException(ThemeFileCopyException::class);
-            $this->expectExceptionMessage(
-                'Unable to move the files of theme "test". Unable to move file from /theme/' . $themePrefix . ' to /theme/backup/' . $themePrefix
+            $compiler->compileTheme(
+                TestDefaults::SALES_CHANNEL,
+                'test',
+                $config,
+                new StorefrontPluginConfigurationCollection(),
+                true,
+                Context::createDefaultContext()
             );
+        } catch (ThemeCompileException $e) {
+            $wasThrown = true;
         }
 
-        $this->eventDispatcher->method('dispatch')->withAnyParameters()->willReturnCallback(
-            function (Event $event) use ($failedPath, $success, $fs, $themePrefix): Event {
-                if ($event instanceof ThemeCopyToLiveEvent) {
-                    $pathPrefix = 'theme' . \DIRECTORY_SEPARATOR;
-
-                    if ($success === true) {
-                        static::assertSame($event->getPath(), $pathPrefix . $themePrefix);
-                        static::assertSame(
-                            $event->getBackupPath(),
-                            $pathPrefix . 'backup' . \DIRECTORY_SEPARATOR . $themePrefix
-                        );
-                        static::assertSame($event->getTmpPath(), $pathPrefix . 'temp' . \DIRECTORY_SEPARATOR . $themePrefix);
-                    } elseif ($failedPath === 'temp') {
-                        $event->setTmpPath('anywhere');
-                    } elseif ($failedPath === 'backup') {
-                        $fs->createDirectory($event->getPath());
-                        $fs->write($event->getBackupPath(), '');
-                    }
-                }
-
-                return $event;
-            }
-        );
-
-        $compiler->compileTheme(
-            TestDefaults::SALES_CHANNEL,
-            'test',
-            $config,
-            new StorefrontPluginConfigurationCollection(),
-            true,
-            Context::createDefaultContext()
-        );
+        static::assertTrue($wasThrown);
+        static::assertTrue($fs->fileExists('theme/9a11a759d278b4a55cb5e2c3414733c1/all.js'));
     }
 
     /**
@@ -588,26 +555,5 @@ PHP_EOL;
         );
 
         static::assertEquals($backupEvent, $event);
-    }
-
-    /**
-     * @return array<int,array<int, bool|string>>
-     */
-    public function copyToLiveData(): array
-    {
-        return [
-            [
-                true,
-                '',
-            ],
-            [
-                false,
-                'temp',
-            ],
-            [
-                false,
-                'backup',
-            ],
-        ];
     }
 }

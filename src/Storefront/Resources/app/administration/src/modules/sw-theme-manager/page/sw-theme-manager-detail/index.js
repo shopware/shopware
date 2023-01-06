@@ -348,7 +348,7 @@ Component.register('sw-theme-manager-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return Promise.all([this.saveSalesChannels(), this.saveThemeConfig(clean)]).then(() => {
+            return Promise.all([this.saveSalesChannels(), this.saveThemeConfig(clean)]).finally(() => {
                 this.getTheme();
             }).catch((error) => {
                 this.isLoading = false;

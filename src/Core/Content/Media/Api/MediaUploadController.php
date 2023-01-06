@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Api;
 
+use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\File\FileNameProvider;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('content')]
@@ -28,7 +30,8 @@ class MediaUploadController extends AbstractController
         private readonly MediaService $mediaService,
         private readonly FileSaver $fileSaver,
         private readonly FileNameProvider $fileNameProvider,
-        private readonly MediaDefinition $mediaDefinition
+        private readonly MediaDefinition $mediaDefinition,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
@@ -47,6 +50,8 @@ class MediaUploadController extends AbstractController
                 $mediaId,
                 $context
             );
+
+            $this->eventDispatcher->dispatch(new MediaUploadedEvent($mediaId, $context));
         } finally {
             unlink($tempFile);
         }

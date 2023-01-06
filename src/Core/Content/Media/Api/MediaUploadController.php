@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Api;
 
+use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\File\FileNameProvider;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package content
@@ -23,25 +25,15 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class MediaUploadController extends AbstractController
 {
-    /**
-     * @var MediaService
-     */
-    private $mediaService;
+    private MediaService $mediaService;
 
-    /**
-     * @var FileSaver
-     */
-    private $fileSaver;
+    private FileSaver $fileSaver;
 
-    /**
-     * @var FileNameProvider
-     */
-    private $fileNameProvider;
+    private FileNameProvider $fileNameProvider;
 
-    /**
-     * @var MediaDefinition
-     */
-    private $mediaDefinition;
+    private MediaDefinition $mediaDefinition;
+
+    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @internal
@@ -50,12 +42,14 @@ class MediaUploadController extends AbstractController
         MediaService $mediaService,
         FileSaver $fileSaver,
         FileNameProvider $fileNameProvider,
-        MediaDefinition $mediaDefinition
+        MediaDefinition $mediaDefinition,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->mediaService = $mediaService;
         $this->fileSaver = $fileSaver;
         $this->fileNameProvider = $fileNameProvider;
         $this->mediaDefinition = $mediaDefinition;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -76,6 +70,8 @@ class MediaUploadController extends AbstractController
                 $mediaId,
                 $context
             );
+
+            $this->eventDispatcher->dispatch(new MediaUploadedEvent($mediaId, $context));
         } finally {
             unlink($tempFile);
         }

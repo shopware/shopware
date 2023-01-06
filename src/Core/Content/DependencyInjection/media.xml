@@ -179,6 +179,8 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaDefinition"/>
+            <argument type="service" id="event_dispatcher"/>
+
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

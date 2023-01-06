@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Media\Api;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -90,6 +92,11 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadFromBinaryUsesFileName(): void
     {
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects(static::once())->method('__invoke');
+        $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
+
         $url = sprintf(
             '/api/_action/media/%s/upload',
             $this->mediaId
@@ -118,6 +125,11 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadFromURL(): void
     {
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects(static::once())->method('__invoke');
+        $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
+
         $baseUrl = EnvironmentHelper::getVariable('APP_URL') . '/media/shopware-logo.png';
 
         $url = sprintf(
@@ -154,6 +166,11 @@ class MediaUploadControllerTest extends TestCase
 
     public function testRenameMediaFileThrowsExceptionIfFileNameIsNotPresent(): void
     {
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects(static::never())->method('__invoke');
+        $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
+
         $context = Context::createDefaultContext();
         $this->setFixtureContext($context);
         $media = $this->getPng();

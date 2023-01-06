@@ -10208,11 +10208,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Filesystem/FilesystemFactory.php
 
 		-
-			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\FilesystemInterface\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/Plugin/CopyBatch.php
-
-		-
 			message: "#^Parameter \\#1 \\$str of function ltrim expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Filesystem/PrefixFilesystem.php

@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Cart\Address\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
 
+/**
+ * @package checkout
+ */
 abstract class SalutationMissingError extends Error
 {
     protected const KEY = 'salutation-missing';

@@ -7,6 +7,8 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 /**
+ * @package customer-order
+ *
  * @Annotation
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */

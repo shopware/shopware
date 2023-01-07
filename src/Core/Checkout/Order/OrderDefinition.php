@@ -47,6 +47,9 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @package customer-order
+ */
 class OrderDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'order';
@@ -105,7 +108,7 @@ class OrderDefinition extends EntityDefinition
 
             (new StateMachineStateField('state_id', 'stateId', OrderStates::STATE_MACHINE))->addFlags(new Required()),
             (new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id', true))->addFlags(new ApiAware()),
-            (new ListField('rule_ids', 'ruleIds', StringField::class))->setStrict(true),
+            new ListField('rule_ids', 'ruleIds', StringField::class),
             (new CustomFields())->addFlags(new ApiAware()),
             (new CreatedByField())->addFlags(new ApiAware()),
             (new UpdatedByField())->addFlags(new ApiAware()),

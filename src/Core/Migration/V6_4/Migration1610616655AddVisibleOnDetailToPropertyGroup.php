@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1610616655AddVisibleOnDetailToPropertyGroup extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +19,7 @@ class Migration1610616655AddVisibleOnDetailToPropertyGroup extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `property_group`
             ADD COLUMN `visible_on_product_detail_page` TINYINT(1) DEFAULT 1
         ');

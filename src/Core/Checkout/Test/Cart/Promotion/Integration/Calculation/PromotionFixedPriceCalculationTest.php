@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,6 +18,8 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class PromotionFixedPriceCalculationTest extends TestCase
@@ -26,11 +28,11 @@ class PromotionFixedPriceCalculationTest extends TestCase
     use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
 
-    protected EntityRepositoryInterface $productRepository;
+    protected EntityRepository $productRepository;
 
     protected CartService $cartService;
 
-    protected EntityRepositoryInterface $promotionRepository;
+    protected EntityRepository $promotionRepository;
 
     protected function setUp(): void
     {

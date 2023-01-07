@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @package business-ops
+ */
 class LineItemInCategoryRule extends Rule
 {
     /**
@@ -47,7 +50,7 @@ class LineItemInCategoryRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchesOneOfCategory($lineItem)) {
                 return true;
             }
@@ -73,7 +76,7 @@ class LineItemInCategoryRule extends Rule
 
     /**
      * @throws UnsupportedOperatorException
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     private function matchesOneOfCategory(LineItem $lineItem): bool
     {

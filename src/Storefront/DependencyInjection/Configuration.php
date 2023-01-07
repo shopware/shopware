@@ -8,6 +8,9 @@ use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
+/**
+ * @package storefront
+ */
 class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder(): TreeBuilder
@@ -18,31 +21,10 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->arrayNode('csrf')
-                    ->children()
-                        ->booleanNode('enabled')
-                            ->defaultTrue()
-                        ->end()
-                        ->enumNode('mode')
-                            ->values(['twig', 'ajax'])
-                            ->defaultValue('twig')
-                        ->end()
-                    ->end()
-                ->end()
-                ->arrayNode('htmlPurifier')
-                    ->setDeprecated('shopware/storefront', '6.4.3.0', 'Use html_sanitizer configuration from shopware/core bundle instead')
-                    ->children()
-                        ->variableNode('cacheDir')
-                            ->setDeprecated('shopware/storefront', '6.4.3.0', 'Use html_sanitizer configuration from shopware/core bundle instead')
-                        ->end()
-                        ->booleanNode('cacheEnabled')
-                            ->setDeprecated('shopware/storefront', '6.4.3.0', 'Use html_sanitizer configuration from shopware/core bundle instead')
-                        ->end()
-                    ->end()
-                ->end()
                 ->arrayNode('reverse_proxy')
                     ->children()
                         ->booleanNode('enabled')->end()
+                        ->booleanNode('use_varnish_xkey')->defaultFalse()->end()
                         ->arrayNode('hosts')->performNoDeepMerging()->scalarPrototype()->end()->end()
                         ->integerNode('max_parallel_invalidations')->defaultValue(2)->end()
                         ->scalarNode('redis_url')->end()

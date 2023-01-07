@@ -12,6 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 
 /**
  * @internal
+ *
+ * @package core
  */
 class ManyToManyAssociationFieldResolver extends AbstractFieldResolver
 {

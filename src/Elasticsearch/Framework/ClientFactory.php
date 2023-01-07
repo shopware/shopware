@@ -2,12 +2,18 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-use Elasticsearch\Client;
-use Elasticsearch\ClientBuilder;
+use OpenSearch\Client;
+use OpenSearch\ClientBuilder;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @package core
+ */
 class ClientFactory
 {
+    /**
+     * @param array{verify_server_cert: bool, cert_path?: string, cert_key_path?: string} $sslConfig
+     */
     public static function createClient(string $hosts, LoggerInterface $logger, bool $debug, array $sslConfig): Client
     {
         $hosts = array_filter(explode(',', $hosts));

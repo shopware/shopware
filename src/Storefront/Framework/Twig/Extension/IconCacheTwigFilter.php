@@ -6,6 +6,9 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
+/**
+ * @package storefront
+ */
 class IconCacheTwigFilter extends AbstractExtension
 {
     protected static bool $enabled = false;

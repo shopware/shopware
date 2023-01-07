@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Theme\Command\ThemeCreateCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -80,27 +81,9 @@ class ThemeCreateCommandTest extends TestCase
             return false;
         }
 
-        $this->deleteDirectory($directory);
+        (new Filesystem())->remove($directory);
 
         return true;
-    }
-
-    private function deleteDirectory(string $path): void
-    {
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
-        );
-
-        foreach ($files as $fileInfo) {
-            if ($fileInfo->isDir()) {
-                rmdir($fileInfo->getRealPath());
-            } else {
-                unlink($fileInfo->getRealPath());
-            }
-        }
-
-        rmdir($path);
     }
 
     private function getCommandTester(): CommandTester

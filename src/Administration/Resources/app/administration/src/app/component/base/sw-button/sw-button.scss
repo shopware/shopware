@@ -10,11 +10,10 @@ $sw-button-transition: all 0.15s ease-out;
     display: inline-block;
     border-radius: $border-radius-default;
     padding: 2px 24px;
-    font-size: 14px;
+    font-size: $font-size-xs;
     line-height: 34px;
     outline: none;
-    font-weight: 600;
-    font-family: $font-family-default;
+    font-weight: $font-weight-semi-bold;
     white-space: nowrap;
     text-overflow: ellipsis;
     vertical-align: middle;
@@ -71,11 +70,11 @@ $sw-button-transition: all 0.15s ease-out;
         }
 
         &.sw-button--x-small {
-            line-height: 20px;
+            line-height: $line-height-sm;
         }
 
         &.sw-button--small {
-            line-height: 28px;
+            line-height: $line-height-lg;
         }
 
         &.sw-button--large {
@@ -111,11 +110,11 @@ $sw-button-transition: all 0.15s ease-out;
         }
 
         &.sw-button--x-small {
-            line-height: 20px;
+            line-height: $line-height-sm;
         }
 
         &.sw-button--small {
-            line-height: 28px;
+            line-height: $line-height-lg;
         }
 
         &.sw-button--large {
@@ -152,11 +151,11 @@ $sw-button-transition: all 0.15s ease-out;
         }
 
         &.sw-button--x-small {
-            line-height: 20px;
+            line-height: $line-height-sm;
         }
 
         &.sw-button--small {
-            line-height: 28px;
+            line-height: $line-height-lg;
         }
 
         &.sw-button--large {
@@ -257,8 +256,8 @@ $sw-button-transition: all 0.15s ease-out;
     &.sw-button--x-small {
         padding-left: 10px;
         padding-right: 10px;
-        font-size: 12px;
-        line-height: 18px;
+        font-size: $font-size-xxs;
+        line-height: $line-height-xs;
 
         &.sw-button--square {
             width: 24px;
@@ -268,7 +267,7 @@ $sw-button-transition: all 0.15s ease-out;
     &.sw-button--small {
         padding-left: 15px;
         padding-right: 15px;
-        font-size: 12px;
+        font-size: $font-size-xxs;
         line-height: 26px;
 
         &.sw-button--square {
@@ -280,7 +279,7 @@ $sw-button-transition: all 0.15s ease-out;
         padding-left: 28px;
         padding-right: 28px;
         line-height: 42px;
-        font-size: 15px;
+        font-size: $font-size-xs;
 
         &.sw-button--square {
             width: 48px;

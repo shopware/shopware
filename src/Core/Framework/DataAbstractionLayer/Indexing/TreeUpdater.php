@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Statement;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -17,17 +17,14 @@ use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ */
 class TreeUpdater
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
+    private DefinitionInstanceRegistry $registry;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     private ?Statement $updateEntityStatement = null;
 
@@ -112,7 +109,7 @@ class TreeUpdater
         $query->setParameter('id', $parent['id']);
         $this->makeQueryVersionAware($definition, Uuid::fromHexToBytes($context->getVersionId()), $query);
 
-        return $query->execute()->fetchAll();
+        return $query->executeQuery()->fetchAllAssociative();
     }
 
     private function updateTree(array $entity, EntityDefinition $definition, Context $context): string
@@ -148,7 +145,7 @@ class TreeUpdater
         $this->makeQueryVersionAware($definition, Uuid::fromHexToBytes($context->getVersionId()), $query);
 
         RetryableQuery::retryable($this->connection, function () use ($query): void {
-            $query->execute();
+            $query->executeStatement();
         });
 
         return Uuid::fromBytesToHex($entity['id']);
@@ -176,7 +173,7 @@ class TreeUpdater
         $query = $this->getEntityByIdQuery($parentId, $definition);
         $this->makeQueryVersionAware($definition, $versionId, $query);
 
-        $result = $query->execute()->fetch();
+        $result = $query->executeQuery()->fetchAssociative();
 
         if ($result === false) {
             return [];
@@ -281,7 +278,7 @@ class TreeUpdater
         $this->makeQueryVersionAware($definition, Uuid::fromHexToBytes($context->getVersionId()), $query);
 
         $fetchedIds = [];
-        foreach ($query->execute()->fetchAll() as $entity) {
+        foreach ($query->executeQuery()->fetchAllAssociative() as $entity) {
             $bag->addEntity($entity['id'], $entity);
             $fetchedIds[$entity['id']] = $entity['id'];
         }

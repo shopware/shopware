@@ -11,15 +11,14 @@ use Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Event\CustomerAware;
-use Shopware\Core\Framework\Event\OrderAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package business-ops
+ *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Api\FlowActionCollector
@@ -28,13 +27,13 @@ class FlowActionCollectorTest extends TestCase
 {
     public function testCollect(): void
     {
-        $addCustomerTag = new AddCustomerTagAction($this->createMock(EntityRepositoryInterface::class));
-        $removeOrderTag = new RemoveOrderTagAction($this->createMock(EntityRepositoryInterface::class));
+        $addCustomerTag = new AddCustomerTagAction($this->createMock(EntityRepository::class));
+        $removeOrderTag = new RemoveOrderTagAction($this->createMock(EntityRepository::class));
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher->expects(static::once())->method('dispatch');
 
-        $appFlowActionRepo = $this->createMock(EntityRepositoryInterface::class);
+        $appFlowActionRepo = $this->createMock(EntityRepository::class);
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
         $entitySearchResult->expects(static::once())
             ->method('getEntities')
@@ -63,15 +62,9 @@ class FlowActionCollectorTest extends TestCase
         static::assertIsArray($result->getElements());
 
         $customerRequirements = [];
-        if (!Feature::isActive('v6.5.0.0')) {
-            $customerRequirements[] = CustomerAware::class;
-        }
         $customerRequirements[] = 'customerAware';
 
         $orderRequirements = [];
-        if (!Feature::isActive('v6.5.0.0')) {
-            $orderRequirements[] = OrderAware::class;
-        }
         $orderRequirements[] = 'orderAware';
 
         static::assertEquals(

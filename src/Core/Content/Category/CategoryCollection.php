@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort;
 
 /**
+ * @package content
  * @extends EntityCollection<CategoryEntity>
  */
 class CategoryCollection extends EntityCollection

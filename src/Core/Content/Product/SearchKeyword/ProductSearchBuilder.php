@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package system-settings
+ */
 class ProductSearchBuilder implements ProductSearchBuilderInterface
 {
     private ProductSearchTermInterpreterInterface $interpreter;

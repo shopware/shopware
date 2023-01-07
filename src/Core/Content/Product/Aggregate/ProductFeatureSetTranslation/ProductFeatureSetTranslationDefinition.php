@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package inventory
+ */
 class ProductFeatureSetTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = ProductFeatureSetDefinition::ENTITY_NAME . '_translation';

@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceAscSorte
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceDescSorter;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class LineItemGroupServiceRegistryTest extends TestCase

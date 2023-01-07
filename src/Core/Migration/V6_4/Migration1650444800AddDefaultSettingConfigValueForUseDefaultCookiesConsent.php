@@ -7,6 +7,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1650444800AddDefaultSettingConfigValueForUseDefaultCookiesConsent extends MigrationStep
 {
     private const CONFIG_KEY = 'core.basicInformation.useDefaultCookieConsent';
@@ -18,7 +23,7 @@ class Migration1650444800AddDefaultSettingConfigValueForUseDefaultCookiesConsent
 
     public function update(Connection $connection): void
     {
-        $configPresent = $connection->fetchColumn('SELECT 1 FROM `system_config` WHERE `configuration_key` = ?', [self::CONFIG_KEY]);
+        $configPresent = $connection->fetchOne('SELECT 1 FROM `system_config` WHERE `configuration_key` = ?', [self::CONFIG_KEY]);
 
         if ($configPresent !== false) {
             return;

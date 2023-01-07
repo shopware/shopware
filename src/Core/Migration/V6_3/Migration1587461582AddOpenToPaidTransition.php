@@ -8,6 +8,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1587461582AddOpenToPaidTransition extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -27,7 +32,7 @@ class Migration1587461582AddOpenToPaidTransition extends MigrationStep
 
     private function addOrderTransactionStates(Connection $connection): void
     {
-        $stateMachineId = (string) $connection->fetchColumn(
+        $stateMachineId = (string) $connection->fetchOne(
             'SELECT `id` FROM `state_machine` WHERE `technical_name` = :technical_name LIMIT 1',
             ['technical_name' => OrderTransactionStates::STATE_MACHINE]
         );
@@ -46,7 +51,7 @@ class Migration1587461582AddOpenToPaidTransition extends MigrationStep
 
     private function fetchStateId(string $technicalName, string $stateMachineId, Connection $connection): ?string
     {
-        $stateId = $connection->fetchColumn(
+        $stateId = $connection->fetchOne(
             'SELECT `id` FROM `state_machine_state` WHERE
             `technical_name` = :technical_name AND
             `state_machine_id` = :state_machine_id

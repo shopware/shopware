@@ -4,28 +4,34 @@ namespace Shopware\Storefront\Theme\Command;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeFileResolver;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @package storefront
+ */
+#[AsCommand(
+    name: 'theme:dump',
+    description: 'Dump the theme configuration',
+)]
 class ThemeDumpCommand extends Command
 {
-    protected static $defaultName = 'theme:dump';
-
     private StorefrontPluginRegistryInterface$pluginRegistry;
 
     private ThemeFileResolver $themeFileResolver;
 
-    private EntityRepositoryInterface $themeRepository;
+    private EntityRepository $themeRepository;
 
     private string $projectDir;
 
@@ -41,7 +47,7 @@ class ThemeDumpCommand extends Command
     public function __construct(
         StorefrontPluginRegistryInterface $pluginRegistry,
         ThemeFileResolver $themeFileResolver,
-        EntityRepositoryInterface $themeRepository,
+        EntityRepository $themeRepository,
         string $projectDir,
         StaticFileConfigDumper $staticFileConfigDumper
     ) {

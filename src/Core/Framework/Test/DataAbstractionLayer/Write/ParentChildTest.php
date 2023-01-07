@@ -18,15 +18,9 @@ class ParentChildTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $categoryRepository;
+    private EntityRepository $categoryRepository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -83,7 +77,7 @@ class ParentChildTest extends TestCase
 
         $this->categoryRepository->upsert([$category], $context);
 
-        $children = $this->connection->fetchAll(
+        $children = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE parent_id = :id',
             ['id' => Uuid::fromHexToBytes($parent)]
         );
@@ -125,7 +119,7 @@ class ParentChildTest extends TestCase
         $this->categoryRepository->upsert([$category], $context);
 
         static::assertNull(
-            $this->connection->fetchColumn(
+            $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($parent)]
             )
@@ -133,7 +127,7 @@ class ParentChildTest extends TestCase
 
         static::assertEquals(
             Uuid::fromHexToBytes($parent),
-            $this->connection->fetchColumn(
+            $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($child1)]
             )
@@ -141,7 +135,7 @@ class ParentChildTest extends TestCase
 
         static::assertEquals(
             Uuid::fromHexToBytes($child1),
-            $this->connection->fetchColumn(
+            $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($child2)]
             )
@@ -149,7 +143,7 @@ class ParentChildTest extends TestCase
 
         static::assertEquals(
             Uuid::fromHexToBytes($child2),
-            $this->connection->fetchColumn(
+            $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($child3)]
             )
@@ -175,14 +169,14 @@ class ParentChildTest extends TestCase
         $this->categoryRepository->upsert([$category], $context);
 
         static::assertNull(
-            $this->connection->fetchColumn(
+            $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($parent)]
             )
         );
         static::assertEquals(
             Uuid::fromHexToBytes($parent),
-            $this->connection->fetchColumn(
+            $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($child)]
             )
@@ -213,21 +207,21 @@ class ParentChildTest extends TestCase
         $this->categoryRepository->upsert([$category], $context);
 
         static::assertNull(
-            $this->connection->fetchColumn(
+            $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($parent)]
             )
         );
         static::assertEquals(
             Uuid::fromHexToBytes($parent),
-            $this->connection->fetchColumn(
+            $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($child1)]
             )
         );
         static::assertEquals(
             Uuid::fromHexToBytes($child1),
-            $this->connection->fetchColumn(
+            $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($child2)]
             )

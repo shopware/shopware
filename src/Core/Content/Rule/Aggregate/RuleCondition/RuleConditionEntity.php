@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
+/**
+ * @package business-ops
+ */
 class RuleConditionEntity extends Entity
 {
     use EntityIdTrait;

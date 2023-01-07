@@ -36,6 +36,9 @@ class IncrementArrayStorage extends AbstractIncrementStorage
         return ($this->states[$config['id']] ?? 0) + 1;
     }
 
+    /**
+     * @return array<string, int>
+     */
     public function list(): array
     {
         return $this->states;

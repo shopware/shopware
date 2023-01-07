@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Command;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver;
 use Shopware\Core\Framework\Context;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,11 +13,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ *
+ * @package core
  */
+#[AsCommand(
+    name: 'app:url-change:resolve',
+    description: 'Resolves app url changes',
+)]
 class ResolveAppUrlChangeCommand extends Command
 {
-    protected static $defaultName = 'app:url-change:resolve';
-
     /**
      * @var Resolver
      */

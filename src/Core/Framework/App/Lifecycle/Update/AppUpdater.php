@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Update;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
@@ -15,12 +15,14 @@ use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class AppUpdater extends AbstractAppUpdater
 {
     private AbstractExtensionDataProvider $extensionDataProvider;
 
-    private EntityRepositoryInterface $appRepo;
+    private EntityRepository $appRepo;
 
     private ExtensionDownloader $downloader;
 
@@ -28,7 +30,7 @@ class AppUpdater extends AbstractAppUpdater
 
     public function __construct(
         AbstractExtensionDataProvider $extensionDataProvider,
-        EntityRepositoryInterface $appRepo,
+        EntityRepository $appRepo,
         ExtensionDownloader $downloader,
         AbstractStoreAppLifecycleService $appLifecycle
     ) {

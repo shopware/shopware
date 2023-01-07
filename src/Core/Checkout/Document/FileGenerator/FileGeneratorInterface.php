@@ -2,13 +2,16 @@
 
 namespace Shopware\Core\Checkout\Document\FileGenerator;
 
-use Shopware\Core\Checkout\Document\GeneratedDocument;
+use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 
+/**
+ * @package customer-order
+ */
 interface FileGeneratorInterface
 {
     public function supports(): string;
 
-    public function generate(GeneratedDocument $html): string;
+    public function generate(RenderedDocument $html): string;
 
     public function getExtension(): string;
 

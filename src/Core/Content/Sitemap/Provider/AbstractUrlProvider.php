@@ -7,7 +7,10 @@ use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-abstract class AbstractUrlProvider implements UrlProviderInterface
+/**
+ * @package sales-channel
+ */
+abstract class AbstractUrlProvider
 {
     /**
      * This function should return the decorated core service.
@@ -19,6 +22,11 @@ abstract class AbstractUrlProvider implements UrlProviderInterface
 
     abstract public function getUrls(SalesChannelContext $context, int $limit, ?int $offset = null): UrlResult;
 
+    /**
+     * @param list<string> $ids
+     *
+     * @return list<array{foreign_key: string, seo_path_info: string}>
+     */
     protected function getSeoUrls(array $ids, string $routeName, SalesChannelContext $context, Connection $connection): array
     {
         $sql = 'SELECT LOWER(HEX(foreign_key)) as foreign_key, seo_path_info
@@ -29,7 +37,8 @@ abstract class AbstractUrlProvider implements UrlProviderInterface
                      AND `seo_url`.`language_id` =:languageId
                      AND (`seo_url`.`sales_channel_id` =:salesChannelId OR seo_url.sales_channel_id IS NULL)';
 
-        return $connection->fetchAll(
+        /** @var list<array{foreign_key: string, seo_path_info: string}> $result */
+        $result = $connection->fetchAllAssociative(
             $sql,
             [
                 'routeName' => $routeName,
@@ -41,5 +50,7 @@ abstract class AbstractUrlProvider implements UrlProviderInterface
                 'ids' => Connection::PARAM_STR_ARRAY,
             ]
         );
+
+        return $result;
     }
 }

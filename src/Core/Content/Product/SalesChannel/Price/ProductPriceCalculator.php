@@ -12,7 +12,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedC
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -21,9 +21,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Unit\UnitCollection;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @package inventory
+ */
 class ProductPriceCalculator extends AbstractProductPriceCalculator implements ResetInterface
 {
-    private EntityRepositoryInterface $unitRepository;
+    private EntityRepository $unitRepository;
 
     private QuantityPriceCalculator $calculator;
 
@@ -32,7 +35,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator implements R
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $unitRepository, QuantityPriceCalculator $calculator)
+    public function __construct(EntityRepository $unitRepository, QuantityPriceCalculator $calculator)
     {
         $this->unitRepository = $unitRepository;
         $this->calculator = $calculator;

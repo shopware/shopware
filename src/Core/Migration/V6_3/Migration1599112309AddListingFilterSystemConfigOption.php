@@ -7,6 +7,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1599112309AddListingFilterSystemConfigOption extends MigrationStep
 {
     public function getCreationTimestamp(): int

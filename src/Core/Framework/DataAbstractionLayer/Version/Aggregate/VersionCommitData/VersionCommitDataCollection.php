@@ -7,6 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
 /**
  * @extends EntityCollection<VersionCommitDataEntity>
+ *
+ * @package core
  */
 class VersionCommitDataCollection extends EntityCollection
 {

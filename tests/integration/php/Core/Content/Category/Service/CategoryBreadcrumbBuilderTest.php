@@ -13,7 +13,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -27,6 +27,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
+ *
+ * @package content
  */
 class CategoryBreadcrumbBuilderTest extends TestCase
 {
@@ -34,7 +36,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     use SalesChannelApiTestBehaviour;
     use AdminApiTestBehaviour;
 
-    private EntityRepositoryInterface $categoryRepository;
+    private EntityRepository $categoryRepository;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -44,7 +46,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
     private CategoryBreadcrumbBuilder $breadcrumbBuilder;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
     private KernelBrowser $browser;
 
@@ -74,7 +76,6 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
     /**
      * @return iterable<array<string|boolean>>
-     * @dataProvider
      */
     public function breadcrumbDataProvider(): iterable
     {
@@ -93,7 +94,6 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
     /**
      * @return iterable<array<boolean>>
-     * @dataProvider
      */
     public function seoCategoryProvider(): iterable
     {

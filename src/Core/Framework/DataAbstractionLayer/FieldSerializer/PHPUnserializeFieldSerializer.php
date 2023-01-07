@@ -9,7 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ *
+ * @package core
  */
 class PHPUnserializeFieldSerializer extends AbstractFieldSerializer
 {
@@ -25,7 +27,7 @@ class PHPUnserializeFieldSerializer extends AbstractFieldSerializer
         throw new \RuntimeException('Serialized fields can only be written by an indexer');
     }
 
-    public function decode(Field $field, $value)
+    public function decode(Field $field, mixed $value): mixed
     {
         if ($value === null) {
             return null;

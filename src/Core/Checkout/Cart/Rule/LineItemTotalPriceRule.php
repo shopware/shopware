@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -11,6 +10,9 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @package business-ops
+ */
 class LineItemTotalPriceRule extends Rule
 {
     protected ?float $amount;
@@ -41,7 +43,7 @@ class LineItemTotalPriceRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->lineItemMatches($lineItem)) {
                 return true;
             }
@@ -75,10 +77,6 @@ class LineItemTotalPriceRule extends Rule
         $price = $lineItem->getPrice();
 
         if ($price === null || !$this->amount) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return false;
-            }
-
             return RuleComparison::isNegativeOperator($this->operator);
         }
 

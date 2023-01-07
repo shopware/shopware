@@ -6,6 +6,11 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -27,7 +32,7 @@ class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
 
     private function migrateCartLineItemPurchasePriceRuleCondition(Connection $connection): void
     {
-        $rows = $connection->fetchAll('SELECT id, value FROM rule_condition WHERE type = "cartLineItemPurchasePrice"');
+        $rows = $connection->fetchAllAssociative('SELECT id, value FROM rule_condition WHERE type = "cartLineItemPurchasePrice"');
         foreach ($rows as $row) {
             $conditionValue = json_decode($row['value']);
             if (property_exists($conditionValue, 'isNet')) {
@@ -35,7 +40,7 @@ class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
             }
 
             $conditionValue->isNet = false;
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'UPDATE rule_condition SET value = :conditionValue WHERE id = :id',
                 [
                     'conditionValue' => json_encode($conditionValue),
@@ -48,11 +53,11 @@ class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
     private function migrateProductPurchasePriceField(Connection $connection): void
     {
         // Add new 'purchase_prices' JSON field
-        $connection->executeUpdate('ALTER TABLE `product` ADD `purchase_prices` JSON NULL AFTER `purchase_price`;');
+        $connection->executeStatement('ALTER TABLE `product` ADD `purchase_prices` JSON NULL AFTER `purchase_price`;');
 
         // Convert any existing purchase price values into the new 'purchase_prices' JSON field
         $defaultCurrencyId = Defaults::CURRENCY;
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'UPDATE `product`
             LEFT JOIN tax ON product.tax = tax.id
             SET purchase_prices = IF(

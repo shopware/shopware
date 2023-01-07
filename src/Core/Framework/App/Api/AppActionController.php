@@ -7,8 +7,6 @@ use Shopware\Core\Framework\App\ActionButton\AppActionLoader;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\Manifest\ModuleLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Routing\Annotation\Acl;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,6 +18,8 @@ use Symfony\Component\Routing\Annotation\Route;
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  *
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @package core
  */
 class AppActionController extends AbstractController
 {

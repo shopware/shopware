@@ -1,7 +1,6 @@
 ---
 title: Optional salutation
 issue: NEXT-7739
-flag: FEATURE_NEXT_7739
 ---
 # Core
 * Added new Error classes:

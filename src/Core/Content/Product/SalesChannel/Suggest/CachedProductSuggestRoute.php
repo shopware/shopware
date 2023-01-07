@@ -7,10 +7,10 @@ use Shopware\Core\Content\Product\Events\ProductSuggestRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
@@ -21,6 +21,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package system-settings
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class CachedProductSuggestRoute extends AbstractProductSuggestRoute
@@ -38,6 +39,9 @@ class CachedProductSuggestRoute extends AbstractProductSuggestRoute
      */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @var array<string>
+     */
     private array $states;
 
     private EventDispatcherInterface $dispatcher;
@@ -46,6 +50,7 @@ class CachedProductSuggestRoute extends AbstractProductSuggestRoute
      * @internal
      *
      * @param AbstractCacheTracer<ProductSuggestRouteResponse> $tracer
+     * @param array<string> $states
      */
     public function __construct(
         AbstractProductSuggestRoute $decorated,
@@ -81,6 +86,10 @@ class CachedProductSuggestRoute extends AbstractProductSuggestRoute
 
         $key = $this->generateKey($request, $context, $criteria);
 
+        if ($key === null) {
+            return $this->getDecorated()->load($request, $context, $criteria);
+        }
+
         $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $criteria) {
             $response = $this->tracer->trace(self::NAME, function () use ($request, $context, $criteria) {
                 return $this->getDecorated()->load($request, $context, $criteria);
@@ -94,20 +103,27 @@ class CachedProductSuggestRoute extends AbstractProductSuggestRoute
         return CacheValueCompressor::uncompress($value);
     }
 
-    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): string
+    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): ?string
     {
         $parts = [
             $this->generator->getCriteriaHash($criteria),
-            $this->generator->getSalesChannelContextHash($context),
+            $this->generator->getSalesChannelContextHash($context, [RuleAreas::PRODUCT_AREA]),
             $request->get('search'),
         ];
 
         $event = new ProductSuggestRouteCacheKeyEvent($parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
+        if (!$event->shouldCache()) {
+            return null;
+        }
+
         return self::NAME . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function generateTags(Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $tags = array_merge(

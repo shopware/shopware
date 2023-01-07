@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1536233260StateMachineHistory extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -39,7 +44,7 @@ CREATE TABLE `state_machine_history` (
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
     }
 
     public function updateDestructive(Connection $connection): void

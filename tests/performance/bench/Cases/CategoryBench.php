@@ -2,7 +2,9 @@
 
 namespace Shopware\Tests\Bench\Cases;
 
+use PhpBench\Attributes\AfterMethods;
 use PhpBench\Attributes as Bench;
+use PhpBench\Attributes\BeforeMethods;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Tests\Bench\BenchCase;
@@ -13,6 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CategoryBench extends BenchCase
 {
+    #[BeforeMethods(['setup'])]
+    #[AfterMethods(['tearDown'])]
     #[Bench\Assert('mode(variant.time.avg) < 10ms')]
     public function bench_load_navigation(): void
     {

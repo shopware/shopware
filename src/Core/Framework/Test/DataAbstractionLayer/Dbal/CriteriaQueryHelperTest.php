@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
@@ -26,7 +26,7 @@ class CriteriaQueryHelperTest extends TestCase
     public function testInvalidSortingDirection(): void
     {
         $context = Context::createDefaultContext();
-        /** @var EntityRepositoryInterface $taxRepository */
+        /** @var EntityRepository $taxRepository */
         $taxRepository = $this->getContainer()->get('tax.repository');
 
         $criteria = new Criteria();

@@ -18,6 +18,8 @@
             <tag name="kernel.reset" method="reset"/>
         </service>
 
+        <service id="Shopware\Storefront\Theme\ScssPhpCompiler" />
+
         <service id="Shopware\Storefront\Theme\ThemeCompiler">
             <argument type="service" id="shopware.filesystem.theme"/>
             <argument type="service" id="shopware.filesystem.temp"/>
@@ -29,8 +31,7 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
             <argument>%kernel.project_dir%</argument>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileImporter">
@@ -78,6 +79,7 @@
 
         <service id="Shopware\Storefront\Theme\CachedResolvedConfigLoaderInvalidator">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -190,7 +192,7 @@
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="theme.repository"/>
             <argument type="service" id="theme_sales_channel.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator"/>
+            <argument type="service" id="media_thumbnail.repository"/>
 
             <tag name="console.command"/>
         </service>

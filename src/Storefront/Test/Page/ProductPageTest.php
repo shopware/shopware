@@ -8,21 +8,16 @@ use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\Product\ProductPage;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
-use Shopware\Storefront\Page\Product\Review\RatingMatrix;
-use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -135,53 +130,6 @@ class ProductPageTest extends TestCase
 
         $this->expectException(ProductNotFoundException::class);
         $this->getPageLoader()->load($request, $context);
-    }
-
-    public function testItLoadsReviews(): void
-    {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-
-        $context = $this->createSalesChannelContextWithNavigation();
-        $product = $this->getRandomProduct($context);
-
-        $this->createReviews($product, $context);
-
-        $request = new Request([], [], ['productId' => $product->getId()]);
-
-        $page = $this->getPageLoader()->load($request, $context);
-
-        static::assertInstanceOf(ReviewLoaderResult::class, $page->getReviews());
-        static::assertCount(6, $page->getReviews());
-        static::assertInstanceOf(RatingMatrix::class, $page->getReviews()->getMatrix());
-
-        $matrix = $page->getReviews()->getMatrix();
-        static::assertTrue(FloatComparator::equals(3.3333333333333, $matrix->getAverageRating()));
-        static::assertEquals(6, $matrix->getTotalReviewCount());
-    }
-
-    public function testItLoadsReviewsWithCustomer(): void
-    {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-
-        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
-        $product = $this->getRandomProduct($context);
-
-        $this->createReviews($product, $context);
-
-        $request = new Request([], [], ['productId' => $product->getId()]);
-
-        $page = $this->getPageLoader()->load($request, $context);
-
-        static::assertInstanceOf(ReviewLoaderResult::class, $page->getReviews());
-        static::assertCount(7, $page->getReviews());
-        static::assertInstanceOf(RatingMatrix::class, $page->getReviews()->getMatrix());
-        static::assertInstanceOf(ProductReviewEntity::class, $page->getReviews()->getCustomerReview());
-        static::assertNotNull($context->getCustomer());
-        static::assertEquals($context->getCustomer()->getId(), $page->getReviews()->getCustomerReview()->getCustomerId());
-
-        $matrix = $page->getReviews()->getMatrix();
-        static::assertTrue(FloatComparator::equals(3.4285714285714, $matrix->getAverageRating()));
-        static::assertEquals(7, $matrix->getTotalReviewCount());
     }
 
     public function testItLoadsPageWithProductCategoryAsActiveNavigation(): void

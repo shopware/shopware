@@ -1,7 +1,11 @@
-import './page/sw-settings-units';
 import './page/sw-settings-units-list';
 import './page/sw-settings-units-detail';
 import './acl';
+
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-settings-units-list', () => import('./page/sw-settings-units-list'));
+Shopware.Component.register('sw-settings-units-detail', () => import('./page/sw-settings-units-detail'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 

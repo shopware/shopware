@@ -16,6 +16,7 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package content
  * @Decoratable
  */
 class ContactFormValidationFactory implements DataValidationFactoryInterface

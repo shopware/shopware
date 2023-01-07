@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -28,31 +28,21 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package sales-channel
+ *
+ * @internal
  */
 class StoreApiSeoResolver implements EventSubscriberInterface
 {
-    private SalesChannelRepositoryInterface $salesChannelRepository;
-
-    private DefinitionInstanceRegistry $definitionInstanceRegistry;
-
-    private SeoUrlRouteRegistry $seoUrlRouteRegistry;
-
-    private SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionInstanceRegistry;
-
     /**
      * @internal
      */
     public function __construct(
-        SalesChannelRepositoryInterface $salesChannelRepository,
-        DefinitionInstanceRegistry $definitionInstanceRegistry,
-        SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionInstanceRegistry,
-        SeoUrlRouteRegistry $seoUrlRouteRegistry
+        private SalesChannelRepository $salesChannelRepository,
+        private DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionInstanceRegistry,
+        private SeoUrlRouteRegistry $seoUrlRouteRegistry
     ) {
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
-        $this->seoUrlRouteRegistry = $seoUrlRouteRegistry;
-        $this->salesChannelDefinitionInstanceRegistry = $salesChannelDefinitionInstanceRegistry;
     }
 
     public static function getSubscribedEvents(): array

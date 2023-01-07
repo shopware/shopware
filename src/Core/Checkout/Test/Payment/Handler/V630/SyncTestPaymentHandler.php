@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class SyncTestPaymentHandler implements SynchronousPaymentHandlerInterface

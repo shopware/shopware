@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1563805586AddLanguageToOrder extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,9 +19,9 @@ class Migration1563805586AddLanguageToOrder extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `order` ADD `language_id` BINARY(16) AFTER `currency_id`');
+        $connection->executeStatement('ALTER TABLE `order` ADD `language_id` BINARY(16) AFTER `currency_id`');
 
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'UPDATE `order` SET `order`.`language_id` = COALESCE((
                 SELECT `language_id` FROM `customer`
                     LEFT JOIN `order_customer`
@@ -27,9 +32,9 @@ class Migration1563805586AddLanguageToOrder extends MigrationStep
             ))'
         );
 
-        $connection->executeUpdate('ALTER TABLE `order` MODIFY COLUMN `language_id` BINARY(16) NOT NULL');
+        $connection->executeStatement('ALTER TABLE `order` MODIFY COLUMN `language_id` BINARY(16) NOT NULL');
 
-        $connection->executeUpdate('ALTER TABLE `order` ADD CONSTRAINT `fk.language_id` FOREIGN KEY (`language_id`)
+        $connection->executeStatement('ALTER TABLE `order` ADD CONSTRAINT `fk.language_id` FOREIGN KEY (`language_id`)
               REFERENCES `language` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE');
     }
 

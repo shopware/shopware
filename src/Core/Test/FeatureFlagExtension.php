@@ -6,9 +6,11 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use PHPUnit\Runner\AfterTestHook;
 use PHPUnit\Runner\BeforeTestHook;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
+ * @package core
+ *
  * @internal
  *
  * This extension guarantees a clean feature environment for pure unit tests
@@ -31,7 +33,7 @@ class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
 
     private bool $testMode;
 
-    public function __construct(string $namespacePrefix = 'Shopware\\Tests\\Unit\\', bool $testMode = false)
+    public function __construct(string $namespacePrefix = 'Shopware\\Tests\\', bool $testMode = false)
     {
         $this->annotationReader = new AnnotationReader();
         $this->namespacePrefix = $namespacePrefix;
@@ -57,15 +59,15 @@ class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
 
         $reflectedMethod = new \ReflectionMethod($class, $method);
 
-        /** @var ActiveFeatures[] $features */
+        /** @var DisabledFeatures[] $features */
         $features = array_filter([
-            $this->annotationReader->getMethodAnnotation($reflectedMethod, ActiveFeatures::class) ?? [],
-            $this->annotationReader->getClassAnnotation($reflectedMethod->getDeclaringClass(), ActiveFeatures::class) ?? [],
+            $this->annotationReader->getMethodAnnotation($reflectedMethod, DisabledFeatures::class) ?? [],
+            $this->annotationReader->getClassAnnotation($reflectedMethod->getDeclaringClass(), DisabledFeatures::class) ?? [],
         ]);
 
         $this->savedFeatureConfig = null;
 
-        if ($features === [] && !str_starts_with($class, $this->namespacePrefix)) {
+        if (!str_starts_with($class, $this->namespacePrefix)) {
             return;
         }
 
@@ -74,18 +76,22 @@ class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
 
         Feature::resetRegisteredFeatures();
         foreach ($_SERVER as $key => $value) {
-            if (str_starts_with($key, 'v6.') || $key === 'PERFORMANCE_TWEAKS' || str_starts_with($key, 'FEATURE_')) {
+            if (str_starts_with($key, 'v6.') || str_starts_with($key, 'FEATURE_') || str_starts_with($key, 'V6_')) {
                 // set to false so that $_ENV is not checked
                 $_SERVER[$key] = false;
             }
         }
 
-        if ($features) {
-            foreach ($features as $annotation) {
-                foreach ($annotation->features as $feature) {
-                    $_SERVER[Feature::normalizeName($feature)] = true;
-                }
+        $disabledFlags = [];
+        foreach ($features as $feature) {
+            foreach ($feature->features as $featureName) {
+                $disabledFlags[Feature::normalizeName($featureName)] = true;
             }
+        }
+
+        foreach ($this->savedFeatureConfig as $flag => $config) {
+            $flag = Feature::normalizeName($flag);
+            $_SERVER[$flag] = !\array_key_exists($flag, $disabledFlags);
         }
     }
 

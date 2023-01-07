@@ -7,10 +7,10 @@ use Shopware\Core\Content\Product\Events\CrossSellingRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +21,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
+ *
+ * @package inventory
  */
 class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 {
@@ -35,6 +37,9 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
      */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @var array<string>
+     */
     private array $states;
 
     private EventDispatcherInterface $dispatcher;
@@ -43,6 +48,7 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
      * @internal
      *
      * @param AbstractCacheTracer<ProductCrossSellingRouteResponse> $tracer
+     * @param array<string> $states
      */
     public function __construct(
         AbstractProductCrossSellingRoute $decorated,
@@ -83,6 +89,10 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $key = $this->generateKey($productId, $request, $context, $criteria);
 
+        if ($key === null) {
+            return $this->getDecorated()->load($productId, $request, $context, $criteria);
+        }
+
         $value = $this->cache->get($key, function (ItemInterface $item) use ($productId, $request, $context, $criteria) {
             $name = self::buildName($productId);
 
@@ -98,19 +108,26 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         return CacheValueCompressor::uncompress($value);
     }
 
-    private function generateKey(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): string
+    private function generateKey(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ?string
     {
         $parts = [
             $this->generator->getCriteriaHash($criteria),
-            $this->generator->getSalesChannelContextHash($context),
+            $this->generator->getSalesChannelContextHash($context, [RuleAreas::PRODUCT_AREA]),
         ];
 
         $event = new CrossSellingRouteCacheKeyEvent($productId, $parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
+        if (!$event->shouldCache()) {
+            return null;
+        }
+
         return self::buildName($productId) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function generateTags(string $productId, Request $request, ProductCrossSellingRouteResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $tags = array_merge(
@@ -126,6 +143,9 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         return array_unique(array_filter($event->getTags()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function extractStreamTags(ProductCrossSellingRouteResponse $response): array
     {
         $ids = [];
@@ -139,6 +159,9 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         return array_map([EntityCacheKeyGenerator::class, 'buildStreamTag'], $ids);
     }
 
+    /**
+     * @return array<string>
+     */
     private function extractProductIds(ProductCrossSellingRouteResponse $response): array
     {
         $ids = [];

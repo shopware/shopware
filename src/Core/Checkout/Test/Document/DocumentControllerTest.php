@@ -21,10 +21,9 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
@@ -37,6 +36,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class DocumentControllerTest extends TestCase
@@ -53,7 +54,7 @@ class DocumentControllerTest extends TestCase
 
     private DocumentGenerator $documentGenerator;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     private string $customerId;
 
@@ -99,7 +100,7 @@ class DocumentControllerTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        /** @var EntityRepositoryInterface $documentTypeRepository */
+        /** @var EntityRepository $documentTypeRepository */
         $documentTypeRepository = $this->getContainer()->get('document_type.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', 'invoice'));
         /** @var DocumentTypeEntity $type */
@@ -164,8 +165,6 @@ class DocumentControllerTest extends TestCase
         $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->get($orderId);
         static::assertNotNull($order);
 
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $endpoint = sprintf('/api/_action/order/%s/%s/document/invoice/preview', Uuid::randomHex(), $order->getDeepLinkCode());
         $this->getBrowser()->request('GET', $endpoint);
 
@@ -193,8 +192,6 @@ class DocumentControllerTest extends TestCase
 
     public function testPreviewPermission(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
@@ -440,8 +437,6 @@ class DocumentControllerTest extends TestCase
 
     public function testDownloadPermission(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         TestUser::createNewTestUser(
             $this->getContainer()->get(Connection::class),
             []
@@ -513,7 +508,7 @@ class DocumentControllerTest extends TestCase
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'billingAddressId' => $billingAddressId,
             'addresses' => [
                 [

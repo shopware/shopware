@@ -1,11 +1,15 @@
 import template from './sw-customer-list.html.twig';
 import './sw-customer-list.scss';
 
-const { Component, Mixin } = Shopware;
+/**
+ * @package customer-order
+ */
+
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-customer-list', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'filterFactory', 'feature'],
@@ -27,16 +31,6 @@ Component.register('sw-customer-list', {
             filterLoading: false,
             availableAffiliateCodes: [],
             availableCampaignCodes: [],
-
-            /** @deprecated tag:v6.5.0 - values will be handled by filterFactory */
-            affiliateCodeFilter: [],
-
-            /** @deprecated tag:v6.5.0 - values will be handled by filterFactory */
-            campaignCodeFilter: [],
-
-            /** @deprecated tag:v6.5.0 - values will be handled by filterFactory */
-            showOnlyCustomerGroupRequests: false,
-
             filterCriteria: [],
             defaultFilters: [
                 'affiliate-code-filter',
@@ -363,24 +357,6 @@ Component.register('sw-customer-list', {
                 });
         },
 
-        /** @deprecated tag:v6.5.0 - will be handled by filterFactory */
-        onChangeAffiliateCodeFilter(value) {
-            this.affiliateCodeFilter = value;
-            this.getList();
-        },
-
-        /** @deprecated tag:v6.5.0 - will be handled by filterFactory */
-        onChangeCampaignCodeFilter(value) {
-            this.campaignCodeFilter = value;
-            this.getList();
-        },
-
-        /** @deprecated tag:v6.5.0 - will be handled by filterFactory */
-        onChangeRequestedGroupFilter(value) {
-            this.showOnlyCustomerGroupRequests = value;
-            this.getList();
-        },
-
         updateCriteria(criteria) {
             this.page = 1;
             this.filterCriteria = criteria;
@@ -399,4 +375,4 @@ Component.register('sw-customer-list', {
             this.showBulkEditModal = false;
         },
     },
-});
+};

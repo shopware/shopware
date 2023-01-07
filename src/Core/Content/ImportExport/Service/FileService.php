@@ -2,23 +2,26 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
 use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriter;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * @package system-settings
+ */
 class FileService extends AbstractFileService
 {
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
-    private EntityRepositoryInterface $fileRepository;
+    private EntityRepository $fileRepository;
 
     private CsvFileWriter $writer;
 
@@ -26,8 +29,8 @@ class FileService extends AbstractFileService
      * @internal
      */
     public function __construct(
-        FilesystemInterface $filesystem,
-        EntityRepositoryInterface $fileRepository
+        FilesystemOperator $filesystem,
+        EntityRepository $fileRepository
     ) {
         $this->filesystem = $filesystem;
         $this->fileRepository = $fileRepository;
@@ -41,7 +44,6 @@ class FileService extends AbstractFileService
 
     /**
      * @throws FileNotReadableException
-     * @throws \League\Flysystem\FileNotFoundException
      */
     public function storeFile(Context $context, \DateTimeInterface $expireDate, ?string $sourcePath, ?string $originalFileName, string $activity, ?string $path = null): ImportExportFileEntity
     {
@@ -55,16 +57,16 @@ class FileService extends AbstractFileService
             if (!\is_resource($sourceStream)) {
                 throw new FileNotReadableException($sourcePath);
             }
-            $this->filesystem->putStream($path, $sourceStream);
+            $this->filesystem->writeStream($path, $sourceStream);
         } else {
-            $this->filesystem->put($path, '');
+            $this->filesystem->write($path, '');
         }
 
         $fileData = [
             'id' => $id,
             'originalName' => $originalFileName,
             'path' => $path,
-            'size' => $this->filesystem->getSize($path),
+            'size' => $this->filesystem->fileSize($path),
             'expireDate' => $expireDate,
             'accessToken' => null,
         ];

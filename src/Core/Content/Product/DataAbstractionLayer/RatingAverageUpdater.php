@@ -7,12 +7,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ */
 class RatingAverageUpdater
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -31,7 +31,7 @@ class RatingAverageUpdater
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
 
         RetryableQuery::retryable($this->connection, function () use ($ids, $versionId): void {
-            $this->connection->executeUpdate(
+            $this->connection->executeStatement(
                 'UPDATE product SET rating_average = NULL WHERE (parent_id IN (:ids) OR id IN (:ids)) AND version_id = :version',
                 ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $versionId],
                 ['ids' => Connection::PARAM_STR_ARRAY]
@@ -52,7 +52,7 @@ class RatingAverageUpdater
         $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
         $query->addGroupBy('IFNULL(product.parent_id, product.id)');
 
-        $averages = $query->execute()->fetchAll();
+        $averages = $query->executeQuery()->fetchAllAssociative();
 
         $query = new RetryableQuery(
             $this->connection,

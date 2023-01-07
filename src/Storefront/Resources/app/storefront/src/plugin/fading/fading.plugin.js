@@ -1,7 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 import Debouncer from 'src/helper/debouncer.helper';
-import Feature from 'src/helper/feature.helper';
 
 export default class FadingPlugin extends Plugin {
     static options = {
@@ -16,8 +15,6 @@ export default class FadingPlugin extends Plugin {
         }
 
         collapses.forEach((collapse) => {
-            /** @deprecated tag:v6.5.0 - jQuery wrapper `$collapse` will be removed. Bootstrap v5 uses native HTML elements */
-            const $collapse = Feature.isActive('v6.5.0.0') ? collapse : $(collapse);
             const containers = DomAccess.querySelectorAll(collapse, '.swag-fade-container', false);
 
             if (!containers.length) {
@@ -28,7 +25,7 @@ export default class FadingPlugin extends Plugin {
                 const moreLink = DomAccess.querySelector(container.parentNode, '.swag-fading-link-more', false);
                 const lessLink = DomAccess.querySelector(container.parentNode, '.swag-fading-link-less', false);
 
-                this._registerEventListeners($collapse, container, moreLink, lessLink);
+                this._registerEventListeners(collapse, container, moreLink, lessLink);
             });
         });
     }
@@ -36,8 +33,8 @@ export default class FadingPlugin extends Plugin {
     /**
      * @returns {void}
      */
-    _registerEventListeners($collapse, container, moreLink, lessLink) {
-        if ((!moreLink && !lessLink) || !$collapse || !container) {
+    _registerEventListeners(collapse, container, moreLink, lessLink) {
+        if ((!moreLink && !lessLink) || !collapse || !container) {
             return;
         }
 
@@ -49,12 +46,7 @@ export default class FadingPlugin extends Plugin {
             )
         );
 
-        /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements and events to subscribe to Collapse plugin events */
-        if (Feature.isActive('v6.5.0.0')) {
-            $collapse.addEventListener('shown.bs.collapse', this._onCollapseShow.bind(this, container, moreLink, lessLink));
-        } else {
-            $collapse.on('shown.bs.collapse', this._onCollapseShow.bind(this, container, moreLink, lessLink));
-        }
+        collapse.addEventListener('shown.bs.collapse', this._onCollapseShow.bind(this, container, moreLink, lessLink));
 
         moreLink.addEventListener(
             'click',

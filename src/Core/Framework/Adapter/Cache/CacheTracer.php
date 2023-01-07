@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
+ * @package core
  * @extends AbstractCacheTracer<mixed|null>
  */
 class CacheTracer extends AbstractCacheTracer

@@ -14,16 +14,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Cache\Traits\RedisClusterProxy;
 use Symfony\Component\Cache\Traits\RedisProxy;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package checkout
+ */
+#[AsCommand(
+    name: 'cart:migrate',
+    description: 'Migrate carts from redis to database',
+)]
 class CartMigrateCommand extends Command
 {
     use ConsoleProgressTrait;
-
-    protected static $defaultName = 'cart:migrate';
 
     /**
      * @var \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy|null
@@ -104,6 +110,10 @@ class CartMigrateCommand extends Command
 
     private function redisToSql(InputInterface $input, OutputInterface $output): int
     {
+        if ($this->redis === null) {
+            throw new \RuntimeException('%shopware.cart.redis_url% is not configured and no url provided.');
+        }
+
         $this->io = new ShopwareStyle($input, $output);
 
         $keys = $this->redis->keys(RedisCartPersister::PREFIX . '*');
@@ -180,6 +190,10 @@ class CartMigrateCommand extends Command
 
     private function sqlToRedis(InputInterface $input, OutputInterface $output): int
     {
+        if ($this->redis === null) {
+            throw new \RuntimeException('%shopware.cart.redis_url% is not configured and no url provided.');
+        }
+
         $this->io = new ShopwareStyle($input, $output);
 
         $count = $this->connection->fetchOne('SELECT COUNT(token) FROM cart');

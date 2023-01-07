@@ -7,12 +7,17 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Error\GenericCartError;
 
 /**
+ * @package checkout
+ */
+/**
  * The ErrorsFacade is a wrapper around the errors of a cart.
  * You can use it to add new errors to the cart or remove existing ones.
  *
  * @script-service cart_manipulation
  *
- * @implements \IteratorAggregate<array-key, \Shopware\Core\Checkout\Cart\Error\Error>
+ * @implements \IteratorAggregate<array-key, Error>
+ *
+ * @package checkout
  */
 class ErrorsFacade implements \IteratorAggregate
 {

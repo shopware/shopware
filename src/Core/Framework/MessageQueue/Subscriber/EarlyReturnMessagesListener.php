@@ -7,7 +7,9 @@ use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 use Symfony\Component\Messenger\Event\WorkerRunningEvent;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package system-settings
+ *
+ * @internal
  */
 class EarlyReturnMessagesListener implements EventSubscriberInterface
 {

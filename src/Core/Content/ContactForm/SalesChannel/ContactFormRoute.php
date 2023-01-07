@@ -5,12 +5,11 @@ namespace Shopware\Core\Content\ContactForm\SalesChannel;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -24,6 +23,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package content
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class ContactFormRoute extends AbstractContactFormRoute
@@ -36,15 +36,15 @@ class ContactFormRoute extends AbstractContactFormRoute
 
     private SystemConfigService $systemConfigService;
 
-    private EntityRepositoryInterface $cmsSlotRepository;
+    private EntityRepository $cmsSlotRepository;
 
-    private EntityRepositoryInterface $salutationRepository;
+    private EntityRepository $salutationRepository;
 
-    private EntityRepositoryInterface $categoryRepository;
+    private EntityRepository $categoryRepository;
 
-    private EntityRepositoryInterface $landingPageRepository;
+    private EntityRepository $landingPageRepository;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
     private RequestStack $requestStack;
 
@@ -58,11 +58,11 @@ class ContactFormRoute extends AbstractContactFormRoute
         DataValidator $validator,
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfigService,
-        EntityRepositoryInterface $cmsSlotRepository,
-        EntityRepositoryInterface $salutationRepository,
-        EntityRepositoryInterface $categoryRepository,
-        EntityRepositoryInterface $landingPageRepository,
-        EntityRepositoryInterface $productRepository,
+        EntityRepository $cmsSlotRepository,
+        EntityRepository $salutationRepository,
+        EntityRepository $categoryRepository,
+        EntityRepository $landingPageRepository,
+        EntityRepository $productRepository,
         RequestStack $requestStack,
         RateLimiter $rateLimiter
     ) {

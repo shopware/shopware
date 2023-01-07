@@ -18,6 +18,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation\TaxRuleTypeTranslationDefinition;
 
+/**
+ * @package customer-order
+ */
 class TaxRuleTypeDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'tax_rule_type';

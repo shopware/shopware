@@ -8,6 +8,9 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class DeliveryValidator implements CartValidatorInterface
 {
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void

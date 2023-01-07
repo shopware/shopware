@@ -3,8 +3,12 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-class EntityIndexingMessage
+/**
+ * @package core
+ */
+class EntityIndexingMessage implements AsyncMessageInterface
 {
     protected $data;
 

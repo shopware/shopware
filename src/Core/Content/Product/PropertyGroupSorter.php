@@ -6,6 +6,9 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
+/**
+ * @package inventory
+ */
 class PropertyGroupSorter extends AbstractPropertyGroupSorter
 {
     public function getDecorated(): AbstractPropertyGroupSorter

@@ -11,7 +11,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -301,7 +300,7 @@ class SyncControllerTest extends TestCase
 
         $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
@@ -321,105 +320,12 @@ class SyncControllerTest extends TestCase
 
         $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN (:id)',
             ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
         );
         static::assertEmpty($exists);
-    }
-
-    public function testItThrows400OnFailOnError(): void
-    {
-        Feature::skipTestIfActive('FEATURE_NEXT_15815', $this);
-
-        $product = Uuid::randomHex();
-        $product2 = Uuid::randomHex();
-
-        $data = [
-            [
-                'action' => SyncController::ACTION_UPSERT,
-                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
-                'payload' => [
-                    [
-                        'id' => $product,
-                        'productNumber' => Uuid::randomHex(),
-                        'name' => 'PROD-1',
-                        'tax' => ['name' => 'test', 'taxRate' => 15],
-                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
-                    ],
-                    [
-                        'id' => $product2,
-                        'productNumber' => Uuid::randomHex(),
-                        'stock' => 1,
-                        'tax' => ['name' => 'test', 'taxRate' => 15],
-                        'name' => 'PROD-2',
-                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'linked' => false]],
-                    ],
-                ],
-            ],
-        ];
-
-        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'true'], json_encode($data, \JSON_THROW_ON_ERROR));
-
-        $exists = $this->connection->fetchAll(
-            'SELECT * FROM product WHERE id IN(:id)',
-            ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
-        );
-        static::assertNotFalse($exists);
-
-        $response = $this->getBrowser()->getResponse();
-        static::assertEquals(400, $response->getStatusCode());
-
-        $content = json_decode((string) $response->getContent(), true);
-
-        foreach ($content['data'][0]['result'] as $result) {
-            static::assertEmpty($result['entities']);
-            static::assertCount(1, $result['errors']);
-        }
-    }
-
-    public function testItReturns200WhenFailOnErrorIsFalse(): void
-    {
-        Feature::skipTestIfActive('FEATURE_NEXT_15815', $this);
-
-        $product = Uuid::randomHex();
-
-        $data = [
-            [
-                'action' => SyncController::ACTION_UPSERT,
-                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
-                'payload' => [
-                    [
-                        'id' => $product,
-                        'productNumber' => Uuid::randomHex(),
-                        'name' => 'PROD-1',
-                        'tax' => ['name' => 'test', 'taxRate' => 15],
-                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
-                    ],
-                ],
-            ],
-        ];
-
-        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], json_encode($data, \JSON_THROW_ON_ERROR));
-
-        $exists = $this->connection->fetchAll(
-            'SELECT * FROM product WHERE id IN(:id)',
-            ['id' => [Uuid::fromHexToBytes($product)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
-        );
-        static::assertNotFalse($exists);
-
-        $response = $this->getBrowser()->getResponse();
-        static::assertEquals(200, $response->getStatusCode());
-
-        $content = json_decode((string) $response->getContent(), true);
-
-        foreach ($content['data'][0]['result'] as $result) {
-            static::assertEmpty($result['entities']);
-            static::assertCount(1, $result['errors']);
-        }
     }
 
     public function testIndexingByQueueHeader(): void
@@ -443,9 +349,9 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->connection->executeUpdate('DELETE FROM enqueue;');
-        $this->connection->executeUpdate('DELETE FROM message_queue_stats;');
-        $this->connection->executeUpdate('DELETE FROM `increment`;');
+        $this->connection->executeStatement('DELETE FROM messenger_messages;');
+        $this->connection->executeStatement('DELETE FROM message_queue_stats;');
+        $this->connection->executeStatement('DELETE FROM `increment`;');
 
         $this->getBrowser()->request(
             'POST',
@@ -456,7 +362,7 @@ class SyncControllerTest extends TestCase
             json_encode($data, \JSON_THROW_ON_ERROR)
         );
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product)]],
             ['id' => Connection::PARAM_STR_ARRAY]
@@ -492,9 +398,9 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->connection->executeUpdate('DELETE FROM enqueue;');
-        $this->connection->executeUpdate('DELETE FROM `increment`;');
-        $this->connection->executeUpdate('DELETE FROM message_queue_stats;');
+        $this->connection->executeStatement('DELETE FROM messenger_messages;');
+        $this->connection->executeStatement('DELETE FROM `increment`;');
+        $this->connection->executeStatement('DELETE FROM message_queue_stats;');
 
         $keys = $this->gateway->list('message_queue_stats');
         static::assertEmpty($keys);
@@ -508,7 +414,7 @@ class SyncControllerTest extends TestCase
             json_encode($data, \JSON_THROW_ON_ERROR)
         );
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product)]],
             ['id' => Connection::PARAM_STR_ARRAY]
@@ -552,5 +458,74 @@ class SyncControllerTest extends TestCase
 
         $count = (int) $connection->fetchOne('SELECT COUNT(*) FROM product_search_keyword WHERE product_id = ?', [Uuid::fromHexToBytes($id1)]);
         static::assertSame(0, $count, 'Search keywords should be empty as we skipped it');
+    }
+
+    public function invalidOperationProvider(): \Generator
+    {
+        yield 'Invalid entity argument' => [
+            'invalid-entity',
+            '',
+            'upsert',
+            [
+                ['id' => 'id1', 'name' => 'first manufacturer'],
+                ['id' => 'id2', 'name' => 'second manufacturer'],
+            ],
+            'entity',
+        ];
+
+        yield 'Missing action argument' => [
+            'missing-action',
+            ProductDefinition::ENTITY_NAME,
+            '',
+            [
+                ['id' => 'id1', 'name' => 'first manufacturer'],
+                ['id' => 'id2', 'name' => 'second manufacturer'],
+            ],
+            'action',
+        ];
+
+        yield 'Invalid action argument' => [
+            'missing-action',
+            ProductDefinition::ENTITY_NAME,
+            'invalid-action',
+            [
+                ['id' => 'id1', 'name' => 'first manufacturer'],
+                ['id' => 'id2', 'name' => 'second manufacturer'],
+            ],
+            'action',
+        ];
+
+        yield 'Missing payload argument' => [
+            'missing-action',
+            ProductDefinition::ENTITY_NAME,
+            'upsert',
+            [],
+            'payload',
+        ];
+    }
+
+    /**
+     * @dataProvider invalidOperationProvider
+     *
+     * @param array<mixed> $payload
+     */
+    public function testItThrows400WithInvalidSyncOperation(string $key, string $entity, string $action, array $payload, string $actor): void
+    {
+        $data = [
+            [
+                'action' => $action,
+                'entity' => $entity,
+                'payload' => $payload,
+            ],
+        ];
+
+        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'true'], json_encode($data, \JSON_THROW_ON_ERROR));
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertEquals(400, $response->getStatusCode());
+
+        $content = json_decode((string) $response->getContent(), true);
+        static::assertEquals('FRAMEWORK__INVALID_SYNC_OPERATION', $content['errors'][0]['code']);
+        static::assertStringContainsString($actor, $content['errors'][0]['detail']);
     }
 }

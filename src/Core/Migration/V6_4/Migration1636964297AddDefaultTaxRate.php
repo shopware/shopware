@@ -7,6 +7,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1636964297AddDefaultTaxRate extends MigrationStep
 {
     public const CONFIG_KEY = 'core.tax.defaultTaxRate';

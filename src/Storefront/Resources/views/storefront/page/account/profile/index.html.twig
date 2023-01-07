@@ -28,14 +28,8 @@
                             {% block page_account_profile_personal_form %}
                                 <form id="profilePersonalForm"
                                       method="post"
-                                      data-form-csrf-handler="true"
                                       action="{{ path('frontend.account.profile.save') }}"
                                       data-form-validation="true">
-
-                                    {% block page_account_profile_personal_form_csrf %}
-                                        {{ sw_csrf('frontend.account.profile.save') }}
-                                    {% endblock %}
-
                                     {% block page_account_profile_personal_fields %}
                                         {% sw_include '@Storefront/storefront/page/account/profile/personal.html.twig' with {
                                             'showBirthdayField': config('core.loginRegistration.showBirthdayField'),
@@ -91,7 +85,7 @@
                                     {% block page_account_profile_credentials_change_mail %}
                                         <div class="col-12 col-sm-6 col-md-3 mt-2 mt-md-0">
                                             <a class="account-profile-change{% if not emailFormViolation %} collapsed{% endif %}"
-                                               {{ dataBsToggleAttr }}="collapse"
+                                               data-bs-toggle="collapse"
                                                href="#profile-email-form"
                                                role="button"
                                                aria-expanded="{% if emailFormViolation %}true{% else %}false{% endif %}"
@@ -104,7 +98,7 @@
                                     {% block page_account_profile_credentials_change_password %}
                                         <div class="col-12 col-sm-6 col-md-3 mt-2 mt-md-0">
                                             <a class="account-profile-change{% if not passwordFormViolation %} collapsed{% endif %}"
-                                               {{ dataBsToggleAttr }}="collapse"
+                                               data-bs-toggle="collapse"
                                                href="#profile-password-form"
                                                role="button"
                                                aria-expanded="{% if passwordFormViolation %}true{% else %}false{% endif %}"
@@ -129,13 +123,7 @@
                                               class="card-body"
                                               method="post"
                                               action="{{ path('frontend.account.profile.email.save') }}"
-                                              data-form-csrf-handler="true"
                                               data-form-validation="true">
-
-                                            {% block page_account_profile_mail_form_csrf %}
-                                                {{ sw_csrf('frontend.account.profile.email.save') }}
-                                            {% endblock %}
-
                                             {% block page_account_profile_mail_title %}
                                                 <div class="card-title">
                                                     {{ "account.profileMailTitle"|trans|sw_sanitize }}
@@ -143,7 +131,7 @@
                                             {% endblock %}
 
                                             {% block page_account_profile_mail_container %}
-                                                <div class="{{ formRowClass }}">
+                                                <div class="row g-2">
                                                     {% block page_account_profile_mail %}
                                                         <div class="col form-group">
                                                             {% block page_account_profile_mail_label %}
@@ -210,7 +198,7 @@
                                             {% endblock %}
 
                                             {% block page_account_profile_mail_password %}
-                                                <div class="{{ formRowClass }}">
+                                                <div class="row g-2">
                                                     <div class="form-group col-6">
                                                         {% block page_account_profile_mail_password_label %}
                                                             <label class="form-label"
@@ -270,14 +258,8 @@
                                         <form id="profilePasswordForm"
                                               class="card-body"
                                               method="post"
-                                              data-form-csrf-handler="true"
                                               action="{{ path('frontend.account.profile.password.save') }}"
                                               data-form-validation="true">
-
-                                            {% block page_account_profile_password_form_csrf %}
-                                                {{ sw_csrf('frontend.account.profile.password.save') }}
-                                            {% endblock %}
-
                                             {% block page_account_profile_password_title %}
                                                 <div class="card-title">
                                                     {{ "account.profilePasswordTitle"|trans|sw_sanitize }}
@@ -285,7 +267,7 @@
                                             {% endblock %}
 
                                             {% block page_account_profile_password_container %}
-                                                <div class="{{ formRowClass }}">
+                                                <div class="row g-2">
                                                     {% block page_account_profile_new_password %}
                                                         <div class="col form-group">
                                                             {% block page_account_profile_new_password_label %}
@@ -356,7 +338,7 @@
                                             {% endblock %}
 
                                             {% block page_account_profile_current_password %}
-                                                <div class="{{ formRowClass }}">
+                                                <div class="row g-2">
                                                     <div class="col-6 form-group">
                                                         {% block page_account_profile_current_password_label %}
                                                             <label class="form-label"
@@ -445,15 +427,9 @@
                                                 {% block page_account_delete_account_confirm_modal_header_close_button %}
                                                     <button
                                                         type="button"
-                                                        class="{{ modalCloseBtnClass }} close"
-                                                        {{ dataBsDismissAttr }}="modal"
+                                                        class="btn-close close"
+                                                        data-bs-dismiss="modal"
                                                         aria-label="Close">
-                                                        {# @deprecated tag:v6.5.0 - Bootstrap v5 creates "x" symbol automatically via SVG background #}
-                                                        {% if not feature('v6.5.0.0') %}
-                                                            <span aria-hidden="true">
-                                                                {% sw_icon 'x' style { 'size': 'sm' } %}
-                                                            </span>
-                                                        {% endif %}
                                                     </button>
                                                 {% endblock %}
                                             </div>
@@ -464,14 +440,8 @@
 
                                                 {% block page_account_delete_account_confirm_modal_form %}
                                                     <form method="post"
-                                                          data-form-csrf-handler="true"
                                                           action="{{ path('frontend.account.profile.delete') }}"
                                                           data-form-submit-loader="true">
-
-                                                        {% block page_account_delete_account_confirm_form_csrf %}
-                                                            {{ sw_csrf('frontend.account.profile.delete') }}
-                                                        {% endblock %}
-
                                                         {% block page_account_delete_account_confirm_alert %}
                                                             {{ "account.profileDeleteAlert"|trans|sw_sanitize }}
                                                         {% endblock %}

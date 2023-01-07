@@ -46,6 +46,7 @@
                 class="sw-order-delivery-metdata__address"
                 :headline="$tc('sw-order.detailBase.headlineDeliveryAddress')"
                 :address="delivery.shippingOrderAddress"
+                :formatting-address="formattingAddress"
             />
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_delivery_metadata_delivery_phone_number %}

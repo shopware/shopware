@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module core/worker/admin-worker
  */
 

@@ -7,6 +7,9 @@ use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @package core
+ */
 class IconTemplateLoader extends AbstractTemplateLoader
 {
     private AbstractTemplateLoader $inner;
@@ -53,7 +56,7 @@ class IconTemplateLoader extends AbstractTemplateLoader
             // remove resource + any leading slashes from pathname
             $resourcePath = ltrim(mb_substr($file->getPathname(), mb_strlen($resourceDirectory)), '/');
 
-            return '../' . $resourcePath;
+            return $resourcePath;
         }, iterator_to_array($finder)));
 
         return [
@@ -64,6 +67,16 @@ class IconTemplateLoader extends AbstractTemplateLoader
 
     public function getTemplateContent(string $path, Manifest $app): string
     {
-        return $this->inner->getTemplateContent($path, $app);
+        if (strrpos($path, '.svg') !== \strlen($path) - 4) {
+            return $this->inner->getTemplateContent($path, $app);
+        }
+
+        $content = @file_get_contents($app->getPath() . '/Resources/' . $path);
+
+        if ($content === false) {
+            throw new \RuntimeException(sprintf('Unable to read file from: %s.', $app->getPath() . '/Resources/' . $path));
+        }
+
+        return $content;
     }
 }

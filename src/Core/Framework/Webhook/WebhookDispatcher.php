@@ -16,13 +16,11 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\FlowEventAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -33,6 +31,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @package core
+ */
 class WebhookDispatcher implements EventDispatcherInterface
 {
     private EventDispatcherInterface $dispatcher;
@@ -47,6 +48,9 @@ class WebhookDispatcher implements EventDispatcherInterface
 
     private ContainerInterface $container;
 
+    /**
+     * @var array<string, mixed>
+     */
     private array $privileges = [];
 
     private HookableEventFactory $eventFactory;
@@ -84,14 +88,7 @@ class WebhookDispatcher implements EventDispatcherInterface
         $this->isAdminWorkerEnabled = $isAdminWorkerEnabled;
     }
 
-    /**
-     * @template TEvent of object
-     *
-     * @param TEvent $event
-     *
-     * @return TEvent
-     */
-    public function dispatch($event, ?string $eventName = null): object
+    public function dispatch(object $event, ?string $eventName = null): object
     {
         $event = $this->dispatcher->dispatch($event, $eventName);
 
@@ -101,14 +98,8 @@ class WebhookDispatcher implements EventDispatcherInterface
 
         foreach ($this->eventFactory->createHookablesFor($event) as $hookable) {
             $context = Context::createDefaultContext();
-            if (Feature::isActive('FEATURE_NEXT_17858')) {
-                if ($event instanceof FlowEventAware || $event instanceof AppChangedEvent || $event instanceof EntityWrittenContainerEvent) {
-                    $context = $event->getContext();
-                }
-            } else {
-                if ($event instanceof BusinessEventInterface || $event instanceof AppChangedEvent || $event instanceof EntityWrittenContainerEvent) {
-                    $context = $event->getContext();
-                }
+            if ($event instanceof FlowEventAware || $event instanceof AppChangedEvent || $event instanceof EntityWrittenContainerEvent) {
+                $context = $event->getContext();
             }
 
             $this->callWebhooks($hookable, $context);
@@ -230,6 +221,9 @@ class WebhookDispatcher implements EventDispatcherInterface
         return $this->webhooks = $webhooks;
     }
 
+    /**
+     * @param array<string> $affectedRoles
+     */
     private function isEventDispatchingAllowed(WebhookEntity $webhook, Hookable $event, array $affectedRoles): bool
     {
         $app = $webhook->getApp();
@@ -366,6 +360,9 @@ class WebhookDispatcher implements EventDispatcherInterface
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getPayloadForWebhook(WebhookEntity $webhook, Hookable $event): array
     {
         if ($event instanceof AppFlowActionEvent) {
@@ -397,7 +394,7 @@ class WebhookDispatcher implements EventDispatcherInterface
 
     private function logWebhookWithEvent(WebhookEntity $webhook, WebhookEventMessage $webhookEventMessage): void
     {
-        /** @var EntityRepositoryInterface $webhookEventLogRepository */
+        /** @var EntityRepository $webhookEventLogRepository */
         $webhookEventLogRepository = $this->container->get('webhook_event_log.repository');
 
         $webhookEventLogRepository->create([
@@ -419,7 +416,7 @@ class WebhookDispatcher implements EventDispatcherInterface
      */
     private function loadPrivileges(string $eventName, array $affectedRoleIds): void
     {
-        $roles = $this->connection->fetchAll('
+        $roles = $this->connection->fetchAllAssociative('
             SELECT `id`, `privileges`
             FROM `acl_role`
             WHERE `id` IN (:aclRoleIds)

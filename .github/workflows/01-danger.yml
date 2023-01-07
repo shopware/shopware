@@ -1,18 +1,18 @@
 name: Danger
 on:
-    pull_request_target:
+  pull_request_target:
 
 jobs:
-    pr:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Clone
-              uses: actions/checkout@v1
+  pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone
+        uses: actions/checkout@v1
 
-            - name: Danger
-              uses: docker://ghcr.io/shyim/danger-php:latest
-              with:
-                  args: ci
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  GITHUB_PULL_REQUEST_ID: ${{ github.event.pull_request.number }}
+      - name: Danger
+        uses: docker://ghcr.io/shyim/danger-php:latest
+        with:
+          args: ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_PULL_REQUEST_ID: ${{ github.event.pull_request.number }}

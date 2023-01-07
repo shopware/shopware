@@ -1,0 +1,47 @@
+import '<component-path>';
+import { shallowMount, createLocalVue } from '@vue/test-utils';
+import type { Wrapper } from '@vue/test-utils';
+import type Vue from 'vue';
+
+async function createWrapper(/* TODO: add or remove options = {} */): Promise<Wrapper<Vue>> {
+    // TODO: add or remove localVue
+    const localVue = createLocalVue();
+
+    // TODO: adjust component name
+    return shallowMount(await Shopware.Component.build('sw-your-component-for-test'), {
+        // TODO: add or remove localVue
+        localVue,
+        stubs: {
+            // 'sw-missing-component-one': Shopware.Component.build('sw-missing-component-one'),
+        },
+        mocks: {
+        },
+        attachTo: document.body,
+
+        // TODO: add or remove ...options,
+    });
+}
+
+describe('<component-path>', () => {
+    let wrapper: Wrapper<Vue>;
+
+    beforeEach(async () => {
+        wrapper = await createWrapper();
+
+        await flushPromises();
+    });
+
+    afterEach(async () => {
+        if (wrapper) {
+            await wrapper.destroy();
+        }
+
+        await flushPromises();
+    });
+
+    it('should be a Vue.js component', () => {
+        expect(wrapper.vm).toBeTruthy();
+    });
+
+    // TODO: Add more component tests
+});

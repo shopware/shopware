@@ -143,12 +143,19 @@ shopware:
                       interval: '60 seconds'
                     - limit: 10
                       interval: '90 seconds'
+            cart_add_line_item:
+                enabled: true
+                policy: 'system_config'
+                reset: '1 hours'
+                limits:
+                    -   domain: 'core.cart.lineItemAddLimit'
+                        interval: '60 seconds'
 
     admin_worker:
         enable_admin_worker: true
         # This has to be lower than PHP's max_execution_time (default: 30s)
         poll_interval: 20
-        transports: ["default"]
+        transports: ["async"]
 
     auto_update:
         enabled: true
@@ -167,6 +174,7 @@ shopware:
     media:
         enable_url_upload_feature: true
         enable_url_validation: true
+        url_upload_max_size: 0
 
     dal:
         batch_size: 125

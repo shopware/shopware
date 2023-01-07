@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1536232620SalesChannelType extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +19,7 @@ class Migration1536232620SalesChannelType extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `sales_channel_type` (
               `id`              BINARY(16)                              NOT NULL,
               `cover_url`       VARCHAR(500) COLLATE utf8mb4_unicode_ci NULL,
@@ -27,7 +32,7 @@ class Migration1536232620SalesChannelType extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `sales_channel_type_translation` (
               `sales_channel_type_id`   BINARY(16)                              NOT NULL,
               `language_id`             BINARY(16)                              NOT NULL,

@@ -2,22 +2,18 @@
 
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
-class ProductExportPartialGeneration
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+
+/**
+ * @package inventory
+ */
+class ProductExportPartialGeneration implements AsyncMessageInterface
 {
-    /**
-     * @var int
-     */
-    private $offset;
+    private int $offset;
 
-    /**
-     * @var string
-     */
-    private $productExportId;
+    private string $productExportId;
 
-    /**
-     * @var string
-     */
-    private $salesChannelId;
+    private string $salesChannelId;
 
     /**
      * @internal

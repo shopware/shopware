@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VariantListingConfigFieldSerializer;
 
+/**
+ * @package core
+ */
 class VariantListingConfigField extends JsonField
 {
     public function __construct(string $storageName, string $propertyName)

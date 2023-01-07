@@ -13,7 +13,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
+ *
+ * @package core
  */
 class EntityProtectionValidator implements EventSubscriberInterface
 {

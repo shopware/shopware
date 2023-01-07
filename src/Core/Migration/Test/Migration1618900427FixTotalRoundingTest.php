@@ -17,6 +17,8 @@ use Shopware\Core\Migration\V6_4\Migration1618900427FixTotalRounding;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1618900427FixTotalRoundingTest extends TestCase

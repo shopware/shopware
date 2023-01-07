@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\Cms;
 
+/**
+ * @package content
+ */
 class CmsPageEvents
 {
     /**

@@ -16,6 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package core
+ */
 class WebhookEventLogDefinition extends EntityDefinition
 {
     public const STATUS_QUEUED = 'queued';

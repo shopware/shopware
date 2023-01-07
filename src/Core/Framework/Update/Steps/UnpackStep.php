@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 use Shopware\Core\Framework\Update\Services\Archive\Zip;
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @package system-settings
+ */
 class UnpackStep
 {
     /**

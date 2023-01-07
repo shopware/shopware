@@ -161,13 +161,13 @@ CREATE TABLE `acl_resource` (
     private function fetchRoles(): array
     {
         /** @var array{name: string, priv: string}[] $roles */
-        $roles = $this->connection->fetchAllAssociative("
+        $roles = $this->connection->fetchAllAssociative('
             SELECT `role`.name,
-            CONCAT(`resource`.`resource`, ':', `resource`.`privilege`) as priv
+            CONCAT(`resource`.`resource`, \':\', `resource`.`privilege`) as priv
             FROM acl_role `role`
                 LEFT JOIN acl_resource `resource`
                     ON `role`.id = `resource`.acl_role_id
-        ");
+        ');
 
         $grouped = [];
         foreach ($roles as $role) {

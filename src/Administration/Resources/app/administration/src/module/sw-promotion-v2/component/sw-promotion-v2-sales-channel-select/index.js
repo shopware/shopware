@@ -1,10 +1,9 @@
 import template from './sw-promotion-v2-sales-channel-select.html.twig';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-promotion-v2-sales-channel-select', {
+export default {
     template,
 
     inject: [
@@ -148,4 +147,4 @@ Component.register('sw-promotion-v2-sales-channel-select', {
             });
         },
     },
-});
+};

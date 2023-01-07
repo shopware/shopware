@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @internal (flag: FEATURE_NEXT_7530)
+ * @package sales-channel
  */
 class AttachmentLoaderCriteriaEvent extends Event
 {

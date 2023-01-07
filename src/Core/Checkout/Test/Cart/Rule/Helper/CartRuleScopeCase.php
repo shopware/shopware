@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\LineItemPropertyRule;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class CartRuleScopeCase

@@ -5,8 +5,11 @@ const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-generate-document-modal', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     inject: [
@@ -116,4 +119,4 @@ Component.register('sw-flow-generate-document-modal', {
             this.$emit('process-finish', sequence);
         },
     },
-});
+};

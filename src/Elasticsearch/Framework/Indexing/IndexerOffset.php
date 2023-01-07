@@ -2,9 +2,14 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
-use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
+/**
+ * @package core
+ *
+ * @phpstan-import-type Offset from IterableQuery
+ */
 class IndexerOffset
 {
     /**
@@ -24,19 +29,27 @@ class IndexerOffset
 
     protected ?int $timestamp;
 
+    /**
+     * @var Offset|null
+     */
     protected ?array $lastId;
 
     protected ?string $languageId;
 
     protected ?string $definition;
 
+    /**
+     * @param list<string> $languages
+     * @param iterable<AbstractElasticsearchDefinition> $definitions
+     * @param Offset|null $lastId
+     */
     public function __construct(
-        LanguageCollection $languages,
+        array $languages,
         iterable $definitions,
         ?int $timestamp,
         ?array $lastId = null
     ) {
-        $this->languages = array_values($languages->getIds());
+        $this->languages = $languages;
 
         $mapping = [];
         /** @var AbstractElasticsearchDefinition $definition */
@@ -85,11 +98,17 @@ class IndexerOffset
         return $this->languageId;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguages(): array
     {
         return $this->languages;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getDefinitions(): array
     {
         return $this->definitions;
@@ -100,6 +119,9 @@ class IndexerOffset
         return $this->timestamp;
     }
 
+    /**
+     * @return Offset|null
+     */
     public function getLastId(): ?array
     {
         return $this->lastId;
@@ -110,6 +132,9 @@ class IndexerOffset
         return $this->definition;
     }
 
+    /**
+     * @param Offset|null $lastId
+     */
     public function setLastId(?array $lastId): void
     {
         $this->lastId = $lastId;

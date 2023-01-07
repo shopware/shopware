@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Store\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package merchant-services
+ */
 class StoreSignatureValidationException extends ShopwareHttpException
 {
     public function __construct(string $reason)

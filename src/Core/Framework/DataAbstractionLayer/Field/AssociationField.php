@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
+/**
+ * @package core
+ */
 abstract class AssociationField extends Field
 {
     /**

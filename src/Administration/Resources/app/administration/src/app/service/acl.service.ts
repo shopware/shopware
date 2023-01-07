@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import type { FullState } from '../../core/factory/state.factory';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -34,7 +38,6 @@ export default class AclService {
         }
 
         const router = Shopware.Application.view.root.$router;
-        // @ts-expect-error
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         const match = router.match(route) as { meta?: { privilege: string}};
 

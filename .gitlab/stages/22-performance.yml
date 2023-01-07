@@ -10,8 +10,10 @@ Lighthouse (Administration):
         -   name: mariadb:10.3
             alias: database
     variables:
-      APP_ENV: prod
+      # Use e2e env to deactivate the admin queue worker
+      APP_ENV: e2e
       DD_API_KEY: "$DATADOG_API_KEY"
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: ''
     rules:
         - !reference [ .rules, skip ]
         - !reference [ .rules, run ]
@@ -46,6 +48,7 @@ Lighthouse Server (Storefront):
         APP_ENV: prod
         DD_API_KEY: "$DATADOG_API_KEY"
         ALLOW_FAILURE: 'true'
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: ''
     rules:
         - !reference [ .rules, skip ]
         # only run on protected refs like trunk and the version branches, if it's not a merge request

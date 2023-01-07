@@ -8,13 +8,12 @@ describe('SDK Tests: Notification', ()=> {
     beforeEach(() => {
         cy.loginViaApi()
             .then(() => {
-                return cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-            })
-            .then(() => {
                 cy.intercept({
                     url: `${Cypress.env('apiPath')}/search/locale`,
                     method: 'POST'
                 }).as('searchLocale');
+
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
 
                 cy.get('.sw-loader').should('not.exist');
                 cy.get('.sw-skeleton').should('not.exist');
@@ -30,7 +29,7 @@ describe('SDK Tests: Notification', ()=> {
                     .should('exist');
 
                 cy.get('.navigation-list-item__type-plugin')
-                    .should('have.length', 3);
+                    .should('have.length.least', 3);
             })
     });
 

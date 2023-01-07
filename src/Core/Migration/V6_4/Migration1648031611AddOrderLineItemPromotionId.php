@@ -6,6 +6,11 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1648031611AddOrderLineItemPromotionId extends MigrationStep
 {
     public function getCreationTimestamp(): int

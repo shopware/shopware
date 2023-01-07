@@ -6,6 +6,9 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 
+/**
+ * @package content
+ */
 interface CmsElementResolverInterface
 {
     public function getType(): string;

@@ -11,17 +11,17 @@ use Shopware\Core\Framework\Api\OAuth\Scope\AdminScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
 
+/**
+ * @package core
+ */
 class ScopeRepository implements ScopeRepositoryInterface
 {
     /**
      * @var ScopeEntityInterface[]
      */
-    private $scopes;
+    private array $scopes;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -84,8 +84,8 @@ class ScopeRepository implements ScopeRepositoryInterface
             ->where('id = UNHEX(:accessKey)')
             ->setParameter('accessKey', $userIdentifier)
             ->setMaxResults(1)
-            ->execute()
-            ->fetchColumn();
+            ->executeQuery()
+            ->fetchOne();
 
         if ($isAdmin) {
             $scopes[] = new AdminScope();

@@ -2,14 +2,15 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package storefront
+ *
  * @Route(".well-known/", defaults={"_routeScope"={"storefront"}})
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class WellKnownController extends StorefrontController
 {

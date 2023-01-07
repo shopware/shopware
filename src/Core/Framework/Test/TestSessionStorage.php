@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Session\Storage\MetadataBag;
 use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class TestSessionStorage implements SessionStorageInterface
@@ -73,9 +75,9 @@ class TestSessionStorage implements SessionStorageInterface
         }
     }
 
-    public function getBag(string $name): ?SessionBagInterface
+    public function getBag(string $name): SessionBagInterface
     {
-        return self::$data[$name] ?? null;
+        return self::$data[$name] ?? new FlashBag();
     }
 
     public function registerBag(SessionBagInterface $bag): void

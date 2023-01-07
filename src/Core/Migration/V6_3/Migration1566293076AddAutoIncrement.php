@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1566293076AddAutoIncrement extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -18,7 +23,7 @@ class Migration1566293076AddAutoIncrement extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `product` ADD `auto_increment` int(11) NOT NULL AUTO_INCREMENT UNIQUE AFTER `version_id`;');
-        $connection->executeUpdate('ALTER TABLE `category` ADD `auto_increment` int(11) NOT NULL AUTO_INCREMENT UNIQUE AFTER `version_id`;');
+        $connection->executeStatement('ALTER TABLE `product` ADD `auto_increment` int(11) NOT NULL AUTO_INCREMENT UNIQUE AFTER `version_id`;');
+        $connection->executeStatement('ALTER TABLE `category` ADD `auto_increment` int(11) NOT NULL AUTO_INCREMENT UNIQUE AFTER `version_id`;');
     }
 }

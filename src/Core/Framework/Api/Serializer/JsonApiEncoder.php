@@ -15,6 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 
+/**
+ * @package core
+ */
 class JsonApiEncoder
 {
     /**
@@ -118,7 +121,7 @@ class JsonApiEncoder
 
         $input = str_replace('_', '-', $input);
 
-        return $this->caseCache[$input] = ltrim(mb_strtolower(preg_replace('/[A-Z]/', '-$0', $input)), '-');
+        return $this->caseCache[$input] = ltrim(mb_strtolower((string) preg_replace('/[A-Z]/', '-$0', $input)), '-');
     }
 
     /**

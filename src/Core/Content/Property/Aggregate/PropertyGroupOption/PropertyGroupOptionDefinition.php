@@ -27,6 +27,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package inventory
+ */
 class PropertyGroupOptionDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'property_group_option';

@@ -5,6 +5,11 @@ namespace Shopware\Core\Framework\Store\Services;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 
+/**
+ * @package merchant-services
+ *
+ * @internal
+ */
 abstract class AbstractExtensionStoreLicensesService
 {
     abstract public function cancelSubscription(int $licenseId, Context $context): void;

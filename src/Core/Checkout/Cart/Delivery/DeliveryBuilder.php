@@ -19,6 +19,9 @@ use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class DeliveryBuilder
 {
     public function build(Cart $cart, CartDataCollection $data, SalesChannelContext $context, CartBehavior $cartBehavior): DeliveryCollection

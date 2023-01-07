@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @package business-ops
+ */
 class LineItemTaxationRule extends Rule
 {
     /**
@@ -49,7 +52,7 @@ class LineItemTaxationRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchesOneOfTaxations($lineItem)) {
                 return true;
             }
@@ -75,7 +78,7 @@ class LineItemTaxationRule extends Rule
 
     /**
      * @throws UnsupportedOperatorException
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     private function matchesOneOfTaxations(LineItem $lineItem): bool
     {

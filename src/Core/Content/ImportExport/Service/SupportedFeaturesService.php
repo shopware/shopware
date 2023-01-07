@@ -4,22 +4,27 @@ namespace Shopware\Core\Content\ImportExport\Service;
 
 /**
  * @internal We might break this in v6.2
+ *
+ * @package system-settings
  */
 class SupportedFeaturesService
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
-    private $entities;
+    private array $entities = [];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
-    private $fileTypes;
+    private array $fileTypes = [];
 
+    /**
+     * @param iterable<string> $entities
+     * @param iterable<string> $fileTypes
+     */
     public function __construct(iterable $entities, iterable $fileTypes)
     {
-        $this->entities = [];
         foreach ($entities as $entityName) {
             if (!\is_string($entityName)) {
                 throw new \InvalidArgumentException(sprintf(
@@ -30,7 +35,6 @@ class SupportedFeaturesService
             $this->entities[] = $entityName;
         }
 
-        $this->fileTypes = [];
         foreach ($fileTypes as $fileType) {
             if (!\is_string($fileType)) {
                 throw new \InvalidArgumentException(sprintf(
@@ -42,11 +46,17 @@ class SupportedFeaturesService
         }
     }
 
+    /**
+     * @return list<string>
+     */
     public function getEntities(): array
     {
         return $this->entities;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getFileTypes(): array
     {
         return $this->fileTypes;
@@ -56,8 +66,8 @@ class SupportedFeaturesService
     {
         $twoGiB = 2 * 1024 * 1024 * 1024;
         $values = [
-            self::toBytes(\ini_get('upload_max_filesize')),
-            self::toBytes(\ini_get('post_max_size')),
+            self::toBytes((string) \ini_get('upload_max_filesize')),
+            self::toBytes((string) \ini_get('post_max_size')),
             $twoGiB, // 2 GiB as fallback, because file size is stored in MySQL INT column
         ];
 
@@ -65,12 +75,7 @@ class SupportedFeaturesService
             return $value > 0;
         });
 
-        $min = min(...$limits);
-        if ($min === false) {
-            return $twoGiB;
-        }
-
-        return $min;
+        return min($limits);
     }
 
     private static function toBytes(string $value): int

@@ -8,24 +8,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package checkout
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class PaymentMethodRoute extends AbstractPaymentMethodRoute
 {
-    private SalesChannelRepositoryInterface $paymentMethodsRepository;
+    private SalesChannelRepository $paymentMethodsRepository;
 
     /**
      * @internal
      */
-    public function __construct(SalesChannelRepositoryInterface $paymentMethodsRepository)
+    public function __construct(SalesChannelRepository $paymentMethodsRepository)
     {
         $this->paymentMethodsRepository = $paymentMethodsRepository;
     }

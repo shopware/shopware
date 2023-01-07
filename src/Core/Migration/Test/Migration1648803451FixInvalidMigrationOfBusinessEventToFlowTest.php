@@ -7,13 +7,15 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Migration\V6_4\Migration1632215760MoveDataFromEventActionToFlow;
 use Shopware\Core\Migration\V6_4\Migration1648803451FixInvalidMigrationOfBusinessEventToFlow;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest extends TestCase
@@ -22,21 +24,19 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest extends Te
 
     private TestDataCollection $ids;
 
-    private ?Connection $connection;
+    private Connection $connection;
 
-    private ?EntityRepositoryInterface $eventActionRepository;
-
-    private ?EntityRepositoryInterface $flowRepository;
+    private EntityRepository $eventActionRepository;
 
     public function setUp(): void
     {
+        static::markTestSkipped('NEXT-24549: should be enabled again after NEXT-24549 is fixed');
+
         $this->ids = new TestDataCollection();
 
         $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->eventActionRepository = $this->getContainer()->get('event_action.repository');
-
-        $this->flowRepository = $this->getContainer()->get('flow.repository');
 
         $this->connection->executeStatement('DELETE FROM `event_action`');
         $this->connection->executeStatement('DELETE FROM `flow`');

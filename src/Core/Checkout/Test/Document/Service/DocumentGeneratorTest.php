@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Document\Service;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
@@ -30,7 +30,7 @@ use Shopware\Core\Content\Media\Pathname\UrlGenerator;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Util\Random;
@@ -42,6 +42,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class DocumentGeneratorTest extends TestCase
@@ -54,7 +56,7 @@ class DocumentGeneratorTest extends TestCase
 
     private DocumentGenerator $documentGenerator;
 
-    private EntityRepositoryInterface $documentRepository;
+    private EntityRepository $documentRepository;
 
     private string $documentTypeId;
 
@@ -364,7 +366,7 @@ class DocumentGeneratorTest extends TestCase
         $invoice = $this->documentRepository->search(new Criteria([$invoiceStruct->getId()]), $this->context)->get($invoiceStruct->getId());
 
         static::assertNotNull($invoice);
-        //create a storno bill which references the invoice
+        //create a cancellation invoice which references the invoice
         $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], $invoice->getId());
 
         $stornoStruct = $this->documentGenerator->generate(StornoRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
@@ -385,7 +387,7 @@ class DocumentGeneratorTest extends TestCase
      */
     public function testCreateFileIsWrittenInFs(): void
     {
-        /** @var FilesystemInterface $fileSystem */
+        /** @var FilesystemOperator $fileSystem */
         $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
         $document = $this->createDocumentWithFile();
 
@@ -417,7 +419,7 @@ class DocumentGeneratorTest extends TestCase
         static::expectException(InvalidDocumentException::class);
         static::expectExceptionMessage(\sprintf('The document with id "%s" is invalid or could not be found.', $documentId));
 
-        /** @var FilesystemInterface $fileSystem */
+        /** @var FilesystemOperator $fileSystem */
         $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
 
         /** @var UrlGenerator $urlGenerator */
@@ -466,7 +468,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($document->getDocumentMediaFile());
         $filePath = $urlGenerator->getRelativeMediaUrl($document->getDocumentMediaFile());
 
-        $fileSystem->put($filePath, 'test123');
+        $fileSystem->write($filePath, 'test123');
 
         static::assertTrue($fileSystem->has($filePath));
 

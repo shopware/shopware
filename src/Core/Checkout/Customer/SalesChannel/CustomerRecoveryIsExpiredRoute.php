@@ -9,8 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -27,6 +25,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
+ *
+ * @package customer-order
  */
 class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRoute
 {

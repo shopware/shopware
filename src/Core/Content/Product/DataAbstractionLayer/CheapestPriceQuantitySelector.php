@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * Allows project overrides to change cheapest price selection
+ *
+ * @package core
  */
 class CheapestPriceQuantitySelector extends AbstractCheapestPriceQuantitySelector
 {

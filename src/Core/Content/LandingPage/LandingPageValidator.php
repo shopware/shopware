@@ -13,18 +13,17 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package content
+ *
+ * @internal
  */
 class LandingPageValidator implements EventSubscriberInterface
 {
-    private ValidatorInterface $validator;
-
     /**
      * @internal
      */
-    public function __construct(ValidatorInterface $validator)
+    public function __construct(private ValidatorInterface $validator)
     {
-        $this->validator = $validator;
     }
 
     /**

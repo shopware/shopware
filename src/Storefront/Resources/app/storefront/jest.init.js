@@ -1,5 +1,9 @@
+/**
+ * @package storefront
+ */
+
 import '@babel/polyfill';
-import bootstrap from 'bootstrap5';
+import * as bootstrap from 'bootstrap';
 
 // log rejections so that they are not printed to stderr as a fallback
 process.on('unhandledRejection', (reason) => {
@@ -7,11 +11,6 @@ process.on('unhandledRejection', (reason) => {
 });
 
 global.bootstrap = bootstrap;
-
-// Global mocks for common window properties
-global.csrf = {
-    enabled: false,
-};
 
 global.router = {};
 

@@ -9,24 +9,27 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package inventory
+ */
 class ProductConfiguratorLoader
 {
-    private EntityRepositoryInterface $configuratorRepository;
+    private EntityRepository $configuratorRepository;
 
-    private AvailableCombinationLoader $combinationLoader;
+    private AbstractAvailableCombinationLoader $combinationLoader;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $configuratorRepository,
-        AvailableCombinationLoader $combinationLoader
+        EntityRepository $configuratorRepository,
+        AbstractAvailableCombinationLoader $combinationLoader
     ) {
         $this->combinationLoader = $combinationLoader;
         $this->configuratorRepository = $configuratorRepository;

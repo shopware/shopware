@@ -5,12 +5,12 @@ namespace Shopware\Core;
 use Composer\Autoload\ClassLoader;
 use Composer\InstalledVersions;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Event\BeforeSendRedirectResponseEvent;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Routing\CanonicalRedirectService;
@@ -25,6 +25,10 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 
+/**
+ * @package core
+ * @psalm-import-type Params from DriverManager
+ */
 class HttpKernel
 {
     protected static ?Connection $connection = null;
@@ -58,22 +62,12 @@ class HttpKernel
         $this->debug = $debug;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - parameter `$type` will be typed to `int` and parameter `$catch` will be typed to `bool`
-     */
-    public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true): HttpKernelResult
+    public function handle(Request $request, int $type = HttpKernelInterface::MASTER_REQUEST, bool $catch = true): HttpKernelResult
     {
-        if (!\is_int($type)) {
-            Feature::triggerDeprecationOrThrow('v6.5.0.0', 'The second parameter `$type` of `HttpKernel->handle()` will be typed to `int`');
-        }
-
-        if (!\is_bool($catch)) {
-            Feature::triggerDeprecationOrThrow('v6.5.0.0', 'The third parameter `$catch` of `HttpKernel->handle()` will be typed to `bool`');
-        }
-
         try {
-            return $this->doHandle($request, (int) $type, (bool) $catch);
-        } catch (DBALException $e) {
+            return $this->doHandle($request, $type, $catch);
+        } catch (Exception $e) {
+            /** @var Params|array{url?: string} $connectionParams */
             $connectionParams = self::getConnection()->getParams();
 
             $message = str_replace([$connectionParams['url'] ?? null, $connectionParams['password'] ?? null, $connectionParams['user'] ?? null], '******', $e->getMessage());

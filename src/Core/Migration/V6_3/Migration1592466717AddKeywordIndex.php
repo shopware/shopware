@@ -3,9 +3,14 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1592466717AddKeywordIndex extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -16,8 +21,8 @@ class Migration1592466717AddKeywordIndex extends MigrationStep
     public function update(Connection $connection): void
     {
         try {
-            $connection->executeUpdate('ALTER TABLE `product_search_keyword` ADD INDEX `idx.product_search_keyword.keyword_language` (`keyword`, `language_id`);');
-        } catch (DBALException $e) {
+            $connection->executeStatement('ALTER TABLE `product_search_keyword` ADD INDEX `idx.product_search_keyword.keyword_language` (`keyword`, `language_id`);');
+        } catch (Exception $e) {
             // index already exists
         }
     }

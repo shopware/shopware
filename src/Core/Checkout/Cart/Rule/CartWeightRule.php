@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @package business-ops
+ */
 class CartWeightRule extends Rule
 {
     protected float $weight;
@@ -59,7 +62,7 @@ class CartWeightRule extends Rule
     {
         $weight = 0.0;
 
-        foreach ($cart->getLineItems()->getFlat() as $lineItem) {
+        foreach ($cart->getLineItems()->filterGoodsFlat() as $lineItem) {
             $itemWeight = 0.0;
             if ($lineItem->getDeliveryInformation() !== null && $lineItem->getDeliveryInformation()->getWeight() !== null) {
                 $itemWeight = $lineItem->getDeliveryInformation()->getWeight();

@@ -1,7 +1,6 @@
 ---
 title: Refactor CheapestPrice indexing
 issue: NEXT-16151
-flag: FEATURE_NEXT_16151
 ---
 # Core
 * Changed `\Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater` and `\Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer` to add default product price only once to CheapestPriceStruct.

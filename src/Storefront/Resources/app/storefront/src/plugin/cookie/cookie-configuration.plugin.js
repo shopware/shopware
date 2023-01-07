@@ -23,12 +23,6 @@ import Plugin from 'src/plugin-system/plugin.class';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
-/**
- * @deprecated tag:v6.5.0 - Import of `AjaxModalExtension` will be removed.
- * Manual re-instantiating of `AjaxModalExtension` is obsolete because it is now covered by `AjaxModalPlugin`.
- */
-// eslint-disable-next-line
-import AjaxModalExtension from 'src/utility/modal-extension/ajax-modal-extension.util';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import HttpClient from 'src/service/http-client.service';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';

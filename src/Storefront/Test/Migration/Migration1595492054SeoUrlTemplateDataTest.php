@@ -9,7 +9,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
-use Shopware\Storefront\Migration\Migration1595492054SeoUrlTemplateData;
+use Shopware\Storefront\Migration\V6_3\Migration1595492054SeoUrlTemplateData;
 
 /**
  * @internal
@@ -76,12 +76,12 @@ class Migration1595492054SeoUrlTemplateDataTest extends TestCase
             static::assertSame(1, $affectedColumns);
         }
 
-        $data = $connection->fetchAll('SELECT * FROM seo_url_template ORDER BY id');
+        $data = $connection->fetchAllAssociative('SELECT * FROM seo_url_template ORDER BY id');
         $expectedHash = md5(serialize($data));
 
         $migration->update($connection);
 
-        $data = $connection->fetchAll('SELECT * FROM seo_url_template ORDER BY id');
+        $data = $connection->fetchAllAssociative('SELECT * FROM seo_url_template ORDER BY id');
         $actualHash = md5(serialize($data));
 
         static::assertSame($expectedHash, $actualHash, 'The data has changed');
@@ -91,16 +91,16 @@ class Migration1595492054SeoUrlTemplateDataTest extends TestCase
     {
         $stmt = $this->getContainer()->get(Connection::class)
             ->prepare('SELECT template FROM seo_url_template WHERE `entity_name` = ? AND `route_name` = ?');
-        $stmt->execute([
+        $res = $stmt->executeQuery([
             ProductDefinition::ENTITY_NAME,
             ProductPageSeoUrlRoute::ROUTE_NAME,
         ]);
-        static::assertSame(ProductPageSeoUrlRoute::DEFAULT_TEMPLATE, $stmt->fetchColumn());
+        static::assertSame(ProductPageSeoUrlRoute::DEFAULT_TEMPLATE, $res->fetchOne());
 
-        $stmt->execute([
+        $res = $stmt->executeQuery([
             CategoryDefinition::ENTITY_NAME,
             NavigationPageSeoUrlRoute::ROUTE_NAME,
         ]);
-        static::assertSame(NavigationPageSeoUrlRoute::DEFAULT_TEMPLATE, $stmt->fetchColumn());
+        static::assertSame(NavigationPageSeoUrlRoute::DEFAULT_TEMPLATE, $res->fetchOne());
     }
 }

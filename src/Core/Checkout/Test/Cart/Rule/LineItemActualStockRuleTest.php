@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @group rules
  */
@@ -176,7 +178,7 @@ class LineItemActualStockRuleTest extends TestCase
     }
 
     /**
-     * @throws InvalidQuantityException
+     * @throws CartException
      */
     public function testMatchWithEmptyDeliveryInformation(): void
     {

@@ -10,7 +10,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
@@ -30,7 +30,10 @@ use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
@@ -51,7 +54,7 @@ class ThemeTest extends TestCase
     protected $context;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $themeRepository;
 
@@ -61,7 +64,7 @@ class ThemeTest extends TestCase
     private $createdStorefrontTheme = '';
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaRepository;
 
@@ -324,7 +327,7 @@ class ThemeTest extends TestCase
         $themeInheritedConfig['baseThemeFields']['some-custom'] = ['value' => null, 'isInherited' => true];
 
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['value'] = '#ff00ff';
-        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#526e7f';
+        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#3d444d';
 
         foreach ($themeInheritedConfig['fields'] as $key => $field) {
             if ($field['type'] === 'media') {
@@ -371,7 +374,7 @@ class ThemeTest extends TestCase
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['value'] = '#ff00ff';
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['isInherited'] = false;
 
-        $themeInheritedConfig['baseThemeFields']['sw-color-brand-primary']['value'] = '#008490';
+        $themeInheritedConfig['baseThemeFields']['sw-color-brand-primary']['value'] = '#0b539b';
 
         foreach ($themeInheritedConfig['fields'] as $key => $field) {
             if ($field['type'] === 'media') {
@@ -439,7 +442,7 @@ class ThemeTest extends TestCase
                 $themeInheritedConfig['fields'][$key]['value'] = $theme['fields'][$key]['value'];
             }
         }
-        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#526e7f';
+        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#3d444d';
 
         static::assertEquals($themeInheritedConfig, $theme);
     }
@@ -571,7 +574,7 @@ class ThemeTest extends TestCase
                 $this->simpleTheme = new SimpleTheme();
             }
 
-            public function getBundles()
+            public function getBundles(): array
             {
                 $bundles = $this->kernel->getBundles();
                 $bundles[$this->simpleTheme->getName()] = $this->simpleTheme;
@@ -579,17 +582,17 @@ class ThemeTest extends TestCase
                 return $bundles;
             }
 
-            public function getBundle($name) /* @phpstan-ignore-line  */
+            public function getBundle(string $name): BundleInterface
             {
                 return $name === $this->simpleTheme->getName() ? $this->simpleTheme : $this->kernel->getBundle($name);
             }
 
-            public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
+            public function handle(Request $request, int $type = self::MASTER_REQUEST, bool $catch = true): Response
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function registerBundles()
+            public function registerBundles(): iterable
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
@@ -609,7 +612,7 @@ class ThemeTest extends TestCase
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function locateResource($name) /* @phpstan-ignore-line  */
+            public function locateResource(string $name): string
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
@@ -619,12 +622,12 @@ class ThemeTest extends TestCase
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function getEnvironment()
+            public function getEnvironment(): string
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function isDebug()
+            public function isDebug(): bool
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
@@ -634,32 +637,37 @@ class ThemeTest extends TestCase
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function getProjectDir()
+            public function getProjectDir(): string
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function getContainer()
+            public function getContainer(): ContainerInterface
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function getStartTime()
+            public function getStartTime(): float
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function getCacheDir()
+            public function getCacheDir(): string
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function getLogDir()
+            public function getBuildDir(): string
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function getCharset()
+            public function getLogDir(): string
+            {
+                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+            }
+
+            public function getCharset(): string
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
@@ -705,7 +713,7 @@ class ThemeTest extends TestCase
         $_expectedColor = '#b1900f';
         $_expectedTheme = $childTheme->getId();
         $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $childTheme->getId(), $this->context);
-        $_expectedColor = '#008490';
+        $_expectedColor = '#0b539b';
         $_expectedTheme = $baseTheme->getId();
         $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $baseTheme->getId(), $this->context);
     }
@@ -876,7 +884,7 @@ class ThemeTest extends TestCase
         static::assertNotEmpty($resetTheme->getUpdatedAt());
     }
 
-    private function createBundleTheme(StorefrontPluginConfiguration $config, ThemeEntity $parentTheme, array $saleschannels = []): string
+    private function createBundleTheme(StorefrontPluginConfiguration $config, ThemeEntity $parentTheme): string
     {
         $name = $config->getTechnicalName();
 
@@ -897,7 +905,7 @@ class ThemeTest extends TestCase
                     'customFields' => $parentTheme->getCustomFields(),
                     'previewMediaId' => $parentTheme->getPreviewMediaId(),
                     'active' => true,
-                    'salesChannels' => $saleschannels,
+                    'salesChannels' => [],
                 ],
             ],
             $this->context
@@ -906,6 +914,10 @@ class ThemeTest extends TestCase
         return $name;
     }
 
+    /**
+     * @param array<string, mixed> $customConfig
+     * @param array<int, array<string, string>> $saleschannels
+     */
     private function createTheme(ThemeEntity $parentTheme, array $customConfig = [], array $saleschannels = [], ?string $givenName = null): string
     {
         $name = $givenName ?? 'test' . Uuid::randomHex();
@@ -993,6 +1005,9 @@ class ThemeTest extends TestCase
         return $name;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getCustomConfigMultiSelect(): array
     {
         return [

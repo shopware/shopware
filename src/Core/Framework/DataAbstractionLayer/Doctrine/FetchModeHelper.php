@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 
+/**
+ * @package core
+ */
 class FetchModeHelper
 {
     /**

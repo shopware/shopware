@@ -3,6 +3,7 @@ import template from './sw-step-display.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description This step display component need flow-items inside it's slot to work.
  * To control the current position use the `itemIndex` property (zero-based index).

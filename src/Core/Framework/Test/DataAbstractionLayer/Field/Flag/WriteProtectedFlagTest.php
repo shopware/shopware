@@ -27,19 +27,16 @@ class WriteProtectedFlagTest extends TestCase
     use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
 
-        $this->connection->executeUpdate('DROP TABLE IF EXISTS `_test_nullable`');
-        $this->connection->executeUpdate('DROP TABLE IF EXISTS `_test_nullable_reference`');
-        $this->connection->executeUpdate('DROP TABLE IF EXISTS `_test_nullable_translation`');
-        $this->connection->executeUpdate('DROP TABLE IF EXISTS `_test_relation`');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `_test_nullable`');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `_test_nullable_reference`');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `_test_nullable_translation`');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `_test_relation`');
 
         $nullableTable = <<<EOF
 CREATE TABLE `_test_relation` (
@@ -71,7 +68,7 @@ CREATE TABLE `_test_nullable` (
   FOREIGN KEY `fk` (`relation_id`) REFERENCES _test_relation (`id`)
 );
 EOF;
-        $this->connection->executeUpdate($nullableTable);
+        $this->connection->executeStatement($nullableTable);
         $this->connection->beginTransaction();
 
         $this->registerDefinition(
@@ -87,10 +84,10 @@ EOF;
     {
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('DROP TABLE `_test_nullable`');
-        $this->connection->executeUpdate('DROP TABLE `_test_relation`');
-        $this->connection->executeUpdate('DROP TABLE `_test_nullable_translation`');
-        $this->connection->executeUpdate('DROP TABLE `_test_nullable_reference`');
+        $this->connection->executeStatement('DROP TABLE `_test_nullable`');
+        $this->connection->executeStatement('DROP TABLE `_test_relation`');
+        $this->connection->executeStatement('DROP TABLE `_test_nullable_translation`');
+        $this->connection->executeStatement('DROP TABLE `_test_nullable_reference`');
 
         parent::tearDown();
     }
@@ -134,7 +131,7 @@ EOF;
 
         $this->getWriter()->insert($definition, [$data], $context);
 
-        $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
+        $data = $this->connection->fetchAllAssociative('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
         static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
@@ -154,7 +151,7 @@ EOF;
 
         $this->getWriter()->insert($definition, [$data], $context);
 
-        $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
+        $data = $this->connection->fetchAllAssociative('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
         static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
@@ -205,7 +202,7 @@ EOF;
 
         $this->getWriter()->insert($definition, [$data], $context);
 
-        $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
+        $data = $this->connection->fetchAllAssociative('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
         static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
@@ -261,7 +258,7 @@ EOF;
 
         $this->getWriter()->insert($definition, [$data], $context);
 
-        $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
+        $data = $this->connection->fetchAllAssociative('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
         static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['relation_id']);
@@ -317,7 +314,7 @@ EOF;
 
         $this->getWriter()->insert($definition, [$data], $context);
 
-        $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable_reference`');
+        $data = $this->connection->fetchAllAssociative('SELECT * FROM `_test_nullable_reference`');
 
         static::assertCount(1, $data);
         static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['wp_id']);
@@ -364,7 +361,7 @@ EOF;
 
         $this->getWriter()->insert($definition, [$data], $context);
 
-        $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable_translation`');
+        $data = $this->connection->fetchAllAssociative('SELECT * FROM `_test_nullable_translation`');
 
         static::assertCount(1, $data);
         static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['_test_nullable_id']);

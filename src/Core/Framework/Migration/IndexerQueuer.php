@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ */
 class IndexerQueuer
 {
     public const INDEXER_KEY = 'core.scheduled_indexers';
@@ -124,7 +127,7 @@ class IndexerQueuer
 
     private static function fetchCurrent(Connection $connection): ?array
     {
-        $currentRow = $connection->fetchAssoc(
+        $currentRow = $connection->fetchAssociative(
             '
             SELECT *
             FROM system_config

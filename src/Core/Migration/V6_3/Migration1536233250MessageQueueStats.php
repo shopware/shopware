@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1536233250MessageQueueStats extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +19,7 @@ class Migration1536233250MessageQueueStats extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->exec(
+        $connection->executeStatement(
             'CREATE TABLE message_queue_stats (
                `id` BINARY(16) NOT NULL PRIMARY KEY,
                `name` VARCHAR(255) NOT NULL,

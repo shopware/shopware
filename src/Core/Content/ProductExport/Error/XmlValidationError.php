@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\ProductExport\Error;
 
+/**
+ * @package inventory
+ */
 class XmlValidationError extends Error
 {
     /**

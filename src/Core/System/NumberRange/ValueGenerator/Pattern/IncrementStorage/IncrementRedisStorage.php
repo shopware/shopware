@@ -3,11 +3,14 @@
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\Lock\LockFactory;
 
+/**
+ * @package checkout
+ */
 class IncrementRedisStorage extends AbstractIncrementStorage
 {
     /**
@@ -17,12 +20,12 @@ class IncrementRedisStorage extends AbstractIncrementStorage
 
     private LockFactory $lockFactory;
 
-    private EntityRepositoryInterface $numberRangeRepository;
+    private EntityRepository $numberRangeRepository;
 
     /**
      * @param \Redis|\RedisCluster $redis
      */
-    public function __construct($redis, LockFactory $lockFactory, EntityRepositoryInterface $numberRangeRepository)
+    public function __construct($redis, LockFactory $lockFactory, EntityRepository $numberRangeRepository)
     {
         $this->redis = $redis;
         $this->lockFactory = $lockFactory;

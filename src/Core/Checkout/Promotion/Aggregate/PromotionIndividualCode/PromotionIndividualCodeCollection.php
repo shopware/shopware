@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package checkout
+ *
  * @extends EntityCollection<PromotionIndividualCodeEntity>
  */
 class PromotionIndividualCodeCollection extends EntityCollection

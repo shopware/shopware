@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1559306391PromotionIndividualCode extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +19,7 @@ class Migration1559306391PromotionIndividualCode extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `promotion_individual_code` (
               `id` BINARY(16) NOT NULL,
               `promotion_id` BINARY(16) NOT NULL,

@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -26,28 +26,31 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @package core
+ */
 class SearchKeywordUpdater implements ResetInterface
 {
     private Connection $connection;
 
-    private EntityRepositoryInterface $languageRepository;
+    private EntityRepository $languageRepository;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
     private ProductSearchKeywordAnalyzerInterface $analyzer;
 
     /**
      * @var array[]
      */
-    private $config = [];
+    private array $config = [];
 
     /**
      * @internal
      */
     public function __construct(
         Connection $connection,
-        EntityRepositoryInterface $languageRepository,
-        EntityRepositoryInterface $productRepository,
+        EntityRepository $languageRepository,
+        EntityRepository $productRepository,
         ProductSearchKeywordAnalyzerInterface $analyzer
     ) {
         $this->connection = $connection;
@@ -172,7 +175,7 @@ class SearchKeywordUpdater implements ResetInterface
         ];
 
         RetryableQuery::retryable($this->connection, function () use ($params): void {
-            $this->connection->executeUpdate(
+            $this->connection->executeStatement(
                 'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :language AND version_id = :versionId',
                 $params,
                 ['ids' => Connection::PARAM_STR_ARRAY]
@@ -267,7 +270,7 @@ class SearchKeywordUpdater implements ResetInterface
 
         $query->setParameter('languageIds', Uuid::fromHexToBytesList([$languageId, Defaults::LANGUAGE_SYSTEM]), Connection::PARAM_STR_ARRAY);
 
-        $all = $query->execute()->fetchAll();
+        $all = $query->executeQuery()->fetchAllAssociative();
 
         $fields = array_filter($all, function (array $field) use ($languageId) {
             return $field['language_id'] === $languageId;

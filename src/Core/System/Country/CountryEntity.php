@@ -15,6 +15,9 @@ use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCoun
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 
+/**
+ * @package system-settings
+ */
 class CountryEntity extends Entity
 {
     use EntityIdTrait;
@@ -132,6 +135,21 @@ class CountryEntity extends Entity
      * @var CurrencyCountryRoundingCollection|null
      */
     protected $currencyCountryRoundings;
+
+    protected bool $postalCodeRequired;
+
+    protected bool $checkPostalCodePattern;
+
+    protected bool $checkAdvancedPostalCodePattern;
+
+    protected ?string $advancedPostalCodePattern;
+
+    protected ?string $defaultPostalCodePattern;
+
+    /**
+     * @var array<array<string, array<string, string>>>
+     */
+    protected array $addressFormat;
 
     public function getName(): ?string
     {
@@ -393,5 +411,71 @@ class CountryEntity extends Entity
     public function setCompanyTax(TaxFreeConfig $companyTax): void
     {
         $this->companyTax = $companyTax;
+    }
+
+    public function getPostalCodeRequired(): bool
+    {
+        return $this->postalCodeRequired;
+    }
+
+    public function setPostalCodeRequired(bool $postalCodeRequired): void
+    {
+        $this->postalCodeRequired = $postalCodeRequired;
+    }
+
+    public function getCheckPostalCodePattern(): bool
+    {
+        return $this->checkPostalCodePattern;
+    }
+
+    public function setCheckPostalCodePattern(bool $checkPostalCodePattern): void
+    {
+        $this->checkPostalCodePattern = $checkPostalCodePattern;
+    }
+
+    public function getCheckAdvancedPostalCodePattern(): bool
+    {
+        return $this->checkAdvancedPostalCodePattern;
+    }
+
+    public function setCheckAdvancedPostalCodePattern(bool $checkAdvancedPostalCodePattern): void
+    {
+        $this->checkAdvancedPostalCodePattern = $checkAdvancedPostalCodePattern;
+    }
+
+    public function getAdvancedPostalCodePattern(): ?string
+    {
+        return $this->advancedPostalCodePattern;
+    }
+
+    public function setAdvancedPostalCodePattern(?string $advancedPostalCodePattern): void
+    {
+        $this->advancedPostalCodePattern = $advancedPostalCodePattern;
+    }
+
+    /**
+     * @return array<array<string, array<string, string>>>
+     */
+    public function getAddressFormat(): array
+    {
+        return $this->addressFormat;
+    }
+
+    /**
+     * @param array<array<string, array<string, string>>> $addressFormat
+     */
+    public function setAddressFormat(array $addressFormat): void
+    {
+        $this->addressFormat = $addressFormat;
+    }
+
+    public function setDefaultPostalCodePattern(?string $pattern): void
+    {
+        $this->defaultPostalCodePattern = $pattern;
+    }
+
+    public function getDefaultPostalCodePattern(): ?string
+    {
+        return $this->defaultPostalCodePattern;
     }
 }

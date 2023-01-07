@@ -2,10 +2,11 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Profiler;
 
-use Elasticsearch\ClientBuilder;
 use GuzzleHttp\Ring\Future\FutureArray;
+use OpenSearch\ClientBuilder;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Profiler\ClientProfiler;
+use function React\Promise\resolve;
 
 /**
  * @covers \Shopware\Elasticsearch\Profiler\ClientProfiler
@@ -23,7 +24,7 @@ class ClientProfilerTest extends TestCase
     {
         $builder = new ClientBuilder();
         $builder->setHandler(function () {
-            return new FutureArray(\React\Promise\resolve([
+            return new FutureArray(resolve([
                 'status' => 200,
                 'body' => fopen('php://memory', 'rb'),
                 'transfer_stats' => [

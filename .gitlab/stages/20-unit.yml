@@ -2,20 +2,51 @@
 
 # unit stage - This files contains all jobs belonging to the unit stage
 
+.administration-node-cache: &administration-node-cache
+  key:
+    files:
+      - src/Administration/Resources/app/administration/package-lock.json
+  paths:
+    - src/Administration/Resources/app/administration/node_modules/
+  policy: push
+
+.administration-jest-cache: &administration-jest-cache
+  key: 'jestcache-administration'
+  paths:
+    - src/Administration/Resources/app/administration/.jestcache
+  policy: push
+
+.storefront-node-cache: &storefront-node-cache
+  key:
+    files:
+      - src/Storefront/Resources/app/storefront/package-lock.json
+  paths:
+    - src/Storefront/Resources/app/storefront/node_modules/
+  policy: push
+
+.storefront-jest-cache: &storefront-jest-cache
+  key: 'jestcache-storefront'
+  paths:
+    - src/Storefront/Resources/app/storefront/.jestcache
+  policy: push
+
 Jest (Administration):
     extends: .base
     stage: unit
     needs: []
     services: []
+    cache:
+      - <<: *administration-node-cache
+        policy: pull
     rules:
         - !reference [ .rules, skip ]
         - !reference [ .rules, run ]
         - when: always
     before_script:
-      - composer install --no-scripts --no-plugins --quiet
-      - bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json 2>/dev/null
+      - composer install --no-scripts --quiet
+      - '[[ -d src/Administration/Resources/app/administration/node_modules/ ]] || npm --prefix src/Administration/Resources/app/administration/ ci'
+      - composer run admin:generate-entity-schema-types
       - !reference [ .scripts, install-node, script ]
-      - (cd $ADMIN_PATH && npm ci)
     script:
         - npm --prefix $ADMIN_PATH run unit -- --silent
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
@@ -40,11 +71,12 @@ Jest (Storefront):
         - when: always
     variables:
       NODE_VERSION: 12
+    cache:
+      - <<: *storefront-node-cache
+        policy: pull
     before_script:
-      - composer install --no-scripts --no-plugins --quiet
-      - bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json
       - !reference [ .scripts, install-node, script ]
-      - (cd $STOREFRONT_PATH && npm ci)
+      - '[[ -d src/Storefront/Resources/app/storefront/node_modules/ ]] || npm --prefix src/Storefront/Resources/app/storefront/ ci'
     script:
         - npm --prefix "$STOREFRONT_PATH" run unit -- --silent
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
@@ -60,7 +92,7 @@ Jest (Storefront):
 
 PHP unit:
     extends: .base-no-setup
-    image: shopware/development:7.4-composer-2
+    image: shopware/development:8.1-composer-2
     stage: unit
     needs: []
     timeout: 30m
@@ -70,9 +102,6 @@ PHP unit:
             entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
         -   name: redis
             alias: redis
-        -   name: opensearchproject/opensearch:2.2.0
-            alias: elasticsearch
-            command: [ "bin/opensearch", "-Ediscovery.type=single-node", "-Eplugins.security.disabled=true" ]
     variables:
         APP_ENV: "test"
         FEATURE_ALL: "major"
@@ -88,6 +117,8 @@ PHP unit:
     before_script:
         - composer install --optimize-autoloader --no-interaction
         - mkdir -p config/jwt || true
+        - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
+        - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
     script:
         - php vendor/bin/phpunit
             --configuration phpunit.xml.dist
@@ -102,13 +133,29 @@ PHP unit:
             junit: phpunit.junit.xml
     parallel:
         matrix:
-            - TESTSUITE: ["framework", "storefront,administration,system,profiling,maintenance,docs", "migration"]
-            - TESTSUITE: ["content", "checkout", "elasticsearch", "integration"]
+            - TESTSUITE: ["framework", "storefront,administration,system,profiling,maintenance", "migration"]
+            - TESTSUITE: ["content", "checkout"]
               RUNNER_INSTANCE_TYPE: m5.large
+
+PHP unit Elasticsearch:
+  extends: PHP unit
+  services:
+    - name: mariadb:10.4
+      alias: database
+      entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+    - name: redis
+      alias: redis
+    - name: opensearchproject/opensearch:2.2.0
+      alias: elasticsearch
+      command: [ "bin/opensearch", "-Ediscovery.type=single-node", "-Eplugins.security.disabled=true" ]
+  parallel:
+    matrix:
+      - TESTSUITE: ["integration"]
+        RUNNER_INSTANCE_TYPE: m5.large
 
 PHP bench:
     extends: .base-no-setup
-    image: shopware/development:8.0-composer-2
+    image: shopware/development:8.1-composer-2
     stage: unit
     needs: []
     timeout: 30m
@@ -140,14 +187,13 @@ PHP bench:
 
 PHP unit coverage:
     extends: .base-no-setup
-    image: shopware/development:7.4-composer-2
+    image: shopware/development:8.1-composer-2
     stage: unit
     needs: []
     timeout: 10m
     services: []
     variables:
         APP_ENV: "test"
-        FEATURE_ALL: "false"
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
@@ -162,7 +208,7 @@ PHP unit coverage:
             --log-junit phpunit.junit.xml
             --testsuite unit
             --coverage-text
-            --coverage-cobertura cobertura.xml | sed -E -n '1,/^\s*Lines:\s*([0-9]+(\.[0-9]+)?)%/ p' # do not output covered files lines
+            --coverage-cobertura cobertura.xml | grep -v -E '^Shopware\\|^  Methods:'  # do not output covered files lines
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
       when: always
@@ -176,7 +222,7 @@ PHP unit coverage:
 
 PHP migration coverage:
     extends: .base-no-setup
-    image: shopware/development:7.4-composer-2
+    image: shopware/development:8.1-composer-2
     stage: unit
     needs: []
     timeout: 10m
@@ -200,7 +246,7 @@ PHP migration coverage:
             --log-junit phpunit.junit.xml
             --testsuite migration-tests
             --coverage-text
-            --coverage-cobertura cobertura.xml | sed -E -n '1,/^\s*Lines:\s*([0-9]+(\.[0-9]+)?)%/ p' # do not output covered files lines
+            --coverage-cobertura cobertura.xml | grep -v -E '^Shopware\\|^  Methods:'  # do not output covered files lines
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
       when: always
@@ -229,12 +275,13 @@ PHP Full:
         -   name: redis
             alias: redis
     variables:
-        TEST_SUITES: "docs administration storefront checkout content framework profiling system elasticsearch unit integration migration migration-tests"
+        TEST_SUITES: "administration storefront checkout content framework profiling system elasticsearch unit integration migration migration-tests"
         APP_ENV: test
         GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
         RUNNER_INSTANCE_TYPE: m5.large
         ALLOW_FAILURE: "false"
         REDIS_URL: redis://redis:6379
+        SWAGGER_VALIDATOR_URL: http://swagger:8080/validator/debug
     rules:
         - !reference [.rules, skip]
         - if: !reference [.rules, run-allow-failure, if ]
@@ -253,29 +300,29 @@ PHP Full:
     parallel:
         matrix:
             -   MYSQL_IMAGE: mariadb:10.4
-                DEV_IMAGE: shopware/development:8.0-composer-2
+                DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: 'false'
             -   MYSQL_IMAGE:
                     - mysql:5.7
                     - mariadb:10.3
-                DEV_IMAGE: shopware/development:8.0-composer-2
+                DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: [ "false", "major" ]
             -   MYSQL_IMAGE:
                     - mysql:8.0
-                DEV_IMAGE: [ "shopware/development:7.4-composer-2", "shopware/development:8.0-composer-2", "shopware/development:8.1-composer-2" ]
+                DEV_IMAGE: [ "shopware/development:8.1-composer-2" ]
                 FEATURE_ALL: [ "false", "major" ]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
             -   MYSQL_IMAGE: mariadb:10.4
-                DEV_IMAGE: shopware/development:7.4-composer-2
+                DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: 'false'
                 PREFER_LOWEST: 'true'
             -   MYSQL_IMAGE: mariadb:10.4
-                DEV_IMAGE: shopware/development:7.4-composer-2
+                DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: 'false'
                 ONLY_CORE: 'true'
                 TEST_SUITES: "checkout content framework profiling system integration migration"
             -   MYSQL_IMAGE: mariadb:10.5
-                DEV_IMAGE: shopware/development:7.4-composer-2
+                DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: 'false'
                 DEPENDENCY_DEV: 'true'
                 TEST_SUITES: "checkout content framework profiling system integration migration"
@@ -289,17 +336,18 @@ PHP Full:
         - >
             if [ "$PREFER_LOWEST" == "true" ]; then
                 composer update --prefer-lowest --optimize-autoloader
+                # disable symfony deprecation check, when running with lowest dependency versions
+                export SYMFONY_DEPRECATIONS_HELPER=disabled
             fi
         - >
             if [ "$ONLY_CORE" == "true" ]; then
                 sed -i '/Shopware\\Administration/d' ./config/bundles.php
-                sed -i '/ Shopware\\Docs/d' ./config/bundles.php
                 sed -i '/Shopware\\Storefront/d' ./config/bundles.php
                 sed -i '/Shopware\\Elasticsearch/d' ./config/bundles.php
                 rm -rf tests/integration/php/Administration
                 rm -rf tests/integration/php/Elasticsearch
                 rm -rf tests/integration/php/Storefront
-                jq 'del(.replace."shopware/storefront", .replace."shopware/administration", .replace."shopware/elasticsearch", ."autoload-dev", .autoload."psr-4"."Shopware\\\\Administration\\\\", .autoload."psr-4"."Shopware\\\\Docs\\\\", .autoload."psr-4"."Shopware\\\\Storefront\\\\", .autoload."psr-4"."Shopware\\\\Elasticsearch\\\\")' composer.json > composer.json.tmp && mv composer.json.tmp composer.json
+                jq 'del(.replace."shopware/storefront", .replace."shopware/administration", .replace."shopware/elasticsearch", ."autoload-dev", .autoload."psr-4"."Shopware\\\\Administration\\\\", .autoload."psr-4"."Shopware\\\\Storefront\\\\", .autoload."psr-4"."Shopware\\\\Elasticsearch\\\\")' composer.json > composer.json.tmp && mv composer.json.tmp composer.json
                 composer dump-autoload
             fi
         - FAILED=0
@@ -329,7 +377,7 @@ PHP Full quarantined:
     parallel:
         matrix:
             - MYSQL_IMAGE: mariadb:10.4
-              DEV_IMAGE: shopware/development:8.0-composer-2
+              DEV_IMAGE: shopware/development:8.1-composer-2
               FEATURE_ALL: 'false'
               ALLOW_FAILURE: 'true'
     script:

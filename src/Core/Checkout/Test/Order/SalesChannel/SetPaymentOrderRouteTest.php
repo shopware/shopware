@@ -16,7 +16,7 @@ use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
 use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -41,8 +42,6 @@ class SetPaymentOrderRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private EntityRepositoryInterface $customerRepository;
-
     private IdsCollection $ids;
 
     private ?OrderPaymentMethodChangedEvent $paymentMethodChangedEventResult;
@@ -55,9 +54,6 @@ class SetPaymentOrderRouteTest extends TestCase
     {
         parent::setUp();
 
-        /** @var EntityRepositoryInterface $customerRepository */
-        $customerRepository = $this->getContainer()->get('customer.repository');
-        $this->customerRepository = $customerRepository;
         $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
@@ -84,8 +80,12 @@ class SetPaymentOrderRouteTest extends TestCase
                 'password' => 'shopware',
             ]
         );
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        $response = $this->browser->getResponse();
+
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
         $this->paymentMethodChangedEventResult = null;
         $this->catchEvent(OrderPaymentMethodChangedEvent::class, $this->paymentMethodChangedEventResult);
@@ -190,6 +190,7 @@ class SetPaymentOrderRouteTest extends TestCase
 
         static::assertSame('open', $lastTransaction->getStateMachineState()->getTechnicalName());
         static::assertNotNull($this->paymentMethodChangedCriteriaEventResult);
+        static::assertNotNull($this->paymentMethodChangedEventResult);
         static::assertSame($lastTransaction->getId(), $this->paymentMethodChangedEventResult->getOrderTransaction()->getId());
         static::assertNotNull($this->transactionStateEventResult);
         static::assertNotSame($firstTransaction->getId(), $this->transactionStateEventResult->getEntityId());
@@ -210,7 +211,7 @@ class SetPaymentOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
         static::assertSame('FRAMEWORK__ENTITY_NOT_FOUND', $response['errors'][0]['code']);
@@ -231,7 +232,7 @@ class SetPaymentOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
         static::assertSame('FRAMEWORK__ENTITY_NOT_FOUND', $response['errors'][0]['code']);
@@ -256,7 +257,7 @@ class SetPaymentOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame(Response::HTTP_FORBIDDEN, $this->browser->getResponse()->getStatusCode());
         static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
@@ -383,14 +384,14 @@ class SetPaymentOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
     }
 
-    private function getAvailablePaymentMethodId($offset = 0): string
+    private function getAvailablePaymentMethodId(int $offset = 0): string
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())

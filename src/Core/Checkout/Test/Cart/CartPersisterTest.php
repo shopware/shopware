@@ -27,6 +27,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class CartPersisterTest extends TestCase
@@ -52,7 +54,7 @@ class CartPersisterTest extends TestCase
         }
 
         static::assertInstanceOf(CartTokenNotFoundException::class, $e);
-        static::assertSame('not_existing_token', $e->getToken());
+        static::assertSame('not_existing_token', $e->getParameter('token'));
     }
 
     public function testLoadWithExistingToken(): void
@@ -177,7 +179,7 @@ class CartPersisterTest extends TestCase
 
     public function testCartCanBeUnserialized(): void
     {
-        $cart = unserialize(file_get_contents(__DIR__ . '/fixtures/cart.blob'));
+        $cart = unserialize((string) file_get_contents(__DIR__ . '/fixtures/cart.blob'));
         static::assertInstanceOf(Cart::class, $cart);
     }
 

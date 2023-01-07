@@ -4,6 +4,9 @@ namespace Shopware\Elasticsearch\Framework\Indexing\Event;
 
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
+/**
+ * @package core
+ */
 class ElasticsearchIndexCreatedEvent
 {
     private string $indexName;

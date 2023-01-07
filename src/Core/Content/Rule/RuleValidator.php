@@ -7,7 +7,7 @@ use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionEntity;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnsupportedCommandTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
@@ -29,31 +29,21 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package business-ops
+ *
+ * @internal
  */
 class RuleValidator implements EventSubscriberInterface
 {
-    private ValidatorInterface $validator;
-
-    private RuleConditionRegistry $ruleConditionRegistry;
-
-    private EntityRepositoryInterface $ruleConditionRepository;
-
-    private EntityRepositoryInterface $appScriptConditionRepository;
-
     /**
      * @internal
      */
     public function __construct(
-        ValidatorInterface $validator,
-        RuleConditionRegistry $ruleConditionRegistry,
-        EntityRepositoryInterface $ruleConditionRepository,
-        EntityRepositoryInterface $appScriptConditionRepository
+        private ValidatorInterface $validator,
+        private RuleConditionRegistry $ruleConditionRegistry,
+        private EntityRepository $ruleConditionRepository,
+        private EntityRepository $appScriptConditionRepository
     ) {
-        $this->validator = $validator;
-        $this->ruleConditionRegistry = $ruleConditionRegistry;
-        $this->ruleConditionRepository = $ruleConditionRepository;
-        $this->appScriptConditionRepository = $appScriptConditionRepository;
     }
 
     public static function getSubscribedEvents(): array

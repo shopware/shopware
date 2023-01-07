@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\Snippet\SnippetCollection;
 
+/**
+ * @package system-settings
+ */
 class SnippetSetEntity extends Entity
 {
     use EntityIdTrait;

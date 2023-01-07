@@ -3,10 +3,10 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
-use ONGR\ElasticsearchDSL\BuilderInterface;
-use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
-use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
-use ONGR\ElasticsearchDSL\Query\Joining\NestedQuery;
+use OpenSearchDSL\BuilderInterface;
+use OpenSearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\Query\FullText\MatchQuery;
+use OpenSearchDSL\Query\Joining\NestedQuery;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

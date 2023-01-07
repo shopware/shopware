@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Migration\Traits;
 
+/**
+ * @package core
+ */
 class MailUpdate
 {
     /**

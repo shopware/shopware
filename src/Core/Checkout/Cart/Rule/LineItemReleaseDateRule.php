@@ -2,15 +2,17 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @package business-ops
+ */
 class LineItemReleaseDateRule extends Rule
 {
     protected ?string $lineItemReleaseDate;
@@ -64,7 +66,7 @@ class LineItemReleaseDateRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchesReleaseDate($lineItem, $ruleValue)) {
                 return true;
             }
@@ -81,7 +83,7 @@ class LineItemReleaseDateRule extends Rule
     }
 
     /**
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     private function matchesReleaseDate(LineItem $lineItem, ?\DateTime $ruleValue): bool
     {
@@ -89,10 +91,6 @@ class LineItemReleaseDateRule extends Rule
             $releasedAtString = $lineItem->getPayloadValue('releaseDate');
 
             if ($releasedAtString === null) {
-                if (!Feature::isActive('v6.5.0.0')) {
-                    return $this->operator === self::OPERATOR_EMPTY;
-                }
-
                 return RuleComparison::isNegativeOperator($this->operator);
             }
 

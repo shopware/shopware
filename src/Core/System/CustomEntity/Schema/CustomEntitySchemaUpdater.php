@@ -5,6 +5,7 @@ namespace Shopware\Core\System\CustomEntity\Schema;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
@@ -13,6 +14,8 @@ use Symfony\Component\Lock\LockFactory;
 /**
  * @internal
  * @phpstan-import-type CustomEntityField from SchemaUpdater
+ *
+ * @package core
  */
 class CustomEntitySchemaUpdater
 {
@@ -37,7 +40,7 @@ class CustomEntitySchemaUpdater
             /** @var list<array{name: string, fields: string}> $tables */
             $tables = $this->connection->fetchAllAssociative('SELECT name, fields FROM custom_entity');
 
-            $schema = $this->getSchemaManager()->createSchema();
+            $schema = $this->getSchemaManager()->introspectSchema();
 
             $this->cleanup($schema);
 
@@ -71,13 +74,16 @@ class CustomEntitySchemaUpdater
             } catch (Exception $e) {
                 // there seems to be a timing issue in sql when dropping a foreign key which relates to an index.
                 // Sometimes the index exists no more when doctrine tries to drop it after dropping the foreign key.
-                if (!\str_contains($e->getMessage(), "An exception occurred while executing 'DROP INDEX IDX_")) {
+                if (!\str_contains($e->getMessage(), 'An exception occurred while executing \'DROP INDEX IDX_')) {
                     throw $e;
                 }
             }
         }
     }
 
+    /**
+     * @return AbstractSchemaManager<MySQLPlatform>
+     */
     private function getSchemaManager(): AbstractSchemaManager
     {
         $manager = $this->connection->getSchemaManager();

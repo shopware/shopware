@@ -6,6 +6,9 @@ use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Util\ArrayNormalizer;
 
+/**
+ * @package system-settings
+ */
 class KeyMappingPipe extends AbstractPipe
 {
     /**

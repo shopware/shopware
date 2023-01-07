@@ -2,16 +2,14 @@
 
 .sw-condition-type-select {
     position: relative;
-    width: 256px;
     height: 100%;
-    background-color: $color-gray-900;
-    border-radius: $border-radius-default 0 0 $border-radius-default;
 
     &.is--disabled {
         background-color: $color-gray-300;
 
         .sw-single-select__selection-text {
             color: $color-darkgray-200;
+            font-weight: $font-weight-bold;
         }
     }
 
@@ -22,12 +20,12 @@
     .sw-select.sw-block-field {
         .sw-block-field__block {
             background-color: unset;
-            border-radius: $border-radius-default 0 0 $border-radius-default;
+            border-radius: $border-radius-default;
         }
 
         input {
             background-color: unset;
-            border-radius: $border-radius-default 0 0 $border-radius-default;
+            border-radius: $border-radius-default;
             color: $color-white;
         }
 
@@ -43,7 +41,7 @@
 
         .sw-single-select__inner {
             border: none;
-            border-radius: 0;
+            border-radius: $border-radius-default;
             background-color: $color-gray-900;
         }
 

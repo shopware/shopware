@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Payment\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package checkout
+ */
 abstract class PaymentProcessException extends ShopwareHttpException
 {
     private string $orderTransactionId;

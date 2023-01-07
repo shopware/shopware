@@ -15,12 +15,11 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -39,6 +38,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @group slow
  */
@@ -59,7 +60,7 @@ class OrderServiceTest extends TestCase
     private $orderService;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $orderRepository;
 
@@ -194,7 +195,7 @@ class OrderServiceTest extends TestCase
 
         $this->salesChannelContext
             ->getContext()
-            ->addExtension(MailSendSubscriber::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(true, [], []));
+            ->addExtension(MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(true, [], []));
 
         $this->orderService->orderDeliveryStateTransition(
             $orderDeliveryId,
@@ -383,7 +384,7 @@ class OrderServiceTest extends TestCase
 
         $this->salesChannelContext
             ->getContext()
-            ->addExtension(MailSendSubscriber::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(true, [], []));
+            ->addExtension(MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(true, [], []));
 
         $this->orderService->orderTransactionStateTransition(
             $orderTransactionId,
@@ -544,7 +545,7 @@ class OrderServiceTest extends TestCase
         $firstDomain = 'http://shopware.first-domain';
         $this->setDomainForSalesChannel($firstDomain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EntityRepositoryInterface $languageRepository */
+        /** @var EntityRepository $languageRepository */
         $languageRepository = $this->getContainer()->get('language.repository');
 
         $criteria = new Criteria();
@@ -721,7 +722,7 @@ class OrderServiceTest extends TestCase
 
     private function setDomainForSalesChannel(string $domain, string $languageId): void
     {
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         $data = [

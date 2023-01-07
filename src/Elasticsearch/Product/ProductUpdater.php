@@ -8,21 +8,17 @@ use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package core
+ *
+ * @internal
  */
 class ProductUpdater implements EventSubscriberInterface
 {
-    private ElasticsearchIndexer $indexer;
-
-    private EntityDefinition $definition;
-
     /**
      * @internal
      */
-    public function __construct(ElasticsearchIndexer $indexer, EntityDefinition $definition)
+    public function __construct(private ElasticsearchIndexer $indexer, private EntityDefinition $definition)
     {
-        $this->indexer = $indexer;
-        $this->definition = $definition;
     }
 
     /**

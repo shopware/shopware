@@ -1,0 +1,204 @@
+includes:
+    - phpstan-baseline.neon
+    - vendor/phpstan/phpstan/conf/bleedingEdge.neon
+
+parameters:
+    phpVersion: 80100
+    level: 8
+    treatPhpDocTypesAsCertain: false
+    checkMissingIterableValueType: true
+    inferPrivatePropertyTypeFromConstructor: true
+    reportUnmatchedIgnoredErrors: true # Could be set to false if necessary during PHPStan update
+    tmpDir: var/cache/phpstan
+    paths:
+        - src
+        - tests
+    bootstrapFiles:
+        - src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
+    # run `php src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php` to create the container
+    symfony:
+        constantHassers: false
+        containerXmlPath: 'var/cache/phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
+        consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/PHPStan/console-application.php
+
+    excludePaths:
+        - src/Recovery/*
+        - src/Core/DevOps/StaticAnalyze/Rector/ClassPackageRector.php
+        # Compatibility fixes for doctrine annotation parser https://github.com/doctrine/annotations/issues/421
+        - src/Core/Framework/Compatibility/AnnotationReader.php
+        - src/Core/Framework/Compatibility/DocParser.php
+
+        # Symfony interface typehints `Predis\ClientInterface` which is by default not available
+        - src/Core/Framework/Adapter/Cache/ShopwareRedisAdapter.php
+        - src/Core/Framework/Adapter/Cache/ShopwareRedisTagAwareAdapter.php
+
+        # node_modules
+        - src/**/node_modules/*
+
+        # @deprecated tag:v6.5.0 (replacing production template dev-dependencies is not allowed atm)
+        - src/Core/Framework/Demodata/DemodataService.php
+        - src/Core/Framework/Demodata/Generator/MediaGenerator.php
+
+        # twig override
+        - src/Core/Framework/Adapter/Twig/functions.php
+
+        # class behind feature flags
+        - src/Core/Checkout/Cart/Exception/InvalidCartException.php
+
+        # extends final class, which is ok for mocks
+        - src/Core/Content/Test/ImportExport/MockRepository.php
+
+    ignoreErrors:
+        # The symfony extension checks against the "normal" container, not the test container
+        # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution
+        -
+            message: '#Service ".*" is not registered in the container\.#'
+            paths:
+                - src/**/*Test.php
+                - tests/unit/php
+                - tests/integration/php
+                - src/Core/Framework/Test/TestCaseBase/*.php
+        -
+            message: '#Service ".*" is private#'
+            paths:
+                - src/**/*Test.php
+                - tests/performance/**/*Bench.php
+                - tests/integration/**/*Test.php
+
+        # ignore errors caused by static::markTestSkipped
+        -
+            message: '#Unreachable statement - code above always terminates.#'
+            paths:
+                - src/**/*Test.php
+                - tests/**/*Test.php
+
+        # To fix this error, the \Shopware\Core\Framework\Struct\Collection::createNew method has to be implemented
+        # in every implementation of `Collection` and needs to return `new self` instead of `new static`. See https://github.com/phpstan/phpstan/issues/2773
+        -
+            message: '#Unsafe usage of new static\(\)#'
+            path: src/Core/Framework/Struct/Collection.php
+        -
+            message: '#Access to private property#'
+            path: src/Core/Framework/Api/Controller/CacheController.php
+        # @final annotation of internal classes
+        - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult\.#'
+
+        # dynamic hydrator performance
+        -
+            message: '#Access to an undefined property Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity#'
+            path: src/*/*Hydrator.php
+        -
+            message: '#Access to protected property *#'
+            path: src/*/*Hydrator.php
+        -
+            message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::\_\_.*\(\) has.*#'
+            path: src/Core/Framework/DataAbstractionLayer/Entity.php
+
+        # can be removed with feature flag FEATURE_NEXT_12455
+        -
+            message: '#Constructor of class Shopware\\Core\\System\\Language\\Exception\\LanguageForeignKeyDeleteException has an unused parameter \$language\.#'
+            path: src/Core/System/Language/Exception/LanguageForeignKeyDeleteException.php
+        -
+            message: '#Constructor of class Shopware\\Core\\System\\SalesChannel\\Exception\\LanguageOfSalesChannelDomainDeleteException has an unused parameter \$language\.#'
+            path: src/Core/System/SalesChannel/Exception/LanguageOfSalesChannelDomainDeleteException.php
+        -
+            message: '#Method Shopware\\Core\\Checkout\\Cart\\Facade\\.*::getIterator\(\) return type with generic class ArrayIterator does not specify its types: TKey, TValue#'
+            path: src/Core/Checkout/Cart/Facade/Traits/ItemsIteratorTrait.php
+        # Is in the new super class nullable as the extended class
+        -
+            message: "#^PHPDoc type string\\|null of property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\ReferenceVersionField\\:\\:\\$storageName is not covariant with PHPDoc type string of overridden property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\FkField\\:\\:\\$storageName\\.$#"
+            count: 1
+            path: src/Core/Framework/DataAbstractionLayer/Field/ReferenceVersionField.php
+
+        # PhpStan cannot follow the referenced cursor
+        -
+            message: "#^Variable \\$extensions in empty\\(\\) always exists and is always falsy\\.$#"
+            count: 1
+            path: src/Core/Framework/DataAbstractionLayer/VersionManager.php
+
+        # Invalid trait usage
+        -
+            message: "#^Dead catch \\- ReflectionException is never thrown in the try block\\.$#"
+            count: 1
+            path: src/Core/Checkout/Cart/Error/Error.php
+
+        -
+            message: "#^Dead catch \\- ReflectionException is never thrown in the try block\\.$#"
+            count: 1
+            path: src/Core/Content/ProductExport/Error/Error.php
+
+        - # MockRepo extends final EntityRepository class, with is ok for tests
+            message: "#^Class Shopware\\Core\\Content\\Test\\ImportExport\\MockRepository extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.$#"
+            count: 1
+            path: src/Core/Content/Test/ImportExport/MockRepository.php
+
+        - # Tests are skipped in setup, leading to phpstan errors, should be re-enabled with NEXT-24549
+            message: "#^Property .* is never written, only read.$#"
+            paths:
+                - src/Core/Migration/Test/Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest.php
+                - src/Core/Migration/Test/Migration1639992771MoveDataFromEventActionToFlowTest.php
+                - src/Core/Migration/Test/Migration1632215760MoveDataFromEventActionToFlowTest.php
+                - src/Core/Migration/Test/Migration1625583619MoveDataFromEventActionToFlowTest.php
+
+services:
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalClassRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalMethodRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversAnnotationRule
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\FinalClassRule
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\MockingSimpleObjectsNotAllowedRule
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ScheduledTaskTooLowIntervalRule
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleAreasFlagNotAllowedRule
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoEnvironmentHelperInsideCompilerPassRule
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoSuperGlobalsInsideCompilerPassRule
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CollectionHasSpecifyingExtension
+        tags:
+            - phpstan.typeSpecifier.methodTypeSpecifyingExtension
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleConditionHasRuleConfigRule
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule
+        tags:
+            - phpstan.rules.rule

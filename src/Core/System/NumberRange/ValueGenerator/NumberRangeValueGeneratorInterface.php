@@ -4,6 +4,9 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator;
 
 use Shopware\Core\Framework\Context;
 
+/**
+ * @package checkout
+ */
 interface NumberRangeValueGeneratorInterface
 {
     /**

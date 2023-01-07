@@ -1,14 +1,21 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-language-list.html.twig';
 import './sw-settings-language-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-language-list', {
+export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -135,7 +142,14 @@ Component.register('sw-settings-language-list', {
             return this.parentLanguages.get(item.parentId).name;
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed
+         */
         onChangeLanguage() {
+            if (this.feature.isActive('v6.5.0.0')) {
+                return;
+            }
+
             this.getList();
         },
 
@@ -160,4 +174,4 @@ Component.register('sw-settings-language-list', {
             };
         },
     },
-});
+};

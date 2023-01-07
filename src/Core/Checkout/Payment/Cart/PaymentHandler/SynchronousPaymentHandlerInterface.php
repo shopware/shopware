@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 interface SynchronousPaymentHandlerInterface extends PaymentHandlerInterface
 {
     /**

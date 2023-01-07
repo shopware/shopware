@@ -5,16 +5,16 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteActiveAddressException;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package customer-order
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class DeleteAddressRoute extends AbstractDeleteAddressRoute
@@ -22,14 +22,14 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
     use CustomerAddressValidationTrait;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $addressRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $addressRepository)
+    public function __construct(EntityRepository $addressRepository)
     {
         $this->addressRepository = $addressRepository;
     }

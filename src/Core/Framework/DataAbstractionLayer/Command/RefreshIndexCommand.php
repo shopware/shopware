@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,23 +13,24 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
+ *
+ * @package core
  */
+#[AsCommand(
+    name: 'dal:refresh:index',
+    description: 'Refreshes the index for a given entity',
+)]
 class RefreshIndexCommand extends Command implements EventSubscriberInterface
 {
     use ConsoleProgressTrait;
 
-    protected static $defaultName = 'dal:refresh:index';
-
-    private EntityIndexerRegistry $registry;
-
     /**
      * @internal
      */
-    public function __construct(EntityIndexerRegistry $registry)
+    public function __construct(private EntityIndexerRegistry $registry)
     {
         parent::__construct();
-        $this->registry = $registry;
     }
 
     /**

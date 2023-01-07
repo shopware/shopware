@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\ProductExport\Service;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 
+/**
+ * @package inventory
+ */
 interface ProductExportFileHandlerInterface
 {
     public function getFilePath(ProductExportEntity $productExport, bool $partialGeneration = false): string;

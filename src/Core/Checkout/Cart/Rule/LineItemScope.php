@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package business-ops
+ */
 class LineItemScope extends CheckoutRuleScope
 {
     protected LineItem $lineItem;

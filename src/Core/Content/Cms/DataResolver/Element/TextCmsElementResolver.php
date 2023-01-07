@@ -7,9 +7,11 @@ use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 
+/**
+ * @package content
+ */
 class TextCmsElementResolver extends AbstractCmsElementResolver
 {
     private HtmlSanitizer $sanitizer;
@@ -57,11 +59,7 @@ class TextCmsElementResolver extends AbstractCmsElementResolver
         }
 
         if ($content !== null) {
-            if (Feature::isActive('FEATURE_NEXT_15172')) {
-                $text->setContent($this->sanitizer->sanitize($content));
-            } else {
-                $text->setContent($content);
-            }
+            $text->setContent($this->sanitizer->sanitize($content));
         }
     }
 }

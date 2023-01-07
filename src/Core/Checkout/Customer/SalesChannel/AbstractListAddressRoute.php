@@ -8,6 +8,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * This route can be used to list all addresses of an customer
+ *
+ * @package customer-order
  */
 abstract class AbstractListAddressRoute
 {

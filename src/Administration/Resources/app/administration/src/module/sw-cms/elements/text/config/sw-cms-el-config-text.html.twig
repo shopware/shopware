@@ -6,7 +6,7 @@
     default-item="content"
 >
 
-    <template slot-scope="{ active }">
+    <template #default="{ active }">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_config_text_tab_content %}
         <sw-tabs-item
@@ -30,8 +30,7 @@
     </template>
 
     <template
-        slot="content"
-        slot-scope="{ active }"
+        #content="{ active }"
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_text_config_content %}
@@ -52,13 +51,11 @@
                     @blur="onBlur"
                 />
 
-                <div
-                    slot="preview"
-                    slot-scope="{ demoValue }"
-                    class="sw-cms-el-config-text__mapping-preview"
-                >
-                    <div v-html="$sanitize(demoValue)"></div>
-                </div>
+                <template #preview="{ demoValue }">
+                    <div class="sw-cms-el-config-text__mapping-preview">
+                        <div v-html="$sanitize(demoValue)"></div>
+                    </div>
+                </template>
             </sw-cms-mapping-field>
         </sw-container>
         {% endblock %}

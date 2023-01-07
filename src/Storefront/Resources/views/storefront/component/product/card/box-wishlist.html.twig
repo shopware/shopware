@@ -17,12 +17,7 @@
 
                     <form action="{{ path('frontend.wishlist.product.delete', {'id': id}) }}"
                           method="post"
-                          class="product-wishlist-form"
-                          data-form-csrf-handler="true">
-
-                        {% block component_product_box_wishlist_remove_csrf %}
-                            {{ sw_csrf('frontend.wishlist.product.delete') }}
-                        {% endblock %}
+                          class="product-wishlist-form">
 
                         {% block component_product_wishlist_remove_redirect %}
                             <input type="hidden"

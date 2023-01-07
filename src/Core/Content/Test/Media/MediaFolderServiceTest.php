@@ -8,7 +8,7 @@ use Shopware\Core\Content\Media\Exception\MediaFolderNotFoundException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaFolderService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -28,17 +28,17 @@ class MediaFolderServiceTest extends TestCase
     private $mediaFolderService;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaRepo;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaFolderRepo;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaFolderConfigRepo;
 
@@ -70,12 +70,14 @@ class MediaFolderServiceTest extends TestCase
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolder();
 
+        $mediaFolderId = $media->getMediaFolderId();
+        static::assertIsString($mediaFolderId);
         $configId = $this->mediaFolderRepo
-            ->search(new Criteria(array_filter([$media->getMediaFolderId()])), $this->context)
-            ->get($media->getMediaFolderId())
+            ->search(new Criteria(array_filter([$mediaFolderId])), $this->context)
+            ->get($mediaFolderId)
             ->getConfigurationId();
 
-        $this->mediaFolderService->dissolve($media->getMediaFolderId(), $this->context);
+        $this->mediaFolderService->dissolve($mediaFolderId, $this->context);
 
         $this->assertMediaFolderIsDeleted($media);
         $this->assertMediaHasNoFolder($media);
@@ -397,9 +399,11 @@ class MediaFolderServiceTest extends TestCase
 
     private function assertMediaFolderIsDeleted(MediaEntity $media): void
     {
+        $mediaFolderId = $media->getMediaFolderId();
+        static::assertIsString($mediaFolderId);
         $folder = $this->mediaFolderRepo
-            ->search(new Criteria(array_filter([$media->getMediaFolderId()])), $this->context)
-            ->get($media->getMediaFolderId());
+            ->search(new Criteria(array_filter([$mediaFolderId])), $this->context)
+            ->get($mediaFolderId);
         static::assertNull($folder);
     }
 

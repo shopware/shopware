@@ -1,11 +1,14 @@
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
 
-const { Component, Mixin, Context, Utils } = Shopware;
+const { Mixin, Context, Utils } = Shopware;
 const { dom, format } = Utils;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-media-quickinfo', {
+export default {
     template,
 
     inject: ['mediaService', 'repositoryFactory', 'acl', 'customFieldDataProviderService'],
@@ -38,19 +41,13 @@ Component.register('sw-media-quickinfo', {
             isLoading: false,
             isSaveSuccessful: false,
             showModalReplace: false,
+            fileNameError: null,
         };
     },
 
     computed: {
         mediaRepository() {
             return this.repositoryFactory.create('media');
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - removed without replacement
-         */
-        customFieldSetRepository() {
-            return this.repositoryFactory.create('custom_field_set');
         },
 
         isMediaObject() {
@@ -65,6 +62,20 @@ Component.register('sw-media-quickinfo', {
             const date = this.item.uploadedAt || this.item.createdAt;
             return format.date(date);
         },
+
+        fileNameClasses() {
+            return {
+                'has--error': this.fileNameError,
+            };
+        },
+    },
+
+    watch: {
+        'item.id': {
+            handler() {
+                this.fileNameError = null;
+            },
+        },
     },
 
     created() {
@@ -74,13 +85,6 @@ Component.register('sw-media-quickinfo', {
     methods: {
         createdComponent() {
             this.loadCustomFieldSets();
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Use loadCustomFieldSets() instead
-         */
-        async getCustomFieldSets() {
-            return this.loadCustomFieldSets();
         },
 
         loadCustomFieldSets() {
@@ -135,9 +139,22 @@ Component.register('sw-media-quickinfo', {
         async onChangeFileName(value) {
             const { item } = this;
             item.isLoading = true;
+            this.fileNameError = null;
 
             try {
-                await this.mediaService.renameMedia(item.id, value);
+                await this.mediaService.renameMedia(item.id, value).catch((error) => {
+                    const fileNameErrorCodes = ['CONTENT__MEDIA_EMPTY_FILE', 'CONTENT__MEDIA_ILLEGAL_FILE_NAME'];
+
+                    error.response.data.errors.forEach((e) => {
+                        if (this.fileNameError || !fileNameErrorCodes.includes(e.code)) {
+                            return;
+                        }
+
+                        this.fileNameError = e;
+                    });
+
+                    return Promise.reject(error);
+                });
                 item.fileName = value;
 
                 this.createNotificationSuccess({
@@ -178,5 +195,9 @@ Component.register('sw-media-quickinfo', {
                 'sw-media-sidebar__quickaction--disabled': disabled,
             }];
         },
+
+        onRemoveFileNameError() {
+            this.fileNameError = null;
+        },
     },
-});
+};

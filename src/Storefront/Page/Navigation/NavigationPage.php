@@ -6,6 +6,9 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Storefront\Page\Page;
 
+/**
+ * @package storefront
+ */
 class NavigationPage extends Page
 {
     /**

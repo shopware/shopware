@@ -7,7 +7,7 @@ use Shopware\Storefront\Pagelet\PageletLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @internal (flag:FEATURE_NEXT_14001) remove comment on feature release
+ * @package customer-order
  */
 class NewsletterAccountPageletLoadedEvent extends PageletLoadedEvent
 {

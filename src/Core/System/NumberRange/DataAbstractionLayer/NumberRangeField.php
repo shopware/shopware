@@ -4,6 +4,9 @@ namespace Shopware\Core\System\NumberRange\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 
+/**
+ * @package core
+ */
 class NumberRangeField extends StringField
 {
     public function __construct(string $storageName, string $propertyName, int $maxLength = 64)

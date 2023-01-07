@@ -7,18 +7,21 @@ use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package customer-order
+ */
 class CustomerNewsletterSalesChannelsUpdater
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private Connection $connection)
     {
-        $this->connection = $connection;
     }
 
+    /**
+     * @param array<string> $ids
+     */
     public function update(array $ids, bool $reverseUpdate = false): void
     {
         if (empty($ids)) {
@@ -77,7 +80,7 @@ SQL;
         );
 
         RetryableQuery::retryable($this->connection, function () use ($resetSql, $parameters): void {
-            $this->connection->executeUpdate(
+            $this->connection->executeStatement(
                 $resetSql,
                 $parameters,
                 ['ids' => Connection::PARAM_STR_ARRAY]
@@ -85,7 +88,7 @@ SQL;
         });
 
         RetryableQuery::retryable($this->connection, function () use ($sql, $parameters): void {
-            $this->connection->executeUpdate(
+            $this->connection->executeStatement(
                 $sql,
                 $parameters,
                 ['ids' => Connection::PARAM_STR_ARRAY, 'states' => Connection::PARAM_STR_ARRAY]
@@ -93,6 +96,9 @@ SQL;
         });
     }
 
+    /**
+     * @param array<string> $ids
+     */
     public function delete(array $ids): void
     {
         $sqlTemplate = <<<'SQL'
@@ -127,12 +133,15 @@ SQL;
         $this->update(Uuid::fromBytesToHexList($customerIds), true);
     }
 
-    public function updateCustomerEmailRecipient(array $ids): void
+    /**
+     * @param array<string> $ids
+     */
+    public function updateCustomersRecipient(array $ids): void
     {
         $ids = array_unique($ids);
 
         $customers = $this->connection->fetchAllAssociative(
-            'SELECT newsletter_sales_channel_ids, email FROM customer WHERE id IN (:ids)',
+            'SELECT newsletter_sales_channel_ids, email, first_name, last_name FROM customer WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
@@ -149,6 +158,8 @@ SQL;
                     json_decode((string) $customer['newsletter_sales_channel_ids'], true)
                 ),
                 'email' => $customer['email'],
+                'first_name' => $customer['first_name'],
+                'last_name' => $customer['last_name'],
             ];
         }
 
@@ -158,9 +169,14 @@ SQL;
 
         foreach ($parameters as $parameter) {
             RetryableQuery::retryable($this->connection, function () use ($parameter): void {
-                $this->connection->executeUpdate(
-                    'UPDATE newsletter_recipient SET email = (:email) WHERE id IN (:ids)',
-                    ['ids' => Uuid::fromHexToBytesList($parameter['newsletter_ids']), 'email' => $parameter['email']],
+                $this->connection->executeStatement(
+                    'UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)',
+                    [
+                        'ids' => Uuid::fromHexToBytesList($parameter['newsletter_ids']),
+                        'email' => $parameter['email'],
+                        'firstName' => $parameter['first_name'],
+                        'lastName' => $parameter['last_name'],
+                    ],
                     ['ids' => Connection::PARAM_STR_ARRAY],
                 );
             });

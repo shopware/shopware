@@ -11,7 +11,10 @@ use PHPStan\Symfony\ServiceMap;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
+ * @package core
  * @implements Rule<ClassMethod>
+ *
+ * @internal
  */
 class InternalMethodRule implements Rule
 {

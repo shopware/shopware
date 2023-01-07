@@ -3,8 +3,12 @@
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-class ElasticsearchIndexingMessage
+/**
+ * @package core
+ */
+class ElasticsearchIndexingMessage implements AsyncMessageInterface
 {
     private IndexingDto $data;
 

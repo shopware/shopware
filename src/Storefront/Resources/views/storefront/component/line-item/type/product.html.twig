@@ -110,7 +110,7 @@
                 {% endblock %}
             {% else %}
                 {% block component_line_item_type_product_col_unit_price %}
-                    <div class="line-item-unit-price">
+                    <div class="line-item-unit-price{% if lineItem.quantity > 1 %} is-shown{% endif %}">
                         {% sw_include '@Storefront/storefront/component/line-item/element/unit-price.html.twig' %}
                     </div>
                 {% endblock %}

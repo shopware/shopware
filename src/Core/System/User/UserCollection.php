@@ -5,6 +5,7 @@ namespace Shopware\Core\System\User;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package core
  * @extends EntityCollection<UserEntity>
  */
 class UserCollection extends EntityCollection

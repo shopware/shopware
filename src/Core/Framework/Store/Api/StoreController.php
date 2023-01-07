@@ -3,25 +3,18 @@
 namespace Shopware\Core\Framework\Store\Api;
 
 use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ConnectException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByComposerException;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
-use Shopware\Core\Framework\Store\Exception\StoreNotAvailableException;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreClient;
-use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -30,6 +23,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  * @Route(defaults={"_routeScope"={"api"}})
  */
@@ -37,41 +32,18 @@ class StoreController extends AbstractController
 {
     private StoreClient $storeClient;
 
-    private EntityRepositoryInterface $pluginRepo;
-
-    private PluginManagementService $pluginManagementService;
-
     private AbstractExtensionDataProvider $extensionDataProvider;
 
-    private EntityRepositoryInterface $userRepository;
+    private EntityRepository $userRepository;
 
     public function __construct(
         StoreClient $storeClient,
-        EntityRepositoryInterface $pluginRepo,
-        PluginManagementService $pluginManagementService,
-        EntityRepositoryInterface $userRepository,
+        EntityRepository $userRepository,
         AbstractExtensionDataProvider $extensionDataProvider
     ) {
         $this->storeClient = $storeClient;
-        $this->pluginRepo = $pluginRepo;
-        $this->pluginManagementService = $pluginManagementService;
         $this->userRepository = $userRepository;
         $this->extensionDataProvider = $extensionDataProvider;
-    }
-
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/store/ping", name="api.custom.store.ping", methods={"GET"})
-     */
-    public function pingStoreAPI(): Response
-    {
-        try {
-            $this->storeClient->ping();
-        } catch (ClientException | ConnectException $exception) {
-            throw new StoreNotAvailableException();
-        }
-
-        return new Response();
     }
 
     /**
@@ -132,25 +104,6 @@ class StoreController extends AbstractController
     }
 
     /**
-     * @deprecated tag:v6.5.0 Unused method will be removed
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/store/licenses", name="api.custom.store.licenses", methods={"GET"})
-     */
-    public function getLicenseList(Context $context): JsonResponse
-    {
-        try {
-            $licenseList = $this->storeClient->getLicenseList($context);
-        } catch (ClientException $exception) {
-            throw new StoreApiException($exception);
-        }
-
-        return new JsonResponse([
-            'items' => $licenseList,
-            'total' => \count($licenseList),
-        ]);
-    }
-
-    /**
      * @Since("6.0.0.0")
      * @Route("/api/_action/store/updates", name="api.custom.store.updates", methods={"GET"})
      */
@@ -168,36 +121,6 @@ class StoreController extends AbstractController
             'items' => $updatesList,
             'total' => \count($updatesList),
         ]);
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed, use ExtensionStoreActionsController::downloadExtension() instead
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/store/download", name="api.custom.store.download", methods={"GET"})
-     */
-    public function downloadPlugin(QueryDataBag $queryDataBag, Context $context): JsonResponse
-    {
-        $pluginName = (string) $queryDataBag->get('pluginName');
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('plugin.name', $pluginName));
-
-        /** @var PluginEntity|null $plugin */
-        $plugin = $this->pluginRepo->search($criteria, $context)->first();
-
-        if ($plugin !== null && $plugin->getManagedByComposer()) {
-            throw new CanNotDownloadPluginManagedByComposerException('can not downloads plugins managed by composer from store api');
-        }
-
-        try {
-            $data = $this->storeClient->getDownloadDataForPlugin($pluginName, $context);
-        } catch (ClientException $exception) {
-            throw new StoreApiException($exception);
-        }
-
-        $this->pluginManagementService->downloadStorePlugin($data, $context);
-
-        return new JsonResponse(null, Response::HTTP_OK);
     }
 
     /**

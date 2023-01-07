@@ -8,8 +8,8 @@ use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
-use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -19,10 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Profiling\Profiler;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,10 +29,12 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
+ *
+ * @package inventory
  */
 class ProductDetailRoute extends AbstractProductDetailRoute
 {
-    private SalesChannelRepositoryInterface $productRepository;
+    private SalesChannelRepository $productRepository;
 
     private SystemConfigService $config;
 
@@ -45,16 +46,19 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
     private ProductDefinition $productDefinition;
 
+    private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
+
     /**
      * @internal
      */
     public function __construct(
-        SalesChannelRepositoryInterface $productRepository,
+        SalesChannelRepository $productRepository,
         SystemConfigService $config,
         ProductConfiguratorLoader $configuratorLoader,
         CategoryBreadcrumbBuilder $breadcrumbBuilder,
         SalesChannelCmsPageLoaderInterface $cmsPageLoader,
-        SalesChannelProductDefinition $productDefinition
+        SalesChannelProductDefinition $productDefinition,
+        AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
     ) {
         $this->productRepository = $productRepository;
         $this->config = $config;
@@ -62,6 +66,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $this->breadcrumbBuilder = $breadcrumbBuilder;
         $this->cmsPageLoader = $cmsPageLoader;
         $this->productDefinition = $productDefinition;
+        $this->productCloseoutFilterFactory = $productCloseoutFilterFactory;
     }
 
     public function getDecorated(): AbstractProductDetailRoute
@@ -134,7 +139,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $hideCloseoutProductsWhenOutOfStock = $this->config->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
 
         if ($hideCloseoutProductsWhenOutOfStock) {
-            $filter = new ProductCloseoutFilter();
+            $filter = $this->productCloseoutFilterFactory->create($context);
             $filter->addQuery(new EqualsFilter('product.parentId', null));
             $criteria->addFilter($filter);
         }

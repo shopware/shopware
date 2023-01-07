@@ -7,6 +7,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1584002637NewImportExport extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -33,14 +38,14 @@ class Migration1584002637NewImportExport extends MigrationStep
      */
     private function clearOldImportExportTables(Connection $connection): void
     {
-        $connection->executeUpdate('DELETE FROM `import_export_log`');
-        $connection->executeUpdate('DELETE FROM `import_export_file`');
-        $connection->executeUpdate('DELETE FROM `import_export_profile`');
+        $connection->executeStatement('DELETE FROM `import_export_log`');
+        $connection->executeStatement('DELETE FROM `import_export_file`');
+        $connection->executeStatement('DELETE FROM `import_export_profile`');
     }
 
     private function addConfigField(Connection $connection): void
     {
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'ALTER TABLE import_export_log
             ADD COLUMN config JSON,
             ADD CONSTRAINT `json.import_export_log.config` CHECK (JSON_VALID(`config`))'
@@ -64,7 +69,7 @@ class Migration1584002637NewImportExport extends MigrationStep
 
     private function addInvalidRecordsLog(Connection $connection): void
     {
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'ALTER TABLE `import_export_log`
             ADD COLUMN `invalid_records_log_id` BINARY(16),
             ADD CONSTRAINT `fk.import_export_log.invalid_records_log_id`
@@ -87,7 +92,7 @@ class Migration1584002637NewImportExport extends MigrationStep
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
                 INSERT INTO `media_folder_configuration` (`id`, `thumbnail_quality`, `create_thumbnails`, `private`, created_at)
                 VALUES (:id, 80, 1, :private, :createdAt)
             ', [
@@ -97,7 +102,7 @@ class Migration1584002637NewImportExport extends MigrationStep
         ]);
 
         foreach ($this->getThumbnailSizes($connection) as $thumbnailSize) {
-            $connection->executeUpdate('
+            $connection->executeStatement('
                     REPLACE INTO `media_folder_configuration_media_thumbnail_size` (`media_folder_configuration_id`, `media_thumbnail_size_id`)
                     VALUES (:folderConfigurationId, :thumbnailSizeId)
                 ', [
@@ -115,6 +120,9 @@ class Migration1584002637NewImportExport extends MigrationStep
         ]);
     }
 
+    /**
+     * @return array<int, array{id: string, width: int, height: int}>
+     */
     private function getThumbnailSizes(Connection $connection): array
     {
         $thumbnailSizes = [
@@ -123,22 +131,27 @@ class Migration1584002637NewImportExport extends MigrationStep
             ['width' => 1920, 'height' => 1920],
         ];
 
-        $stmt = $connection->prepare('SELECT id FROM media_thumbnail_size WHERE width = :width AND height = :height');
+        $sizes = [];
         foreach ($thumbnailSizes as $i => $thumbnailSize) {
-            $stmt->execute(['width' => $thumbnailSize['width'], 'height' => $thumbnailSize['height']]);
-            $id = $stmt->fetchColumn();
+            /** @var string|false $id */
+            $id = $connection->fetchOne(
+                'SELECT id FROM media_thumbnail_size WHERE width = :width AND height = :height',
+                ['width' => $thumbnailSize['width'], 'height' => $thumbnailSize['height']]
+            );
             if (!$id) {
-                unset($thumbnailSizes[$i]);
-
                 continue;
             }
 
-            $thumbnailSizes[$i]['id'] = $id;
+            $thumbnailSize['id'] = $id;
+            $sizes[] = $thumbnailSize;
         }
 
-        return $thumbnailSizes;
+        return $sizes;
     }
 
+    /**
+     * @return list<array{name: string, source_entity: string, mapping: list<array{key: string, mappedKey: string}>}>
+     */
     private function getSystemDefaultProfiles(): array
     {
         return [

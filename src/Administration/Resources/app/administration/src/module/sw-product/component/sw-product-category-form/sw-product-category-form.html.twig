@@ -92,9 +92,11 @@
     >
         <p>{{ $tc('sw-product.visibility.visibilityModalDescription') }}</p>
 
-        <sw-product-visibility-detail :disabled="!allowEdit" />
+        <template #grid>
+            <sw-product-visibility-detail :disabled="!allowEdit" />
+        </template>
 
-        <template slot="modal-footer">
+        <template #modal-footer>
             <sw-button
                 variant="primary"
                 size="small"

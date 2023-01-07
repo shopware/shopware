@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Seo\Event;
 
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package sales-channel
+ */
 class SeoUrlUpdateEvent extends Event
 {
     protected array $seoUrls;

@@ -9,7 +9,7 @@ use Shopware\Administration\Snippet\AppAdministrationSnippetEntity;
 use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -30,8 +30,8 @@ class AppAdministrationSnippetPersisterTest extends TestCase
      * @param array<string, string> $snippets
      */
     public function testItPersistsSnippets(
-        EntityRepositoryInterface $appAdministrationSnippetRepository,
-        EntityRepositoryInterface $localeRepository,
+        EntityRepository $appAdministrationSnippetRepository,
+        EntityRepository $localeRepository,
         AppEntity $appEntity,
         array $snippets
     ): void {
@@ -52,8 +52,8 @@ class AppAdministrationSnippetPersisterTest extends TestCase
      * @param array<string, string> $snippets
      */
     public function testItPersistsSnippetsException(
-        EntityRepositoryInterface $appAdministrationSnippetRepository,
-        EntityRepositoryInterface $localeRepository,
+        EntityRepository $appAdministrationSnippetRepository,
+        EntityRepository $localeRepository,
         AppEntity $appEntity,
         array $snippets,
         string $expectedExceptionMessage
@@ -77,7 +77,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
     }
 
     /**
-     * @return array<string, array{appAdministrationSnippetRepository: EntityRepositoryInterface, localeRepository: EntityRepositoryInterface, appEntity: AppEntity, newSnippets: array<string, string>}>
+     * @return array<string, array{appAdministrationSnippetRepository: EntityRepository, localeRepository: EntityRepository, appEntity: AppEntity, newSnippets: array<string, string>}>
      */
     public function persisterDataProvider(): iterable
     {
@@ -211,7 +211,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
     }
 
     /**
-     * @return array<string, array{appAdministrationSnippetRepository: EntityRepositoryInterface, localeRepository: EntityRepositoryInterface, appEntity: AppEntity, newSnippets: array<string, string>, exceptionMessage: string}>
+     * @return array<string, array{appAdministrationSnippetRepository: EntityRepository, localeRepository: EntityRepository, appEntity: AppEntity, newSnippets: array<string, string>, exceptionMessage: string}>
      */
     public function persisterExceptionDataProvider(): iterable
     {
@@ -266,9 +266,9 @@ class AppAdministrationSnippetPersisterTest extends TestCase
      * @param array<int, array<string, string>> $newSnippets
      * @param array<int, array<string, string>> $deletesSnippetIds
      */
-    private function getAppAdministrationSnippetRepository(array $snippetsFromApp = [], array $newSnippets = [], array $deletesSnippetIds = [], bool $updatedSnippets = false): EntityRepositoryInterface
+    private function getAppAdministrationSnippetRepository(array $snippetsFromApp = [], array $newSnippets = [], array $deletesSnippetIds = [], bool $updatedSnippets = false): EntityRepository
     {
-        $repository = $this->createMock(EntityRepositoryInterface::class);
+        $repository = $this->createMock(EntityRepository::class);
 
         $appSnippets = [];
         foreach ($snippetsFromApp as $snippet) {
@@ -319,9 +319,9 @@ class AppAdministrationSnippetPersisterTest extends TestCase
     /**
      * @param array<int, array{id: string, code: string}> $locales
      */
-    private function getLocaleRepository(array $locales = []): EntityRepositoryInterface
+    private function getLocaleRepository(array $locales = []): EntityRepository
     {
-        $repository = $this->createMock(EntityRepositoryInterface::class);
+        $repository = $this->createMock(EntityRepository::class);
 
         $localeEntities = [];
         foreach ($locales as $locale) {

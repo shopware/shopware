@@ -1,12 +1,32 @@
+/**
+ * This file is not linted by ESLint because it cannot be parsed by ESLint because of the dynamic import
+ * with dynamic import value.
+ */
 import template from './sw-icon.html.twig';
-import legacyIconMapping from './legacy-icon-mapping';
-import legacySpaceMapping from './legacy-space-mapping';
 import './sw-icon.scss';
 
+// Prefetch specific icons to avoid loading them asynchronously to improve performance
+import '@shopware-ag/meteor-icon-kit/icons/regular/tachometer.svg';
+import '@shopware-ag/meteor-icon-kit/icons/regular/products.svg';
+import '@shopware-ag/meteor-icon-kit/icons/regular/shopping-bag.svg';
+import '@shopware-ag/meteor-icon-kit/icons/regular/users.svg';
+import '@shopware-ag/meteor-icon-kit/icons/regular/content.svg';
+import '@shopware-ag/meteor-icon-kit/icons/regular/megaphone.svg';
+import '@shopware-ag/meteor-icon-kit/icons/regular/plug.svg';
+import '@shopware-ag/meteor-icon-kit/icons/regular/cog.svg';
+import '@shopware-ag/meteor-icon-kit/icons/regular/bell.svg';
+import '@shopware-ag/meteor-icon-kit/icons/regular/question-circle.svg';
+import '@shopware-ag/meteor-icon-kit/icons/regular/search-s.svg';
+import '@shopware-ag/meteor-icon-kit/icons/regular/chevron-down-xs.svg';
+import '@shopware-ag/meteor-icon-kit/icons/regular/chevron-up-xs.svg';
+import '@shopware-ag/meteor-icon-kit/icons/regular/chevron-circle-left.svg';
+
 const { Component } = Shopware;
-const { warn } = Shopware.Utils.debug;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Renders an icon from the icon library.
  * @status ready
@@ -20,10 +40,9 @@ const { warn } = Shopware.Utils.debug;
  *     <sw-icon name="regular-tools-alt" color="#d35400"></sw-icon>
  *     <sw-icon name="regular-user" color="#c0392b"></sw-icon>
  *     <sw-icon name="regular-circle" color="#fc427b"></sw-icon>
- *     <sw-icon name="default-regular-bell" color="#f1c40f"></sw-icon>
+ *     <sw-icon name="regular-bell" color="#f1c40f"></sw-icon>
  * </div>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-icon', {
     template,
 
@@ -56,21 +75,17 @@ Component.register('sw-icon', {
             required: false,
             default: null,
         },
-        title: {
-            type: String,
-            required: false,
-            default: '',
-        },
-        multicolor: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
         decorative: {
             type: Boolean,
             required: false,
             default: false,
         },
+    },
+
+    data() {
+        return {
+            iconSvgData: '',
+        };
     },
 
     computed: {
@@ -81,7 +96,6 @@ Component.register('sw-icon', {
         classes() {
             return [
                 `icon--${this.name}`,
-                this.multicolor ? 'sw-icon--multicolor' : 'sw-icon--fill',
                 {
                     'sw-icon--small': this.small,
                     'sw-icon--large': this.large,
@@ -96,94 +110,34 @@ Component.register('sw-icon', {
                 size = `${size}px`;
             }
 
-            if (this.isLegacyName) {
-                return {
-                    color: this.color,
-                    width: size,
-                    height: size,
-                };
-            }
-
-            let additionalStyles = {};
-
-            /**
-             * @deprecated tag:v6.5.0 - Icons will no longer have space around them.
-             *
-             * The space mapping for the old icons should be removed in the
-             * next major. The space around the icons need to be set then
-             * in CSS.
-             */
-            if (!this.feature.isActive('v6.5.0.0')) {
-                const legacyName = Object.entries(legacyIconMapping).find(([oldName, newName]) => {
-                    return [oldName, newName].includes(this.iconName);
-                });
-
-                if (legacyName && legacySpaceMapping[legacyName[0]]) {
-                    additionalStyles = {
-                        ...additionalStyles,
-                        ...legacySpaceMapping[legacyName[0]],
-                    };
-                }
-            }
-
             return {
                 color: this.color,
                 width: size,
                 height: size,
-                ...additionalStyles,
             };
         },
-
-        isLegacyName() {
-            return Object.keys(legacyIconMapping).includes(this.iconName);
-        },
-
-        replacementName() {
-            if (!this.isLegacyName) {
-                return null;
-            }
-
-            return legacyIconMapping[this.iconName];
-        },
-
-        useIconKit() {
-            return this.feature.isActive('v6.5.0.0');
-        },
     },
 
-    created() {
-        this.createdComponent();
+    beforeMount() {
+        this.iconSvgData = `<svg id="meteor-icon-kit__${this.name}"></svg>`
     },
 
-    methods: {
-        createdComponent() {
-            if (this.color && this.multicolor) {
-                warn(
-                    this.$options.name,
-                    `The color of "${this.name}" cannot be adjusted because it is a multicolor icon.`,
-                );
-            }
+    watch: {
+        name: {
+            handler(newName) {
+                const [variant] = newName.split('-');
+                const iconName = newName.split('-').slice(1).join('-');
 
-            // No legacy name passed
-            if (!this.isLegacyName) {
-                return;
-            }
-
-            // Legacy name passed and replacement available
-            if (this.replacementName) {
-                warn(
-                    this.$options.name,
-                    `The icon name "${this.name}" you provided is deprecated. Use "${this.replacementName}" instead.`,
-                );
-
-                return;
-            }
-
-            // Legacy name passed no replacement available
-            warn(
-                this.$options.name,
-                `The icon name "${this.name}" you provided is deprecated without a replacement.`,
-            );
+                import(`@shopware-ag/meteor-icon-kit/icons/${variant}/${iconName}.svg`).then((iconSvgData) => {
+                    if (iconSvgData.default) {
+                        this.iconSvgData = iconSvgData.default;
+                    } else {
+                        console.error(`The SVG file for the icon name ${newName} could not be found and loaded.`);
+                        this.iconSvgData = '';
+                    }
+                });
+            },
+            immediate: true,
         },
     },
 });

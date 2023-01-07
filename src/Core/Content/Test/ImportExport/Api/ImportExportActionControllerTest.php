@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,13 +15,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class ImportExportActionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
@@ -319,6 +321,7 @@ class ImportExportActionControllerTest extends TestCase
     private function getUploadFile(string $type = 'text/csv', string $forceFileName = '', ?string $content = null): UploadedFile
     {
         $file = tempnam(sys_get_temp_dir(), 'upl');
+        static::assertIsString($file);
 
         switch ($type) {
             case 'text/html':

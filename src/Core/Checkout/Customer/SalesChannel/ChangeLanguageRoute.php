@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
@@ -22,12 +22,14 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package customer-order
+ *
  * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
 class ChangeLanguageRoute extends AbstractChangeLanguageRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerRepository;
 
@@ -45,7 +47,7 @@ class ChangeLanguageRoute extends AbstractChangeLanguageRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
+        EntityRepository $customerRepository,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator
     ) {

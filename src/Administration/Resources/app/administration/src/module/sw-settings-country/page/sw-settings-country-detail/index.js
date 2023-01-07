@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-country-detail.html.twig';
 import './sw-settings-country-detail.scss';
 
@@ -6,7 +9,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-country-detail', {
+export default {
     template,
 
     inject: [
@@ -50,6 +53,8 @@ Component.register('sw-settings-country-detail', {
                 value: {},
             },
             userConfigValues: {},
+            showPreviewModal: false,
+            previewData: null,
         };
     },
 
@@ -126,7 +131,6 @@ Component.register('sw-settings-country-detail', {
             ));
         },
 
-
         ...mapPropertyErrors('country', ['name']),
 
         showCustomFields() {
@@ -152,6 +156,10 @@ Component.register('sw-settings-country-detail', {
         },
 
         loadEntityData() {
+            if (typeof this.country.isNew === 'function' && this.country.isNew()) {
+                return false;
+            }
+
             this.isLoading = true;
             return this.countryRepository.get(this.countryId).then(country => {
                 this.country = country;
@@ -162,6 +170,8 @@ Component.register('sw-settings-country-detail', {
                     this.country.states.entity,
                     this.country.states.source,
                 );
+            }).catch(() => {
+                this.isLoading = false;
             });
         },
 
@@ -208,7 +218,6 @@ Component.register('sw-settings-country-detail', {
                             this.loadUserConfig();
                         });
                 }
-
                 this.loadEntityData();
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
@@ -336,4 +345,4 @@ Component.register('sw-settings-country-detail', {
             return this.onSave();
         },
     },
-});
+};

@@ -7,22 +7,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 
 /**
- * @final tag:v6.5.0
+ * @final
+ *
+ * @package core
  */
 class EntityResult extends AggregationResult
 {
     /**
-     * @var EntityCollection<Entity>
-     */
-    protected $entities;
-
-    /**
      * @param EntityCollection<Entity> $entities
      */
-    public function __construct(string $name, EntityCollection $entities)
+    public function __construct(string $name, protected EntityCollection $entities)
     {
         parent::__construct($name);
-        $this->entities = $entities;
     }
 
     /**

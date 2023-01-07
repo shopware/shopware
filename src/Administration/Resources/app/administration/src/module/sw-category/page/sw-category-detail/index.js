@@ -2,13 +2,16 @@ import pageState from './state';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
 
-const { Component, Context, Mixin } = Shopware;
+const { Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator, EntityCollection } = Shopware.Data;
 const { cloneDeep, merge } = Shopware.Utils.object;
 const type = Shopware.Utils.types;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-category-detail', {
+export default {
     template,
 
     inject: [
@@ -17,12 +20,6 @@ Component.register('sw-category-detail', {
         'repositoryFactory',
         'seoUrlService',
     ],
-
-    provide() {
-        return {
-            openMediaSidebar: this.openMediaSidebar,
-        };
-    },
 
     mixins: [
         Mixin.getByName('notification'),
@@ -326,6 +323,11 @@ Component.register('sw-category-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-category-detail__category',
+                path: 'category',
+                scope: this,
+            });
             this.isLoading = true;
             this.checkViewport();
             this.registerListener();
@@ -487,7 +489,7 @@ Component.register('sw-category-detail', {
                 }
 
 
-                await Shopware.State.dispatch('shopwareApps/setSelectedIds', [this.landingPageId]);
+                Shopware.State.commit('shopwareApps/setSelectedIds', [this.landingPageId]);
                 await Shopware.State.dispatch('swCategoryDetail/loadActiveLandingPage', {
                     repository: this.landingPageRepository,
                     apiContext: Shopware.Context.api,
@@ -521,17 +523,12 @@ Component.register('sw-category-detail', {
                     });
             }
 
-
-            return Shopware.State.dispatch(
-                'shopwareApps/setSelectedIds',
-                [this.categoryId],
-            ).then(() => {
-                return Shopware.State.dispatch('swCategoryDetail/loadActiveCategory', {
-                    repository: this.categoryRepository,
-                    apiContext: Shopware.Context.api,
-                    id: this.categoryId,
-                    criteria: this.categoryCriteria,
-                });
+            Shopware.State.commit('shopwareApps/setSelectedIds', [this.categoryId]);
+            return Shopware.State.dispatch('swCategoryDetail/loadActiveCategory', {
+                repository: this.categoryRepository,
+                apiContext: Shopware.Context.api,
+                id: this.categoryId,
+                criteria: this.categoryCriteria,
             }).then(() => Shopware.State.dispatch('cmsPageState/resetCmsPageState'))
                 .then(this.getAssignedCmsPage)
                 .then(this.loadCustomFieldSet)
@@ -577,6 +574,12 @@ Component.register('sw-category-detail', {
         },
 
         onLeaveModalConfirm(destination) {
+            // Discard all category related errors that may have occurred
+            Shopware.State.dispatch(
+                'error/removeApiError',
+                { expression: 'category' },
+            );
+
             this.forceDiscardChanges = true;
             this.isDisplayingLeavePageWarning = false;
 
@@ -591,18 +594,6 @@ Component.register('sw-category-detail', {
 
         resetCategory() {
             this.$router.push({ name: 'sw.category.index' });
-        },
-
-        openMediaSidebar() {
-            this.$refs.mediaSidebarItem.openContent();
-        },
-
-        setMediaItemFromSidebar(sideBarMedia) {
-            // be consistent and fetch from repository
-            this.mediaRepository.get(sideBarMedia.id).then((media) => {
-                this.category.mediaId = media.id;
-                this.category.media = media;
-            });
         },
 
         onChangeLanguage(newLanguageId) {
@@ -668,31 +659,6 @@ Component.register('sw-category-detail', {
                     ),
                 });
             });
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed completely - Slot config should not override the template config at all
-         */
-        saveSlotConfig() {
-            if (
-                this.category.cmsPage === undefined ||
-                this.category.cmsPage.locked ||
-                Object.values(this.category.slotConfig).length < 1
-            ) {
-                return Promise.resolve();
-            }
-
-            this.category.cmsPage.sections.forEach((section) => {
-                section.blocks.forEach((block) => {
-                    block.slots.forEach((slot) => {
-                        if (this.category.slotConfig[slot.id]) {
-                            slot.config = this.category.slotConfig[slot.id];
-                        }
-                    });
-                });
-            });
-
-            return this.cmsPageRepository.save(this.category.cmsPage, Shopware.Context.api);
         },
 
         checkForEntryPointOverwrite() {
@@ -782,11 +748,13 @@ Component.register('sw-category-detail', {
                 },
             );
 
-            Shopware.State.dispatch('error/addApiError',
+            Shopware.State.dispatch(
+                'error/addApiError',
                 {
                     expression: `landing_page.${this.landingPage.id}.salesChannels`,
                     error: shopwareError,
-                });
+                },
+            );
 
             this.createNotificationError({
                 message: this.$tc(
@@ -891,4 +859,4 @@ Component.register('sw-category-detail', {
             });
         },
     },
-});
+};

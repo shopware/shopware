@@ -18,7 +18,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @internal (flag:FEATURE_NEXT_14001) remove comment on feature release
+ * @package customer-order
  */
 class NewsletterAccountPageletLoader
 {
@@ -34,6 +34,9 @@ class NewsletterAccountPageletLoader
 
     private SystemConfigService $systemConfigService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         AbstractNewsletterSubscribeRoute $newsletterSubscribeRoute,

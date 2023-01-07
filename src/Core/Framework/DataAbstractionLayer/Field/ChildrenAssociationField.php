@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 
+/**
+ * @package core
+ */
 class ChildrenAssociationField extends OneToManyAssociationField
 {
     public function __construct(string $referenceClass, string $propertyName = 'children')

@@ -15,6 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 
+/**
+ * @package sales-channel
+ */
 class MailTemplateMediaDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'mail_template_media';

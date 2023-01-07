@@ -27,7 +27,7 @@ export default class RuleBuilderPageObject {
 
         if (value !== undefined) {
             cy.get(selector).within(() => {
-                cy.get('.sw-select').last().as('value-select');
+                cy.get('.sw-select__selection').last().as('value-select');
                 cy.get('@value-select').click();
                 selectResultList().should('be.visible').contains(value).click();
             });
@@ -64,7 +64,7 @@ export default class RuleBuilderPageObject {
     selectTypeAndOperator(selector, type, operator) {
         if (isNonEmptyString(type)) {
             cy.get(selector).within(() => {
-                cy.get('.sw-condition-type-select .sw-select').click();
+                cy.get('.sw-condition-type-select .sw-select__selection').click();
 
                 selectResultList().scrollIntoView();
                 selectResultList()
@@ -77,7 +77,7 @@ export default class RuleBuilderPageObject {
 
         if (isNonEmptyString(operator)) {
             cy.get(selector).within(() => {
-                cy.get('.sw-condition-operator-select .sw-select').click();
+                cy.get('.sw-condition-operator-select .sw-select__selection').click();
                 selectResultList().should('be.visible');
                 selectResultList().contains(operator).click();
             });

@@ -11,13 +11,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
-use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
+/**
+ * @package core
+ */
 class StructEncoder
 {
     private DefinitionInstanceRegistry $definitionRegistry;
 
-    private Serializer $serializer;
+    private NormalizerInterface $serializer;
 
     private array $protections = [];
 
@@ -26,7 +29,7 @@ class StructEncoder
      */
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
-        Serializer $serializer
+        NormalizerInterface $serializer
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->serializer = $serializer;

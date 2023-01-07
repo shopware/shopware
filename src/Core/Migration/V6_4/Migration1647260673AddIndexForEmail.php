@@ -6,6 +6,11 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use function array_column;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1647260673AddIndexForEmail extends MigrationStep
 {
     public function getCreationTimestamp(): int

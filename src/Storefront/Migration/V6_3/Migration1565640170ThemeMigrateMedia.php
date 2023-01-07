@@ -3,10 +3,14 @@
 namespace Shopware\Storefront\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1565640170ThemeMigrateMedia extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -18,7 +22,7 @@ class Migration1565640170ThemeMigrateMedia extends MigrationStep
     {
         $defaultThemeId = $connection->executeQuery(
             'SELECT `id` FROM `theme` WHERE `technical_name` = \'Storefront\';'
-        )->fetchColumn();
+        )->fetchOne();
 
         if (!$defaultThemeId) {
             return;
@@ -26,7 +30,7 @@ class Migration1565640170ThemeMigrateMedia extends MigrationStep
 
         $themeConfigs = $connection->executeQuery(
             'SELECT `id`, `base_config` FROM `theme`;'
-        )->fetchAll(FetchMode::ASSOCIATIVE);
+        )->fetchAllAssociative();
 
         $themeMediaMapping = [];
 
@@ -58,12 +62,12 @@ class Migration1565640170ThemeMigrateMedia extends MigrationStep
             }
         }
 
-        $mediaIds = $connection->executeQuery(
+        $mediaIds = $connection->fetchFirstColumn(
             'SELECT `media`.`id` FROM `media`
                LEFT JOIN `media_folder` ON `media`.`media_folder_id` = `media_folder`.`id`
                LEFT JOIN `media_default_folder` ON `media_folder`.`default_folder_id` = `media_default_folder`.`id`
                WHERE `media_default_folder`.`entity` = \'theme\';'
-        )->fetchAll(FetchMode::COLUMN);
+        );
 
         if (empty($mediaIds)) {
             return;

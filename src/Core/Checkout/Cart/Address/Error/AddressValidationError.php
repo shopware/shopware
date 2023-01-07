@@ -10,6 +10,9 @@ namespace Shopware\Core\Checkout\Cart\Address\Error;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @package checkout
+ */
 class AddressValidationError extends Error
 {
     private const KEY = 'address-invalid';

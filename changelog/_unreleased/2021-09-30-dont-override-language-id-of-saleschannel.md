@@ -1,7 +1,6 @@
 ---
 title: Don't override languageId of SalesChannel in SalesChannelContext
 issue: NEXT-17276
-flag: FEATURE_NEXT_17276
 ---
 # Core
 * Changed `\Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory::create()` to not override the languageId of the SalesChannel-Entity in the constructed SalesChannelContext.

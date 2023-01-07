@@ -1,11 +1,14 @@
 import template from './sw-customer-base-info.html.twig';
 import './sw-customer-base-info.scss';
 
-const { Component } = Shopware;
+/**
+ * @package customer-order
+ */
+
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-customer-base-info', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'feature'],
@@ -65,11 +68,9 @@ Component.register('sw-customer-base-info', {
         orderCriteria() {
             const criteria = new Criteria(1, 1);
             criteria.addAggregation(Criteria.filter('exceptCancelledOrder', [
-                Criteria.not(
-                    'AND', [
-                        Criteria.equals('stateMachineState.technicalName', 'cancelled'),
-                    ],
-                ),
+                Criteria.not('AND', [
+                    Criteria.equals('stateMachineState.technicalName', 'cancelled'),
+                ]),
             ], Criteria.sum('orderAmount', 'amountTotal')));
             criteria.addFilter(Criteria.equals('order.orderCustomer.customerId', this.$route.params.id));
 
@@ -100,4 +101,4 @@ Component.register('sw-customer-base-info', {
             });
         },
     },
-});
+};

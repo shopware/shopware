@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1586158920AddImportExportProfileConfig extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +19,7 @@ class Migration1586158920AddImportExportProfileConfig extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'ALTER TABLE import_export_profile
             ADD COLUMN config JSON,
             ADD CONSTRAINT `json.import_export_profile.config` CHECK (JSON_VALID(`config`))'

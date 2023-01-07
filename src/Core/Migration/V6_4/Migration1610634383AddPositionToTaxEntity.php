@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1610634383AddPositionToTaxEntity extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,22 +19,22 @@ class Migration1610634383AddPositionToTaxEntity extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `tax` ADD COLUMN `position` INTEGER NOT NULL DEFAULT 0 AFTER `name`;
         ');
 
         // order taxes if default name was not changed
-        $connection->executeUpdate('
+        $connection->executeStatement('
             UPDATE `tax`
             SET `position` = 1
             WHERE `name` = "Standard rate"
         ');
-        $connection->executeUpdate('
+        $connection->executeStatement('
             UPDATE `tax`
             SET `position` = 2
             WHERE `name` = "Reduced rate"
         ');
-        $connection->executeUpdate('
+        $connection->executeStatement('
             UPDATE `tax`
             SET `position` = 3
             WHERE `name` = "Reduced rate 2"

@@ -7,10 +7,10 @@ use Shopware\Core\Checkout\Shipping\Event\ShippingMethodRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
@@ -21,6 +21,8 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package checkout
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class CachedShippingMethodRoute extends AbstractShippingMethodRoute
@@ -38,6 +40,9 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
      */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @var array<string>
+     */
     private array $states;
 
     private EventDispatcherInterface $dispatcher;
@@ -46,6 +51,7 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
      * @internal
      *
      * @param AbstractCacheTracer<ShippingMethodRouteResponse> $tracer
+     * @param array<string> $states
      */
     public function __construct(
         AbstractShippingMethodRoute $decorated,
@@ -81,6 +87,10 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
 
         $key = $this->generateKey($request, $context, $criteria);
 
+        if ($key === null) {
+            return $this->getDecorated()->load($request, $context, $criteria);
+        }
+
         $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $criteria) {
             $name = self::buildName($context->getSalesChannelId());
 
@@ -101,20 +111,27 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
         return 'shipping-method-route-' . $salesChannelId;
     }
 
-    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): string
+    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): ?string
     {
         $parts = [
             $this->generator->getCriteriaHash($criteria),
-            $this->generator->getSalesChannelContextHash($context),
+            $this->generator->getSalesChannelContextHash($context, [RuleAreas::SHIPPING_AREA]),
             $request->query->getBoolean('onlyAvailable', false),
         ];
 
         $event = new ShippingMethodRouteCacheKeyEvent($parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
+        if (!$event->shouldCache()) {
+            return null;
+        }
+
         return self::buildName($context->getSalesChannelId()) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function generateTags(Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $tags = array_merge(

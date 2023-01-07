@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Content\Sitemap\Service;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
-use Shopware\Core\Content\Sitemap\Provider\UrlProviderInterface;
+use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
@@ -15,44 +15,29 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package sales-channel
+ */
 class SitemapExporter implements SitemapExporterInterface
 {
     /**
-     * @deprecated tag:v6.5.0 - The interface will be remove, use AbstractUrlProvider instead
-     *
-     * @var UrlProviderInterface[]
+     * @var array<string, SitemapHandleInterface>
      */
-    private $urlProvider;
-
-    private CacheItemPoolInterface $cache;
-
-    private int $batchSize;
-
-    private FilesystemInterface $filesystem;
-
-    private SitemapHandleFactoryInterface $sitemapHandleFactory;
-
-    private array $sitemapHandles;
-
-    private EventDispatcherInterface $dispatcher;
+    private array $sitemapHandles = [];
 
     /**
      * @internal
+     *
+     * @param iterable<AbstractUrlProvider> $urlProvider
      */
     public function __construct(
-        iterable $urlProvider,
-        CacheItemPoolInterface $cache,
-        int $batchSize,
-        FilesystemInterface $filesystem,
-        SitemapHandleFactoryInterface $sitemapHandleFactory,
-        EventDispatcherInterface $dispatcher
+        private iterable $urlProvider,
+        private CacheItemPoolInterface $cache,
+        private int $batchSize,
+        private FilesystemOperator $filesystem,
+        private SitemapHandleFactoryInterface $sitemapHandleFactory,
+        private EventDispatcherInterface $dispatcher
     ) {
-        $this->urlProvider = $urlProvider;
-        $this->cache = $cache;
-        $this->batchSize = $batchSize;
-        $this->filesystem = $filesystem;
-        $this->sitemapHandleFactory = $sitemapHandleFactory;
-        $this->dispatcher = $dispatcher;
     }
 
     /**

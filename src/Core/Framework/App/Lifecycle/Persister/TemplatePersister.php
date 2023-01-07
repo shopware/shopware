@@ -8,24 +8,26 @@ use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\App\Template\TemplateEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ *
+ * @package core
  */
 class TemplatePersister
 {
     private AbstractTemplateLoader $templateLoader;
 
-    private EntityRepositoryInterface $templateRepository;
+    private EntityRepository $templateRepository;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     public function __construct(
         AbstractTemplateLoader $templateLoader,
-        EntityRepositoryInterface $templateRepository,
-        EntityRepositoryInterface $appRepository
+        EntityRepository $templateRepository,
+        EntityRepository $appRepository
     ) {
         $this->templateLoader = $templateLoader;
         $this->templateRepository = $templateRepository;

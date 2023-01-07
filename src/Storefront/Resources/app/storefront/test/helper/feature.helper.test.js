@@ -2,9 +2,12 @@ import Feature from 'src/helper/feature.helper';
 
 const default_flags = {
     test1: true,
-    test2: false
+    test2: false,
 };
 
+/**
+ * @package storefront
+ */
 describe('feature.helper.js', () => {
     beforeEach(() => {
         Feature.init(default_flags);

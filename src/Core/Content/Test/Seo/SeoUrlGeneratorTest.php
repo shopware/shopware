@@ -179,7 +179,7 @@ class SeoUrlGeneratorTest extends TestCase
         $this->getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
-        $this->getContainer()->get(SeoUrlUpdater::class)->update(TestProductSeoUrlRoute::ROUTE_NAME, $ids->getList(['parent', 'red', 'green']));
+        $this->getContainer()->get(SeoUrlUpdater::class)->update(TestProductSeoUrlRoute::ROUTE_NAME, array_values($ids->getList(['parent', 'red', 'green'])));
 
         $urls = $connection
             ->fetchAllAssociative(

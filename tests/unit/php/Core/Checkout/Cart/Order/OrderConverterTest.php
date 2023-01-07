@@ -2,9 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 
-use Faker\Factory;
-use Faker\Generator;
-use Petstore30\Order;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -14,8 +11,6 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
-use Shopware\Core\Checkout\Cart\Exception\OrderInconsistentException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\CartConvertedEvent;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
@@ -45,11 +40,10 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
@@ -74,15 +68,12 @@ class OrderConverterTest extends TestCase
 
     private CashRoundingConfig $cashRoundingConfig;
 
-    private Generator $faker;
-
     private OrderConverter $orderConverter;
 
     protected function setUp(): void
     {
         $this->cashRoundingConfig = new CashRoundingConfig(2, 0.01, true);
         $this->eventDispatcher = new EventDispatcher();
-        $this->faker = Factory::create();
         $this->orderConverter = $this->getOrderConverter();
     }
 
@@ -95,10 +86,6 @@ class OrderConverterTest extends TestCase
     {
         if ($exceptionClass !== '') {
             static::expectException($exceptionClass);
-            // remove statement with Feature flag v6.5.0.0
-            if ($exceptionClass === OrderException::class) {
-                static::expectException(MissingOrderRelationException::class);
-            }
         }
 
         $orderAddressRepositorySearchResult = [];
@@ -394,21 +381,11 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @dataProvider convertToCartExcpetionsData
-     *
-     * @psalm-param class-string<\Throwable> $exceptionClass
+     * @dataProvider convertToCartExceptionsData
      */
-    public function testConvertToCartExceptions(string $exceptionClass, string $manipulateOrder = ''): void
+    public function testConvertToCartExceptions(string $manipulateOrder): void
     {
-        if ($exceptionClass !== '') {
-            static::expectException($exceptionClass);
-            // remove statement with Feature flag v6.5.0.0
-            if ($exceptionClass === OrderException::class && $manipulateOrder === 'order-no-order-number') {
-                static::expectException(OrderInconsistentException::class);
-            } elseif ($exceptionClass === OrderException::class) {
-                static::expectException(MissingOrderRelationException::class);
-            }
-        }
+        static::expectException(OrderException::class);
 
         $order = $this->getOrder($manipulateOrder);
 
@@ -438,19 +415,16 @@ class OrderConverterTest extends TestCase
     /**
      * @return array<array<string>>
      */
-    public function convertToCartExcpetionsData(): array
+    public function convertToCartExceptionsData(): array
     {
         return [
             [
-                OrderException::class,
                 'order-no-line-items',
             ],
             [
-                OrderException::class,
                 'order-no-deliveries',
             ],
             [
-                OrderException::class,
                 'order-no-order-number',
             ],
         ];
@@ -537,8 +511,8 @@ class OrderConverterTest extends TestCase
         $orderDeliveryCollection = new OrderDeliveryCollection();
         $orderDelivery = new OrderDeliveryEntity();
         $orderDelivery->setId('order-delivery-id');
-        $orderDelivery->setShippingDateEarliest($this->faker->dateTime);
-        $orderDelivery->setShippingDateLatest($this->faker->dateTime);
+        $orderDelivery->setShippingDateEarliest(new \DateTimeImmutable());
+        $orderDelivery->setShippingDateLatest(new \DateTimeImmutable());
         $orderDelivery->setShippingMethodId('order-delivery-shipping-method-id');
         $orderDelivery->setShippingOrderAddress($this->getOrderAddress());
         $orderDelivery->setShippingCosts(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
@@ -617,7 +591,7 @@ class OrderConverterTest extends TestCase
             $salesChannelContextFactory->method('create')->willReturnCallback($salesChannelContextFactoryCreateCallable);
         }
 
-        $customerRepository = $this->createMock(EntityRepositoryInterface::class);
+        $customerRepository = $this->createMock(EntityRepository::class);
         if ($customerRepositoryResultArray !== null) {
             $customerRepository->method('search')->willReturn(
                 new EntitySearchResult(
@@ -631,7 +605,7 @@ class OrderConverterTest extends TestCase
             );
         }
 
-        $orderAddressRepository = $this->createMock(EntityRepositoryInterface::class);
+        $orderAddressRepository = $this->createMock(EntityRepository::class);
         if ($orderAddressRepositoryResultArray !== null) {
             $orderAddressRepository->method('search')->willReturn(
                 new EntitySearchResult(
@@ -750,7 +724,7 @@ class OrderConverterTest extends TestCase
         $deliveryCollection = new DeliveryCollection();
         $delivery = new Delivery(
             new DeliveryPositionCollection(),
-            new DeliveryDate($this->faker->dateTime, $this->faker->dateTime),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             $shippingMethod,
             $shippingLocation,
             new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection())

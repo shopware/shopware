@@ -1,5 +1,8 @@
 <?php declare(strict_types=1);
 
+/**
+ * @package system-settings
+ */
 return [
     'title' => 'Shopware 6 - Script de atualização',
     'meta_text' => '<strong>Atualização do Shopware:</strong>',

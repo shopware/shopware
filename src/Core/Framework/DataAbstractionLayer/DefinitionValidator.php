@@ -32,7 +32,9 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\String\Inflector\EnglishInflector;
 
 /**
- * @final tag:v6.5.0
+ * @package core
+ *
+ * @final
  */
 class DefinitionValidator
 {
@@ -45,6 +47,8 @@ class DefinitionValidator
         'customer.defaultShippingAddress',
         'customer.activeShippingAddress',
         'customer.activeBillingAddress',
+        'customer.createdBy',
+        'customer.updatedBy',
         'product_configurator_setting.selected',
         'sales_channel.wishlists',
         'product.wishlists',
@@ -115,25 +119,16 @@ class DefinitionValidator
     ];
 
     /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
+    public function __construct(private DefinitionInstanceRegistry $registry, private Connection $connection)
     {
-        $this->registry = $registry;
-        $this->connection = $connection;
         $this->connection->getEventManager()->addEventListener(Events::onSchemaIndexDefinition, new SchemaIndexListener());
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function validate(): array
     {
         $violations = [];
@@ -176,6 +171,9 @@ class DefinitionValidator
         return $violations;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getNotices(): array
     {
         $notices = [];
@@ -224,6 +222,8 @@ class DefinitionValidator
 
     /**
      * @param Table[] $tables
+     *
+     * @return array<string, mixed>
      */
     private function findNotRegisteredTables(array $tables): array
     {
@@ -249,6 +249,8 @@ class DefinitionValidator
 
     /**
      * @param Table[] $tables
+     *
+     * @return array<string, mixed>
      */
     private function checkNaming(array $tables): array
     {
@@ -285,6 +287,11 @@ class DefinitionValidator
         return ['Foreign key naming issues' => $fkViolations];
     }
 
+    /**
+     * @param class-string<Entity> $struct
+     *
+     * @return array<int, mixed>
+     */
     private function findEntityNotices(string $struct, EntityDefinition $definition): array
     {
         $reflection = new \ReflectionClass($struct);
@@ -298,7 +305,12 @@ class DefinitionValidator
                 continue;
             }
 
-            if ($reflection->getParentClass()->getName() === MappingEntityDefinition::class) {
+            $parentClass = $reflection->getParentClass();
+            if (!$parentClass) {
+                continue;
+            }
+
+            if ($parentClass->getName() === MappingEntityDefinition::class) {
                 continue;
             }
 
@@ -314,6 +326,11 @@ class DefinitionValidator
         return $notices;
     }
 
+    /**
+     * @param class-string<Entity> $struct
+     *
+     * @return array<int, mixed>
+     */
     private function validateStruct(string $struct, EntityDefinition $definition): array
     {
         $reflection = new \ReflectionClass($struct);
@@ -376,6 +393,9 @@ class DefinitionValidator
         return array_merge($properties, $functionViolations);
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     private function validateAssociations(EntityDefinition $definition): array
     {
         $violations = [];
@@ -445,6 +465,9 @@ class DefinitionValidator
         return $violations;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function validateEntityTranslationGettersAreNullable(EntityTranslationDefinition $translationDefinition): array
     {
         $violations = [];
@@ -492,6 +515,9 @@ class DefinitionValidator
         return $violations;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function validateEntityTranslationDefinitions(EntityTranslationDefinition $translationDefinition): array
     {
         $violations = [];
@@ -510,6 +536,9 @@ class DefinitionValidator
         return $violations;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function validateTranslationAssociation(EntityDefinition $parentDefinition, EntityDefinition $translationDefinition): array
     {
         $translatedFieldsInParent = array_keys($parentDefinition->getFields()->filterInstance(TranslatedField::class)->getElements());
@@ -535,6 +564,9 @@ class DefinitionValidator
         return $violations;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function validateOneToOne(EntityDefinition $definition, OneToOneAssociationField $association): array
     {
         $reference = $association->getReferenceDefinition();
@@ -588,6 +620,9 @@ class DefinitionValidator
         return $associationViolations;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function validateManyToOne(EntityDefinition $definition, ManyToOneAssociationField $association): array
     {
         $reference = $association->getReferenceDefinition();
@@ -631,6 +666,9 @@ class DefinitionValidator
         return $associationViolations;
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     private function validateOneToMany(EntityDefinition $definition, OneToManyAssociationField $association): array
     {
         $reference = $association->getReferenceDefinition();
@@ -648,6 +686,7 @@ class DefinitionValidator
             }
         )->first();
 
+        /** @var Field $foreignKey */
         $foreignKey = $reference->getFields()->getByStorageName($association->getReferenceField());
 
         if (!$foreignKey instanceof FkField) {
@@ -672,6 +711,9 @@ class DefinitionValidator
         return $associationViolations;
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     private function validateManyToMany(EntityDefinition $definition, ManyToManyAssociationField $association): array
     {
         $reference = $association->getToManyReferenceDefinition();
@@ -764,6 +806,9 @@ class DefinitionValidator
         return $violations;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function validateSchema(EntityDefinition $definition): array
     {
         $manager = $this->connection->getSchemaManager();
@@ -810,6 +855,9 @@ class DefinitionValidator
         return [$definition->getClass() => $violations];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function validateColumn(EntityDefinition $definition): array
     {
         $manager = $this->connection->getSchemaManager();
@@ -840,6 +888,9 @@ class DefinitionValidator
         return [$definition->getClass() => $notices];
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     private function validateIsPlural(EntityDefinition $definition, AssociationField $association): array
     {
         if (!$association instanceof ManyToManyAssociationField && !$association instanceof OneToManyAssociationField) {
@@ -882,6 +933,9 @@ class DefinitionValidator
         return self::CUSTOM_SHORT_NAMES[$normalized];
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     private function validateReferenceNameContainedInName(EntityDefinition $definition, AssociationField $association): array
     {
         if ($definition === $association->getReferenceDefinition()) {
@@ -938,6 +992,9 @@ class DefinitionValidator
         return [];
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     private function validateDataFieldNotPrefixedByEntityName(EntityDefinition $definition): array
     {
         $violations = [];
@@ -1002,14 +1059,17 @@ class DefinitionValidator
 
     private function getShortClassName(EntityDefinition $definition): string
     {
-        return lcfirst(preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $definition->getClass()));
+        return lcfirst((string) preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $definition->getClass()));
     }
 
     private function getAggregateNamespace(EntityDefinition $definition): string
     {
-        return lcfirst(preg_replace('/.*\\\\([^\\\\]+)\\\\Aggregate.*/', '$1', $definition->getClass()));
+        return lcfirst((string) preg_replace('/.*\\\\([^\\\\]+)\\\\Aggregate.*/', '$1', $definition->getClass()));
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     private function checkEntityNameConstant(EntityDefinition $definition): array
     {
         $violations = [];
@@ -1032,6 +1092,9 @@ class DefinitionValidator
         return $violations;
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     private function checkParentDefinition(EntityDefinition $definition): array
     {
         if ($definition->getParentDefinition()) {
@@ -1051,6 +1114,9 @@ class DefinitionValidator
 
     /**
      * @param OneToManyAssociationField|ManyToManyAssociationField $association
+     * @param array<int|string, mixed> $associationViolations
+     *
+     * @return array<int|string, mixed>
      */
     private function validateForeignKeyOnDeleteBehaviour(EntityDefinition $definition, AssociationField $association, EntityDefinition $reference, array $associationViolations): array
     {
@@ -1092,6 +1158,11 @@ class DefinitionValidator
         return $associationViolations;
     }
 
+    /**
+     * @param array<int|string, mixed> $associationViolations
+     *
+     * @return array<int|string, mixed>
+     */
     private function validateSetterIsNotNull(EntityDefinition $definition, AssociationField $association, array $associationViolations): array
     {
         $setter = 'set' . ucfirst($association->getPropertyName());

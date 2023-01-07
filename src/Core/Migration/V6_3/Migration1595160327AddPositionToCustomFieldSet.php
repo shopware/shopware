@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1595160327AddPositionToCustomFieldSet extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +19,7 @@ class Migration1595160327AddPositionToCustomFieldSet extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `custom_field_set`
             ADD COLUMN `position` INT(11) NOT NULL DEFAULT 1 AFTER `active`;
         ');

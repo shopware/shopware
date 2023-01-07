@@ -7,6 +7,8 @@ use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class Field extends XmlElement
 {
@@ -52,7 +54,7 @@ class Field extends XmlElement
         }
 
         foreach ($element->childNodes as $child) {
-            if (!$child instanceof \DOMElement) {
+            if (!$child instanceof \DOMElement || $child->nodeValue === null) {
                 continue;
             }
 

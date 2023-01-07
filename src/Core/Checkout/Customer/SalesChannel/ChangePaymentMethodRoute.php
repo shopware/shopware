@@ -7,12 +7,9 @@ use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,11 +21,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
+ *
+ * @package customer-order
  */
 class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerRepository;
 
@@ -38,14 +37,14 @@ class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
     private $eventDispatcher;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $paymentMethodRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $customerRepository, EventDispatcherInterface $eventDispatcher, EntityRepositoryInterface $paymentMethodRepository)
+    public function __construct(EntityRepository $customerRepository, EventDispatcherInterface $eventDispatcher, EntityRepository $paymentMethodRepository)
     {
         $this->customerRepository = $customerRepository;
         $this->eventDispatcher = $eventDispatcher;

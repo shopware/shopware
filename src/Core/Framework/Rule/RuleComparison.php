@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Rule;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Util\FloatComparator;
 
+/**
+ * @package business-ops
+ */
 class RuleComparison
 {
     public static function numeric(?float $itemValue, ?float $ruleValue, string $operator): bool
@@ -66,6 +69,9 @@ class RuleComparison
         }
     }
 
+    /**
+     * @param list<string> $ruleValue
+     */
     public static function stringArray(?string $itemValue, array $ruleValue, string $operator): bool
     {
         if ($itemValue === null) {
@@ -84,6 +90,10 @@ class RuleComparison
         }
     }
 
+    /**
+     * @param list<string|null>|null $itemValue
+     * @param list<string|null>|null $ruleValue
+     */
     public static function uuids(?array $itemValue, ?array $ruleValue, string $operator): bool
     {
         if (!$itemValue) {

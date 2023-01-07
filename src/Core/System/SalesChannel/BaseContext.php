@@ -12,13 +12,13 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 
 /**
+ * @package core
+ *
  * @internal Use SalesChannelContext for extensions
  */
 class BaseContext
 {
     protected CustomerGroupEntity $currentCustomerGroup;
-
-    protected CustomerGroupEntity $fallbackCustomerGroup;
 
     protected CurrencyEntity $currency;
 
@@ -38,15 +38,11 @@ class BaseContext
 
     private CashRoundingConfig $totalRounding;
 
-    /**
-     * @deprecated tag:v6.5.0 - Parameter $fallbackCustomerGroup is deprecated and will be removed
-     */
     public function __construct(
         Context $baseContext,
         SalesChannelEntity $salesChannel,
         CurrencyEntity $currency,
         CustomerGroupEntity $currentCustomerGroup,
-        CustomerGroupEntity $fallbackCustomerGroup,
         TaxCollection $taxRules,
         PaymentMethodEntity $paymentMethod,
         ShippingMethodEntity $shippingMethod,
@@ -55,7 +51,6 @@ class BaseContext
         CashRoundingConfig $totalRounding
     ) {
         $this->currentCustomerGroup = $currentCustomerGroup;
-        $this->fallbackCustomerGroup = $fallbackCustomerGroup;
         $this->currency = $currency;
         $this->salesChannel = $salesChannel;
         $this->taxRules = $taxRules;
@@ -70,14 +65,6 @@ class BaseContext
     public function getCurrentCustomerGroup(): CustomerGroupEntity
     {
         return $this->currentCustomerGroup;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Fallback customer group is deprecated and will be removed, use getCurrentCustomerGroup instead
-     */
-    public function getFallbackCustomerGroup(): CustomerGroupEntity
-    {
-        return $this->fallbackCustomerGroup;
     }
 
     public function getCurrency(): CurrencyEntity

@@ -11,14 +11,14 @@ use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package content
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class CategoryRoute extends AbstractCategoryRoute
@@ -26,7 +26,7 @@ class CategoryRoute extends AbstractCategoryRoute
     public const HOME = 'home';
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var SalesChannelRepository
      */
     private $categoryRepository;
 
@@ -44,7 +44,7 @@ class CategoryRoute extends AbstractCategoryRoute
      * @internal
      */
     public function __construct(
-        SalesChannelRepositoryInterface $categoryRepository,
+        SalesChannelRepository $categoryRepository,
         SalesChannelCmsPageLoaderInterface $cmsPageLoader,
         CategoryDefinition $categoryDefinition
     ) {

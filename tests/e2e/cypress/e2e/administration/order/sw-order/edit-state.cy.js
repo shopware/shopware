@@ -22,14 +22,13 @@ describe('Order: Test order state', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+                cy.get('.sw-order-list').should('exist');
                 cy.get('.sw-skeleton').should('not.exist');
                 cy.get('.sw-loader').should('not.exist');
             });
     });
 
     it('@base @order: edit order state', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
-        cy.onlyOnFeature('FEATURE_NEXT_7530');
-
         const page = new OrderPageObject();
 
         // Request we want to wait for later
@@ -160,8 +159,6 @@ describe('Order: Test order state', () => {
     });
 
     it('@order: edit order state on details tab', { tags: ['pa-customers-orders'] }, () => {
-        cy.onlyOnFeature('FEATURE_NEXT_7530');
-
         const page = new OrderPageObject();
 
         // Request we want to wait for later
@@ -226,8 +223,6 @@ describe('Order: Test order state', () => {
     });
 
     it('@order: check order history', { tags: ['pa-customers-orders'] }, () => {
-        cy.onlyOnFeature('FEATURE_NEXT_7530');
-
         const page = new OrderPageObject();
 
         // Request we want to wait for later

@@ -6,11 +6,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -33,28 +32,9 @@ class EntityWrittenEventSerializationTest extends TestCase
         static::assertJson($encoded);
     }
 
-    /**
-     * @depends testEventCanBeSerialized
-     */
-    public function testContainerEventCanBeDispatchedAsMessage(): void
-    {
-        $event = $this->writeTestProduct();
-        /** @var MessageBusInterface $bus */
-        $bus = $this->getContainer()->get('messenger.bus.shopware');
-
-        $failed = false;
-
-        try {
-            $bus->dispatch($event);
-        } catch (\Exception $e) {
-            $failed = true;
-        }
-        static::assertFalse($failed);
-    }
-
     private function writeTestProduct(): EntityWrittenContainerEvent
     {
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
 
         return $productRepository->create(

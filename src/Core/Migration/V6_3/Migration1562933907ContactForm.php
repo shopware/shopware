@@ -10,6 +10,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1562933907ContactForm extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -102,7 +107,7 @@ WHERE `locale`.`code` = :code
 SQL;
 
         /** @var string|false $languageId */
-        $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchColumn();
+        $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchOne();
         if (!$languageId && $locale !== 'en-GB') {
             return null;
         }

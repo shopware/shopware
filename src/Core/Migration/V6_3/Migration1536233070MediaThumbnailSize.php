@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1536233070MediaThumbnailSize extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +19,7 @@ class Migration1536233070MediaThumbnailSize extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->exec('
+        $connection->executeStatement('
             CREATE TABLE `media_thumbnail_size`(
               `id` BINARY(16) NOT NULL,
               `width` INT(11) NOT NULL,

@@ -7,6 +7,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1591259559AddMissingCurrency extends MigrationStep
 {
     /**
@@ -52,7 +57,7 @@ class Migration1591259559AddMissingCurrency extends MigrationStep
         $languageDefault = $this->getEnLanguageId($connection);
         $languageDE = $this->getDeLanguageId($connection);
 
-        $langId = $connection->fetchColumn('
+        $langId = $connection->fetchOne('
         SELECT `currency`.`id` FROM `currency` WHERE `iso_code` = :code LIMIT 1
         ', ['code' => $isoCode]);
 
@@ -87,7 +92,7 @@ class Migration1591259559AddMissingCurrency extends MigrationStep
 
     private function fetchLanguageId(string $code, Connection $connection): ?string
     {
-        $langId = $connection->fetchColumn('
+        $langId = $connection->fetchOne('
         SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`translation_code_id` = `locale`.`id` WHERE `code` = :code LIMIT 1
         ', ['code' => $code]);
 
@@ -104,10 +109,6 @@ class Migration1591259559AddMissingCurrency extends MigrationStep
 
     private function currencyExists(Connection $connection, string $isoCode): bool
     {
-        $statement = $connection->prepare('SELECT * FROM currency WHERE LOWER(iso_code) = LOWER(?)');
-        $statement->execute([$isoCode]);
-        $response = $statement->fetchColumn();
-
-        return $response ? true : false;
+        return (bool) $connection->fetchOne('SELECT * FROM currency WHERE LOWER(iso_code) = LOWER(?)', [$isoCode]);
     }
 }

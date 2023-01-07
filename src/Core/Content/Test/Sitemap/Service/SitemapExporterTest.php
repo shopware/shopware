@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Sitemap\Service;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
@@ -10,7 +10,7 @@ use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporter;
 use Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -26,6 +26,8 @@ use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  */
 class SitemapExporterTest extends TestCase
@@ -35,7 +37,7 @@ class SitemapExporterTest extends TestCase
 
     private SalesChannelContext $context;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     protected function setUp(): void
     {
@@ -53,7 +55,7 @@ class SitemapExporterTest extends TestCase
             [],
             $cache,
             10,
-            $this->createMock(FilesystemInterface::class),
+            $this->createMock(FilesystemOperator::class),
             $this->createMock(SitemapHandleFactoryInterface::class),
             $this->createMock(EventDispatcher::class)
         );
@@ -72,7 +74,7 @@ class SitemapExporterTest extends TestCase
             [],
             $cache,
             10,
-            $this->createMock(FilesystemInterface::class),
+            $this->createMock(FilesystemOperator::class),
             $this->createMock(SitemapHandleFactoryInterface::class),
             $this->createMock(EventDispatcher::class)
         );
@@ -90,7 +92,7 @@ class SitemapExporterTest extends TestCase
             [],
             $cache,
             10,
-            $this->createMock(FilesystemInterface::class),
+            $this->createMock(FilesystemOperator::class),
             $this->createMock(SitemapHandleFactoryInterface::class),
             $this->createMock(EventDispatcher::class)
         );
@@ -115,22 +117,26 @@ class SitemapExporterTest extends TestCase
             return $cacheItem;
         });
 
-        $cache->method('save')->willReturnCallback(function (CacheItemInterface $i) use (&$cacheItem): void {
+        $cache->method('save')->willReturnCallback(function (CacheItemInterface $i) use (&$cacheItem): bool {
             static::assertSame($cacheItem->getKey(), $i->getKey());
             $cacheItem = $this->createCacheItem($i->getKey(), $i->get(), true);
+
+            return true;
         });
 
-        $cache->method('deleteItem')->willReturnCallback(function (string $k) use (&$cacheItem): void {
+        $cache->method('deleteItem')->willReturnCallback(function (string $k) use (&$cacheItem): bool {
             static::assertNotNull($cacheItem, 'Was not locked');
             static::assertSame($cacheItem->getKey(), $k);
             static::assertTrue($cacheItem->isHit(), 'Was not locked');
+
+            return true;
         });
 
         $exporter = new SitemapExporter(
             [],
             $cache,
             10,
-            $this->createMock(FilesystemInterface::class),
+            $this->createMock(FilesystemOperator::class),
             $this->createMock(SitemapHandleFactoryInterface::class),
             $this->createMock(EventDispatcher::class)
         );

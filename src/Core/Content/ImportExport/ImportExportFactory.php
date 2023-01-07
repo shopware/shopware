@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\ImportExport;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
@@ -16,21 +16,24 @@ use Shopware\Core\Content\ImportExport\Service\AbstractFileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package system-settings
+ */
 class ImportExportFactory
 {
     private ImportExportService $importExportService;
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private EntityRepositoryInterface $logRepository;
+    private EntityRepository $logRepository;
 
     private Connection $connection;
 
@@ -57,9 +60,9 @@ class ImportExportFactory
     public function __construct(
         ImportExportService $importExportService,
         DefinitionInstanceRegistry $definitionInstanceRegistry,
-        FilesystemInterface $filesystem,
+        FilesystemOperator $filesystem,
         EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $logRepository,
+        EntityRepository $logRepository,
         Connection $connection,
         AbstractFileService $fileService,
         \IteratorAggregate $readerFactories,
@@ -113,7 +116,7 @@ class ImportExportFactory
         return $logEntity;
     }
 
-    private function getRepository(ImportExportLogEntity $logEntity): EntityRepositoryInterface
+    private function getRepository(ImportExportLogEntity $logEntity): EntityRepository
     {
         return $this->definitionInstanceRegistry->getRepository($logEntity->getProfile()->getSourceEntity());
     }

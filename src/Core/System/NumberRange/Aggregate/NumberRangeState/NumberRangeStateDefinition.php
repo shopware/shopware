@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 
+/**
+ * @package checkout
+ */
 class NumberRangeStateDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'number_range_state';

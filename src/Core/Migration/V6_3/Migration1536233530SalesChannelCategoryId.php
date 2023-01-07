@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1536233530SalesChannelCategoryId extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -33,12 +38,12 @@ ADD CONSTRAINT `fk.category.cms_page_id` FOREIGN KEY (`cms_page_id`)
 REFERENCES `cms_page` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 SQL;
 
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
     }
 
     private function removeNavigationFromSalesChannel(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `sales_channel` DROP FOREIGN KEY `fk.sales_channel.navigation_id`');
+        $connection->executeStatement('ALTER TABLE `sales_channel` DROP FOREIGN KEY `fk.sales_channel.navigation_id`');
 
         $sql = <<<'SQL'
 ALTER TABLE `sales_channel`
@@ -46,13 +51,13 @@ ALTER TABLE `sales_channel`
     DROP COLUMN `navigation_version_id`
 SQL;
 
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
     }
 
     private function dropNavigation(Connection $connection): void
     {
-        $connection->executeUpdate('DROP TABLE `navigation_translation`');
-        $connection->executeUpdate('DROP TABLE `navigation`');
+        $connection->executeStatement('DROP TABLE `navigation_translation`');
+        $connection->executeStatement('DROP TABLE `navigation`');
     }
 
     private function addSlotConfigToCategory(Connection $connection): void
@@ -63,6 +68,6 @@ ALTER TABLE `category_translation`
     ADD CONSTRAINT `json.category_translation.slot_config` CHECK (JSON_VALID(`slot_config`))
 SQL;
 
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
     }
 }

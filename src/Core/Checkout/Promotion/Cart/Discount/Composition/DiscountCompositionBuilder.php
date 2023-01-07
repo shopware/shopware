@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Composition;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 
+/**
+ * @package checkout
+ */
 class DiscountCompositionBuilder
 {
     /**

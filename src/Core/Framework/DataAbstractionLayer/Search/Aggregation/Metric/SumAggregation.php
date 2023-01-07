@@ -5,7 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 
 /**
- * @final tag:v6.5.0
+ * @final
+ *
+ * @package core
  */
 class SumAggregation extends Aggregation
 {

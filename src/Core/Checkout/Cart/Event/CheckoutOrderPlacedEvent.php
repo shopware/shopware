@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package checkout
+ */
 class CheckoutOrderPlacedEvent extends Event implements SalesChannelAware, OrderAware, MailAware, CustomerAware
 {
     public const EVENT_NAME = 'checkout.order.placed';

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Api\Serializer;
 
+/**
+ * @package core
+ */
 class JsonApiEncodingResult implements \JsonSerializable
 {
     /**
@@ -15,7 +18,7 @@ class JsonApiEncodingResult implements \JsonSerializable
     protected $included = [];
 
     /**
-     * @var array
+     * @var array<string, int>
      */
     protected $keyCollection = [];
 
@@ -25,7 +28,7 @@ class JsonApiEncodingResult implements \JsonSerializable
     protected $single = false;
 
     /**
-     * @var array
+     * @var array<mixed>
      */
     protected $metaData = [];
 
@@ -44,11 +47,17 @@ class JsonApiEncodingResult implements \JsonSerializable
         return $this->baseUrl;
     }
 
+    /**
+     * @return Record[]
+     */
     public function getData(): array
     {
         return $this->data;
     }
 
+    /**
+     * @return Record[]
+     */
     public function getIncluded(): array
     {
         return $this->included;
@@ -103,13 +112,7 @@ class JsonApiEncodingResult implements \JsonSerializable
         return isset($this->data[$key]);
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be changed to string
-     *
-     * @return array
-     */
-    #[\ReturnTypeWillChange]
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $output = [
             'data' => $this->isSingle() ? array_shift($this->data) : array_values($this->data),
@@ -133,11 +136,17 @@ class JsonApiEncodingResult implements \JsonSerializable
         $this->single = $single;
     }
 
+    /**
+     * @param array<mixed> $metaData
+     */
     public function setMetaData(array $metaData): void
     {
         $this->metaData = $metaData;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getMetaData(): array
     {
         return $this->metaData;

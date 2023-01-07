@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 
 import MediaPageObject from '../../../../support/pages/module/sw-media.page-object';
@@ -30,7 +33,7 @@ describe('Media: Visual tests', () => {
         }).as('getData');
 
         cy.intercept({
-            url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw_logo_white`,
+            url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=plugin-manager--login`,
             method: 'POST'
         }).as('saveDataUrlUpload');
 
@@ -69,12 +72,12 @@ describe('Media: Visual tests', () => {
                 '.sw-media-upload-v2__button-url-upload',
                 '.sw-media-upload-v2__button-context-menu'
             );
-            page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
+            page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/plugin-manager--login.png`);
 
             cy.wait('@saveDataUrlUpload')
                 .its('response.statusCode').should('equal', 204);
             cy.awaitAndCheckNotification('File has been saved.');
-            cy.get('.sw-media-base-item__name[title="sw_logo_white.png"]')
+            cy.get('.sw-media-base-item__name[title="plugin-manager--login.png"]')
                 .should('be.visible');
             cy.get('.sw-media-preview-v2__item').should('have.attr', 'src');
             cy.get('.icon--multicolor-file-thumbnail-broken').should('not.exist');

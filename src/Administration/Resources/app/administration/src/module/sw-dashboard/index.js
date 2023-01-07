@@ -1,10 +1,14 @@
-import './component/sw-dashboard-external-link';
-import './component/sw-dashboard-statistics';
-import './page/sw-dashboard-index';
-
 const { Module } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-dashboard-statistics', () => import('./component/sw-dashboard-statistics'));
+Shopware.Component.register('sw-dashboard-index', () => import('./page/sw-dashboard-index'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+
+/**
+ * @package merchant-services
+ * @private
+ */
 Module.register('sw-dashboard', {
     type: 'core',
     name: 'dashboard',

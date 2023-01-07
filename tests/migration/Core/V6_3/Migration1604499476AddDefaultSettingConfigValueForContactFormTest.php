@@ -28,10 +28,10 @@ class Migration1604499476AddDefaultSettingConfigValueForContactFormTest extends 
 
         $connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['fetchColumn', 'insert'])
+            ->onlyMethods(['fetchOne', 'insert'])
             ->getMock();
 
-        $connection->method('fetchColumn')
+        $connection->method('fetchOne')
             ->willReturn($configPresent);
 
         // Assert that an insert only happens when the abort condition is not met

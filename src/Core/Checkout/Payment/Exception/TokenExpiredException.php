@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Payment\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package checkout
+ */
 class TokenExpiredException extends ShopwareHttpException
 {
     public function __construct(string $token, ?\Throwable $e = null)

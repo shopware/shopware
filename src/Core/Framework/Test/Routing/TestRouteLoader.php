@@ -26,7 +26,7 @@ class TestRouteLoader extends AnnotationFileLoader
         $this->routeCollectionLast = new RouteCollection();
     }
 
-    public function load($resource, ?string $type = null)
+    public function load(mixed $resource, ?string $type = null): ?RouteCollection
     {
         if (\in_array($resource, $this->resources, true)) {
             return null;

@@ -8,9 +8,10 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Symfony\Component\HttpFoundation\Request;
-use TrueBV\Punycode;
 
 /**
+ * @package storefront
+ *
  * @phpstan-import-type Domain from AbstractDomainLoader
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
@@ -71,8 +72,6 @@ class RequestTransformer implements RequestTransformerInterface
         SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME,
 
         SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK,
-
-        SalesChannelRequest::ATTRIBUTE_CSRF_PROTECTED,
     ];
 
     /**
@@ -90,11 +89,6 @@ class RequestTransformer implements RequestTransformerInterface
         '/payment/finalize-transaction',
         '/installer',
     ];
-
-    /**
-     * @var Punycode
-     */
-    private $punycode;
 
     /**
      * @var AbstractSeoResolver
@@ -124,7 +118,6 @@ class RequestTransformer implements RequestTransformerInterface
     ) {
         $this->decorated = $decorated;
         $this->resolver = $resolver;
-        $this->punycode = new Punycode();
         $this->registeredApiPrefixes = $registeredApiPrefixes;
         $this->domainLoader = $domainLoader;
     }
@@ -361,7 +354,7 @@ class RequestTransformer implements RequestTransformerInterface
 
     private function getSchemeAndHttpHost(Request $request): string
     {
-        return $request->getScheme() . '://' . $this->punycode->decode($request->getHttpHost());
+        return $request->getScheme() . '://' . idn_to_utf8($request->getHttpHost());
     }
 
     /**

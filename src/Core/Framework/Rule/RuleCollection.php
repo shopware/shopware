@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package business-ops
  * @extends Collection<Rule>
  */
 class RuleCollection extends Collection
@@ -57,6 +58,9 @@ class RuleCollection extends Collection
         );
     }
 
+    /**
+     * @param class-string $class
+     */
     public function has($class): bool
     {
         return \array_key_exists($class, $this->classes);

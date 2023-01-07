@@ -6,32 +6,26 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 
+/**
+ * @package core
+ */
 class MultiInsertQueryQueue
 {
     /**
-     * @var array[]
+     * @var array<string, array{data: array<string, mixed>, columns: list<string>, }>
      */
-    private $inserts = [];
+    private array $inserts = [];
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @var int<1, max>
      */
-    private $chunkSize;
+    private int $chunkSize;
 
-    /**
-     * @var bool
-     */
-    private $ignoreErrors;
+    private bool $ignoreErrors;
 
-    /**
-     * @var bool
-     */
-    private $useReplace;
+    private bool $useReplace;
 
     public function __construct(
         Connection $connection,
@@ -50,6 +44,10 @@ class MultiInsertQueryQueue
         $this->useReplace = $useReplace;
     }
 
+    /**
+     * @param array<string, mixed>      $data
+     * @param array<string, ParameterType::*>|null $types
+     */
     public function addInsert(string $table, array $data, ?array $types = null): void
     {
         $columns = [];
@@ -142,6 +140,7 @@ class MultiInsertQueryQueue
     private function prepareValues(array $columns, array $rows): array
     {
         $stackedValues = [];
+        /** @var array<string, mixed> $defaults */
         $defaults = array_combine(
             $columns,
             array_fill(0, \count($columns), 'DEFAULT')
@@ -149,6 +148,14 @@ class MultiInsertQueryQueue
         foreach ($rows as $row) {
             $data = $row['data'];
             $values = $defaults;
+            if (!\is_array($values)) {
+                continue;
+            }
+
+            /**
+             * @var string $key
+             * @var mixed $value
+             */
             foreach ($data as $key => $value) {
                 $values[$key] = $value;
             }

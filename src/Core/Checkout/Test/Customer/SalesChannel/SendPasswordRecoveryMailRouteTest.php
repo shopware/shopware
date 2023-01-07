@@ -9,16 +9,19 @@ use Shopware\Core\Checkout\Customer\Event\PasswordRecoveryUrlEvent;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @group store-api
  */
@@ -27,20 +30,11 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    private EntityRepository $customerRepository;
 
     protected function setUp(): void
     {
@@ -236,7 +230,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
     private function addDomain(string $url): void
     {
         $snippetSetId = $this->getContainer()->get(Connection::class)
-            ->fetchColumn('SELECT LOWER(HEX(id)) FROM snippet_set LIMIT 1');
+            ->fetchOne('SELECT LOWER(HEX(id)) FROM snippet_set LIMIT 1');
 
         $domain = [
             'salesChannelId' => $this->ids->create('sales-channel'),

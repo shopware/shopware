@@ -6,12 +6,12 @@
     }
 
     &__acitvity-headline {
-        font-size: $font-size-default;
+        font-size: $font-size-s;
         font-weight: $font-weight-semi-bold;
     }
 
     &__acitvity-description {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         margin-bottom: 12px;
     }
 
@@ -32,7 +32,7 @@
         text-align: left;
         background-color: $color-gray-100;
         color: $color-darkgray-200;
-        font-size: $font-size-default;
+        font-size: $font-size-s;
         font-weight: $font-weight-semi-bold;
         margin: 0;
         padding: 24px;
@@ -62,7 +62,7 @@
     }
 
     &__list-item {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 
     &__list-item dt {

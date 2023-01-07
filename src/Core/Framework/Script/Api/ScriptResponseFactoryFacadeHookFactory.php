@@ -11,6 +11,8 @@ use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class ScriptResponseFactoryFacadeHookFactory extends HookServiceFactory
 {

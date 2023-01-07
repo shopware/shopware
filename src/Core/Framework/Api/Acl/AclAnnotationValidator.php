@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Api\Acl;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
-use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -14,18 +13,17 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
+ *
+ * @package core
  */
 class AclAnnotationValidator implements EventSubscriberInterface
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -48,10 +46,6 @@ class AclAnnotationValidator implements EventSubscriberInterface
 
         if (!$privileges) {
             return;
-        }
-
-        if ($privileges instanceof Acl) {
-            $privileges = $privileges->getValue();
         }
 
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);

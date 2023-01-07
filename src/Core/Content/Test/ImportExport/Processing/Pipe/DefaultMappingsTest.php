@@ -14,7 +14,7 @@ use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -22,6 +22,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class DefaultMappingsTest extends TestCase
 {
@@ -402,7 +404,7 @@ class DefaultMappingsTest extends TestCase
 
     private function getDefaultMapping(string $entity): MappingCollection
     {
-        /** @var EntityRepositoryInterface $profileRepository */
+        /** @var EntityRepository $profileRepository */
         $profileRepository = $this->getContainer()->get('import_export_profile.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('sourceEntity', $entity));

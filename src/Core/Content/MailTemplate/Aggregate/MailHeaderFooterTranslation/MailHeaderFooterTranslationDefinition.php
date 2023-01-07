@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package sales-channel
+ */
 class MailHeaderFooterTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'mail_header_footer_translation';

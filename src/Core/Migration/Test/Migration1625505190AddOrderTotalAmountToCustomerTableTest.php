@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -18,6 +18,8 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 
 /**
+ * @package core
+ *
  * @internal
  * NEXT-21735
  * @group not-deterministic
@@ -30,7 +32,7 @@ class Migration1625505190AddOrderTotalAmountToCustomerTableTest extends TestCase
 
     public function testUpdateOrderTotalAmount(): void
     {
-        /** @var EntityRepositoryInterface $orderRepository */
+        /** @var EntityRepository $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
         $defaultContext = Context::createDefaultContext();
         $orderId = Uuid::randomHex();

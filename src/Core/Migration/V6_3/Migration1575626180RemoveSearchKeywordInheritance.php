@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1575626180RemoveSearchKeywordInheritance extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,6 +24,6 @@ class Migration1575626180RemoveSearchKeywordInheritance extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `product` DROP `searchKeywords`;');
+        $connection->executeStatement('ALTER TABLE `product` DROP `searchKeywords`;');
     }
 }

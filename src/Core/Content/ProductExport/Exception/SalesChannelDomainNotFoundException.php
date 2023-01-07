@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ProductExport\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package inventory
+ */
 class SalesChannelDomainNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $id)

@@ -8,6 +8,11 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1620820321AddDefaultDomainForHeadlessSaleschannel extends MigrationStep
 {
     public function getCreationTimestamp(): int

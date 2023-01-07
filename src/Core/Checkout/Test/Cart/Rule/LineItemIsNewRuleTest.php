@@ -13,6 +13,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @group rules
  */
@@ -65,6 +67,9 @@ class LineItemIsNewRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return array<string, array<bool>>
+     */
     public function getLineItemScopeTestData(): array
     {
         return [
@@ -119,6 +124,9 @@ class LineItemIsNewRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return array<string, array<bool>>
+     */
     public function getCartRuleScopeTestData(): array
     {
         return [

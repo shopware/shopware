@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterPickerInterface;
 
 /**
+ * @package checkout
+ *
  * The vertical picker makes sure that the filter
  * iteration is taking place within each group.
  * So if you decide to get the first 2 cheapest items,

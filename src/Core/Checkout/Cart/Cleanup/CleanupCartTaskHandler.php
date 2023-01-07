@@ -4,31 +4,27 @@ namespace Shopware\Core\Checkout\Cart\Cleanup;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class CleanupCartTaskHandler extends ScheduledTaskHandler
+/**
+ * @package checkout
+ *
+ *  @internal
+ */
+#[AsMessageHandler(handles: CleanupCartTask::class)]
+final class CleanupCartTaskHandler extends ScheduledTaskHandler
 {
-    private Connection $connection;
-
-    private int $days;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $repository,
-        Connection $connection,
-        int $days
+        EntityRepository $repository,
+        private Connection $connection,
+        private int $days
     ) {
         parent::__construct($repository);
-        $this->connection = $connection;
-        $this->days = $days;
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        return [CleanupCartTask::class];
     }
 
     public function run(): void

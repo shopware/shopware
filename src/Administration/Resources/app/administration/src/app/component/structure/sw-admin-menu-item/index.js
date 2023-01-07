@@ -4,6 +4,8 @@ const { Component } = Shopware;
 const { createId, types } = Shopware.Utils;
 
 /**
+ * @package admin
+ *
  * @private
  */
 Component.register('sw-admin-menu-item', {

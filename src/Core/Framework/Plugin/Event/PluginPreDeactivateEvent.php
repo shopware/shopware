@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Plugin\Event;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 
+/**
+ * @package core
+ */
 class PluginPreDeactivateEvent extends PluginLifecycleEvent
 {
     /**

@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -32,7 +33,7 @@ class CartOrderRouteTest extends TestCase
     use CountryAddToSalesChannelTestBehaviour;
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     * @var KernelBrowser
      */
     private $browser;
 
@@ -42,12 +43,12 @@ class CartOrderRouteTest extends TestCase
     private $ids;
 
     /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     * @var EntityRepository
      */
     private $productRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerRepository;
 
@@ -638,14 +639,13 @@ class CartOrderRouteTest extends TestCase
                 ]
             );
 
-        $content = $this->browser->getResponse()->getContent();
-        static::assertIsString($content);
-        $response = json_decode($content, true);
+        $response = $this->browser->getResponse();
 
-        static::assertIsArray($response);
-        static::assertArrayHasKey('contextToken', $response);
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
     /**

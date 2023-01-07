@@ -6,6 +6,11 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1610523204AddInheritanceForProductCmsPage extends MigrationStep
 {
     use InheritanceUpdaterTrait;

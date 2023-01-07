@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Event;
 
+/**
+ * @package business-ops
+ */
 interface GenericEvent
 {
     public function getName(): string;

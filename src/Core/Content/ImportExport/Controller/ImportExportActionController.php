@@ -17,11 +17,10 @@ use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -38,6 +37,8 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @package system-settings
  */
 class ImportExportActionController extends AbstractController
 {
@@ -47,7 +48,7 @@ class ImportExportActionController extends AbstractController
 
     private DownloadService $downloadService;
 
-    private EntityRepositoryInterface $profileRepository;
+    private EntityRepository $profileRepository;
 
     private DataValidator $dataValidator;
 
@@ -70,7 +71,7 @@ class ImportExportActionController extends AbstractController
         SupportedFeaturesService $supportedFeaturesService,
         ImportExportService $initiationService,
         DownloadService $downloadService,
-        EntityRepositoryInterface $profileRepository,
+        EntityRepository $profileRepository,
         DataValidator $dataValidator,
         ImportExportLogDefinition $logDefinition,
         ApiVersionConverter $apiVersionConverter,

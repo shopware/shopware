@@ -24,6 +24,7 @@ describe('Create a new property and select value display type', () => {
             });
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/property/index`);
+            cy.contains('.sw-page__smart-bar-amount', '2');
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
@@ -56,7 +57,8 @@ describe('Create a new property and select value display type', () => {
         cy.get('h2').should('include.text', 'Attributen');
 
         // display in product filters deactivate
-        cy.contains('Color').click();
+        cy.contains('a', 'Color').click();
+        cy.contains('.smart-bar__header', 'Color');
         cy.contains('Toon in productfilter').click();
         cy.get(page.elements.propertySaveAction).click();
         cy.wait('@searchPropertyGroup').its('response.statusCode').should('equal', 200);
@@ -109,6 +111,7 @@ describe('Create a new property and select value display type', () => {
 
         cy.get('.sw-data-grid__table a').click();
         cy.get('.sw-product-variant-info__product-name').should('be.visible');
+        cy.contains('.sw-product-detail-page__tabs .sw-tabs-item', 'specificaties').should('exist');
         cy.contains('.sw-product-detail-page__tabs .sw-tabs-item', 'specificaties').click();
         cy.url().should('include', 'specifications');
 
@@ -116,7 +119,8 @@ describe('Create a new property and select value display type', () => {
         cy.get('#modalTitleEl').should('be.visible');
         cy.wait('@searchPropertyGroup').its('response.statusCode').should('equal', 200);
         cy.contains('.sw-property-search__tree-selection__group_grid .sw-grid__row--0 .sw-grid__cell-content', 'Color')
-            .should('be.visible')
+            .should('be.visible');
+        cy.contains('.sw-property-search__tree-selection__group_grid .sw-grid__row--0 .sw-grid__cell-content', 'Color')
             .click();
         cy.contains('.sw-property-search__tree-selection__option_grid .sw-grid__row--0', 'Green').should('be.visible');
         cy.get(`${propertyValue} .sw-grid__row--0 input`).click();
@@ -125,7 +129,8 @@ describe('Create a new property and select value display type', () => {
         cy.get('.sw-grid-row.sw-grid__row--0').should('include.text', '3');
 
         cy.contains('.sw-property-search__tree-selection__group_grid .sw-grid__row--1 .sw-grid__cell-content', 'Size')
-            .should('be.visible')
+            .should('be.visible');
+        cy.contains('.sw-property-search__tree-selection__group_grid .sw-grid__row--1 .sw-grid__cell-content', 'Size')
             .click();
         cy.wait('@searchPropertyGroup').its('response.statusCode').should('equal', 200);
         cy.contains('.sw-property-search__tree-selection__option_grid .sw-grid__row--0', 'L').should('be.visible');
@@ -145,8 +150,10 @@ describe('Create a new property and select value display type', () => {
 
         // display on product detail page deactivate, filter activate
         cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
+        cy.contains('.sw-page__smart-bar-amount', '2');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
+
         cy.contains('Color').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

@@ -1,6 +1,6 @@
 ---
 title:              _TITLE_
-issue:              _ISSUE_
+issue:              NEXT-1111
 author:             _AUTHOR_
 author_email:       _MAIL_
 author_github:      _GITHUB_

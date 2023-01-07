@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1601388975RequireFeatureSetName extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -18,7 +23,7 @@ class Migration1601388975RequireFeatureSetName extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'ALTER TABLE `product_feature_set_translation` MODIFY `name` VARCHAR(255) DEFAULT \'\' NOT NULL;'
         );
     }

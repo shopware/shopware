@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Script\Api\ScriptResponseEncoder;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
@@ -16,10 +15,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package core
+ *
  * @internal
+ *
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class ScriptController extends StorefrontController
 {

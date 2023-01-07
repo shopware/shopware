@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class LowTaxes extends TaxRuleCollection

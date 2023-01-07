@@ -3,34 +3,27 @@
 namespace Shopware\Core\Content\Newsletter\ScheduledTask;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
+/**
+ * @package customer-order
+ *
+ * @internal
+ */
+#[AsMessageHandler(handles: NewsletterRecipientTask::class)]
+final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $newsletterRecipientRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $scheduledTaskRepository, EntityRepositoryInterface $newsletterRecipientRepository)
+    public function __construct(EntityRepository $scheduledTaskRepository, private EntityRepository $newsletterRecipientRepository)
     {
         parent::__construct($scheduledTaskRepository);
-
-        $this->newsletterRecipientRepository = $newsletterRecipientRepository;
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        return [
-            NewsletterRecipientTask::class,
-        ];
     }
 
     public function run(): void

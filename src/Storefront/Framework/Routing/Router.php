@@ -13,6 +13,9 @@ use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
+/**
+ * @package storefront
+ */
 class Router implements RouterInterface, RequestMatcherInterface, WarmableInterface, ServiceSubscriberInterface
 {
     /**
@@ -20,15 +23,9 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
      */
     public const PATH_INFO = 10;
 
-    /**
-     * @var SymfonyRouter
-     */
-    private $decorated;
+    private SymfonyRouter $decorated;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    private RequestStack $requestStack;
 
     /**
      * @internal
@@ -40,9 +37,9 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     }
 
     /**
-     * @return array
+     * @return array<string, string>
      */
-    public static function getSubscribedServices()
+    public static function getSubscribedServices(): array
     {
         return SymfonyRouter::getSubscribedServices();
     }
@@ -55,10 +52,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         return $this->decorated->warmUp($cacheDir);
     }
 
-    /**
-     * @return array
-     */
-    public function matchRequest(Request $request)
+    public function matchRequest(Request $request): array
     {
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID)) {
             return $this->decorated->matchRequest($request);
@@ -74,31 +68,22 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         return $this->decorated->matchRequest($localClone);
     }
 
-    public function setContext(RequestContext $context)
+    public function setContext(RequestContext $context): void
     {
-        return $this->decorated->setContext($context);
+        $this->decorated->setContext($context);
     }
 
-    /**
-     * @return RequestContext
-     */
-    public function getContext()
+    public function getContext(): RequestContext
     {
         return $this->decorated->getContext();
     }
 
-    /**
-     * @return RouteCollection
-     */
-    public function getRouteCollection()
+    public function getRouteCollection(): RouteCollection
     {
         return $this->decorated->getRouteCollection();
     }
 
-    /**
-     * @return string
-     */
-    public function generate(string $name, array $parameters = [], int $referenceType = self::ABSOLUTE_PATH)
+    public function generate(string $name, array $parameters = [], int $referenceType = self::ABSOLUTE_PATH): string
     {
         $basePath = $this->getBasePath();
         if ($referenceType === self::PATH_INFO) {
@@ -164,10 +149,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         return $rewrite;
     }
 
-    /**
-     * @return array
-     */
-    public function match($pathinfo)
+    public function match(string $pathinfo): array
     {
         return $this->decorated->match($pathinfo);
     }

@@ -6,6 +6,11 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderIndexer;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1652864153ReindexMediaFolders extends MigrationStep
 {
     /**

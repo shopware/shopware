@@ -3,31 +3,27 @@
 namespace Shopware\Core\Framework\Api\Response;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
+use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
-class ResponseFactoryInterfaceValueResolver implements ArgumentValueResolverInterface
+/**
+ * @package core
+ */
+class ResponseFactoryInterfaceValueResolver implements ValueResolverInterface
 {
-    /**
-     * @var ResponseFactoryRegistry
-     */
-    private $responseTypeRegistry;
-
     /**
      * @internal
      */
-    public function __construct(ResponseFactoryRegistry $responseTypeRegistry)
+    public function __construct(private ResponseFactoryRegistry $responseTypeRegistry)
     {
-        $this->responseTypeRegistry = $responseTypeRegistry;
-    }
-
-    public function supports(Request $request, ArgumentMetadata $argument): bool
-    {
-        return $argument->getType() === ResponseFactoryInterface::class;
     }
 
     public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
+        if ($argument->getType() !== ResponseFactoryInterface::class) {
+            return;
+        }
+
         yield $this->responseTypeRegistry->getType($request);
     }
 }

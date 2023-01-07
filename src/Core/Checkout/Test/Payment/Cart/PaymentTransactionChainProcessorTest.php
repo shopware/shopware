@@ -15,7 +15,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -26,6 +26,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class PaymentTransactionChainProcessorTest extends TestCase
@@ -39,7 +41,7 @@ class PaymentTransactionChainProcessorTest extends TestCase
 
     public function testThrowsExceptionOnNullOrder(): void
     {
-        $orderRepository = $this->createMock(EntityRepositoryInterface::class);
+        $orderRepository = $this->createMock(EntityRepository::class);
         $orderRepository
             ->method('search')
             ->willReturn(
@@ -89,7 +91,7 @@ class PaymentTransactionChainProcessorTest extends TestCase
         $order->setUniqueIdentifier($this->ids->get('test-order'));
         $order->setTransactions(new OrderTransactionCollection([$transaction]));
 
-        $orderRepository = $this->createMock(EntityRepositoryInterface::class);
+        $orderRepository = $this->createMock(EntityRepository::class);
         $orderRepository
             ->method('search')
             ->willReturn(

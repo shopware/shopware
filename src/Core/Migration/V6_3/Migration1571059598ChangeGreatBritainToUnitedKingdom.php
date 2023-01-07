@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1571059598ChangeGreatBritainToUnitedKingdom extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +19,7 @@ class Migration1571059598ChangeGreatBritainToUnitedKingdom extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->exec('
+        $connection->executeStatement('
             UPDATE `country_translation`
             SET `name` = "United Kingdom"
             WHERE `name` = "Great Britain" AND (
@@ -25,7 +30,7 @@ class Migration1571059598ChangeGreatBritainToUnitedKingdom extends MigrationStep
             ) = "en-GB"
         ');
 
-        $connection->exec('
+        $connection->executeStatement('
             UPDATE `country_translation`
             SET `name` = "Vereinigtes Königreich"
             WHERE `name` = "Großbritannien" AND (

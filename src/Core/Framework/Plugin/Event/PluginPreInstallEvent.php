@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Plugin\Event;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 
+/**
+ * @package core
+ */
 class PluginPreInstallEvent extends PluginLifecycleEvent
 {
     /**

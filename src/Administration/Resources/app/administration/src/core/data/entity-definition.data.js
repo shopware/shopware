@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const scalarTypes = ['uuid', 'int', 'text', 'password', 'float', 'string', 'blob', 'boolean', 'date'];
 const jsonTypes = ['json_list', 'json_object'];
 

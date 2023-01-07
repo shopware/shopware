@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @package core
+ */
 class NestedEventDispatcher implements EventDispatcherInterface
 {
     /**

@@ -1,7 +1,10 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-import-export-activity-detail-modal.html.twig';
 import './sw-import-export-activity-detail-modal.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { format } = Shopware.Utils;
 
 /**
@@ -9,7 +12,7 @@ const { format } = Shopware.Utils;
  *  `sw-import-export-activity-log-info-modal` and `sw-import-export-activity-result-modal`.
  * @private
  */
-Component.register('sw-import-export-activity-detail-modal', {
+export default {
     template,
 
     inject: ['importExport'],
@@ -58,4 +61,4 @@ Component.register('sw-import-export-activity-detail-modal', {
             return this.$te(translationKey) ? this.$tc(translationKey) : state;
         },
     },
-});
+};

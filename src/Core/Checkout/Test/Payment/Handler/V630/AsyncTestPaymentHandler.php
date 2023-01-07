@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class AsyncTestPaymentHandler implements AsynchronousPaymentHandlerInterface

@@ -1,10 +1,12 @@
 import template from './sw-first-run-wizard-modal.html.twig';
 import './sw-first-run-wizard-modal.scss';
 
-const { Component } = Shopware;
-
+/**
+ * @package merchant-services
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-first-run-wizard-modal', {
+export default {
     template,
 
     inject: ['firstRunWizardService'],
@@ -210,5 +212,4 @@ Component.register('sw-first-run-wizard-modal', {
                 });
         },
     },
-});
-
+};

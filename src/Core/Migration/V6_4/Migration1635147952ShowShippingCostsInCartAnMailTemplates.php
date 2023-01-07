@@ -8,6 +8,11 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Migration\Traits\MailUpdate;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1635147952ShowShippingCostsInCartAnMailTemplates extends MigrationStep
 {
     use UpdateMailTrait;

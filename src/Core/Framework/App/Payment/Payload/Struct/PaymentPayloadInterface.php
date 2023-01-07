@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 interface PaymentPayloadInterface extends SourcedPayloadInterface
 {

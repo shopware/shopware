@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1536233400MailTemplateMedia extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -28,7 +33,7 @@ class Migration1536233400MailTemplateMedia extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 
-        $connection->exec($query);
+        $connection->executeStatement($query);
     }
 
     public function updateDestructive(Connection $connection): void

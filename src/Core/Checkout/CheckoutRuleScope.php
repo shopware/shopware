@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class CheckoutRuleScope extends RuleScope
 {
     /**

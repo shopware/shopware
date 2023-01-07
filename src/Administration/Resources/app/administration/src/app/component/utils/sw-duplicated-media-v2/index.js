@@ -5,6 +5,8 @@ const { Component, Context, Filter } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
+ * @package admin
+ *
  * @private
  */
 
@@ -91,6 +93,10 @@ Component.register('sw-duplicated-media-v2', {
                 {
                     value: 'Rename',
                     name: this.$tc('global.sw-duplicated-media-v2.labelOptionRename'),
+                },
+                {
+                    value: 'Keep',
+                    name: this.$tc('global.sw-duplicated-media-v2.labelOptionKeep'),
                 },
                 {
                     value: 'Skip',
@@ -226,6 +232,9 @@ Component.register('sw-duplicated-media-v2', {
                 case 'Replace':
                     this.replaceFile(this.currentTask);
                     break;
+                case 'Keep':
+                    this.keepFile(this.currentTask);
+                    break;
                 case 'Skip':
                 default:
                     this.skipFile(this.currentTask);
@@ -234,7 +243,7 @@ Component.register('sw-duplicated-media-v2', {
 
             this.failedUploadTasks.splice(0, 1);
 
-            if (!this.currentTask) {
+            if (!this.currentTask || !this.isWorkingOnMultipleTasks) {
                 this.isLoading = false;
             } else {
                 this.solveDuplicate();
@@ -242,7 +251,7 @@ Component.register('sw-duplicated-media-v2', {
         },
 
         async renameFile(uploadTask) {
-            const newTask = Object.assign({}, uploadTask);
+            const newTask = { ...uploadTask };
 
             const { fileName } = await this.mediaService.provideName(uploadTask.fileName, uploadTask.extension);
             newTask.fileName = fileName;
@@ -283,11 +292,13 @@ Component.register('sw-duplicated-media-v2', {
 
         async replaceFile(uploadTask) {
             const criteria = new Criteria(1, 1)
-                .addFilter(Criteria.multi('AND',
+                .addFilter(Criteria.multi(
+                    'AND',
                     [
                         Criteria.equals('fileName', uploadTask.fileName),
                         Criteria.equals('fileExtension', uploadTask.extension),
-                    ]));
+                    ],
+                ));
 
             const searchResult = await this.mediaRepository.search(criteria, Context.api);
             const newTarget = searchResult[0];
@@ -304,6 +315,28 @@ Component.register('sw-duplicated-media-v2', {
             }
 
             await this.mediaRepository.get(uploadTask.targetId, Context.api);
+        },
+
+        async keepFile(uploadTask) {
+            const oldTarget = await this.mediaRepository.get(uploadTask.targetId, Context.api);
+            if (!oldTarget.hasFile) {
+                await this.mediaRepository.delete(oldTarget.id, Context.api);
+            }
+
+            const criteria = new Criteria(1, 1)
+                .addFilter(Criteria.multi(
+                    'AND',
+                    [
+                        Criteria.equals('fileName', uploadTask.fileName),
+                        Criteria.equals('fileExtension', uploadTask.extension),
+                    ],
+                ));
+
+            const searchResult = await this.mediaRepository.search(criteria, Context.api);
+            const newTarget = searchResult[0];
+            uploadTask.targetId = newTarget.id;
+
+            this.mediaService.keepFile(uploadTask.uploadTag, uploadTask);
         },
     },
 });

@@ -2,7 +2,7 @@
 
 namespace SwagTestSkipRebuild;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
@@ -30,7 +30,7 @@ class SwagTestSkipRebuild extends Plugin
     public $systemConfig;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     public $categoryRepository;
 
@@ -62,7 +62,7 @@ class SwagTestSkipRebuild extends Plugin
         $this->systemConfig = $systemConfig;
     }
 
-    public function manualSetter(EntityRepositoryInterface $categoryRepository): void
+    public function manualSetter(EntityRepository $categoryRepository): void
     {
         $this->categoryRepository = $categoryRepository;
     }

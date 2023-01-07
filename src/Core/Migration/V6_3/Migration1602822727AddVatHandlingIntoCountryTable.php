@@ -5,12 +5,17 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1602822727AddVatHandlingIntoCountryTable extends MigrationStep
 {
     /**
-     * @var array
+     * @var array<string, string>
      */
-    private $countryIds;
+    private array $countryIds;
 
     public function getCreationTimestamp(): int
     {
@@ -19,7 +24,7 @@ class Migration1602822727AddVatHandlingIntoCountryTable extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `country`
             ADD COLUMN `company_tax_free` TINYINT (1) NOT NULL DEFAULT 0 AFTER `force_state_in_registration`,
             ADD COLUMN `check_vat_id_pattern` TINYINT (1) NOT NULL DEFAULT 0 AFTER `company_tax_free`,
@@ -50,13 +55,17 @@ class Migration1602822727AddVatHandlingIntoCountryTable extends MigrationStep
 
     private function fetchCountryIds(Connection $connection): void
     {
-        $countries = $connection->executeQuery('SELECT `id`, `iso` FROM `country`')->fetchAll();
+        /** @var list<array{id: string, iso: string}> $countries */
+        $countries = $connection->executeQuery('SELECT `id`, `iso` FROM `country`')->fetchAllAssociative();
 
         foreach ($countries as $country) {
             $this->countryIds[$country['iso']] = $country['id'];
         }
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getCountryVatPattern(): array
     {
         return [

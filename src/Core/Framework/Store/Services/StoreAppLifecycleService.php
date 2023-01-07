@@ -8,13 +8,12 @@ use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Store\Exception\ExtensionInstallException;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
@@ -22,7 +21,9 @@ use Shopware\Core\Framework\Store\Exception\ExtensionThemeStillInUseException;
 use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - This class will be marked as "internal - only for use by the app-system"
+ * @package merchant-services
+ *
+ * @internal - only for use by the app-system
  */
 class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 {
@@ -30,11 +31,11 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 
     private AbstractAppLifecycle $appLifecycle;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
-    private ?EntityRepositoryInterface $themeRepository;
+    private ?EntityRepository $themeRepository;
 
     private AppStateService $appStateService;
 
@@ -42,16 +43,13 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 
     private AppConfirmationDeltaProvider $appDeltaService;
 
-    /**
-     * @internal
-     */
     public function __construct(
         StoreClient $storeClient,
         AbstractAppLoader $appLoader,
         AbstractAppLifecycle $appLifecycle,
-        EntityRepositoryInterface $appRepository,
-        EntityRepositoryInterface $salesChannelRepository,
-        ?EntityRepositoryInterface $themeRepository,
+        EntityRepository $appRepository,
+        EntityRepository $salesChannelRepository,
+        ?EntityRepository $themeRepository,
         AppStateService $appStateService,
         AppConfirmationDeltaProvider $appDeltaService
     ) {
@@ -149,26 +147,6 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be removed
-     */
-    public function getAppIdByName(string $technicalName, Context $context): string
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('name', $technicalName));
-        $app = $this->appRepository->searchIds($criteria, $context)->firstId();
-
-        if ($app === null) {
-            throw ExtensionNotFoundException::fromTechnicalName($technicalName);
-        }
-
-        return $app;
-    }
-
-    /**
      * @codeCoverageIgnore
      */
     protected function getDecorated(): AbstractStoreAppLifecycleService
@@ -190,7 +168,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 
     private function getThemeIdByTechnicalName(string $technicalName, Context $context): ?string
     {
-        if (!$this->themeRepository instanceof EntityRepositoryInterface) {
+        if (!$this->themeRepository instanceof EntityRepository) {
             return null;
         }
 

@@ -1,6 +1,9 @@
 import WishlistLocalStoragePlugin from 'src/plugin/wishlist/local-wishlist.plugin';
 import AddToWishlistPlugin from 'src/plugin/wishlist/add-to-wishlist.plugin';
 
+/**
+ * @package checkout
+ */
 describe('AddToWishlistPlugin tests', () => {
     let addToWishlistPlugin = undefined;
     let spyInitializePlugins = jest.fn();

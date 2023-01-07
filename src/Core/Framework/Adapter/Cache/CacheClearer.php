@@ -5,47 +5,38 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
-use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class CacheClearer extends AbstractMessageHandler
+/**
+ * @package core
+ *
+ * @final
+ */
+class CacheClearer
 {
-    /**
-     * @var CacheClearerInterface
-     */
-    protected $cacheClearer;
+    private CacheClearerInterface $cacheClearer;
 
-    /**
-     * @var string
-     */
-    protected $cacheDir;
+    private string $cacheDir;
 
-    /**
-     * @var Filesystem
-     */
-    protected $filesystem;
+    private Filesystem $filesystem;
 
     /**
      * @var CacheItemPoolInterface[]
      */
-    protected $adapters;
+    private array $adapters;
 
-    /**
-     * @var string
-     */
-    protected $environment;
+    private string $environment;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $messageBus;
+    private MessageBusInterface $messageBus;
 
     /**
      * @internal
+     *
+     * @param CacheItemPoolInterface[] $adapters
      */
     public function __construct(
         array $adapters,
@@ -77,7 +68,7 @@ class CacheClearer extends AbstractMessageHandler
         $this->filesystem->remove($this->cacheDir . '/twig');
         $this->cleanupUrlGeneratorCacheFiles();
 
-        $this->cleanupOldCacheDirectories();
+        $this->cleanupOldContainerCacheDirectories();
     }
 
     public function clearContainerCache(): void
@@ -97,6 +88,9 @@ class CacheClearer extends AbstractMessageHandler
         $this->messageBus->dispatch(new CleanupOldCacheFolders());
     }
 
+    /**
+     * @param list<string> $keys
+     */
     public function deleteItems(array $keys): void
     {
         foreach ($this->adapters as $adapter) {
@@ -113,22 +107,7 @@ class CacheClearer extends AbstractMessageHandler
         }
     }
 
-    /**
-     * @param object $message
-     */
-    public function handle($message): void
-    {
-        $this->cleanupOldCacheDirectories();
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        return [
-            CleanupOldCacheFolders::class,
-        ];
-    }
-
-    private function cleanupOldCacheDirectories(): void
+    public function cleanupOldContainerCacheDirectories(): void
     {
         // Don't delete other folders while paratest is running
         if (EnvironmentHelper::getVariable('TEST_TOKEN')) {

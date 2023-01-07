@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Adapter\Cache\Script\Facade;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 
+/**
+ * @package core
+ */
 class WrittenEventScriptFacade
 {
     private EntityWrittenContainerEvent $containerEvent;

@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1574520220AddSalesChannelMaintenance extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,10 +19,10 @@ class Migration1574520220AddSalesChannelMaintenance extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `sales_channel` ADD `maintenance` tinyint(1) NOT NULL DEFAULT 0 AFTER `active`
         ');
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `sales_channel` ADD `maintenance_ip_whitelist` JSON NULL AFTER `maintenance`
         ');
     }

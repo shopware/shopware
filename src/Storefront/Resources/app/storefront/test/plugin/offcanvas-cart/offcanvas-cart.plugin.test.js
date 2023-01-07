@@ -1,5 +1,9 @@
 import OffCanvasCartPlugin from 'src/plugin/offcanvas-cart/offcanvas-cart.plugin';
 
+/**
+ * @package checkout
+ */
+
 let fireRequestSpy;
 
 jest.mock('src/service/http-client.service', () => {
@@ -28,7 +32,7 @@ jest.mock('src/service/http-client.service', () => {
         </div>
     `;
 
-    return (() => {
+    return function () {
         return {
             post: (url, data, callback) => {
                 return callback('<div class="offcanvas-content-container">Content after update</div>');
@@ -37,7 +41,7 @@ jest.mock('src/service/http-client.service', () => {
                 return callback(offCanvasCartTemplate);
             },
         };
-    });
+    };
 });
 
 // Mock ES module import of PluginManager
@@ -55,10 +59,6 @@ describe('OffCanvasCartPlugin tests', () => {
     let plugin;
 
     beforeEach(() => {
-
-        window.csrf = {
-            enabled: false,
-        };
 
         window.router = {
             'frontend.cart.offcanvas': '/checkout/offcanvas',

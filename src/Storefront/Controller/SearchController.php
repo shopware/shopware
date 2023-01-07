@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -22,7 +21,9 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @package system-settings
+ *
+ * @internal
  */
 class SearchController extends StorefrontController
 {

@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\JsonFieldAccessorBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CashRoundingConfigFieldSerializer;
 
+/**
+ * @package core
+ */
 class CashRoundingConfigField extends JsonField
 {
     public function __construct(string $storageName, string $propertyName)

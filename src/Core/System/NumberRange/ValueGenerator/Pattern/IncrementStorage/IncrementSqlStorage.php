@@ -11,6 +11,8 @@ use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
 /**
  * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - won't implement IncrementStorageInterface anymore, use AbstractIncrementStorage instead
+ *
+ * @package checkout
  */
 class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementStorageInterface
 {
@@ -72,7 +74,7 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
         $start = $config['start'] ?? 1;
         $varname = Uuid::randomHex();
         $stateId = Uuid::randomBytes();
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'INSERT `number_range_state` (`id`, `last_value`, `number_range_id`, `created_at`) VALUES (:stateId, :value, :id, :createdAt)
                 ON DUPLICATE KEY UPDATE
                 `last_value` = @nr' . $varname . ' := IF(`last_value`+1 > :value, `last_value`+1, :value)',
@@ -84,9 +86,9 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
             ]
         );
 
-        $stmt = $this->connection->executeQuery('SELECT @nr' . $varname);
+        $result = $this->connection->executeQuery('SELECT @nr' . $varname);
 
-        $lastNumber = $stmt->fetchColumn();
+        $lastNumber = $result->fetchOne();
 
         if (!$lastNumber) {
             return $start;
@@ -97,13 +99,13 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
 
     public function preview(array $config): int
     {
-        $stmt = $this->connection->executeQuery(
+        $result = $this->connection->executeQuery(
             'SELECT `last_value` FROM `number_range_state` WHERE number_range_id = :id',
             [
                 'id' => Uuid::fromHexToBytes($config['id']),
             ]
         );
-        $lastNumber = $stmt->fetchColumn();
+        $lastNumber = $result->fetchOne();
 
         $start = $config['start'] ?? 1;
 
@@ -130,7 +132,7 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
     public function set(string $configurationId, int $value): void
     {
         $stateId = Uuid::randomBytes();
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'INSERT `number_range_state` (`id`, `last_value`, `number_range_id`, `created_at`) VALUES (:stateId, :value, :id, :createdAt)
                 ON DUPLICATE KEY UPDATE
                 `last_value` = :value',

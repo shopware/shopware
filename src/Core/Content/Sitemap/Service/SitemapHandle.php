@@ -2,28 +2,34 @@
 
 namespace Shopware\Core\Content\Sitemap\Service;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
 use Shopware\Core\Content\Sitemap\Event\SitemapFilterOpenTagEvent;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package sales-channel
+ */
 class SitemapHandle implements SitemapHandleInterface
 {
     private const MAX_URLS = 49999;
     private const SITEMAP_NAME_PATTERN = 'sitemap%s-%d.xml.gz';
 
+    /**
+     * @var array<string>
+     */
     private array $tmpFiles = [];
 
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
     private EventDispatcherInterface $eventDispatcher;
 
     private SalesChannelContext $context;
 
     /**
-     * @var resource|false
+     * @var resource
      */
     private $handle;
 
@@ -37,7 +43,7 @@ class SitemapHandle implements SitemapHandleInterface
      * @internal
      */
     public function __construct(
-        FilesystemInterface $filesystem,
+        FilesystemOperator $filesystem,
         SalesChannelContext $context,
         EventDispatcherInterface $eventDispatcher,
         ?string $domain = null
@@ -48,12 +54,8 @@ class SitemapHandle implements SitemapHandleInterface
         $this->context = $context;
 
         $filePath = $this->getTmpFilePath($context);
-        $this->handle = gzopen($filePath, 'ab');
+        $this->openGzip($filePath);
         $this->printHeader();
-
-        if ($this->handle === false) {
-            throw new FileNotReadableException($filePath);
-        }
 
         $this->tmpFiles[] = $filePath;
     }
@@ -72,7 +74,7 @@ class SitemapHandle implements SitemapHandleInterface
                 gzclose($this->handle);
                 ++$this->index;
                 $path = $this->getTmpFilePath($this->context);
-                $this->handle = gzopen($path, 'ab');
+                $this->openGzip($path);
                 $this->printHeader();
                 $this->tmpFiles[] = $path;
             }
@@ -92,11 +94,11 @@ class SitemapHandle implements SitemapHandleInterface
 
         foreach ($this->tmpFiles as $i => $tmpFile) {
             $sitemapPath = $this->getFilePath($i + 1, $this->context);
-            if ($this->filesystem->has($sitemapPath)) {
+            if ($this->filesystem->fileExists($sitemapPath)) {
                 $this->filesystem->delete($sitemapPath);
             }
 
-            $this->filesystem->write($sitemapPath, file_get_contents($tmpFile));
+            $this->filesystem->write($sitemapPath, (string) file_get_contents($tmpFile));
             @unlink($tmpFile);
         }
     }
@@ -171,5 +173,15 @@ class SitemapHandle implements SitemapHandleInterface
         }
 
         $this->domainName = $host . $path;
+    }
+
+    private function openGzip(string $filePath): void
+    {
+        $handle = gzopen($filePath, 'ab');
+        if ($handle === false) {
+            throw new FileNotReadableException($filePath);
+        }
+
+        $this->handle = $handle;
     }
 }

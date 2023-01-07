@@ -16,7 +16,7 @@ The synchronous payment is intended to execute a payment immediately after the o
 
 The following diagram shows a happy case sequence of a synchronous payment handling. The error handling is described [here](#after-order-payment-error-case) 
 
-![Synchronous Payment](./assets/payment-flow/synchronous-payment.png)
+![Synchronous Payment](../assets/payment-flow/synchronous-payment.png)
 
 ### Asynchronous Payment
 
@@ -24,7 +24,7 @@ An asynchronous payment handler has to be implemented, when the client (user) ha
 
 The following diagram shows a happy case sequence of an asynchronous payment handling. The error handling is described [here](#after-order-payment-error-case) 
 
-![Asynchronous Payment](./assets/payment-flow/asynchronous-payment.png)
+![Asynchronous Payment](../assets/payment-flow/asynchronous-payment.png)
 
 ### App payments
 

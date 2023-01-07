@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1574258787ProductSearchLanguageKey extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,8 +19,8 @@ class Migration1574258787ProductSearchLanguageKey extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `product_search_keyword` DROP FOREIGN KEY `fk.product_search_keyword.language_id`');
-        $connection->executeUpdate('ALTER TABLE `product_search_keyword` ADD CONSTRAINT `fk.product_search_keyword.language_id` FOREIGN KEY (`language_id`)
+        $connection->executeStatement('ALTER TABLE `product_search_keyword` DROP FOREIGN KEY `fk.product_search_keyword.language_id`');
+        $connection->executeStatement('ALTER TABLE `product_search_keyword` ADD CONSTRAINT `fk.product_search_keyword.language_id` FOREIGN KEY (`language_id`)
                   REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
     }
 

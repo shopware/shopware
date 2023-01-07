@@ -18,10 +18,12 @@ use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ *
+ * @package core
  */
 class Manifest
 {
-    private const XSD_FILE = __DIR__ . '/Schema/manifest-1.0.xsd';
+    private const XSD_FILE = __DIR__ . '/Schema/manifest-2.0.xsd';
 
     private string $path;
 
@@ -145,6 +147,9 @@ class Manifest
         return $this->allowedHosts;
     }
 
+    /**
+     * @param array<string, string[]> $permission
+     */
     public function addPermissions(array $permission): void
     {
         if ($this->permissions === null) {

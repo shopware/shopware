@@ -198,6 +198,9 @@
                 },
                 "newsletter_form": {
                     "$ref": "#/definitions/rate_limiter_config"
+                },
+                "cart_add_line_item_from": {
+                    "$ref": "#/definitions/rate_limiter_config"
                 }
             },
             "title": "RateLimiter"
@@ -610,6 +613,9 @@
                 },
                 "enable_url_validation": {
                     "type": "boolean"
+                },
+                "url_upload_max_size": {
+                    "type": "string"
                 }
             },
             "title": "Media"
@@ -706,6 +712,11 @@
                             "type": "integer",
                             "default": 2,
                             "title": "Max parallel requests to the external server"
+                        },
+                        "use_varnish_xkey": {
+                            "type": "boolean",
+                            "default": false,
+                            "title": "Use the XKey Varnish feature"
                         },
                         "redis_url": {
                             "type": "string",

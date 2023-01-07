@@ -8,21 +8,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
 /**
- * @final tag:v6.5.0
+ * @final
+ *
+ * @package core
  */
 class IteratorFactory
 {
-    private Connection $connection;
-
-    private DefinitionInstanceRegistry $registry;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, DefinitionInstanceRegistry $registry)
+    public function __construct(private Connection $connection, private DefinitionInstanceRegistry $registry)
     {
-        $this->connection = $connection;
-        $this->registry = $registry;
     }
 
     /**

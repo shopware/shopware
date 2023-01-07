@@ -6,11 +6,8 @@ use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -30,12 +27,14 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package customer-order
+ *
  * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
 class ChangePasswordRoute extends AbstractChangePasswordRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerRepository;
 
@@ -58,7 +57,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
+        EntityRepository $customerRepository,
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfigService,
         DataValidator $validator

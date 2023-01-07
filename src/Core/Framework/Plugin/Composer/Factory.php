@@ -7,6 +7,9 @@ use Composer\Factory as ComposerFactory;
 use Composer\IO\IOInterface;
 use Composer\IO\NullIO;
 
+/**
+ * @package core
+ */
 class Factory
 {
     public static function createComposer(string $composerJsonDir, ?IOInterface $composerIO = null): Composer

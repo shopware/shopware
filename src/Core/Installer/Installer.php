@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Installer;
 
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
@@ -12,6 +13,8 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Installer extends Bundle
@@ -22,6 +25,8 @@ class Installer extends Bundle
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
+
+        $container->addCompilerPass(new TwigEnvironmentCompilerPass());
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection'));
         $loader->load('services.xml');

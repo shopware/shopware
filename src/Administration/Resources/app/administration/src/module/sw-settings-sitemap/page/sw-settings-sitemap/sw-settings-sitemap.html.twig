@@ -4,14 +4,14 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_sitemap_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar />
     </template>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_sitemap_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_sitemap_smart_bar_header_title %}
         <h2>
@@ -31,7 +31,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_sitemap_smart_bar_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_sitemap_actions_save %}
         <sw-button-process
@@ -51,7 +51,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_sitemap_content %}
-    <template slot="content">
+    <template #content>
         <sw-card-view>
             <sw-skeleton v-if="isLoading" />
 

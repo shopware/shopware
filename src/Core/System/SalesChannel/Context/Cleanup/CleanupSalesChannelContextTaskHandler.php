@@ -4,31 +4,28 @@ namespace Shopware\Core\System\SalesChannel\Context\Cleanup;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class CleanupSalesChannelContextTaskHandler extends ScheduledTaskHandler
+/**
+ * @package sales-channel
+ *
+ * @internal
+ */
+#[AsMessageHandler(handles: CleanupSalesChannelContextTask::class)]
+
+final class CleanupSalesChannelContextTaskHandler extends ScheduledTaskHandler
 {
-    private Connection $connection;
-
-    private int $days;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $repository,
-        Connection $connection,
-        int $days
+        EntityRepository $repository,
+        private Connection $connection,
+        private int $days
     ) {
         parent::__construct($repository);
-        $this->connection = $connection;
-        $this->days = $days;
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        return [CleanupSalesChannelContextTask::class];
     }
 
     public function run(): void

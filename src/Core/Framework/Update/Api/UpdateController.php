@@ -6,11 +6,9 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
-use Shopware\Core\Framework\Routing\Annotation\Acl;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
@@ -43,59 +41,32 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be considered internal
+ * @internal
+ *
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @package system-settings
  */
 class UpdateController extends AbstractController
 {
     public const UPDATE_TOKEN_KEY = 'core.update.token';
     public const UPDATE_PREVIOUS_VERSION_KEY = 'core.update.previousVersion';
 
-    private ApiClient $apiClient;
-
-    private string $rootDir;
-
-    private RequirementsValidator $requirementsValidator;
-
-    private PluginCompatibility $pluginCompatibility;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private SystemConfigService $systemConfig;
-
-    private string $shopwareVersion;
-
-    private bool $isUpdateTest;
-
-    private EntityRepositoryInterface $userRepository;
-
-    private AbstractExtensionLifecycle $extensionLifecycleService;
-
     /**
      * @internal
      */
     public function __construct(
-        string $rootDir,
-        ApiClient $apiClient,
-        RequirementsValidator $requirementsValidator,
-        PluginCompatibility $pluginCompatibility,
-        EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfig,
-        AbstractExtensionLifecycle $extensionLifecycleService,
-        EntityRepositoryInterface $userRepository,
-        string $shopwareVersion,
-        bool $isUpdateTest = false
+        private string $rootDir,
+        private ApiClient $apiClient,
+        private RequirementsValidator $requirementsValidator,
+        private PluginCompatibility $pluginCompatibility,
+        private EventDispatcherInterface $eventDispatcher,
+        private SystemConfigService $systemConfig,
+        private AbstractExtensionLifecycle $extensionLifecycleService,
+        private  EntityRepository $userRepository,
+        private string $shopwareVersion,
+        private bool $isUpdateTest = false
     ) {
-        $this->rootDir = $rootDir;
-        $this->apiClient = $apiClient;
-        $this->requirementsValidator = $requirementsValidator;
-        $this->pluginCompatibility = $pluginCompatibility;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->systemConfig = $systemConfig;
-        $this->shopwareVersion = $shopwareVersion;
-        $this->isUpdateTest = $isUpdateTest;
-        $this->userRepository = $userRepository;
-        $this->extensionLifecycleService = $extensionLifecycleService;
     }
 
     /**
@@ -393,6 +364,9 @@ class UpdateController extends AbstractController
         }
     }
 
+    /**
+     * @return \RecursiveIteratorIterator<\RecursiveDirectoryIterator>
+     */
     private function createRecursiveFileIterator(string $path): \RecursiveIteratorIterator
     {
         $directoryIterator = new \RecursiveDirectoryIterator(

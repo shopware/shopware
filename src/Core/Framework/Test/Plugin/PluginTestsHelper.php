@@ -3,11 +3,12 @@
 namespace Shopware\Core\Framework\Test\Plugin;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogParser;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
@@ -17,8 +18,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 trait PluginTestsHelper
 {
     protected function createPluginService(
-        EntityRepositoryInterface $pluginRepo,
-        EntityRepositoryInterface $languageRepo,
+        EntityRepository $pluginRepo,
+        EntityRepository $languageRepo,
         string $projectDir,
         PluginFinder $pluginFinder
     ): PluginService {
@@ -34,7 +35,7 @@ trait PluginTestsHelper
     }
 
     protected function createPlugin(
-        EntityRepositoryInterface $pluginRepo,
+        EntityRepository $pluginRepo,
         Context $context,
         string $version = SwagTest::PLUGIN_VERSION,
         ?string $installedAt = null
@@ -70,6 +71,6 @@ trait PluginTestsHelper
         $plugin = new $class($active, $testPluginBaseDir);
         $pluginCollection->add($plugin);
 
-        $this->getContainer()->get(Plugin\KernelPluginLoader\KernelPluginLoader::class)->getPluginInstances()->add($plugin);
+        $this->getContainer()->get(KernelPluginLoader::class)->getPluginInstances()->add($plugin);
     }
 }

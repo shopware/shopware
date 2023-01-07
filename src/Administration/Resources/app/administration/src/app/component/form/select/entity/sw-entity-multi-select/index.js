@@ -5,7 +5,9 @@ const { Component, Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 const { Criteria, EntityCollection } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-entity-multi-select', {
     template,
     inheritAttrs: false,
@@ -257,7 +259,9 @@ Component.register('sw-entity-multi-select', {
         },
 
         resetActiveItem() {
-            this.$refs.swSelectResultList.setActiveItemIndex(0);
+            if (this.$refs.swSelectResultList) {
+                this.$refs.swSelectResultList.setActiveItemIndex(0);
+            }
         },
 
         resetCriteria() {

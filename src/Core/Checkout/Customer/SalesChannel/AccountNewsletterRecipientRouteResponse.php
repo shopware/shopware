@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
- * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
+ * @package customer-order
  */
 class AccountNewsletterRecipientRouteResponse extends StoreApiResponse
 {

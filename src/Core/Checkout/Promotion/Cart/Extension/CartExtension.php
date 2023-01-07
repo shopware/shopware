@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Extension;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package checkout
+ */
 class CartExtension extends Struct
 {
     /**

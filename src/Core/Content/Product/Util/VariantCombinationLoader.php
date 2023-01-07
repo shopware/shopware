@@ -7,12 +7,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package inventory
+ */
 class VariantCombinationLoader
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -33,7 +33,7 @@ class VariantCombinationLoader
         $query->setParameter('versionId', Uuid::fromHexToBytes($context->getVersionId()));
         $query->andWhere('product.option_ids IS NOT NULL');
 
-        $combinations = $query->execute()->fetchAll();
+        $combinations = $query->executeQuery()->fetchAllAssociative();
         $combinations = FetchModeHelper::groupUnique($combinations);
 
         foreach ($combinations as &$combination) {

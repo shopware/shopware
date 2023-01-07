@@ -22,13 +22,15 @@ use Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler;
 use Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler;
 use Shopware\Core\Framework\App\Payment\Handler\AppSyncPaymentHandler;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class PaymentHandlerRegistryTest extends TestCase
@@ -37,9 +39,9 @@ class PaymentHandlerRegistryTest extends TestCase
 
     private PaymentHandlerRegistry $paymentHandlerRegistry;
 
-    private EntityRepositoryInterface $paymentMethodRepository;
+    private EntityRepository $paymentMethodRepository;
 
-    private EntityRepositoryInterface $appPaymentMethodRepository;
+    private EntityRepository $appPaymentMethodRepository;
 
     public function setUp(): void
     {

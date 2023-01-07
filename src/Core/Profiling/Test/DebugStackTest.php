@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class DebugStackTest extends TestCase

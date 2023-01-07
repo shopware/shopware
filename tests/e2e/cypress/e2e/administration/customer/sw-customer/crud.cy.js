@@ -87,7 +87,7 @@ describe('Customer: Test crud operations', () => {
             `${customer.firstName} ${customer.lastName}`);
         cy.contains('.sw-customer-card-email-link', 'tester@example.com');
         cy.contains('.sw-customer-base__label-customer-number', '1');
-        cy.contains('.sw-address__location', customer.addresses[0].zipcode);
+        cy.contains('.sw-address', customer.addresses[0].zipcode);
 
         // Verify customer in Storefront
         cy.visit('/account/login');

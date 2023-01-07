@@ -8,9 +8,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package checkout
+ */
+/**
  * The ItemFacade is a wrapper around one line-item.
  *
  * @script-service cart_manipulation
+ *
+ * @package checkout
  */
 class ItemFacade
 {

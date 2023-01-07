@@ -4,9 +4,11 @@ namespace Shopware\Storefront\Framework\Captcha;
 
 use GuzzleHttp\ClientInterface;
 use Psr\Http\Client\ClientExceptionInterface;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package storefront
+ */
 class GoogleReCaptchaV2 extends AbstractCaptcha
 {
     public const CAPTCHA_NAME = 'googleReCaptchaV2';
@@ -26,15 +28,8 @@ class GoogleReCaptchaV2 extends AbstractCaptcha
     /**
      * {@inheritdoc}
      */
-    public function isValid(Request $request /* , array $captchaConfig */): bool
+    public function isValid(Request $request, array $captchaConfig): bool
     {
-        if (\func_num_args() < 2 || !\is_array(func_get_arg(1))) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Method `isValid()` in `GoogleReCaptchaV2` expects passing the `$captchaConfig` as array as the second parameter in v6.5.0.0.'
-            );
-        }
-
         if (!$request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
             return false;
         }

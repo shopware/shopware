@@ -1,9 +1,16 @@
+/*
+ * @package inventory
+ */
+
 import Plugin from 'src/plugin-system/plugin.class';
 import PluginManager from 'src/plugin-system/plugin.manager';
 import Iterator from 'src/helper/iterator.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
 
+/**
+ * @package checkout
+ */
 export default class AddToCartPlugin extends Plugin {
 
     static options = {

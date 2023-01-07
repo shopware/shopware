@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 import variantProduct from '../../../../fixtures/variant-product';
 
@@ -64,9 +67,13 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         // Replace current element with buy box element
         cy.get('.sw-cms-slot .sw-cms-slot__element-action').first().click();
         cy.get('.sw-cms-slot__element-selection').should('be.visible');
-        cy.get('.sw-cms-el-preview-buy-box').click();
+        cy.get('.sw-cms-el-preview-buy-box + .element-selection__overlay-action-select').first().invoke('show');
+        cy.get('.sw-cms-el-preview-buy-box + .element-selection__overlay-action-select').first().should('be.visible');
+        cy.get('.sw-cms-el-preview-buy-box + .element-selection__overlay-action-select').first().click();
+
 
         // Configure element product
+        cy.get('.sw-cms-slot .sw-cms-slot__overlay').invoke('show');
         cy.get('.sw-cms-slot .sw-cms-slot__settings-action').click();
         cy.get('.sw-cms-slot__config-modal').should('be.visible');
         cy.get('.sw-cms-el-config-buy-box .sw-entity-single-select').type('Variant product');
@@ -98,29 +105,21 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         // Verify layout in Storefront
         cy.visit('/');
 
-        cy.window().then((win) => {
-            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+        cy.contains('.product-detail-price', '€111');
+        cy.contains('.product-detail-ordernumber', 'TEST.2');
+        cy.get('.product-detail-configurator-option-label[title="red"]').click();
 
-            /** @deprecated tag:v6.5.0 - Use `${CheckoutPageObject.elements.lineItem}-details-characteristics` instead */
-            const variantCharacteristicsSelector = win.features['v6.5.0.0'] ? '.line-item-details-characteristics' : '.cart-item-characteristics';
+        // Wait for reloading product variant
+        cy.wait('@loadData').its('response.statusCode').should('equal', 200);
+        cy.contains('.product-detail-ordernumber', 'TEST.1');
 
-            cy.contains('.product-detail-price', '€111');
-            cy.contains('.product-detail-ordernumber', 'TEST.2');
-            cy.get('.product-detail-configurator-option-label[title="red"]').click();
-
-            // Wait for reloading product variant
-            cy.wait('@loadData').its('response.statusCode').should('equal', 200);
-            cy.contains('.product-detail-ordernumber', 'TEST.1');
-
-            // Off canvas
-            cy.get('.btn-buy').click();
-            cy.get('.offcanvas').should('be.visible');
-            cy.contains(`${lineItemSelector}-price`, '€111');
-            cy.contains(`${variantCharacteristicsSelector}`, 'color');
-            cy.contains(`${variantCharacteristicsSelector}-option`, 'red');
-            cy.get(`${lineItemSelector}-label[title="Variant product"]`).should('be.visible');
-        });
+        // Off canvas
+        cy.get('.btn-buy').click();
+        cy.get('.offcanvas').should('be.visible');
+        cy.contains('.line-item-price', '€111');
+        cy.contains('.line-item-details-characteristics', 'color');
+        cy.contains('.line-item-details-characteristics-option', 'red');
+        cy.get('.line-item-label[title="Variant product"]').should('be.visible');
     });
 
     it('@base @content: use simple gallery buy box block', { tags: ['pa-content-management'] }, () => {

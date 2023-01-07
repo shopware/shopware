@@ -9,6 +9,9 @@ use Shopware\Recovery\Update\CleanupFilesFinder;
 use Shopware\Recovery\Update\Utils;
 use Slim\App;
 
+/**
+ * @package system-settings
+ */
 class CleanupController
 {
     /**

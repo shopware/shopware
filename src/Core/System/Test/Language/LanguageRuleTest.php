@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
@@ -22,6 +22,8 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class LanguageRuleTest extends TestCase
@@ -29,9 +31,9 @@ class LanguageRuleTest extends TestCase
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    private EntityRepositoryInterface $ruleRepository;
+    private EntityRepository $ruleRepository;
 
-    private EntityRepositoryInterface $conditionRepository;
+    private EntityRepository $conditionRepository;
 
     private Context $context;
 

@@ -16,6 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package core
+ */
 class WebhookDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'webhook';

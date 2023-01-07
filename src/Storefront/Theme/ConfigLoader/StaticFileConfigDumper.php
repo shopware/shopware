@@ -3,21 +3,26 @@ declare(strict_types=1);
 
 namespace Shopware\Storefront\Theme\ConfigLoader;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Context;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use function json_encode;
+use function sprintf;
+use const JSON_THROW_ON_ERROR;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
+ *
+ * @package storefront
  */
 class StaticFileConfigDumper implements EventSubscriberInterface
 {
     private AbstractConfigLoader $configLoader;
 
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
     private AbstractAvailableThemeProvider $availableThemeProvider;
 
@@ -27,7 +32,7 @@ class StaticFileConfigDumper implements EventSubscriberInterface
     public function __construct(
         AbstractConfigLoader $configLoader,
         AbstractAvailableThemeProvider $availableThemeProvider,
-        FilesystemInterface $filesystem
+        FilesystemOperator $filesystem
     ) {
         $this->configLoader = $configLoader;
         $this->filesystem = $filesystem;
@@ -46,14 +51,14 @@ class StaticFileConfigDumper implements EventSubscriberInterface
     public function dumpConfig(Context $context): void
     {
         $salesChannelToTheme = $this->availableThemeProvider->load($context);
-        $this->filesystem->put(StaticFileAvailableThemeProvider::THEME_INDEX, json_encode($salesChannelToTheme, \JSON_THROW_ON_ERROR));
+        $this->filesystem->write(StaticFileAvailableThemeProvider::THEME_INDEX, json_encode($salesChannelToTheme, JSON_THROW_ON_ERROR));
 
         foreach ($salesChannelToTheme as $themeId) {
             $struct = $this->configLoader->load($themeId, $context);
 
-            $path = \sprintf('theme-config/%s.json', $themeId);
+            $path = sprintf('theme-config/%s.json', $themeId);
 
-            $this->filesystem->put($path, \json_encode($struct->jsonSerialize(), \JSON_THROW_ON_ERROR));
+            $this->filesystem->write($path, json_encode($struct->jsonSerialize(), JSON_THROW_ON_ERROR));
         }
     }
 

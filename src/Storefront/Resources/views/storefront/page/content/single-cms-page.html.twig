@@ -41,10 +41,10 @@
             {% block single_cms_page_main %}
                 <main class="content-main">
                     {% block single_cms_page_main_content %}
-                        {% set cmsPageClasses = ('cms-page ' ~ page.cmsPage.cssClass|striptags)|trim %}
+                        {% set cmsPageClasses = ('cms-page ' ~ page.landingPage.cmsPage.cssClass|striptags)|trim %}
                         <div class="{{ cmsPageClasses }}">
                             {% block page_content_blocks %}
-                                {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.cmsPage} %}
+                                {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.landingPage.cmsPage, 'landingPage': page.landingPage} %}
                             {% endblock %}
                         </div>
                     {% endblock %}
@@ -58,7 +58,7 @@
                             {% if config('core.basicInformation.imprintPage') is not null %}
                                 <a href="{{ path('frontend.maintenance.singlepage',{ id: config('core.basicInformation.imprintPage') }) }}"
                                    title="{{ "general.imprintLink"|trans|sw_sanitize }}"
-                                   class="{{ paddingStartClass }}-2 {{ paddingEndClass }}-2">
+                                   class="ps-2 pe-2">
                                     {{ "general.imprintLink"|trans|sw_sanitize }}
                                 </a>
                             {% endif %}
@@ -66,7 +66,7 @@
                             {% if config('core.basicInformation.privacyPage') is not null %}
                                 <a href="{{ path('frontend.maintenance.singlepage',{ id: config('core.basicInformation.privacyPage') }) }}"
                                    title="{{ "general.privacyLink"|trans|sw_sanitize }}"
-                                   class="{{ paddingStartClass }}-2 {{ paddingEndClass }}-2">
+                                   class="ps-2 pe-2">
                                     {{ "general.privacyLink"|trans|sw_sanitize }}
                                 </a>
                             {% endif %}
@@ -97,26 +97,11 @@
                         'sm': theme_config('breakpoint.sm'),
                         'md': theme_config('breakpoint.md'),
                         'lg': theme_config('breakpoint.lg'),
-                        'xl': theme_config('breakpoint.xl')
+                        'xl': theme_config('breakpoint.xl'),
+                        'xxl': theme_config('breakpoint.xxl')
                     } %}
 
-                    {# @deprecated tag:v6.5.0 - Bootstrap v5 adds xxl breakpoint #}
-                    {% if feature('v6.5.0.0') %}
-                        {% set breakpoint = breakpoint|merge({
-                            'xxl': theme_config('breakpoint.xxl')
-                        }) %}
-                    {% endif %}
-
                     window.breakpoints = {{ breakpoint|json_encode()|raw }};
-                </script>
-            {% endblock %}
-
-            {% block single_cms_page_script_csrf %}
-                <script>
-                    window.csrf = {
-                        'enabled': '{{ shopware.csrfEnabled }}',
-                        'mode': '{{ shopware.csrfMode }}'
-                    }
                 </script>
             {% endblock %}
         {% endblock %}

@@ -7,13 +7,15 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1636362839FlowBuilderGenerateMultipleDoc;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
@@ -24,7 +26,7 @@ class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
 
     private Migration1636362839FlowBuilderGenerateMultipleDoc $migration;
 
-    private ?EntityRepositoryInterface $flowRepository;
+    private EntityRepository $flowRepository;
 
     private TestDataCollection $ids;
 
@@ -48,8 +50,8 @@ class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
             ]
         );
 
-        $newConfig = json_decode($actionGenerateDocs['config'], true);
-        static::assertIsArray($newConfig);
+        static::assertIsArray($actionGenerateDocs);
+        $newConfig = json_decode($actionGenerateDocs['config'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotNull($newConfig['documentTypes']);
     }
 

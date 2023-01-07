@@ -4,29 +4,28 @@ namespace Shopware\Core\Framework\App\ScheduledTask;
 
 use Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class UpdateAppsHandler extends ScheduledTaskHandler
+/**
+ * @package core
+ *
+ * @internal
+ */
+#[AsMessageHandler(handles: UpdateAppsTask::class)]
+final class UpdateAppsHandler extends ScheduledTaskHandler
 {
-    private AbstractAppUpdater $appUpdater;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $scheduledTaskRepository, AbstractAppUpdater $appUpdater)
+    public function __construct(EntityRepository $scheduledTaskRepository, private AbstractAppUpdater $appUpdater)
     {
         parent::__construct($scheduledTaskRepository);
-        $this->appUpdater = $appUpdater;
     }
 
     public function run(): void
     {
         $this->appUpdater->updateApps(Context::createDefaultContext());
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        return [UpdateAppsTask::class];
     }
 }

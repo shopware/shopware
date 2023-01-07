@@ -144,14 +144,7 @@ describe('Search bar: Check search module with short keyword', () => {
 
         cy.contains('.sw-search-bar-item', 'Add new order').click();
 
-        cy.skipOnFeature('FEATURE_NEXT_7530',  () => {
-            cy.contains('.smart-bar__header h2', 'New order')
-                .should('be.visible');
-        });
-
-        cy.onlyOnFeature('FEATURE_NEXT_7530',  () => {
-            cy.get('.sw-order-create-initial-modal').should('be.visible');
-        });
+        cy.get('.sw-order-create-initial-modal').should('be.visible');
     });
 
     it('@searchBar @search: Search for a media using the keyword med', { tags: ['pa-system-settings'] }, () => {
@@ -174,6 +167,8 @@ describe('Search bar: Check search module with short keyword', () => {
             '',
             true
         );
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Upload image in folder
         cy.contains(page.elements.smartBarHeader, 'A thing to fold about');
@@ -188,9 +183,11 @@ describe('Search bar: Check search module with short keyword', () => {
 
         cy.get('.sw-loader')
             .should('not.exist');
-
         cy.get('.sw-skeleton')
             .should('not.exist');
+
+        cy.get('.sw-dashboard-index__content')
+            .should('be.visible');
 
         cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('Med');

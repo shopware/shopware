@@ -23,11 +23,14 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @package checkout
+ */
 class CartRuleLoader implements ResetInterface
 {
     private const MAX_ITERATION = 7;
 
-    private CartPersisterInterface $cartPersister;
+    private AbstractCartPersister $cartPersister;
 
     private ?RuleCollection $rules = null;
 
@@ -45,13 +48,16 @@ class CartRuleLoader implements ResetInterface
 
     private Connection $connection;
 
+    /**
+     * @var array<string, float>
+     */
     private array $currencyFactor = [];
 
     /**
      * @internal
      */
     public function __construct(
-        CartPersisterInterface $cartPersister,
+        AbstractCartPersister $cartPersister,
         Processor $processor,
         LoggerInterface $logger,
         CacheInterface $cache,
@@ -167,6 +173,7 @@ class CartRuleLoader implements ResetInterface
             }
 
             $context->setRuleIds($rules->getIds());
+            $context->setAreaRuleIds($rules->getIdsByArea());
 
             // save the cart if errors exist, so the errors get persisted
             if ($cart->getErrors()->count() > 0 || $this->updated($cart, $timestamps)) {
@@ -183,7 +190,7 @@ class CartRuleLoader implements ResetInterface
             return $this->rules;
         }
 
-        return $this->rules = $this->ruleLoader->load($context);
+        return $this->rules = $this->ruleLoader->load($context)->filterForContext();
     }
 
     private function cartChanged(Cart $previous, Cart $current): bool

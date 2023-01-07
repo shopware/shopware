@@ -19,6 +19,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @group store-api
  */
@@ -106,7 +108,7 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         // 2: validate start data
         /** @var array<string, string|null> $row */
-        $row = $connection->fetchAssoc('SELECT * FROM newsletter_recipient WHERE email = "test@example.com"');
+        $row = $connection->fetchAssociative('SELECT * FROM newsletter_recipient WHERE email = "test@example.com"');
         static::assertSame('optIn', $row['status']);
         static::assertSame($firstConfirmedAt, $row['confirmed_at']);
 
@@ -122,7 +124,7 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         static::assertTrue($this->browser->getResponse()->isSuccessful());
         /** @var array<string, string|null> $row */
-        $row = $connection->fetchAssoc('SELECT * FROM newsletter_recipient WHERE email = "test@example.com"');
+        $row = $connection->fetchAssociative('SELECT * FROM newsletter_recipient WHERE email = "test@example.com"');
         static::assertSame('optOut', $row['status']);
         static::assertNotNull($row['confirmed_at']);
 
@@ -140,7 +142,7 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         static::assertTrue($this->browser->getResponse()->isSuccessful());
         /** @var array<string, string|null> $row */
-        $row = $connection->fetchAssoc('SELECT * FROM newsletter_recipient WHERE email = "test@example.com"');
+        $row = $connection->fetchAssociative('SELECT * FROM newsletter_recipient WHERE email = "test@example.com"');
         static::assertSame('notSet', $row['status']);
         static::assertNotNull($row['confirmed_at']);
 
@@ -157,7 +159,7 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         static::assertTrue($this->browser->getResponse()->isSuccessful());
         /** @var array<string, string|null> $row */
-        $row = $connection->fetchAssoc('SELECT * FROM newsletter_recipient WHERE email = "test@example.com"');
+        $row = $connection->fetchAssociative('SELECT * FROM newsletter_recipient WHERE email = "test@example.com"');
         static::assertNotEmpty($row);
         static::assertSame('optIn', $row['status']);
         static::assertNotNull($row['confirmed_at']);
@@ -322,7 +324,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             ]
         );
 
-        $count = (int) $this->getContainer()->get(Connection::class)->fetchColumn('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@example.com" AND status = "direct"');
+        $count = (int) $this->getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@example.com" AND status = "direct"');
         static::assertSame(1, $count);
     }
 
@@ -364,7 +366,7 @@ class NewsletterSubscribeRouteTest extends TestCase
                 ]
             );
 
-        $count = (int) $this->getContainer()->get(Connection::class)->fetchColumn('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@example.com" AND status = "direct"');
+        $count = (int) $this->getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@example.com" AND status = "direct"');
         static::assertSame(1, $count);
     }
 

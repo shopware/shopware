@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FkFieldSerializer;
 
+/**
+ * @package core
+ */
 class FkField extends Field implements StorageAware
 {
     public const PRIORITY = 70;

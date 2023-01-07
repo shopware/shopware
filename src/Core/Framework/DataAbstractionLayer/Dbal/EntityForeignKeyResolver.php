@@ -27,27 +27,17 @@ use Shopware\Core\System\Language\LanguageDefinition;
  * Determines all associated data for a definition.
  * Used to determines which associated will be deleted to or which associated data would restrict a delete operation.
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ *
+ * @package core
  */
 class EntityForeignKeyResolver
 {
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
-     * @var EntityDefinitionQueryHelper
-     */
-    private $queryHelper;
-
-    /**
      * @internal
      */
-    public function __construct(Connection $connection, EntityDefinitionQueryHelper $queryHelper)
+    public function __construct(private Connection $connection, private EntityDefinitionQueryHelper $queryHelper)
     {
-        $this->connection = $connection;
-        $this->queryHelper = $queryHelper;
     }
 
     /**
@@ -245,7 +235,7 @@ class EntityForeignKeyResolver
 
         $this->queryHelper->addIdCondition(new Criteria($ids), $root, $query);
 
-        $affected = $query->execute()->fetchAll();
+        $affected = $query->executeQuery()->fetchAllAssociative();
 
         if (empty($affected)) {
             return [];

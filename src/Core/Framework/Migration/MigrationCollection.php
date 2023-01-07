@@ -7,6 +7,9 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 
+/**
+ * @package core
+ */
 class MigrationCollection
 {
     /**
@@ -131,29 +134,10 @@ class MigrationCollection
      */
     private function getMigrationData(string $className, MigrationStep $migrationStep): array
     {
-        $default = [
+        return [
             'class' => $className,
             'creation_timestamp' => $migrationStep->getCreationTimestamp(),
         ];
-
-        $oldName = $this->migrationSource->mapToOldName($className);
-        if ($oldName === null) {
-            return $default;
-        }
-
-        /** @var false|array{class: class-string<MigrationStep>, creation_timestamp: int, update: string, update_destructive: string, message: string} $row */
-        $row = $this->connection->fetchAssociative(
-            'SELECT * FROM migration WHERE class = :class',
-            ['class' => $oldName]
-        );
-
-        if ($row === false) {
-            return $default;
-        }
-
-        $row['class'] = $className;
-
-        return $row;
     }
 
     private function ensureStepsLoaded(): void

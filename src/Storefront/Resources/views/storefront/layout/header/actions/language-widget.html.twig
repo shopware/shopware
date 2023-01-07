@@ -11,10 +11,6 @@
                       class="language-form"
                       data-form-auto-submit="true">
 
-                    {% block layout_header_actions_language_widget_form_csrf %}
-                        {{ sw_csrf('frontend.checkout.switch-language') }}
-                    {% endblock %}
-
                     {% block layout_header_actions_language_widget_content %}
                         {% set isoCode = page.header.activeLanguage.translationCode.code|lower|split('-') %}
                         {# @deprecated tag:v6.5.0 - Remove else cases, to maintain correct split of isoCode #}
@@ -25,7 +21,7 @@
                             <button class="btn dropdown-toggle top-bar-nav-btn"
                                     type="button"
                                     id="languagesDropdown-{{ position }}"
-                                    {{ dataBsToggleAttr }}="dropdown"
+                                    data-bs-toggle="dropdown"
                                     aria-haspopup="true"
                                     aria-expanded="false">
                                 <div class="top-bar-list-icon language-flag country-{{ country }} language-{{ language }}"></div>

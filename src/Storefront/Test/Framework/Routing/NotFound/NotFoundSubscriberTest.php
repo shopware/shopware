@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
@@ -166,6 +165,9 @@ class NotFoundSubscriberTest extends TestCase
         $subscriber->onSystemConfigChanged(new SystemConfigChangedEvent($key, 'foo', null));
     }
 
+    /**
+     * @return iterable<string, array<mixed>>
+     */
     public function providerSystemConfigKeys(): iterable
     {
         yield 'key matches' => [
@@ -191,19 +193,7 @@ class NotFoundSubscriberTest extends TestCase
 
         static::assertArrayHasKey(SystemConfigChangedEvent::class, NotFoundSubscriber::getSubscribedEvents());
 
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertArrayHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
-
-            $_SERVER['V6_5_0_0'] = '0';
-
-            static::assertArrayNotHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
-        } else {
-            static::assertArrayNotHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
-
-            $_SERVER['V6_5_0_0'] = '1';
-
-            static::assertArrayHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
-        }
+        static::assertArrayHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
 
         if ($defaultVar !== null) {
             $_SERVER['V6_5_0_0'] = $defaultVar;

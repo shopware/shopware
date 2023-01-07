@@ -13,7 +13,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ *
+ * @package core
  */
 class FloatFieldSerializer extends AbstractFieldSerializer
 {
@@ -34,7 +36,7 @@ class FloatFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => (float) $data->getValue();
     }
 
-    public function decode(Field $field, $value): ?float
+    public function decode(Field $field, mixed $value): ?float
     {
         return $value === null ? null : (float) $value;
     }

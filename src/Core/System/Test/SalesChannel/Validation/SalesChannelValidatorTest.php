@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  */
 class SalesChannelValidatorTest extends TestCase
@@ -370,12 +372,12 @@ class SalesChannelValidatorTest extends TestCase
         return $nonDefaultLanguageId;
     }
 
-    private function getSalesChannelRepository(): EntityRepositoryInterface
+    private function getSalesChannelRepository(): EntityRepository
     {
         return $this->getContainer()->get('sales_channel.repository');
     }
 
-    private function getSalesChannelLanguageRepository(): EntityRepositoryInterface
+    private function getSalesChannelLanguageRepository(): EntityRepository
     {
         return $this->getContainer()->get('sales_channel_language.repository');
     }

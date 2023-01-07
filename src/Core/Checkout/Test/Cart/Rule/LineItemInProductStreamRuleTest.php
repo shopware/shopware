@@ -17,6 +17,8 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @group rules
  */
@@ -69,6 +71,9 @@ class LineItemInProductStreamRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return array<string, array<array<string>|string|bool>>
+     */
     public function getLineItemScopeTestData(): array
     {
         return [
@@ -144,6 +149,9 @@ class LineItemInProductStreamRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return array<string, array<array<string>|string|bool>>
+     */
     public function getCartRuleScopeTestData(): array
     {
         return [

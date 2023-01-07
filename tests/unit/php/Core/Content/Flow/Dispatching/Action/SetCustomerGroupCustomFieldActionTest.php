@@ -8,13 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerGroupCustomFieldAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @covers \Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerGroupCustomFieldAction
  */
@@ -26,7 +27,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
     private $connection;
 
     /**
-     * @var MockObject|EntityRepositoryInterface
+     * @var MockObject|EntityRepository
      */
     private $repository;
 
@@ -45,7 +46,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
     public function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
-        $this->repository = $this->createMock(EntityRepositoryInterface::class);
+        $this->repository = $this->createMock(EntityRepository::class);
         $this->entitySearchResult = $this->createMock(EntitySearchResult::class);
 
         $this->action = new SetCustomerGroupCustomFieldAction($this->connection, $this->repository);
@@ -58,23 +59,6 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
         static::assertSame(
             [CustomerGroupAware::class],
             $this->action->requirements()
-        );
-    }
-
-    public function testSubscribedEvents(): void
-    {
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertSame(
-                [],
-                SetCustomerGroupCustomFieldAction::getSubscribedEvents()
-            );
-
-            return;
-        }
-
-        static::assertSame(
-            ['action.set.customer.group.custom.field' => 'handle'],
-            SetCustomerGroupCustomFieldAction::getSubscribedEvents()
         );
     }
 

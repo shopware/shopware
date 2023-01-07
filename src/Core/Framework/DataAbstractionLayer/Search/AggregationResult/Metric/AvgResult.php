@@ -5,19 +5,15 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 
 /**
- * @final tag:v6.5.0
+ * @final
+ *
+ * @package core
  */
 class AvgResult extends AggregationResult
 {
-    /**
-     * @var float
-     */
-    protected $avg;
-
-    public function __construct(string $name, float $avg)
+    public function __construct(string $name, protected float $avg)
     {
         parent::__construct($name);
-        $this->avg = $avg;
     }
 
     public function getAvg(): float

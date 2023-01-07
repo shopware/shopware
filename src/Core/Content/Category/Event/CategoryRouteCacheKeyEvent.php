@@ -7,10 +7,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package content
+ */
 class CategoryRouteCacheKeyEvent extends StoreApiRouteCacheKeyEvent
 {
     protected string $navigationId;
 
+    /**
+     * @param array<mixed> $parts
+     */
     public function __construct(string $navigationId, array $parts, Request $request, SalesChannelContext $context, ?Criteria $criteria)
     {
         parent::__construct($parts, $request, $context, $criteria);

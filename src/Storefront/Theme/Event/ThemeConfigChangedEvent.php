@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Theme\Event;
 
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package storefront
+ */
 class ThemeConfigChangedEvent extends Event
 {
     protected array $config;

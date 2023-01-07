@@ -5,20 +5,22 @@ namespace Shopware\Core\Content\Test\ImportExport\Api;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class ImportExportProfileApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
@@ -56,7 +58,7 @@ class ImportExportProfileApiTest extends TestCase
         }
 
         // read created data from db
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
         $translationRecords = $this->getTranslationRecords();
 
         // compare expected and resulting data
@@ -327,7 +329,7 @@ class ImportExportProfileApiTest extends TestCase
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
-            $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
+            $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
             static::assertCount($num - $deleted, $records);
 
             // Delete call with valid id.
@@ -342,7 +344,7 @@ class ImportExportProfileApiTest extends TestCase
                 static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
                 ++$deleted;
             }
-            $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
+            $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
             static::assertCount($num - $deleted, $records);
         }
     }
@@ -395,7 +397,7 @@ class ImportExportProfileApiTest extends TestCase
     protected function getTranslationRecords(): array
     {
         return array_reduce(
-            $this->connection->fetchAll('SELECT * FROM import_export_profile_translation'),
+            $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile_translation'),
             static function ($carry, $translationRecord) {
                 $carry[$translationRecord['import_export_profile_id']] = $translationRecord;
 

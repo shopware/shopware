@@ -1,4 +1,8 @@
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default function initializeActions(): void {
     Shopware.ExtensionAPI.handle('actionExecute', async (actionConfiguration, additionalInformation) => {
         const extensionName = Object.keys(Shopware.State.get('extensions'))

@@ -24,7 +24,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -41,7 +41,7 @@ class ProductExportGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private Context $context;
 
@@ -280,7 +280,7 @@ class ProductExportGeneratorTest extends TestCase
 
     private function getSalesChannelId(): string
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('sales_channel.repository');
 
         return $repository->search(new Criteria(), $this->context)->first()->getId();
@@ -288,7 +288,7 @@ class ProductExportGeneratorTest extends TestCase
 
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
         return $repository->search(new Criteria(), $this->context)->first();

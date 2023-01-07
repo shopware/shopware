@@ -27,6 +27,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class DeleteUnusedGuestCustomersCommandTest extends TestCase

@@ -33,18 +33,6 @@ The blocks from the templates in the /includes folder can be overwritten directl
     {% endif %}
 {% endblock %}
 
-{# @deprecated tag:v6.5.0 - Will be removed #}
-{% block document_side_info %}
-    <table>
-        {% block document_side_info_contents %}
-            {{ block('document_side_info_customer_number') }}
-            {{ block('document_side_info_order_number') }}
-            {{ block('document_side_info_order_date') }}
-            {{ block('document_side_info_date') }}
-        {% endblock %}
-    </table>
-{% endblock %}
-
 {% block document_payment_shipping_inner %}
     {{ parent() }}
 

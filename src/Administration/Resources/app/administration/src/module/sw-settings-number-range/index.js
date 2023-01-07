@@ -1,7 +1,13 @@
-import './page/sw-settings-number-range-list';
-import './page/sw-settings-number-range-detail';
-import './page/sw-settings-number-range-create';
+/**
+ * @package system-settings
+ */
 import './acl';
+
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-settings-number-range-list', () => import('./page/sw-settings-number-range-list'));
+Shopware.Component.register('sw-settings-number-range-detail', () => import('./page/sw-settings-number-range-detail'));
+Shopware.Component.extend('sw-settings-number-range-create', 'sw-settings-number-range-detail', () => import('./page/sw-settings-number-range-create'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 

@@ -3,17 +3,16 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\ConnectionException;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\Feature;
 
+/**
+ * @package core
+ */
 abstract class MigrationStep
 {
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed as the old trigger logic will be removed
-     */
-    public const MIGRATION_VARIABLE_FORMAT = '@MIGRATION_%s_IS_ACTIVE';
     public const INSTALL_ENVIRONMENT_VARIABLE = 'SHOPWARE_INSTALL';
 
     /**
@@ -35,7 +34,7 @@ abstract class MigrationStep
     {
         try {
             $connection->executeUpdate(sprintf('DROP TRIGGER IF EXISTS %s', $name));
-        } catch (DBALException $e) {
+        } catch (Exception $e) {
         }
     }
 
@@ -45,66 +44,7 @@ abstract class MigrationStep
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be removed use `createTrigger` instead
-     */
-    protected function addForwardTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'createTrigger')
-        );
-
-        $this->addTrigger($connection, $name, $table, $time, $event, $statements, 'IS NULL');
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed use `createTrigger` instead
-     */
-    protected function addBackwardTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'createTrigger')
-        );
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed use `createTrigger` instead
-     */
-    protected function addTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements, string $condition): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'createTrigger')
-        );
-
-        $query = sprintf(
-            'CREATE TRIGGER %s
-            %s %s ON `%s` FOR EACH ROW
-            thisTrigger: BEGIN
-                IF (%s %s)
-                THEN
-                    LEAVE thisTrigger;
-                END IF;
-
-                %s;
-            END;
-            ',
-            $name,
-            $time,
-            $event,
-            $table,
-            sprintf(self::MIGRATION_VARIABLE_FORMAT, $this->getCreationTimestamp()),
-            $condition,
-            $statements
-        );
-        $connection->executeStatement($query);
-    }
-
-    /**
      * @param mixed[] $params
-     *
-     * @throws \Doctrine\DBAL\DBALException
      */
     protected function createTrigger(Connection $connection, string $query, array $params = []): void
     {
@@ -137,7 +77,7 @@ abstract class MigrationStep
     /**
      * @param array<string, array<string>> $privileges
      *
-     * @throws \Doctrine\DBAL\ConnectionException
+     * @throws ConnectionException
      * @throws \Doctrine\DBAL\Exception
      * @throws \JsonException
      */

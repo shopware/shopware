@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 
 import MediaPageObject from '../../../../support/pages/module/sw-media.page-object';
@@ -111,7 +114,7 @@ describe('Media: Test thumbnails', { browser: 'chrome' }, () => {
         cy.get('input[name=thumbnail-size-400-400-active]').should('not.be.checked');
 
         // Deactivate inheritance
-        cy.get('input[name=sw-field--folder-useParentConfiguration]').uncheck();
+        cy.get('input[name=sw-field--mediaFolder-useParentConfiguration]').uncheck();
         cy.get('input[name=sw-field--configuration-keepAspectRatio]').check();
         cy.get('input[name=thumbnail-size-1920-1920-active]').check();
         cy.get(page.elements.saveSettingsAction).click();
@@ -129,7 +132,7 @@ describe('Media: Test thumbnails', { browser: 'chrome' }, () => {
         );
 
         cy.get('.sw-media-folder-settings__thumbnails-tab').click();
-        cy.get('input[name=sw-field--folder-useParentConfiguration]').should('not.be.checked');
+        cy.get('input[name=sw-field--mediaFolder-useParentConfiguration]').should('not.be.checked');
         cy.get('input[name=sw-field--configuration-createThumbnails]').should('be.checked');
         cy.get('input[name=sw-field--configuration-keepAspectRatio]').should('be.checked');
         cy.get('input[name=thumbnail-size-1920-1920-active]').should('be.checked');

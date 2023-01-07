@@ -6,6 +6,11 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1625304609UpdateRolePrivileges extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -40,11 +45,19 @@ class Migration1625304609UpdateRolePrivileges extends MigrationStep
         // implement update destructive
     }
 
+    /**
+     * @return list<string>
+     */
     private function getAllApps(Connection $connection): array
     {
-        return $connection->executeQuery('SELECT name from `app`')->fetchAll(\PDO::FETCH_COLUMN);
+        return $connection->executeQuery('SELECT name from `app`')->fetchFirstColumn();
     }
 
+    /**
+     * @param list<string> $appNames
+     *
+     * @return list<string>
+     */
     private function getAppPrivileges(array $appNames): array
     {
         $privileges = [

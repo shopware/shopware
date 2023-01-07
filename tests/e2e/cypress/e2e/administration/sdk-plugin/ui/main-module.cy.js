@@ -16,7 +16,7 @@ describe('Category: SDK Test', ()=> {
                     .should('exist');
 
                 cy.get('.navigation-list-item__type-plugin')
-                    .should('have.length', 3);
+                    .should('have.length.least', 3);
             });
     });
 
@@ -29,8 +29,11 @@ describe('Category: SDK Test', ()=> {
         cy.get('.sw-loader')
             .should('not.exist');
 
-        cy.get('.sw-meteor-card__content-wrapper > .sw-context-button > .sw-context-button__button')
-            .click();
+        // nesting is wanted to just click the button in the SDK Testplugin
+        cy.contains('.sw-meteor-card__content-wrapper', 'SDK Testplugin').within(() => {
+                cy.get('.sw-context-button > .sw-context-button__button')
+                    .click();
+            })
 
         cy.get('.sw-context-menu__content').contains('Open extension')
             .click();

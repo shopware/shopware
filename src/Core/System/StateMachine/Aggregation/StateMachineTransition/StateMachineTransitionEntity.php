@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 
+/**
+ * @package checkout
+ */
 class StateMachineTransitionEntity extends Entity
 {
     use EntityIdTrait;

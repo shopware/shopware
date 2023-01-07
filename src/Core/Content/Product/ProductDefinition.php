@@ -24,7 +24,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductStreamMapping\ProductStreamMa
 use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryDefinition;
@@ -65,7 +64,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
@@ -73,6 +71,9 @@ use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
 
+/**
+ * @package inventory
+ */
 class ProductDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product';
@@ -126,7 +127,7 @@ class ProductDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $collection = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new VersionField())->addFlags(new ApiAware()),
             (new ParentFkField(self::class))->addFlags(new ApiAware()),
@@ -153,7 +154,7 @@ class ProductDefinition extends EntityDefinition
             (new IntField('available_stock', 'availableStock'))->addFlags(new ApiAware(), new WriteProtected()),
             (new BoolField('available', 'available'))->addFlags(new ApiAware(), new WriteProtected()),
             (new BoolField('is_closeout', 'isCloseout'))->addFlags(new ApiAware(), new Inherited()),
-            (new ListField('variation', 'variation', StringField::class))->setStrict(true)->addFlags(new Runtime(['options'])),
+            (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime(['options'])),
             (new StringField('display_group', 'displayGroup'))->addFlags(new ApiAware(), new WriteProtected()),
             (new JsonField('configurator_group_config', 'configuratorGroupConfig'))->addFlags(new Inherited(), new Deprecated('v6.4.15', 'v6.5.0')),
             (new FkField('main_variant_id', 'mainVariantId', ProductDefinition::class))->addFlags(new ApiAware(), new Inherited(), new Deprecated('v6.4.15', 'v6.5.0')),
@@ -176,7 +177,7 @@ class ProductDefinition extends EntityDefinition
             (new FloatField('length', 'length'))->addFlags(new ApiAware(), new Inherited()),
             (new DateTimeField('release_date', 'releaseDate'))->addFlags(new ApiAware(), new Inherited()),
             (new FloatField('rating_average', 'ratingAverage'))->addFlags(new ApiAware(), new WriteProtected(), new Inherited()),
-            (new ListField('category_tree', 'categoryTree', IdField::class))->setStrict(true)->addFlags(new ApiAware(), new Inherited(), new WriteProtected()),
+            (new ListField('category_tree', 'categoryTree', IdField::class))->addFlags(new ApiAware(), new Inherited(), new WriteProtected()),
             (new ManyToManyIdField('property_ids', 'propertyIds', 'properties'))->addFlags(new ApiAware(), new Inherited()),
             (new ManyToManyIdField('option_ids', 'optionIds', 'options'))->addFlags(new ApiAware(), new Inherited()),
             (new ManyToManyIdField('stream_ids', 'streamIds', 'streams'))->addFlags(new ApiAware(), new Inherited()),
@@ -257,12 +258,5 @@ class ProductDefinition extends EntityDefinition
 
             (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Inherited(), new Required()),
         ]);
-
-        // CheapestPrice will only be added to SalesChannelProductEntities in the Future
-        if (!Feature::isActive('FEATURE_NEXT_16151')) {
-            $collection->add((new CheapestPriceField('cheapest_price', 'cheapestPrice'))->addFlags(new WriteProtected(), new Inherited()));
-        }
-
-        return $collection;
     }
 }

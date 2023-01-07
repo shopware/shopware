@@ -15,7 +15,6 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
-use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -30,7 +29,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
-use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -84,9 +82,7 @@ class ProductPageLoaderTest extends TestCase
         return new ProductPageLoader(
             $this->createMock(GenericPageLoader::class),
             $this->createMock(EventDispatcherInterface::class),
-            $productDetailRouteMock,
-            $this->createMock(ProductReviewLoader::class),
-            $this->createMock(ProductCrossSellingRoute::class)
+            $productDetailRouteMock
         );
     }
 
@@ -115,7 +111,6 @@ class ProductPageLoaderTest extends TestCase
             'bar',
             $salesChannelEntity,
             new CurrencyEntity(),
-            new CustomerGroupEntity(),
             new CustomerGroupEntity(),
             new TaxCollection(),
             new PaymentMethodEntity(),

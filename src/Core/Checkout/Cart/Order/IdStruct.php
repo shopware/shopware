@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package checkout
+ */
 class IdStruct extends Struct
 {
     /**

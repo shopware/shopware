@@ -7,31 +7,21 @@ use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity;
 use Shopware\Core\Framework\App\Cms\AbstractBlockTemplateLoader;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Util\HtmlSanitizer;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class CmsBlockPersister
 {
-    private EntityRepositoryInterface $cmsBlockRepository;
-
-    private AbstractBlockTemplateLoader $blockTemplateLoader;
-
-    private HtmlSanitizer $htmlSanitizer;
-
     public function __construct(
-        EntityRepositoryInterface $cmsBlockRepository,
-        AbstractBlockTemplateLoader $blockTemplateLoader,
-        HtmlSanitizer $htmlSanitizer
+        private EntityRepository $cmsBlockRepository,
+        private AbstractBlockTemplateLoader $blockTemplateLoader,
     ) {
-        $this->cmsBlockRepository = $cmsBlockRepository;
-        $this->blockTemplateLoader = $blockTemplateLoader;
-        $this->htmlSanitizer = $htmlSanitizer;
     }
 
     public function updateCmsBlocks(
@@ -48,15 +38,6 @@ class CmsBlockPersister
             $payload = $cmsBlock->toEntityArray($appId, $defaultLocale);
 
             $template = $this->blockTemplateLoader->getTemplateForBlock($cmsExtensions, $cmsBlock->getName());
-
-            if (!Feature::isActive('FEATURE_NEXT_15172')) {
-                $template = $this->htmlSanitizer->sanitize(
-                    $template,
-                    [],
-                    false,
-                    'app_cms_block.template'
-                );
-            }
 
             $payload['template'] = $template;
             $payload['styles'] = $this->blockTemplateLoader->getStylesForBlock($cmsExtensions, $cmsBlock->getName());

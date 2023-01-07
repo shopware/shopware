@@ -1,8 +1,11 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-users-permissions-role-view-detailed.html.twig';
 import './sw-users-permissions-role-view-detailed.scss';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-users-permissions-role-view-detailed', {
+export default {
     template,
 
     inject: [
@@ -20,4 +23,4 @@ Shopware.Component.register('sw-users-permissions-role-view-detailed', {
             required: true,
         },
     },
-});
+};

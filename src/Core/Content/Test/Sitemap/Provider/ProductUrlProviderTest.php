@@ -12,13 +12,13 @@ use Shopware\Core\Content\Sitemap\Provider\ProductUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -26,6 +26,8 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  */
 class ProductUrlProviderTest extends TestCase
@@ -36,13 +38,13 @@ class ProductUrlProviderTest extends TestCase
 
     private const CONFIG_HIDE_AFTER_CLOSEOUT = 'core.listing.hideCloseoutProductsWhenOutOfStock';
 
-    private SalesChannelRepositoryInterface $productSalesChannelRepository;
+    private SalesChannelRepository $productSalesChannelRepository;
 
     private SalesChannelContext $salesChannelContext;
 
-    private SalesChannelRepositoryInterface $seoUrlSalesChannelRepository;
+    private SalesChannelRepository $seoUrlSalesChannelRepository;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
     private SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;
 

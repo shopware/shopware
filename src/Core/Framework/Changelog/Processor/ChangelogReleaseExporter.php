@@ -5,12 +5,18 @@ namespace Shopware\Core\Framework\Changelog\Processor;
 use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
+ * @internal
+ *
+ * @package core
  */
 class ChangelogReleaseExporter extends ChangelogProcessor
 {
     /**
      * Export Changelog content by a given requested sections
+     *
+     * @param array<string, bool> $requested
+     *
+     * @return list<string>
      */
     public function export(array $requested, ?string $version = null, bool $includeFeatureFlags = false, bool $keysOnly = false): array
     {
@@ -30,9 +36,9 @@ class ChangelogReleaseExporter extends ChangelogProcessor
         foreach ($requested as $section => $enabled) {
             if ($enabled) {
                 if ($keysOnly) {
-                    $this->exportKeysByRequestedSection($output, $changelogFiles);
+                    $output = $this->exportKeysByRequestedSection($output, $changelogFiles);
                 } else {
-                    $this->exportByRequestedSection($output, $changelogFiles, $section);
+                    $output = $this->exportByRequestedSection($output, $changelogFiles, $section);
                 }
             }
         }
@@ -45,7 +51,12 @@ class ChangelogReleaseExporter extends ChangelogProcessor
         return $output;
     }
 
-    private function exportKeysByRequestedSection(array &$output, ChangelogFileCollection $collection): void
+    /**
+     * @param list<string> $output
+     *
+     * @return list<string>
+     */
+    private function exportKeysByRequestedSection(array $output, ChangelogFileCollection $collection): array
     {
         foreach ($collection as $changelog) {
             $content = $changelog->getDefinition()->getIssue();
@@ -53,9 +64,16 @@ class ChangelogReleaseExporter extends ChangelogProcessor
                 $output[] = $content;
             }
         }
+
+        return $output;
     }
 
-    private function exportByRequestedSection(array &$output, ChangelogFileCollection $collection, string $section): void
+    /**
+     * @param list<string> $output
+     *
+     * @return list<string>
+     */
+    private function exportByRequestedSection(array $output, ChangelogFileCollection $collection, string $section): array
     {
         $getContentFnc = '';
         $title = '';
@@ -102,5 +120,7 @@ class ChangelogReleaseExporter extends ChangelogProcessor
         if (\count($changes)) {
             $output = array_merge($output, ['# ' . $title], $changes, ['---']);
         }
+
+        return $output;
     }
 }

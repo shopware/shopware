@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Store\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package merchant-services
+ */
 class ExtensionThemeStillInUseException extends ShopwareHttpException
 {
     public function __construct(string $id, array $parameters = [], ?\Throwable $e = null)
@@ -12,7 +15,7 @@ class ExtensionThemeStillInUseException extends ShopwareHttpException
         $parameters['id'] = $id;
 
         parent::__construct(
-            "The extension with id \"{{id}}\"can not be removed because it's theme is still assigned to a sales channel.",
+            'The extension with id "{{id}}"can not be removed because it\'s theme is still assigned to a sales channel.',
             $parameters,
             $e
         );

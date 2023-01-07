@@ -6,6 +6,11 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1641289204FixProductComparisonGoogleShippingPriceDisplay extends MigrationStep
 {
     public function getCreationTimestamp(): int

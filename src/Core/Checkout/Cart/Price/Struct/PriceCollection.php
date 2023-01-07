@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package checkout
+ *
  * @extends Collection<CalculatedPrice>
  */
 class PriceCollection extends Collection
@@ -49,7 +51,7 @@ class PriceCollection extends Collection
         $taxes = new CalculatedTaxCollection([]);
 
         foreach ($this->getIterator() as $price) {
-            $taxes->merge($price->getCalculatedTaxes(), true);
+            $taxes->merge($price->getCalculatedTaxes());
         }
 
         return $taxes;

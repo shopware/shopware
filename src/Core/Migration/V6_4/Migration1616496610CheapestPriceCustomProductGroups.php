@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1616496610CheapestPriceCustomProductGroups extends MigrationStep
 {
     public function getCreationTimestamp(): int

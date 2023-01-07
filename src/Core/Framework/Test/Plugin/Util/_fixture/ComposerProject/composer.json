@@ -1,0 +1,16 @@
+{
+    "name": "swag/test-composer-project",
+    "description": "Test description for a composer project",
+    "version": "v1.0.1",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "shopware AG",
+            "role": "Manufacturer"
+        }
+    ],
+    "require": {
+        "shopware/platform": "6.4.*@dev"
+    }
+}

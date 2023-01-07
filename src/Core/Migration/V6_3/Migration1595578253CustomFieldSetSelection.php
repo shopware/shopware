@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1595578253CustomFieldSetSelection extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -18,7 +23,7 @@ class Migration1595578253CustomFieldSetSelection extends MigrationStep
 ALTER TABLE `product`
 ADD `custom_field_set_selection_active` TINYINT(1) NULL;
 SQL;
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
     }
 
     public function updateDestructive(Connection $connection): void

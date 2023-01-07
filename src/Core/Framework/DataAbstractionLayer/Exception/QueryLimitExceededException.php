@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class QueryLimitExceededException extends ShopwareHttpException
 {
     public function __construct($maxLimit, $limit)

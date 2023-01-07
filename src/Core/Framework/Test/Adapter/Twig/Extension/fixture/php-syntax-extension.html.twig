@@ -94,3 +94,19 @@
 {%- if false === true || true === true -%}
 -22
 {%- endif -%}
+
+{%- if jsonEncode.expected[0] === jsonEncode.data|json_encode -%}
+    -jsonEncode0
+{%- endif -%}
+
+{%- if jsonEncode.expected[1] === jsonEncode.data|json_encode(constant('JSON_UNESCAPED_SLASHES')) -%}
+    -jsonEncode1
+{%- endif -%}
+
+{%- if jsonEncode.expected[2] === jsonEncode.data|json_encode(constant('JSON_PRETTY_PRINT')) -%}
+    -jsonEncode2
+{%- endif -%}
+
+{%- if jsonEncode.expected[3] === jsonEncode.data|json_encode(constant('JSON_PRETTY_PRINT') + constant('JSON_UNESCAPED_SLASHES')) -%}
+    -jsonEncode3
+{%- endif -%}

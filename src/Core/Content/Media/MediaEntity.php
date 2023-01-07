@@ -26,6 +26,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
 
+/**
+ * @package content
+ */
 class MediaEntity extends Entity
 {
     use EntityIdTrait;
@@ -62,14 +65,14 @@ class MediaEntity extends Entity
     protected $metaDataRaw;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @var string|null
      */
     protected $mediaTypeRaw;
 
     /**
-     * @var array|null
+     * @var array<string, mixed>|null
      */
     protected $metaData;
 
@@ -169,7 +172,7 @@ class MediaEntity extends Entity
     protected $tags;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @var string|null
      */
@@ -284,11 +287,17 @@ class MediaEntity extends Entity
         $this->title = $title;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getMetaData(): ?array
     {
         return $this->metaData;
     }
 
+    /**
+     * @param array<string, mixed> $metaData
+     */
     public function setMetaData(array $metaData): void
     {
         $this->metaData = $metaData;
@@ -462,7 +471,7 @@ class MediaEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function getMediaTypeRaw(): ?string
     {
@@ -472,7 +481,7 @@ class MediaEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function setMediaTypeRaw(string $mediaTypeRaw): void
     {
@@ -500,7 +509,7 @@ class MediaEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function getThumbnailsRo(): ?string
     {
@@ -510,7 +519,7 @@ class MediaEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function setThumbnailsRo(string $thumbnailsRo): void
     {

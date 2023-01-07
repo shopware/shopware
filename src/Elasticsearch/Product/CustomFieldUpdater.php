@@ -2,7 +2,7 @@
 
 namespace Shopware\Elasticsearch\Product;
 
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
@@ -11,24 +11,20 @@ use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package core
+ *
+ * @internal
  */
 class CustomFieldUpdater implements EventSubscriberInterface
 {
-    private ElasticsearchOutdatedIndexDetector $indexDetector;
-
-    private Client $client;
-
-    private ElasticsearchHelper $elasticsearchHelper;
-
     /**
      * @internal
      */
-    public function __construct(ElasticsearchOutdatedIndexDetector $indexDetector, Client $client, ElasticsearchHelper $elasticsearchHelper)
-    {
-        $this->indexDetector = $indexDetector;
-        $this->client = $client;
-        $this->elasticsearchHelper = $elasticsearchHelper;
+    public function __construct(
+        private ElasticsearchOutdatedIndexDetector $indexDetector,
+        private Client $client,
+        private ElasticsearchHelper $elasticsearchHelper
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -73,11 +69,9 @@ class CustomFieldUpdater implements EventSubscriberInterface
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Return type will be changed to not nullable - reason:return-type-change
-     *
-     * @return array<mixed>|null
+     * @return array<mixed>
      */
-    public static function getTypeFromCustomFieldType(string $type): ?array
+    public static function getTypeFromCustomFieldType(string $type): array
     {
         switch ($type) {
             case CustomFieldTypes::INT:

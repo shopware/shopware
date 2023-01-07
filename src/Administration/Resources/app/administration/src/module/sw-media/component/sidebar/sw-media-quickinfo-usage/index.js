@@ -1,14 +1,15 @@
 import template from './sw-media-quickinfo-usage.html.twig';
 import './sw-media-quickinfo-usage.scss';
 
-const { Application, Component } = Shopware;
+const { Application } = Shopware;
 const types = Shopware.Utils.types;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-media-quickinfo-usage', {
+export default {
     template,
-
-    inject: ['feature'],
 
     props: {
         item: {
@@ -301,4 +302,4 @@ Component.register('sw-media-quickinfo-usage', {
             };
         },
     },
-});
+};

@@ -44,10 +44,6 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemsInCartRule">
-            <tag name="shopware.rule.definition"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule">
             <tag name="shopware.rule.definition"/>
         </service>
@@ -112,6 +108,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Rule\IsActiveRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Rule\LastNameRule">
             <tag name="shopware.rule.definition"/>
         </service>
@@ -137,6 +137,22 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Rule\ShippingStreetRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\BillingCityRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\ShippingCityRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\BillingStateRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\ShippingStateRule">
             <tag name="shopware.rule.definition"/>
         </service>
 
@@ -288,5 +304,24 @@
             <tag name="shopware.rule.definition" />
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Rule\CustomerCreatedByAdminRule">
+            <tag name="shopware.rule.definition" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\CustomerAgeRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\DaysSinceLastLoginRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\AffiliateCodeRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\CampaignCodeRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
     </services>
 </container>

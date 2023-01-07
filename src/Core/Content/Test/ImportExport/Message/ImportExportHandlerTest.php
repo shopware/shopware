@@ -11,14 +11,18 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Test\ImportExport\AbstractImportExportTest;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class ImportExportHandlerTest extends AbstractImportExportTest
 {
     public function testImportExportHandlerDispatchesMessage(): void
     {
+        /** @var TraceableMessageBus $messageBus */
         $messageBus = $this->getContainer()->get('messenger.bus.shopware');
         $factory = $this->getContainer()->get(ImportExportFactory::class);
         $context = Context::createDefaultContext();
@@ -40,7 +44,7 @@ class ImportExportHandlerTest extends AbstractImportExportTest
         );
 
         $importExportMessage = new ImportExportMessage($context, $logEntity->getId(), ImportExportLogEntity::ACTIVITY_IMPORT);
-        $importExportHandler->handle($importExportMessage);
+        $importExportHandler->__invoke($importExportMessage);
 
         $messages = $messageBus->getDispatchedMessages();
 
@@ -58,7 +62,7 @@ class ImportExportHandlerTest extends AbstractImportExportTest
         $updatedLogEntity = $this->getLogEntity($logEntity->getId());
         static::assertEquals(50, $updatedLogEntity->getRecords());
 
-        $importExportHandler->handle($importExportMessage);
+        $importExportHandler->__invoke($importExportMessage);
         $updatedLogEntity = $this->getLogEntity($logEntity->getId());
         static::assertEquals(100, $updatedLogEntity->getRecords());
     }

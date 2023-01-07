@@ -9,6 +9,11 @@ use Shopware\Core\Migration\Traits\MailSubjectUpdate;
 use Shopware\Core\Migration\Traits\MailUpdate;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1638514913RemovedUnusedVarsInMailTemplates extends MigrationStep
 {
     use UpdateMailTrait;
@@ -20,18 +25,18 @@ class Migration1638514913RemovedUnusedVarsInMailTemplates extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement("
+        $connection->executeStatement('
             UPDATE `mail_template_translation`
-            SET `description` = 'Anfrage zum Zurücksetzen des Passworts'
-            WHERE `description` = 'Passwort zurücksetzen Anfrage'
+            SET `description` = \'Anfrage zum Zurücksetzen des Passworts\'
+            WHERE `description` = \'Passwort zurücksetzen Anfrage\'
             AND `updated_at` IS NULL;
-        ");
+        ');
 
-        $connection->executeStatement(sprintf("
+        $connection->executeStatement(sprintf('
             UPDATE `mail_template_type`
-            SET `available_entities` = REPLACE(`available_entities`, 'urlResetPassword', 'resetUrl')
-            WHERE `technical_name` = '%s'
-        ", MailTemplateTypes::MAILTYPE_PASSWORD_CHANGE));
+            SET `available_entities` = REPLACE(`available_entities`, \'urlResetPassword\', \'resetUrl\')
+            WHERE `technical_name` = \'%s\'
+        ', MailTemplateTypes::MAILTYPE_PASSWORD_CHANGE));
 
         $update = new MailUpdate(
             MailTemplateTypes::MAILTYPE_PASSWORD_CHANGE,

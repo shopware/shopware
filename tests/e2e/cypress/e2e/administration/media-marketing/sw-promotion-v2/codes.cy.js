@@ -1,8 +1,11 @@
+/**
+ * @package checkout
+ */
 // / <reference types="Cypress" />
 
 const promotionCodeFixedSelector = '#sw-field--promotion-code';
 
-describe('Promotion v2: Test crud operations', () => {
+describe('Promotion v2: Test code operations', () => {
     beforeEach(() => {
         cy.loginViaApi()
             .then(() => {
@@ -15,13 +18,14 @@ describe('Promotion v2: Test crud operations', () => {
             });
     });
 
-    // NEXT-19453
-    it('@base @marketing: generate and save a fixed promotion code', { tags: ['quarantined', 'pa-checkout'] }, () => {
+    it('@base @marketing: generate and save a fixed promotion code', { tags: ['pa-checkout'] }, () => {
         const testPromoCode = 'WelcomeIAmAPromotionCode';
 
         // Select fixed code type and edit manually
-        cy.get(promotionCodeFixedSelector).should('not.be.visible');
+        cy.get(promotionCodeFixedSelector).should('not.exist');
         cy.get('#sw-field--selectedCodeType').select('Fixed promotion code');
+        cy.get(promotionCodeFixedSelector).should('exist');
+        cy.get(promotionCodeFixedSelector).scrollIntoView();
         cy.get(promotionCodeFixedSelector).should('be.visible');
         cy.get(promotionCodeFixedSelector).type(testPromoCode);
 
@@ -38,10 +42,11 @@ describe('Promotion v2: Test crud operations', () => {
         });
     });
 
-    // NEXT-19453
-    it("@base @marketing: show empty state, if there're no individual codes", { tags: ['quarantined', 'pa-checkout'] }, () => {
-        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('not.be.visible');
+    it("@base @marketing: show empty state, if there're no individual codes", { tags: ['pa-checkout'] }, () => {
+        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('not.exist');
         cy.get('#sw-field--selectedCodeType').select('Individual promotion codes');
+        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('exist');
+        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').scrollIntoView();
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('be.visible');
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state-generate-action')
             .scrollIntoView()
@@ -51,8 +56,7 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get('.sw-promotion-v2-generate-codes-modal').should('be.visible');
     });
 
-    // NEXT-19453
-    it('@base @marketing: generate and save individual promotion codes and replace afterwards with a custom pattern', { tags: ['quarantined', 'pa-checkout'] }, () => {
+    it('@base @marketing: generate and save individual promotion codes and replace afterwards with a custom pattern', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=pre_%25s%25s%25s%25s%25s_post`,
             method: 'GET'
@@ -75,11 +79,13 @@ describe('Promotion v2: Test crud operations', () => {
         }).as('loadCodes');
 
         cy.get('#sw-field--selectedCodeType').select('Individual promotion codes');
+        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('exist');
+        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').scrollIntoView();
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('be.visible');
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state-generate-action')
             .scrollIntoView()
             .should('be.visible')
-            .click();
+            .click({force: true});
 
         // Configure codes
         cy.get('.sw-promotion-v2-generate-codes-modal').should('be.visible');
@@ -117,8 +123,9 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state-generate-action')
+            .scrollIntoView()
             .should('be.visible')
-            .click();
+            .click({force: true});
         cy.get('.sw-promotion-v2-generate-codes-modal').should('be.visible');
 
         // Check new preview
@@ -147,6 +154,7 @@ describe('Promotion v2: Test crud operations', () => {
 
         // Reopen Modal and enter custom pattern
         cy.get('.sw-promotion-v2-individual-codes-behavior__generate-codes-action')
+            .scrollIntoView()
             .should('be.visible')
             .click();
         cy.get('.sw-promotion-v2-generate-codes-modal').should('be.visible');

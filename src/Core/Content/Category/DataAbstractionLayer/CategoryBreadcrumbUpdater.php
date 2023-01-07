@@ -9,32 +9,26 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 
+/**
+ * @package content
+ */
 class CategoryBreadcrumbUpdater
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $categoryRepository;
+    private EntityRepository $categoryRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepository;
+    private EntityRepository $languageRepository;
 
     /**
      * @internal
      */
-    public function __construct(Connection $connection, EntityRepositoryInterface $categoryRepository, EntityRepositoryInterface $languageRepository)
+    public function __construct(Connection $connection, EntityRepository $categoryRepository, EntityRepository $languageRepository)
     {
         $this->connection = $connection;
         $this->categoryRepository = $categoryRepository;
@@ -57,7 +51,7 @@ class CategoryBreadcrumbUpdater
         $query->setParameter('version', $versionId);
         $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
 
-        $paths = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+        $paths = $query->executeQuery()->fetchFirstColumn();
 
         $all = $ids;
         foreach ($paths as $path) {

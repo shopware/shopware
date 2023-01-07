@@ -18,6 +18,7 @@ class SystemSetupCommandTest extends TestCase
     public function tearDown(): void
     {
         @unlink(__DIR__ . '/.env');
+        @unlink(__DIR__ . '/symfony.lock');
         @unlink(__DIR__ . '/.env.local.php');
         @unlink(__DIR__ . '/config/jwt/private.pem');
         @unlink(__DIR__ . '/config/jwt/public.pem');
@@ -63,7 +64,7 @@ class SystemSetupCommandTest extends TestCase
             'APP_ENV' => 'test',
             'APP_URL' => 'https://example.com',
             'DATABASE_URL' => 'mysql://localhost:3306/shopware',
-            'SHOPWARE_ES_HOSTS' => 'localhost:9200',
+            'OPENSEARCH_URL' => 'localhost:9200',
             'SHOPWARE_ES_ENABLED' => '1',
             'SHOPWARE_ES_INDEXING_ENABLED' => '1',
             'SHOPWARE_ES_INDEX_PREFIX' => 'shopware',
@@ -110,6 +111,35 @@ class SystemSetupCommandTest extends TestCase
 
         $envLocal = require __DIR__ . '/.env.local.php';
         static::assertEquals($env, $envLocal);
+    }
+
+    public function testSymfonyFlexGeneratesWarning(): void
+    {
+        $args = [
+            '--app-env' => 'test',
+            '--app-url' => 'https://example.com',
+            '--database-url' => 'mysql://localhost:3306/shopware',
+            '--es-hosts' => 'localhost:9200',
+            '--es-enabled' => '1',
+            '--es-indexing-enabled' => '1',
+            '--es-index-prefix' => 'shopware',
+            '--http-cache-enabled' => '1',
+            '--http-cache-ttl' => '7200',
+            '--cdn-strategy' => 'id',
+            '--blue-green' => '1',
+            '--mailer-url' => 'smtp://localhost:25',
+            '--composer-home' => __DIR__,
+        ];
+
+        touch(__DIR__ . '/symfony.lock');
+
+        $tester = $this->getCommandTester();
+
+        $tester->execute($args, ['interactive' => false]);
+
+        $tester->assertCommandIsSuccessful();
+
+        static::assertStringContainsString('It looks like you have installed Shopware with Symfony Flex', $tester->getDisplay());
     }
 
     private function getCommandTester(): CommandTester

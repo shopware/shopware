@@ -9,12 +9,12 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
+/**
+ * @package customer-order
+ */
 class CustomerVatIdentificationValidator extends ConstraintValidator
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -24,7 +24,7 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
         $this->connection = $connection;
     }
 
-    public function validate($vatIds, Constraint $constraint): void
+    public function validate(mixed $vatIds, Constraint $constraint): void
     {
         if (!$constraint instanceof CustomerVatIdentification) {
             throw new UnexpectedTypeException($constraint, CustomerVatIdentification::class);
@@ -64,7 +64,7 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
             return true;
         }
 
-        return (bool) $this->connection->fetchColumn(
+        return (bool) $this->connection->fetchOne(
             'SELECT check_vat_id_pattern FROM `country` WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($constraint->getCountryId())]
         );
@@ -72,7 +72,7 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
 
     private function getVatPattern(CustomerVatIdentification $constraint): string
     {
-        return (string) $this->connection->fetchColumn(
+        return (string) $this->connection->fetchOne(
             'SELECT vat_id_pattern FROM `country` WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($constraint->getCountryId())]
         );

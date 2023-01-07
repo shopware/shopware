@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\JsonFieldAccessorBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 
+/**
+ * @package core
+ */
 class JsonField extends Field implements StorageAware
 {
     /**

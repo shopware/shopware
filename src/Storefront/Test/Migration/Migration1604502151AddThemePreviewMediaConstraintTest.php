@@ -97,14 +97,14 @@ class Migration1604502151AddThemePreviewMediaConstraintTest extends TestCase
 
         if ($foreignKeyName !== null) {
             $this->connection->rollBack();
-            $this->connection->executeUpdate(self::dropIndexAndForeignKeyQuery($foreignKeyName));
+            $this->connection->executeStatement(self::dropIndexAndForeignKeyQuery($foreignKeyName));
             $this->connection->beginTransaction();
         }
     }
 
     private function getPreviewMediaForeignKeyName(): ?string
     {
-        $foreignKeyName = $this->connection->fetchColumn(self::getForeignKeyQuery());
+        $foreignKeyName = $this->connection->fetchOne(self::getForeignKeyQuery());
 
         if (\is_string($foreignKeyName) && !empty($foreignKeyName)) {
             return $foreignKeyName;

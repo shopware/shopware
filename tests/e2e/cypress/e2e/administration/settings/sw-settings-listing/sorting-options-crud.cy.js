@@ -8,6 +8,7 @@ describe('Listing: Test crud operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/listing/index`);
+                cy.get('.sw-settings-listing-index').should('exist');
                 cy.get('.sw-skeleton').should('not.exist');
                 cy.get('.sw-loader').should('not.exist');
             });
@@ -16,6 +17,7 @@ describe('Listing: Test crud operations', () => {
     it('@settings: create and read product sorting ', { tags: ['pa-system-settings'] }, () => {
         // change position via inline edit
         cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-data-grid').should('exist');
         cy.get('.sw-data-grid').scrollIntoView();
         cy.get('.sw-data-grid__row--3 > .sw-data-grid__cell--priority > .sw-data-grid__cell-content')
             .dblclick();
@@ -48,7 +50,7 @@ describe('Listing: Test crud operations', () => {
         // create new product sorting
         cy.get('.sw-container > .sw-button').click();
 
-        cy.get('.smart-bar__header').should('be.visible').contains('Create product sorting');
+        cy.contains('.smart-bar__header', 'Create product sorting').should('be.visible');
 
         // check if save button is disabled
         cy.get('.smart-bar__actions .sw-button--primary')
@@ -143,10 +145,11 @@ describe('Listing: Test crud operations', () => {
 
         // create new product sorting
         cy.get('.sw-container > .sw-button').click();
+        cy.contains('.sw-card__title', 'General').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get('.smart-bar__header').should('be.visible').contains('Create product sorting');
+        cy.contains('.smart-bar__header', 'Create product sorting').should('be.visible');
 
         // check if save button is disabled
         cy.get('.smart-bar__actions .sw-button--primary')
@@ -221,6 +224,7 @@ describe('Listing: Test crud operations', () => {
 
     it('@settings: edit an existing product sorting', { tags: ['pa-system-settings'] }, () => {
         cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-data-grid').should('exist');
         cy.get('.sw-data-grid').scrollIntoView();
 
         // eslint-disable-next-line max-len
@@ -231,6 +235,8 @@ describe('Listing: Test crud operations', () => {
         cy.get('.sw-context-menu__content > :nth-child(1)')
             .should('be.visible')
             .click();
+
+        cy.contains('.sw-card__title', 'General').should('be.visible');
 
         // check smart bar heading
         cy.contains('.smart-bar__header', 'Name Z-A');
@@ -259,6 +265,7 @@ describe('Listing: Test crud operations', () => {
 
     it('@settings: delete an existing product sorting', { tags: ['pa-system-settings'] }, () => {
         cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-data-grid').should('exist');
         cy.get('.sw-data-grid').scrollIntoView();
 
         // eslint-disable-next-line max-len

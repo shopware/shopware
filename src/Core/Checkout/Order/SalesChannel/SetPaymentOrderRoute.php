@@ -17,14 +17,12 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -38,11 +36,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package customer-order
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 {
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     private AbstractPaymentMethodRoute $paymentRoute;
 
@@ -61,7 +61,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
      */
     public function __construct(
         OrderService $orderService,
-        EntityRepositoryInterface $orderRepository,
+        EntityRepository $orderRepository,
         AbstractPaymentMethodRoute $paymentRoute,
         OrderConverter $orderConverter,
         CartRuleLoader $cartRuleLoader,
@@ -228,6 +228,9 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         return false;
     }
 
+    /**
+     * @return string[]
+     */
     private function getOrderRules(OrderEntity $order, SalesChannelContext $salesChannelContext): array
     {
         $convertedCart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
@@ -255,7 +258,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
                 $customer->getId()
             )
         );
-        $criteria->addAssociations(['lineItems', 'deliveries']);
+        $criteria->addAssociations(['lineItems', 'deliveries', 'orderCustomer', 'tags']);
 
         $this->eventDispatcher->dispatch(new OrderPaymentMethodChangedCriteriaEvent($orderId, $criteria, $context));
 

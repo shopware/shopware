@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\EmailFieldSerializer;
 
+/**
+ * @package core
+ */
 class EmailField extends StringField
 {
     protected function getSerializerClass(): string

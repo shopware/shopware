@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Framework\Routing\Annotation\RouteScope as RouteScopeAnnotation;
 use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -12,14 +11,12 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package core
+ *
+ * @internal
  */
 class RouteScopeListener implements EventSubscriberInterface
 {
-    private RequestStack $requestStack;
-
-    private RouteScopeRegistry $routeScopeRegistry;
-
     /**
      * @var RouteScopeWhitelistInterface[]
      */
@@ -31,12 +28,10 @@ class RouteScopeListener implements EventSubscriberInterface
      * @param iterable<RouteScopeWhitelistInterface> $whitelists
      */
     public function __construct(
-        RouteScopeRegistry $routeScopeRegistry,
-        RequestStack $requestStack,
+        private RouteScopeRegistry $routeScopeRegistry,
+        private RequestStack $requestStack,
         iterable $whitelists
     ) {
-        $this->routeScopeRegistry = $routeScopeRegistry;
-        $this->requestStack = $requestStack;
         $this->whitelists = \is_array($whitelists) ? $whitelists : iterator_to_array($whitelists);
     }
 
@@ -113,12 +108,8 @@ class RouteScopeListener implements EventSubscriberInterface
     {
         $currentRequest = $event->getRequest();
 
-        /** @var RouteScopeAnnotation|list<string> $scopes */
+        /** @var list<string> $scopes */
         $scopes = $currentRequest->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
-
-        if ($scopes instanceof RouteScopeAnnotation) {
-            return $scopes->getScopes();
-        }
 
         if ($scopes !== []) {
             return $scopes;

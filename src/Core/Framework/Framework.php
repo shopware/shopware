@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\Framework;
 
-use Shopware\Core\Framework\Compatibility\AnnotationReaderCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\DisableExtensionsCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DisableTwigCacheWarmerCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
@@ -42,6 +40,8 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Framework extends Bundle
@@ -111,7 +111,6 @@ class Framework extends Bundle
         $container->addCompilerPass(new RateLimiterCompilerPass());
         $container->addCompilerPass(new IncrementerGatewayCompilerPass());
         $container->addCompilerPass(new RedisPrefixCompilerPass());
-        $container->addCompilerPass(new DisableExtensionsCompilerPass());
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $container->addCompilerPass(new DisableRateLimiterCompilerPass());
@@ -119,10 +118,6 @@ class Framework extends Bundle
         }
 
         $container->addCompilerPass(new FrameworkMigrationReplacementCompilerPass());
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            $container->addCompilerPass(new AnnotationReaderCompilerPass());
-        }
 
         $container->addCompilerPass(new DemodataCompilerPass());
 
@@ -137,13 +132,12 @@ class Framework extends Bundle
         if (!\is_array($featureFlags)) {
             throw new \RuntimeException('Container parameter "shopware.feature.flags" needs to be an array');
         }
+        Feature::registerFeatures($featureFlags);
 
         $cacheDir = $this->container->getParameter('kernel.cache_dir');
         if (!\is_string($cacheDir)) {
             throw new \RuntimeException('Container parameter "kernel.cache_dir" needs to be a string');
         }
-
-        Feature::registerFeatures($featureFlags);
 
         $this->registerEntityExtensions(
             $this->container->get(DefinitionInstanceRegistry::class),

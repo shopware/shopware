@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\App\Cms\Xml;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 
 /**
+ * @package content
+ *
  * @internal
  */
 class DefaultConfig extends XmlElement

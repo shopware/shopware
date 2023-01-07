@@ -1,21 +1,16 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_type_select %}
-<sw-arrow-field
-    class="sw-condition-operator-select"
+<sw-single-select
+    class="sw-condition-operator-select sw-condition-operator-select__select"
+    size="medium"
+    label-value="label"
+    value-property="identifier"
+    :options="translatedOperators"
+    :placeholder="$tc('global.sw-condition.operator.placeholder')"
+    :value="operator"
     :disabled="disabled"
->
-    <sw-single-select
-        class="sw-condition-operator-select__select"
-        size="medium"
-        label-value="label"
-        value-property="identifier"
-        :options="translatedOperators"
-        :placeholder="$tc('global.sw-condition.operator.placeholder')"
-        :value="operator"
-        :disabled="disabled"
-        required
-        show-clearable-button
-        @change="changeOperator"
-    />
-</sw-arrow-field>
+    required
+    show-clearable-button
+    @change="changeOperator"
+/>
 {% endblock %}

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\Service;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
@@ -13,7 +14,7 @@ use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserEntity;
@@ -21,38 +22,24 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @internal We might break this in v6.2
+ *
+ * @phpstan-type Config array{mapping?: ?list<array<string, mixed>>, updateBy?: ?array<string, mixed>, parameters?: ?array<string, mixed>}
+ *
+ * @package system-settings
  */
 class ImportExportService
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $logRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $userRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $profileRepository;
-
-    private AbstractFileService $fileService;
-
     public function __construct(
-        EntityRepositoryInterface $logRepository,
-        EntityRepositoryInterface $userRepository,
-        EntityRepositoryInterface $profileRepository,
-        AbstractFileService $fileService
+        private EntityRepository $logRepository,
+        private EntityRepository $userRepository,
+        private EntityRepository $profileRepository,
+        private AbstractFileService $fileService
     ) {
-        $this->logRepository = $logRepository;
-        $this->userRepository = $userRepository;
-        $this->profileRepository = $profileRepository;
-        $this->fileService = $fileService;
     }
 
+    /**
+     * @param Config $config
+     */
     public function prepareExport(
         Context $context,
         string $profileId,
@@ -83,6 +70,9 @@ class ImportExportService
         return $logEntity;
     }
 
+    /**
+     * @param Config $config
+     */
     public function prepareImport(
         Context $context,
         string $profileId,
@@ -145,6 +135,9 @@ class ImportExportService
         return $progress;
     }
 
+    /**
+     * @param list<array<mixed>>|null $result
+     */
     public function saveProgress(Progress $progress, ?array $result = null): void
     {
         $logData = [
@@ -167,22 +160,15 @@ class ImportExportService
         });
     }
 
-    /**
-     * @deprecated tag:v6.5.0 Will be removed. Use Shopware\Core\Content\ImportExport\Service\FileService->updateFile(...) instead.
-     */
-    public function updateFile(Context $context, string $fileId, array $data): void
-    {
-        $this->fileService->updateFile($context, $fileId, $data);
-    }
-
     private function findLog(Context $context, string $logId): ?ImportExportLogEntity
     {
         $criteria = new Criteria([$logId]);
         $criteria->addAssociation('profile');
         $criteria->addAssociation('invalidRecordsLog');
-        $result = $this->logRepository->search($criteria, $context);
+        /** @var ImportExportLogCollection $result */
+        $result = $this->logRepository->search($criteria, $context)->getEntities();
 
-        return $result->getEntities()->get($logId);
+        return $result->get($logId);
     }
 
     private function findProfile(Context $context, string $profileId): ImportExportProfileEntity
@@ -198,6 +184,9 @@ class ImportExportService
         throw new ProfileNotFoundException($profileId);
     }
 
+    /**
+     * @param Config $config
+     */
     private function createLog(
         Context $context,
         string $activity,
@@ -240,7 +229,12 @@ class ImportExportService
         return $this->userRepository->search(new Criteria([$userId]), $context)->first();
     }
 
-    private function getConfig(ImportExportProfileEntity $profileEntity, array $config)
+    /**
+     * @param Config $config
+     *
+     * @return array{mapping: ?list<array<string, mixed>>, updateBy: ?array<string, mixed>, parameters: ?array<string, mixed>}
+     */
+    private function getConfig(ImportExportProfileEntity $profileEntity, array $config): array
     {
         $parameters = $profileEntity->getConfig();
 

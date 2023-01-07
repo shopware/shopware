@@ -1,11 +1,15 @@
 import template from './sw-order-delivery-metadata.html.twig';
 import './sw-order-delivery-metadata.scss';
 
-const { Component } = Shopware;
+/**
+ * @package customer-order
+ */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-delivery-metadata', {
+export default {
     template,
+
+    inject: ['customSnippetApiService'],
 
     props: {
         delivery: {
@@ -29,4 +33,30 @@ Component.register('sw-order-delivery-metadata', {
             default: false,
         },
     },
-});
+
+    data() {
+        return {
+            formattingAddress: '',
+        };
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.renderFormattingAddress();
+        },
+
+        renderFormattingAddress() {
+            this.customSnippetApiService
+                .render(
+                    this.delivery.shippingOrderAddress,
+                    this.delivery.shippingOrderAddress.country.addressFormat,
+                ).then((res) => {
+                    this.formattingAddress = res.rendered;
+                });
+        },
+    },
+};

@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 abstract class JsonFactoryBase implements ResponseFactoryInterface
 {
     public function createRedirectResponse(EntityDefinition $definition, string $id, Request $request, Context $context): Response
@@ -100,6 +103,6 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
     {
         $input = str_replace('_', '-', $input);
 
-        return ltrim(mb_strtolower(preg_replace('/[A-Z]/', '-$0', $input)), '-');
+        return ltrim(mb_strtolower((string) preg_replace('/[A-Z]/', '-$0', $input)), '-');
     }
 }

@@ -23,6 +23,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package inventory
+ */
 class ProductReviewDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_review';

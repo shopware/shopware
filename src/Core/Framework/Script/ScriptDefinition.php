@@ -16,6 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
+ * @package core
+ *
  * @internal only for use by the app-system
  */
 class ScriptDefinition extends EntityDefinition

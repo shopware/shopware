@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 const { Application, Defaults, State } = Shopware;
 
 Application.addServiceProvider('domainLinkService', () => {

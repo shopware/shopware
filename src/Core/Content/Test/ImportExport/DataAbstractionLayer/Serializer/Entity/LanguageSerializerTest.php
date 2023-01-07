@@ -8,19 +8,21 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Serialize
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class LanguageSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $languageRepository;
+    private EntityRepository $languageRepository;
 
     private LanguageSerializer $serializer;
 

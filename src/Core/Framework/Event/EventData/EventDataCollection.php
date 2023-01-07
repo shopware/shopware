@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
+/**
+ * @package business-ops
+ */
 class EventDataCollection
 {
     /**
-     * @var array
+     * @var array<string, array<string, mixed>>
      */
     private $data = [];
 
@@ -16,6 +19,9 @@ class EventDataCollection
         return $this;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     public function toArray(): array
     {
         return $this->data;

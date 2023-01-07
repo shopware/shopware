@@ -6,6 +6,11 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1641476963ThemeDependentIds extends MigrationStep
 {
     public const NEW_PRIVILEGES = [
@@ -30,7 +35,7 @@ class Migration1641476963ThemeDependentIds extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `theme_child` (
               `parent_id` BINARY(16) NOT NULL,
               `child_id` BINARY(16) NOT NULL,
@@ -61,6 +66,11 @@ class Migration1641476963ThemeDependentIds extends MigrationStep
     {
     }
 
+    /**
+     * @param list<string> $rolePrivileges
+     *
+     * @return list<string>
+     */
     private function fixRolePrivileges(array $rolePrivileges): array
     {
         foreach (self::NEW_PRIVILEGES as $key => $new) {

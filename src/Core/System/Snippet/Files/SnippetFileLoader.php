@@ -5,7 +5,6 @@ namespace Shopware\Core\System\Snippet\Files;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Symfony\Component\Finder\Finder;
@@ -13,33 +12,23 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @Decoratable
+ *
+ * @package system-settings
  */
 class SnippetFileLoader implements SnippetFileLoaderInterface
 {
-    /**
-     * @var KernelInterface
-     */
-    private $kernel;
+    private KernelInterface $kernel;
+
+    private Connection $connection;
 
     /**
-     * @var Connection
+     * @var array<string, string>
      */
-    private $connection;
+    private array $pluginAuthors = [];
 
-    /**
-     * @var array
-     */
-    private $pluginAuthors;
+    private AppSnippetFileLoader $appSnippetFileLoader;
 
-    /**
-     * @var AppSnippetFileLoader
-     */
-    private $appSnippetFileLoader;
-
-    /**
-     * @var ActiveAppsLoader
-     */
-    private $activeAppsLoader;
+    private ActiveAppsLoader $activeAppsLoader;
 
     /**
      * @internal
@@ -93,13 +82,14 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         foreach ($this->activeAppsLoader->getActiveApps() as $app) {
             $snippetFiles = $this->appSnippetFileLoader->loadSnippetFilesFromApp($app['author'] ?? '', $app['path']);
             foreach ($snippetFiles as $snippetFile) {
+                $snippetFile->setTechnicalName($app['name']);
                 $snippetFileCollection->add($snippetFile);
             }
         }
     }
 
     /**
-     * @return SnippetFileInterface[]
+     * @return AbstractSnippetFile[]
      */
     private function loadSnippetFilesInDir(string $snippetDir, Bundle $bundle): array
     {
@@ -121,7 +111,8 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                         $fileInfo->getPathname(),
                         $nameParts[1],
                         $this->getAuthorFromBundle($bundle),
-                        false
+                        false,
+                        $bundle->getName()
                     );
 
                     break;
@@ -131,7 +122,8 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                         $fileInfo->getPathname(),
                         $nameParts[1],
                         $this->getAuthorFromBundle($bundle),
-                        $nameParts[2] === 'base'
+                        $nameParts[2] === 'base',
+                        $bundle->getName()
                     );
 
                     break;
@@ -154,15 +146,19 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         return $this->getPluginAuthors()[\get_class($bundle)] ?? '';
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getPluginAuthors(): array
     {
         if (!$this->pluginAuthors) {
-            $authors = $this->connection->fetchAll('
-            SELECT `base_class` AS `baseClass`, `author`
-            FROM `plugin`
-        ');
+            /** @var array<string, string> $authors */
+            $authors = $this->connection->fetchAllKeyValue('
+                SELECT `base_class` AS `baseClass`, `author`
+                FROM `plugin`
+            ');
 
-            $this->pluginAuthors = FetchModeHelper::keyPair($authors);
+            $this->pluginAuthors = $authors;
         }
 
         return $this->pluginAuthors;

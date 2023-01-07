@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class ScriptCacheInvalidationSubscriber implements EventSubscriberInterface

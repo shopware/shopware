@@ -3,8 +3,9 @@
 namespace Shopware\Core\Maintenance\SalesChannel\Command;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,24 +13,28 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
+ * @package core
+ *
  * @internal should be used over the CLI only
  */
+#[AsCommand(
+    name: 'sales-channel:maintenance:enable',
+    description: 'Enable maintenance mode for a sales channel',
+)]
 class SalesChannelMaintenanceEnableCommand extends Command
 {
-    protected static $defaultName = 'sales-channel:maintenance:enable';
-
     /**
      * @var bool
      */
     protected $setMaintenanceMode = true;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $salesChannelRepository;
 
     public function __construct(
-        EntityRepositoryInterface $salesChannelRepository
+        EntityRepository $salesChannelRepository
     ) {
         $this->salesChannelRepository = $salesChannelRepository;
 

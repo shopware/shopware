@@ -1,7 +1,5 @@
 import ApiService from '../api.service';
 
-const { Criteria } = Shopware.Data;
-
 /**
  * Gateway for the API end point 'product'
  * @class
@@ -12,36 +10,6 @@ class SearchApiService extends ApiService {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'searchService';
     }
-
-    /* eslint-disable no-unused-vars */
-    /** @deprecated tag:v6.5.0 - Will removed, using searchQuery instead */
-    search({ term, page = 1, limit = 5, additionalParams = {}, additionalHeaders = {} }) {
-        const headers = this.getBasicHeaders(additionalHeaders);
-
-        const criteria = new Criteria(page, limit);
-        criteria.setTerm(term);
-
-        const entities = [
-            'landing_page',
-            'order',
-            'customer',
-            'product',
-            'category',
-            'media',
-            'product_manufacturer',
-            'tag',
-            'cms_page',
-        ];
-
-        const queries = {};
-
-        entities.forEach(entity => {
-            queries[entity] = criteria;
-        });
-
-        return this.searchQuery(queries, additionalHeaders);
-    }
-    /* eslint-enable no-unused-vars */
 
     /**
      *

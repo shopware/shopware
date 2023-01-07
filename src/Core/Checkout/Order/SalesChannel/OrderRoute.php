@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -30,27 +29,20 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package customer-order
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class OrderRoute extends AbstractOrderRoute
 {
-    private EntityRepositoryInterface $orderRepository;
-
-    private EntityRepositoryInterface $promotionRepository;
-
-    private RateLimiter $rateLimiter;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $orderRepository,
-        EntityRepositoryInterface $promotionRepository,
-        RateLimiter $rateLimiter
+        private EntityRepository $orderRepository,
+        private EntityRepository $promotionRepository,
+        private  RateLimiter $rateLimiter
     ) {
-        $this->orderRepository = $orderRepository;
-        $this->promotionRepository = $promotionRepository;
-        $this->rateLimiter = $rateLimiter;
     }
 
     public function getDecorated(): AbstractOrderRoute
@@ -98,7 +90,7 @@ class OrderRoute extends AbstractOrderRoute
         // Handle guest authentication if deeplink is set
         if (!$context->getCustomer() && $deepLinkFilter !== null) {
             try {
-                $cacheKey = strtolower($deepLinkFilter->getValue()) . '-' . $request->getClientIp();
+                $cacheKey = strtolower((string) $deepLinkFilter->getValue()) . '-' . $request->getClientIp();
 
                 $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, $cacheKey);
             } catch (RateLimitExceededException $exception) {

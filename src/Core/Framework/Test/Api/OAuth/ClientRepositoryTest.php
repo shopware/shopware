@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
@@ -68,7 +68,7 @@ class ClientRepositoryTest extends TestCase
 
     private function fetchApp(string $appName): ?AppEntity
     {
-        /** @var EntityRepositoryInterface $appRepository */
+        /** @var EntityRepository $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $criteria = new Criteria();
@@ -79,7 +79,7 @@ class ClientRepositoryTest extends TestCase
 
     private function setAccessTokenForIntegration(string $integrationId, string $accessKey, string $secret): void
     {
-        /** @var EntityRepositoryInterface $integrationRepository */
+        /** @var EntityRepository $integrationRepository */
         $integrationRepository = $this->getContainer()->get('integration.repository');
 
         $integrationRepository->update([

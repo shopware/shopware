@@ -1,13 +1,26 @@
-import './component';
-import './config';
-import './preview';
+/**
+ * @private
+ * @package content
+ */
+Shopware.Component.register('sw-cms-el-preview-product-box', () => import('./preview'));
+/**
+ * @private
+ * @package content
+ */
+Shopware.Component.register('sw-cms-el-config-product-box', () => import('./config'));
+/**
+ * @private
+ * @package content
+ */
+Shopware.Component.register('sw-cms-el-product-box', () => import('./component'));
 
 const Criteria = Shopware.Data.Criteria;
 const criteria = new Criteria(1, 25);
 criteria.addAssociation('cover');
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-box',

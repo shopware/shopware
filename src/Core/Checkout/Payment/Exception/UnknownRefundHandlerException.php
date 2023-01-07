@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Payment\Exception;
 
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package checkout
+ */
 class UnknownRefundHandlerException extends RefundProcessException
 {
     public function __construct(string $refundId, ?\Throwable $e = null)

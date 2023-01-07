@@ -4,13 +4,14 @@ namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package checkout
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class SortedPaymentMethodRoute extends AbstractPaymentMethodRoute

@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1600253602AddOrderRuleIds extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +19,7 @@ class Migration1600253602AddOrderRuleIds extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `order` ADD COLUMN `rule_ids` JSON NULL;');
+        $connection->executeStatement('ALTER TABLE `order` ADD COLUMN `rule_ids` JSON NULL;');
     }
 
     public function updateDestructive(Connection $connection): void

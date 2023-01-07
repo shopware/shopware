@@ -2,6 +2,8 @@
 import type { default as FeatureType } from 'src/core/feature';
 
 /**
+ * @package admin
+ *
  * @module app/feature-service
  */
 

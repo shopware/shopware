@@ -2,13 +2,15 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class PromotionFixtureBuilder
@@ -19,17 +21,17 @@ class PromotionFixtureBuilder
     private $context;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $promotionRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $promotionSetgroupRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $promotionDiscountRepository;
 
@@ -56,9 +58,9 @@ class PromotionFixtureBuilder
     public function __construct(
         string $promotionId,
         AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        EntityRepositoryInterface $promotionRepository,
-        EntityRepositoryInterface $promotionSetgroupRepository,
-        EntityRepositoryInterface $promotionDiscountRepository
+        EntityRepository $promotionRepository,
+        EntityRepository $promotionSetgroupRepository,
+        EntityRepository $promotionDiscountRepository
     ) {
         $this->promotionId = $promotionId;
         $this->dataSetGroups = [];

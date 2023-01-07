@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
+/**
+ * @package checkout
+ */
 interface PaymentHandlerInterface
 {
 }

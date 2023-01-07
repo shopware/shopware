@@ -106,7 +106,7 @@ describe('Product: Test variants', () => {
         uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
         cy.awaitAndCheckNotification('File has been saved.');
 
-        cy.get('.icon--custom-uninherited').should('be.visible');
+        cy.get('.icon--regular-link-horizontal-slash').should('be.visible');
         cy.get('.sw-data-grid__inline-edit-save').click();
 
         // Validate product
@@ -236,7 +236,7 @@ describe('Product: Test variants', () => {
             .should('have.attr', 'src')
             .and('match', /sw-test-image/);
 
-        cy.get('.icon--custom-uninherited').should('be.visible');
+        cy.get('.icon--regular-link-horizontal-slash').should('be.visible');
         cy.get('.sw-data-grid__inline-edit-save').click();
 
         // Validate product
@@ -326,7 +326,7 @@ describe('Product: Test variants', () => {
         cy.get('.sw-media-upload-v2__switch-mode').click();
         cy.contains('Upload file from URL').click();
         cy.get('input[name=sw-field--url]').should('be.visible')
-            .type('http://assets.shopware.com/media/website/pages/frontpage/growth_customerloyalty_en-2x.png');
+            .type(`${Cypress.config('baseUrl')}/bundles/administration/static/img/cms/preview_mountain_large.jpg`);
         cy.get('.sw-media-url-form__submit-button').click();
 
         // Check if image uploaded successfully
@@ -338,8 +338,8 @@ describe('Product: Test variants', () => {
 
         cy.get('.sw-product-variants-media-upload__image:nth-of-type(2) img')
             .should('have.attr', 'src')
-            .and('match', /growth_customerloyalty_en/);
-        cy.get('.icon--custom-uninherited').should('be.visible');
+            .and('match', /preview_mountain_large/);
+        cy.get('.icon--regular-link-horizontal-slash').should('be.visible');
         cy.get('.sw-data-grid__row--0 .sw-data-grid__inline-edit-save').click();
 
         // Validate product
@@ -370,7 +370,7 @@ describe('Product: Test variants', () => {
         cy.get('.sw-image-preview-modal__image-slider .arrow-left').click();
         cy.get('.sw-image-preview-modal__image-slider .sw-image-slider__element-image.is--active')
             .should('have.attr', 'src')
-            .and('match', /growth_customerloyalty_en/);
+            .and('match', /preview_mountain_large/);
 
         // Check states of zoom buttons
         cy.get('.sw-image-preview-modal__button-action').eq(0).should('be.disabled');

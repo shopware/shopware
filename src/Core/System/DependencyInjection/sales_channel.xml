@@ -98,6 +98,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer">

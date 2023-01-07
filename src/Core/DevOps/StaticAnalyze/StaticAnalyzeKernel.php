@@ -6,6 +6,11 @@ use Shopware\Core\Kernel;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class StaticAnalyzeKernel extends Kernel
 {
     public function getCacheDir(): string

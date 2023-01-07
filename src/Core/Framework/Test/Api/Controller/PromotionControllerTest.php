@@ -7,7 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,7 +22,7 @@ class PromotionControllerTest extends TestCase
     use AdminFunctionalTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $promotionRepository;
 
@@ -57,7 +58,7 @@ class PromotionControllerTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
+     * @throws InconsistentCriteriaIdsException
      */
     public function testCreatePromotion(): void
     {
@@ -218,7 +219,7 @@ class PromotionControllerTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
+     * @throws InconsistentCriteriaIdsException
      */
     public function testPatchDiscount(): void
     {

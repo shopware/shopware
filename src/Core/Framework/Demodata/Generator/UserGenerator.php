@@ -14,22 +14,21 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @internal
+ *
+ * @package core
+ */
 class UserGenerator implements DemodataGeneratorInterface
 {
-    private EntityWriterInterface $writer;
-
-    private UserDefinition $userDefinition;
-
-    private EntityRepository $languageRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityWriterInterface $writer, UserDefinition $userDefinition, EntityRepository $languageRepository)
-    {
-        $this->writer = $writer;
-        $this->userDefinition = $userDefinition;
-        $this->languageRepository = $languageRepository;
+    public function __construct(
+        private EntityWriterInterface $writer,
+        private UserDefinition $userDefinition,
+        private EntityRepository $languageRepository
+    ) {
     }
 
     public function getDefinition(): string

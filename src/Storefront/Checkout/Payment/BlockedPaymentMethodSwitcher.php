@@ -16,6 +16,8 @@ use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package checkout
+ *
  * @internal Only to be used by the Storefront
  */
 class BlockedPaymentMethodSwitcher
@@ -88,7 +90,7 @@ class BlockedPaymentMethodSwitcher
 
     private function addNoticeToCart(ErrorCollection $cartErrors, PaymentMethodEntity $paymentMethod): void
     {
-        $newPaymentMethodName = $paymentMethod->getName();
+        $newPaymentMethodName = $paymentMethod->getTranslation('name');
         if ($newPaymentMethodName === null) {
             return;
         }

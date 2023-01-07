@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package content
+ */
 class CmsSlotEntity extends Entity
 {
     use EntityIdTrait;

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\ProductExport\Struct;
 
+/**
+ * @package inventory
+ */
 class ExportBehavior
 {
     /**

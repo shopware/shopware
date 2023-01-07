@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Theme\Twig;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 
+/**
+ * @package storefront
+ */
 class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 {
     private StorefrontPluginRegistryInterface $themeRegistry;

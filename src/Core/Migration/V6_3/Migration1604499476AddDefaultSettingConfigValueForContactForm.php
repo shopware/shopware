@@ -7,6 +7,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1604499476AddDefaultSettingConfigValueForContactForm extends MigrationStep
 {
     private const CONFIG_KEYS = [
@@ -25,7 +30,7 @@ class Migration1604499476AddDefaultSettingConfigValueForContactForm extends Migr
         $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         foreach (self::CONFIG_KEYS as $configKey) {
-            $configPresent = $connection->fetchColumn('SELECT 1 FROM `system_config` WHERE `configuration_key` = ?', [$configKey]);
+            $configPresent = $connection->fetchOne('SELECT 1 FROM `system_config` WHERE `configuration_key` = ?', [$configKey]);
 
             if ($configPresent !== false) {
                 continue;

@@ -6,15 +6,19 @@ use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserEntity;
 
+/**
+ * @package merchant-services
+ *
+ * @internal
+ */
 class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
 {
     public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';
@@ -23,59 +27,33 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
     private const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';
     private const SHOPWARE_SHOP_SECRET_HEADER = 'X-Shopware-Shop-Secret';
 
-    private EntityRepositoryInterface $userRepository;
-
-    private SystemConfigService $systemConfigService;
-
-    private InstanceService $instanceService;
-
-    private LocaleProvider $localeProvider;
-
-    /**
-     * @internal
-     */
     public function __construct(
-        EntityRepositoryInterface $userRepository,
-        SystemConfigService $systemConfigService,
-        InstanceService $instanceService,
-        LocaleProvider $localeProvider
+        private readonly EntityRepository $userRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly InstanceService $instanceService,
+        private readonly LocaleProvider $localeProvider,
     ) {
-        $this->userRepository = $userRepository;
-        $this->systemConfigService = $systemConfigService;
-        $this->instanceService = $instanceService;
-        $this->localeProvider = $localeProvider;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getAuthenticationHeader(Context $context): array
     {
         return array_filter([
             self::SHOPWARE_PLATFORM_TOKEN_HEADER => $this->getUserStoreToken($context),
-            self::SHOPWARE_SHOP_SECRET_HEADER => $this->systemConfigService->get(self::CONFIG_KEY_STORE_SHOP_SECRET),
+            self::SHOPWARE_SHOP_SECRET_HEADER => $this->systemConfigService->getString(self::CONFIG_KEY_STORE_SHOP_SECRET),
         ]);
     }
 
     /**
-     * @deprecated tag:v6.5.0 - parameter $language will be removed and $context must not be null in the future
+     * @return array<string, string>
      */
-    public function getDefaultQueryParameters(?Context $context, ?string $language = null): array
+    public function getDefaultQueryParameters(Context $context): array
     {
-        if ($context === null) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'First parameter `$context` of method "getDefaultQueryParameters()" in "StoreRequestOptionsProvider" will be required in v6.5.0.0.'
-            );
-        }
-
-        if (\func_num_args() > 1) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Second parameter `$language` of method "getDefaultQueryParameters()" in "StoreRequestOptionsProvider" is deprecated and will be removed in v6.5.0.0.'
-            );
-        }
-
         return [
             'shopwareVersion' => $this->instanceService->getShopwareVersion(),
-            'language' => $this->getLanguage($context, $language),
+            'language' => $this->localeProvider->getLocaleFromContext($context),
             'domain' => $this->getLicenseDomain(),
         ];
     }
@@ -125,19 +103,6 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
         }
 
         return $user->getStoreToken();
-    }
-
-    private function getLanguage(?Context $context, ?string $language): string
-    {
-        if ($language !== null && $language !== '') {
-            return $language;
-        }
-
-        if ($context === null) {
-            return 'en-GB';
-        }
-
-        return $this->localeProvider->getLocaleFromContext($context);
     }
 
     private function getLicenseDomain(): string

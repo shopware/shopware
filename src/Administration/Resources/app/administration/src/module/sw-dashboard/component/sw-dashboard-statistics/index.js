@@ -1,11 +1,14 @@
 import template from './sw-dashboard-statistics.html.twig';
 import './sw-dashboard-statistics.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-dashboard-statistics', {
+/**
+ * @package merchant-services
+ *
+ * @private
+ */
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: [
@@ -22,20 +25,6 @@ Component.register('sw-dashboard-statistics', {
             todayOrderDataLoaded: false,
             todayOrderDataSortBy: 'orderDateTime',
             todayOrderDataSortDirection: 'DESC',
-            /**
-             * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-             * Please use `rangesValueMap` and `ordersDateRange` or `turnoverDateRange` instead.
-             */
-            statisticDateRanges: {
-                value: '30Days',
-                options: {
-                    '30Days': 30,
-                    '14Days': 14,
-                    '7Days': 7,
-                    '24Hours': 24,
-                    yesterday: 1,
-                },
-            },
             ordersDateRange: '30Days',
             turnoverDateRange: '30Days',
             isLoading: true,
@@ -110,7 +99,7 @@ Component.register('sw-dashboard-statistics', {
             });
 
             // add empty value for today if there isn't any order, otherwise today would be missing
-            if (!this.todayBucket) {
+            if (!this.todayBucketCount) {
                 seriesData.push({ x: this.today.getTime(), y: 0 });
             }
 
@@ -118,8 +107,8 @@ Component.register('sw-dashboard-statistics', {
         },
 
         orderCountToday() {
-            if (this.todayBucket) {
-                return this.todayBucket.count;
+            if (this.todayBucketCount) {
+                return this.todayBucketCount.count;
             }
             return 0;
         },
@@ -147,8 +136,8 @@ Component.register('sw-dashboard-statistics', {
         },
 
         orderSumToday() {
-            if (this.todayBucket) {
-                return this.todayBucket.totalAmount.sum;
+            if (this.todayBucketCount) {
+                return this.todayBucketCount.totalAmount.sum;
             }
             return 0;
         },
@@ -165,13 +154,6 @@ Component.register('sw-dashboard-statistics', {
             const today = Shopware.Utils.format.dateWithUserTimezone();
             today.setHours(0, 0, 0, 0);
             return today;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use todayBucketCount instead.
-         */
-        todayBucket() {
-            return this.todayBucketCount;
         },
 
         todayBucketCount() {
@@ -275,7 +257,7 @@ Component.register('sw-dashboard-statistics', {
             );
 
             criteria.addFilter(Criteria.range('orderDate', {
-                gte: this.formatDate(this.getDateAgo(this.ordersDateRange)),
+                gte: this.formatDateToISO(this.getDateAgo(this.ordersDateRange)),
             }));
 
             return this.orderRepository.search(criteria);
@@ -299,7 +281,7 @@ Component.register('sw-dashboard-statistics', {
 
             criteria.addFilter(Criteria.equals('transactions.stateMachineState.technicalName', 'paid'));
             criteria.addFilter(Criteria.range('orderDate', {
-                gte: this.formatDate(this.getDateAgo(this.turnoverDateRange)),
+                gte: this.formatDateToISO(this.getDateAgo(this.turnoverDateRange)),
             }));
 
             return this.orderRepository.search(criteria);
@@ -310,17 +292,10 @@ Component.register('sw-dashboard-statistics', {
 
             criteria.addAssociation('currency');
 
-            criteria.addFilter(Criteria.equals('orderDate', this.formatDate(new Date())));
+            criteria.addFilter(Criteria.equals('orderDate', this.formatDateToISO(new Date())));
             criteria.addSorting(Criteria.sort(this.todayOrderDataSortBy, this.todayOrderDataSortDirection));
 
             return this.orderRepository.search(criteria);
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use formatDateToISO instead.
-         */
-        formatDate(date) {
-            return this.formatDateToISO(date);
         },
 
         formatDateToISO(date) {

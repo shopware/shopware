@@ -8,6 +8,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * This route can be to switch the current default shipping or billing address
+ *
+ * @package customer-order
  */
 abstract class AbstractSwitchDefaultAddressRoute
 {

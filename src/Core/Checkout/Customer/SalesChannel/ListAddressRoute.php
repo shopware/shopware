@@ -4,39 +4,31 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\AddressListingCriteriaEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Page\Address\Listing\AddressListingCriteriaEvent as StorefrontAddressListingCriteriaEvent;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package customer-order
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class ListAddressRoute extends AbstractListAddressRoute
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $addressRepository;
+    private EntityRepository $addressRepository;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $addressRepository, EventDispatcherInterface $eventDispatcher)
+    public function __construct(EntityRepository $addressRepository, EventDispatcherInterface $eventDispatcher)
     {
         $this->addressRepository = $addressRepository;
         $this->eventDispatcher = $eventDispatcher;
@@ -60,9 +52,6 @@ class ListAddressRoute extends AbstractListAddressRoute
             ->addAssociation('countryState')
             ->addFilter(new EqualsFilter('customer_address.customerId', $customer->getId()));
 
-        if (!Feature::isActive('v6.5.0.0') && \class_exists(StorefrontAddressListingCriteriaEvent::class)) {
-            $this->eventDispatcher->dispatch(new StorefrontAddressListingCriteriaEvent($criteria, $context));
-        }
         $this->eventDispatcher->dispatch(new AddressListingCriteriaEvent($criteria, $context));
 
         return new ListAddressRouteResponse($this->addressRepository->search($criteria, $context->getContext()));

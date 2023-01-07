@@ -6,10 +6,10 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
-use Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator;
-use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
-use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
-use Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator;
+use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
+use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
+use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderStates;
@@ -29,17 +29,19 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1536233560BasicData extends MigrationStep
 {
     /**
-     * @var array|null
+     * @var array<string, array{id: string, name: string, nameDe: string, availableEntities: array<string, string|null>}>|null
      */
-    private $mailTypes;
+    private ?array $mailTypes = null;
 
-    /**
-     * @var string|null
-     */
-    private $deDeLanguageId;
+    private ?string $deDeLanguageId = null;
 
     public function getCreationTimestamp(): int
     {
@@ -888,11 +890,11 @@ class Migration1536233560BasicData extends MigrationStep
         $languages = $connection->executeQuery('SELECT id FROM language')->fetchAll(FetchMode::COLUMN);
         $shippingMethods = $connection->executeQuery('SELECT id FROM shipping_method')->fetchAll(FetchMode::COLUMN);
         $paymentMethods = $connection->executeQuery('SELECT id FROM payment_method')->fetchAll(FetchMode::COLUMN);
-        $defaultPaymentMethod = $connection->executeQuery('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`')->fetchColumn();
-        $defaultShippingMethod = $connection->executeQuery('SELECT id FROM shipping_method WHERE active = 1')->fetchColumn();
+        $defaultPaymentMethod = $connection->executeQuery('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`')->fetchOne();
+        $defaultShippingMethod = $connection->executeQuery('SELECT id FROM shipping_method WHERE active = 1')->fetchOne();
         $countryStatement = $connection->executeQuery('SELECT id FROM country WHERE active = 1 ORDER BY `position`');
-        $defaultCountry = $countryStatement->fetchColumn();
-        $rootCategoryId = $connection->executeQuery('SELECT id FROM category')->fetchColumn();
+        $defaultCountry = $countryStatement->fetchOne();
+        $rootCategoryId = $connection->executeQuery('SELECT id FROM category')->fetchOne();
 
         $id = Uuid::fromHexToBytes('98432def39fc4624b33213a56b8c944d');
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
@@ -919,7 +921,7 @@ class Migration1536233560BasicData extends MigrationStep
 
         // country
         $connection->insert('sales_channel_country', ['sales_channel_id' => $id, 'country_id' => $defaultCountry]);
-        $connection->insert('sales_channel_country', ['sales_channel_id' => $id, 'country_id' => $countryStatement->fetchColumn()]);
+        $connection->insert('sales_channel_country', ['sales_channel_id' => $id, 'country_id' => $countryStatement->fetchOne()]);
 
         // currency
         foreach ($currencies as $currency) {
@@ -991,7 +993,7 @@ class Migration1536233560BasicData extends MigrationStep
             if ($entity === 'document') {
                 $private = 1;
             }
-            $connection->executeUpdate('
+            $connection->executeStatement('
                 INSERT INTO `media_folder_configuration` (`id`, `thumbnail_quality`, `create_thumbnails`, `private`, created_at)
                 VALUES (:id, 80, 1, :private, :createdAt)
             ', [
@@ -1000,7 +1002,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'private' => $private,
             ]);
 
-            $connection->executeUpdate('
+            $connection->executeStatement('
                 INSERT into `media_folder` (`id`, `name`, `default_folder_id`, `media_folder_configuration_id`, `use_parent_configuration`, `child_count`, `created_at`)
                 VALUES (:folderId, :folderName, :defaultFolderId, :configurationId, 0, 0, :createdAt)
             ', [
@@ -1285,7 +1287,7 @@ class Migration1536233560BasicData extends MigrationStep
         $connection->insert('rule', ['id' => $allCustomersRuleId, 'name' => 'All customers', 'priority' => 1, 'invalid' => 0, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $allCustomersRuleId, 'type' => 'customerCustomerGroup', 'value' => json_encode(['operator' => '=', 'customerGroupIds' => ['cfbd5018d38d41d8adca10d94fc8bdd6']]), 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
-        $usaCountryId = $connection->executeQuery('SELECT LOWER(hex(id)) FROM country WHERE `iso3` = "USA"')->fetchColumn();
+        $usaCountryId = $connection->executeQuery('SELECT LOWER(hex(id)) FROM country WHERE `iso3` = "USA"')->fetchOne();
         $usaRuleId = Uuid::randomBytes();
         $connection->insert('rule', ['id' => $usaRuleId, 'name' => 'Customers from USA', 'priority' => 100, 'invalid' => 0, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $usaRuleId, 'type' => 'customerBillingCountry', 'value' => json_encode(['operator' => '=', 'countryIds' => [$usaCountryId]]), 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
@@ -1438,9 +1440,9 @@ class Migration1536233560BasicData extends MigrationStep
         $deliveryNoteId = Uuid::randomBytes();
         $creditNoteId = Uuid::randomBytes();
 
-        $connection->insert('document_type', ['id' => $invoiceId, 'technical_name' => InvoiceGenerator::INVOICE, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('document_type', ['id' => $deliveryNoteId, 'technical_name' => DeliveryNoteGenerator::DELIVERY_NOTE, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('document_type', ['id' => $creditNoteId, 'technical_name' => CreditNoteGenerator::CREDIT_NOTE, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('document_type', ['id' => $invoiceId, 'technical_name' => InvoiceRenderer::TYPE, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('document_type', ['id' => $deliveryNoteId, 'technical_name' => DeliveryNoteRenderer::TYPE, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('document_type', ['id' => $creditNoteId, 'technical_name' => CreditNoteRenderer::TYPE, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $connection->insert('document_type_translation', ['document_type_id' => $invoiceId, 'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()), 'name' => 'Rechnung', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('document_type_translation', ['document_type_id' => $invoiceId, 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), 'name' => 'Invoice', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
@@ -1611,6 +1613,9 @@ class Migration1536233560BasicData extends MigrationStep
         ';
     }
 
+    /**
+     * @return array<string, array{id: string, name: string, nameDe: string, availableEntities: array<string, string|null>}>
+     */
     private function getMailTypeMapping(): array
     {
         return $this->mailTypes ?? $this->mailTypes = [
@@ -1897,7 +1902,7 @@ class Migration1536233560BasicData extends MigrationStep
     {
         $stornoId = Uuid::randomBytes();
 
-        $connection->insert('document_type', ['id' => $stornoId, 'technical_name' => StornoGenerator::STORNO, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('document_type', ['id' => $stornoId, 'technical_name' => StornoRenderer::TYPE, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('document_type_translation', ['document_type_id' => $stornoId, 'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()), 'name' => 'Stornorechnung', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('document_type_translation', ['document_type_id' => $stornoId, 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), 'name' => 'Storno bill', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
@@ -1906,9 +1911,9 @@ class Migration1536233560BasicData extends MigrationStep
         $deliveryConfigId = Uuid::randomBytes();
         $creditConfigId = Uuid::randomBytes();
 
-        $invoiceId = $connection->fetchColumn('SELECT id FROM `document_type` WHERE `technical_name` = :technical_name', ['technical_name' => InvoiceGenerator::INVOICE]);
-        $deliverNoteId = $connection->fetchColumn('SELECT id FROM `document_type` WHERE `technical_name` = :technical_name', ['technical_name' => DeliveryNoteGenerator::DELIVERY_NOTE]);
-        $creditNoteId = $connection->fetchColumn('SELECT id FROM `document_type` WHERE `technical_name` = :technical_name', ['technical_name' => CreditNoteGenerator::CREDIT_NOTE]);
+        $invoiceId = $connection->fetchOne('SELECT id FROM `document_type` WHERE `technical_name` = :technical_name', ['technical_name' => InvoiceRenderer::TYPE]);
+        $deliverNoteId = $connection->fetchOne('SELECT id FROM `document_type` WHERE `technical_name` = :technical_name', ['technical_name' => DeliveryNoteRenderer::TYPE]);
+        $creditNoteId = $connection->fetchOne('SELECT id FROM `document_type` WHERE `technical_name` = :technical_name', ['technical_name' => CreditNoteRenderer::TYPE]);
 
         $defaultConfig = [
             'displayPrices' => true,
@@ -1938,16 +1943,16 @@ class Migration1536233560BasicData extends MigrationStep
         $deliveryNoteConfig['displayPrices'] = false;
 
         $stornoConfig = $defaultConfig;
-        $stornoConfig['referencedDocumentType'] = InvoiceGenerator::INVOICE;
+        $stornoConfig['referencedDocumentType'] = InvoiceRenderer::TYPE;
 
         $configJson = json_encode($defaultConfig);
         $deliveryNoteConfigJson = json_encode($deliveryNoteConfig);
         $stornoConfigJson = json_encode($stornoConfig);
 
-        $connection->insert('document_base_config', ['id' => $stornoConfigId, 'name' => StornoGenerator::STORNO, 'global' => 1, 'filename_prefix' => StornoGenerator::STORNO . '_', 'document_type_id' => $stornoId, 'config' => $stornoConfigJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('document_base_config', ['id' => $invoiceConfigId, 'name' => InvoiceGenerator::INVOICE, 'global' => 1, 'filename_prefix' => InvoiceGenerator::INVOICE . '_', 'document_type_id' => $invoiceId, 'config' => $configJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('document_base_config', ['id' => $deliveryConfigId, 'name' => DeliveryNoteGenerator::DELIVERY_NOTE, 'global' => 1, 'filename_prefix' => DeliveryNoteGenerator::DELIVERY_NOTE . '_', 'document_type_id' => $deliverNoteId, 'config' => $deliveryNoteConfigJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('document_base_config', ['id' => $creditConfigId, 'name' => CreditNoteGenerator::CREDIT_NOTE, 'global' => 1, 'filename_prefix' => CreditNoteGenerator::CREDIT_NOTE . '_', 'document_type_id' => $creditNoteId, 'config' => $configJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('document_base_config', ['id' => $stornoConfigId, 'name' => StornoRenderer::TYPE, 'global' => 1, 'filename_prefix' => StornoRenderer::TYPE . '_', 'document_type_id' => $stornoId, 'config' => $stornoConfigJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('document_base_config', ['id' => $invoiceConfigId, 'name' => InvoiceRenderer::TYPE, 'global' => 1, 'filename_prefix' => InvoiceRenderer::TYPE . '_', 'document_type_id' => $invoiceId, 'config' => $configJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('document_base_config', ['id' => $deliveryConfigId, 'name' => DeliveryNoteRenderer::TYPE, 'global' => 1, 'filename_prefix' => DeliveryNoteRenderer::TYPE . '_', 'document_type_id' => $deliverNoteId, 'config' => $deliveryNoteConfigJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('document_base_config', ['id' => $creditConfigId, 'name' => CreditNoteRenderer::TYPE, 'global' => 1, 'filename_prefix' => CreditNoteRenderer::TYPE . '_', 'document_type_id' => $creditNoteId, 'config' => $configJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $connection->insert('document_base_config_sales_channel', ['id' => Uuid::randomBytes(), 'document_base_config_id' => $stornoConfigId, 'document_type_id' => $stornoId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('document_base_config_sales_channel', ['id' => Uuid::randomBytes(), 'document_base_config_id' => $invoiceConfigId, 'document_type_id' => $invoiceId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
@@ -3059,6 +3064,6 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
             $connection->insert('cms_slot_translation', $translation);
         }
 
-        $connection->executeUpdate('UPDATE `category` SET `cms_page_id` = :pageId', ['pageId' => $page['id']]);
+        $connection->executeStatement('UPDATE `category` SET `cms_page_id` = :pageId', ['pageId' => $page['id']]);
     }
 }

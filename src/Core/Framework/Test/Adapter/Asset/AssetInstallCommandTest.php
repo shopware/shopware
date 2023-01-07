@@ -2,6 +2,7 @@
 
 namespace Adapter\Asset;
 
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Asset\AssetInstallCommand;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
@@ -18,9 +19,10 @@ class AssetInstallCommandTest extends TestCase
 
     public function testItInstallsAppAssets(): void
     {
+        /** @var FilesystemOperator $filesystem */
         $filesystem = $this->getContainer()->get('shopware.filesystem.asset');
         // make sure that the dir does not exist beforehand
-        $filesystem->deleteDir('bundles/test');
+        $filesystem->deleteDirectory('bundles/test');
 
         $fixturePath = realpath(__DIR__ . '/../../App/Manifest/_fixtures/test');
         $relativeFixturePath = ltrim(
@@ -50,6 +52,6 @@ class AssetInstallCommandTest extends TestCase
         static::assertSame(0, $runner->execute([]));
         static::assertTrue($filesystem->has('bundles/test/asset.txt'));
 
-        $filesystem->deleteDir('bundles/test');
+        $filesystem->deleteDirectory('bundles/test');
     }
 }

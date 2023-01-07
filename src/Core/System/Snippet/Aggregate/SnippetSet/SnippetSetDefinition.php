@@ -16,6 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 
+/**
+ * @package system-settings
+ */
 class SnippetSetDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'snippet_set';

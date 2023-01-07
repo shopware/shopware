@@ -1,5 +1,8 @@
 import AccountPageObject from '../../../support/pages/account.page-object';
 
+/**
+ * @package checkout
+ */
 describe('Account: indicate non shippable country on register page', () => {
     beforeEach(() => {
         cy.onlyOnFeature('FEATURE_NEXT_15707');

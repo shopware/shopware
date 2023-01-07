@@ -8,21 +8,24 @@ use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package content
+ */
 class MediaService
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaFolderRepository;
 
@@ -45,8 +48,8 @@ class MediaService
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $mediaRepository,
-        EntityRepositoryInterface $mediaFolderRepository,
+        EntityRepository $mediaRepository,
+        EntityRepository $mediaFolderRepository,
         FileLoader $fileLoader,
         FileSaver $fileSaver,
         FileFetcher $fileFetcher
@@ -138,6 +141,9 @@ class MediaService
         return $this->fileFetcher->fetchRequestData($request, $tempFile ?: '');
     }
 
+    /**
+     * @return array{content: string, fileName: non-falsy-string, mimeType: string|null}
+     */
     public function getAttachment(MediaEntity $media, Context $context): array
     {
         $fileBlob = '';

@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1536233360Document extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -23,7 +28,7 @@ class Migration1536233360Document extends MigrationStep
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
 
         $sql = <<<'SQL'
             CREATE TABLE `document_type_translation` (
@@ -41,7 +46,7 @@ SQL;
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
 
         $sql = <<<'SQL'
             CREATE TABLE `document` (
@@ -73,7 +78,7 @@ SQL;
                 REFERENCES `media` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
     }
 
     public function updateDestructive(Connection $connection): void

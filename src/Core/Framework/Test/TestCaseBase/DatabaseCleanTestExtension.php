@@ -52,12 +52,12 @@ class DatabaseCleanTestExtension implements BeforeTestHook, AfterTestHook
     {
         $connection = Kernel::getConnection();
 
-        $rawTables = $connection->query('SHOW TABLES')->fetchAll();
+        $rawTables = $connection->fetchAllAssociative('SHOW TABLES');
         $stateResult = [];
 
         foreach ($rawTables as $nested) {
             $tableName = end($nested);
-            $count = $connection->query("SELECT COUNT(*) FROM `{$tableName}`")->fetchColumn();
+            $count = $connection->fetchOne('SELECT COUNT(*) FROM ' . $tableName);
 
             $stateResult[(string) $tableName] = (int) $count;
         }

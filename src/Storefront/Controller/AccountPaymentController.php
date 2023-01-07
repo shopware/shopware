@@ -5,8 +5,6 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -20,9 +18,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package storefront
+ *
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class AccountPaymentController extends StorefrontController
 {

@@ -86,14 +86,14 @@ class CustomFieldTest extends TestCase
         $entities = [
             [
                 'id' => $barId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'foo' => 'bar',
                 ],
             ],
             [
                 'id' => $bazId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'foo' => 'baz',
                 ],
@@ -133,7 +133,7 @@ class CustomFieldTest extends TestCase
         ]);
         $entity = [
             'id' => Uuid::randomHex(),
-            'name' => "foo'bar",
+            'name' => 'foo\'bar',
             'custom' => [
                 'foo' => 'bar',
             ],
@@ -180,7 +180,7 @@ class CustomFieldTest extends TestCase
 
         $entity = [
             'id' => Uuid::randomHex(),
-            'name' => "foo'bar",
+            'name' => 'foo\'bar',
             'custom' => [
                 'foo' => ['bar'],
             ],
@@ -212,7 +212,7 @@ class CustomFieldTest extends TestCase
 
         $entity = [
             'id' => Uuid::randomHex(),
-            'name' => "foo'bar",
+            'name' => 'foo\'bar',
             'custom' => [
                 'foo' => 'bar',
             ],
@@ -226,7 +226,7 @@ class CustomFieldTest extends TestCase
 
         $patch = [
             'id' => $entity['id'],
-            'name' => "foo'bar'baz",
+            'name' => 'foo\'bar\'baz',
             'custom' => [
                 'foo' => 'baz',
             ],
@@ -253,7 +253,7 @@ class CustomFieldTest extends TestCase
         $entities = [
             [
                 'id' => $dotId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'foo.bar' => 'baz',
                 ],
@@ -316,14 +316,14 @@ class CustomFieldTest extends TestCase
         $entities = [
             [
                 'id' => $smallId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'int' => 2,
                 ],
             ],
             [
                 'id' => $bigId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'int' => 10,
                 ],
@@ -363,14 +363,14 @@ class CustomFieldTest extends TestCase
         $entities = [
             [
                 'id' => $smallId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'float' => 2.0,
                 ],
             ],
             [
                 'id' => $bigId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'float' => 10.0,
                 ],
@@ -414,14 +414,14 @@ class CustomFieldTest extends TestCase
         $entities = [
             [
                 'id' => $smallId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'datetime' => $earlierDate,
                 ],
             ],
             [
                 'id' => $bigId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'datetime' => $laterDate,
                 ],
@@ -511,14 +511,14 @@ class CustomFieldTest extends TestCase
         $entities = [
             [
                 'id' => $smallId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'foo' => 'a',
                 ],
             ],
             [
                 'id' => $bigId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'foo' => 'ab',
                 ],

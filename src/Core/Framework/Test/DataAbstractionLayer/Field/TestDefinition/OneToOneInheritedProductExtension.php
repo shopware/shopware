@@ -11,6 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
  * @internal
+ *
+ * @package inventory
  */
 class OneToOneInheritedProductExtension extends EntityExtension
 {

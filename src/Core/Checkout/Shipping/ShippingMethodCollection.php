@@ -7,6 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package checkout
+ *
  * @extends EntityCollection<ShippingMethodEntity>
  */
 class ShippingMethodCollection extends EntityCollection
@@ -39,7 +41,7 @@ class ShippingMethodCollection extends EntityCollection
         $prices = [[]];
 
         foreach ($this->getIterator() as $element) {
-            $prices[] = $element->getPrices();
+            $prices[] = $element->getPrices()->getElements();
         }
 
         $prices = array_merge(...$prices);

@@ -7,6 +7,11 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Migration\Traits\MailUpdate;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1604669773UpdateMailTemplate extends MigrationStep
 {
     use UpdateMailTrait;

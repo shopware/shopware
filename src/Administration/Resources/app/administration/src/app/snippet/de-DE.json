@@ -1,9 +1,9 @@
 {
   "global": {
     "error-codes": {
-      "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Fehlende Berechtigungen",
-      "FRAMEWORK__DELETE_RESTRICTED": "Löschen fehlgeschlagen",
-      "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein",
+      "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Fehlende Berechtigungen.",
+      "FRAMEWORK__DELETE_RESTRICTED": "Löschen fehlgeschlagen.",
+      "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein.",
       "INVALID_MEDIA_URL": "Bitte gib eine gültige URL ein, um eine Datei hochzuladen.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen.",
       "CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT": "Dieser Typ kann nicht gewählt werden, während die Kategorie als Einstiegspunkt festgelegt ist.",
@@ -11,7 +11,8 @@
       "INVALID_URL": "Bitte gib eine gültige URL ein.",
       "INVALID_MAIL": "Bitte gib eine gültige E-Mail-Adresse ein.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warten Sie {seconds} Sekunden, bevor Sie es erneut versuchen.",
-      "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain."
+      "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain.",
+      "CONTENT__MEDIA_EMPTY_FILE": "Gib einen gültigen Dateinamen an."
     },
     "default": {
       "add": "Hinzufügen",
@@ -49,7 +50,8 @@
       "messageDeleteSuccess": "\"{name}\" gelöscht.",
       "messageDeleteFailed": "Die Entität \"{entityName}\" wird in folgenden Modulen verwendet: ",
       "noTitle": "Ein Titel wurde nicht definiert",
-      "noMessage": "Eine Nachricht wurde nicht definiert"
+      "noMessage": "Eine Nachricht wurde nicht definiert",
+      "notificationLoadingDataErrorMessage": "Fehler beim Laden der Daten"
     },
     "notification-center": {
       "title": "Mitteilungen",
@@ -360,10 +362,12 @@
       "description": "Es existiert bereits eine Datei mit dem Namen \"{fileName}\".",
       "buttonReplace": "Datei ersetzen",
       "buttonRename": "Datei umbenennen",
+      "buttonKeep": "Datei verwenden",
       "buttonSkip": "Datei überspringen",
       "labelSaveSelection": "Auswahl merken und für {count} weitere anwenden",
       "labelOptionReplace": "Hochladen und ersetzen",
       "labelOptionRename": "Hochladen und umbenennen",
+      "labelOptionKeep": "Vorhandene Datei verwenden",
       "labelOptionSkip": "Datei überspringen",
       "labelOldFile": "Bereits existierende Datei",
       "labelNewFile": "Hochzuladende Datei"
@@ -411,6 +415,9 @@
       "notification": {
         "success": {
           "message": "Keine Datei erfolgreich gespeichert | Eine Datei erfolgreich gespeichert | {count} / {total} Dateien erfolgreich gespeichert."
+        },
+        "assigned": {
+          "message": "Mediendatei zugewiesen."
         },
         "failure": {
           "message": "Fehler beim Hochladen."
@@ -629,8 +636,11 @@
         "salesChannelRule": "Verkaufskanal",
         "currencyRule": "Währung",
         "languageRule": "Sprache",
+        "customerIsActiveRule": "Kunde ist aktiv",
         "billingCountryRule": "Rechnungsadresse: Land",
+        "billingCityRule": "Rechnungsadresse: Stadt",
         "billingStreetRule": "Rechnungsadresse: Straße",
+        "billingStateRule": "Rechnungsadresse: Bundesland",
         "billingZipCodeRule": "Rechnungsadresse: Postleitzahl",
         "customerGroupRule": "Kundengruppe",
         "customerTagRule": "Kunde mit Tag",
@@ -652,9 +662,15 @@
         "isNewsletterRecipient": "Kunde ist Newsletter-Empfänger",
         "daysSinceLastOrderRule": "Tage seit letzter Bestellung",
         "shippingCountryRule": "Lieferadresse: Land",
+        "shippingCityRule": "Lieferadresse: Stadt",
         "shippingStreetRule": "Lieferadresse: Straße",
+        "shippingStateRule": "Lieferadresse: Bundesland",
         "shippingZipCodeRule": "Lieferadresse: Postleitzahl",
         "customerLoggedInRule": "Angemeldeter Kunde",
+        "customerAgeRule": "Kundenalter",
+        "customerDaysSinceLastLogin": "Tage seit der letzten Anmeldung",
+        "customerAffiliateCodeRule": "Affiliate-Code",
+        "customerCampaignCodeRule": "Kampagnen-Code",
         "cartAmountRule": "Gesamtsumme",
         "cartPositionPrice": "Summe",
         "goodsCountRule": "Gesamtanzahl unterschiedlicher Produkte",
@@ -664,13 +680,13 @@
           "product": "Produkt",
           "discount_surcharge": "Rabatt / Aufschlag"
         },
-        "lineItemRule": "Position",
-        "lineItemsInCartRule": "Positionen im Warenkorb",
+        "lineItemRule": "Positionen im Warenkorb",
         "lineItemsInCartCountRule": "Anzahl unterschiedlicher Positionen",
         "promotionsInCartCountRule": "Anzahl der Rabatte",
         "lineItemUnitPriceRule": "Positionsstückpreis",
         "lineItemTotalPriceRule": "Positionszwischensumme",
         "lineItemWithQuantityRule": "Positionsanzahl",
+        "orderTagRule": "Bestellung mit Tag",
         "yes": "Ja",
         "no": "Nein",
         "withTime": "Mit Zeitabfrage",
@@ -689,9 +705,11 @@
           "any": "Mind. eine",
           "all": "Alle"
         },
-        "subCondition": "Unterbedingung",
+        "AddAndCondition": "UND-Bedingung hinzufügen",
+        "AddOrCondition": "ODER-Bedingung hinzufügen",
+        "AddSubCondition": "Unterbedingungen hinzufügen",
         "deleteConditions": "Container entfernen",
-        "deleteAllConditions": "Alle entfernen",
+        "deleteAllConditions": "Alle Bedingungen entfernen",
         "createBefore": "Davor erstellen",
         "createAfter": "Danach erstellen",
         "hasDeliveryFreeItemRule": "Position ist versandkostenfrei",
@@ -748,7 +766,8 @@
         },
         "customerCustomFieldRule": "Kunde mit Zusatzfeld",
         "zipCodeWildcardPlaceholder": "\"*\" als Platzhalterzeichen verwenden ...",
-        "customerBirthdayRule": "Kundengeburtstag"
+        "customerBirthdayRule": "Kundengeburtstag",
+        "customerCreatedByAdminRule": "Kunde vom Administrator erstellt"
       }
     },
     "sw-condition-generic": {
@@ -813,7 +832,8 @@
       "units": {
         "dimension": "mm",
         "weight": "kg",
-        "volume": "mm³"
+        "volume": "mm³",
+        "age": "Jahre"
       }
     },
     "sw-product-image": {
@@ -874,7 +894,7 @@
       "promotion": "Promotion | Promotions",
       "promotion_order_rule": "Promotion qualifizierte Bestellung | Promotion qualifizierte Bestellungen",
       "promotion_cart_rule": "Promotion qualifizierter Warenkorb | Promotion qualifizierte Warenkörbe",
-      "promotion_persona_rule": "Promotion Zielgruppe | Promotion Zielgruppen",
+      "promotion_persona_rule": "Promotion-Zielgruppe | Promotion-Zielgruppen",
       "rule": "Regel | Regeln",
       "rule_condition": "Bedingung | Bedingungen",
       "sales_channel": "Verkaufskanal | Verkaufskanäle",
@@ -893,7 +913,6 @@
       "delivery_time": "Lieferzeit | Lieferzeiten",
       "import_export_profile": "Import/Export-Profil | Import/Export-Profile",
       "feature_set": "Template | Templates",
-      "event_action": "Business-Events",
       "property_group": "Eigenschaftsgruppe | Eigenschaftsgruppen",
       "document_base_config": "Dokumenten-Grundeinstellung | Dokumenten-Grundeinstellungen",
       "product_feature_set": "Neues Template | Neue Templates",
@@ -1157,7 +1176,36 @@
   },
   "locale": {
     "de-DE": "Deutsch",
-    "en-GB": "Englisch"
+    "en-GB": "Englisch (GB)",
+    "bg-BG": "Bulgarisch",
+    "bs-BA": "Bosnisch",
+    "cs-CZ": "Tschechisch",
+    "da-DK": "Dänisch",
+    "el-GR": "Griechisch",
+    "en-US": "Englisch (US)",
+    "es-ES": "Spanisch",
+    "fi-FI": "Finnisch",
+    "fr-FR": "Französisch",
+    "hi-IN": "Hindi",
+    "hr-HR": "Kroatisch",
+    "hu-HU": "Ungarisch",
+    "id-ID": "Indonesisch",
+    "it-IT": "Italienisch",
+    "ko-KR": "Koreanisch",
+    "lv-LV": "Lettisch",
+    "nl-NL": "Niederländisch",
+    "nn-NO": "Norwegisch",
+    "pl-PL": "Polnisch",
+    "pt-PT": "Portugiesisch",
+    "ro-RO": "Rumänisch",
+    "ru-RU": "Russisch",
+    "sk-SK": "Slowakisch",
+    "sl-SI": "Slowenisch",
+    "sr-RS": "Serbisch",
+    "sv-SE": "Schwedisch",
+    "tr-TR": "Türkisch",
+    "uk-UA": "Ukrainisch",
+    "vi-VN": "Vietnamesisch"
   },
   "sw-image-slider": {
     "imageAlt": "Bild {index} / {total}"
@@ -1175,7 +1223,7 @@
     "placeholderPriority": "Lege eine Priorität für diese Regel fest ...",
     "messageSaveSuccess": "Die Regel \"{name}\" wurde erfolgreich gespeichert.",
     "ruleCard": "Bedingungen",
-    "messageSaveError": "Beim Speichern der Regel \"{name}\" ist ein Fehler aufgetreten.",
+    "messageSaveError": "Beim Speichern der Regel ist ein Fehler aufgetreten",
     "modalTitleModify": "Globale Regel anpassen"
   },
   "sw-select-rule-create": {
@@ -1391,7 +1439,11 @@
       "equalsAnyViolationTooltip": "Diese Regel muss mindestens eine der folgenden Bedingungen verwenden, um {entityLabel} zugewiesen zu werden: {conditions}."
     },
     "restrictedConditions": {
-      "restrictedPromotionConditionTooltip": "Die aktuelle Regel ist einer Rabattaktion als {assignments} zugeordnet. Der Gebrauch dieser Bedingung ist daher nicht zulässig."
+      "restrictedConditionTooltip": "Diese Regel ist an folgenden Stellen zugewiesen:<br/><br/>{assignments}<br/><br/>Die Verwendung dieser Bedingung ist in diesem Zusammenhang nicht möglich.",
+      "relation": {
+        "flowTrigger": "Flows mit Trigger: {assignments}",
+        "promotion": "Rabattaktionen als: {assignments}"
+      }
     },
     "and": "und",
     "or": "oder"

@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Test\ImportExport\Api;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -13,13 +13,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class ImportExportFileApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
@@ -50,7 +52,7 @@ class ImportExportFileApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
         }
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_file');
 
         static::assertCount($num, $records);
         foreach ($records as $record) {
@@ -281,7 +283,7 @@ class ImportExportFileApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_file');
         static::assertCount($num, $records);
 
         $this->getBrowser()->request('DELETE', $this->prepareRoute() . $deleteId, [], [], [
@@ -290,7 +292,7 @@ class ImportExportFileApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_file');
         static::assertEquals($num - 1, \count($records));
     }
 

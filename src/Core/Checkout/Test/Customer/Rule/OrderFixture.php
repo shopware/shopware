@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -23,6 +23,9 @@ use Shopware\Core\System\Test\EntityFixturesBase;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
+/**
+ * @package business-ops
+ */
 trait OrderFixture
 {
     use ContainerAwareTrait;
@@ -43,7 +46,7 @@ trait OrderFixture
         $customerId = Uuid::randomHex();
         $orderNumber = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         /** @var SalesChannelEntity $salesChannel */

@@ -7,8 +7,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package core
+ */
 class StoreApiRouteCacheKeyEvent extends Event
 {
+    /**
+     * @var array<mixed>
+     */
     protected array $parts;
 
     protected Request $request;
@@ -17,6 +23,11 @@ class StoreApiRouteCacheKeyEvent extends Event
 
     protected ?Criteria $criteria;
 
+    private bool $disableCaching = false;
+
+    /**
+     * @param array<mixed> $parts
+     */
     public function __construct(array $parts, Request $request, SalesChannelContext $context, ?Criteria $criteria)
     {
         $this->parts = $parts;
@@ -25,6 +36,9 @@ class StoreApiRouteCacheKeyEvent extends Event
         $this->criteria = $criteria;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getParts(): array
     {
         return $this->parts;
@@ -45,6 +59,9 @@ class StoreApiRouteCacheKeyEvent extends Event
         return $this->criteria;
     }
 
+    /**
+     * @param array<int, bool|string> $parts
+     */
     public function setParts(array $parts): void
     {
         $this->parts = $parts;
@@ -58,5 +75,15 @@ class StoreApiRouteCacheKeyEvent extends Event
     public function getSalesChannelId(): string
     {
         return $this->context->getSalesChannelId();
+    }
+
+    public function disableCaching(): void
+    {
+        $this->disableCaching = true;
+    }
+
+    public function shouldCache(): bool
+    {
+        return !$this->disableCaching;
     }
 }

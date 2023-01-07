@@ -7,13 +7,11 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryE
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
-use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -34,13 +32,15 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package customer-order
+ *
  * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
 class ResetPasswordRoute extends AbstractResetPasswordRoute
 {
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
-    private EntityRepositoryInterface $customerRecoveryRepository;
+    private EntityRepository $customerRecoveryRepository;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -56,8 +56,8 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
-        EntityRepositoryInterface $customerRecoveryRepository,
+        EntityRepository $customerRepository,
+        EntityRepository $customerRecoveryRepository,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator,
         SystemConfigService $systemConfigService,

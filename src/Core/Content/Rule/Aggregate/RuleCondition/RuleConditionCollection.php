@@ -5,6 +5,8 @@ namespace Shopware\Core\Content\Rule\Aggregate\RuleCondition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package business-ops
+ *
  * @extends EntityCollection<RuleConditionEntity>
  */
 class RuleConditionCollection extends EntityCollection

@@ -4,12 +4,13 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
+use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
@@ -19,45 +20,29 @@ use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @internal
+ *
+ * @package core
+ */
 class MediaGenerator implements DemodataGeneratorInterface
 {
-    private EntityWriterInterface $writer;
-
-    private FileSaver $mediaUpdater;
-
-    private FileNameProvider $fileNameProvider;
-
     private array $tmpImages = [];
 
-    private EntityRepositoryInterface $defaultFolderRepository;
-
-    private EntityRepositoryInterface $folderRepository;
-
-    private MediaDefinition $mediaDefinition;
-
     private Generator $faker;
-
-    private Connection $connection;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityWriterInterface $writer,
-        FileSaver $mediaUpdater,
-        FileNameProvider $fileNameProvider,
-        EntityRepositoryInterface $defaultFolderRepository,
-        EntityRepositoryInterface $folderRepository,
-        MediaDefinition $mediaDefinition,
-        Connection $connection
+        private EntityWriterInterface $writer,
+        private FileSaver $mediaUpdater,
+        private FileNameProvider $fileNameProvider,
+        private EntityRepository $defaultFolderRepository,
+        private EntityRepository $folderRepository,
+        private MediaDefinition $mediaDefinition,
+        private Connection $connection
     ) {
-        $this->writer = $writer;
-        $this->mediaUpdater = $mediaUpdater;
-        $this->fileNameProvider = $fileNameProvider;
-        $this->defaultFolderRepository = $defaultFolderRepository;
-        $this->folderRepository = $folderRepository;
-        $this->mediaDefinition = $mediaDefinition;
-        $this->connection = $connection;
     }
 
     public function getDefinition(): string
@@ -166,14 +151,7 @@ class MediaGenerator implements DemodataGeneratorInterface
         /** @var string $text */
         $text = $context->getFaker()->words(1, true);
 
-        /*
-         * @deprecated tag:v6.5.0 remove and replace by importing \Maltyxx\ImagesGenerator\ImagesGeneratorProvider
-         */
-        if (\class_exists(\Maltyxx\ImagesGenerator\ImagesGeneratorProvider::class)) {
-            $provider = \Maltyxx\ImagesGenerator\ImagesGeneratorProvider::class;
-        } else {
-            $provider = \bheller\ImagesGenerator\ImagesGeneratorProvider::class;
-        }
+        $provider = ImagesGeneratorProvider::class;
 
         return $this->tmpImages[] = $provider::imageGenerator(
             null,

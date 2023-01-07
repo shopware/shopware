@@ -8,6 +8,8 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 /**
  * @internal
  * @phpstan-import-type Api from DefinitionService
+ *
+ * @package core
  */
 class BundleSchemaPathCollection
 {

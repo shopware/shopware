@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 
 describe('Category: Visual tests', () => {

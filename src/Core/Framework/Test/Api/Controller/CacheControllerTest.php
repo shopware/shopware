@@ -10,10 +10,13 @@ use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
  * @internal
  * @group skip-paratest
+ *
+ * @package system-settings
  */
 class CacheControllerTest extends TestCase
 {
@@ -114,7 +117,9 @@ class CacheControllerTest extends TestCase
 
     public function testCacheIndexEndpointWithSkipParameter(): void
     {
-        $this->getContainer()->get('messenger.bus.shopware')->reset();
+        /** @var TraceableMessageBus $bus */
+        $bus = $this->getContainer()->get('messenger.bus.shopware');
+        $bus->reset();
 
         $this->getBrowser()->request(
             'POST',
@@ -124,7 +129,7 @@ class CacheControllerTest extends TestCase
             [
                 'HTTP_CONTENT_TYPE' => 'application/json',
             ],
-            json_encode(['skip' => ['category.indexer']])
+            json_encode(['skip' => ['category.indexer']], \JSON_THROW_ON_ERROR)
         );
 
         /** @var JsonResponse $response */
@@ -132,7 +137,7 @@ class CacheControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
 
-        $messages = $this->getContainer()->get('messenger.bus.shopware')->getDispatchedMessages();
+        $messages = $bus->getDispatchedMessages();
 
         $hasSalesChannelIndexerMessage = false;
         $hasCategoryIndexerMessage = false;
@@ -156,8 +161,9 @@ class CacheControllerTest extends TestCase
             /** @var JsonResponse $response */
             $response = $this->getBrowser()->getResponse();
 
-            static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
-            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
+            static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+            $decode = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $decode['errors'][0]['code'], (string) $response->getContent());
         } finally {
             $this->resetBrowser();
         }

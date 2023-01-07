@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module core/factory/module
  */
 import { warn } from 'src/core/service/utils/debug.utils';
@@ -14,7 +16,7 @@ import type {
     RedirectOption,
     RoutePropsFunction,
 } from 'vue-router/types/router';
-import type { ComponentConfig } from './component.factory';
+import type { ComponentConfig } from './async-component.factory';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -419,7 +421,6 @@ function createRouteComponentList(route: SwRouteConfig, moduleId: string, module
     const componentList: { [componentKey: string]: ComponentConfig } = {};
     const routeComponents = route.components ?? {};
     Object.keys(routeComponents).forEach((componentKey) => {
-        // @ts-expect-error - we know that the key exists
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const component = routeComponents[componentKey];
 
@@ -433,11 +434,11 @@ function createRouteComponentList(route: SwRouteConfig, moduleId: string, module
             return;
         }
 
+        // @ts-expect-error
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         componentList[componentKey] = component;
     });
 
-    // @ts-expect-error
     route.components = componentList;
 
     return route;

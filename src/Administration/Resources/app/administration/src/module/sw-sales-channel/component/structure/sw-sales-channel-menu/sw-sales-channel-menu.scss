@@ -39,8 +39,8 @@
         padding: 0 30px 12px;
 
         &-text {
-            font-size: 14px;
-            line-height: 24px;
+            font-size: $font-size-xs;
+            line-height: $line-height-md;
             color: darken($color-gray-300, 20%);
         }
 

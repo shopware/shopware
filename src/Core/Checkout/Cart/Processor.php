@@ -5,11 +5,13 @@ namespace Shopware\Core\Checkout\Cart;
 use Shopware\Core\Checkout\Cart\Hook\CartHook;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class Processor
 {
     private Validator $validator;
@@ -19,19 +21,22 @@ class Processor
     private TransactionProcessor $transactionProcessor;
 
     /**
-     * @var CartProcessorInterface[]
+     * @var iterable<CartProcessorInterface>
      */
-    private $processors;
+    private iterable $processors;
 
     /**
-     * @var CartDataCollectorInterface[]
+     * @var iterable<CartDataCollectorInterface>
      */
-    private $collectors;
+    private iterable $collectors;
 
     private ScriptExecutor $executor;
 
     /**
      * @internal
+     *
+     * @param iterable<CartProcessorInterface> $processors
+     * @param iterable<CartDataCollectorInterface> $collectors
      */
     public function __construct(
         Validator $validator,
@@ -86,9 +91,7 @@ class Processor
 
     private function runProcessors(Cart $original, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        if ($original->getLineItems()->count() <= 0
-            && (Feature::isActive('v6.5.0.0') || Feature::isActive('PERFORMANCE_TWEAKS'))
-        ) {
+        if ($original->getLineItems()->count() <= 0) {
             $cart->addErrors(...array_values($original->getErrors()->getPersistent()->getElements()));
 
             $cart->setExtensions($original->getExtensions());

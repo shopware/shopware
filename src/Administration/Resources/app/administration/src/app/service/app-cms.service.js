@@ -4,12 +4,16 @@ const { debug } = Shopware.Utils;
 /**
  * Contains a list of allowed block categories
  * @type {string[]}
+ * @package content
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const BLOCKS_CATEGORIES = [
     'text', 'image', 'video', 'text-image', 'sidebar', 'commerce', 'form',
 ];
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class AppCmsService {
     /**
@@ -39,6 +43,7 @@ export default class AppCmsService {
         this.appCmsBlocksService = appCmsBlocksService;
         this.vueAdapter = vueAdapter;
 
+        // eslint-disable-next-line no-constructor-return
         return this.requestAppSystemBlocks().then((blocks) => {
             if (!blocks) {
                 return this;

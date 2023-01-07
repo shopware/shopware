@@ -1,7 +1,6 @@
 ---
 title: Save theme compilation
 issue: NEXT-15381
-flag: FEATURE_NEXT_15381
 ---
 
 # Storefront

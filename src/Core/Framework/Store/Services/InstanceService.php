@@ -4,15 +4,17 @@ namespace Shopware\Core\Framework\Store\Services;
 
 use Shopware\Core\Kernel;
 
+/**
+ * @package merchant-services
+ *
+ * @internal
+ */
 class InstanceService
 {
     private string $shopwareVersion;
 
     private ?string $instanceId;
 
-    /**
-     * @internal
-     */
     public function __construct(string $shopwareVersion, ?string $instanceId)
     {
         $this->shopwareVersion = $shopwareVersion;

@@ -5,12 +5,11 @@ namespace Shopware\Core\Content\Newsletter\SalesChannel;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -25,11 +24,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
+ *
+ * @package customer-order
  */
 class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $newsletterRecipientRepository;
 
@@ -47,7 +48,7 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $newsletterRecipientRepository,
+        EntityRepository $newsletterRecipientRepository,
         DataValidator $validator,
         EventDispatcherInterface $eventDispatcher
     ) {

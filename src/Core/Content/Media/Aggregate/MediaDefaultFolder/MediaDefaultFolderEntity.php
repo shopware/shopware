@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
+/**
+ * @package content
+ */
 class MediaDefaultFolderEntity extends Entity
 {
     use EntityIdTrait;

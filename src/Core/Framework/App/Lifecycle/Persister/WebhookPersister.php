@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
@@ -12,15 +12,17 @@ use Shopware\Core\Framework\Webhook\WebhookEntity;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ *
+ * @package core
  */
 class WebhookPersister
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $webhookRepository;
 
-    public function __construct(EntityRepositoryInterface $webhookRepository)
+    public function __construct(EntityRepository $webhookRepository)
     {
         $this->webhookRepository = $webhookRepository;
     }

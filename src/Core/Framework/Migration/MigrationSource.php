@@ -2,31 +2,25 @@
 
 namespace Shopware\Core\Framework\Migration;
 
+/**
+ * @package core
+ */
 class MigrationSource
 {
     private const PHP_CLASS_NAME_REGEX = '[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$';
 
     /**
-     * @var string
+     * @var array<string|MigrationSource>
      */
-    private $name;
-
-    /**
-     * @var array<string, string|MigrationSource>
-     */
-    private $sources;
-
-    /**
-     * @var array
-     */
-    private $replacementPatterns = [];
+    private array $sources;
 
     /**
      * @internal
+     *
+     * @param iterable<string|MigrationSource> $namespaces
      */
-    public function __construct(string $name, iterable $namespaces = [])
+    public function __construct(private string $name, iterable $namespaces = [])
     {
-        $this->name = $name;
         $this->sources = $namespaces instanceof \Traversable
             ? iterator_to_array($namespaces)
             : $namespaces;
@@ -37,16 +31,14 @@ class MigrationSource
         $this->sources[$directory] = $namespace;
     }
 
-    public function addReplacementPattern(string $regexPattern, string $replacePattern): void
-    {
-        $this->replacementPatterns[] = [$regexPattern, $replacePattern];
-    }
-
     public function getName(): string
     {
         return $this->name;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getSourceDirectories(): array
     {
         $sources = [];
@@ -80,40 +72,5 @@ class MigrationSource
         }
 
         return '(' . implode('|', $patterns) . ')';
-    }
-
-    public function mapToOldName(string $className): ?string
-    {
-        $replacementPatterns = $this->getReplacementPatterns();
-
-        $oldName = $className;
-
-        foreach ($replacementPatterns as $pattern) {
-            $searchPattern = $pattern[0] ?? null;
-            $replacePattern = $pattern[1] ?? null;
-
-            if (\is_string($searchPattern) && \is_string($replacePattern)) {
-                $oldName = preg_replace($searchPattern, $replacePattern, (string) $oldName);
-            }
-        }
-
-        if ($oldName === $className) {
-            return null;
-        }
-
-        return $oldName;
-    }
-
-    public function getReplacementPatterns(): array
-    {
-        $patterns = $this->replacementPatterns;
-
-        foreach ($this->sources as $namespace) {
-            if ($namespace instanceof MigrationSource) {
-                $patterns = array_merge($patterns, $namespace->getReplacementPatterns());
-            }
-        }
-
-        return $patterns;
     }
 }

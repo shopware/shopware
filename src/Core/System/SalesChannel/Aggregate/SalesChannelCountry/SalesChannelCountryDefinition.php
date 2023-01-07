@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package sales-channel
+ */
 class SalesChannelCountryDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'sales_channel_country';

@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Media\MediaType;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package content
+ */
 abstract class MediaType extends Struct
 {
     /**

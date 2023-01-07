@@ -2,17 +2,16 @@
 
 namespace Shopware\Storefront\Theme;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Padaliyajay\PHPAutoprefixer\Autoprefixer;
-use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\OutputStyle;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
-use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
-use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent as ThemeCompilerEnrichScssVariablesEventNew;
+use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCopyToLiveEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
@@ -23,11 +22,14 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Symfony\Component\Asset\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package storefront
+ */
 class ThemeCompiler implements ThemeCompilerInterface
 {
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
-    private Compiler $scssCompiler;
+    private AbstractScssCompiler $scssCompiler;
 
     private ThemeFileResolver $themeFileResolver;
 
@@ -35,7 +37,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private FilesystemInterface $tempFilesystem;
+    private FilesystemOperator $tempFilesystem;
 
     /**
      * @var Package[]
@@ -56,8 +58,8 @@ class ThemeCompiler implements ThemeCompilerInterface
      * @param Package[] $packages
      */
     public function __construct(
-        FilesystemInterface $filesystem,
-        FilesystemInterface $tempFilesystem,
+        FilesystemOperator $filesystem,
+        FilesystemOperator $tempFilesystem,
         ThemeFileResolver $themeFileResolver,
         bool $debug,
         EventDispatcherInterface $eventDispatcher,
@@ -65,19 +67,16 @@ class ThemeCompiler implements ThemeCompilerInterface
         iterable $packages,
         CacheInvalidator $logger,
         AbstractThemePathBuilder $themePathBuilder,
-        string $projectDir
+        string $projectDir,
+        AbstractScssCompiler $scssCompiler
     ) {
         $this->filesystem = $filesystem;
         $this->tempFilesystem = $tempFilesystem;
         $this->themeFileResolver = $themeFileResolver;
         $this->themeFileImporter = $themeFileImporter;
 
-        $this->scssCompiler = new Compiler();
-        $cwd = \getcwd();
+        $this->scssCompiler = $scssCompiler;
 
-        $this->scssCompiler->setImportPaths($cwd === false ? '' : $cwd);
-
-        $this->scssCompiler->setOutputStyle($debug ? OutputStyle::EXPANDED : OutputStyle::COMPRESSED);
         $this->eventDispatcher = $eventDispatcher;
         $this->packages = $packages;
         $this->logger = $logger;
@@ -86,145 +85,84 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->projectDir = $projectDir;
     }
 
-    /**
-     * @param Context $context - @deprecated tag:v6.5.0 parameter $context will be required in v6.5.0.0
-     */
     public function compileTheme(
         string $salesChannelId,
         string $themeId,
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
-        bool $withAssets = true/*,
-        Context $context = null */
+        bool $withAssets,
+        Context $context
     ): void {
-        if (\func_num_args() === 6) {
-            $context = func_get_arg(5);
-        } else {
-            $context = null;
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                sprintf('The parameter context in method compileTheme of class %s is mandatory.', static::class)
-            );
-        }
-
-        /**
-         * @feature-deprecated (flag:FEATURE_NEXT_15381) keep if branch remove complete following on feature release
-         */
-        if (Feature::isActive('FEATURE_NEXT_15381')) {
-            $themePrefix = $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
-            $tmpOutputPath = 'theme' . \DIRECTORY_SEPARATOR . 'temp' . \DIRECTORY_SEPARATOR . $themePrefix;
-
-            if ($withAssets && $this->filesystem->has($tmpOutputPath)) {
-                $this->filesystem->deleteDir($tmpOutputPath);
-            }
-
-            $resolvedFiles = $this->themeFileResolver->resolveFiles($themeConfig, $configurationCollection, false);
-            /** @var FileCollection $styleFiles */
-            $styleFiles = $resolvedFiles[ThemeFileResolver::STYLE_FILES];
-
-            $concatenatedStyles = '';
-            foreach ($styleFiles as $file) {
-                $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
-            }
-            $concatenatedStylesEvent = new ThemeCompilerConcatenatedStylesEvent($concatenatedStyles, $salesChannelId);
-            $this->eventDispatcher->dispatch($concatenatedStylesEvent);
-            $compiled = $this->compileStyles(
-                $concatenatedStylesEvent->getConcatenatedStyles(),
-                $themeConfig,
-                $styleFiles->getResolveMappings(),
-                $salesChannelId,
-                $context
-            );
-            $tmpCssFilepath = $tmpOutputPath . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css';
-            $this->filesystem->put($tmpCssFilepath, $compiled);
-
-            /** @var FileCollection $scriptFiles */
-            $scriptFiles = $resolvedFiles[ThemeFileResolver::SCRIPT_FILES];
-            $concatenatedScripts = '';
-            foreach ($scriptFiles as $file) {
-                $concatenatedScripts .= $this->themeFileImporter->getConcatenableScriptPath($file, $themeConfig);
-            }
-            $concatenatedScriptsEvent = new ThemeCompilerConcatenatedScriptsEvent($concatenatedScripts, $salesChannelId);
-            $this->eventDispatcher->dispatch($concatenatedScriptsEvent);
-
-            $tmpScriptFilepath = $tmpOutputPath . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . 'all.js';
-            $this->filesystem->put($tmpScriptFilepath, $concatenatedScriptsEvent->getConcatenatedScripts());
-
-            // assets
-            if ($withAssets) {
-                $this->copyAssets($themeConfig, $configurationCollection, $tmpOutputPath);
-            }
-
-            $backupOutputPath = 'theme' . \DIRECTORY_SEPARATOR . 'backup' . \DIRECTORY_SEPARATOR . $themePrefix;
-            $outputPath = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
-            $this->copyToLiveLocation($outputPath, $backupOutputPath, $tmpOutputPath, $themeId);
-            // Reset cache buster state for improving performance in getMetadata
-            $this->logger->invalidate(['theme-metaData'], true);
-            /**
-             * @feature-deprecated (flag:FEATURE_NEXT_15381) remove return statement on feature release
-             */
-            return;
-        }
-
         $themePrefix = $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
-        $outputPath = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
-
-        if ($withAssets && $this->filesystem->has($outputPath)) {
-            $this->filesystem->deleteDir($outputPath);
-        }
 
         $resolvedFiles = $this->themeFileResolver->resolveFiles($themeConfig, $configurationCollection, false);
-        /** @var FileCollection $styleFiles */
+
         $styleFiles = $resolvedFiles[ThemeFileResolver::STYLE_FILES];
 
-        $concatenatedStyles = '';
-        foreach ($styleFiles as $file) {
-            $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
-        }
-        $concatenatedStylesEvent = new ThemeCompilerConcatenatedStylesEvent($concatenatedStyles, $salesChannelId);
-        $this->eventDispatcher->dispatch($concatenatedStylesEvent);
+        $concatenatedStyles = $this->concatenateStyles(
+            $styleFiles,
+            $themeConfig,
+            $salesChannelId
+        );
+
         $compiled = $this->compileStyles(
-            $concatenatedStylesEvent->getConcatenatedStyles(),
+            $concatenatedStyles,
             $themeConfig,
             $styleFiles->getResolveMappings(),
             $salesChannelId,
             $context
         );
-        $cssFilepath = $outputPath . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css';
-        $this->filesystem->put($cssFilepath, $compiled);
 
-        /** @var FileCollection $scriptFiles */
-        $scriptFiles = $resolvedFiles[ThemeFileResolver::SCRIPT_FILES];
-        $concatenatedScripts = '';
-        foreach ($scriptFiles as $file) {
-            $concatenatedScripts .= $this->themeFileImporter->getConcatenableScriptPath($file, $themeConfig);
+        if ($this->filesystem->has($this->getTmpOutputPath($themePrefix))) {
+            $this->filesystem->deleteDirectory($this->getTmpOutputPath($themePrefix));
         }
-        $concatenatedScriptsEvent = new ThemeCompilerConcatenatedScriptsEvent($concatenatedScripts, $salesChannelId);
-        $this->eventDispatcher->dispatch($concatenatedScriptsEvent);
 
-        $scriptFilepath = $outputPath . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . 'all.js';
-        $this->filesystem->put($scriptFilepath, $concatenatedScriptsEvent->getConcatenatedScripts());
+        if ($this->scssCompiler->filesHandledInternal() === false) {
+            $this->filesystem->write($this->getTmpCssFilepath($themePrefix), $compiled);
+        }
+
+        $concatenatedScripts = $this->getConcatenatedScripts($resolvedFiles[ThemeFileResolver::SCRIPT_FILES], $themeConfig, $salesChannelId);
+
+        $this->writeScriptFiles($this->getTmpOutputPath($themePrefix), $concatenatedScripts);
 
         // assets
         if ($withAssets) {
-            $this->copyAssets($themeConfig, $configurationCollection, $outputPath);
+            $this->copyAssets($themeConfig, $configurationCollection, $this->getTmpOutputPath($themePrefix));
         }
+
+        $this->copyToLiveLocation($themePrefix, $themeId);
 
         // Reset cache buster state for improving performance in getMetadata
         $this->logger->invalidate(['theme-metaData'], true);
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Use AbstractThemePathBuilder instead
+     * @param array<string, string> $resolveMappings
      */
-    public static function getThemePrefix(string $salesChannelId, string $themeId): string
+    public function getResolveImportPathsCallback(array $resolveMappings): \Closure
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'AbstractThemePathBuilder')
-        );
+        return function ($originalPath) use ($resolveMappings) {
+            foreach ($resolveMappings as $resolve => $resolvePath) {
+                $resolve = '~' . $resolve;
+                if (mb_strpos($originalPath, $resolve) === 0) {
+                    $dirname = $resolvePath . \dirname(mb_substr($originalPath, mb_strlen($resolve)));
 
-        return md5($themeId . $salesChannelId);
+                    $filename = basename($originalPath);
+                    $extension = $this->getImportFileExtension(pathinfo($filename, \PATHINFO_EXTENSION));
+                    $path = $dirname . \DIRECTORY_SEPARATOR . $filename . $extension;
+                    if (file_exists($path)) {
+                        return $path;
+                    }
+
+                    $path = $dirname . \DIRECTORY_SEPARATOR . '_' . $filename . $extension;
+                    if (file_exists($path)) {
+                        return $path;
+                    }
+                }
+            }
+
+            return null;
+        };
     }
 
     private function copyAssets(
@@ -256,13 +194,11 @@ class ThemeCompiler implements ThemeCompilerInterface
             $assets = $this->themeFileImporter->getCopyBatchInputsForAssets($asset, $outputPath, $configuration);
 
             // method copyBatch is provided by copyBatch filesystem plugin
-            $this->filesystem->copyBatch(...$assets);
+            CopyBatch::copy($this->filesystem, ...$assets);
         }
     }
 
     /**
-     * @deprecated tag:v6.5.0 - $context will be mandatory
-     *
      * @param array<string, string> $resolveMappings
      */
     private function compileStyles(
@@ -270,53 +206,34 @@ class ThemeCompiler implements ThemeCompilerInterface
         StorefrontPluginConfiguration $configuration,
         array $resolveMappings,
         string $salesChannelId,
-        ?Context $context = null
+        Context $context
     ): string {
-        if ($context === null) {
-            $context = Context::createDefaultContext();
-        }
-
-        $this->scssCompiler->addImportPath(function ($originalPath) use ($resolveMappings) {
-            foreach ($resolveMappings as $resolve => $resolvePath) {
-                $resolve = '~' . $resolve;
-                if (mb_strpos($originalPath, $resolve) === 0) {
-                    /**
-                     * @deprecated tag:v6.5.0 - Alias `vendorBootstrap` will be removed.
-                     *
-                     * Alias is used to import Bootstrap v5 instead of Bootstrap v4 if feature flag v6.5.0.0 is active.
-                     * Package `bootstrap5` will be renamed to `bootstrap` and replace Bootstrap v4.
-                     * Remove this if completely.
-                     */
-                    if (mb_strpos($originalPath, '~vendorBootstrap/') === 0) {
-                        $originalPath = Feature::isActive('v6.5.0.0')
-                            ? str_replace('~vendorBootstrap/', '~vendor/bootstrap5/', $originalPath)
-                            : str_replace('~vendorBootstrap/', '~vendor/bootstrap/', $originalPath);
-                    }
-
-                    $dirname = $resolvePath . \dirname(mb_substr($originalPath, mb_strlen($resolve)));
-
-                    $filename = basename($originalPath);
-                    $extension = $this->getImportFileExtension(pathinfo($filename, \PATHINFO_EXTENSION));
-                    $path = $dirname . \DIRECTORY_SEPARATOR . $filename . $extension;
-                    if (file_exists($path)) {
-                        return $path;
-                    }
-
-                    $path = $dirname . \DIRECTORY_SEPARATOR . '_' . $filename . $extension;
-                    if (file_exists($path)) {
-                        return $path;
-                    }
-                }
-            }
-
-            return null;
-        });
-
         $variables = $this->dumpVariables($configuration->getThemeConfig() ?? [], $salesChannelId, $context);
         $features = $this->getFeatureConfigScssMap();
 
+        $resolveImportPath = $this->getResolveImportPathsCallback($resolveMappings);
+
+        $importPaths = [];
+
+        $cwd = \getcwd();
+        if ($cwd !== false) {
+            $importPaths[] = $cwd;
+        }
+
+        $importPaths[] = $resolveImportPath;
+
+        $compilerConfig = new CompilerConfiguration(
+            [
+                'importPaths' => $importPaths,
+                'outputStyle' => $this->debug ? OutputStyle::EXPANDED : OutputStyle::COMPRESSED,
+            ]
+        );
+
         try {
-            $cssOutput = $this->scssCompiler->compileString($features . $variables . $concatenatedStyles)->getCss();
+            $cssOutput = $this->scssCompiler->compileString(
+                $compilerConfig,
+                $features . $variables . $concatenatedStyles
+            );
         } catch (\Throwable $exception) {
             throw new ThemeCompileException(
                 $configuration->getTechnicalName(),
@@ -384,18 +301,19 @@ class ThemeCompiler implements ThemeCompilerInterface
         }, $variables, array_keys($variables));
     }
 
-    private function copyToLiveLocation(string $path, string $backupPath, string $tmpPath, string $themeId): void
+    private function copyToLiveLocation(string $themePrefix, string $themeId): void
     {
-        $themeCopyToLiveEvent = new ThemeCopyToLiveEvent($themeId, $path, $backupPath, $tmpPath);
+        $backupPath = 'theme' . \DIRECTORY_SEPARATOR . 'backup' . \DIRECTORY_SEPARATOR . $themePrefix;
+        $path = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
+
+        $themeCopyToLiveEvent = new ThemeCopyToLiveEvent($themeId, $path, $backupPath, $this->getTmpOutputPath($themePrefix));
         $this->eventDispatcher->dispatch($themeCopyToLiveEvent);
 
         $path = $themeCopyToLiveEvent->getPath();
         $backupPath = $themeCopyToLiveEvent->getBackupPath();
         $tmpPath = $themeCopyToLiveEvent->getTmpPath();
 
-        if (
-            !$this->filesystem->has($tmpPath)
-            || ($this->filesystem->getMetaData($tmpPath) ?: ['type' => false])['type'] !== 'dir') {
+        if (!$this->filesystem->directoryExists($tmpPath)) {
             throw new ThemeFileCopyException(
                 $themeId,
                 sprintf('Compilation error. Compiled files not found in %s.', $tmpPath)
@@ -403,10 +321,10 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         // backup current theme files
-        if ($this->filesystem->has($path)) {
+        if ($this->filesystem->directoryExists($path)) {
             try {
-                $this->filesystem->deleteDir($backupPath);
-                $this->filesystem->rename($path, $backupPath);
+                $this->filesystem->deleteDirectory($backupPath);
+                $this->filesystem->move($path, $backupPath);
             } catch (\Throwable $e) {
                 throw new ThemeFileCopyException($themeId, $e->getMessage());
             }
@@ -414,11 +332,11 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         // move new theme files to live dir. Move backup back if something failed.
         try {
-            $this->filesystem->rename($tmpPath, $path);
+            $this->filesystem->move($tmpPath, $path);
         } catch (\Throwable $e) {
-            if ($this->filesystem->has($path)) {
+            if ($this->filesystem->directoryExists($path)) {
                 try {
-                    $this->filesystem->rename($path, $backupPath);
+                    $this->filesystem->move($path, $backupPath);
                 } catch (\Throwable $innerE) {
                     throw new ThemeFileCopyException($themeId, $innerE->getMessage());
                 }
@@ -452,15 +370,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             $variables[sprintf('sw-asset-%s-url', $key)] = sprintf('\'%s\'', $package->getUrl(''));
         }
 
-        Feature::callSilentIfInactive('v6.5.0.0', function () use (&$variables, $salesChannelId): void {
-            /** @deprecated tag:v6.5.0 remove this event in 6.5.0 */
-            $themeVariablesEvent = new ThemeCompilerEnrichScssVariablesEvent($variables, $salesChannelId);
-            $this->eventDispatcher->dispatch($themeVariablesEvent);
-            $variables = $themeVariablesEvent->getVariables();
-        });
-
-        /** @deprecated tag:v6.5.0 remove alias */
-        $themeVariablesEvent = new ThemeCompilerEnrichScssVariablesEventNew(
+        $themeVariablesEvent = new ThemeCompilerEnrichScssVariablesEvent(
             $variables,
             $salesChannelId,
             $context
@@ -474,7 +384,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             $this->getVariableDumpTemplate()
         );
 
-        $this->tempFilesystem->put('theme-variables.scss', $dump);
+        $this->tempFilesystem->write('theme-variables.scss', $dump);
 
         return $dump;
     }
@@ -519,5 +429,54 @@ class ThemeCompiler implements ThemeCompilerInterface
 #variables#
 
 PHP_EOL;
+    }
+
+    private function writeScriptFiles(
+        string $tmpOutputPath,
+        string $concatenatedScripts
+    ): void {
+        $tmpScriptFilepath = $tmpOutputPath . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . 'all.js';
+        $this->filesystem->write($tmpScriptFilepath, $concatenatedScripts);
+    }
+
+    private function getTmpOutputPath(string $themePrefix): string
+    {
+        return 'theme' . \DIRECTORY_SEPARATOR . 'temp' . \DIRECTORY_SEPARATOR . $themePrefix;
+    }
+
+    private function getTmpCssFilepath(string $themePrefix): string
+    {
+        return $this->getTmpOutputPath($themePrefix) . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css';
+    }
+
+    private function concatenateStyles(
+        FileCollection $styleFiles,
+        StorefrontPluginConfiguration $themeConfig,
+        string $salesChannelId
+    ): string {
+        $concatenatedStyles = '';
+        foreach ($styleFiles as $file) {
+            $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
+        }
+        $concatenatedStylesEvent = new ThemeCompilerConcatenatedStylesEvent($concatenatedStyles, $salesChannelId);
+        $this->eventDispatcher->dispatch($concatenatedStylesEvent);
+
+        return $concatenatedStylesEvent->getConcatenatedStyles();
+    }
+
+    private function getConcatenatedScripts(
+        FileCollection $scriptFiles,
+        StorefrontPluginConfiguration $themeConfig,
+        string $salesChannelId
+    ): string {
+        $concatenatedScripts = '';
+        foreach ($scriptFiles as $file) {
+            $concatenatedScripts .= $this->themeFileImporter->getConcatenableScriptPath($file, $themeConfig);
+        }
+
+        $concatenatedScriptsEvent = new ThemeCompilerConcatenatedScriptsEvent($concatenatedScripts, $salesChannelId);
+        $this->eventDispatcher->dispatch($concatenatedScriptsEvent);
+
+        return $concatenatedScriptsEvent->getConcatenatedScripts();
     }
 }

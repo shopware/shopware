@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Plugin\KernelPluginLoader;
 
 use Composer\Autoload\ClassLoader;
 
+/**
+ * @package core
+ */
 class StaticKernelPluginLoader extends KernelPluginLoader
 {
     public function __construct(ClassLoader $classLoader, ?string $pluginDir = null, array $plugins = [])

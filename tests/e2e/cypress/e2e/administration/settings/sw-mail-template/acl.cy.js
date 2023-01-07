@@ -34,12 +34,20 @@ describe('Mail templates: Test acl privileges', () => {
             method: 'POST'
         }).as('loadMailHeaderFooter');
 
+        cy.get('.sw-mail-templates-list-grid').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         // open email template
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0`
         );
+
+        cy.get('.sw-mail-template-detail').should('be.visible');
+        cy.get('#sw-field--mailTemplate-description').should('be.visible');
 
         // TODO: verify fields will do when NEXT-7072 search function is fixed
 

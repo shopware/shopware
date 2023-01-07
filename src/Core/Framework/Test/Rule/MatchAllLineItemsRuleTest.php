@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Rule\Container\AndRule;
@@ -22,6 +22,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class MatchAllLineItemsRuleTest extends TestCase
@@ -31,12 +33,12 @@ class MatchAllLineItemsRuleTest extends TestCase
     use CartRuleHelperTrait;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $ruleRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $conditionRepository;
 

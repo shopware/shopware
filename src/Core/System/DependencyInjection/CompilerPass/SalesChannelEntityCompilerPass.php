@@ -16,6 +16,9 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\DependencyInjection\Reference;
 
+/**
+ * @package core
+ */
 class SalesChannelEntityCompilerPass implements CompilerPassInterface
 {
     private const PREFIX = 'sales_channel_definition.';
@@ -87,8 +90,6 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
 
             try {
                 $repository = $container->getDefinition($repositoryId);
-                //@deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16155) - remove add method call
-                $repository->addMethodCall('setEntityLoadedEventFactory', [new Reference(EntityLoadedEventFactory::class)]);
                 $repository->setPublic(true);
             } catch (ServiceNotFoundException $exception) {
                 $repository = new Definition(

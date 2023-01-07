@@ -8,7 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -16,8 +16,11 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @package checkout
+ *
  * @internal
  * @group store-api
  * @group cart
@@ -27,20 +30,11 @@ class CartItemUpdateRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
     public function setUp(): void
     {
@@ -232,11 +226,7 @@ class CartItemUpdateRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertSame('CHECKOUT__CART_LINE_ITEM_NOT_STACKABLE', $response['errors'][0]['code']);
-        } else {
-            static::assertSame('CHECKOUT__CART_LINEITEM_NOT_STACKABLE', $response['errors'][0]['code']);
-        }
+        static::assertSame('CHECKOUT__CART_LINE_ITEM_NOT_STACKABLE', $response['errors'][0]['code']);
     }
 
     public function testUpdateByTypeCredit(): void

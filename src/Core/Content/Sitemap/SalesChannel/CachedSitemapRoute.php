@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -20,6 +19,8 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package sales-channel
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class CachedSitemapRoute extends AbstractSitemapRoute
@@ -37,6 +38,9 @@ class CachedSitemapRoute extends AbstractSitemapRoute
      */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @var array<string>
+     */
     private array $states;
 
     private EventDispatcherInterface $dispatcher;
@@ -47,6 +51,7 @@ class CachedSitemapRoute extends AbstractSitemapRoute
      * @internal
      *
      *  @param AbstractCacheTracer<SitemapRouteResponse> $tracer
+     *  @param array<string> $states
      */
     public function __construct(
         AbstractSitemapRoute $decorated,
@@ -93,6 +98,10 @@ class CachedSitemapRoute extends AbstractSitemapRoute
 
         $key = $this->generateKey($request, $context);
 
+        if ($key === null) {
+            return $this->getDecorated()->load($request, $context);
+        }
+
         $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context) {
             $name = self::buildName($context->getSalesChannelId());
 
@@ -108,16 +117,23 @@ class CachedSitemapRoute extends AbstractSitemapRoute
         return CacheValueCompressor::uncompress($value);
     }
 
-    private function generateKey(Request $request, SalesChannelContext $context): string
+    private function generateKey(Request $request, SalesChannelContext $context): ?string
     {
         $parts = [$this->generator->getSalesChannelContextHash($context)];
 
         $event = new SitemapRouteCacheKeyEvent($parts, $request, $context, null);
         $this->dispatcher->dispatch($event);
 
+        if (!$event->shouldCache()) {
+            return null;
+        }
+
         return self::buildName($context->getSalesChannelId()) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function generateTags(SitemapRouteResponse $response, Request $request, SalesChannelContext $context): array
     {
         $tags = array_merge(

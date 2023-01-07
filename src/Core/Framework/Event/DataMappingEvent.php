@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package business-ops
+ */
 class DataMappingEvent extends Event implements ShopwareEvent
 {
     /**

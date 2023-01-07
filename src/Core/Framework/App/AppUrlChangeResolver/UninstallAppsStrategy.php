@@ -6,7 +6,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -18,6 +18,8 @@ use Shopware\Storefront\Theme\ThemeAppLifecycleHandler;
  * Resolver used when apps should be uninstalled
  * and the shopId should be regenerated, meaning the old shops and old apps work like before
  * apps in the current installation will be uninstalled without informing them about that (as they still run on the old installation)
+ *
+ * @package core
  */
 class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
 {
@@ -25,12 +27,12 @@ class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
 
     private SystemConfigService $systemConfigService;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     private ?ThemeAppLifecycleHandler $themeLifecycleHandler;
 
     public function __construct(
-        EntityRepositoryInterface $appRepository,
+        EntityRepository $appRepository,
         SystemConfigService $systemConfigService,
         ?ThemeAppLifecycleHandler $themeLifecycleHandler
     ) {

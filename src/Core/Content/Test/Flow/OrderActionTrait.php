@@ -18,10 +18,14 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
+/**
+ * @package business-ops
+ */
 trait OrderActionTrait
 {
     use IntegrationTestBehaviour;
@@ -91,11 +95,13 @@ trait OrderActionTrait
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayHasKey('contextToken', $response);
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
     private function prepareProductTest(): void
@@ -232,7 +238,7 @@ trait OrderActionTrait
     private function getStateId(string $state, string $machine): string
     {
         return $this->getContainer()->get(Connection::class)
-            ->fetchColumn('
+            ->fetchOne('
                 SELECT LOWER(HEX(state_machine_state.id))
                 FROM state_machine_state
                     INNER JOIN  state_machine

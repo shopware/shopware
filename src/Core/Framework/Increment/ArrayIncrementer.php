@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Increment;
 
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
+/**
+ * @package core
+ */
 class ArrayIncrementer extends AbstractIncrementer
 {
     private array $logs = [];
@@ -41,10 +44,6 @@ class ArrayIncrementer extends AbstractIncrementer
 
         if ($key === null) {
             foreach ($this->logs[$cluster] as $key => $count) {
-                if ($count === 0) {
-                    continue;
-                }
-
                 $this->logs[$cluster][$key] = 0;
             }
 

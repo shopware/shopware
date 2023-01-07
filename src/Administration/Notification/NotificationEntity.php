@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\User\UserEntity;
 
+/**
+ * @package administration
+ */
 class NotificationEntity extends Entity
 {
     use EntityIdTrait;
@@ -21,6 +24,9 @@ class NotificationEntity extends Entity
 
     protected bool $adminOnly;
 
+    /**
+     * @var array<string>
+     */
     protected array $requiredPrivileges = [];
 
     protected string $status;
@@ -77,11 +83,17 @@ class NotificationEntity extends Entity
         $this->adminOnly = $adminOnly;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getRequiredPrivileges(): array
     {
         return $this->requiredPrivileges;
     }
 
+    /**
+     * @param array<string> $requiredPrivileges
+     */
     public function setRequiredPrivileges(array $requiredPrivileges): void
     {
         $this->requiredPrivileges = $requiredPrivileges;

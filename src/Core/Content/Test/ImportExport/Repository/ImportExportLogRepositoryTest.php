@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -17,28 +17,30 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class ImportExportLogRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $logRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $profileRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $fileRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $userRepository;
 
@@ -70,7 +72,8 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->create([$data[$id]], $this->context);
 
-        $record = $this->connection->fetchAssoc('SELECT * FROM import_export_log WHERE id = :id', ['id' => $id]);
+        $record = $this->connection->fetchAssociative('SELECT * FROM import_export_log WHERE id = :id', ['id' => $id]);
+        static::assertIsArray($record);
 
         $expect = $data[$id];
         static::assertNotEmpty($record);
@@ -92,7 +95,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($data): void {
                 $this->logRepository->create(array_values($data), $context);
             });
-            static::fail(sprintf("Create within wrong scope '%s'", Context::USER_SCOPE));
+            static::fail(sprintf('Create within wrong scope \'%s\'', Context::USER_SCOPE));
         } catch (\Exception $e) {
             static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
@@ -110,7 +113,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
             try {
                 $this->logRepository->create([$entry], $this->context);
-                static::fail(sprintf("Create without required property '%s'", $property));
+                static::fail(sprintf('Create without required property \'%s\'', $property));
             } catch (\Exception $e) {
                 static::assertInstanceOf(WriteException::class, $e);
                 static::assertInstanceOf(WriteConstraintViolationException::class, $e->getExceptions()[0]);
@@ -125,7 +128,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->create(array_values($data), $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount($num, $records);
 
@@ -227,7 +230,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->upsert(array_values($data), $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount($num, $records);
 
@@ -248,7 +251,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($origDate): void {
                 $this->logRepository->upsert(array_values($origDate), $context);
             });
-            static::fail(sprintf("Update within wrong scope '%s'", Context::USER_SCOPE));
+            static::fail(sprintf('Update within wrong scope \'%s\'', Context::USER_SCOPE));
         } catch (\Exception $e) {
             static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
@@ -281,7 +284,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->upsert(array_values($upsertData), $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount($num, $records);
 
@@ -302,7 +305,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($origDate): void {
                 $this->logRepository->upsert(array_values($origDate), $context);
             });
-            static::fail(sprintf("Update within wrong scope '%s'", Context::USER_SCOPE));
+            static::fail(sprintf('Update within wrong scope \'%s\'', Context::USER_SCOPE));
         } catch (\Exception $e) {
             static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
@@ -321,7 +324,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->delete($ids, $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount(0, $records);
     }
@@ -339,7 +342,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->delete($ids, $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount($num, $records);
     }
@@ -359,12 +362,12 @@ class ImportExportLogRepositoryTest extends TestCase
             $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($ids): void {
                 $this->logRepository->delete($ids, $context);
             });
-            static::fail(sprintf("Delete within wrong scope '%s'", Context::USER_SCOPE));
+            static::fail(sprintf('Delete within wrong scope \'%s\'', Context::USER_SCOPE));
         } catch (\Exception $e) {
             static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount($num, $records);
     }

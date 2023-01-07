@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 
+/**
+ * @package core
+ */
 class UpdateCommand extends WriteCommand implements ChangeSetAware
 {
     use ChangeSetAwareTrait;

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Routing;
 
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package core
+ */
 class RouteScope extends AbstractRouteScope
 {
     /**

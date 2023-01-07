@@ -183,6 +183,8 @@ describe('Customer groups: Test acl privileges', () => {
 
         cy.setEntitySearchable('customer_group', 'name');
 
+        cy.get('.sw-settings-customer-group-list-grid').should('be.visible');
+
         // filter customer group via search bar
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Chuck-Testers');
 

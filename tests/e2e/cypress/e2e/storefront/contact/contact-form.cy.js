@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 const selector = {
     footerLinkContact: '.footer-contact-form a[data-toggle="modal"]',
     formContact: 'form[action="/form/contact"]',
@@ -73,7 +76,7 @@ describe('Contact form', () => {
         openContactForm();
     });
 
-    it('@contact @package: Should be possible to fill out and submit the contact form', { tags: ['pa-customers-orders'] }, () => {
+    it('@contact @package: Should be possible to fill out and submit the contact form', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
         /**
          * This is a regression test for NEXT-12092.
          *

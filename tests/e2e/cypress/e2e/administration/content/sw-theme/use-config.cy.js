@@ -1,5 +1,9 @@
 // / <reference types="Cypress" />
 
+/**
+ * @package sales-channel
+ */
+
 import ProductPageObject from '../../../../support/pages/module/sw-product.page-object';
 
 describe('Theme: Test loading and saving of theme', () => {

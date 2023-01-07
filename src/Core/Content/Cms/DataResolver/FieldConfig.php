@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Cms\DataResolver;
 use Shopware\Core\Content\Cms\Exception\UnexpectedFieldConfigValueType;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package content
+ */
 class FieldConfig extends Struct
 {
     public const SOURCE_STATIC = 'static';

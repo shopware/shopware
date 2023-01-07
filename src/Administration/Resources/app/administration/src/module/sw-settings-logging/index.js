@@ -1,8 +1,10 @@
-import './page/sw-settings-logging-list';
-
-import './component/sw-settings-logging-entry-info';
-import './component/sw-settings-logging-mail-sent-info';
 import './acl';
+
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-settings-logging-list', () => import('./page/sw-settings-logging-list'));
+Shopware.Component.register('sw-settings-logging-entry-info', () => import('./component/sw-settings-logging-entry-info'));
+Shopware.Component.extend('sw-settings-logging-mail-sent-info', 'sw-settings-logging-entry-info', () => import('./component/sw-settings-logging-mail-sent-info'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 

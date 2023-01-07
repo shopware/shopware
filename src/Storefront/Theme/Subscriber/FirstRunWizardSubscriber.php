@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Theme\Subscriber;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
@@ -13,7 +13,9 @@ use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
+ *
+ * @package storefront
  */
 class FirstRunWizardSubscriber implements EventSubscriberInterface
 {
@@ -21,11 +23,11 @@ class FirstRunWizardSubscriber implements EventSubscriberInterface
 
     private ThemeLifecycleService $themeLifecycleService;
 
-    private EntityRepositoryInterface $themeRepository;
+    private EntityRepository $themeRepository;
 
-    private EntityRepositoryInterface $themeSalesChannelRepository;
+    private EntityRepository $themeSalesChannelRepository;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     /**
      * @internal
@@ -33,9 +35,9 @@ class FirstRunWizardSubscriber implements EventSubscriberInterface
     public function __construct(
         ThemeService $themeService,
         ThemeLifecycleService $themeLifecycleService,
-        EntityRepositoryInterface $themeRepository,
-        EntityRepositoryInterface $themeSalesChannelRepository,
-        EntityRepositoryInterface $salesChannelRepository
+        EntityRepository $themeRepository,
+        EntityRepository $themeSalesChannelRepository,
+        EntityRepository $salesChannelRepository
     ) {
         $this->themeService = $themeService;
         $this->themeLifecycleService = $themeLifecycleService;

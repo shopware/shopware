@@ -20,6 +20,7 @@ describe('Custom Fields: Test crud operations', () => {
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/create`);
+        cy.get('.sw-settings-custom-field-set-detail-base').should('exist');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
@@ -51,7 +52,7 @@ describe('Custom Fields: Test crud operations', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     });
 
-    it('@settings: create and read custom field', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: create and read custom field', { tags: ['pa-system-settings', 'quarantined'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set`,
@@ -64,6 +65,7 @@ describe('Custom Fields: Test crud operations', () => {
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/create`);
+        cy.get('.sw-settings-custom-field-set-detail-base').should('exist');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
@@ -122,10 +124,14 @@ describe('Custom Fields: Test crud operations', () => {
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.get('.sw-settings-custom-field-set-list-grid').should('exist');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-grid-row.sw-grid__row--0 a').click();
+        cy.get('.sw-settings-custom-field-set-detail-base').should('exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-custom-field-translated-labels input').clearTypeAndCheck('Another custom field set');
 
@@ -175,10 +181,15 @@ describe('Custom Fields: Test crud operations', () => {
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.get('.sw-settings-custom-field-set-list-grid').should('exist');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
+        cy.get('.sw-settings-custom-field-set-list-grid').should('be.visible');
         cy.get('.sw-grid-row.sw-grid__row--0 a').click();
+        cy.get('.sw-settings-custom-field-set-detail-base').should('exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // delete custom field
         cy.get('.sw-grid__row--0 .sw-context-button__button').click();

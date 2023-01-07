@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ */
 trait UpdateMailTrait
 {
     use ImportTranslationsTrait;
@@ -37,7 +40,7 @@ trait UpdateMailTrait
         }
 
         foreach ($translations as $translation) {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 '
                     UPDATE mail_template_translation
                     SET content_html = :html, content_plain = :plain
@@ -67,7 +70,7 @@ trait UpdateMailTrait
         }
 
         foreach ($translations as $translation) {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'UPDATE mail_template_translation
                  SET content_html = :html, content_plain = :plain
                  WHERE language_id = :language_id AND mail_template_id = :template',
@@ -96,7 +99,7 @@ trait UpdateMailTrait
         }
 
         foreach ($translations as $translation) {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'UPDATE mail_template_translation
                  SET subject = :subject
                  WHERE language_id = :language_id AND mail_template_id = :template',
@@ -122,7 +125,7 @@ trait UpdateMailTrait
         }
 
         foreach ($translations as $translation) {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 '
                     UPDATE mail_template_translation
                     SET subject = :subject
@@ -143,7 +146,7 @@ trait UpdateMailTrait
      */
     private function getTranslationIds(Connection $connection, array $languageIds, string $type): array
     {
-        return $connection->fetchAll(
+        return $connection->fetchAllAssociative(
             '
             SELECT mail_template_translation.mail_template_id, mail_template_translation.language_id
 

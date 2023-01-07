@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package business-ops
+ */
 class IsNewsletterRecipientRule extends Rule
 {
     protected bool $isNewsletterRecipient;

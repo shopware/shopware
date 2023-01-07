@@ -6,19 +6,19 @@ use OpenApi\Annotations\OpenApi;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
-use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
 /**
  * @internal
  * @phpstan-import-type OpenApiSpec from DefinitionService
+ *
+ * @package core
  */
 class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 {
@@ -29,8 +29,6 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     private OpenApiPathBuilder $pathBuilder;
 
     private OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder;
-
-    private OpenApiLoader $openApiLoader;
 
     private string $schemaPath;
 
@@ -43,14 +41,12 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         OpenApiSchemaBuilder $openApiBuilder,
         OpenApiPathBuilder $pathBuilder,
         OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
-        OpenApiLoader $openApiLoader,
         array $bundles,
         BundleSchemaPathCollection $bundleSchemaPathCollection
     ) {
         $this->openApiBuilder = $openApiBuilder;
         $this->pathBuilder = $pathBuilder;
         $this->definitionSchemaBuilder = $definitionSchemaBuilder;
-        $this->openApiLoader = $openApiLoader;
         $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/AdminApi';
         $this->bundleSchemaPathCollection = $bundleSchemaPathCollection;
     }
@@ -65,9 +61,6 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
         $openApi = new OpenApi([]);
-        if (!Feature::isActive('v6.5.0.0')) {
-            $openApi = $this->openApiLoader->load($api);
-        }
         $this->openApiBuilder->enrich($openApi, $api);
 
         ksort($definitions);

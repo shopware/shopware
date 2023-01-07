@@ -2,14 +2,13 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeLanguageRoute;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
+use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
@@ -21,45 +20,31 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
+ * @package storefront
+ *
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class ContextController extends StorefrontController
 {
-    /**
-     * @var ContextSwitchRoute
-     */
-    private $contextSwitchRoute;
+    private AbstractContextSwitchRoute $contextSwitchRoute;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    private RequestStack $requestStack;
 
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
-     * @deprecated tag:v6.5.0 - $changeLanguageRoute will be removed
-     */
-    private AbstractChangeLanguageRoute $changeLanguageRoute;
+    private RouterInterface $router;
 
     /**
      * @internal
      */
     public function __construct(
-        ContextSwitchRoute $contextSwitchRoute,
+        AbstractContextSwitchRoute $contextSwitchRoute,
         RequestStack $requestStack,
-        RouterInterface $router,
-        AbstractChangeLanguageRoute $changeLanguageRoute
+        RouterInterface $router
     ) {
         $this->contextSwitchRoute = $contextSwitchRoute;
         $this->requestStack = $requestStack;
         $this->router = $router;
-        $this->changeLanguageRoute = $changeLanguageRoute;
     }
 
     /**
@@ -92,20 +77,6 @@ class ContextController extends StorefrontController
             );
         } catch (ConstraintViolationException $e) {
             throw new LanguageNotFoundException($languageId);
-        }
-
-        /** @deprecated tag:v6.5.0 - The automatic change of the customer language will be removed - NEXT-22283 */
-        if ($context->getCustomer()) {
-            $this->changeLanguageRoute->change(
-                new RequestDataBag(
-                    [
-                        'id' => $context->getCustomer()->getId(),
-                        'languageId' => $languageId,
-                    ]
-                ),
-                $context,
-                $context->getCustomer()
-            );
         }
 
         $route = (string) $request->request->get('redirectTo', 'frontend.home.page');

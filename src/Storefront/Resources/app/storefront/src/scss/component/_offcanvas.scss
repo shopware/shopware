@@ -4,64 +4,12 @@ Offcanvas
 Move page content like the navigation menu in a sliding offcanvas menu.
 The sliding direction can be left or right.
 
-@see https://getbootstrap.com/docs/5.1/components/offcanvas
+@see https://getbootstrap.com/docs/5.2/components/offcanvas
 */
 
 .offcanvas {
-    // @deprecated tag:v6.5.0 - Bootstrap v5 ships its own OffCanvas component, remove custom styling from else block.
-    @if feature('v6.5.0.0') {
-        border: 0 none;
-        transition: all 0.45s cubic-bezier(0.3, 0, 0.15, 1);
-    } @else {
-        z-index: $offcanvas-zindex;
-        background: $white;
-        height: 100%;
-        width: 90%;
-        overflow-y: auto;
-        position: fixed;
-        top: 0;
-        transition: all 0.45s cubic-bezier(0.3, 0, 0.15, 1);
-
-        &.is-left {
-            left: 0;
-            transform: translateX(-100%);
-
-            .offcanvas-close {
-                align-items: center;
-                display: flex;
-                flex-direction: row-reverse;
-                justify-content: space-between;
-            }
-        }
-
-        &.is-right {
-            right: 0;
-            transform: translateX(100%);
-        }
-
-        &.is-open {
-            transform: translateX(0) !important;
-            // @deprecated tag:v6.5.0 - Bootstrap v5 OffCanvas needs additional visibility property to be displayed.
-            @if (feature('v6.5.0.0')) {
-                visibility: visible;
-            }
-        }
-
-        &.is-bottom {
-            bottom: 0;
-            top: auto;
-            height: 90%;
-            width: 100%;
-            border-radius: 8px 8px 0 0;
-            transform: translateY(100%);
-
-            .offcanvas-close {
-                display: flex;
-                border: 0;
-                padding: 0;
-            }
-        }
-    }
+    border: 0 none;
+    transition: all 0.45s cubic-bezier(0.3, 0, 0.15, 1);
 
     &.offcanvas-start .offcanvas-close {
         align-items: center;
@@ -127,18 +75,5 @@ The sliding direction can be left or right.
     .offcanvas-body {
         padding: $grid-gutter-width / 2;
         width: 100%;
-    }
-}
-
-// @deprecated tag:v6.5.0 - Overall offcanvas width will be set via Bootstrap via `.offcanvas` selector
-@if not feature('v6.5.0.0') {
-    @include media-breakpoint-up(sm) {
-        .offcanvas {
-            width: auto;
-
-            .offcanvas-content-container {
-                width: 400px;
-            }
-        }
     }
 }

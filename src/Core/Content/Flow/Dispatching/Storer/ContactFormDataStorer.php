@@ -6,6 +6,9 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\ContactFormDataAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Event\FlowEventAware;
 
+/**
+ * @package business-ops
+ */
 class ContactFormDataStorer extends FlowStorer
 {
     /**

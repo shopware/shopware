@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Test\Payment\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodIndexer;
-use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryDecorator;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Defaults;
@@ -15,6 +14,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class PaymentMethodIndexerTest extends TestCase
@@ -41,7 +42,6 @@ class PaymentMethodIndexerTest extends TestCase
 
     public function testGeneratesDistinguishablePaymentNameIfPaymentIsProvidedByExtension(): void
     {
-        /** @var PaymentMethodRepositoryDecorator $paymentRepository */
         $paymentRepository = $this->getContainer()->get('payment_method.repository');
 
         $paymentRepository->create(

@@ -10,14 +10,20 @@ describe('Add and remove products from saleschannel', () => {
     afterEach(() => {
         // Remove product from the sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-dashboard-index__welcome-title').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.contains('E2E install test').click();
+
+        cy.contains('.sw-card__title', 'Algemene instellingen').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('[title="Producten"]').click();
+
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-data-grid__row--0')
+            .should('be.visible');
         cy.get('.sw-data-grid__actions-menu').click();
         cy.contains('.sw-context-menu__content', 'Verwijderen').click();
         cy.contains('Geen producten meer gevonden').should('be.visible');
@@ -64,15 +70,20 @@ describe('Add and remove products from saleschannel', () => {
 
         // Add product to sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-dashboard-index__welcome-title').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.contains('E2E install test').click();
+
+        cy.contains('.sw-card__title', 'Algemene instellingen').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('[title="Producten"]').click();
+
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-button.sw-button--ghost').click();
+        cy.contains('.sw-button', 'producten toevoegen').click();
+
         cy.contains('.sw-modal__header', 'Producten toevoegen').should('be.visible');
         cy.get('[title="Categorie selectie"]').click();
         cy.get('.sw-tree-item__selection [type]').click();
@@ -90,12 +101,15 @@ describe('Add and remove products from saleschannel', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-product-stream-list__create-action').click();
+
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('input[name=sw-field--productStream-name]').typeAndCheck('Dynamic Products');
         cy.get('[class="sw-product-stream-value sw-product-stream-value--grow-2"] .sw-entity-single-select__selection').click();
+
         cy.contains('.sw-select-result-list__content', 'Product name').click();
         cy.get('.sw-button.sw-button--primary.sw-product-stream-detail__save-action').click();
+
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-button-process__content', 'Opslaan').should('be.visible');
@@ -105,14 +119,36 @@ describe('Add and remove products from saleschannel', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.contains('E2E install test').click();
+
+        cy.contains('.sw-card__title', 'Algemene instellingen').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('[title="Producten"]').click();
+
+        cy.contains('.sw-empty-state__title', 'Geen producten meer gevonden').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-button.sw-button--ghost').click();
+
         cy.contains('.sw-modal__header', 'Producten toevoegen').should('be.visible');
+        cy.contains('.sw-button', '0 producten toevoegen').should('be.visible');
+        cy.contains('.sw-data-grid__row--0', 'Product name').should('be.visible')
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.contains('.sw-button', 'Annuleren').click();
+        cy.get('.sw-modal').should('not.exist');
+        cy.get('.sw-button.sw-button--ghost').click();
+
+        cy.contains('.sw-modal__header', 'Producten toevoegen').should('be.visible');
+        cy.contains('.sw-button', '0 producten toevoegen').should('be.visible');
+        cy.contains('.sw-data-grid__row--0', 'Product name').should('be.visible')
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('[title="Selectie van productgroepen"]').click();
+        cy.get('.sw-alert__message').should('be.visible');
+
         cy.get('.sw-data-grid--actions .sw-data-grid__header [type]').check();
         cy.contains('.sw-data-grid__bulk', '1').should('be.visible');
         cy.get('.sw-button.sw-button--primary.sw-button--small').click();

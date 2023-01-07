@@ -1,10 +1,14 @@
 import template from './sw-cms-block.html.twig';
 import './sw-cms-block.scss';
 
-const { Component, Filter } = Shopware;
+/**
+ * @package content
+ */
+
+const { Filter } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-cms-block', {
+export default {
     template,
 
     inject: ['cmsService'],
@@ -128,4 +132,4 @@ Component.register('sw-cms-block', {
             }
         },
     },
-});
+};

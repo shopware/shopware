@@ -11,6 +11,7 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
+ * @package core
  * @Decoratable
  */
 class BundleConfigGenerator implements BundleConfigGeneratorInterface

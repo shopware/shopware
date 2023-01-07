@@ -26,7 +26,7 @@ use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -39,6 +39,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class CreditNoteRendererTest extends TestCase
@@ -49,7 +51,7 @@ class CreditNoteRendererTest extends TestCase
 
     private Context $context;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
     private CreditNoteRenderer $creditNoteRenderer;
 
@@ -107,7 +109,6 @@ class CreditNoteRendererTest extends TestCase
         $invoiceConfig->setDocumentNumber('1001');
 
         $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
-
         $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->getSuccess()->first();
         static::assertNotNull($result);
         $invoiceId = $result->getId();
@@ -144,6 +145,8 @@ class CreditNoteRendererTest extends TestCase
         );
 
         static::assertInstanceOf(CreditNoteOrdersEvent::class, $caughtEvent);
+        static::assertCount(1, $caughtEvent->getOperations());
+        static::assertSame($operation, $caughtEvent->getOperations()[$orderId] ?? null);
         static::assertCount(1, $caughtEvent->getOrders());
         $order = $caughtEvent->getOrders()->get($orderId);
         static::assertNotNull($order);

@@ -150,6 +150,8 @@ use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class PermissionCategorization
@@ -414,6 +416,9 @@ class PermissionCategorization
         return \in_array($entity, self::PERMISSION_CATEGORIES[$category], true);
     }
 
+    /**
+     * @return string[]
+     */
     public static function getCategoryNames(): array
     {
         $categories = array_keys(self::PERMISSION_CATEGORIES);

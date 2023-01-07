@@ -5,26 +5,27 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
+ *
+ * @package inventory
  */
 class ProductListRoute extends AbstractProductListRoute
 {
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var SalesChannelRepository
      */
     private $productRepository;
 
     /**
      * @internal
      */
-    public function __construct(SalesChannelRepositoryInterface $productRepository)
+    public function __construct(SalesChannelRepository $productRepository)
     {
         $this->productRepository = $productRepository;
     }

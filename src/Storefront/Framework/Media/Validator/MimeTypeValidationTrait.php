@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Framework\Media\Validator;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * @package content
+ */
 trait MimeTypeValidationTrait
 {
     protected function checkMimeType(UploadedFile $file, array $allowedMimeTypes): bool

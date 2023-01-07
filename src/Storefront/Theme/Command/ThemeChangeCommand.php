@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Theme\Command;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -11,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,21 +20,26 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @package storefront
+ */
+#[AsCommand(
+    name: 'theme:change',
+    description: 'Change the active theme for a sales channel',
+)]
 class ThemeChangeCommand extends Command
 {
-    protected static $defaultName = 'theme:change';
-
     private ThemeService $themeService;
 
     private StorefrontPluginRegistryInterface $pluginRegistry;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     private Context $context;
 
     private SymfonyStyle $io;
 
-    private EntityRepositoryInterface $themeRepository;
+    private EntityRepository $themeRepository;
 
     /**
      * @internal
@@ -41,8 +47,8 @@ class ThemeChangeCommand extends Command
     public function __construct(
         ThemeService $themeService,
         StorefrontPluginRegistryInterface $pluginRegistry,
-        EntityRepositoryInterface $salesChannelRepository,
-        EntityRepositoryInterface $themeRepository
+        EntityRepository $salesChannelRepository,
+        EntityRepository $themeRepository
     ) {
         parent::__construct();
 

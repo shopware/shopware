@@ -9,6 +9,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 class ValidatePayload implements SourcedPayloadInterface
 {

@@ -13,12 +13,7 @@
                 <form action="{{ path('frontend.account.register.save') }}"
                       class="register-form"
                       method="post"
-                      data-form-csrf-handler="true"
                       data-form-validation="true">
-
-                    {% block component_account_register_form_csrf %}
-                        {{ sw_csrf('frontend.account.register.save') }}
-                    {% endblock %}
 
                     {% block component_account_register_redirect %}
                         <input type="hidden"
@@ -31,11 +26,9 @@
                     {% endblock %}
 
                     {% block component_account_register_create_account %}
-                    {% if feature('FEATURE_NEXT_16236') %}
-                        <input type="hidden"
-                               name="createCustomerAccount"
-                               value="1">
-                    {% endif %}
+                    <input type="hidden"
+                           name="createCustomerAccount"
+                           value="1">
                     {% endblock %}
 
                     {% block component_account_register_form_action %}
@@ -229,7 +222,7 @@
                                 {% endset %}
 
                                 {% block component_account_register_personal_account_fields %}
-                                    <div class="{{ formRowClass }}">
+                                    <div class="row g-2">
                                         <div class="form-group col-sm-6">
                                             {{ formGroupMail }}
                                         </div>
@@ -280,10 +273,10 @@
                                 {% block component_account_register_address_different_shipping %}
                                     <div>
                                         {% block component_account_register_address_different_shipping_control %}
-                                            <div class="{{ formCheckboxWrapperClass }} register-different-shipping">
+                                            <div class="form-check register-different-shipping">
                                                 {% block component_account_register_address_different_shipping_input %}
                                                     <input type="checkbox"
-                                                           class="{{ formCheckInputClass }} js-different-shipping-checkbox"
+                                                           class="form-check-input js-different-shipping-checkbox"
                                                            name="differentShippingAddress"
                                                            value="1"
                                                            id="differentShippingAddress"
@@ -362,7 +355,7 @@
                     {% endblock %}
 
                     {% block component_account_register_submit %}
-                        <div class="register-submit">
+                        <div class="register-submit d-grid col-md-6 offset-md-6">
                             <button type="submit"
                                     class="btn btn-primary btn-lg">
                                 {{ "account.registerSubmit"|trans|sw_sanitize }}

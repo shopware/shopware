@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Cart\LineItem;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package checkout
+ *
  * This class can be used as a type-safe list of LineItem objects.
  * In contrast to the original LineItemCollection it allows you
  * to have the same line item objects multiple times in the list,

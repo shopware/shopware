@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Util\ArrayNormalizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package inventory
+ */
 class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterface
 {
     private const RELEVANT_KEYWORD_COUNT = 8;
@@ -221,7 +224,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
         $query->setParameter('language', Uuid::fromHexToBytes($context->getLanguageId()));
 
-        return $query->execute()->fetchAllNumeric();
+        return $query->executeQuery()->fetchAllNumeric();
     }
 
     /**
@@ -243,14 +246,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             }
 
             foreach ($tokens as $token) {
-                /**
-                 * @deprecated tag:v6.5.0 - if can be removed as php min version is higher, only keep else branch
-                 */
-                if (\PHP_VERSION_ID < 80000) {
-                    $levenshtein = levenshtein(substr($match, 0, 255), substr((string) $token, 0, 255));
-                } else {
-                    $levenshtein = levenshtein($match, (string) $token);
-                }
+                $levenshtein = levenshtein($match, (string) $token);
 
                 if ($levenshtein === 0) {
                     $score += 6;

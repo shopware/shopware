@@ -5,11 +5,16 @@ namespace Shopware\Core\System\SalesChannel\Context;
 use Shopware\Core\System\SalesChannel\BaseContext;
 
 /**
+ * @package core
+ *
  * @internal
  */
 abstract class AbstractBaseContextFactory
 {
     abstract public function getDecorated(): AbstractBaseContextFactory;
 
+    /**
+     * @param array<string, mixed> $options
+     */
     abstract public function create(string $salesChannelId, array $options = []): BaseContext;
 }

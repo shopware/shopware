@@ -8,6 +8,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
+/**
+ * @package core
+ */
 class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
     public const ALL_TAG = 'sales-channel-context';
@@ -80,6 +83,9 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
         return 'context-factory-' . $salesChannelId;
     }
 
+    /**
+     * @param array<string, mixed> $options
+     */
     private function isCacheable(array $options): bool
     {
         return !isset($options[SalesChannelContextService::CUSTOMER_ID])

@@ -1,5 +1,8 @@
 import FormCountryStateSelectPlugin from 'src/plugin/forms/form-country-state-select.plugin';
 
+/**
+ * @package content
+ */
 describe('Form country state select plugin', () => {
     let template = `
         <form id="registerForm" action="/register" method="post">
@@ -85,8 +88,8 @@ describe('Form country state select plugin', () => {
 
                 <select class="country-select" data-initial-country-id="">
                     <option disabled="disabled" value="">Select country...</option>
-                    <option value="1" selected="selected" data-vat-id-required="1" data-state-required="0">Netherlands</option>
-                    <option value="2" data-vat-id-required="0" data-state-required="0">Germany</option>
+                    <option value="1" selected="selected" data-zipcode-required="0" data-vat-id-required="1" data-state-required="0">Netherlands</option>
+                    <option value="2" data-vat-id-required="0" data-zipcode-required="0" data-state-required="0">Germany</option>
                 </select>
                 <select class="country-state-select" data-initial-country-state-id="">
                     <option>Select state..</option>
@@ -108,5 +111,39 @@ describe('Form country state select plugin', () => {
         // Ensure vatIds is required after selecting a country with vatId required setting.
         expect(document.querySelector('#vatIds').hasAttribute('required')).toBe(true);
         expect(document.querySelector('label[for="vatIds"]').textContent).toBe('VAT Reg.No.*');
+    });
+
+    it('should set zipcode field to required when a country with required one setting is selected', () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+               <label class="form-label" for="addressZipcode">
+                   Postal code<span id="zipcodeLabel" class="d-none">*</span>
+               </label>
+
+               <input type="text" class="form-control" id="addressZipcode" value="" data-input-name="zipcodeInput">
+
+               <select class="country-select" data-initial-country-id="">
+                  <option disabled="disabled" value="">Select country...</option>
+                  <option value="1" data-vat-id-required="0" data-zipcode-required="1" data-state-required="1" selected="selected" data-placeholder-option="true">Germany</option>
+               </select>
+
+               <select class="country-state-select" data-initial-country-state-id="">
+                 <option>Select state..</option>
+               </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+
+        createPlugin();
+
+        expect(document.querySelector('[data-input-name="zipcodeInput"]').hasAttribute('required')).toBe(false);
+        expect(document.querySelector('#zipcodeLabel').classList.contains('d-none')).toBe(true);
+
+        // Perform selection
+        document.querySelector('.country-select').dispatchEvent(new Event('change'));
+
+        expect(document.querySelector('[data-input-name="zipcodeInput"]').hasAttribute('required')).toBe(true);
+        expect(document.querySelector('#zipcodeLabel').classList.contains('d-none')).toBe(false);
     });
 });

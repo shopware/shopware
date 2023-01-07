@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Script\Execution;
 
 /**
  * @internal
+ *
+ * @package core
  */
 abstract class FunctionHook extends Hook
 {

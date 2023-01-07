@@ -4,6 +4,7 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/shopware/platform/badges/quality-score.png)](https://scrutinizer-ci.com/g/shopware/platform/)
 [![Latest Stable Version](https://poser.pugx.org/shopware/platform/v/stable)](https://packagist.org/packages/shopware/platform)
 [![Total Downloads](https://poser.pugx.org/shopware/platform/downloads)](https://packagist.org/packages/shopware/platform)
+[![Crowdin](https://badges.crowdin.net/shopware6/localized.svg)](https://translate.shopware.com/project/shopware6)
 [![License](https://img.shields.io/github/license/shopware/platform.svg)](https://github.com/shopware/platform/blob/trunk/license.txt)
 [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/shopware/platform.svg)](https://github.com/shopware/platform/pulls)
 [![Slack](https://img.shields.io/badge/chat-on%20slack-%23ECB22E)](https://slack.shopware.com?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
@@ -12,7 +13,7 @@
 </div>
 
 
-<p align="center"><a href="https://shopware.com" target="_blank" rel="noopener noreferrer"><img width="250" src="https://www.shopware.com/media/image/dd/e4/b3/composable-customer-experience-illustration.png"></a></p>
+<p align="center"><a href="https://shopware.com" target="_blank" rel="noopener noreferrer"><img width="250" src="https://images.ctfassets.net/nqzs8zsepqpi/34zKqvPxTYtsQppJpgC9It/3b6901d9ba7082d5b4081d7171b268bf/composable-customer-experience-illustration.png"></a></p>
 
 <h1 align="center">Shopware</h1>
 
@@ -30,11 +31,11 @@ If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on Github
 * 🌎 &nbsp;Discover our [website](https://www.shopware.com/en/)
 * 🧩 &nbsp;Browse more than [2.000 apps](https://store.shopware.com) that are already available
 * 📖 &nbsp;Learn how to [develop apps](https://developer.shopware.com/docs/) and everything else about the tech behind shopware
-* 🉐 &nbsp;[Translate](https://crowdin.com/project/shopware6) Shopware or help by contributing to existing languages
+* 🉐 &nbsp;[Translate](https://translate.shopware.com) Shopware or help by contributing to existing languages
 * 👍 &nbsp;Follow us on [Twitter](https://twitter.com/shopwaredevs) to get updates
 * 🛠 &nbsp;[Report bugs or add feature ideas](https://issues.shopware.com) in our issue tracker
 * 🗨 &nbsp;Help and get helped in our - [Community forum](https://forum.shopware.com/)
-* 👪  &nbsp;Exchange with more than 5.000 shopware developers in our  - [Slack](https://slack.shopware.com) 
+* 👪  &nbsp;Exchange with more than 5.000 shopware developers in our  - [Slack](https://slack.shopware.com)
 * 🕹 &nbsp;[Download Shopware](https://www.shopware.com/de/download/) or start playing with [Dockware](https://github.com/dockware/dockware)
 
 ## Table of contents
@@ -64,7 +65,7 @@ With Shopware you control your destiny. Always having access to the source, you 
 
 Open commerce empowers you to seize the collective force of our community and partnerships. You benefit from a worldwide network of established developers, looking into the future of ecommerce and continuously advancing the platform in order to meet the latest market developments. It is exactly this focus that makes the difference and enables our merchants to grow strongly and sustainably in the ever-evolving world of digital commerce.
 
-<img src='https://www.shopware.com/media/image/0a/6e/57/open-commerce-platform-mood-image.png'></td>
+<img src='https://images.ctfassets.net/nqzs8zsepqpi/6L9YIBLLZ5cOdUSDmgcER/234366961af834327d17621c26ede892/open-commerce-platform-mood-image.png'></td>
 
 
 
@@ -81,20 +82,20 @@ Open commerce empowers you to seize the collective force of our community and pa
 ## Business Model Composer
 ### Plug and play your business model:
 
-<img src='https://www.shopware.com/media/image/d2/6d/6e/business-model-composer-illustration.png'>
+<img src='https://images.ctfassets.net/nqzs8zsepqpi/nmbB4kx2XgV9gIJtkVWI6/6c3f14eb022b54d980a10be703fd4710/business-model-composer-illustration.png'>
 
 <p>
 Adapt fast and test various business models on-time: Digital events, subscription services, consultations, and highly customisable goods – whether to buy or to rent. There are no limits to the power of human imagination. Dare to dream, we'll make it happen!
 </p>
 
 
-<img src='https://www.shopware.com/media/vector/c1/5d/9f/flowbuilder.svg'>
+<img src='https://images.ctfassets.net/nqzs8zsepqpi/2fzpK9THpmhh285950bwPl/8d018b21e1173cafb767a8120e2d9b8b/flowbuilder.svg'>
 
 
 #### The Flow-builder makes the implementation of business processes easy
 
 
-<img src='https://www.shopware.com/media/vector/09/d0/ab/flow-builder-intro-illustration.svg'>
+<img src='https://images.ctfassets.net/nqzs8zsepqpi/5WUwOmbBzXKujLraK02eAp/a0e208a7df0d5517df419be279578dc0/flow-builder-intro-illustration.svg'>
 
 <img src='https://assets.shopware.com/media/icons/marketing/blue/business-models-on-time.svg' width='32' align='left'>&nbsp;
 **Run different business models on-time with one solution** <br />
@@ -108,7 +109,7 @@ Adapt fast and test various business models on-time: Digital events, subscriptio
 
 ## Composable Customer Experience
 
-<p align="center"><img src='https://www.shopware.com/media/image/dd/e4/b3/composable-customer-experience-illustration.png' width=500 align='center'></p>
+<p align="center"><img src='https://images.ctfassets.net/nqzs8zsepqpi/2mI5yTktojiFqNsB66pCsA/752bbd8eddb1b2d587d43d4cec09ffa7/composable-customer-experience-illustration.png' width=500 align='center'></p>
 
 <br />
 
@@ -160,7 +161,7 @@ Together with our friends of [VueStorefront](https://github.com/vuestorefront) w
 * Made for enterprise-level complexity
 
 <div align="center">
-<img align='center' src='https://www.shopware.com/media/vector/90/68/81/shopware-pwa-framework.svg'>
+<img align='center' src='https://images.ctfassets.net/nqzs8zsepqpi/6raZzvIPlRGUhSZGMpKg4F/c6f3d96d223c886f0134baf5069bea80/shopware-pwa-framework.svg'>
 </div>
 
 
@@ -176,7 +177,7 @@ Get started with the [design documentation](https://shopware.design/).
 
 Shopware 6 is a lean and extremely flexible product that can be easily adapted to meet your requirements – and the Plugin Manager is your command centre for managing the apps and themes added to your shop. Using this module, you can install, purchase, update or delete apps.
 
-<img src='https://www.shopware.com/media/image/2b/e5/c2/EN-Plugin_Manager_Updates-190520.png'>
+<img src='https://images.ctfassets.net/nqzs8zsepqpi/37KEQR5sgxpBlar7Q5PyGL/6f638937957a6eefeca74af83b28d5ba/EN-Plugin_Manager_Updates-190520.png'>
 <br />
 <br />
 <p align="center">
@@ -223,7 +224,7 @@ Shopware 6 consists of multiple repositories, two of them are important to you:
     - This is where the shopware core is developed. You need it as dependency in your projects
     - This is where you can participate in the development of Shopware through pull requests
     - It's split into multiple repositories for production setups, all read-only
-- [`shopware/development`](https://github.com/shopware/development) is the development template
+- A template based on Symfony flex, which you can use to start your own project
     - **This is where your journey with shopware starts**
     - Installation see below!
 
@@ -231,47 +232,37 @@ Shopware 6 consists of multiple repositories, two of them are important to you:
 
 A full installation guide covering different dev environments is available in the [docs](https://developer.shopware.com/docs/guides/installation).
 
-*For the impatient reader, here is a tl;dr using docker.*
+*For the impatient reader, here is a tl;dr using docker and symfony cli.*
 
-Let's start by cloning the development template:
-
-```bash
-> git clone git@github.com:shopware/development.git
-```
-
-You now have the application template for the Shopware Platform in the directory `development`, we now change into it:
+Let's start by creating a new project:
 
 ```bash
-> cd development
+> composer create-project shopware/production:dev-flex project
 ```
 
-Only if you want to work with the Shopware platform code itself, e.g. in order to create a pull request for it, you should clone the platform code manually. Before doing so, empty the existing platform directory.
+You now have the application template for the Shopware Platform in the directory `project`, we now change into it:
 
 ```bash
-> rm platform/.gitkeep
-> git clone git@github.com:shopware/platform
-> git checkout @ platform/.gitkeep
+> cd project
 ```
 
-Build and start the containers:
+Now we start our service containers:
 
 ```bash
-> ./psh.phar docker:start
+> docker compose up -d
 ```
 
-Access the application container:
+And install Shopware with the following command:
 
 ```bash
-> ./psh.phar docker:ssh
+symfony console system:install --basic-setup --drop-database --create-database -f
 ```
 
-Execute the installer:
+Start the webserver:
 
 ```bash
-> ./psh.phar install
+symfony server:start -d
 ```
-
-This may take a while since many caches need to be generated on first execution, but only on first execution.
 
 To be sure that the installation succeeded, just open the following URL in your favorite browser: [localhost:8000](http://localhost:8000/)
 
@@ -283,7 +274,7 @@ To be sure that the installation succeeded, just open the following URL in your 
 
 Shopware 6 will continue to evolve together with you and your feedback. This is our number one priority!
 
-With openness as one of our core values, we will always provide you with a transparent overview of our product development.   
+With openness as one of our core values, we will always provide you with a transparent overview of our product development.
 The Shopware Roadmap shows you what we are working on, what we want to tackle next, and what visions we have for the future.
 
 [Take a look at the current roadmap here.](https://shopware.com/en/roadmap/)
@@ -322,7 +313,7 @@ Subscribe to our **[developer newsletter](https://www.shopware.com/en/community/
       Community Manager<br>
       Twitter: <a href="https://twitter.com/m_naczenski">@m_naczenski</a>
     </td>
-    <td width="250"><img src="https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/ndzoesch.png" /></td>  
+    <td width="250"><img src="https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/ndzoesch.png" /></td>
     <td>
       <strong>Niklas Dzösch</strong><br>
       Developer Evangelist<br>
@@ -357,11 +348,72 @@ You want to participate in the development of Shopware? There are many ways to c
 -   Submitting pull requests
 -   Reporting issues on the [issue tracker](https://issues.shopware.com/)
 -   Discuss shopware on e.g [Slack](https://slack.shopware.com) or our [forum](https://forum.shopware.com/categories/shopware-6)
-- Write a translation for shopware on [crowdin](https://crowdin.com/project/shopware6)
+- Write a translation for shopware on [crowdin](https://translate.shopware.com)
 
 You have a question regarding contribution, or you want to contribute in another way?
 
 Please write us an email: contributors@shopware.com
+
+### Installation of Shopware for contributors
+
+The installation process is slightly different for working on the platform. It's not necessary to create a new project and install the platform as a dependency. Instead, we will work on it directly.
+
+Let's start by cloning the platform repository
+
+```bash
+> git clone git@github.com:shopware/platform.git shopware-platform
+```
+
+Change directory into our newly cloned project:
+
+```bash
+> cd shopware-platform
+```
+
+Install the Composer dependencies
+
+```bash
+> composer update
+```
+
+Now we start our service containers:
+
+```bash
+> docker compose up -d
+```
+
+Now, set up the Shopware environment with the following command:
+
+```bash
+> ./bin/console system:setup
+```
+
+URL to your /public folder should be: `http://localhost:8000`
+
+For the database details, use the following:
+
+Host: 127.0.0.1
+User: root
+Password: root
+Database: shopware
+
+At the end, the system will create a `.env` file containing the provided configuration.
+
+Now we install Shopware with:
+
+```bash
+> composer setup
+```
+
+This will run the migrations, install dependencies and build the assets.
+
+Start the webserver:
+
+```bash
+symfony server:start -d
+```
+
+To be sure that the installation succeeded, just open the following URL in your favorite browser: [localhost:8000](http://localhost:8000/)
 
 ### Code Contribution
 

@@ -10,7 +10,6 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -49,7 +48,7 @@ class TestNavigationSeoUrlRoute implements SeoUrlRouteInterface
         );
     }
 
-    public function prepareCriteria(Criteria $criteria/*, SalesChannelEntity $salesChannel */): void
+    public function prepareCriteria(Criteria $criteria, SalesChannelEntity $salesChannel): void
     {
         $criteria->addFilter(new EqualsFilter('active', true));
     }

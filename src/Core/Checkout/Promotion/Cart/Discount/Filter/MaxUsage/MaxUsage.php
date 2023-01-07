@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\MaxUsage;
 
+/**
+ * @package checkout
+ */
 class MaxUsage
 {
     public const APPLIER_ALL = 'ALL';

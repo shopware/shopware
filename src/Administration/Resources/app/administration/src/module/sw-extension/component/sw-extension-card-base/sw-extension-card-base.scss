@@ -58,12 +58,12 @@
     .sw-extension-card-base__info {
         margin-left: -16px;
         overflow: hidden;
-        font-size: $font-size-extra-small;
+        font-size: $font-size-xxs;
 
         .sw-extension-card-base__info-name {
             @include truncate;
 
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
             color: $color-darkgray-200;
             font-weight: $font-weight-semi-bold;
         }

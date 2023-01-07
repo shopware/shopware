@@ -16,13 +16,14 @@ variables:
     DATABASE_URL: mysql://root:app@database:3306/root
     APP_URL: http://localhost:8000
     APP_SECRET: devsecret
-    SHOPWARE_ES_HOSTS: elasticsearch:9200
+    OPENSEARCH_URL: elasticsearch:9200
     BLUE_GREEN_DEPLOYMENT: 1
-    NODE_VERSION: 16
+    NODE_VERSION: 18
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
 
 # for jobs which should run on each MR/Pipeline
 .base:
-    image: shopware/development:7.4-composer-2
+    image: shopware/development:8.1-composer-2
     # we want our base pipeline to finish fast
     timeout: 30m
     interruptible: true

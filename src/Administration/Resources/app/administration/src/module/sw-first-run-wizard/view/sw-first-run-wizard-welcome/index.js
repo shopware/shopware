@@ -1,13 +1,14 @@
 import template from './sw-first-run-wizard-welcome.html.twig';
 import './sw-first-run-wizard-welcome.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
-const cacheApiService = Shopware.Service('cacheApiService');
-const extensionStoreActionService = Shopware.Service('extensionStoreActionService');
 
+/**
+ * @package merchant-services
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-first-run-wizard-welcome', {
+export default {
     template,
 
     inject: [
@@ -15,7 +16,6 @@ Component.register('sw-first-run-wizard-welcome', {
         'userService',
         'loginService',
         'repositoryFactory',
-        'extensionStoreActionService',
     ],
 
     mixins: [
@@ -41,10 +41,6 @@ Component.register('sw-first-run-wizard-welcome', {
             return this.repositoryFactory.create('language');
         },
 
-        snippetRepository() {
-            return this.repositoryFactory.create('snippet_set');
-        },
-
         userRepository() {
             return this.repositoryFactory.create('user');
         },
@@ -53,16 +49,8 @@ Component.register('sw-first-run-wizard-welcome', {
             return Shopware.State.get('session').languageId;
         },
 
-        localeRepository() {
-            return this.repositoryFactory.create('locale');
-        },
-
         languageCriteria() {
             return this.getLanguageCriteria();
-        },
-
-        snippetCriteria() {
-            return new Criteria(1, 10);
         },
     },
 
@@ -78,7 +66,6 @@ Component.register('sw-first-run-wizard-welcome', {
 
     created() {
         this.createdComponent();
-        this.runOnce();
     },
 
     methods: {
@@ -86,10 +73,6 @@ Component.register('sw-first-run-wizard-welcome', {
             this.userPromise.then((user) => {
                 this.user = user;
             });
-        },
-
-        runOnce() {
-            this.installMissingLanguages();
         },
 
         createdComponent() {
@@ -172,8 +155,6 @@ Component.register('sw-first-run-wizard-welcome', {
                 this.userRepository.save(this.user, context)
                     .then(async () => {
                         await Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
-
-                        document.location.reload();
                     })
                     .finally(() => {
                         this.showConfirmLanguageSwitchModal = false;
@@ -193,12 +174,6 @@ Component.register('sw-first-run-wizard-welcome', {
             this.showConfirmLanguageSwitchModal = false;
         },
 
-        getPlugins() {
-            return this.languagePluginService.getPlugins({}).then((response) => {
-                this.languagePlugins = response.items;
-            });
-        },
-
         getPluginByName(name) {
             if (this.languagePlugins.length < 1) {
                 return null;
@@ -206,62 +181,6 @@ Component.register('sw-first-run-wizard-welcome', {
 
             return this.languagePlugins
                 .find((p) => p.name === name);
-        },
-
-        getPluginByLanguageName(name) {
-            return this.getPluginByName(`SwagI18n${name}`);
-        },
-
-        /**
-         * Notice: only because the plugin failed to download doesnt mean the installation process has to fail.
-         * Plugins may already be downloaded so the installation can still be done using that version.
-         * @param pluginName
-         * @returns {Promise<void>}
-         */
-        async setupPlugin(pluginName) {
-            let errCode = 'noErrors';
-            let catchedError = null;
-            let errMessage = null;
-
-            try {
-                await this.extensionStoreActionService.downloadExtension(pluginName);
-            } catch (e) {
-                errCode = 'downloadFailed';
-                catchedError = e;
-            }
-
-            try {
-                await extensionStoreActionService.installExtension(pluginName, 'plugin');
-            } catch (e) {
-                if (errCode !== 'downloadFailed') {
-                    errCode = 'installationFailed';
-                    errMessage = this.$tc('sw-first-run-wizard.welcome.pluginInstallationFailedMessage');
-                    catchedError = e;
-                }
-            }
-
-            try {
-                await extensionStoreActionService.activateExtension(pluginName, 'plugin');
-            } catch (e) {
-                if (errCode === 'noErrors') {
-                    errCode = 'activationFailed';
-                    errMessage = this.$tc('sw-first-run-wizard.welcome.pluginActivationFailedMessage');
-                    catchedError = e;
-                }
-            }
-
-            cacheApiService.clear();
-
-            if (errCode !== 'noErrors') {
-                this.showPluginErrorNotification(errMessage, catchedError);
-                throw new Error('Plugin could not be installed');
-            }
-        },
-
-        loadSnippets() {
-            return this.snippetRepository.search(this.snippetCriteria).then((result) => {
-                return result.map(snippet => snippet.iso);
-            });
         },
 
         getLanguageCriteria() {
@@ -273,94 +192,12 @@ Component.register('sw-first-run-wizard-welcome', {
             return languageCriteria;
         },
 
-        makeLanguageNameArrayFromObjects(languageObjects) {
-            const langNameArray = [];
-
-            languageObjects.forEach((languageObject) => {
-                langNameArray.push(languageObject.name);
-            });
-
-            return langNameArray;
-        },
-
-        getMissingSnippets() {
-            const languageCriteria = this.getLanguageCriteria();
-
-            return this.languageRepository.search(languageCriteria).then(async (result) => {
-                const snippets = await this.loadSnippets();
-                const missingSnippets = [];
-
-                if (!this.languagePlugins) {
-                    this.showPluginErrorNotification(this.$tc('sw-first-run-wizard.welcome.noConnectionMessage')
-                        + this.$tc('sw-first-run-wizard.welcome.tryAgainLater'));
-                    return null;
-                }
-                await this.getLanguagePlugins();
-                const offeredLanguagePluginNames = await this.makeLanguageNameArrayFromObjects(this.languagePlugins);
-
-                result.forEach((lang) => {
-                    if (snippets.indexOf(lang.locale.code) !== -1 ||
-                        lang.locale.code === 'en-GB' ||
-                        lang.locale.code === 'de-DE') return;
-
-                    const snippetPlugin = this.getPluginByLanguageName(lang.locale.name);
-
-                    if (!snippetPlugin) {
-                        if (offeredLanguagePluginNames.indexOf(`SwagI18n${lang.locale.name}`) !== -1) {
-                            this.showPluginNotFoundNotification(lang.locale.name);
-                        }
-                        return;
-                    }
-                    missingSnippets.push(snippetPlugin.name);
-                });
-                return missingSnippets;
-            });
-        },
-
         showPluginErrorNotification(message, errorMessage) {
             const tryLater = this.$tc('sw-first-run-wizard.welcome.tryAgainLater');
 
             this.createNotificationError({
                 message: `${message}\n${errorMessage}\n${tryLater}`,
             });
-        },
-
-        showPluginNotFoundNotification(name, errorMessage = '') {
-            const message = this.$tc('sw-first-run-wizard.welcome.pluginNotFoundMessage', 0, { languageName: name });
-            this.showPluginErrorNotification(message, errorMessage);
-        },
-
-        setupMissingPlugins(missingSnippets) {
-            const setupPluginPromises = missingSnippets.map((missingPluginName, i) => {
-                return this.setupPlugin(missingPluginName).catch(() => {
-                    missingSnippets.splice(i, 1);
-                });
-            });
-            return Promise.all(setupPluginPromises);
-        },
-
-        async installMissingLanguages() {
-            await this.getLanguagePlugins();
-            let missingSnippets = await this.getMissingSnippets();
-
-            if (missingSnippets.length <= 0) {
-                return;
-            }
-
-            this.isLoading = true;
-            missingSnippets = await this.setupMissingPlugins(missingSnippets);
-
-            if (missingSnippets.length > 0 && missingSnippets[0] != null) {
-                const installedPlugins = await missingSnippets.join(', ');
-
-                this.createNotification({
-                    message: this.$tc('sw-first-run-wizard.welcome.pluginsInstalledMessage', missingSnippets.length)
-                        + installedPlugins,
-                });
-
-                this.onPluginInstalled(missingSnippets[missingSnippets.length - 1]);
-            }
-            this.isLoading = false;
         },
 
         loadLanguages() {
@@ -376,4 +213,4 @@ Component.register('sw-first-run-wizard-welcome', {
             });
         },
     },
-});
+};

@@ -58,7 +58,7 @@
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventDispatcher"/>
+            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartDeleteRoute"/>
@@ -103,6 +103,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
+            <argument type="service" id="shopware.rate_limiter"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute" public="true">
@@ -311,11 +312,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\PriceDefinitionFactory"/>
             <argument type="service" id="media.repository"/>
             <tag name="shopware.cart.line_item.factory"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerDefaultSalutationSubscriber">
-            <argument type="service" id="salutation.repository"/>
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <!-- LINE ITEM GROUPS -->

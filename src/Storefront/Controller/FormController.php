@@ -6,7 +6,6 @@ use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -20,7 +19,9 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @package content
+ *
+ * @internal
  */
 class FormController extends StorefrontController
 {
@@ -118,6 +119,9 @@ class FormController extends StorefrontController
         return new JsonResponse($response);
     }
 
+    /**
+     * @return array<int, array<string|int, mixed>>
+     */
     private function handleSubscribe(Request $request, RequestDataBag $data, SalesChannelContext $context): array
     {
         try {
@@ -160,6 +164,9 @@ class FormController extends StorefrontController
         return $response;
     }
 
+    /**
+     * @return array<int, array<string|int, mixed>>
+     */
     private function handleUnsubscribe(RequestDataBag $data, SalesChannelContext $context): array
     {
         try {

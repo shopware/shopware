@@ -12,6 +12,8 @@ use Shopware\Core\Checkout\Test\Payment\Handler\V630\MultipleTestPaymentHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class PaymentMethodHandlerRuntimeFieldTest extends TestCase

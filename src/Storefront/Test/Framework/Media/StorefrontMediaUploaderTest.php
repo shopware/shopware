@@ -18,6 +18,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @internal
+ *
+ * @package content
  */
 class StorefrontMediaUploaderTest extends TestCase
 {

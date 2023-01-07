@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1575039284FixProductReviewConstraint extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,22 +19,22 @@ class Migration1575039284FixProductReviewConstraint extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `product_review` DROP FOREIGN KEY `fk.product_review.customer_id`
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `product_review`
             ADD CONSTRAINT `fk.product_review.customer_id`
             FOREIGN KEY (`customer_id`)
             REFERENCES `customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `product_review` DROP FOREIGN KEY `fk.product_review.language_id`
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `product_review`
             ADD CONSTRAINT `fk.product_review.language_id`
             FOREIGN KEY (`language_id`)

@@ -9,14 +9,32 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @package business-ops
+ */
 class PaymentMethodRule extends Rule
 {
+    private const NAME = 'paymentMethod';
+
     /**
      * @var array<string>
      */
     protected array $paymentMethodIds;
 
     protected string $operator;
+
+    /**
+     * @param array<string> $paymentMethodIds
+     *
+     * @internal
+     */
+    public function __construct(string $operator = RULE::OPERATOR_EQ, array $paymentMethodIds = [])
+    {
+        parent::__construct();
+
+        $this->operator = $operator;
+        $this->paymentMethodIds = $paymentMethodIds;
+    }
 
     public function match(RuleScope $scope): bool
     {
@@ -33,7 +51,7 @@ class PaymentMethodRule extends Rule
 
     public function getName(): string
     {
-        return 'paymentMethod';
+        return self::NAME;
     }
 
     public function getConfig(): RuleConfig

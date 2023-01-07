@@ -9,6 +9,8 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use function array_filter;
 
 /**
+ * @package customer-order
+ *
  * @Annotation
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
@@ -24,7 +26,7 @@ class CustomerEmailUniqueValidator extends ConstraintValidator
         $this->connection = $connection;
     }
 
-    public function validate($value, Constraint $constraint): void
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof CustomerEmailUnique) {
             throw new UnexpectedTypeException($constraint, CustomerEmailUnique::class);

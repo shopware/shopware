@@ -8,7 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -27,12 +27,12 @@ class NavigationPageSeoUrlTest extends TestCase
     use QueueTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $salesChannelRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $categoryRepository;
 
@@ -416,7 +416,7 @@ class NavigationPageSeoUrlTest extends TestCase
         $query->setParameter('routeName', NavigationPageSeoUrlRoute::ROUTE_NAME);
         $query->setParameter('language', Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM));
 
-        $urls = $query->execute()->fetchAll();
+        $urls = $query->executeQuery()->fetchAllAssociative();
 
         return FetchModeHelper::keyPair($urls);
     }

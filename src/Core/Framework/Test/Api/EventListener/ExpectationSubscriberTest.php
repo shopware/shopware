@@ -24,9 +24,20 @@ class ExpectationSubscriberTest extends TestCase
     {
         $this->expectationSubscriber = new ExpectationSubscriber('6.3.0.0', []);
         InstalledVersions::reload([
+            'root' => [
+                'name' => 'shopware/production',
+                'pretty_version' => '6.3.0.0',
+                'version' => '6.3.0.0',
+                'reference' => 'foo',
+                'type' => 'project',
+                'install_path' => __DIR__,
+                'aliases' => [],
+                'dev' => false,
+            ],
             'versions' => [
                 'shopware/core' => [
                     'version' => '6.3.0.0',
+                    'dev_requirement' => false,
                 ],
             ],
         ]);

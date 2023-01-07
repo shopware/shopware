@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
@@ -14,9 +14,12 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
+/**
+ * @package core
+ */
 class AssetService
 {
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
     private KernelInterface $kernel;
 
@@ -34,7 +37,7 @@ class AssetService
      * @internal
      */
     public function __construct(
-        FilesystemInterface $filesystem,
+        FilesystemOperator $filesystem,
         KernelInterface $kernel,
         KernelPluginLoader $pluginLoader,
         CacheInvalidator $cacheInvalidator,
@@ -77,6 +80,8 @@ class AssetService
         $this->removeAssets($bundle->getName());
 
         $targetDirectory = $this->getTargetDirectory($bundle->getName());
+        $this->filesystem->deleteDirectory($targetDirectory);
+
         $this->copy($originDir, $targetDirectory);
 
         $this->cacheInvalidator->invalidate(['asset-metaData'], true);
@@ -93,6 +98,8 @@ class AssetService
         $this->removeAssets($appName);
 
         $targetDirectory = $this->getTargetDirectory($appName);
+        $this->filesystem->deleteDirectory($targetDirectory);
+
         $this->copy($originDir, $targetDirectory);
 
         $this->cacheInvalidator->invalidate(['asset-metaData'], true);
@@ -131,7 +138,7 @@ class AssetService
         }
         // @codeCoverageIgnoreEnd
 
-        $this->filesystem->deleteDir($targetDirectory);
+        $this->filesystem->deleteDirectory($targetDirectory);
 
         $this->copy($originDir, $targetDirectory);
     }
@@ -140,7 +147,7 @@ class AssetService
     {
         $targetDirectory = $this->getTargetDirectory($name);
 
-        $this->filesystem->deleteDir($targetDirectory);
+        $this->filesystem->deleteDirectory($targetDirectory);
     }
 
     private function getTargetDirectory(string $name): string
@@ -152,7 +159,7 @@ class AssetService
 
     private function copy(string $originDir, string $targetDir): void
     {
-        $this->filesystem->createDir($targetDir);
+        $this->filesystem->createDirectory($targetDir);
 
         $files = Finder::create()
             ->ignoreDotFiles(false)
@@ -169,7 +176,7 @@ class AssetService
             }
             // @codeCoverageIgnoreEnd
 
-            $this->filesystem->putStream($targetDir . '/' . $file->getRelativePathname(), $fs);
+            $this->filesystem->writeStream($targetDir . '/' . $file->getRelativePathname(), $fs);
             fclose($fs);
         }
     }

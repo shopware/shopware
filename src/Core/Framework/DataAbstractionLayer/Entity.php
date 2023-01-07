@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package core
+ */
 class Entity extends Struct
 {
     /**
@@ -244,7 +247,7 @@ class Entity extends Struct
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked as internal
+     * @internal
      */
     public function getInternalEntityName(): ?string
     {

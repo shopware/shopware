@@ -16,6 +16,8 @@ use Shopware\Core\System\Snippet\Filter\TranslationKeyFilter;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class SnippetFilterFactoryTest extends TestCase
 {

@@ -3,12 +3,16 @@ import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
-const { Component, Mixin } = Shopware;
+/**
+ * @package customer-order
+ */
+
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-customer-detail', {
+export default {
     template,
 
     inject: [
@@ -154,6 +158,11 @@ Component.register('sw-customer-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-customer-detail__customer',
+                path: 'customer',
+                scope: this,
+            });
             this.isLoading = true;
 
             this.customerRepository.get(
@@ -182,21 +191,25 @@ Component.register('sw-customer-detail', {
                 boundSalesChannelId,
             }).then((emailIsValid) => {
                 if (this.errorEmailCustomer) {
-                    Shopware.State.dispatch('error/addApiError',
+                    Shopware.State.dispatch(
+                        'error/addApiError',
                         {
                             expression: `customer.${this.customer.id}.email`,
                             error: null,
-                        });
+                        },
+                    );
                 }
 
                 return emailIsValid;
             }).catch((exception) => {
                 this.emailIsValid = false;
-                Shopware.State.dispatch('error/addApiError',
+                Shopware.State.dispatch(
+                    'error/addApiError',
                     {
                         expression: `customer.${this.customer.id}.email`,
                         error: exception.response.data.errors[0],
-                    });
+                    },
+                );
             });
         },
 
@@ -353,4 +366,4 @@ Component.register('sw-customer-detail', {
             });
         },
     },
-});
+};

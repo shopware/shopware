@@ -3,11 +3,11 @@
 namespace Shopware\Core\Checkout\Document\Twig;
 
 use Shopware\Core\Checkout\Document\DocumentGenerator\Counter;
-use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -17,6 +17,9 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
+/**
+ * @package customer-order
+ */
 class DocumentTemplateRenderer
 {
     private TemplateFinder $templateFinder;
@@ -74,7 +77,11 @@ class DocumentTemplateRenderer
                 $salesChannelId,
                 [SalesChannelContextService::LANGUAGE_ID => $languageId]
             );
-            $salesChannelContext->addState(DocumentService::GENERATING_PDF_STATE);
+
+            if (!Feature::isActive('FEATURE_NEXT_15053')) {
+                $salesChannelContext->addState('generating-pdf');
+            }
+
             $parameters['context'] = $salesChannelContext;
         }
 

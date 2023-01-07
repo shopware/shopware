@@ -1,0 +1,173 @@
+@import "~scss/variables";
+
+$sw-datepicker-color-border: $color-gray-300;
+$sw-datepicker-color-font: $color-darkgray-200;
+$sw-datepicker-color-disabled-font: #b3bfcc;
+$sw-datepicker-color-hover: $color-shopware-brand-500;
+$sw-datepicker-color-selected: #e6e6e6;
+$sw-datepicker-color-text-selected: $color-white;
+
+@mixin flatpickr-day-hovered {
+    color: $sw-datepicker-color-text-selected;
+    background-color: $sw-datepicker-color-hover;
+    border-color: $color-shopware-brand-500;
+}
+
+.sw-field--datepicker {
+    &:not(.is--disabled) {
+        .sw-field__addition {
+            cursor: pointer;
+        }
+
+        .sw-icon {
+            &:hover {
+                color: darken($sw-datepicker-color-font, 20%);
+            }
+        }
+    }
+
+    .sw-block-field__block {
+        position: relative;
+    }
+
+    .sw-field--datepicker__button-reset-value {
+        width: 16px;
+        height: 16px;
+        padding: 3px;
+        position: absolute;
+        cursor: pointer;
+        right: 63px;
+        top: 14px;
+    }
+
+    &.sw-field--small {
+        .sw-field--datepicker__button-reset-value {
+            top: 7px;
+        }
+    }
+
+    &.sw-field--medium {
+        .sw-field--datepicker__button-reset-value {
+            top: 12px;
+        }
+    }
+}
+
+.flatpickr-calendar {
+    color: $sw-datepicker-color-font;
+    box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 30%);
+    border: 1px solid $sw-datepicker-color-border;
+    border-radius: 4px;
+
+    &::before,
+    &::after {
+        display: none;
+    }
+
+    .flatpickr-months {
+        padding-top: 8px;
+        padding-bottom: 16px;
+
+        .flatpickr-monthDropdown-months {
+            padding-top: 2px;
+            padding-bottom: 4px;
+            font-weight: $font-weight-semi-bold;
+            color: $color-darkgray-200;
+            text-align: right;
+            -moz-appearance: none;
+            -webkit-appearance: none;
+            line-height: 1.2;
+
+            option {
+                font-weight: $font-weight-regular;
+            }
+        }
+
+        .flatpickr-prev-month,
+        .flatpickr-next-month {
+            top: 8px;
+
+            &:hover {
+                svg {
+                    fill: $color-shopware-brand-500;
+                }
+            }
+        }
+
+        .cur-year {
+            color: $color-darkgray-200;
+        }
+    }
+
+    .flatpickr-current-month {
+        display: flex;
+
+        .numInputWrapper,
+        .flatpickr-monthDropdown-months {
+            flex: 1;
+        }
+    }
+
+    .flatpickr-weekday {
+        font-size: inherit;
+        color: inherit;
+        font-weight: $font-weight-regular;
+    }
+
+    .flatpickr-day {
+        border-radius: 4px;
+        margin-bottom: 6px;
+
+        &:not(.flatpickr-disabled) {
+            color: $sw-datepicker-color-font;
+        }
+
+        &:hover {
+            @include flatpickr-day-hovered;
+        }
+
+        &.selected {
+            background-color: $sw-datepicker-color-selected;
+            border-color: $sw-datepicker-color-border;
+
+            &:hover {
+                @include flatpickr-day-hovered;
+            }
+        }
+
+        &.prevMonthDay,
+        &.nextMonthDay {
+            &:not(.flatpickr-disabled) {
+                color: $sw-datepicker-color-disabled-font;
+            }
+
+            &:hover {
+                @include flatpickr-day-hovered;
+            }
+        }
+
+        &.today {
+            border-color: $color-gray-300;
+
+            &:hover {
+                @include flatpickr-day-hovered;
+            }
+
+            &.selected {
+                background-color: $sw-datepicker-color-selected;
+
+                &:hover {
+                    @include flatpickr-day-hovered;
+                }
+            }
+        }
+
+        &.startRange {
+            border-radius: 4px 0 0 4px;
+        }
+
+        &.endRange {
+            border-radius: 0 4px 4px 0;
+        }
+    }
+}

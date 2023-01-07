@@ -2,10 +2,17 @@
 
 namespace Shopware\Core\Content\MailTemplate\Subscriber;
 
+use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package sales-channel
+ */
 class MailSendSubscriberConfig extends Struct
 {
+    public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;
+    public const MAIL_CONFIG_EXTENSION = 'mail-attachments';
+
     /**
      * @var bool
      */

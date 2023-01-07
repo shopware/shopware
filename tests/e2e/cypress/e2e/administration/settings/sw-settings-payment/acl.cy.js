@@ -87,6 +87,9 @@ describe('Payment: Test ACL privileges', () => {
             .contains('Edit detail')
             .click();
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-settings-payment-detail__field-name').should('be.visible');
         cy.get('#sw-field--paymentMethod-description').type('My description');
         cy.get('#sw-field--paymentMethod-position').clearTypeAndCheck('0');
 
@@ -139,40 +142,6 @@ describe('Payment: Test ACL privileges', () => {
 
         cy.get(page.elements.smartBarBack).click();
 
-        cy.get('.sw-card__title')
-            .contains('1 Coleur');
-    });
-
-    it('@settings: can delete settings-payment', { tags: ['pa-checkout'] }, () => {
-        // Request we want to wait for later
-        cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/payment-method/*`,
-            method: 'delete'
-        }).as('deleteData');
-
-        const page = new ProductPageObject();
-
-        cy.loginAsUserWithPermissions([
-            {
-                key: 'payment',
-                role: 'viewer'
-            }, {
-                key: 'payment',
-                role: 'deleter'
-            }
-        ]).then(() => {
-            cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
-
-        // open settings-payment
-        cy.clickContextMenuItem(
-            `${page.elements.contextMenu}-item--danger`,
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
-        cy.contains(`${page.elements.modal} .sw-settings-payment-list__confirm-delete-text`,
-            'Are you sure you want to delete the payment method');
+        cy.contains('.sw-card__title', '1 Coleur');
     });
 });

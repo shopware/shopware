@@ -24,7 +24,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -61,7 +61,7 @@ class ProductRepositoryTest extends TestCase
     public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
     public const TEST_LANGUAGE_LOCALE_CODE = 'sw-AG';
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -1066,7 +1066,7 @@ class ProductRepositoryTest extends TestCase
         static::assertInstanceOf(Price::class, $currencyPrice);
         static::assertSame(12.0, $currencyPrice->getGross());
 
-        $count = (int) $this->connection->fetchColumn('SELECT COUNT(id) FROM product WHERE ean = :filterId', ['filterId' => $filterId]);
+        $count = (int) $this->connection->fetchOne('SELECT COUNT(id) FROM product WHERE ean = :filterId', ['filterId' => $filterId]);
         static::assertSame(1, $count);
     }
 
@@ -1086,10 +1086,10 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($id));
         static::assertTrue($products->has($child));
 
-        $raw = $this->connection->fetchAll('SELECT * FROM product WHERE ean = :filterId', ['filterId' => $filterId]);
+        $raw = $this->connection->fetchAllAssociative('SELECT * FROM product WHERE ean = :filterId', ['filterId' => $filterId]);
         static::assertCount(2, $raw);
 
-        $name = $this->connection->fetchColumn('SELECT name FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($child)]);
+        $name = $this->connection->fetchOne('SELECT name FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($child)]);
         static::assertSame('Update', $name);
 
         $data = [
@@ -1186,14 +1186,14 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($id));
         static::assertTrue($products->has($child));
 
-        $raw = $this->connection->fetchAll(
+        $raw = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList([$id, $child])],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         static::assertCount(2, $raw);
 
-        $name = $this->connection->fetchColumn('SELECT name FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($child)]);
+        $name = $this->connection->fetchOne('SELECT name FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($child)]);
         static::assertFalse($name);
 
         $data = [
@@ -2480,12 +2480,12 @@ class ProductRepositoryTest extends TestCase
                 ['name' => 'category_name'],
             ],
         ];
-        $this->connection->executeUpdate('DELETE FROM sales_channel');
-        $this->connection->executeUpdate('DELETE FROM category');
+        $this->connection->executeStatement('DELETE FROM sales_channel');
+        $this->connection->executeStatement('DELETE FROM category');
 
         $this->repository->create([$data], Context::createDefaultContext());
 
-        $count = $this->connection->fetchAll('SELECT * FROM category');
+        $count = $this->connection->fetchAllAssociative('SELECT * FROM category');
 
         static::assertCount(1, $count, print_r($count, true));
     }

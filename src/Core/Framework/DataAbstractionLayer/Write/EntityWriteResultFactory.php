@@ -22,25 +22,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ *
+ * @package core
  */
 class EntityWriteResultFactory
 {
-    private DefinitionInstanceRegistry $registry;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
+    public function __construct(private DefinitionInstanceRegistry $registry, private Connection $connection)
     {
-        $this->registry = $registry;
-        $this->connection = $connection;
     }
 
     public function build(WriteCommandQueue $queue): array
@@ -155,12 +150,6 @@ class EntityWriteResultFactory
         if ($delete && $definition->isInheritanceAware()) {
             // inheritance case for products (resolve product.parent_id here to trigger indexing for parent)
             $parentIds = $this->fetchParentIds($definition, $ids);
-
-        // @deprecated tag:v6.5.0 parent ids will be resolved in ProductIndexer. Dispatching an update event for the parent would cause an indexing of all variants, even if you only update a single variant
-        // @deprecated tag:v6.5.0 remove complete else-if block and return empty array instead of $parentIds (see line 161)
-        } elseif (!Feature::isActive('v6.5.0.0') && $definition->isInheritanceAware()) {
-            // inheritance case for products (resolve product.parent_id here to trigger indexing for parent)
-            $parentIds = $this->fetchParentIds($definition, $ids);
         }
 
         $parent = $definition->getParentDefinition();
@@ -261,7 +250,7 @@ class EntityWriteResultFactory
             EntityDefinitionQueryHelper::escape($definition->getEntityName())
         );
 
-        $parentIds = $this->connection->fetchAll(
+        $parentIds = $this->connection->fetchAllAssociative(
             $fetchQuery,
             ['ids' => Uuid::fromHexToBytesList(array_column($rawData, 'id'))],
             ['ids' => Connection::PARAM_STR_ARRAY]
@@ -532,7 +521,7 @@ class EntityWriteResultFactory
             $query->setParameter($key, Uuid::fromHexToBytes($rawData[$property]));
         }
 
-        $fk = $query->execute()->fetchColumn();
+        $fk = $query->executeQuery()->fetchOne();
 
         if (!$fk) {
             throw new \RuntimeException('Fk can not be detected');

@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Increment\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class IncrementGatewayNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $pool)

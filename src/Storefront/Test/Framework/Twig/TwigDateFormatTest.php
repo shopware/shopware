@@ -53,7 +53,7 @@ class TwigDateFormatTest extends TestCase
 
         $originalLoader = $twig->getLoader();
         $twig->setLoader(new ArrayLoader([
-            'test.html.twig' => "{{ date|format_datetime('short', 'short')}}",
+            'test.html.twig' => '{{ date|format_datetime(\'short\', \'short\')}}',
         ]));
         $output = $twig->render('test.html.twig', ['date' => $dateTime]);
         $twig->setLoader($originalLoader);

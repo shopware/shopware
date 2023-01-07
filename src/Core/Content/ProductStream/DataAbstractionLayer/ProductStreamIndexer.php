@@ -9,28 +9,30 @@ use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package business-ops
+ */
 class ProductStreamIndexer extends EntityIndexer
 {
     private IteratorFactory $iteratorFactory;
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
-    private Serializer $serializer;
+    private SerializerInterface $serializer;
 
     private ProductDefinition $productDefinition;
 
@@ -42,8 +44,8 @@ class ProductStreamIndexer extends EntityIndexer
     public function __construct(
         Connection $connection,
         IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
-        Serializer $serializer,
+        EntityRepository $repository,
+        SerializerInterface $serializer,
         ProductDefinition $productDefinition,
         EventDispatcherInterface $eventDispatcher
     ) {
@@ -60,20 +62,8 @@ class ProductStreamIndexer extends EntityIndexer
         return 'product_stream.indexer';
     }
 
-    /**
-     * @param array|null $offset
-     *
-     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
-     */
-    public function iterate(/*?array */$offset): ?EntityIndexingMessage
+    public function iterate(?array $offset): ?EntityIndexingMessage
     {
-        if ($offset !== null && !\is_array($offset)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Parameter `$offset` of method "iterate()" in class "ProductStreamIndexer" will be natively typed to `?array` in v6.5.0.0.'
-            );
-        }
-
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
 
         $ids = $iterator->fetch();
@@ -105,7 +95,7 @@ class ProductStreamIndexer extends EntityIndexer
             return;
         }
 
-        $filters = $this->connection->fetchAll(
+        $filters = $this->connection->fetchAllAssociative(
             'SELECT
                 LOWER(HEX(product_stream_id)) as array_key,
                 product_stream_filter.*

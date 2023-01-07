@@ -11,23 +11,25 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Exception\CodeAlreadyRedeemedException;
 use Shopware\Core\Checkout\Promotion\Exception\PromotionCodeNotFoundException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
+ *
+ * @package checkout
  */
 class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
 {
-    private EntityRepositoryInterface $codesRepository;
+    private EntityRepository $codesRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $codesRepository)
+    public function __construct(EntityRepository $codesRepository)
     {
         $this->codesRepository = $codesRepository;
     }

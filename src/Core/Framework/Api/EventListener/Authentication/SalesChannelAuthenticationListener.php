@@ -17,7 +17,9 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
+ *
+ * @package core
  */
 class SalesChannelAuthenticationListener implements EventSubscriberInterface
 {
@@ -85,8 +87,8 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
             ->from('sales_channel')
             ->where('sales_channel.access_key = :accessKey')
             ->setParameter('accessKey', $accessKey)
-            ->execute()
-            ->fetchColumn();
+            ->executeQuery()
+            ->fetchOne();
 
         if (!$salesChannelId) {
             throw new SalesChannelNotFoundException();

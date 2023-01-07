@@ -8,6 +8,9 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @package content
+ */
 class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
 {
     /**

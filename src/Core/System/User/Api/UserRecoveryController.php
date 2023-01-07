@@ -4,7 +4,6 @@ namespace Shopware\Core\System\User\Api;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,6 +13,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @package system-settings
  */
 class UserRecoveryController extends AbstractController
 {

@@ -3,23 +3,19 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Statement;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\WishlistMergedEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -28,40 +24,27 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
+ *
+ * @package customer-order
  */
 class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $wishlistRepository;
+    private EntityRepository $wishlistRepository;
 
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productRepository;
+    private SalesChannelRepository $productRepository;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $wishlistRepository,
-        SalesChannelRepositoryInterface $productRepository,
+        EntityRepository $wishlistRepository,
+        SalesChannelRepository $productRepository,
         SystemConfigService $systemConfigService,
         EventDispatcherInterface $eventDispatcher,
         Connection $connection
@@ -118,9 +101,16 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         return $wishlistIds->firstId() ?? Uuid::randomHex();
     }
 
+    /**
+     * @return array<array{id: string, productId?: string, productVersionId?: Defaults::LIVE_VERSION}>
+     */
     private function buildUpsertProducts(RequestDataBag $data, string $wishlistId, SalesChannelContext $context): array
     {
         $ids = array_unique(array_filter($data->get('productIds')->all()));
+
+        if (\count($ids) === 0) {
+            return [];
+        }
 
         /** @var array<string> $ids */
         $ids = $this->productRepository->searchIds(new Criteria($ids), $context)->getIds();
@@ -139,11 +129,11 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
                 continue;
             }
 
-            $upsertData[] = array_filter([
+            $upsertData[] = [
                 'id' => Uuid::randomHex(),
                 'productId' => $id,
                 'productVersionId' => Defaults::LIVE_VERSION,
-            ]);
+            ];
         }
 
         return $upsertData;
@@ -151,6 +141,8 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 
     /**
      * @param array<string> $productIds
+     *
+     * @return array<string, string>
      */
     private function loadCustomerProducts(string $wishlistId, array $productIds): array
     {
@@ -164,9 +156,11 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         $query->andWhere('`product_id` IN (:productIds)');
         $query->setParameter('id', Uuid::fromHexToBytes($wishlistId));
         $query->setParameter('productIds', Uuid::fromHexToBytesList($productIds), Connection::PARAM_STR_ARRAY);
-        /** @var Statement $stmt */
-        $stmt = $query->execute();
+        $result = $query->executeQuery();
 
-        return FetchModeHelper::keyPair($stmt->fetchAll());
+        /** @var array<string, string> $values */
+        $values = $result->fetchAllKeyValue();
+
+        return $values;
     }
 }

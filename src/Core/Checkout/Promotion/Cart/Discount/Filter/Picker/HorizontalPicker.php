@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterPickerInterface;
 
 /**
+ * @package checkout
+ *
  * The horizontal picker makes sure that the filter
  * iteration is taking place across all groups.
  * So if we have 3 groups with 3 items (9 items), and

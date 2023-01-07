@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
+/**
+ * @package storefront
+ */
 class ThemeTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'theme_translation';

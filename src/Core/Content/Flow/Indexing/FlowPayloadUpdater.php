@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package business-ops
+ */
 class FlowPayloadUpdater
 {
     private Connection $connection;

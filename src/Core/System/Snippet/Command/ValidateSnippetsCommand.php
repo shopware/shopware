@@ -7,6 +7,7 @@ use Shopware\Core\System\Snippet\SnippetFixer;
 use Shopware\Core\System\Snippet\SnippetValidatorInterface;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetStruct;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,10 +15,15 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
+/**
+ * @package system-settings
+ */
+#[AsCommand(
+    name: 'snippets:validate',
+    description: 'Validates snippets',
+)]
 class ValidateSnippetsCommand extends Command
 {
-    protected static $defaultName = 'snippets:validate';
-
     /**
      * @var SnippetValidatorInterface
      */

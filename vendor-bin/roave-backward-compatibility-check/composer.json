@@ -19,7 +19,6 @@
     },
     "config": {
         "platform": {
-            "php": "8.0.12",
             "ext-bcmath": "8.0.12",
             "composer-runtime-api": "2.2.0"
         },

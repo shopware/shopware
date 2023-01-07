@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @package inventory
+ */
 class ProductMaxPurchaseCalculator extends AbstractProductMaxPurchaseCalculator
 {
     private SystemConfigService $systemConfigService;

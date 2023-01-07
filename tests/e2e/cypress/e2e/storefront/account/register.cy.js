@@ -1,5 +1,8 @@
 import AccountPageObject from '../../../support/pages/account.page-object';
 
+/**
+ * @package checkout
+ */
 describe('Account: Register via account menu', () => {
     it('@login: Trigger validation error', { tags: ['pa-customers-orders'] }, () => {
         const page = new AccountPageObject();

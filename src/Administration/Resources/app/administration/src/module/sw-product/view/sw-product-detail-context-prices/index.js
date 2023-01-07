@@ -1,12 +1,16 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-detail-context-prices.html.twig';
 import './sw-product-detail-context-prices.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-detail-context-prices', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'feature'],
@@ -516,4 +520,4 @@ Component.register('sw-product-detail-context-prices', {
             };
         },
     },
-});
+};

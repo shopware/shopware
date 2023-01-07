@@ -37,10 +37,6 @@
                                   {% endif %}
                             >
 
-                                {% block component_line_item_quantity_csrf %}
-                                    {{ sw_csrf('frontend.checkout.line-item.change-quantity') }}
-                                {% endblock %}
-
                                 {% block component_line_item_quantity_redirect %}
                                     <input type="hidden"
                                            name="redirectTo"
@@ -49,6 +45,7 @@
 
                                 {% set selectQuantityThreshold = 100 %}
                                 {% block component_line_item_quantity_select %}
+                                    {# @deprecated tag:v6.5.0 - Numeric quantity input with additional plus/minus controls will be the default. #}
                                     {% if (maxQuantity - quantityInformation.minPurchase) / quantityInformation.purchaseSteps > selectQuantityThreshold %}
                                         {% block component_line_item_quantity_select_input %}
                                             <input
@@ -64,7 +61,7 @@
                                     {% else %}
                                         {% block component_line_item_quantity_select_select %}
                                             <select name="quantity"
-                                                class="{{ formSelectClass }} quantity-select-{{ lineItem.id }}{% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity{% endif %}">
+                                                class="form-select quantity-select-{{ lineItem.id }}{% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity{% endif %}">
                                                 {% for quantity in range(quantityInformation.minPurchase, maxQuantity, quantityInformation.purchaseSteps) %}
                                                     {% block component_line_item_quantity_select_option %}
                                                         <option value="{{ quantity }}"

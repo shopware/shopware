@@ -3,31 +3,29 @@
 namespace Shopware\Core\Framework\Plugin\Util;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
+/**
+ * @package core
+ */
 class PluginIdProvider
 {
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $pluginRepo;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $pluginRepo)
+    public function __construct(private EntityRepository $pluginRepo)
     {
-        $this->pluginRepo = $pluginRepo;
     }
 
     public function getPluginIdByBaseClass(string $pluginBaseClassName, Context $context): string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('baseClass', $pluginBaseClassName));
-        $pluginIds = $this->pluginRepo->searchIds($criteria, $context)->getIds();
+        /** @var string $id */
+        $id = $this->pluginRepo->searchIds($criteria, $context)->firstId();
 
-        return array_pop($pluginIds);
+        return $id;
     }
 }

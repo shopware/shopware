@@ -7,6 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @package core
+ */
 class ConstraintViolationException extends ShopwareHttpException
 {
     /**

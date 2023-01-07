@@ -17,6 +17,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class PromotionCartEventTest extends TestCase
@@ -109,6 +111,9 @@ class PromotionCartEventTest extends TestCase
         $this->cartService->remove($cart, $productId, $this->context);
     }
 
+    /**
+     * @param array<mixed> $codes
+     */
     private function createBulkPromotions(array $codes): void
     {
         /** @var int $percentage */

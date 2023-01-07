@@ -7,29 +7,38 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector as BaseDataCollector;
 
 /**
+ * @package core
  * @phpstan-import-type RequestInfo from ClientProfiler
  */
 class DataCollector extends BaseDataCollector
 {
+    private bool $enabled;
+
     private ClientProfiler $client;
 
     /**
      * @internal
      */
-    public function __construct(ClientProfiler $client)
+    public function __construct(bool $enabled, ClientProfiler $client)
     {
         $this->client = $client;
+        $this->enabled = $enabled;
     }
 
     public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
         $this->data = [
+            'enabled' => $this->enabled,
             'requests' => $this->client->getCalledRequests(),
             'time' => 0,
         ];
 
         foreach ($this->client->getCalledRequests() as $calledRequest) {
             $this->data['time'] += $calledRequest['time'];
+        }
+
+        if (!$this->enabled) {
+            return;
         }
 
         $this->data['clusterInfo'] = $this->client->cluster()->health();

@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 
+/**
+ * @package core
+ */
 class TreeBreadcrumbField extends JsonField
 {
     /**

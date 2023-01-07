@@ -6,6 +6,9 @@ const { debounce, get } = Shopware.Utils;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @example-type code-only
@@ -17,7 +20,6 @@ const { Criteria, EntityCollection } = Shopware.Data;
  *     :searchableFields="['entity.fieldName', 'entity.otherFieldName']">
  * </sw-many-to-many-assignment-card>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-many-to-many-assignment-card', {
     template,
     inheritAttrs: false,

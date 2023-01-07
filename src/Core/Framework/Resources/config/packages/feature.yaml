@@ -4,44 +4,9 @@ shopware:
       - name: v6.5.0.0
         default: false
         major: true
-      - name: PERFORMANCE_TWEAKS
+      - name: v6.6.0.0
         default: false
         major: true
-        description: "Performance improvements that include a breaking change"
-      - name: FEATURE_NEXT_1797
-        default: false
-        major: true
-        description: "composer require for plugins"
-      - name: FEATURE_NEXT_16710
-        default: false
-        major: true
-        description: "Do not allow empty ids provided in criteria"
-        # issue: NEXT-16710
-      - name: FEATURE_NEXT_13810
-        default: false
-        major: true
-        description: "Deprecate old promotion module"
-        # issue: NEXT-13810
-      - name: FEATURE_NEXT_13250
-        default: false
-        major: true
-        description: "Reduce database queries if all required data for the line items is already assign"
-        # issue: NEXT-13250
-      - name: FEATURE_NEXT_17276
-        default: false
-        major: true
-        description: "Don't override languageId of SalesChannel in SalesChannelContext"
-        # issue: NEXT-17276
-      - name: FEATURE_NEXT_16151
-        default: false
-        major: true
-        description: "Remove CheapestPriceField from product entity, to speed up entity hydration"
-        # issue: NEXT-16151
-      - name: FEATURE_NEXT_16155
-        default: false
-        major: true
-        description: "EntityLoadedEventFactory will be required in repositories"
-        # issue: NEXT-16155
       - name: FEATURE_NEXT_19501
         default: false
         major: false
@@ -57,159 +22,27 @@ shopware:
         major: true
         description: "Rules are aware of their assignment"
         # issue: NEXT-18215
-      - name: FEATURE_NEXT_15815
-        default: false
-        major: true
-        description: "Remove single record handling in sync service. Only single operation should be supported"
       - name: FEATURE_NEXT_14699
         default: false
         major: true
         description: "Refactoring of Storefront theme assets"
-      - name: FEATURE_NEXT_15707
-        default: false
-        major: false
-        description: "Delivery notice for EU geoblocking regulation"
-        # issue: NEXT-15707
       - name: FEATURE_NEXT_14360
         default: false
         major: true
         description: "App System 4.0 - Build action button messaging system"
         # issue: NEXT-14360
-      - name: FEATURE_NEXT_15172
-        default: false
-        major: true
-        description: "Sanitize html of fields with AllowHtml flag"
-        # issue: NEXT-15172
-      - name: FEATURE_NEXT_14001
-        default: false
-        major: true
-        description: "Newsletter DOI for registered customers"
-        # issue: NEXT-14001
-      - name: FEATURE_NEXT_7739
-        default: false
-        major: true
-        description: "Optional salutation"
       - name: FEATURE_NEXT_16200
         default: false
         major: false
         description: "Register Doi Domain"
-      - name: FEATURE_NEXT_13410
-        default: false
-        major: true
-        description: "Make sales channels required in seo generator"
         # issue: NEXT-16200
-      - name: FEATURE_NEXT_15917
-        default: false
-        major: true
-        description: "Move storefront script tags to head with defer"
-        # issue: NEXT-15917
-      - name: FEATURE_NEXT_15957
-        default: false
-        major: true
-        description: "VAT id field for guest"
-        # issue: NEXT-15957
-      - name: FEATURE_NEXT_13601
-        default: false
-        major: true
-        description: "Default transaction state for async app payments"
-        # issue: NEXT-13601
-      - name: FEATURE_NEXT_16992
-        default: false
-        major: true
-        description: "Remove page_product_detail_not_available and buy_widget_not_available block"
-        # issue: NEXT-16992
-      - name: FEATURE_NEXT_7530
-        default: false
-        major: true
-        description: "Improve orders UX in Administration"
-        # issue: NEXT-7530
-      - name: FEATURE_NEXT_16824
-        default: false
-        major: true
-        description: "Cart merged event"
-        # issue: NEXT-16824
-      - name: FEATURE_NEXT_16271
-        default: false
-        major: true
-        description: "Refactor `sw-simple-search-field` component to a transparent wrapper component"
-        # issue: NEXT-16271
-      - name: FEATURE_NEXT_15381
-        default: false
-        major: true
-        description: "Save theme compilation"
-        # issue: NEXT-15381
       - name: FEATURE_NEXT_17275
         default: false
         major: true
         description: "StorefrontRenderEvent only gets original view"
         # issue: NEXT-17275
-      - name: FEATURE_NEXT_17016
-        default: false
-        major: true
-        description: "Add, update or improve the selection and specification of Rule Builder Condition Fields."
-        # issue: NEXT-17016
-      - name: FEATURE_NEXT_16236
-        default: false
-        major: true
-        description: "Change customer creation behaviour on checkout/register page to opt in customer account."
-        # issue: NEXT-16236
-      - name: FEATURE_NEXT_16640
-        default: false
-        major: true
-        description: "Change ExceptionHandlerInterface by removing Command $command argument"
-        # issue: NEXT-16640
-      - name: FEATURE_NEXT_17858
-        default: false
-        major: true
-        description: "Major feature flag for Business Event"
-        # issue: NEXT-17858
-      - name: FEATURE_NEXT_6758
-        default: false
-        major: true
-        description: "Layout assignment for category as list"
-        # issue: NEXT-6758
       - name: FEATURE_NEXT_19048
         default: false
         major: true
         description: "Fix media resolution in theme"
         # issue: NEXT-19048
-      - name: FEATURE_NEXT_19822
-        default: false
-        major: true
-        description: "Enables lazy loading components in the administration"
-        # issue: NEXT-19822
-      - name: FEATURE_NEXT_18129
-        default: false
-        major: true
-        description: "Require positionIdentifier for some components"
-        # issue: NEXT-18129
-      - name: FEATURE_NEXT_19163
-        default: false
-        major: true
-        description: "one to one inheritance"
-        # issue: NEXT-19163
-      - name: FEATURE_NEXT_18187
-        default: false
-        major: true
-        description: "Move admin dashboard statistics into separate component"
-        # issue: NEXT-18187
-      - name: FEATURE_NEXT_17978
-        default: false
-        major: true
-        description: "Change component factory to work with extension overrides in Administration"
-        # issue: NEXT-17978
-      - name: FEATURE_NEXT_11634
-        default: false
-        major: true
-        description: "Webpack alias refactor"
-        # issue: NEXT_11634
-      - name: FEATURE_NEXT_21547
-        default: false
-        major: true
-        description: "Change admin criteria defaults"
-        # issue: NEXT_21547
-      - name: FEATURE_NEXT_22900
-        default: false
-        major: true
-        description: "Admin search configuration is used in Elasticsearch"
-        # issue: NEXT-22900

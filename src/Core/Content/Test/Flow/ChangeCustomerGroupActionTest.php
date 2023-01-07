@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -11,7 +10,6 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\ChangeCustomerGroupAction;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -19,10 +17,13 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class ChangeCustomerGroupActionTest extends TestCase
@@ -31,9 +32,7 @@ class ChangeCustomerGroupActionTest extends TestCase
     use SalesChannelApiTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    private EntityRepositoryInterface $flowRepository;
-
-    private Connection $connection;
+    private EntityRepository $flowRepository;
 
     private KernelBrowser $browser;
 
@@ -45,8 +44,6 @@ class ChangeCustomerGroupActionTest extends TestCase
     {
         $this->flowRepository = $this->getContainer()->get('flow.repository');
 
-        $this->connection = $this->getContainer()->get(Connection::class);
-
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
         $this->ids = new TestDataCollection();
@@ -56,9 +53,6 @@ class ChangeCustomerGroupActionTest extends TestCase
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-
-        // all business event should be inactive.
-        $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
     public function testChangeCustomerGroupAction(): void
@@ -133,11 +127,13 @@ class ChangeCustomerGroupActionTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayHasKey('contextToken', $response);
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
     private function createCustomer(string $password, ?string $email = null): void

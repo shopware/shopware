@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1536232760StateMachine extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -38,7 +43,7 @@ class Migration1536232760StateMachine extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
 
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
 
         $sql = <<<'SQL'
             CREATE TABLE `state_machine_translation` (
@@ -55,7 +60,7 @@ SQL;
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
 
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
     }
 
     private function createStateMachineStateTable(Connection $connection): void
@@ -73,7 +78,7 @@ SQL;
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
 
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
 
         $sql = <<<'SQL'
             CREATE TABLE `state_machine_state_translation` (
@@ -90,7 +95,7 @@ SQL;
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
 
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
     }
 
     private function createStateMachineTransitionTable(Connection $connection): void
@@ -113,7 +118,7 @@ SQL;
               CONSTRAINT `json.state_machine_transition.custom_fields` CHECK (JSON_VALID(`custom_fields`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
     }
 
     private function createConstraints(Connection $connection): void
@@ -156,10 +161,10 @@ SQL;
                 REFERENCES `state_machine_state` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 SQL;
 
-        $connection->executeUpdate($stateMachineTranslation);
-        $connection->executeUpdate($stateMachineState);
-        $connection->executeUpdate($stateMachineStateTranslation);
-        $connection->executeUpdate($stateMachineTransition);
-        $connection->executeUpdate($stateMachine);
+        $connection->executeStatement($stateMachineTranslation);
+        $connection->executeStatement($stateMachineState);
+        $connection->executeStatement($stateMachineStateTranslation);
+        $connection->executeStatement($stateMachineTransition);
+        $connection->executeStatement($stateMachine);
     }
 }

@@ -9,7 +9,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_option_list_toolbar_container %}
         <sw-container
-            columns="1fr minmax(50px, max-content) minmax(100px, 180px) minmax(100px, 180px)"
+            columns="1fr minmax(50px, max-content) minmax(100px, 180px) minmax(100px, 220px)"
             gap="0 10px"
         >
 
@@ -54,8 +54,7 @@
                             bind-items-to-folder
                         >
                             <template
-                                slot="items"
-                                slot-scope="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute, checkItem }"
+                                #items="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute, checkItem }"
                             >
                                 <sw-tree-item
                                     v-for="(item, index) in treeItems"
@@ -152,8 +151,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_data_grid_column_name %}
         <template
-            slot="column-name"
-            slot-scope="{ item }"
+            #column-name="{ item }"
         >
             <template v-if="item.options">
                 <router-link
@@ -180,8 +178,7 @@
         {% block sw_product_variants_overview_data_grid_column_price %}
         <template
             v-for="currency in currencies"
-            :slot="`column-price.${currency.id}.net`"
-            slot-scope="{ item, compact, isInlineEdit }"
+            #[`column-price.${currency.id}.net`]="{ item, compact, isInlineEdit }"
         >
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -246,8 +243,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_data_grid_column_stock %}
         <template
-            slot="column-stock"
-            slot-scope="{ item, isInlineEdit, compact }"
+            #column-stock="{ item, isInlineEdit, compact }"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_stock_inline_edit_field %}
@@ -271,8 +267,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_data_grid_column_product_number %}
         <template
-            slot="column-productNumber"
-            slot-scope="{ item, isInlineEdit, compact }"
+            #column-productNumber="{ item, isInlineEdit, compact }"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_product_number_inline_edit %}
@@ -329,8 +324,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_data_grid_column_active %}
         <template
-            slot="column-active"
-            slot-scope="{ item, isInlineEdit }"
+            #column-active="{ item, isInlineEdit }"
         >
             <template v-if="isInlineEdit">
                 <sw-data-grid-column-boolean
@@ -374,8 +368,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_actions %}
         <template
-            slot="actions"
-            slot-scope="{ item }"
+            #actions="{ item }"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_actions_items %}
@@ -409,7 +402,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_pagination %}
-        <template slot="pagination">
+        <template #pagination>
             <sw-pagination
                 :page="page"
                 :limit="limit"
@@ -487,8 +480,7 @@
                 {% block sw_product_variants_overview_bulk_edit_modal_column_price %}
                 <template
                     v-for="currency in currencies"
-                    :slot="`column-price.${currency.id}.net`"
-                    slot-scope="{ item }"
+                    #[`column-price.${currency.id}.net`]="{ item }"
                 >
                     <sw-inheritance-switch
                         :key="`else-switch-${currency.isoCode}`"

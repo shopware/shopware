@@ -6,24 +6,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ *
+ * @package core
  */
 abstract class Aggregation extends Struct implements CriteriaPartInterface
 {
-    /**
-     * @var string
-     */
-    protected $field;
-
-    /**
-     * @var string
-     */
-    protected $name;
-
-    public function __construct(string $name, string $field)
+    public function __construct(protected string $name, protected string $field)
     {
-        $this->field = $field;
-        $this->name = $name;
     }
 
     public function getField(): string

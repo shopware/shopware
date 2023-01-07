@@ -6,6 +6,9 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\NameAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Event\FlowEventAware;
 
+/**
+ * @package business-ops
+ */
 class NameStorer extends FlowStorer
 {
     /**

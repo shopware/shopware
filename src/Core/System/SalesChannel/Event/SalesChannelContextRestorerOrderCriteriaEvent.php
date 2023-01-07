@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
 
+/**
+ * @package core
+ */
 class SalesChannelContextRestorerOrderCriteriaEvent extends NestedEvent
 {
     protected Context $context;

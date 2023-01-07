@@ -2,11 +2,14 @@ import RuleAssignmentConfigurationService from 'src/module/sw-settings-rule/serv
 import template from './sw-settings-rule-detail-assignments.html.twig';
 import './sw-settings-rule-detail-assignments.scss';
 
-const { Component, Mixin, Context, Utils } = Shopware;
+const { Mixin, Context, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-rule-detail-assignments', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     // eslint-disable-next-line max-len
     template,
 
@@ -51,7 +54,6 @@ Component.register('sw-settings-rule-detail-assignments', {
             shippingMethods: null,
             paymentMethods: null,
             promotions: null,
-            eventActions: null,
             associationSteps: [5, 10],
             associationEntities: null,
             deleteModal: false,
@@ -64,13 +66,7 @@ Component.register('sw-settings-rule-detail-assignments', {
 
     computed: {
         getRuleAssignmentConfiguration() {
-            const config = RuleAssignmentConfigurationService(this.rule.id, this.associationLimit).getConfiguration();
-
-            if (this.feature.isActive('v6.5.0.0')) {
-                delete config.event_action;
-            }
-
-            return config;
+            return RuleAssignmentConfigurationService(this.rule.id, this.associationLimit).getConfiguration();
         },
 
         /* eslint-disable max-len */
@@ -270,4 +266,4 @@ Component.register('sw-settings-rule-detail-assignments', {
                 });
         },
     },
-});
+};

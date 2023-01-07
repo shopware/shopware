@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 
 describe('CMS: Test assignment of layouts to categories and shop pages', () => {

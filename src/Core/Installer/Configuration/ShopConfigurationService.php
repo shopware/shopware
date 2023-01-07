@@ -10,6 +10,8 @@ use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 
 /**
+ * @package core
+ *
  * @internal
  * @codeCoverageIgnore - Is tested by integration test, does not make sense to unit test
  * as the sole purpose of this class is to configure the DB according to the configuration

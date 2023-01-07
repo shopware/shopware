@@ -10,13 +10,16 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package content
+ */
 class CmsSlotsDataResolver
 {
     /**
@@ -226,14 +229,14 @@ class CmsSlotsDataResolver
             return false;
         }
 
-        if (empty($filters) && empty($criteria->getIds())) {
+        if (empty($criteria->getIds())) {
             return false;
         }
 
         return true;
     }
 
-    private function getApiRepository(EntityDefinition $definition): EntityRepositoryInterface
+    private function getApiRepository(EntityDefinition $definition): EntityRepository
     {
         return $this->definitionRegistry->getRepository($definition->getEntityName());
     }

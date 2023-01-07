@@ -1,9 +1,14 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-variants-configurator-selection.html.twig';
 import './sw-product-variants-configurator-selection.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
-Component.extend('sw-product-variants-configurator-selection', 'sw-property-search', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -83,4 +88,4 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
             this.addOptionCount();
         },
     },
-});
+};

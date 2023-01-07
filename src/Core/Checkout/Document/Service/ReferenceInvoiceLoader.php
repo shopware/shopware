@@ -9,6 +9,8 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package customer-order
+ *
  * @internal - Fetch the $referenceDocumentId if set, otherwise fetch the latest document
  */
 final class ReferenceInvoiceLoader
@@ -57,7 +59,7 @@ final class ReferenceInvoiceLoader
             $builder->setParameter('documentId', Uuid::fromHexToBytes($referenceDocumentId));
         }
 
-        $result = $builder->execute()->fetchAssociative();
+        $result = $builder->executeQuery()->fetchAssociative();
 
         return $result !== false ? $result : [];
     }

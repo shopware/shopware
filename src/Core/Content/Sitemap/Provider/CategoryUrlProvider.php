@@ -17,6 +17,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @package sales-channel
+ */
 class CategoryUrlProvider extends AbstractUrlProvider
 {
     public const CHANGE_FREQ = 'daily';
@@ -152,7 +155,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('linkType', CategoryDefinition::TYPE_LINK);
 
-        return $query->execute()->fetchAll();
+        return $query->executeQuery()->fetchAllAssociative();
     }
 
     private function getExcludedCategoryIds(SalesChannelContext $salesChannelContext): array

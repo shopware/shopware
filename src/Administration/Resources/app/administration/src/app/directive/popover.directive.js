@@ -3,6 +3,8 @@
 const { Directive } = Shopware;
 
 /**
+ * @package admin
+ *
  * Directive for automatic edge detection of the element place
  *
  * Usage:
@@ -200,6 +202,9 @@ function unregisterVirtualScrollingElement(uid) {
     }
 }
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default {
     virtualScrollingElements,
     registerVirtualScrollingElement,

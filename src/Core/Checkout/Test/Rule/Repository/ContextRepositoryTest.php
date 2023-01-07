@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Test\Rule\Repository;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class ContextRepositoryTest extends TestCase
@@ -22,7 +24,7 @@ class ContextRepositoryTest extends TestCase
     use DatabaseTransactionBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 

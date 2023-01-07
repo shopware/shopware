@@ -2,10 +2,15 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
-use Symfony\Component\Cache\Adapter\RedisTagAwareAdapter;
+use Symfony\Component\Cache\Adapter\RedisAdapter;
 use Symfony\Component\Cache\Marshaller\MarshallerInterface;
 
-class ShopwareRedisAdapter extends RedisTagAwareAdapter
+/**
+ * @package core
+ *
+ * @internal
+ */
+class ShopwareRedisAdapter extends RedisAdapter
 {
     public function __construct($redis, string $namespace = '', int $defaultLifetime = 0, ?MarshallerInterface $marshaller = null, ?string $prefix = null)
     {

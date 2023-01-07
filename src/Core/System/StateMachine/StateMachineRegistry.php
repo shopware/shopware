@@ -6,7 +6,7 @@ use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
@@ -28,13 +28,16 @@ use Shopware\Core\System\StateMachine\Exception\StateMachineWithoutInitialStateE
 use Shopware\Core\System\StateMachine\Exception\UnnecessaryTransitionException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package checkout
+ */
 class StateMachineRegistry
 {
-    private EntityRepositoryInterface $stateMachineRepository;
+    private EntityRepository $stateMachineRepository;
 
-    private EntityRepositoryInterface $stateMachineStateRepository;
+    private EntityRepository $stateMachineStateRepository;
 
-    private EntityRepositoryInterface $stateMachineHistoryRepository;
+    private EntityRepository $stateMachineHistoryRepository;
 
     /**
      * @var StateMachineEntity[]
@@ -54,9 +57,9 @@ class StateMachineRegistry
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $stateMachineRepository,
-        EntityRepositoryInterface $stateMachineStateRepository,
-        EntityRepositoryInterface $stateMachineHistoryRepository,
+        EntityRepository $stateMachineRepository,
+        EntityRepository $stateMachineStateRepository,
+        EntityRepository $stateMachineHistoryRepository,
         EventDispatcherInterface $eventDispatcher,
         DefinitionInstanceRegistry $definitionRegistry
     ) {
@@ -360,7 +363,7 @@ class StateMachineRegistry
         string $entityId,
         string $stateFieldName,
         Context $context,
-        EntityRepositoryInterface $repository
+        EntityRepository $repository
     ): StateMachineStateEntity {
         $entity = $repository->search(new Criteria([$entityId]), $context)->get($entityId);
 

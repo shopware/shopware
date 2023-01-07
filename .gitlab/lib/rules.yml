@@ -12,6 +12,10 @@
           || $CI_MERGE_REQUEST_LABELS =~ /.*visual::skip.*/ && $CI_JOB_STAGE == "visual"
           || $CI_MERGE_REQUEST_LABELS =~ /.*quarantine::only.*/ && ($CI_JOB_STAGE != "quarantine" && $CI_JOB_STAGE != "lint"))'
         when: never
+    # skip job in merge train pipelines
+    skip-in-merge-train:
+        if: '($CI_MERGE_REQUEST_EVENT_TYPE == "merge_train")'
+        when: never
     # execute job if the all label for the stage is set
     run:
         if: '$CI_MERGE_REQUEST_LABELS =~ /.*lint::all.*/ && $CI_JOB_STAGE == "lint"
@@ -43,5 +47,3 @@
       if: '$ALLOW_FAILURE == "true" && (
               $CI_MERGE_REQUEST_EVENT_TYPE == null
            || $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train")'
-
-

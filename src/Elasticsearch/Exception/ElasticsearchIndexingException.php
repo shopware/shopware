@@ -4,6 +4,9 @@ namespace Shopware\Elasticsearch\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package core
+ */
 class ElasticsearchIndexingException extends ShopwareHttpException
 {
     public const CODE = 'ELASTICSEARCH_INDEXING';

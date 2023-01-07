@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default () => {
     const context = require.context('./', true, /\.\/[a-z0-9-]+\/index\.js$/);

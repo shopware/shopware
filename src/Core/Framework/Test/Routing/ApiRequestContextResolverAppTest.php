@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
@@ -92,7 +92,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
     public function testCanWriteWithPermissionsSet(): void
     {
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
@@ -120,7 +120,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
     public function testItCanUpdateAnExistingProduct(): void
     {
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productId = Uuid::randomHex();
         $newName = 'i got a new name';
@@ -215,7 +215,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
     private function fetchApp(string $appName): ?AppEntity
     {
-        /** @var EntityRepositoryInterface $appRepository */
+        /** @var EntityRepository $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $criteria = new Criteria();
@@ -226,7 +226,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
     private function setAccessTokenForIntegration(string $integrationId, string $accessKey, string $secret): void
     {
-        /** @var EntityRepositoryInterface $integrationRepository */
+        /** @var EntityRepository $integrationRepository */
         $integrationRepository = $this->getContainer()->get('integration.repository');
 
         $integrationRepository->update([

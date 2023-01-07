@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
 /**
- * @final tag:v6.5.0
+ * @final
+ *
+ * @package core
  */
 class AndFilter extends MultiFilter
 {

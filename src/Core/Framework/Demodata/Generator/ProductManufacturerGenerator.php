@@ -9,27 +9,20 @@ use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ *
+ * @package inventory
+ */
 class ProductManufacturerGenerator implements DemodataGeneratorInterface
 {
-    /**
-     * @var EntityWriterInterface
-     */
-    private $writer;
-
-    /**
-     * @var ProductManufacturerDefinition
-     */
-    private $productManufacturerDefinition;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityWriterInterface $writer,
-        ProductManufacturerDefinition $productManufacturerDefinition
+        private EntityWriterInterface $writer,
+        private ProductManufacturerDefinition $productManufacturerDefinition
     ) {
-        $this->writer = $writer;
-        $this->productManufacturerDefinition = $productManufacturerDefinition;
     }
 
     public function getDefinition(): string

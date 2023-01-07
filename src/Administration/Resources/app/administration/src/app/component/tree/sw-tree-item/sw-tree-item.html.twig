@@ -30,17 +30,9 @@
             @click="openTreeItem(); getTreeItemChildren(item)"
         >
 
-            {# @deprecated tag:v6.5.0 - Will be removed #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_tree_item_element_toggle_loader %}{% endblock %}
-
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tree_item_element_toggle_icon %}
-            {# @deprecated tag:v6.5.0 - Size can be removed #}
-            <sw-icon
-                :name="opened ? 'regular-chevron-down-xxs' : 'regular-chevron-right-xxs'"
-                size="22"
-            />
+            <sw-icon :name="opened ? 'regular-chevron-down-xxs' : 'regular-chevron-right-xxs'" />
             {% endblock %}
         </div>
         {% endblock %}
@@ -67,13 +59,13 @@
             >
                 <sw-icon
                     v-if="opened"
-                    name="multicolor-folder-tree-open"
+                    name="regular-folder-open"
                     multicolor
                     small
                 />
                 <sw-icon
                     v-else
-                    name="multicolor-folder-tree"
+                    name="regular-folder"
                     multicolor
                     small
                 />
@@ -82,11 +74,7 @@
                 v-else
                 class="sw-tree-item__icon"
             >
-                {# @deprecated tag:v6.5.0 - Size can be removed #}
-                <sw-icon
-                    name="regular-circle-xxs"
-                    size="17"
-                />
+                <sw-icon name="regular-circle-xxs" />
             </div>
         </slot>
         {% endblock %}
@@ -368,18 +356,7 @@
                         v-if="$scopedSlots.actions"
                         :node="$scopedSlots.actions({ item, openTreeItem })"
                     />
-                    <template
-                        v-else
-                        :item="item"
-                        :openTreeItem="openTreeItem"
-                        :addElement="addElement"
-                        :addSubElement="addSubElement"
-                        :onDuplicate="onDuplicate"
-                        :onChangeRoute="onChangeRoute"
-                        :deleteElement="deleteElement"
-                        :toolTip="toolTip"
-                        :isDisabled="isDisabled"
-                    >
+                    <template v-else>
                         <sw-context-button
                             v-tooltip="toolTip"
                             :disabled="isDisabled"

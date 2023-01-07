@@ -2,16 +2,18 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class LineItemQuantitySplitter
 {
-    /**
-     * @var QuantityPriceCalculator
-     */
-    private $quantityPriceCalculator;
+    private QuantityPriceCalculator $quantityPriceCalculator;
 
     /**
      * @internal
@@ -25,8 +27,7 @@ class LineItemQuantitySplitter
      * Gets a new line item with only the provided quantity amount
      * along a ready-to-use calculated price.
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
+     * @throws CartException
      */
     public function split(LineItem $item, int $quantity, SalesChannelContext $context): LineItem
     {
@@ -38,9 +39,12 @@ class LineItemQuantitySplitter
         $tmpItem = clone $item;
 
         // use calculated item price
-        $unitPrice = $tmpItem->getPrice()->getUnitPrice();
+        /** @var CalculatedPrice $lineItemPrice */
+        $lineItemPrice = $tmpItem->getPrice();
 
-        $taxRules = $tmpItem->getPrice()->getTaxRules();
+        $unitPrice = $lineItemPrice->getUnitPrice();
+
+        $taxRules = $lineItemPrice->getTaxRules();
 
         // change the quantity to 1 single item
         $tmpItem->setQuantity($quantity);

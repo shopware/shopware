@@ -12,6 +12,9 @@ use function array_shift;
 use function explode;
 use function json_decode;
 
+/**
+ * @package system-settings
+ */
 class SystemConfigLoader extends AbstractSystemConfigLoader
 {
     protected Connection $connection;
@@ -49,7 +52,7 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
 
         $query->addOrderBy('sales_channel_id', 'ASC');
 
-        $result = $query->execute();
+        $result = $query->executeQuery();
 
         return $this->buildSystemConfigArray($result->fetchAllKeyValue());
     }

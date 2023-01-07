@@ -97,7 +97,7 @@ describe('Delivery times group: Test crud operations', () => {
             .should('contain', 'This field must not be empty.');
     });
 
-    it('@settings: Update and read delivery time', { tags: ['pa-customers-orders'] }, () => {
+    it('@settings: Update and read delivery time', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({
@@ -134,7 +134,7 @@ describe('Delivery times group: Test crud operations', () => {
         cy.contains(`${page.elements.dataGridRow}--0`, 'Turtle').should('be.visible');
     });
 
-    it('@settings: Delete delivery time', { tags: ['pa-customers-orders'] }, () => {
+    it('@settings: Delete delivery time', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({

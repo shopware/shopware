@@ -4,7 +4,6 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
-use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\Random;
@@ -13,6 +12,9 @@ use Shopware\Core\System\SalesChannel\Event\SalesChannelContextTokenChangeEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package core
+ */
 class SalesChannelContextPersister
 {
     private Connection $connection;
@@ -21,10 +23,7 @@ class SalesChannelContextPersister
 
     private string $lifetimeInterval;
 
-    /**
-     * @deprecated tag:v6.5.0 - CartPersisterInterface will be removed, type hint with AbstractCartPersister
-     */
-    private CartPersisterInterface $cartPersister;
+    private AbstractCartPersister $cartPersister;
 
     /**
      * @internal
@@ -32,19 +31,12 @@ class SalesChannelContextPersister
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
-        CartPersisterInterface $cartPersister,      // @deprecated tag:v6.5.0 - CartPersisterInterface will be removed, type hint with AbstractCartPersister
+        AbstractCartPersister $cartPersister,
         ?string $lifetimeInterval = 'P1D'
     ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
         $this->lifetimeInterval = $lifetimeInterval ?? 'P1D';
-
-        if (!$cartPersister instanceof AbstractCartPersister) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'CartPersister parameter in SalesChannelContextPersister::__construct needs to be instance of AbstractCartPersister in v6.5.0.0'
-            );
-        }
         $this->cartPersister = $cartPersister;
     }
 
@@ -62,7 +54,7 @@ class SalesChannelContextPersister
 
         unset($parameters['token']);
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'REPLACE INTO sales_channel_api_context (`token`, `payload`, `sales_channel_id`, `customer_id`, `updated_at`)
                 VALUES (:token, :payload, :salesChannelId, :customerId, :updatedAt)',
             [
@@ -87,7 +79,7 @@ class SalesChannelContextPersister
             );
         }
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'DELETE FROM sales_channel_api_context WHERE token = :token',
             [
                 'token' => $token,
@@ -99,7 +91,7 @@ class SalesChannelContextPersister
     {
         $newToken = Random::getAlphanumericString(32);
 
-        $affected = $this->connection->executeUpdate(
+        $affected = $this->connection->executeStatement(
             'UPDATE `sales_channel_api_context`
                    SET `token` = :newToken,
                        `updated_at` = :updatedAt
@@ -123,12 +115,7 @@ class SalesChannelContextPersister
             ]);
         }
 
-        // @deprecated tag:v6.5.0 - Remove else part
-        if ($this->cartPersister instanceof AbstractCartPersister) {
-            $this->cartPersister->replace($oldToken, $newToken, $context);
-        } else {
-            $this->connection->executeUpdate('UPDATE `cart` SET `token` = :newToken WHERE `token` = :oldToken', ['newToken' => $newToken, 'oldToken' => $oldToken]);
-        }
+        $this->cartPersister->replace($oldToken, $newToken, $context);
 
         $context->assign(['token' => $newToken]);
         $this->eventDispatcher->dispatch(new SalesChannelContextTokenChangeEvent($context, $oldToken, $newToken));
@@ -160,7 +147,7 @@ class SalesChannelContextPersister
             $qb->setMaxResults(1);
         }
 
-        $data = $qb->execute()->fetchAllAssociative();
+        $data = $qb->executeQuery()->fetchAllAssociative();
 
         if (empty($data)) {
             return [];

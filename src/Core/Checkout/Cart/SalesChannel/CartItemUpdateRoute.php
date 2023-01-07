@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
-use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemQuantityChangedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,34 +16,24 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package checkout
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
 {
-    /**
-     * @var CartPersisterInterface
-     */
-    private $cartPersister;
+    private AbstractCartPersister $cartPersister;
 
-    /**
-     * @var CartCalculator
-     */
-    private $cartCalculator;
+    private CartCalculator $cartCalculator;
 
-    /**
-     * @var LineItemFactoryRegistry
-     */
-    private $lineItemFactory;
+    private LineItemFactoryRegistry $lineItemFactory;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @internal
      */
-    public function __construct(CartPersisterInterface $cartPersister, CartCalculator $cartCalculator, LineItemFactoryRegistry $lineItemFactory, EventDispatcherInterface $eventDispatcher)
+    public function __construct(AbstractCartPersister $cartPersister, CartCalculator $cartCalculator, LineItemFactoryRegistry $lineItemFactory, EventDispatcherInterface $eventDispatcher)
     {
         $this->cartPersister = $cartPersister;
         $this->cartCalculator = $cartCalculator;
@@ -65,7 +54,7 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
     {
         $itemsToUpdate = $request->request->all('items');
 
-        /** @var array $item */
+        /** @var array<mixed> $item */
         foreach ($itemsToUpdate as $item) {
             $this->lineItemFactory->update($cart, $item, $context);
         }

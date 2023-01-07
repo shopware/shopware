@@ -8,6 +8,8 @@ use Symfony\Component\Finder\Finder;
 /**
  * @internal
  * @phpstan-import-type OpenApiSpec from DefinitionService
+ *
+ * @package core
  */
 class OpenApiFileLoader
 {

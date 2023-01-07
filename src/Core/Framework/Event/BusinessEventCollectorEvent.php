@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Context;
 
+/**
+ * @package business-ops
+ */
 class BusinessEventCollectorEvent extends NestedEvent
 {
     public const NAME = 'collect.business-events';

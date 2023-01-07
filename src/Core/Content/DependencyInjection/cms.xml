@@ -6,7 +6,6 @@
     <services>
         <service id="Shopware\Core\Content\Cms\CmsPageDefinition">
             <tag name="shopware.entity.definition"/>
-            <tag name="shopware.composite_search.definition" />
         </service>
 
         <service id="Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDefinition">
@@ -27,11 +26,6 @@
 
         <service id="Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDefinition">
             <tag name="shopware.entity.definition"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository" public="true">
-            <argument type="service" id="cms_page.repository" />
-            <deprecated package="shopware/core" version="6.5.0">tag:v6.5.0 "%service_id%" service alias is deprecated, it will be removed in 6.5.0.</deprecated>
         </service>
 
         <service id="Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver" public="true">

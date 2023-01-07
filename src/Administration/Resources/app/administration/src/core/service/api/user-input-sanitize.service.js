@@ -18,7 +18,8 @@ export default class AppUrlChangeService extends ApiService {
             {
                 html,
                 field: field ?? null,
-            }, {
+            },
+            {
                 headers: this.getBasicHeaders(),
             },
         ).then(response => ApiService.handleResponse(response));

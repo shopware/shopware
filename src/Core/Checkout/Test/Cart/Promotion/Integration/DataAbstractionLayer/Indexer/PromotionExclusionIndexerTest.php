@@ -5,13 +5,15 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration\DataAbstraction
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class PromotionExclusionIndexerTest extends TestCase
@@ -19,7 +21,7 @@ class PromotionExclusionIndexerTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $promotionRepository;
 

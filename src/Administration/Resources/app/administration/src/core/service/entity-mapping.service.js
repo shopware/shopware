@@ -1,6 +1,8 @@
 const { Entity } = Shopware;
 
 /**
+ * @package admin
+ *
  * @module core/service/validation
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

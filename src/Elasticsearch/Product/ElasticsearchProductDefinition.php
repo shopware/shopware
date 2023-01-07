@@ -3,8 +3,7 @@
 namespace Shopware\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
-use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
-use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
+use OpenSearchDSL\Query\Compound\BoolQuery;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -12,15 +11,27 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
-use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 
+/**
+ * @package core
+ */
 class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 {
+    public const KEYWORD_FIELD = [
+        'type' => 'keyword',
+        'normalizer' => 'sw_lowercase_normalizer',
+    ];
+
+    public const BOOLEAN_FIELD = ['type' => 'boolean'];
+
+    public const FLOAT_FIELD = ['type' => 'double'];
+
+    public const INT_FIELD = ['type' => 'long'];
+
     private const SEARCH_FIELD = [
         'fields' => [
             'search' => ['type' => 'text'],
@@ -53,13 +64,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
      */
     public function __construct(
         ProductDefinition $definition,
-        EntityMapper $mapper,
         Connection $connection,
         array $customMapping,
         EventDispatcherInterface $eventDispatcher,
         AbstractProductSearchQueryBuilder $searchQueryBuilder
     ) {
-        parent::__construct($mapper);
         $this->definition = $definition;
         $this->connection = $connection;
         $this->customMapping = $customMapping;
@@ -80,98 +89,98 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         return [
             '_source' => ['includes' => ['id', 'autoIncrement']],
             'properties' => [
-                'id' => EntityMapper::KEYWORD_FIELD,
-                'parentId' => EntityMapper::KEYWORD_FIELD,
-                'active' => EntityMapper::BOOLEAN_FIELD,
-                'available' => EntityMapper::BOOLEAN_FIELD,
-                'isCloseout' => EntityMapper::BOOLEAN_FIELD,
+                'id' => self::KEYWORD_FIELD,
+                'parentId' => self::KEYWORD_FIELD,
+                'active' => self::BOOLEAN_FIELD,
+                'available' => self::BOOLEAN_FIELD,
+                'isCloseout' => self::BOOLEAN_FIELD,
                 'categoriesRo' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => EntityMapper::KEYWORD_FIELD,
-                        '_count' => EntityMapper::INT_FIELD,
+                        'id' => self::KEYWORD_FIELD,
+                        '_count' => self::INT_FIELD,
                     ],
                 ],
                 'categories' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => EntityMapper::KEYWORD_FIELD,
-                        'name' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
-                        '_count' => EntityMapper::INT_FIELD,
+                        'id' => self::KEYWORD_FIELD,
+                        'name' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
+                        '_count' => self::INT_FIELD,
                     ],
                 ],
-                'childCount' => EntityMapper::INT_FIELD,
-                'autoIncrement' => EntityMapper::INT_FIELD,
-                'manufacturerNumber' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
-                'description' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
-                'metaTitle' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
-                'metaDescription' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
-                'displayGroup' => EntityMapper::KEYWORD_FIELD,
-                'ean' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
-                'height' => EntityMapper::FLOAT_FIELD,
-                'length' => EntityMapper::FLOAT_FIELD,
+                'childCount' => self::INT_FIELD,
+                'autoIncrement' => self::INT_FIELD,
+                'manufacturerNumber' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
+                'description' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
+                'metaTitle' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
+                'metaDescription' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
+                'displayGroup' => self::KEYWORD_FIELD,
+                'ean' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
+                'height' => self::FLOAT_FIELD,
+                'length' => self::FLOAT_FIELD,
                 'manufacturer' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => EntityMapper::KEYWORD_FIELD,
-                        'name' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
-                        '_count' => EntityMapper::INT_FIELD,
+                        'id' => self::KEYWORD_FIELD,
+                        'name' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
+                        '_count' => self::INT_FIELD,
                     ],
                 ],
-                'markAsTopseller' => EntityMapper::BOOLEAN_FIELD,
-                'name' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
+                'markAsTopseller' => self::BOOLEAN_FIELD,
+                'name' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
                 'options' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => EntityMapper::KEYWORD_FIELD,
-                        'name' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
-                        'groupId' => EntityMapper::KEYWORD_FIELD,
-                        '_count' => EntityMapper::INT_FIELD,
+                        'id' => self::KEYWORD_FIELD,
+                        'name' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
+                        'groupId' => self::KEYWORD_FIELD,
+                        '_count' => self::INT_FIELD,
                     ],
                 ],
-                'productNumber' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
+                'productNumber' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
                 'properties' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => EntityMapper::KEYWORD_FIELD,
-                        'name' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
-                        'groupId' => EntityMapper::KEYWORD_FIELD,
-                        '_count' => EntityMapper::INT_FIELD,
+                        'id' => self::KEYWORD_FIELD,
+                        'name' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
+                        'groupId' => self::KEYWORD_FIELD,
+                        '_count' => self::INT_FIELD,
                     ],
                 ],
-                'ratingAverage' => EntityMapper::FLOAT_FIELD,
+                'ratingAverage' => self::FLOAT_FIELD,
                 'releaseDate' => [
                     'type' => 'date',
                 ],
                 'createdAt' => [
                     'type' => 'date',
                 ],
-                'sales' => EntityMapper::INT_FIELD,
-                'stock' => EntityMapper::INT_FIELD,
-                'availableStock' => EntityMapper::INT_FIELD,
-                'shippingFree' => EntityMapper::BOOLEAN_FIELD,
-                'taxId' => EntityMapper::KEYWORD_FIELD,
+                'sales' => self::INT_FIELD,
+                'stock' => self::INT_FIELD,
+                'availableStock' => self::INT_FIELD,
+                'shippingFree' => self::BOOLEAN_FIELD,
+                'taxId' => self::KEYWORD_FIELD,
                 'tags' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => EntityMapper::KEYWORD_FIELD,
-                        'name' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
-                        '_count' => EntityMapper::INT_FIELD,
+                        'id' => self::KEYWORD_FIELD,
+                        'name' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
+                        '_count' => self::INT_FIELD,
                     ],
                 ],
                 'visibilities' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => EntityMapper::KEYWORD_FIELD,
-                        'visibility' => EntityMapper::INT_FIELD,
-                        '_count' => EntityMapper::INT_FIELD,
+                        'id' => self::KEYWORD_FIELD,
+                        'visibility' => self::INT_FIELD,
+                        '_count' => self::INT_FIELD,
                     ],
                 ],
-                'coverId' => EntityMapper::KEYWORD_FIELD,
-                'weight' => EntityMapper::FLOAT_FIELD,
-                'width' => EntityMapper::FLOAT_FIELD,
+                'coverId' => self::KEYWORD_FIELD,
+                'weight' => self::FLOAT_FIELD,
+                'width' => self::FLOAT_FIELD,
                 'customFields' => $this->getCustomFieldsMapping($context),
-                'customSearchKeywords' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
+                'customSearchKeywords' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
             ],
             'dynamic_templates' => [
                 [
@@ -196,34 +205,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         ];
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Use `fetch()` instead
-     *
-     * @param array<mixed> $documents
-     *
-     * @return array<mixed>
-     */
-    public function extendDocuments(array $documents, Context $context): array
-    {
-        Feature::triggerDeprecationOrThrow('v6.5.0.0', 'Use `fetch()` instead');
-
-        return $documents;
-    }
-
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
     {
-        if (Feature::isActive('FEATURE_NEXT_22900')) {
-            return $this->searchQueryBuilder->build($criteria, $context);
-        }
-
-        $query = parent::buildTermQuery($context, $criteria);
-
-        $query->add(
-            new MatchQuery('description', (string) $criteria->getTerm()),
-            BoolQuery::SHOULD
-        );
-
-        return $query;
+        return $this->searchQueryBuilder->build($criteria, $context);
     }
 
     /**
@@ -334,11 +318,6 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'coverId' => $item['coverId'],
                 'childCount' => (int) $item['childCount'],
             ];
-
-            if (!Feature::isActive('FEATURE_NEXT_22900')) {
-                $document['fullText'] = $this->stripText(implode(' ', [$document['name'], $document['description'], $document['productNumber']]));
-                $document['fullTextBoosted'] = $this->stripText(implode(' ', [$document['name'], $document['description'], $document['productNumber']]));
-            }
 
             if ($item['cheapest_price_accessor']) {
                 $cheapestPriceAccessor = json_decode($item['cheapest_price_accessor'], true, 512, \JSON_THROW_ON_ERROR);
@@ -545,7 +524,7 @@ SQL;
         foreach ($customFields as $name => $customField) {
             $type = $types[$name] ?? null;
 
-            if ($type === null && Feature::isActive('v6.5.0.0')) {
+            if ($type === null) {
                 unset($customFields[$name]);
 
                 continue;
@@ -622,26 +601,7 @@ SQL;
             return $this->customFieldsTypes;
         }
 
-        if (Feature::isActive('v6.5.0.0')) {
-            $event = new ElasticsearchProductCustomFieldsMappingEvent($this->customMapping, $context);
-            $this->eventDispatcher->dispatch($event);
-
-            $this->customFieldsTypes = $event->getMappings();
-
-            return $this->customFieldsTypes;
-        }
-
-        /** @var array<string, string> $mappings */
-        $mappings = $this->connection->fetchAllKeyValue('
-SELECT
-    custom_field.`name`,
-    custom_field.type
-FROM custom_field_set_relation
-    INNER JOIN custom_field ON(custom_field.set_id = custom_field_set_relation.set_id)
-WHERE custom_field_set_relation.entity_name = "product"
-') + $this->customMapping;
-
-        $event = new ElasticsearchProductCustomFieldsMappingEvent($mappings, $context);
+        $event = new ElasticsearchProductCustomFieldsMappingEvent($this->customMapping, $context);
         $this->eventDispatcher->dispatch($event);
 
         $this->customFieldsTypes = $event->getMappings();

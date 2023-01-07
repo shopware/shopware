@@ -6,11 +6,10 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -24,11 +23,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
+ *
+ * @package customer-order
  */
 class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $newsletterRecipientRepository;
 
@@ -46,7 +47,7 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $newsletterRecipientRepository,
+        EntityRepository $newsletterRecipientRepository,
         DataValidator $validator,
         EventDispatcherInterface $eventDispatcher
     ) {

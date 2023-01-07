@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Rule;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Validator\Constraint;
 
+/**
+ * @package business-ops
+ */
 abstract class Rule extends Struct
 {
     public const OPERATOR_GTE = '>=';
@@ -67,7 +70,10 @@ abstract class Rule extends Struct
         unset($data['extensions'], $data['_class']);
         $data['_name'] = $this->getName();
 
-        return $data;
+        // filter out null values to avoid constraint violations with empty operator
+        return array_filter($data, function ($value) {
+            return $value !== null;
+        });
     }
 
     public function getApiAlias(): string

@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Api\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class IncompletePrimaryKeyException extends ShopwareHttpException
 {
     public function __construct(array $primaryKeyFields)

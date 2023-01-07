@@ -11,7 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ *
+ * @package core
  */
 class BlobFieldSerializer implements FieldSerializerInterface
 {
@@ -33,12 +35,7 @@ class BlobFieldSerializer implements FieldSerializerInterface
         yield $field->getStorageName() => $data->getValue();
     }
 
-    /**
-     * @return string|null
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be native typed
-     */
-    public function decode(Field $field, $value)/*: ?string*/
+    public function decode(Field $field, mixed $value): ?string
     {
         if ($value === null) {
             return $value;

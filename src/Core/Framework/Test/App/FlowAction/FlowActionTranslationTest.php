@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\App\FlowAction;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,7 +19,7 @@ class FlowActionTranslationTest extends TestCase
 
     public function testHeadlineAndDescriptionTranslation(): void
     {
-        /** @var EntityRepositoryInterface $appFlowActionRepository */
+        /** @var EntityRepository $appFlowActionRepository */
         $appFlowActionRepository = $this->getContainer()->get('app_flow_action.repository');
 
         $idFlowAction = $this->registerFlowAction();
@@ -34,7 +34,7 @@ class FlowActionTranslationTest extends TestCase
 
     private function registerFlowAction(): string
     {
-        /** @var EntityRepositoryInterface $appRepository */
+        /** @var EntityRepository $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $idFlowAction = Uuid::randomHex();

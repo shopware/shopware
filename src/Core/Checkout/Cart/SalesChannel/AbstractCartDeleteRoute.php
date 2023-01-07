@@ -6,6 +6,8 @@ use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package checkout
+ *
  * This route can be used to delete the entire cart
  */
 abstract class AbstractCartDeleteRoute

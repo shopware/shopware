@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Product\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package inventory
+ */
 class ProductNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $productId)

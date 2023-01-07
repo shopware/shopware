@@ -4,8 +4,10 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
@@ -42,6 +44,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class LineItemGroupBuilderTest extends TestCase
@@ -294,8 +298,6 @@ class LineItemGroupBuilderTest extends TestCase
         );
 
         $result = $this->unitTestBuilder->findGroupPackages([$group], $cart, $this->context);
-
-        /** @var array $groupCount */
         $groupCount = $result->getGroupResult($group);
 
         static::assertCount(4, $groupCount);
@@ -340,9 +342,7 @@ class LineItemGroupBuilderTest extends TestCase
     /**
      * Builds a cart with the number of provided products.
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws CartException
      */
     private function buildCart(int $productCount): Cart
     {

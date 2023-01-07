@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Flow;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package business-ops
  * @extends EntityCollection<FlowEntity>
  */
 class FlowCollection extends EntityCollection

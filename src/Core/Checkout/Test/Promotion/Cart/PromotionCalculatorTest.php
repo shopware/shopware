@@ -18,7 +18,7 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionCalculator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -27,6 +27,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class PromotionCalculatorTest extends TestCase
@@ -38,7 +40,7 @@ class PromotionCalculatorTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
-    private EntityRepositoryInterface $promotionRepository;
+    private EntityRepository $promotionRepository;
 
     protected function setUp(): void
     {

@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1595489705PreventOldListingPrices extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -30,7 +35,7 @@ class Migration1595489705PreventOldListingPrices extends MigrationStep
 
         $this->createTrigger($connection, $sql);
 
-        $connection->executeUpdate('UPDATE product SET listing_prices = NULL');
+        $connection->executeStatement('UPDATE product SET listing_prices = NULL');
     }
 
     public function updateDestructive(Connection $connection): void

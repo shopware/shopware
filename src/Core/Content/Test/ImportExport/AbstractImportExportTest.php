@@ -22,7 +22,7 @@ use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -42,6 +42,8 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 abstract class AbstractImportExportTest extends TestCase
 {
@@ -57,7 +59,7 @@ abstract class AbstractImportExportTest extends TestCase
     public const TEST_IMAGE = __DIR__ . '/fixtures/shopware-logo.png';
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     protected $productRepository;
 
@@ -158,7 +160,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function createPromotion(array $promotionOverride = []): array
     {
-        /** @var EntityRepositoryInterface $promotionRepository */
+        /** @var EntityRepository $promotionRepository */
         $promotionRepository = $this->getContainer()->get('promotion.repository');
 
         $promotion = array_merge([
@@ -175,7 +177,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function createPromotionCode(string $promotionId, array $promotionCodeOverride = []): array
     {
-        /** @var EntityRepositoryInterface $promotionCodeRepository */
+        /** @var EntityRepository $promotionCodeRepository */
         $promotionCodeRepository = $this->getContainer()->get('promotion_individual_code.repository');
 
         $promotionCode = array_merge([
@@ -202,7 +204,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function getDefaultProfileId(string $entity): string
     {
-        /** @var EntityRepositoryInterface $profileRepository */
+        /** @var EntityRepository $profileRepository */
         $profileRepository = $this->getContainer()->get('import_export_profile.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('systemDefault', true));
@@ -213,7 +215,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function cloneDefaultProfile(string $entity): ImportExportProfileEntity
     {
-        /** @var EntityRepositoryInterface $profileRepository */
+        /** @var EntityRepository $profileRepository */
         $profileRepository = $this->getContainer()->get('import_export_profile.repository');
 
         $systemDefaultProfileId = $this->getDefaultProfileId($entity);
@@ -226,7 +228,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function updateProfileMapping(string $profileId, array $mappings): void
     {
-        /** @var EntityRepositoryInterface $profileRepository */
+        /** @var EntityRepository $profileRepository */
         $profileRepository = $this->getContainer()->get('import_export_profile.repository');
 
         $profileRepository->update([
@@ -239,7 +241,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function updateProfileUpdateBy(string $profileId, array $updateBy): void
     {
-        /** @var EntityRepositoryInterface $profileRepository */
+        /** @var EntityRepository $profileRepository */
         $profileRepository = $this->getContainer()->get('import_export_profile.repository');
 
         $profileRepository->update([
@@ -252,7 +254,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function updateProfileConfig(string $profileId, array $config): void
     {
-        /** @var EntityRepositoryInterface $profileRepository */
+        /** @var EntityRepository $profileRepository */
         $profileRepository = $this->getContainer()->get('import_export_profile.repository');
 
         $profileRepository->update([
@@ -275,20 +277,21 @@ abstract class AbstractImportExportTest extends TestCase
             ['id' => $manufacturerId, 'name' => 'test'],
         ], Context::createDefaultContext());
 
-        /** @var EntityRepositoryInterface $categoryRepository */
+        /** @var EntityRepository $categoryRepository */
         $categoryRepository = $this->getContainer()->get('category.repository');
         $categoryRepository->upsert([
             ['id' => $catId1, 'name' => 'test'],
             ['id' => $catId2, 'name' => 'bar'],
         ], Context::createDefaultContext());
 
-        /** @var EntityRepositoryInterface $taxRepository */
+        /** @var EntityRepository $taxRepository */
         $taxRepository = $this->getContainer()->get('tax.repository');
         $taxRepository->upsert([
             ['id' => $taxId, 'name' => 'test', 'taxRate' => 15],
         ], Context::createDefaultContext());
 
         $tempFile = tempnam(sys_get_temp_dir(), '');
+        static::assertIsString($tempFile);
         copy(self::TEST_IMAGE, $tempFile);
 
         $fileSize = filesize($tempFile);

@@ -1,8 +1,17 @@
-import './component';
-import './preview';
+/**
+ * @private
+ * @package content
+ */
+Shopware.Component.register('sw-cms-preview-text-two-column', () => import('./preview'));
+/**
+ * @private
+ * @package content
+ */
+Shopware.Component.register('sw-cms-block-text-two-column', () => import('./component'));
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'text-two-column',

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\App\Command;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Command\ActivateAppCommand;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
@@ -21,7 +21,7 @@ class ActivateAppCommandTest extends TestCase
     use AppSystemTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $appRepository;
 

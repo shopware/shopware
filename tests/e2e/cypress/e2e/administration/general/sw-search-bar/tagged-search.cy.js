@@ -18,7 +18,9 @@ describe('Search bar: Check search functionality with tags', () => {
 
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('input.sw-search-bar__input').type('#')
+        cy.get('.sw-dashboard-index__content')
+            .should('be.visible');
+        cy.get('input.sw-search-bar__input').type('#');
         cy.get('.sw-search-bar__types_container--v2').should('be.visible');
         cy.contains('.sw-search-bar__type-item-name', 'Products').click();
         cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Products').should('be.visible');
@@ -168,6 +170,8 @@ describe('Search bar: Check search functionality with tags', () => {
 
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.get('input.sw-search-bar__input').type('#')
         cy.get('.sw-search-bar__types_container--v2').should('be.visible');
         cy.contains('.sw-search-bar__type-item-name', 'Media').click();

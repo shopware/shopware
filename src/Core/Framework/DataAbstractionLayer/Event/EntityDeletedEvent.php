@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
 use Shopware\Core\Framework\Context;
 
+/**
+ * @package core
+ */
 class EntityDeletedEvent extends EntityWrittenEvent
 {
     public function __construct(

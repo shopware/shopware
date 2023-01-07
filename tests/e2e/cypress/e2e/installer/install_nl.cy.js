@@ -133,6 +133,7 @@ describe('Minimal install', () => {
 
         cy.get('.sw-step-display').should('be.visible');
         cy.contains('.sw-step-display .sw-step-item.sw-step-item--active span', 'Data import');
+        cy.get('.sw-first-run-wizard-data-import__headline').should('be.visible');
 
         cy.contains('.sw-button span', 'Next').click();
 
@@ -141,6 +142,7 @@ describe('Minimal install', () => {
         cy.get('.sw-step-display').should('be.visible');
         cy.contains('.sw-step-display .sw-step-item.sw-step-item--active span', 'Default values');
 
+        cy.contains('.sw-button', 'Next').should('not.be.disabled');
         cy.contains('.sw-button span', 'Next').click();
         cy.get('.sw-loader__element').should('not.exist');
 

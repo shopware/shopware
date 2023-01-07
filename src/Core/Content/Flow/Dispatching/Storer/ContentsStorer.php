@@ -6,6 +6,9 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\ContentsAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Event\FlowEventAware;
 
+/**
+ * @package business-ops
+ */
 class ContentsStorer extends FlowStorer
 {
     /**

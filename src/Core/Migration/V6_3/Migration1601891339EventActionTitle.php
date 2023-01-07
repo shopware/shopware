@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1601891339EventActionTitle extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +19,7 @@ class Migration1601891339EventActionTitle extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `event_action` ADD `title` varchar(500) NULL AFTER `id`;');
+        $connection->executeStatement('ALTER TABLE `event_action` ADD `title` varchar(500) NULL AFTER `id`;');
     }
 
     public function updateDestructive(Connection $connection): void

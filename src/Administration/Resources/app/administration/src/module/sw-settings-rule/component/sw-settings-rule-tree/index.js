@@ -1,6 +1,8 @@
-const { Component } = Shopware;
-
-Component.extend('sw-settings-rule-tree', 'sw-tree', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
 
     data() {
         return {
@@ -36,4 +38,4 @@ Component.extend('sw-settings-rule-tree', 'sw-tree', {
             return items;
         },
     },
-});
+};

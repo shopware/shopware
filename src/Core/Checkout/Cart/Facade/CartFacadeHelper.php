@@ -17,6 +17,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class CartFacadeHelper implements ResetInterface

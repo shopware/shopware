@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -122,8 +121,8 @@ trait AdminApiTestBehaviour
     }
 
     /**
-     * @param array<string> $scopes
-     * @param array<string>|null $aclPermissions
+     * @param string[] $scopes
+     * @param string[]|null $aclPermissions
      */
     public function authorizeBrowser(TestBrowser $browser, array $scopes = [], ?array $aclPermissions = null): void
     {
@@ -206,7 +205,6 @@ trait AdminApiTestBehaviour
     /**
      * @throws InvalidUuidException
      * @throws \RuntimeException
-     * @throws DBALException
      */
     public function authorizeBrowserWithIntegration(TestBrowser $browser, ?string $id = null): void
     {
@@ -267,8 +265,8 @@ trait AdminApiTestBehaviour
     abstract protected function getKernel(): KernelInterface;
 
     /**
-     * @param array<string> $scopes
-     * @param array<string>|null $permissions
+     * @param string[] $scopes
+     * @param string[]|null $permissions
      */
     protected function getBrowser(bool $authorized = true, array $scopes = [], ?array $permissions = null): TestBrowser
     {
@@ -318,7 +316,7 @@ trait AdminApiTestBehaviour
             ->innerJoin('language', 'locale', 'locale', 'language.locale_id = locale.id')
             ->where('language.id = :id')
             ->setParameter('id', Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM))
-            ->execute()
-            ->fetchColumn();
+            ->executeQuery()
+            ->fetchOne();
     }
 }

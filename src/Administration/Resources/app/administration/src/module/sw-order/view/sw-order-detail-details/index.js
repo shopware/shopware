@@ -1,13 +1,17 @@
 import template from './sw-order-detail-details.html.twig';
 import './sw-order-detail-details.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, State } = Shopware;
 const { Criteria } = Shopware.Data;
 const { array } = Shopware.Utils;
 const { mapGetters, mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-detail-details', {
+export default {
     template,
 
     inject: [
@@ -81,8 +85,10 @@ Component.register('sw-order-detail-details', {
                 return null;
             }
 
-            return this.stateStyleDataProviderService.getStyle('order_transaction.state',
-                this.transaction.stateMachineState.technicalName).selectBackgroundStyle;
+            return this.stateStyleDataProviderService.getStyle(
+                'order_transaction.state',
+                this.transaction.stateMachineState.technicalName,
+            ).selectBackgroundStyle;
         },
 
         orderOptionPlaceholder() {
@@ -99,8 +105,10 @@ Component.register('sw-order-detail-details', {
                 return null;
             }
 
-            return this.stateStyleDataProviderService.getStyle('order.state',
-                this.order.stateMachineState.technicalName).selectBackgroundStyle;
+            return this.stateStyleDataProviderService.getStyle(
+                'order.state',
+                this.order.stateMachineState.technicalName,
+            ).selectBackgroundStyle;
         },
 
         deliveryOptionPlaceholder() {
@@ -117,8 +125,10 @@ Component.register('sw-order-detail-details', {
                 return null;
             }
 
-            return this.stateStyleDataProviderService.getStyle('order_delivery.state',
-                this.delivery.stateMachineState.technicalName).selectBackgroundStyle;
+            return this.stateStyleDataProviderService.getStyle(
+                'order_delivery.state',
+                this.delivery.stateMachineState.technicalName,
+            ).selectBackgroundStyle;
         },
 
         customFieldSetRepository() {
@@ -260,21 +270,18 @@ Component.register('sw-order-detail-details', {
         },
 
         validateTrackingCode(searchTerm) {
-            if (searchTerm.length < 0) {
+            const trackingCode = searchTerm.trim();
+
+            if (trackingCode.length <= 0) {
                 return false;
             }
 
-            const isExist = this.delivery?.trackingCodes?.find(code => code === searchTerm);
-
-            if (isExist) {
-                return false;
-            }
-
-            return searchTerm;
+            const isExist = this.delivery?.trackingCodes?.find(code => code === trackingCode);
+            return !isExist;
         },
 
         onChangeOrderAddress(value) {
             State.commit('swOrderDetail/setOrderAddressIds', value);
         },
     },
-});
+};

@@ -6,6 +6,8 @@ namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package checkout
+ *
  * @extends EntityCollection<PromotionTranslationEntity>
  */
 class PromotionTranslationCollection extends EntityCollection

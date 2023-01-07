@@ -3,21 +3,23 @@
 namespace Shopware\Core\Framework\App\Template;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ *
+ * @package core
  */
 class TemplateStateService
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $templateRepo;
 
-    public function __construct(EntityRepositoryInterface $templateRepo)
+    public function __construct(EntityRepository $templateRepo)
     {
         $this->templateRepo = $templateRepo;
     }

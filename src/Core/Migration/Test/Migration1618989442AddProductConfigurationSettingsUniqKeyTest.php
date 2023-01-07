@@ -8,7 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -16,11 +16,13 @@ use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1618989442AddProductConfigurationSettingsUniqKey;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package core
+ *
  * @internal
  * NEXT-21735 - Not deterministic due to SalesChannelContextFactory
  * @group not-deterministic
@@ -30,30 +32,15 @@ class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends Test
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $salesChannelProductRepository;
+    private SalesChannelRepository $salesChannelProductRepository;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    private SalesChannelContext $context;
 
-    /**
-     * @var ProductConfiguratorLoader
-     */
-    private $loader;
+    private ProductConfiguratorLoader $loader;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -209,10 +196,10 @@ class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends Test
 
     private function hasIndex(): bool
     {
-        return (bool) $this->connection->executeQuery("
+        return (bool) $this->connection->executeQuery('
             SHOW INDEXES IN `product_configurator_setting`
-            WHERE `Key_name` = 'uniq.product_configurator_setting.prod_id.vers_id.prop_group_id'
-        ")->fetchOne();
+            WHERE `Key_name` = \'uniq.product_configurator_setting.prod_id.vers_id.prop_group_id\'
+        ')->fetchOne();
     }
 
     private function insertDuplicateData(): string

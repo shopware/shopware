@@ -1,0 +1,63 @@
+<div>
+    <div class="sw-order-create-general-info__summary">
+        <div class="sw-order-create-general-info__summary-main">
+            <div class="sw-order-create-general-info__summary-main-header">
+                {{ summaryMainHeader }}
+            </div>
+            <div class="sw-order-create-general-info__summary-main-total">
+                {{ cart.price.totalPrice | currency(context.currency.translated.shortName, context.currency.totalRounding.decimals) }}
+            </div>
+        </div>
+
+        <div class="sw-order-create-general-info__summary-sub">
+            <div class="sw-order-create-general-info__summary-sub-description">
+                {{ $tc('sw-order.generalTab.info.summary.with') }}
+                {{ context.shippingMethod.translated.name }}
+                {{ $tc('sw-order.generalTab.info.summary.and') }}
+                {{ context.paymentMethod.translated.distinguishableName }}
+            </div>
+        </div>
+    </div>
+
+    <div class="sw-order-create-general-info__order-states">
+        <div class="sw-order-create-general-info__order-state">
+            <sw-order-state-select-v2
+                class="sw-order-create-general-info__order-state-payment"
+                state-type="order_transaction"
+                rounded-style
+                :placeholder="$tc('sw-order.stateCard.draftPlaceholder')"
+                :label="$tc('sw-order.stateCard.headlineTransactionState')"
+                disabled
+            />
+        </div>
+        <div class="sw-order-create-general-info__order-state">
+            <sw-order-state-select-v2
+                class="sw-order-create-general-info__order-state-delivery"
+                state-type="order_delivery"
+                rounded-style
+                :placeholder="$tc('sw-order.stateCard.draftPlaceholder')"
+                :label="$tc('sw-order.stateCard.headlineDeliveryState')"
+                disabled
+            />
+        </div>
+        <div class="sw-order-create-general-info__order-state">
+            <sw-order-state-select-v2
+                class="sw-order-create-general-info__order-state-order"
+                rounded-style
+                state-type="order"
+                :placeholder="$tc('sw-order.stateCard.draftPlaceholder')"
+                :label="$tc('sw-order.stateCard.headlineOrderState')"
+                disabled
+            />
+        </div>
+    </div>
+
+    <sw-entity-tag-select
+        class="sw-order-create-general-info__order-tags"
+        size="small"
+        :entity-collection="[]"
+        disabled
+        :placeholder="$tc('sw-order.generalTab.tagSelect.placeholder')"
+        always-show-placeholder
+    />
+</div>

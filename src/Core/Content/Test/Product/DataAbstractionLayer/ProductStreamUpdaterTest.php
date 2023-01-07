@@ -9,7 +9,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,9 +24,9 @@ class ProductStreamUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
-    private EntityRepositoryInterface $productStreamRepository;
+    private EntityRepository $productStreamRepository;
 
     private SalesChannelContext $salesChannel;
 

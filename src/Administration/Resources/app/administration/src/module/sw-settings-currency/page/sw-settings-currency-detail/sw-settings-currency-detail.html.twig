@@ -4,14 +4,14 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_currency_detail_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <h2>{{ placeholder(currency, 'name', $tc('sw-settings-currency.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_currency_detail_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_currency_detail_actions_abort %}
         <sw-button
@@ -43,292 +43,295 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_currency_detail_language_switch %}
-    <sw-language-switch
-        slot="language-switch"
-        :disabled="currencyId == null"
-        :save-changes-function="saveOnLanguageChange"
-        :abort-change-function="abortOnLanguageChange"
-        @on-change="onChangeLanguage"
-    />
+    <template #language-switch>
+        <sw-language-switch
+            :disabled="currencyId == null"
+            :save-changes-function="saveOnLanguageChange"
+            :abort-change-function="abortOnLanguageChange"
+            @on-change="onChangeLanguage"
+        />
+    </template>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_currency_detail_content %}
-    <sw-card-view slot="content">
+    <template #content>
+        <sw-card-view>
 
-        <template v-if="isLoading">
-            <sw-skeleton />
-            <sw-skeleton />
-        </template>
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
 
-        <template v-else>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_currency_detail_content_language_info %}
-            <sw-language-info
-                :entity-description="placeholder(currency, 'name', $tc('sw-settings-currency.detail.textHeadline'))"
-            />
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_currency_detail_content_card %}
-            <sw-card
-                position-identifier="sw-settings-currency-detail-content"
-                :is-loading="isLoading"
-                :title="$tc('sw-settings-currency.detail.titleCard')"
-            >
-                <sw-container
-                    columns="repeat(auto-fit, minmax(250px, 1fr))"
-                    gap="0px 30px"
-                >
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_currency_detail_content_field_name %}
-                    <sw-field
-                        v-model="currency.name"
-                        type="text"
-                        required
-                        :disabled="!acl.can('currencies.editor')"
-                        :label="$tc('sw-settings-currency.detail.labelName')"
-                        :placeholder="placeholder(currency, 'name', $tc('sw-settings-currency.detail.placeholderName'))"
-                        :error="currencyNameError"
-                    />
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_currency_detail_content_field_iso_code %}
-                    <sw-field
-                        v-model="currency.isoCode"
-                        type="text"
-                        required
-                        :disabled="!acl.can('currencies.editor')"
-                        :label="$tc('sw-settings-currency.detail.labelIsoCode')"
-                        :placeholder="placeholder(currency, 'isoCode', $tc('sw-settings-currency.detail.placeholderIsoCode'))"
-                        :error="currencyIsoCodeError"
-                    />
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_currency_detail_content_field_short_name %}
-                    <sw-field
-                        v-model="currency.shortName"
-                        type="text"
-                        required
-                        :disabled="!acl.can('currencies.editor')"
-                        :label="$tc('sw-settings-currency.detail.labelShortName')"
-                        :placeholder="placeholder(currency, 'shortName', $tc('sw-settings-currency.detail.placeholderShortName'))"
-                        :error="currencyShortNameError"
-                    />
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_currency_detail_content_field_symbol %}
-                    <sw-field
-                        v-model="currency.symbol"
-                        type="text"
-                        required
-                        :disabled="!acl.can('currencies.editor')"
-                        :label="$tc('sw-settings-currency.detail.labelSymbol')"
-                        :placeholder="$tc('sw-settings-currency.detail.placeholderSymbol')"
-                        :error="currencySymbolError"
-                    />
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_currency_detail_content_field_factor %}
-                    <sw-number-field
-                        v-model="currency.factor"
-                        required
-                        :digits="14"
-                        :label="$tc('sw-settings-currency.detail.labelFactor')"
-                        :placeholder="$tc('sw-settings-currency.detail.placeholderFactor')"
-                        :error="currencyFactorError"
-                        :disabled="currency.isSystemDefault || !acl.can('currencies.editor')"
-                    />
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_currency_detail_content_field_tax_free_from %}
-                    <sw-number-field
-                        v-model="currency.taxFreeFrom"
-                        :min="0"
-                        :label="$tc('sw-settings-currency.detail.taxFreeFrom')"
-                        :help-text="$tc('sw-settings-currency.detail.taxFreeFromHelpText', 0 , { currencyName: `${currency.name}` })"
-                        :disabled="!currency.factor"
-                    >
-                        <template #suffix>
-                            {{ currency.symbol }}
-                        </template>
-                    </sw-number-field>
-                    {% endblock %}
-
-                </sw-container>
-            </sw-card>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_currency_detail_content_card_price_rounding %}
-            <sw-card
-                position-identifier="sw-settings-currency-detail-price-rounding"
-                :is-loading="isLoading"
-                :title="$tc('sw-settings-currency.detail.titleRoundingCard')"
-            >
-                <sw-settings-price-rounding
-                    :item-rounding="currency.itemRounding"
-                    :total-rounding="currency.totalRounding"
+            <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_currency_detail_content_language_info %}
+                <sw-language-info
+                    :entity-description="placeholder(currency, 'name', $tc('sw-settings-currency.detail.textHeadline'))"
                 />
-            </sw-card>
-            {% endblock %}
+                {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_currency_detail_content_card_country_price_rounding %}
-            <sw-card
-                position-identifier="sw-settings-currency-detail-country-price-rounding"
-                :title="$tc('sw-settings-currency.detail.titleCountryRoundingCard')"
-                :is-loading="currencyCountryLoading"
-            >
-                <template
-                    v-if="currency.id && !currency.isNew()"
-                    #toolbar
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_currency_detail_content_card %}
+                <sw-card
+                    position-identifier="sw-settings-currency-detail-content"
+                    :is-loading="isLoading"
+                    :title="$tc('sw-settings-currency.detail.titleCard')"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar %}
-                    <div class="sw-settings-currency-detail__currency-country-toolbar">
+                    <sw-container
+                        columns="repeat(auto-fit, minmax(250px, 1fr))"
+                        gap="0px 30px"
+                    >
+
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar_filter %}
-                        <sw-card-filter
-                            :placeholder="$tc('sw-settings-currency.detail.searchbarPlaceholder')"
-                            @sw-card-filter-term-change="onChangeCountrySearch"
+                        {% block sw_settings_currency_detail_content_field_name %}
+                        <sw-field
+                            v-model="currency.name"
+                            type="text"
+                            required
+                            :disabled="!acl.can('currencies.editor')"
+                            :label="$tc('sw-settings-currency.detail.labelName')"
+                            :placeholder="placeholder(currency, 'name', $tc('sw-settings-currency.detail.placeholderName'))"
+                            :error="currencyNameError"
                         />
                         {% endblock %}
+
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar_button %}
-                        <sw-button
-                            variant="ghost"
-                            class="sw-settings-currency-detail__currency-country-toolbar-button"
-                            size="small"
-                            @click="onAddCountry"
-                        >
-                            {{ $tc('sw-settings-currency.detail.buttonAddCountry') }}
-                        </sw-button>
+                        {% block sw_settings_currency_detail_content_field_iso_code %}
+                        <sw-field
+                            v-model="currency.isoCode"
+                            type="text"
+                            required
+                            :disabled="!acl.can('currencies.editor')"
+                            :label="$tc('sw-settings-currency.detail.labelIsoCode')"
+                            :placeholder="placeholder(currency, 'isoCode', $tc('sw-settings-currency.detail.placeholderIsoCode'))"
+                            :error="currencyIsoCodeError"
+                        />
                         {% endblock %}
-                    </div>
-                    {% endblock %}
-                </template>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_settings_currency_detail_content_card_country_price_rounding_listing %}
-                <sw-entity-listing
-                    v-if="currencyCountryRoundings && currencyCountryRoundings.length > 0"
-                    class="sw-settings-currency-detail__currency-country-list"
-                    :full-page="false"
-                    :show-selection="false"
-                    :items="currencyCountryRoundings"
-                    :columns="currencyCountryColumns"
-                    identifier="sw-settings-currency-detail-currency-country-list"
-                    :repository="currencyCountryRoundingRepository"
-                    @item-deleted="loadCurrencyCountryRoundings"
-                    @items-delete-finish="loadCurrencyCountryRoundings"
-                >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_country_column %}
-                    <template #column-country="{ item }">
-                        <a
-                            href="#"
-                            @click="onClickEdit(item)"
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_currency_detail_content_field_short_name %}
+                        <sw-field
+                            v-model="currency.shortName"
+                            type="text"
+                            required
+                            :disabled="!acl.can('currencies.editor')"
+                            :label="$tc('sw-settings-currency.detail.labelShortName')"
+                            :placeholder="placeholder(currency, 'shortName', $tc('sw-settings-currency.detail.placeholderShortName'))"
+                            :error="currencyShortNameError"
+                        />
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_currency_detail_content_field_symbol %}
+                        <sw-field
+                            v-model="currency.symbol"
+                            type="text"
+                            required
+                            :disabled="!acl.can('currencies.editor')"
+                            :label="$tc('sw-settings-currency.detail.labelSymbol')"
+                            :placeholder="$tc('sw-settings-currency.detail.placeholderSymbol')"
+                            :error="currencySymbolError"
+                        />
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_currency_detail_content_field_factor %}
+                        <sw-number-field
+                            v-model="currency.factor"
+                            required
+                            :digits="14"
+                            :label="$tc('sw-settings-currency.detail.labelFactor')"
+                            :placeholder="$tc('sw-settings-currency.detail.placeholderFactor')"
+                            :error="currencyFactorError"
+                            :disabled="currency.isSystemDefault || !acl.can('currencies.editor')"
+                        />
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_currency_detail_content_field_tax_free_from %}
+                        <sw-number-field
+                            v-model="currency.taxFreeFrom"
+                            :min="0"
+                            :label="$tc('sw-settings-currency.detail.taxFreeFrom')"
+                            :help-text="$tc('sw-settings-currency.detail.taxFreeFromHelpText', 0 , { currencyName: `${currency.name}` })"
+                            :disabled="!currency.factor"
                         >
-                            {{ item.country.name }}
-                        </a>
-                    </template>
-                    {% endblock %}
+                            <template #suffix>
+                                {{ currency.symbol }}
+                            </template>
+                        </sw-number-field>
+                        {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_item_interval_column %}
-                    <template #column-itemRounding.interval="{ item }">
-                        <template v-if="item.itemRounding.interval === 0.01">
-                            {{ $tc('sw-settings-currency.price-rounding.labelIntervalNone') }}
-                        </template>
-                        <template v-if="item.itemRounding.interval !== 0.01">
-                            {{ item.itemRounding.interval }}
-                        </template>
-                    </template>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_total_interval_column %}
-                    <template #column-totalRounding.interval="{ item }">
-                        <template v-if="item.totalRounding.interval === 0.01">
-                            {{ $tc('sw-settings-currency.price-rounding.labelIntervalNone') }}
-                        </template>
-                        <template v-if="item.totalRounding.interval !== 0.01">
-                            {{ item.totalRounding.interval }}
-                        </template>
-                    </template>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_item_net_column %}
-                    <template #column-itemRounding.roundForNet="{ item }">
-                        <sw-data-grid-column-boolean v-model="item.itemRounding.roundForNet" />
-                    </template>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_total_net_column %}
-                    <template #column-totalRounding.roundForNet="{ item }">
-                        <sw-data-grid-column-boolean v-model="item.totalRounding.roundForNet" />
-                    </template>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_more_actions %}
-                    <template #more-actions="{ item }">
-                        <sw-context-menu-item @click="onClickEdit(item)">
-                            {{ $tc('global.default.edit') }}
-                        </sw-context-menu-item>
-                    </template>
-                    {% endblock %}
-
-                </sw-entity-listing>
+                    </sw-container>
+                </sw-card>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_settings_currency_detail_content_card_country_price_rounding_empty %}
-                <sw-empty-state
-                    v-else
-                    class="sw-settings-currency-detail__currency-country-empty-state"
-                    title=""
-                    :absolute="false"
-                    :subline="emptyStateText"
+                {% block sw_settings_currency_detail_content_card_price_rounding %}
+                <sw-card
+                    position-identifier="sw-settings-currency-detail-price-rounding"
+                    :is-loading="isLoading"
+                    :title="$tc('sw-settings-currency.detail.titleRoundingCard')"
+                >
+                    <sw-settings-price-rounding
+                        :item-rounding="currency.itemRounding"
+                        :total-rounding="currency.totalRounding"
+                    />
+                </sw-card>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_currency_detail_content_card_country_price_rounding %}
+                <sw-card
+                    position-identifier="sw-settings-currency-detail-country-price-rounding"
+                    :title="$tc('sw-settings-currency.detail.titleCountryRoundingCard')"
+                    :is-loading="currencyCountryLoading"
+                >
+                    <template
+                        v-if="currency.id && !currency.isNew()"
+                        #toolbar
+                    >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar %}
+                        <div class="sw-settings-currency-detail__currency-country-toolbar">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar_filter %}
+                            <sw-card-filter
+                                :placeholder="$tc('sw-settings-currency.detail.searchbarPlaceholder')"
+                                @sw-card-filter-term-change="onChangeCountrySearch"
+                            />
+                            {% endblock %}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar_button %}
+                            <sw-button
+                                variant="ghost"
+                                class="sw-settings-currency-detail__currency-country-toolbar-button"
+                                size="small"
+                                @click="onAddCountry"
+                            >
+                                {{ $tc('sw-settings-currency.detail.buttonAddCountry') }}
+                            </sw-button>
+                            {% endblock %}
+                        </div>
+                        {% endblock %}
+                    </template>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_settings_currency_detail_content_card_country_price_rounding_listing %}
+                    <sw-entity-listing
+                        v-if="currencyCountryRoundings && currencyCountryRoundings.length > 0"
+                        class="sw-settings-currency-detail__currency-country-list"
+                        :full-page="false"
+                        :show-selection="false"
+                        :items="currencyCountryRoundings"
+                        :columns="currencyCountryColumns"
+                        identifier="sw-settings-currency-detail-currency-country-list"
+                        :repository="currencyCountryRoundingRepository"
+                        @item-deleted="loadCurrencyCountryRoundings"
+                        @items-delete-finish="loadCurrencyCountryRoundings"
+                    >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_country_column %}
+                        <template #column-country="{ item }">
+                            <a
+                                href="#"
+                                @click="onClickEdit(item)"
+                            >
+                                {{ item.country.name }}
+                            </a>
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_item_interval_column %}
+                        <template #column-itemRounding.interval="{ item }">
+                            <template v-if="item.itemRounding.interval === 0.01">
+                                {{ $tc('sw-settings-currency.price-rounding.labelIntervalNone') }}
+                            </template>
+                            <template v-if="item.itemRounding.interval !== 0.01">
+                                {{ item.itemRounding.interval }}
+                            </template>
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_total_interval_column %}
+                        <template #column-totalRounding.interval="{ item }">
+                            <template v-if="item.totalRounding.interval === 0.01">
+                                {{ $tc('sw-settings-currency.price-rounding.labelIntervalNone') }}
+                            </template>
+                            <template v-if="item.totalRounding.interval !== 0.01">
+                                {{ item.totalRounding.interval }}
+                            </template>
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_item_net_column %}
+                        <template #column-itemRounding.roundForNet="{ item }">
+                            <sw-data-grid-column-boolean v-model="item.itemRounding.roundForNet" />
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_total_net_column %}
+                        <template #column-totalRounding.roundForNet="{ item }">
+                            <sw-data-grid-column-boolean v-model="item.totalRounding.roundForNet" />
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_more_actions %}
+                        <template #more-actions="{ item }">
+                            <sw-context-menu-item @click="onClickEdit(item)">
+                                {{ $tc('global.default.edit') }}
+                            </sw-context-menu-item>
+                        </template>
+                        {% endblock %}
+
+                    </sw-entity-listing>
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_settings_currency_detail_content_card_country_price_rounding_empty %}
+                    <sw-empty-state
+                        v-else
+                        class="sw-settings-currency-detail__currency-country-empty-state"
+                        title=""
+                        :absolute="false"
+                        :subline="emptyStateText"
+                    />
+                    {% endblock %}
+                </sw-card>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_currency_detail_content_card_country_price_rounding_modal %}
+                <sw-settings-currency-country-modal
+                    v-if="currentCurrencyCountry"
+                    :currency-country-rounding="currentCurrencyCountry"
+                    @save="onSaveCurrencyCountry"
+                    @edit-cancel="onCancelEditCountry"
                 />
                 {% endblock %}
-            </sw-card>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_currency_detail_content_card_country_price_rounding_modal %}
-            <sw-settings-currency-country-modal
-                v-if="currentCurrencyCountry"
-                :currency-country-rounding="currentCurrencyCountry"
-                @save="onSaveCurrencyCountry"
-                @edit-cancel="onCancelEditCountry"
-            />
-            {% endblock %}
-            {% endblock %}
+                {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_currency_detail_custom_field_sets %}
-            <sw-card
-                v-if="showCustomFields"
-                position-identifier="sw-settings-currency-detail-custom-field-sets"
-                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                :is-loading="isLoading"
-            >
-                <sw-custom-field-set-renderer
-                    :entity="currency"
-                    :disabled="!acl.can('currencies.editor')"
-                    :sets="customFieldSets"
-                />
-            </sw-card>
-            {% endblock %}
-        </template>
-    </sw-card-view>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_currency_detail_custom_field_sets %}
+                <sw-card
+                    v-if="showCustomFields"
+                    position-identifier="sw-settings-currency-detail-custom-field-sets"
+                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :is-loading="isLoading"
+                >
+                    <sw-custom-field-set-renderer
+                        :entity="currency"
+                        :disabled="!acl.can('currencies.editor')"
+                        :sets="customFieldSets"
+                    />
+                </sw-card>
+                {% endblock %}
+            </template>
+        </sw-card-view>
+    </template>
     {% endblock %}
 </sw-page>
 {% endblock %}

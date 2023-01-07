@@ -8,14 +8,13 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
 use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
@@ -39,6 +38,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @Route(defaults={"_routeScope"={"store-api"}})
  *
  * @phpstan-type SubscribeRequest array{email: string, storefrontUrl: string, option: string, firstName?: string, lastName?: string, zipCode?: string, city?: string, street?: string, salutationId?: string}
+ *
+ * @package customer-order
  */
 class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 {
@@ -49,29 +50,21 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 
     /**
      * The subscription is directly active and does not need a confirmation.
-     *
-     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
      */
     public const OPTION_DIRECT = 'direct';
 
     /**
      * An email will be send to the provided email addrees containing a link to the /newsletter/confirm route.
-     *
-     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
      */
     public const OPTION_SUBSCRIBE = 'subscribe';
 
     /**
      * The email address will be removed from the newsletter subscriptions.
-     *
-     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
      */
     public const OPTION_UNSUBSCRIBE = 'unsubscribe';
 
     /**
-     * Confirmes the newsletter subscription for the provided email address.
-     *
-     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
+     * Confirms the newsletter subscription for the provided email address.
      */
     public const OPTION_CONFIRM_SUBSCRIBE = 'confirmSubscribe';
 
@@ -80,7 +73,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
      */
     public const DOMAIN_NAME_REGEX = '/((https?:\/\/))/';
 
-    private EntityRepositoryInterface $newsletterRecipientRepository;
+    private EntityRepository $newsletterRecipientRepository;
 
     private DataValidator $validator;
 
@@ -96,7 +89,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $newsletterRecipientRepository,
+        EntityRepository $newsletterRecipientRepository,
         DataValidator $validator,
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfigService,

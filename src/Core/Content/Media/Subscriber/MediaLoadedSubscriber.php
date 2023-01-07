@@ -11,18 +11,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package content
+ *
+ * @internal
  */
 class MediaLoadedSubscriber implements EventSubscriberInterface
 {
-    private UrlGeneratorInterface $urlGenerator;
-
     /**
      * @internal
      */
-    public function __construct(UrlGeneratorInterface $urlGenerator)
+    public function __construct(private UrlGeneratorInterface $urlGenerator)
     {
-        $this->urlGenerator = $urlGenerator;
     }
 
     public static function getSubscribedEvents(): array

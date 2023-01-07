@@ -14,12 +14,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  */
 class CategoryUrlProviderTest extends TestCase
@@ -27,11 +29,11 @@ class CategoryUrlProviderTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
-    private SalesChannelRepositoryInterface $categorySalesChannelRepository;
+    private SalesChannelRepository $categorySalesChannelRepository;
 
     private SalesChannelContext $salesChannelContext;
 
-    private SalesChannelRepositoryInterface $seoUrlSalesChannelRepository;
+    private SalesChannelRepository $seoUrlSalesChannelRepository;
 
     protected function setUp(): void
     {

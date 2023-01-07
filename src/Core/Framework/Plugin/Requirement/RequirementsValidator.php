@@ -10,7 +10,7 @@ use Composer\Semver\Constraint\Constraint;
 use Composer\Semver\Constraint\ConstraintInterface;
 use Composer\Semver\VersionParser;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -24,9 +24,12 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackExcepti
 use Shopware\Core\Framework\Plugin\Requirement\Exception\VersionMismatchException;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 
+/**
+ * @package core
+ */
 class RequirementsValidator
 {
-    private EntityRepositoryInterface $pluginRepo;
+    private EntityRepository $pluginRepo;
 
     private string $projectDir;
 
@@ -40,7 +43,7 @@ class RequirementsValidator
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $pluginRepo, string $projectDir)
+    public function __construct(EntityRepository $pluginRepo, string $projectDir)
     {
         $this->pluginRepo = $pluginRepo;
         $this->projectDir = $projectDir;

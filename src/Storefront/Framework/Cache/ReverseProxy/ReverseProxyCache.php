@@ -12,6 +12,8 @@ use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 use function array_values;
 
 /**
+ * @package storefront
+ *
  * @template TCachedContent
  */
 class ReverseProxyCache implements StoreInterface
@@ -51,10 +53,7 @@ class ReverseProxyCache implements StoreInterface
         $this->gateway->invalidate($event->getKeys());
     }
 
-    /**
-     * @return Response|null
-     */
-    public function lookup(Request $request)
+    public function lookup(Request $request): ?Response
     {
         return null;
     }
@@ -89,13 +88,7 @@ class ReverseProxyCache implements StoreInterface
 
     public function invalidate(Request $request): void
     {
-        $uri = $request->attributes->get(RequestTransformer::ORIGINAL_REQUEST_URI);
-
-        if ($uri === null) {
-            return;
-        }
-
-        $this->gateway->ban([$uri]);
+        // @see https://github.com/symfony/symfony/issues/48301
     }
 
     /**

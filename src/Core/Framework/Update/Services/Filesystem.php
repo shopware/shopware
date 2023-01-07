@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Update\Services;
 
+/**
+ * @package system-settings
+ */
 class Filesystem
 {
     /**

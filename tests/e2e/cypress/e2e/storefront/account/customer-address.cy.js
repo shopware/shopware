@@ -1,5 +1,8 @@
 import AccountPageObject from '../../../support/pages/account.page-object';
 
+/**
+ * @package checkout
+ */
 describe('Account: Handle addresses as customer', () => {
     beforeEach(() => {
         return cy.createCustomerFixtureStorefront().then(() => {
@@ -53,8 +56,8 @@ describe('Account: Handle addresses as customer', () => {
             cy.contains('Set as default billing').click();
         });
 
-        cy.get('.billing-address p').contains('Sherman');
-        cy.get('.shipping-address p').contains('Eroni');
+        cy.get('.billing-address').contains('Sherman');
+        cy.get('.shipping-address').contains('Eroni');
     });
 
     it('@base @customer: Add new address with account type commercial', { tags: ['pa-customers-orders'] }, () => {
@@ -130,7 +133,7 @@ describe('Account: Handle addresses as customer', () => {
             cy.contains('Set as default billing').click();
         });
 
-        cy.get('.billing-address p').contains('Company Testing - Department Testing');
-        cy.get('.shipping-address p').contains('Company Testing - Department Testing');
+        cy.get('.billing-address').contains('Company Testing - Department Testing');
+        cy.get('.shipping-address').contains('Company Testing - Department Testing');
     });
 });

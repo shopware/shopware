@@ -2,34 +2,37 @@
 
 namespace Shopware\Core\System\Test\Snippet\Mock;
 
-use Shopware\Core\System\Snippet\Files\SnippetFileInterface;
+use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
-class MockSnippetFile implements SnippetFileInterface
+class MockSnippetFile extends AbstractSnippetFile
 {
-    /**
-     * @var string
-     */
-    private $name;
+    private string $name;
 
-    /**
-     * @var bool
-     */
-    private $isBase;
+    private bool $isBase;
 
-    /**
-     * @var string
-     */
-    private $iso;
+    private string $iso;
 
-    public function __construct(string $name, ?string $iso = null, string $content = '{}', bool $isBase = true)
+    private string $technicalName;
+
+    public function __construct(string $name, ?string $iso = null, string $content = '{}', bool $isBase = true, string $technicalName = 'mock')
     {
         $this->name = $name;
         $this->iso = $iso ?? $name;
         $this->isBase = $isBase;
         file_put_contents($this->getPath(), $content);
+        $this->technicalName = $technicalName;
+    }
+
+    public static function cleanup(): void
+    {
+        foreach (glob(__DIR__ . '/_fixtures/*.json') ?: [] as $mockFile) {
+            unlink($mockFile);
+        }
     }
 
     public function getName(): string
@@ -55,5 +58,10 @@ class MockSnippetFile implements SnippetFileInterface
     public function isBase(): bool
     {
         return $this->isBase;
+    }
+
+    public function getTechnicalName(): string
+    {
+        return $this->technicalName;
     }
 }

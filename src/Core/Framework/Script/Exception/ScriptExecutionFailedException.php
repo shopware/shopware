@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Script\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class ScriptExecutionFailedException extends ShopwareHttpException
 {
     private ?\Throwable $rootException;

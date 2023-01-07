@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.scss';
 
@@ -10,7 +14,7 @@ const utils = Shopware.Utils;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sales-channel-detail-base', {
+export default {
     template,
 
     inject: [
@@ -173,6 +177,19 @@ Component.register('sw-sales-channel-detail-base', {
         disabledShippingMethodVariant() {
             return this.disabledShippingMethods
                 .find(shippingMethod => shippingMethod.id === this.salesChannel.shippingMethodId) ? 'warning' : 'info';
+        },
+
+        unservedLanguages() {
+            return this.salesChannel.languages?.filter(
+                language => (this.salesChannel.domains?.filter(
+                    domain => domain.languageId === language.id,
+                ) || []).length === 0,
+            ) ?? [];
+        },
+
+        unservedLanguageVariant() {
+            return this.unservedLanguages
+                .find(language => language.id === this.salesChannel.languageId) ? 'warning' : 'info';
         },
 
         storefrontDomainsLoaded() {
@@ -352,14 +369,17 @@ Component.register('sw-sales-channel-detail-base', {
             },
         },
 
-        ...mapPropertyErrors('salesChannel',
+        ...mapPropertyErrors(
+            'salesChannel',
             [
                 'name',
                 'customerGroupId',
                 'navigationCategoryId',
-            ]),
+            ],
+        ),
 
-        ...mapPropertyErrors('productExport',
+        ...mapPropertyErrors(
+            'productExport',
             [
                 'productStreamId',
                 'encoding',
@@ -367,7 +387,8 @@ Component.register('sw-sales-channel-detail-base', {
                 'fileFormat',
                 'salesChannelDomainId',
                 'currencyId',
-            ]),
+            ],
+        ),
 
         categoryRepository() {
             return this.repositoryFactory.create('category');
@@ -420,6 +441,14 @@ Component.register('sw-sales-channel-detail-base', {
 
         salesChannelFavoritesService() {
             return Shopware.Service('salesChannelFavorites');
+        },
+
+        currencyCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            return criteria;
         },
     },
 
@@ -666,8 +695,16 @@ Component.register('sw-sales-channel-detail-base', {
             return this.$tc(snippet, collection.length, data);
         },
 
+        buildUnservedLanguagesAlert(snippet, collection, property = 'name') {
+            const data = {
+                list: collection.map((item) => item[property]).join(', '),
+            };
+
+            return this.$tc(snippet, collection.length, data);
+        },
+
         isFavorite() {
             return this.salesChannelFavoritesService.isFavorite(this.salesChannel.id);
         },
     },
-});
+};

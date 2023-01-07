@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Cms\Command;
 
 use Faker\Factory;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
@@ -12,56 +12,35 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package content
+ */
 class CreatePageCommand extends Command
 {
     protected static $defaultName = 'cms:page:create';
 
     /**
-     * @var EntityRepositoryInterface
+     * @var array<string>
      */
-    private $cmsPageRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepository;
+    private array $products;
 
     /**
      * @var array<string>
      */
-    private $products;
+    private array $categories;
 
     /**
      * @var array<string>
      */
-    private $categories;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $categoryRepository;
-
-    /**
-     * @var array<string>
-     */
-    private $media;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
+    private array $media;
 
     public function __construct(
-        EntityRepositoryInterface $cmsPageRepository,
-        EntityRepositoryInterface $productRepository,
-        EntityRepositoryInterface $categoryRepository,
-        EntityRepositoryInterface $mediaRepository
+        private EntityRepository $cmsPageRepository,
+        private EntityRepository $productRepository,
+        private EntityRepository $categoryRepository,
+        private EntityRepository $mediaRepository
     ) {
         parent::__construct();
-        $this->cmsPageRepository = $cmsPageRepository;
-        $this->productRepository = $productRepository;
-        $this->categoryRepository = $categoryRepository;
-        $this->mediaRepository = $mediaRepository;
     }
 
     protected function configure(): void
@@ -149,10 +128,12 @@ class CreatePageCommand extends Command
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            $this->products = $this->productRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+            /** @var list<string> $productIds */
+            $productIds = $this->productRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+            $this->products = $productIds;
         }
 
-        return $this->products[array_rand($this->products, 1)];
+        return $this->products[array_rand($this->products)];
     }
 
     private function getRandomCategoryId(): string
@@ -161,10 +142,12 @@ class CreatePageCommand extends Command
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            $this->categories = $this->categoryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+            /** @var list<string> $categoryIds */
+            $categoryIds = $this->categoryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+            $this->categories = $categoryIds;
         }
 
-        return $this->categories[array_rand($this->categories, 1)];
+        return $this->categories[array_rand($this->categories)];
     }
 
     private function getRandomMediaId(): string
@@ -173,9 +156,11 @@ class CreatePageCommand extends Command
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            $this->media = $this->mediaRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+            /** @var list<string> $mediaIds */
+            $mediaIds = $this->mediaRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+            $this->media = $mediaIds;
         }
 
-        return $this->media[array_rand($this->media, 1)];
+        return $this->media[array_rand($this->media)];
     }
 }

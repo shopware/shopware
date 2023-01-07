@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ *
+ * @package core
  */
 interface ChangeSetAware
 {

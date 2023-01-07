@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,7 +19,7 @@ class ShopConfiguratorTest extends TestCase
     private ShopConfigurator $shopConfigurator;
 
     /**
-     * @var Connection&\PHPUnit\Framework\MockObject\MockObject
+     * @var Connection&MockObject
      */
     private Connection $connection;
 

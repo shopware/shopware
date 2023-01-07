@@ -25,6 +25,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
+/**
+ * @package inventory
+ */
 class ProductCrossSellingDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_cross_selling';

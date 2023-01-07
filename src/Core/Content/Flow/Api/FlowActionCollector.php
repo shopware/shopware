@@ -7,11 +7,13 @@ use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Events\FlowActionCollectorEvent;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package business-ops
+ */
 class FlowActionCollector
 {
     /**
@@ -21,7 +23,7 @@ class FlowActionCollector
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private EntityRepositoryInterface $appFlowActionRepo;
+    private EntityRepository $appFlowActionRepo;
 
     /**
      * @internal
@@ -31,7 +33,7 @@ class FlowActionCollector
     public function __construct(
         iterable $actions,
         EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $appFlowActionRepo
+        EntityRepository $appFlowActionRepo
     ) {
         $this->actions = $actions;
         $this->eventDispatcher = $eventDispatcher;
@@ -86,11 +88,6 @@ class FlowActionCollector
     {
         $requirementsName = [];
         foreach ($service->requirements() as $requirement) {
-            /** @deprecated tag:v6.5.0 will be removed in v6.5.0 */
-            if (!Feature::isActive('v6.5.0.0')) {
-                $requirementsName[] = $requirement;
-            }
-
             $className = explode('\\', $requirement);
             $requirementsName[] = lcfirst(end($className));
         }

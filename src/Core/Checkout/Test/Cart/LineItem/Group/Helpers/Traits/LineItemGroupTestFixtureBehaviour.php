@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package checkout
+ */
 trait LineItemGroupTestFixtureBehaviour
 {
     private function buildGroup(string $packagerKey, float $value, string $sorterKey, RuleCollection $rules): LineItemGroupDefinition

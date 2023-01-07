@@ -1,12 +1,13 @@
 import template from './sw-cms-create.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
-Component.extend('sw-cms-create', 'sw-cms-detail', {
+export default {
     template,
 
     mixins: [
@@ -93,11 +94,11 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
 
         onWizardComplete() {
             if (this.page.type === 'product_list' || this.page.type === 'product_detail') {
-                this.onPageTypeChange();
+                this.onPageTypeChange(this.page.type);
             }
 
             this.wizardComplete = true;
             this.onSave();
         },
     },
-});
+};

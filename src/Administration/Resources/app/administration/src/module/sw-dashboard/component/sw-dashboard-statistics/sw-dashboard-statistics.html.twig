@@ -61,7 +61,7 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_dashboard_statistics_grid %}
-                <template slot="grid">
+                <template #grid>
                     <sw-entity-listing
                         v-if="todayOrderDataLoaded"
                         :sort-by="todayOrderDataSortBy"
@@ -76,8 +76,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_dashboard_statistics_grid_created_at %}
                         <template
-                            slot="column-orderDateTime"
-                            slot-scope="{ item }"
+                            #column-orderDateTime="{ item }"
                         >
                             {{ item.orderDateTime | date({
                                 hour: '2-digit',
@@ -91,10 +90,7 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_dashboard_statistics_grid_first_name %}
-                        <template
-                            slot="column-orderCustomer.firstName"
-                            slot-scope="{ item }"
-                        >
+                        <template #column-orderCustomer.firstName="{ item }">
                             <router-link
                                 :to="{ name: 'sw.order.detail', params: { id: item.id } }"
                                 class="sw-data-grid__cell-value"
@@ -107,8 +103,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_dashboard_statistics_grid_short_name %}
                         <template
-                            slot="column-amountTotal"
-                            slot-scope="{ item }"
+                            #column-amountTotal="{ item }"
                         >
                             {{ item.amountTotal | currency(item.currency.shortName) }}
                         </template>
@@ -116,10 +111,7 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_dashboard_statistics_grid_state %}
-                        <template
-                            slot="column-stateMachineState.name"
-                            slot-scope="{ item }"
-                        >
+                        <template #column-stateMachineState.name="{ item }">
                             <sw-label
                                 :variant="getVariantFromOrderState(item)"
                                 appearance="pill"
@@ -132,8 +124,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_dashboard_statistics_grid_actions %}
                         <template
-                            slot="actions"
-                            slot-scope="{ item }"
+                            #actions="{ item }"
                         >
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_dashboard_statistics_grid_actions_view %}
@@ -157,25 +148,8 @@
         </template>
 
         <template v-if="hasOrderInMonth">
-
-            {# @deprecated tag:v6.5.0 - Will be removed. #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_dashboard_statistics_headline %}
-            {# @deprecated tag:v6.5.0 - Will be removed. - Use block `sw_dashboard_statistics_count_title` and `sw_dashboard_statistics_sum_title` instead #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_dashboard_index_statistics_headline_title %}
-            {% endblock %}
-            {# @deprecated tag:v6.5.0 - Will be removed. - Use block `sw_dashboard_statistics_count_range_select` and `sw_dashboard_statistics_sum_range_select` instead #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_dashboard_statistics_headline_date %}
-            {% endblock %}
-            {% endblock %}
-
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_dashboard_statistics_count %}
-            {# @deprecated tag:v6.5.0 - Will be removed. - Use the parent block `sw_dashboard_statistics_count` instead #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_dashboard_statistics_count_chart %}
             <sw-chart-card
                 class="sw-dashboard-statistics__statistics-count"
                 :card-subtitle="getCardSubtitle(ordersDateRange)"
@@ -201,13 +175,9 @@
                 {% endblock %}
             </sw-chart-card>
             {% endblock %}
-            {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_dashboard_statistics_sum %}
-            {# @deprecated tag:v6.5.0 - Will be removed. - Use the parent block `sw_dashboard_statistics_sum` instead #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_dashboard_statistics_sum_chart %}
             <sw-chart-card
                 class="sw-dashboard-statistics__statistics-sum"
                 :card-subtitle="getCardSubtitle(turnoverDateRange)"
@@ -236,7 +206,6 @@
                 </template>
                 {% endblock %}
             </sw-chart-card>
-            {% endblock %}
             {% endblock %}
         </template>
     </template>

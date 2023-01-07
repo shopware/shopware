@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Test\Currency;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -28,7 +27,12 @@ class CurrencyFormatterTest extends TestCase
 
         $price = (float) '132582.98765432';
         $context = Context::createDefaultContext();
-        $context->addState(DocumentService::GENERATING_PDF_STATE);
+
+        /**
+         * @depretacted tag:v6.5.0 - DocumentService::GENERATING_PDF_STATE is removed - line should be removed with FEATURE_NEXT_15053
+         */
+        $context->addState(/*DocumentService::GENERATING_PDF_STATE*/ 'generating-pdf');
+
         $deLanguageId = $this->getDeDeLanguageId();
 
         $formattedCurrency = $currencyFormatter->formatCurrencyByLanguage(
@@ -102,7 +106,10 @@ class CurrencyFormatterTest extends TestCase
         static::assertEquals($expected, $formatted);
     }
 
-    public function digitProvider()
+    /**
+     * @return array<array<float|int|string>>
+     */
+    public function digitProvider(): array
     {
         return [
             [19.9999, 2, '20,00 €'],
@@ -135,7 +142,11 @@ class CurrencyFormatterTest extends TestCase
             CartPrice::TAX_STATE_GROSS,
             new CashRoundingConfig($digits, 0.01, true)
         );
-        $context->addState(DocumentService::GENERATING_PDF_STATE);
+
+        /**
+         * @depretacted tag:v6.5.0 - DocumentService::GENERATING_PDF_STATE is removed - line should be removed with FEATURE_NEXT_15053
+         */
+        $context->addState(/*DocumentService::GENERATING_PDF_STATE*/ 'generating-pdf');
 
         $languageId = $this->getDeDeLanguageId();
 
@@ -144,7 +155,10 @@ class CurrencyFormatterTest extends TestCase
         static::assertEquals($expected, $formatted);
     }
 
-    public function digitWithFeatureProvider()
+    /**
+     * @return array<array<float|int|string>>
+     */
+    public function digitWithFeatureProvider(): array
     {
         return [
             [19.9999, 2, '20,00 €'],

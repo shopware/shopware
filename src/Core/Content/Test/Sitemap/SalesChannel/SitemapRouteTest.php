@@ -7,8 +7,11 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  * @group store-api
  */
@@ -18,7 +21,7 @@ class SitemapRouteTest extends TestCase
     use SalesChannelApiTestBehaviour;
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     * @var KernelBrowser
      */
     private $browser;
 

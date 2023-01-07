@@ -19,6 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package content
+ */
 class MediaFolderConfigurationDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'media_folder_configuration';

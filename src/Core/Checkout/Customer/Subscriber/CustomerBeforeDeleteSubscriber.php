@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Util\Random;
@@ -16,11 +16,13 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package customer-order
+ *
+ * @internal
  */
 class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
 {
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
     private SalesChannelContextServiceInterface $salesChannelContextService;
 
@@ -30,7 +32,7 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
+        EntityRepository $customerRepository,
         SalesChannelContextServiceInterface $salesChannelContextService,
         EventDispatcherInterface $eventDispatcher
     ) {

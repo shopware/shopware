@@ -19,6 +19,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class VariantListingConfigFieldSerializer extends AbstractFieldSerializer
 {
@@ -55,7 +57,7 @@ class VariantListingConfigFieldSerializer extends AbstractFieldSerializer
         yield 'configurator_group_config' => $configuratorGroupConfig;
     }
 
-    public function decode(Field $field, $value): ?VariantListingConfig
+    public function decode(Field $field, mixed $value): ?VariantListingConfig
     {
         if ($value === null) {
             return null;

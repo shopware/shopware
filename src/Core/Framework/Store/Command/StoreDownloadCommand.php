@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Store\Command;
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
@@ -16,56 +16,30 @@ use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByCompose
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\System\User\UserEntity;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package merchant-services
+ *
+ * @internal
+ */
+#[AsCommand(
+    name: 'store:download',
+    description: 'Downloads a plugin from the store',
+)]
 class StoreDownloadCommand extends Command
 {
-    public static $defaultName = 'store:download';
-
-    /**
-     * @var StoreClient
-     */
-    private $storeClient;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $pluginRepo;
-
-    /**
-     * @var PluginManagementService
-     */
-    private $pluginManagementService;
-
-    /**
-     * @var PluginLifecycleService
-     */
-    private $pluginLifecycleService;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $userRepository;
-
-    /**
-     * @internal
-     */
     public function __construct(
-        StoreClient $storeClient,
-        EntityRepositoryInterface $pluginRepo,
-        PluginManagementService $pluginManagementService,
-        PluginLifecycleService $pluginLifecycleService,
-        EntityRepositoryInterface $userRepository
+        private readonly StoreClient $storeClient,
+        private readonly EntityRepository $pluginRepo,
+        private readonly PluginManagementService $pluginManagementService,
+        private readonly PluginLifecycleService $pluginLifecycleService,
+        private readonly EntityRepository $userRepository,
     ) {
-        $this->storeClient = $storeClient;
-        $this->pluginRepo = $pluginRepo;
-        $this->pluginManagementService = $pluginManagementService;
-        $this->pluginLifecycleService = $pluginLifecycleService;
-        $this->userRepository = $userRepository;
-
         parent::__construct();
     }
 

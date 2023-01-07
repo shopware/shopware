@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Media\Subscriber;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\AdapterInterface;
+use League\Flysystem\Visibility;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition;
@@ -14,7 +14,7 @@ use Shopware\Core\Content\Media\Message\DeleteFileHandler;
 use Shopware\Core\Content\Media\Message\DeleteFileMessage;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -27,45 +27,26 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package content
+ *
+ * @internal
  */
 class MediaDeletionSubscriber implements EventSubscriberInterface
 {
     public const SYNCHRONE_FILE_DELETE = 'synchrone-file-delete';
 
-    private Connection $connection;
-
-    private UrlGeneratorInterface $urlGenerator;
-
-    private EventDispatcherInterface $dispatcher;
-
-    private EntityRepositoryInterface $thumbnailRepository;
-
-    private MessageBusInterface $messageBus;
-
-    private DeleteFileHandler $deleteFileHandler;
-
-    private EntityRepositoryInterface $mediaRepository;
-
     /**
      * @internal
      */
     public function __construct(
-        UrlGeneratorInterface $urlGenerator,
-        EventDispatcherInterface $dispatcher,
-        EntityRepositoryInterface $thumbnailRepository,
-        MessageBusInterface $messageBus,
-        DeleteFileHandler $deleteFileHandler,
-        Connection $connection,
-        EntityRepositoryInterface $mediaRepository
+        private UrlGeneratorInterface $urlGenerator,
+        private EventDispatcherInterface $dispatcher,
+        private EntityRepository $thumbnailRepository,
+        private MessageBusInterface $messageBus,
+        private DeleteFileHandler $deleteFileHandler,
+        private Connection $connection,
+        private EntityRepository $mediaRepository
     ) {
-        $this->urlGenerator = $urlGenerator;
-        $this->dispatcher = $dispatcher;
-        $this->thumbnailRepository = $thumbnailRepository;
-        $this->messageBus = $messageBus;
-        $this->deleteFileHandler = $deleteFileHandler;
-        $this->connection = $connection;
-        $this->mediaRepository = $mediaRepository;
     }
 
     public static function getSubscribedEvents(): array
@@ -153,8 +134,8 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
             }
         }
 
-        $this->performFileDelete($context, $publicPaths, AdapterInterface::VISIBILITY_PUBLIC);
-        $this->performFileDelete($context, $privatePaths, AdapterInterface::VISIBILITY_PRIVATE);
+        $this->performFileDelete($context, $publicPaths, Visibility::PUBLIC);
+        $this->performFileDelete($context, $privatePaths, Visibility::PRIVATE);
 
         $this->thumbnailRepository->delete($thumbnails, $context);
     }
@@ -229,8 +210,8 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
             }
         }
 
-        $this->performFileDelete($context, $privatePaths, AdapterInterface::VISIBILITY_PRIVATE);
-        $this->performFileDelete($context, $publicPaths, AdapterInterface::VISIBILITY_PUBLIC);
+        $this->performFileDelete($context, $privatePaths, Visibility::PRIVATE);
+        $this->performFileDelete($context, $publicPaths, Visibility::PUBLIC);
 
         $event->addSuccess(function () use ($thumbnails, $context): void {
             $this->dispatcher->dispatch(new MediaThumbnailDeletedEvent($thumbnails, $context), MediaThumbnailDeletedEvent::EVENT_NAME);
@@ -264,7 +245,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         }
 
         if ($context->hasState(self::SYNCHRONE_FILE_DELETE)) {
-            $this->deleteFileHandler->handle(new DeleteFileMessage($paths, $visibility));
+            $this->deleteFileHandler->__invoke(new DeleteFileMessage($paths, $visibility));
 
             return;
         }

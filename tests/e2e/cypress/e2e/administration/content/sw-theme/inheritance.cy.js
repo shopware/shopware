@@ -2,6 +2,10 @@
 
 import elements from "../../../../support/pages/sw-general.page-object";
 
+/**
+ * @package sales-channel
+ */
+
 const uuid = require('uuid/v4');
 
 describe('Theme: Test Inheritance', () => {
@@ -67,7 +71,7 @@ describe('Theme: Test Inheritance', () => {
 
         cy.get('.sw-inherit-wrapper.sw-field-id-sw-color-brand-primary .sw-colorpicker__input').should('have.value', '#008490');
 
-        cy.get('.sw-inherit-wrapper.sw-field-id-sw-color-brand-secondary .sw-colorpicker__input').should('have.value', '#526e7f');
+        cy.get('.sw-inherit-wrapper.sw-field-id-sw-color-brand-secondary .sw-colorpicker__input').should('have.value', '#3d444d');
 
         cy.get('.smart-bar__back-btn').click();
 

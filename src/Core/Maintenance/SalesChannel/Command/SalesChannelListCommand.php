@@ -3,7 +3,7 @@
 namespace Shopware\Core\Maintenance\SalesChannel\Command;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -12,6 +12,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,16 +20,20 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
+ * @package core
+ *
  * @internal should be used over the CLI only
  */
+#[AsCommand(
+    name: 'sales-channel:list',
+    description: 'Lists all sales channels',
+)]
 class SalesChannelListCommand extends Command
 {
-    protected static $defaultName = 'sales-channel:list';
-
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     public function __construct(
-        EntityRepositoryInterface $salesChannelRepository
+        EntityRepository $salesChannelRepository
     ) {
         $this->salesChannelRepository = $salesChannelRepository;
 

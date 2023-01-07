@@ -53,7 +53,10 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_page_smart_bar_back_btn %}
-            <div class="sw-page__back-btn-container">
+            <div
+                class="sw-page__back-btn-container"
+                :style="smartBarContentStyle"
+            >
                 <slot name="smart-bar-back">
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_page_slot_smart_bar_back %}

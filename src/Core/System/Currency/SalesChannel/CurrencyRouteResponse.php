@@ -5,6 +5,9 @@ namespace Shopware\Core\System\Currency\SalesChannel;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package inventory
+ */
 class CurrencyRouteResponse extends StoreApiResponse
 {
     /**

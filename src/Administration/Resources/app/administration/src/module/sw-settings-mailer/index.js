@@ -1,5 +1,10 @@
-import './component/sw-settings-mailer-smtp';
-import './page/sw-settings-mailer';
+/**
+ * @package system-settings
+ */
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-settings-mailer-smtp', () => import('./component/sw-settings-mailer-smtp'));
+Shopware.Component.register('sw-settings-mailer', () => import('./page/sw-settings-mailer'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-settings-mailer', {
@@ -8,7 +13,7 @@ Shopware.Module.register('sw-settings-mailer', {
     title: 'sw-settings-mailer.general.mainMenuItemGeneral',
     description: 'sw-settings-mailer.general.description',
     color: '#9AA8B5',
-    icon: 'regular-envelope',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
 
     routes: {

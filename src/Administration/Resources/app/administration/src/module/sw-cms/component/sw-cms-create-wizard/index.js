@@ -1,10 +1,13 @@
 import template from './sw-cms-create-wizard.html.twig';
 import './sw-cms-create-wizard.scss';
 
-const { Component, Filter } = Shopware;
+const { Filter } = Shopware;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-cms-create-wizard', {
+export default {
     template,
 
     inject: ['feature'],
@@ -101,6 +104,7 @@ Component.register('sw-cms-create-wizard', {
         },
 
         onPageTypeSelect(type) {
+            Shopware.State.commit('cmsPageState/setCurrentPageType', type);
             this.page.type = type;
 
             this.goToStep('sectionType');
@@ -120,4 +124,4 @@ Component.register('sw-cms-create-wizard', {
             this.$emit('wizard-complete');
         },
     },
-});
+};

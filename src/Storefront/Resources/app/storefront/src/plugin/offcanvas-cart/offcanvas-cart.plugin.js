@@ -11,6 +11,9 @@ import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-l
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import Debouncer from 'src/helper/debouncer.helper';
 
+/**
+ * @package checkout
+ */
 export default class OffCanvasCartPlugin extends Plugin {
 
     static options = {
@@ -130,6 +133,10 @@ export default class OffCanvasCartPlugin extends Plugin {
     _registerToggleShippingSelection() {
         const { shippingToggleSelector, shippingContainerSelector } = this.options;
         const toggle = document.querySelector(shippingToggleSelector);
+
+        if (!toggle) {
+            return;
+        }
 
         toggle.addEventListener('click', () => {
             const target = document.querySelector(shippingContainerSelector);

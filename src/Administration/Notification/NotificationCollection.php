@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<NotificationEntity>
+ *
+ * @package administration
  */
 class NotificationCollection extends EntityCollection
 {

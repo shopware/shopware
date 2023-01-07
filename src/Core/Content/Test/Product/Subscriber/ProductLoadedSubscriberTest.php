@@ -26,7 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -77,8 +76,6 @@ class ProductLoadedSubscriberTest extends TestCase
 
     public function testCheapestPriceOnSalesChannelProductEntityPartial(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $ids = new IdsCollection();
 
         $this->getContainer()->get('product.repository')
@@ -174,8 +171,6 @@ class ProductLoadedSubscriberTest extends TestCase
      */
     public function testSortPropertiesPartial(array $product, array $expected, array $unexpected, Criteria $criteria): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $this->getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
 
@@ -1244,7 +1239,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $ids = new TestDataCollection();
 
         $taxId = $this->getContainer()->get(Connection::class)
-            ->fetchColumn('SELECT LOWER(HEX(id)) FROM tax LIMIT 1');
+            ->fetchOne('SELECT LOWER(HEX(id)) FROM tax LIMIT 1');
 
         $this->getContainer()->get('currency.repository')
             ->create([
@@ -1351,25 +1346,23 @@ class ProductLoadedSubscriberTest extends TestCase
             static::assertEquals($case->percentage, $price->getListPrice()->getPercentage());
             static::assertEquals($case->discount, $price->getListPrice()->getDiscount());
 
-            if (Feature::isActive('v6.5.0.0')) {
-                $partialCriteria = new Criteria([$id]);
-                $partialCriteria->addFields(['price', 'taxId']);
-                $product = $this->getContainer()->get('sales_channel.product.repository')
-                    ->search($partialCriteria, $context)
-                    ->get($id);
+            $partialCriteria = new Criteria([$id]);
+            $partialCriteria->addFields(['price', 'taxId']);
+            $product = $this->getContainer()->get('sales_channel.product.repository')
+                ->search($partialCriteria, $context)
+                ->get($id);
 
-                static::assertInstanceOf(PartialEntity::class, $product);
+            static::assertInstanceOf(PartialEntity::class, $product);
 
-                $price = $product->get('calculatedPrice');
+            $price = $product->get('calculatedPrice');
 
-                static::assertInstanceOf(ListPrice::class, $price->getListPrice());
+            static::assertInstanceOf(ListPrice::class, $price->getListPrice());
 
-                static::assertEquals($case->expectedPrice, $price->getUnitPrice());
-                static::assertEquals($case->expectedWas, $price->getListPrice()->getPrice());
+            static::assertEquals($case->expectedPrice, $price->getUnitPrice());
+            static::assertEquals($case->expectedWas, $price->getListPrice()->getPrice());
 
-                static::assertEquals($case->percentage, $price->getListPrice()->getPercentage());
-                static::assertEquals($case->discount, $price->getListPrice()->getDiscount());
-            }
+            static::assertEquals($case->percentage, $price->getListPrice()->getPercentage());
+            static::assertEquals($case->discount, $price->getListPrice()->getDiscount());
         }
     }
 

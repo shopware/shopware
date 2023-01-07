@@ -3,15 +3,14 @@
 namespace Shopware\Core\Checkout\Order\Api;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Exception;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
 use Shopware\Core\Checkout\Payment\Exception\RefundProcessException;
-use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
@@ -23,6 +22,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package customer-order
+ *
  * @Route(defaults={"_routeScope"={"api"}})
  */
 class OrderActionController extends AbstractController
@@ -75,7 +76,7 @@ class OrderActionController extends AbstractController
         $mediaIds = $request->request->all('mediaIds');
 
         $context->addExtension(
-            MailSendSubscriber::MAIL_CONFIG_EXTENSION,
+            MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
                 $documentIds,
@@ -119,7 +120,7 @@ class OrderActionController extends AbstractController
         $mediaIds = $request->request->all('mediaIds');
 
         $context->addExtension(
-            MailSendSubscriber::MAIL_CONFIG_EXTENSION,
+            MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
                 $documentIds,
@@ -163,7 +164,7 @@ class OrderActionController extends AbstractController
         $mediaIds = $request->request->all('mediaIds');
 
         $context->addExtension(
-            MailSendSubscriber::MAIL_CONFIG_EXTENSION,
+            MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
                 $documentIds,
@@ -202,7 +203,7 @@ class OrderActionController extends AbstractController
     /**
      * @param array<string> $documentTypes
      *
-     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws Exception
      * @throws \Doctrine\DBAL\Exception
      *
      * @return array<string>
@@ -232,7 +233,7 @@ class OrderActionController extends AbstractController
 
             $fetchOrder->setParameter('id', Uuid::fromHexToBytes($referencedId));
 
-            $orderId = $fetchOrder->execute()->fetchOne();
+            $orderId = $fetchOrder->executeQuery()->fetchOne();
 
             $query->setParameter('orderId', $orderId);
         }
@@ -242,7 +243,7 @@ class OrderActionController extends AbstractController
 
         $query->setParameter('documentTypes', $documentTypes, Connection::PARAM_STR_ARRAY);
 
-        $documents = $query->execute()->fetchAllAssociative();
+        $documents = $query->executeQuery()->fetchAllAssociative();
 
         $documentsGroupByType = FetchModeHelper::group($documents);
 

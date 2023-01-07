@@ -8,6 +8,8 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class KernelTest extends TestCase

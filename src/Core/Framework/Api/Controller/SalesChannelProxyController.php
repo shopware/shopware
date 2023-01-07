@@ -15,12 +15,11 @@ use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
@@ -54,6 +53,8 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @package core
  */
 class SalesChannelProxyController extends AbstractController
 {
@@ -73,7 +74,7 @@ class SalesChannelProxyController extends AbstractController
 
     private KernelInterface $kernel;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     private SalesChannelRequestContextResolver $requestContextResolver;
 
@@ -89,12 +90,14 @@ class SalesChannelProxyController extends AbstractController
 
     private Connection $connection;
 
+    private RequestStack $requestStack;
+
     /**
      * @internal
      */
     public function __construct(
         KernelInterface $kernel,
-        EntityRepositoryInterface $salesChannelRepository,
+        EntityRepository $salesChannelRepository,
         DataValidator $validator,
         SalesChannelContextPersister $contextPersister,
         SalesChannelRequestContextResolver $requestContextResolver,
@@ -103,7 +106,8 @@ class SalesChannelProxyController extends AbstractController
         ApiOrderCartService $adminOrderCartService,
         AbstractCartOrderRoute $orderRoute,
         CartService $cartService,
-        Connection $connection
+        Connection $connection,
+        RequestStack $requestStack
     ) {
         $this->kernel = $kernel;
         $this->salesChannelRepository = $salesChannelRepository;
@@ -116,6 +120,7 @@ class SalesChannelProxyController extends AbstractController
         $this->orderRoute = $orderRoute;
         $this->cartService = $cartService;
         $this->connection = $connection;
+        $this->requestStack = $requestStack;
     }
 
     /**
@@ -258,16 +263,13 @@ class SalesChannelProxyController extends AbstractController
 
     private function wrapInSalesChannelApiRoute(Request $request, callable $call): Response
     {
-        /** @var RequestStack $requestStack */
-        $requestStack = $this->get('request_stack');
-
-        $requestStackBackup = $this->clearRequestStackWithBackup($requestStack);
-        $requestStack->push($request);
+        $requestStackBackup = $this->clearRequestStackWithBackup($this->requestStack);
+        $this->requestStack->push($request);
 
         try {
             return $call();
         } finally {
-            $this->restoreRequestStack($requestStack, $requestStackBackup);
+            $this->restoreRequestStack($this->requestStack, $requestStackBackup);
         }
     }
 

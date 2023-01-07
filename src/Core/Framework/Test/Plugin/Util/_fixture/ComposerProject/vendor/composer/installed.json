@@ -1,0 +1,28 @@
+{
+  "packages": [
+    {
+      "name": "swag/test",
+      "type": "shopware-platform-plugin",
+      "description": "Test description",
+      "version": "v1.0.1",
+      "license": "MIT",
+      "authors": [
+        {
+          "name": "shopware AG",
+          "role": "Manufacturer"
+        }
+      ],
+      "require": {
+        "shopware/platform": "6.4.*@dev"
+      },
+      "install-path": "../swag/composer-installed-plugin",
+      "extra": {
+        "shopware-plugin-class": "Works\\Works",
+        "label": {
+          "en-GB": "Test plugin",
+          "de-DE": "Test plugin"
+        }
+      }
+    }
+  ]
+}

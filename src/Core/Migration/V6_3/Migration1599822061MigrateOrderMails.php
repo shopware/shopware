@@ -4,11 +4,16 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
-use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1599822061MigrateOrderMails extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,7 +24,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
     public function update(Connection $connection): void
     {
         // migrate existing event_actions
-        $events = $connection->fetchAll(
+        $events = $connection->fetchAllAssociative(
             'SELECT event_name, config FROM event_action WHERE `action_name` = :action',
             ['action' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION]
         );
@@ -73,6 +78,11 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
     {
     }
 
+    /**
+     * @param list<string> $ids
+     *
+     * @return array<string, array<string, string>>
+     */
     private function fetchMails(Connection $connection, array $ids): array
     {
         $mails = $connection->createQueryBuilder()
@@ -92,7 +102,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
             ->andWhere('mail_template_type.id IN (:ids)')
             ->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY)
             ->execute()
-            ->fetchAll();
+            ->fetchAllAssociative();
 
         $mapping = [];
         foreach ($mails as $mail) {
@@ -117,7 +127,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
             ->andWhere('mail_template_type.id IN (:ids)')
             ->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY)
             ->execute()
-            ->fetchAll();
+            ->fetchAllAssociative();
 
         foreach ($mails as $mail) {
             $key = $mail['mail_template_id'] . '.' . $mail['technical_name'];
@@ -128,17 +138,23 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
         return $mapping;
     }
 
+    /**
+     * @param list<string> $names
+     *
+     * @return list<string>
+     */
     private function getTypeIds(Connection $connection, array $names): array
     {
-        $ids = $connection->fetchAll(
+        return $connection->fetchFirstColumn(
             'SELECT LOWER(HEX(id)) as id FROM mail_template_type WHERE technical_name IN (:names)',
             ['names' => $names],
             ['names' => Connection::PARAM_STR_ARRAY]
         );
-
-        return array_column($ids, 'id');
     }
 
+    /**
+     * @param array<string, array<string, string>> $mails
+     */
     private function insertMails(Connection $connection, array $mails): void
     {
         foreach ($mails as $mail) {
@@ -146,7 +162,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
 
             $insert = [
                 'id' => $id,
-                'action_name' => MailSendSubscriber::ACTION_NAME,
+                'action_name' => MailSendSubscriberConfig::ACTION_NAME,
                 'config' => json_encode([
                     'mail_template_id' => $mail['mail_template_id'],
 
@@ -171,6 +187,11 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
         }
     }
 
+    /**
+     * @param array<string, array<string, string>> $mails
+     *
+     * @return array<string, array<string, string>>
+     */
     private function prefix(array $mails, string $prefix): array
     {
         foreach ($mails as &$mail) {
@@ -180,6 +201,12 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
         return $mails;
     }
 
+    /**
+     * @param list<array<string, string>> $events
+     * @param array<string, array<string, string>> $mails
+     *
+     * @return array<string, array<string, string>>
+     */
     private function map(array $events, array $mails): array
     {
         $exploded = [];
@@ -195,7 +222,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
             }
             unset($mail);
 
-            $exploded = array_filter(array_merge($exploded, $typeMails));
+            $exploded = array_merge($exploded, $typeMails);
         }
 
         return $exploded;

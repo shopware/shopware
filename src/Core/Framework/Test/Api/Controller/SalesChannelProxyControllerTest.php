@@ -16,7 +16,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\EventListener\Acl\CreditOrderLineItemListener;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -46,7 +46,7 @@ class SalesChannelProxyControllerTest extends TestCase
     use PromotionTestFixtureBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     protected $promotionRepository;
 
@@ -56,12 +56,12 @@ class SalesChannelProxyControllerTest extends TestCase
     private $context;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $salesChannelRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerRepository;
 
@@ -1158,6 +1158,10 @@ class SalesChannelProxyControllerTest extends TestCase
         return 'HTTP_' . mb_strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
     }
 
+    /**
+     * @param array<string, mixed> $expectedTranslations
+     * @param array<string, mixed> $data
+     */
     private function assertTranslation(
         array $expectedTranslations,
         array $data,
@@ -1271,6 +1275,11 @@ class SalesChannelProxyControllerTest extends TestCase
         );
     }
 
+    /**
+     * @param array<string, mixed> $salesChannel
+     *
+     * @return array<string, mixed>
+     */
     private function createSalesChannel(array $salesChannel = []): array
     {
         $defaults = [
@@ -1342,6 +1351,9 @@ class SalesChannelProxyControllerTest extends TestCase
         );
     }
 
+    /**
+     * @param array<mixed> $payload
+     */
     private function addSingleLineItem(KernelBrowser $browser, string $salesChannelId, array $payload = [], ?string $contextToken = null): void
     {
         $browser->request(
@@ -1376,6 +1388,9 @@ class SalesChannelProxyControllerTest extends TestCase
         );
     }
 
+    /**
+     * @param array<mixed> $ids
+     */
     private function storeAPIRemoveLineItems(KernelBrowser $browser, array $ids, ?string $contextToken = null): void
     {
         $browser->request(
@@ -1415,6 +1430,9 @@ class SalesChannelProxyControllerTest extends TestCase
         );
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function getCart(KernelBrowser $browser, string $salesChannelId): array
     {
         $browser->request('GET', $this->getUrl($salesChannelId, 'checkout/cart'));
@@ -1424,6 +1442,9 @@ class SalesChannelProxyControllerTest extends TestCase
         return $cart;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function getStoreApiCart(KernelBrowser $browser, string $salesChannelId, string $contextToken): array
     {
         $browser->request('GET', $this->getStoreApiUrl($salesChannelId, 'checkout/cart'), [], [], [
@@ -1562,6 +1583,9 @@ class SalesChannelProxyControllerTest extends TestCase
         return $shippingMethodId;
     }
 
+    /**
+     * @return array<string, string|int>
+     */
     private function createDeliveryTime(): array
     {
         return [

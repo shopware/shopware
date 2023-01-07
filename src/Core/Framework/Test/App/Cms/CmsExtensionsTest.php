@@ -38,7 +38,7 @@ class CmsExtensionsTest extends TestCase
     public function testThrowsXmlParsingExceptionIfDuplicateCategory(): void
     {
         static::expectException(XmlParsingException::class);
-        static::expectExceptionMessage("Element 'category': This element is not expected. Expected is ( label )");
+        static::expectExceptionMessage('Element \'category\': This element is not expected. Expected is ( label )');
 
         CmsExtensions::createFromXmlFile(__DIR__ . '/_fixtures/invalid/cmsExtensionsWithDuplicateCategory.xml');
     }
@@ -46,7 +46,7 @@ class CmsExtensionsTest extends TestCase
     public function testThrowsXmlParsingExceptionIfDuplicateSlotName(): void
     {
         static::expectException(XmlParsingException::class);
-        static::expectExceptionMessage("Element 'slot': Duplicate key-sequence ['left'] in unique identity-constraint 'uniqueSlotName'");
+        static::expectExceptionMessage('Element \'slot\': Duplicate key-sequence [\'left\'] in unique identity-constraint \'uniqueSlotName\'');
 
         CmsExtensions::createFromXmlFile(__DIR__ . '/_fixtures/invalid/cmsExtensionsWithDuplicateSlotName.xml');
     }

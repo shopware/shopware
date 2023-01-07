@@ -2,9 +2,13 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-class ThumbnailNotSupportedException extends FileTypeNotSupportedException
+/**
+ * @package content
+ */
+class ThumbnailNotSupportedException extends ShopwareHttpException
 {
     public function __construct(string $mediaId)
     {

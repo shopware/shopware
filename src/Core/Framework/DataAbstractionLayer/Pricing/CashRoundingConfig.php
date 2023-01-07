@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Pricing;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package core
+ */
 class CashRoundingConfig extends Struct
 {
     /**

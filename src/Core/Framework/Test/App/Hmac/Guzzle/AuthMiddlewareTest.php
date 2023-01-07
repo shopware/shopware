@@ -96,7 +96,7 @@ class AuthMiddlewareTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $client = $this->getContainer()->get('shopware.app_system.guzzle');
-        $client->post(new Uri("'https://example.local'"));
+        $client->post(new Uri('\'https://example.local\''));
 
         /** @var Request $request */
         $request = $this->getLastRequest();
@@ -112,7 +112,7 @@ class AuthMiddlewareTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $client = $this->getContainer()->get('shopware.app_system.guzzle');
-        $client->post(new Uri("'https://example.local'"), $optionsRequest);
+        $client->post(new Uri('\'https://example.local\''), $optionsRequest);
     }
 
     public function testIncorrectAppContextInstanceOfOptionRequest(): void
@@ -123,7 +123,7 @@ class AuthMiddlewareTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $client = $this->getContainer()->get('shopware.app_system.guzzle');
-        $client->post(new Uri("'https://example.local'"), $optionsRequest);
+        $client->post(new Uri('\'https://example.local\''), $optionsRequest);
     }
 
     public function testInCorrectAuthenticResponse(): void

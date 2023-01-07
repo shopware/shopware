@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package customer-order
+ */
 final class RenderedDocument extends Struct
 {
     private string $number;

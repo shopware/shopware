@@ -5,6 +5,9 @@ const { Component, Application } = Shopware;
 const { debounce } = Shopware.Utils;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @example-type static
@@ -15,7 +18,6 @@ const { debounce } = Shopware.Utils;
  *                 :currency="{...}">
  * </sw-price-field>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-price-field', {
     template,
 
@@ -357,13 +359,13 @@ Component.register('sw-price-field', {
                     !this.priceForCurrency[outputType] ||
                     !outputType
                 ) {
-                    return null;
+                    return;
                 }
 
                 if (!this.taxRate.id) {
                     resolve(0);
                     this.$emit('price-calculate', false);
-                    return true;
+                    return;
                 }
 
                 this.calculatePriceApiService.calculatePrice({
@@ -381,7 +383,6 @@ Component.register('sw-price-field', {
                     resolve(tax);
                     this.$emit('price-calculate', false);
                 });
-                return true;
             });
         },
 

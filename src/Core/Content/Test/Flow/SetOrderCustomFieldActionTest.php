@@ -2,32 +2,29 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderCustomFieldAction;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class SetOrderCustomFieldActionTest extends TestCase
 {
     use OrderActionTrait;
 
-    private EntityRepositoryInterface $flowRepository;
-
-    private Connection $connection;
+    private EntityRepository $flowRepository;
 
     protected function setUp(): void
     {
         $this->flowRepository = $this->getContainer()->get('flow.repository');
-
-        $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
@@ -38,9 +35,6 @@ class SetOrderCustomFieldActionTest extends TestCase
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-
-        // all business event should be inactive.
-        $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
     /**

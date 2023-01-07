@@ -4,8 +4,10 @@ namespace Shopware\Core\Checkout\Customer\DataAbstractionLayer;
 
 use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 
+/**
+ * @package core
+ */
 class CustomerWishlistProductExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int
@@ -13,14 +15,8 @@ class CustomerWishlistProductExceptionHandler implements ExceptionHandlerInterfa
         return ExceptionHandlerInterface::PRIORITY_DEFAULT;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_16640) - second parameter WriteCommand $command will be removed
-     */
-    public function matchException(\Exception $e, ?WriteCommand $command = null): ?\Exception
+    public function matchException(\Exception $e): ?\Exception
     {
-        if ($e->getCode() !== 0) {
-            return null;
-        }
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.customer_wishlist.sales_channel_id__customer_id\'/', $e->getMessage())) {
             return new DuplicateWishlistProductException();
         }

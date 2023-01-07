@@ -21,15 +21,9 @@ class DeleteTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityWriter
-     */
-    private $writer;
+    private EntityWriter $writer;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -44,7 +38,7 @@ class DeleteTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'DROP TABLE IF EXISTS delete_cascade_child;
              DROP TABLE IF EXISTS delete_cascade_parent;
              DROP TABLE IF EXISTS delete_cascade_many_to_one;
@@ -91,7 +85,7 @@ class DeleteTest extends TestCase
     {
         $this->connection->rollBack();
 
-        $this->connection->exec(
+        $this->connection->executeStatement(
             'DROP TABLE IF EXISTS delete_cascade_child;
              DROP TABLE IF EXISTS delete_cascade_parent;
              DROP TABLE IF EXISTS delete_cascade_many_to_one;'
@@ -123,10 +117,10 @@ class DeleteTest extends TestCase
             WriteContext::createFromContext(Context::createDefaultContext())
         );
 
-        $parents = $this->connection->fetchAll('SELECT * FROM delete_cascade_parent');
+        $parents = $this->connection->fetchAllAssociative('SELECT * FROM delete_cascade_parent');
         static::assertCount(1, $parents);
 
-        $children = $this->connection->fetchAll('SELECT * FROM delete_cascade_child');
+        $children = $this->connection->fetchAllAssociative('SELECT * FROM delete_cascade_child');
         static::assertCount(1, $children);
 
         $this->writer->delete(
@@ -137,10 +131,10 @@ class DeleteTest extends TestCase
             WriteContext::createFromContext(Context::createDefaultContext())
         );
 
-        $parents = $this->connection->fetchAll('SELECT * FROM delete_cascade_parent');
+        $parents = $this->connection->fetchAllAssociative('SELECT * FROM delete_cascade_parent');
         static::assertCount(0, $parents);
 
-        $children = $this->connection->fetchAll('SELECT * FROM delete_cascade_child');
+        $children = $this->connection->fetchAllAssociative('SELECT * FROM delete_cascade_child');
         static::assertCount(0, $children);
     }
 
@@ -167,13 +161,13 @@ class DeleteTest extends TestCase
             WriteContext::createFromContext(Context::createDefaultContext())
         );
 
-        $parents = $this->connection->fetchAll('SELECT * FROM delete_cascade_parent');
+        $parents = $this->connection->fetchAllAssociative('SELECT * FROM delete_cascade_parent');
         static::assertCount(1, $parents);
 
-        $children = $this->connection->fetchAll('SELECT * FROM delete_cascade_child');
+        $children = $this->connection->fetchAllAssociative('SELECT * FROM delete_cascade_child');
         static::assertCount(1, $children);
 
-        $manyToOne = $this->connection->fetchAll('SELECT * FROM delete_cascade_many_to_one');
+        $manyToOne = $this->connection->fetchAllAssociative('SELECT * FROM delete_cascade_many_to_one');
         static::assertCount(1, $manyToOne);
 
         $this->writer->delete(
@@ -184,13 +178,13 @@ class DeleteTest extends TestCase
             WriteContext::createFromContext(Context::createDefaultContext())
         );
 
-        $parents = $this->connection->fetchAll('SELECT * FROM delete_cascade_parent');
+        $parents = $this->connection->fetchAllAssociative('SELECT * FROM delete_cascade_parent');
         static::assertCount(0, $parents);
 
-        $children = $this->connection->fetchAll('SELECT * FROM delete_cascade_child');
+        $children = $this->connection->fetchAllAssociative('SELECT * FROM delete_cascade_child');
         static::assertCount(0, $children);
 
-        $manyToOne = $this->connection->fetchAll('SELECT * FROM delete_cascade_many_to_one');
+        $manyToOne = $this->connection->fetchAllAssociative('SELECT * FROM delete_cascade_many_to_one');
         static::assertCount(0, $manyToOne);
     }
 }

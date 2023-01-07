@@ -6,17 +6,16 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Store\Struct\FrwState;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package merchant-services
+ *
+ * @internal
+ */
 class FirstRunWizardStartedEvent extends Event
 {
-    /**
-     * @var FrwState
-     */
-    private $state;
+    private FrwState $state;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     public function __construct(FrwState $state, Context $context)
     {

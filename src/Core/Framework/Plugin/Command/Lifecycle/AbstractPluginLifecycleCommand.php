@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -24,17 +24,20 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @package core
+ */
 abstract class AbstractPluginLifecycleCommand extends Command
 {
     protected PluginLifecycleService $pluginLifecycleService;
 
     protected CacheClearer $cacheClearer;
 
-    private EntityRepositoryInterface $pluginRepo;
+    private EntityRepository $pluginRepo;
 
     public function __construct(
         PluginLifecycleService $pluginLifecycleService,
-        EntityRepositoryInterface $pluginRepo,
+        EntityRepository $pluginRepo,
         CacheClearer $cacheClearer
     ) {
         parent::__construct();

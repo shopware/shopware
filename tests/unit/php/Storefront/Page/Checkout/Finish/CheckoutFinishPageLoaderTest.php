@@ -5,7 +5,6 @@ namespace unit\php\Storefront\Page\Checkout\Finish;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -263,8 +262,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
                 $request,
                 $this->getContextWithDummyCustomer(),
             );
-        } catch (OrderException|OrderNotFoundException $e) {
-            // remove 'OrderNotFoundException' with Feature flag v6.5.0.0
+        } catch (OrderException $e) {
         } catch (\Exception $e) {
             static::fail('Not an expected Exception');
         }

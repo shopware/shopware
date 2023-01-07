@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
 /**
  * Flag a text column that an empty string should not be considered as null
+ *
+ * @package core
  */
 class AllowEmptyString extends Flag
 {

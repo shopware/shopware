@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
  * @final
  *
  * @extends EntityCollection<Entity>
+ *
+ * @package core
  */
 class EntitySearchResult extends EntityCollection
 {
@@ -189,13 +191,19 @@ class EntitySearchResult extends EntityCollection
     }
 
     /**
-     * @phpstan-ignore-next-line -> we can't generalize the iterable type here
+     * @return static
+     *
+     * @deprecated tag:v6.6.0  - reason:return-type-change - Return type will be changed to `static`
      */
     protected function createNew(iterable $elements = [])
     {
+        if (!($elements instanceof EntityCollection)) {
+            $elements = new EntityCollection($elements);
+        }
+
         return new static(
             $this->entity,
-            $this->total,
+            $elements->count(),
             $elements,
             $this->aggregations,
             $this->criteria,

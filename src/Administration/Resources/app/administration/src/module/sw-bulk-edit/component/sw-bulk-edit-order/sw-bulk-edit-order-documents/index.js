@@ -1,11 +1,14 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-bulk-edit-order-documents.html.twig';
 import './sw-bulk-edit-order-documents.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-bulk-edit-order-documents', {
+export default {
     template,
 
     inject: [
@@ -67,5 +70,4 @@ Component.register('sw-bulk-edit-order-documents', {
             });
         },
     },
-});
-
+};

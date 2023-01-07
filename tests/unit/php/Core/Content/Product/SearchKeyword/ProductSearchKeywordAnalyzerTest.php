@@ -42,7 +42,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
         $tokenizer = new Tokenizer(3);
         $tokenFilter = $this->createMock(TokenFilter::class);
-        $tokenFilter->method('filter')->willReturnCallback(function (array $tokens, Context $context) {
+        $tokenFilter->method('filter')->willReturnCallback(function (array $tokens) {
             return $tokens;
         });
 
@@ -54,6 +54,25 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         sort($expected);
 
         static::assertEquals($expected, $analyzerResult);
+    }
+
+    /**
+     * The old implementation relied on the error_reporting level, to also report notices as errors.
+     * This test ensures that the new implementation does not rely on the error_reporting level.
+     *
+     * @dataProvider analyzeCases
+     *
+     * @param array<string, mixed> $productData
+     * @param array<int, array{field: string, tokenize: bool, ranking: int}> $configFields
+     * @param array<int, string> $expected
+     */
+    public function testAnalyzeWithIgnoredErrorNoticeReporting(array $productData, array $configFields, array $expected): void
+    {
+        $oldLevel = error_reporting(\E_ERROR);
+
+        $this->testAnalyze($productData, $configFields, $expected);
+
+        error_reporting($oldLevel);
     }
 
     /**

@@ -20,7 +20,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -33,6 +33,8 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class DocumentGeneratorControllerTest extends TestCase
@@ -49,7 +51,7 @@ class DocumentGeneratorControllerTest extends TestCase
 
     private DocumentGenerator $documentGenerator;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     private string $customerId;
 
@@ -95,7 +97,7 @@ class DocumentGeneratorControllerTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        /** @var EntityRepositoryInterface $documentTypeRepository */
+        /** @var EntityRepository $documentTypeRepository */
         $documentTypeRepository = $this->getContainer()->get('document_type.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', 'invoice'));
         /** @var DocumentTypeEntity $type */
@@ -407,7 +409,7 @@ class DocumentGeneratorControllerTest extends TestCase
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'billingAddressId' => $billingAddressId,
             'addresses' => [
                 [

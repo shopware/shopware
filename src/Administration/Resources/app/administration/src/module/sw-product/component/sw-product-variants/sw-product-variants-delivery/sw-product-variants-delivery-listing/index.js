@@ -1,11 +1,14 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-variants-delivery-listing.html.twig';
 import './sw-product-variants-delivery-listing.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-variants-delivery-listing', {
+export default {
     template,
 
     props: {
@@ -117,10 +120,6 @@ Component.register('sw-product-variants-delivery-listing', {
 
     methods: {
         createdComponent() {
-            if (!this.product.variantListingConfig) {
-                this.product.variantListingConfig = {};
-            }
-
             this.updateListingMode(this.listingMode);
         },
 
@@ -141,7 +140,9 @@ Component.register('sw-product-variants-delivery-listing', {
         },
 
         isActiveGroupInListing(groupId) {
-            if (!this.product.variantListingConfig.configuratorGroupConfig) {
+            const configuratorGroupConfig = this.product.variantListingConfig?.configuratorGroupConfig || [];
+
+            if (!configuratorGroupConfig.length) {
                 return false;
             }
 
@@ -153,7 +154,7 @@ Component.register('sw-product-variants-delivery-listing', {
         },
 
         onChangeGroupListing(value, groupId) {
-            const configuratorGroupConfig = this.product.variantListingConfig.configuratorGroupConfig || [];
+            const configuratorGroupConfig = this.product.variantListingConfig?.configuratorGroupConfig || [];
             const existingGroup = configuratorGroupConfig.find((group) => group.id === groupId);
 
             if (existingGroup) {
@@ -190,4 +191,4 @@ Component.register('sw-product-variants-delivery-listing', {
             this.searchTerm = '';
         },
     },
-});
+};

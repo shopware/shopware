@@ -4,6 +4,9 @@ import './sw-card-section.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description A container component which separates the content of <code>sw-card</code> into multiple sections.
  * @status ready
@@ -20,7 +23,6 @@ const { Component } = Shopware;
  *     </sw-container>
  * </sw-card>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-card-section', {
     template,
 

@@ -7,8 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @group store-api
  */
@@ -17,15 +20,9 @@ class NewsletterConfirmRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     protected function setUp(): void
     {
@@ -98,9 +95,9 @@ class NewsletterConfirmRouteTest extends TestCase
                 ]
             );
 
-        $count = (int) $this->getContainer()->get(Connection::class)->fetchColumn('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de"');
+        $count = (int) $this->getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de"');
         static::assertSame(1, $count);
-        $hash = $this->getContainer()->get(Connection::class)->fetchColumn('SELECT hash FROM newsletter_recipient WHERE email = "test@test.de"');
+        $hash = $this->getContainer()->get(Connection::class)->fetchOne('SELECT hash FROM newsletter_recipient WHERE email = "test@test.de"');
 
         $this->browser
             ->request(
@@ -112,7 +109,7 @@ class NewsletterConfirmRouteTest extends TestCase
                 ]
             );
 
-        $status = $this->getContainer()->get(Connection::class)->fetchColumn('SELECT status FROM newsletter_recipient WHERE email = "test@test.de"');
+        $status = $this->getContainer()->get(Connection::class)->fetchOne('SELECT status FROM newsletter_recipient WHERE email = "test@test.de"');
         static::assertSame('optIn', $status);
     }
 }

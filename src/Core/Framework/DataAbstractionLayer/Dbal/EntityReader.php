@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -39,7 +38,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use function array_filter;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ *
+ * @package core
  */
 class EntityReader implements EntityReaderInterface
 {
@@ -47,32 +48,14 @@ class EntityReader implements EntityReaderInterface
     public const FOREIGN_KEYS = 'foreignKeys';
     public const MANY_TO_MANY_LIMIT_QUERY = 'many_to_many_limit_query';
 
-    private Connection $connection;
-
-    private EntityHydrator $hydrator;
-
-    private EntityDefinitionQueryHelper $queryHelper;
-
-    private SqlQueryParser $parser;
-
-    private CriteriaQueryBuilder $criteriaQueryBuilder;
-
-    private LoggerInterface $logger;
-
     public function __construct(
-        Connection $connection,
-        EntityHydrator $hydrator,
-        EntityDefinitionQueryHelper $queryHelper,
-        SqlQueryParser $parser,
-        CriteriaQueryBuilder $criteriaQueryBuilder,
-        LoggerInterface $logger
+        private Connection $connection,
+        private EntityHydrator $hydrator,
+        private EntityDefinitionQueryHelper $queryHelper,
+        private SqlQueryParser $parser,
+        private CriteriaQueryBuilder $criteriaQueryBuilder,
+        private LoggerInterface $logger
     ) {
-        $this->connection = $connection;
-        $this->hydrator = $hydrator;
-        $this->queryHelper = $queryHelper;
-        $this->parser = $parser;
-        $this->criteriaQueryBuilder = $criteriaQueryBuilder;
-        $this->logger = $logger;
     }
 
     /**
@@ -312,7 +295,7 @@ class EntityReader implements EntityReaderInterface
             $query->setTitle($criteria->getTitle() . '::read');
         }
 
-        return $query->execute()->fetchAll();
+        return $query->executeQuery()->fetchAllAssociative();
     }
 
     /**
@@ -801,8 +784,7 @@ class EntityReader implements EntityReaderInterface
             $this->connection->executeQuery('SET @n = 0; SET @c = null;');
         }
 
-        $mapping = $query->execute()->fetchAll();
-        $mapping = FetchModeHelper::keyPair($mapping);
+        $mapping = $query->executeQuery()->fetchAllKeyValue();
 
         $ids = [];
         foreach ($mapping as &$row) {
@@ -981,7 +963,7 @@ class EntityReader implements EntityReaderInterface
         //initials the cursor and loop counter, pdo do not allow to execute SET and SELECT in one statement
         $this->connection->executeQuery('SET @n = 0; SET @c = null;');
 
-        $rows = $wrapper->execute()->fetchAll();
+        $rows = $wrapper->executeQuery()->fetchAllAssociative();
 
         $grouped = [];
         foreach ($rows as $row) {

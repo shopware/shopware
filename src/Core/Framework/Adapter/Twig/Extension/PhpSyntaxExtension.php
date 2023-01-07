@@ -28,6 +28,9 @@ use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twig\TwigTest;
 
+/**
+ * @package core
+ */
 class PhpSyntaxExtension extends AbstractExtension
 {
     public function getTokenParsers(): array
@@ -82,15 +85,22 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 return (bool) $var;
             }),
-            new TwigFilter('json_encode', /** @param mixed $var */ function ($var) {
-                try {
-                    FieldVisibility::$isInTwigRenderingContext = true;
+            new TwigFilter(
+                'json_encode',
+                /**
+                 * @param mixed $var
+                 * @param int<1, max> $depth
+                 */
+                function ($var, int $options = 0, $depth = 512) {
+                    try {
+                        FieldVisibility::$isInTwigRenderingContext = true;
 
-                    return json_encode($var, \JSON_PRESERVE_ZERO_FRACTION);
-                } finally {
-                    FieldVisibility::$isInTwigRenderingContext = false;
+                        return json_encode($var, $options | \JSON_PRESERVE_ZERO_FRACTION, $depth);
+                    } finally {
+                        FieldVisibility::$isInTwigRenderingContext = false;
+                    }
                 }
-            }),
+            ),
             new TwigFilter('md5', /** @param mixed $var */ function ($var) {
                 if (\is_array($var)) {
                     $var = \json_encode($var, \JSON_THROW_ON_ERROR);

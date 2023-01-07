@@ -12,6 +12,8 @@ use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @group rules
  */
@@ -53,6 +55,9 @@ class LineItemClearanceSaleRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return array<string, array<bool>>
+     */
     public function getLineItemScopeTestData(): array
     {
         return [
@@ -108,6 +113,9 @@ class LineItemClearanceSaleRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return array<string, array<bool>>
+     */
     public function getCartRuleScopeTestData(): array
     {
         return [

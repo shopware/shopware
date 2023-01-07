@@ -9,8 +9,13 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
+/**
+ * @package business-ops
+ */
 class CurrencyRule extends Rule
 {
+    private const NAME = 'currency';
+
     /**
      * @var array<string>|null
      */
@@ -49,7 +54,7 @@ class CurrencyRule extends Rule
 
     public function getName(): string
     {
-        return 'currency';
+        return self::NAME;
     }
 
     public function getConfig(): RuleConfig

@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
 
+/**
+ * @package inventory
+ */
 class ProductKeywordDictionaryDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_keyword_dictionary';

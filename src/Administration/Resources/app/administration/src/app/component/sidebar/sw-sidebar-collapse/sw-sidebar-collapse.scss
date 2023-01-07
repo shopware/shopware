@@ -1,0 +1,53 @@
+@import "~scss/variables";
+
+$sw-sidebar-collapse-color-divider: $color-gray-300;
+$sw-sidebar-collapse-color-title: $color-darkgray-200;
+$sw-sidebar-collapse-font-size-title: $font-size-s;
+
+.sw-collapse {
+    .sw-sidebar-collapse__header {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        padding-top: 16px;
+        padding-bottom: 16px;
+        color: $sw-sidebar-collapse-color-title;
+        border-top: 1px solid $sw-sidebar-collapse-color-divider;
+    }
+
+    .sw-sidebar-collapse__title {
+        font-size: $sw-sidebar-collapse-font-size-title;
+        font-weight: $font-weight-regular;
+        margin: 0 25px;
+        cursor: pointer;
+    }
+
+    .sw-sidebar-collapse__indicator {
+        cursor: pointer;
+
+        .sw-icon {
+            margin-right: 25px;
+
+            &.is--hidden {
+                display: none;
+            }
+        }
+
+        .sw-sidebar-collapse__expand-button {
+            width: 24px;
+            height: 24px;
+            padding-top: 6px;
+            padding-right: 7px;
+            padding-bottom: 6px;
+            padding-left: 10px;
+        }
+
+        .sw-sidebar-collapse__collapse-button {
+            width: 16px;
+            height: 16px;
+            padding-top: 4px;
+            padding-right: 2px;
+            padding-bottom: 3px;
+            padding-left: 2px;
+        }
+    }
+}

@@ -1,10 +1,12 @@
 import template from './sw-order-saveable-field.html.twig';
 import './sw-order-saveable-field.scss';
 
-const { Component } = Shopware;
+/**
+ * @package customer-order
+ */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-saveable-field', {
+export default {
     template,
 
     props: {
@@ -57,4 +59,4 @@ Component.register('sw-order-saveable-field', {
             this.isEditing = false;
         },
     },
-});
+};

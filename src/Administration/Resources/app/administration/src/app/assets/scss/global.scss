@@ -5,11 +5,20 @@
     margin: 0;
     padding: 0;
     color-scheme: light;
+    font-family: $font-family-default;
+}
+
+@supports (font-variation-settings: normal) {
+    *,
+    body {
+        font-family: $font-family-variables;
+        font-feature-settings: $font-family-default-feature-settings;
+    }
 }
 
 body {
     font-family: $font-family-default;
-    font-size: $font-size-default;
+    font-size: $font-size-s;
     color: $color-menu-start;
     background: $color-gray-50;
     -webkit-font-smoothing: antialiased;
@@ -42,7 +51,7 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .sw-button) {
     display: inline-block;
     position: relative;
     color: $color-shopware-brand-500;
-    font-size: $font-size-small;
+    font-size: $font-size-xs;
     text-decoration: underline;
     cursor: pointer;
     word-break: break-word;

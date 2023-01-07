@@ -6,18 +6,19 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
-use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package checkout
+ */
 class CartPersister extends AbstractCartPersister
 {
     private Connection $connection;
@@ -68,11 +69,7 @@ class CartPersister extends AbstractCartPersister
         $cart = $content['compressed'] ? CacheValueCompressor::uncompress($content['payload']) : unserialize((string) $content['payload']);
 
         if (!$cart instanceof Cart) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw CartException::deserializeFailed();
-            }
-
-            throw new CartDeserializeFailedException();
+            throw CartException::deserializeFailed();
         }
 
         $cart->setToken($token);
@@ -153,7 +150,7 @@ class CartPersister extends AbstractCartPersister
 
     public function replace(string $oldToken, string $newToken, SalesChannelContext $context): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE `cart` SET `token` = :newToken WHERE `token` = :oldToken',
             ['newToken' => $newToken, 'oldToken' => $oldToken]
         );

@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<UpdateBy>
+ *
+ * @package system-settings
  */
 class UpdateByCollection extends Collection
 {

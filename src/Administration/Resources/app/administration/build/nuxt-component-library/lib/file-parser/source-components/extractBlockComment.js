@@ -38,9 +38,20 @@ module.exports = (ast) => {
 
     const componentDeclarationStartLine = componentDeclaration.loc.start.line;
     ast.comments.forEach((comment) => {
+        // stop when first block comment was found
+        if (commentForComponentDeclaration) {
+            return;
+        }
+
+        // just parse block comments
+        if (comment.type !== 'Block') {
+            return;
+        }
+
         const commentEndLine = comment.loc.end.line;
 
-        if (commentEndLine + 1 === componentDeclarationStartLine) {
+        // to make sure that also one line comment is allowed
+        if (commentEndLine + 2 >= componentDeclarationStartLine) {
             commentForComponentDeclaration = comment.value;
         }
     });

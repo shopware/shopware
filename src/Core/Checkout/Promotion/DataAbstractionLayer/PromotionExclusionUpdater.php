@@ -3,17 +3,19 @@
 namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package checkout
+ */
 class PromotionExclusionUpdater
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -99,7 +101,7 @@ class PromotionExclusionUpdater
      *
      * @param array<string> $excludeThisIds
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws Exception
      *
      * @return array<string>
      */
@@ -132,13 +134,13 @@ class PromotionExclusionUpdater
         }
 
         RetryableQuery::retryable($this->connection, function () use ($affectedIds, $deleteId): void {
-            $sqlStatement = "
+            $sqlStatement = '
                 UPDATE promotion
-                SET promotion.exclusion_ids = JSON_REMOVE(promotion.exclusion_ids, JSON_UNQUOTE(JSON_SEARCH(promotion.exclusion_ids,'one', :value)))
+                SET promotion.exclusion_ids = JSON_REMOVE(promotion.exclusion_ids, JSON_UNQUOTE(JSON_SEARCH(promotion.exclusion_ids,\'one\', :value)))
                 WHERE id IN(:affectedIds)
-            ";
+            ';
 
-            $this->connection->executeUpdate($sqlStatement, ['value' => $deleteId, 'affectedIds' => $affectedIds], ['affectedIds' => Connection::PARAM_STR_ARRAY]);
+            $this->connection->executeStatement($sqlStatement, ['value' => $deleteId, 'affectedIds' => $affectedIds], ['affectedIds' => Connection::PARAM_STR_ARRAY]);
         });
 
         return $tags;
@@ -147,7 +149,7 @@ class PromotionExclusionUpdater
     /**
      * appends addId in all promotions that id is in ids
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws Exception
      */
     private function addToJSON(string $addId, array $ids): void
     {
@@ -156,7 +158,7 @@ class PromotionExclusionUpdater
         }
 
         RetryableQuery::retryable($this->connection, function () use ($addId, $ids): void {
-            $this->connection->executeUpdate(
+            $this->connection->executeStatement(
                 'UPDATE promotion
                  SET promotion.exclusion_ids = (JSON_ARRAY_APPEND(IFNULL(promotion.exclusion_ids,JSON_ARRAY()), \'$\', :value))
                  WHERE id IN (:addToTheseIds)
@@ -177,8 +179,8 @@ class PromotionExclusionUpdater
      *
      * @param array<string> $onlyAddThisExistingIds
      *
-     * @throws \Doctrine\DBAL\DBALException
-     * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
+     * @throws Exception
+     * @throws InvalidUuidException
      */
     private function updateJSON(string $id, array $onlyAddThisExistingIds): void
     {
@@ -226,7 +228,7 @@ class PromotionExclusionUpdater
     /**
      * returns exclusions of promotion with id id
      *
-     * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
+     * @throws InvalidUuidException
      */
     private function getExclusionIds(string $id): array
     {
@@ -241,7 +243,7 @@ class PromotionExclusionUpdater
 
         $query->setParameter('id', Uuid::fromHexToBytes($id));
 
-        return $query->execute()->fetchAll();
+        return $query->executeQuery()->fetchAllAssociative();
     }
 
     /**

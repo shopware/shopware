@@ -21,9 +21,14 @@ describe('Rule builder: Test crud operations', () => {
             {
                 key: 'rule',
                 role: 'viewer'
+            },
+            {
+                key: 'flow',
+                role: 'viewer'
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-rule-list-grid').should('exist');
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
@@ -58,11 +63,16 @@ describe('Rule builder: Test crud operations', () => {
                 role: 'viewer'
             },
             {
+                key: 'flow',
+                role: 'viewer'
+            },
+            {
                 key: 'rule',
                 role: 'editor'
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-rule-list-grid').should('exist');
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
@@ -134,6 +144,10 @@ describe('Rule builder: Test crud operations', () => {
                 role: 'viewer'
             },
             {
+                key: 'flow',
+                role: 'viewer'
+            },
+            {
                 key: 'rule',
                 role: 'editor'
             },
@@ -143,6 +157,7 @@ describe('Rule builder: Test crud operations', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-rule-list-grid').should('exist');
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
@@ -155,17 +170,22 @@ describe('Rule builder: Test crud operations', () => {
             method: 'POST'
         }).as('saveData');
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-rule-list-grid').should('be.visible');
+
         cy.get('a[href="#/sw/settings/rule/create"]').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
+        cy.get('.sw-settings-rule-detail-base').should('exist');
         // save with empty data
-        cy.get('button.sw-button').contains('Save').click();
+        cy.contains('button.sw-button--primary', 'Save').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 400);
 
         cy.get('.sw-alert--error .sw-alert__message')
             .should('be.visible')
-            .contains('An error occurred while saving rule "".');
+            .contains('An error occurred while saving rule');
 
         // fill basic data
         cy.get('.sw-field').contains('.sw-field', 'Name').then((field) => {
@@ -204,6 +224,10 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('.sw-skeleton').should('not.exist');
 
         cy.get(page.elements.smartBarBack).click();
+
+        cy.get('.sw-skeleton').should('exist');
+        cy.get('.sw-skeleton').should('not.exist');
+
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Rule 1st');
         cy.get(page.elements.loader).should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Rule 1st');
@@ -226,11 +250,16 @@ describe('Rule builder: Test crud operations', () => {
                 role: 'viewer'
             },
             {
+                key: 'flow',
+                role: 'viewer'
+            },
+            {
                 key: 'rule',
                 role: 'deleter'
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-rule-list-grid').should('exist');
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });

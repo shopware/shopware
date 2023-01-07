@@ -6,6 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class LineItemGroupSorterNotFoundExceptionTest extends TestCase

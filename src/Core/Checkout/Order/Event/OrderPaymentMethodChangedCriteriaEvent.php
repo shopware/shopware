@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package customer-order
+ */
 class OrderPaymentMethodChangedCriteriaEvent extends Event
 {
     private string $orderId;

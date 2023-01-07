@@ -4,15 +4,21 @@ namespace Shopware\Core\Content\ImportExport\Command;
 
 use Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService;
 use Shopware\Core\Framework\Context;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @package system-settings
+ */
+#[AsCommand(
+    name: 'import-export:delete-expired',
+    description: 'Deletes expired files',
+)]
 class DeleteExpiredFilesCommand extends Command
 {
-    protected static $defaultName = 'import-export:delete-expired';
-
     /**
      * @var DeleteExpiredFilesService
      */

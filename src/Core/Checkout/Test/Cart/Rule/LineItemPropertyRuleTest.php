@@ -12,6 +12,8 @@ use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleScopeCase;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class LineItemPropertyRuleTest extends TestCase
@@ -43,6 +45,9 @@ class LineItemPropertyRuleTest extends TestCase
         static::assertSame($case->match, $case->rule->match($scope), $case->description);
     }
 
+    /**
+     * @return array<array<CartRuleScopeCase>>
+     */
     public function cartRuleScopeProvider(): array
     {
         $emptyItem = $this->createLineItemWithVariantOptions();
@@ -79,6 +84,10 @@ class LineItemPropertyRuleTest extends TestCase
         }, $cases);
     }
 
+    /**
+     * @param array<string> $properties
+     * @param array<string> $options
+     */
     private function createLineItemWithVariantOptions(array $properties = [], array $options = []): LineItem
     {
         $lineItem = $this->createLineItem();

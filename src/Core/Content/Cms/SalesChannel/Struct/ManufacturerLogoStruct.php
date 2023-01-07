@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Cms\SalesChannel\Struct;
 
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 
+/**
+ * @package content
+ */
 class ManufacturerLogoStruct extends ImageStruct
 {
     /**

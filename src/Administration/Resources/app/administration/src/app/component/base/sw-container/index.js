@@ -5,6 +5,9 @@ const { Component } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Provides a container element which is divided in multiple sections with the use of CSS grid.
  * @status ready
@@ -15,7 +18,6 @@ const { warn } = Shopware.Utils.debug;
  *     <div>Right content</div>
  * </sw-container>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-container', {
     template,
 

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package core
  * @extends Collection<Field>
  */
 class FieldCollection extends Collection

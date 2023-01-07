@@ -3,6 +3,13 @@ const path = require('path');
 
 const fileParser = require(`${__dirname}/lib/file-parser`); // eslint-disable-line import/no-dynamic-require
 const process = require('process');
+const crypto = require("crypto");
+
+/** HACK: OpenSSL 3 does not support md4 any more,
+ * but webpack hardcodes it all over the place: https://github.com/webpack/webpack/issues/13572
+ */
+const cryptoOrigCreateHash = crypto.createHash;
+crypto.createHash = algorithm => cryptoOrigCreateHash(algorithm === 'md4' ? 'sha256' : algorithm);
 
 function getPathFromRoot(directory) {
     const projectRoot = process.env.PROJECT_ROOT;

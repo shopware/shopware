@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Theme\ConfigLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 
+/**
+ * @package storefront
+ */
 abstract class AbstractConfigLoader
 {
     abstract public function getDecorated(): AbstractConfigLoader;

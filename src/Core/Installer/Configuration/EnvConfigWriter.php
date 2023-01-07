@@ -8,12 +8,56 @@ use Shopware\Core\Installer\Finish\UniqueIdGenerator;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 /**
+ * @package core
+ *
  * @internal
  *
  * @phpstan-import-type Shop from ShopConfigurationController
  */
 class EnvConfigWriter
 {
+    private const FLEX_DOTENV = <<<'EOT'
+###> symfony/lock ###
+# Choose one of the stores below
+# postgresql+advisory://db_user:db_password@localhost/db_name
+LOCK_DSN=flock
+###< symfony/lock ###
+
+###> symfony/messenger ###
+# Choose one of the transports below
+# MESSENGER_TRANSPORT_DSN=doctrine://default
+# MESSENGER_TRANSPORT_DSN=amqp://guest:guest@localhost:5672/%2f/messages
+# MESSENGER_TRANSPORT_DSN=redis://localhost:6379/messages
+###< symfony/messenger ###
+
+###> symfony/mailer ###
+# MAILER_DSN=null://null
+###< symfony/mailer ###
+
+###> shopware/core ###
+APP_ENV=prod
+APP_URL=http://127.0.0.1:8000
+APP_SECRET=SECRET_PLACEHOLDER
+INSTANCE_ID=INSTANCEID_PLACEHOLDER
+BLUE_GREEN_DEPLOYMENT=0
+DATABASE_URL=mysql://root:root@localhost/shopware
+###< shopware/core ###
+
+###> shopware/elasticsearch ###
+OPENSEARCH_URL=http://localhost:9200
+SHOPWARE_ES_ENABLED=0
+SHOPWARE_ES_INDEXING_ENABLED=0
+SHOPWARE_ES_INDEX_PREFIX=sw
+SHOPWARE_ES_THROW_EXCEPTION=1
+###< shopware/elasticsearch ###
+
+###> shopware/storefront ###
+STOREFRONT_PROXY_URL=http://localhost
+SHOPWARE_HTTP_CACHE_ENABLED=1
+SHOPWARE_HTTP_DEFAULT_TTL=7200
+###< shopware/storefront ###
+EOT;
+
     private string $projectDir;
 
     private UniqueIdGenerator $idGenerator;
@@ -29,59 +73,40 @@ class EnvConfigWriter
      */
     public function writeConfig(DatabaseConnectionInformation $info, array $shop): void
     {
-        $tpl = '# This file is a "template" of which env vars need to be defined for your application
-# Copy this file to .env file for development, create environment variables when deploying to production
-# https://symfony.com/doc/current/best_practices/configuration.html#infrastructure-related-configuration
+        $uniqueId = $this->idGenerator->getUniqueId();
+        $secret = (Key::createNewRandomKey())->saveToAsciiSafeString();
 
-###> symfony/framework-bundle ###
-%s
-#TRUSTED_PROXIES=127.0.0.1,127.0.0.2
-#TRUSTED_HOSTS=localhost,example.com
-###< symfony/framework-bundle ###
+        // Copy flex default .env if missing
+        if (!file_exists($this->projectDir . '/.env')) {
+            $template = str_replace(
+                [
+                    'SECRET_PLACEHOLDER',
+                    'INSTANCEID_PLACEHOLDER',
+                ],
+                [
+                    $secret,
+                    $uniqueId,
+                ],
+                self::FLEX_DOTENV
+            );
+            file_put_contents($this->projectDir . '/.env', $template);
+        }
 
-###> symfony/swiftmailer-bundle ###
-# For Gmail as a transport, use: "gmail://username:password@localhost"
-# For a generic SMTP server, use: "smtp://localhost:25?encryption=&auth_mode="
-# Delivery is disabled by default via "null://localhost"
-MAILER_URL=null://localhost
-###< symfony/swiftmailer-bundle ###
+        $newEnv = [];
 
-%s
-';
-        $key = Key::createNewRandomKey();
-        $secret = $key->saveToAsciiSafeString();
+        $newEnv[] = 'APP_SECRET=' . $secret;
+        $newEnv[] = 'APP_URL=' . $shop['schema'] . '://' . $shop['host'] . $shop['basePath'];
+        $newEnv[] = 'DATABASE_URL=' . $info->asDsn();
+        $newEnv[] = 'DATABASE_SSL_CA=' . $info->getSslCaPath();
+        $newEnv[] = 'DATABASE_SSL_CERT=' . $info->getSslCertPath();
+        $newEnv[] = 'DATABASE_SSL_KEY=' . $info->getSslCertKeyPath();
+        $newEnv[] = 'DATABASE_SSL_DONT_VERIFY_SERVER_CERT=' . ($info->getSslDontVerifyServerCert() ? '1' : '');
+        $newEnv[] = 'COMPOSER_HOME=' . $this->projectDir . '/var/cache/composer';
+        $newEnv[] = 'INSTANCE_ID=' . $uniqueId;
+        $newEnv[] = 'BLUE_GREEN_DEPLOYMENT=' . (int) $shop['blueGreenDeployment'];
+        $newEnv[] = 'OPENSEARCH_URL=http://localhost:9200';
 
-        $appEnvVars = array_filter([
-            'APP_ENV' => 'prod',
-            'APP_SECRET' => $secret,
-            'APP_URL' => $shop['schema'] . '://' . $shop['host'] . $shop['basePath'],
-            'DATABASE_SSL_CA' => $info->getSslCaPath(),
-            'DATABASE_SSL_CERT' => $info->getSslCertPath(),
-            'DATABASE_SSL_KEY' => $info->getSslCertKeyPath(),
-            'DATABASE_SSL_DONT_VERIFY_SERVER_CERT' => $info->getSslDontVerifyServerCert() ? '1' : '',
-        ]);
-
-        $additionalEnvVars = [
-            'DATABASE_URL' => $info->asDsn(),
-            'COMPOSER_HOME' => $this->projectDir . '/var/cache/composer',
-            'INSTANCE_ID' => $this->idGenerator->getUniqueId(),
-            'BLUE_GREEN_DEPLOYMENT' => (int) $shop['blueGreenDeployment'],
-            'SHOPWARE_HTTP_CACHE_ENABLED' => '1',
-            'SHOPWARE_HTTP_DEFAULT_TTL' => '7200',
-            'SHOPWARE_ES_HOSTS' => '',
-            'SHOPWARE_ES_ENABLED' => '0',
-            'SHOPWARE_ES_INDEXING_ENABLED' => '0',
-            'SHOPWARE_ES_INDEX_PREFIX' => 'sw',
-            'SHOPWARE_CDN_STRATEGY_DEFAULT' => 'id',
-        ];
-
-        $envFile = sprintf(
-            $tpl,
-            $this->toEnv($appEnvVars),
-            $this->toEnv($additionalEnvVars)
-        );
-
-        file_put_contents($this->projectDir . '/.env', $envFile);
+        file_put_contents($this->projectDir . '/.env.local', implode("\n", $newEnv));
 
         $htaccessPath = $this->projectDir . '/public/.htaccess';
 
@@ -93,19 +118,5 @@ MAILER_URL=null://localhost
                 chmod($htaccessPath, $perms | 0644);
             }
         }
-    }
-
-    /**
-     * @param array<string, string|int> $keyValuePairs
-     */
-    private function toEnv(array $keyValuePairs): string
-    {
-        $lines = [];
-
-        foreach ($keyValuePairs as $key => $value) {
-            $lines[] = $key . '="' . $value . '"';
-        }
-
-        return implode(\PHP_EOL, $lines);
     }
 }

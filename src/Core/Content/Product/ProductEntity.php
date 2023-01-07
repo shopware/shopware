@@ -19,8 +19,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
-use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
-use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
@@ -38,6 +36,9 @@ use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
 
+/**
+ * @package inventory
+ */
 class ProductEntity extends Entity
 {
     use EntityIdTrait;
@@ -320,16 +321,6 @@ class ProductEntity extends Entity
     protected $prices;
 
     /**
-     * The container will be resolved on product.loaded event and
-     * the detected cheapest price will be set for the current context rules
-     *
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     *
-     * @var CheapestPrice|CheapestPriceContainer|null
-     */
-    protected $cheapestPrice;
-
-    /**
      * @var ProductMediaEntity|null
      */
     protected $cover;
@@ -508,13 +499,6 @@ class ProductEntity extends Entity
      * @var ProductEntity|null
      */
     protected $canonicalProduct;
-
-    /**
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     *
-     * @var CheapestPriceContainer|null
-     */
-    protected $cheapestPriceContainer;
 
     /**
      * @var ProductStreamCollection|null
@@ -1557,40 +1541,6 @@ class ProductEntity extends Entity
     public function setCanonicalProduct(ProductEntity $product): void
     {
         $this->canonicalProduct = $product;
-    }
-
-    /**
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     *
-     * @return CheapestPrice|CheapestPriceContainer|null
-     */
-    public function getCheapestPrice()
-    {
-        return $this->cheapestPrice;
-    }
-
-    /**
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     */
-    public function setCheapestPrice(?CheapestPrice $cheapestPrice): void
-    {
-        $this->cheapestPrice = $cheapestPrice;
-    }
-
-    /**
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     */
-    public function setCheapestPriceContainer(CheapestPriceContainer $container): void
-    {
-        $this->cheapestPriceContainer = $container;
-    }
-
-    /**
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     */
-    public function getCheapestPriceContainer(): ?CheapestPriceContainer
-    {
-        return $this->cheapestPriceContainer;
     }
 
     public function getStreams(): ?ProductStreamCollection

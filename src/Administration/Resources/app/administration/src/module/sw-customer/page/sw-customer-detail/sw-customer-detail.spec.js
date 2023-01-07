@@ -1,0 +1,204 @@
+import { shallowMount } from '@vue/test-utils';
+import swCustomerDetail from 'src/module/sw-customer/page/sw-customer-detail';
+import 'src/app/component/base/sw-button';
+import 'src/app/component/form/sw-custom-field-set-renderer';
+import 'src/app/component/form/sw-form-field-renderer';
+import 'src/app/component/utils/sw-inherit-wrapper';
+import 'src/app/component/base/sw-button-process';
+
+/**
+ * @package customer-order
+ */
+
+Shopware.Component.register('sw-customer-detail', swCustomerDetail);
+
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-customer-detail'), {
+        mocks: {
+            $route: {
+                query: {
+                    edit: false,
+                    page: 1,
+                    limit: 25
+                }
+            }
+        },
+        provide: { repositoryFactory: {
+            create: () => {
+                return {
+                    get: () => Promise.resolve({
+                        id: 'test',
+                        requestedGroup: {
+                            translated: {
+                                name: 'Test'
+                            }
+                        }
+                    })
+                };
+            }
+        },
+        acl: {
+            can: (identifier) => {
+                if (!identifier) { return true; }
+
+                return privileges.includes(identifier);
+            }
+        },
+        customerGroupRegistrationService: {
+            accept: jest.fn().mockResolvedValue(true),
+            decline: jest.fn().mockResolvedValue(true)
+        },
+        customerValidationService: {},
+        systemConfigApiService: {
+            getValues: () => Promise.resolve([])
+        } },
+        propsData: {
+            customerEditMode: false,
+            customerId: 'test',
+            customer: {}
+        },
+        stubs: {
+            'sw-page': {
+                template: `
+                    <div class="sw-page">
+                        <slot name="smart-bar-actions"></slot>
+                        <slot name="content">CONTENT</slot>
+                        <slot></slot>
+                    </div>`
+            },
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-button-process': await Shopware.Component.build('sw-button-process'),
+            'sw-language-switch': true,
+            'sw-card-view': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-card': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-container': true,
+            'sw-field': true,
+            'sw-language-info': true,
+            'sw-tabs': {
+                template: '<div><slot name="content"></slot></div>'
+            },
+            'sw-tabs-item': true,
+            'router-view': true,
+            'sw-alert': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-customer-card': {
+                template: '<div></div>'
+            },
+            'sw-custom-field-set-renderer': await Shopware.Component.build('sw-custom-field-set-renderer'),
+            'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
+            'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
+            'sw-skeleton': true,
+        }
+    });
+}
+
+describe('module/sw-customer/page/sw-customer-detail', () => {
+    let wrapper;
+
+    beforeAll(() => {
+        global.console.warn = jest.fn();
+    });
+
+    beforeEach(async () => {
+        wrapper = await createWrapper();
+    });
+
+    afterEach(() => {
+        wrapper.destroy();
+    });
+
+    it('should be a Vue.JS component', async () => {
+        expect(wrapper.vm).toBeTruthy();
+    });
+
+    it('should not be able to edit the customer', async () => {
+        await wrapper.destroy();
+
+        const wrapperWithPrivileges = await createWrapper();
+        await wrapperWithPrivileges.setData({
+            isLoading: false
+        });
+
+        await wrapperWithPrivileges.vm.$nextTick();
+
+        const saveButton = wrapperWithPrivileges.find('.sw-customer-detail__open-edit-mode-action');
+
+        expect(saveButton.attributes()['is-loading']).toBeFalsy();
+        expect(saveButton.attributes().disabled).toBeTruthy();
+
+        wrapperWithPrivileges.destroy();
+    });
+
+    it('should be able to edit the customer', async () => {
+        await wrapper.destroy();
+
+        const wrapperWithPrivileges = await createWrapper([
+            'customer.editor'
+        ]);
+        await wrapperWithPrivileges.setData({
+            isLoading: false
+        });
+        await wrapperWithPrivileges.vm.$nextTick();
+
+        const saveButton = wrapperWithPrivileges.find('.sw-customer-detail__open-edit-mode-action');
+
+        expect(saveButton.attributes().disabled).toBeFalsy();
+
+        wrapperWithPrivileges.destroy();
+    });
+
+    it('should accept customer registration button called', async () => {
+        expect(wrapper.vm.customerGroupRegistrationService.decline).not.toHaveBeenCalled();
+        expect(wrapper.vm.customerGroupRegistrationService.accept).not.toHaveBeenCalled();
+
+        const button = wrapper.find('.sw-customer-detail__customer-registration-alert button:last-child');
+        await button.trigger('click');
+
+        expect(wrapper.vm.customerGroupRegistrationService.accept).toHaveBeenCalled();
+    });
+
+    it('should decline customer registration button called', async () => {
+        expect(wrapper.vm.customerGroupRegistrationService.decline).not.toHaveBeenCalled();
+        expect(wrapper.vm.customerGroupRegistrationService.accept).not.toHaveBeenCalled();
+
+        const button = wrapper.find('.sw-customer-detail__customer-registration-alert button:first-child');
+        await button.trigger('click');
+
+        expect(wrapper.vm.customerGroupRegistrationService.decline).toHaveBeenCalled();
+    });
+
+    it('should have company validation when customer type is commercial', async () => {
+        await wrapper.destroy();
+
+        const wrapperWithPrivileges = await createWrapper([
+            'customer.editor'
+        ]);
+
+        wrapperWithPrivileges.vm.createNotificationError = jest.fn();
+        const notificationMock = wrapperWithPrivileges.vm.createNotificationError;
+        wrapperWithPrivileges.vm.$route.query = { edit: true };
+        await wrapperWithPrivileges.vm.$nextTick();
+
+        await wrapperWithPrivileges.setData({
+            customer: {
+                id: '1',
+                accountType: 'business',
+                company: ''
+            },
+        });
+        const saveButton = wrapperWithPrivileges.find('.sw-customer-detail__save-action');
+        await saveButton.trigger('click');
+
+        expect(notificationMock).toBeCalledTimes(1);
+        expect(notificationMock).toHaveBeenCalledWith({
+            message: 'sw-customer.error.COMPANY_IS_REQUIRED'
+        });
+
+        wrapperWithPrivileges.vm.createNotificationError.mockRestore();
+    });
+});

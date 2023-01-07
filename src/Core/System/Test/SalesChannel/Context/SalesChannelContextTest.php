@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Test\SalesChannel\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -23,6 +23,8 @@ use Shopware\Core\System\Tax\TaxRuleType\ZipCodeRuleTypeFilter;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  */
 class SalesChannelContextTest extends TestCase
@@ -717,7 +719,7 @@ class SalesChannelContextTest extends TestCase
      */
     protected function getValidCountryIds(int $limit): array
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('country.repository');
 
         $criteria = (new Criteria())->setLimit($limit)->addFilter(new EqualsFilter('taxFree', 0));
@@ -730,7 +732,7 @@ class SalesChannelContextTest extends TestCase
 
     protected function createCountryState(string $countryId): string
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('country_state.repository');
         $id = Uuid::randomHex();
 

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Dotenv\Dotenv;
@@ -18,6 +18,9 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use function is_dir;
 use function is_file;
 
+/**
+ * @package core
+ */
 class TestBootstrapper
 {
     private ?ClassLoader $classLoader = null;
@@ -87,6 +90,9 @@ class TestBootstrapper
         return $this;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement - reason:remove-command
+     */
     public function setBypassFinals(bool $bypassFinals): TestBootstrapper
     {
         $this->bypassFinals = $bypassFinals;
@@ -275,7 +281,7 @@ class TestBootstrapper
             return $this->output;
         }
 
-        return $this->output = new NullOutput();
+        return $this->output = new ConsoleOutput();
     }
 
     public function setOutput(?OutputInterface $output): TestBootstrapper
@@ -315,7 +321,7 @@ class TestBootstrapper
     {
         try {
             $connection = $this->getContainer()->get(Connection::class);
-            $connection->executeQuery('SELECT 1 FROM `plugin`')->fetchAll();
+            $connection->executeQuery('SELECT 1 FROM `plugin`')->fetchAllAssociative();
 
             return true;
         } catch (\Throwable $exists) {
@@ -370,6 +376,7 @@ class TestBootstrapper
 
         $application = new Application($kernel);
         $installCommand = $application->find('plugin:install');
+        $definition = $installCommand->getDefinition();
 
         foreach ($this->activePlugins as $activePlugin) {
             $args = [
@@ -379,7 +386,7 @@ class TestBootstrapper
             ];
 
             $returnCode = $installCommand->run(
-                new ArrayInput($args, $installCommand->getDefinition()),
+                new ArrayInput($args, $definition),
                 $this->getOutput()
             );
 

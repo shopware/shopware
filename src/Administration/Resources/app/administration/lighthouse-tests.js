@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 /* eslint-disable no-console */
 const fse = require('fs-extra');
 const path = require('path');

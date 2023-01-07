@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class FakeLineItemGroupSorter implements LineItemGroupSorterInterface

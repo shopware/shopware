@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Migration\MigrationSource;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @package administration
+ */
 class AdministrationMigrationCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
@@ -16,7 +19,14 @@ class AdministrationMigrationCompilerPass implements CompilerPassInterface
         $migrationSourceV4 = $container->getDefinition(MigrationSource::class . '.core.V6_4');
         $migrationSourceV4->addMethodCall('addDirectory', [$migrationPath . '/V6_4', 'Shopware\Administration\Migration\V6_4']);
 
-        // we've moved the migrations from Shopware\Administration\Migration to Shopware\Administration\Migration\v6_4
-        $migrationSourceV4->addMethodCall('addReplacementPattern', ['#^(Shopware\\\\Administration\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2']);
+        $majors = ['6_5', '6_6'];
+        foreach ($majors as $major) {
+            $migrationPathV5 = $migrationPath . '/' . $major;
+
+            if (\is_dir($migrationPathV5)) {
+                $migrationSource = $container->getDefinition(MigrationSource::class . '.core.V' . $major);
+                $migrationSource->addMethodCall('addDirectory', [$migrationPathV5, 'Shopware\Administration\Migration\V' . $major]);
+            }
+        }
     }
 }

@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+/**
+ * @package core
+ */
 class InvalidateCacheTask extends ScheduledTask
 {
     public static function getTaskName(): string

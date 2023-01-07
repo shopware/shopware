@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Test;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class TestDataCollection extends IdsCollection

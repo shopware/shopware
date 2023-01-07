@@ -25,6 +25,9 @@ use Twig\Environment;
 use Twig\Error\SyntaxError;
 use Twig\Loader\ArrayLoader;
 
+/**
+ * @package sales-channel
+ */
 class SeoUrlGenerator
 {
     public const ESCAPE_SLUGIFY = 'slugifyurlencode';
@@ -57,13 +60,11 @@ class SeoUrlGenerator
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_13410) Parameter $salesChannel will be required
-     *
      * @param array<string|array<string, string>> $ids
      *
      * @return iterable<SeoUrlEntity>
      */
-    public function generate(array $ids, string $template, SeoUrlRouteInterface $route, Context $context, ?SalesChannelEntity $salesChannel): iterable
+    public function generate(array $ids, string $template, SeoUrlRouteInterface $route, Context $context, SalesChannelEntity $salesChannel): iterable
     {
         $criteria = new Criteria($ids);
         $route->prepareCriteria($criteria, $salesChannel);
@@ -90,13 +91,11 @@ class SeoUrlGenerator
     }
 
     /**
-     * @internal (flag:FEATURE_NEXT_13410) Parameter $salesChannel will be required
-     *
      * @param EntityCollection<Entity> $entities
      *
      * @return iterable<SeoUrlEntity>
      */
-    private function generateUrls(SeoUrlRouteInterface $seoUrlRoute, SeoUrlRouteConfig $config, ?SalesChannelEntity $salesChannel, EntityCollection $entities): iterable
+    private function generateUrls(SeoUrlRouteInterface $seoUrlRoute, SeoUrlRouteConfig $config, SalesChannelEntity $salesChannel, EntityCollection $entities): iterable
     {
         $request = $this->requestStack->getMainRequest();
 
@@ -128,12 +127,7 @@ class SeoUrlGenerator
             }
 
             $copy->setSeoPathInfo($seoPathInfo);
-
-            if ($salesChannel !== null) {
-                $copy->setSalesChannelId($salesChannel->getId());
-            } else {
-                $copy->setSalesChannelId(null);
-            }
+            $copy->setSalesChannelId($salesChannel->getId());
 
             yield $copy;
         }
@@ -154,7 +148,7 @@ class SeoUrlGenerator
 
     private function setTwigTemplate(SeoUrlRouteConfig $config, string $template): void
     {
-        $template = "{% autoescape '" . self::ESCAPE_SLUGIFY . "' %}$template{% endautoescape %}";
+        $template = '{% autoescape \'' . self::ESCAPE_SLUGIFY . "' %}$template{% endautoescape %}";
         $this->twig->setLoader(new ArrayLoader(['template' => $template]));
 
         try {

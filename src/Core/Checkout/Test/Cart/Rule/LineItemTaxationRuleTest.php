@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @group rules
  */
@@ -65,6 +67,9 @@ class LineItemTaxationRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return array<string, array<array<string>|string|bool>>
+     */
     public function getLineItemScopeTestData(): array
     {
         return [
@@ -104,6 +109,9 @@ class LineItemTaxationRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return array<string, array<array<string>|string|bool>>
+     */
     public function getCartRuleScopeTestData(): array
     {
         return [

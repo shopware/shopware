@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
@@ -23,6 +23,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class PaymentMethodRuleTest extends TestCase
@@ -30,9 +32,9 @@ class PaymentMethodRuleTest extends TestCase
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    private EntityRepositoryInterface $ruleRepository;
+    private EntityRepository $ruleRepository;
 
-    private EntityRepositoryInterface $conditionRepository;
+    private EntityRepository $conditionRepository;
 
     private Context $context;
 
@@ -226,6 +228,9 @@ class PaymentMethodRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
+    /**
+     * @return array<array<string|bool|array<string, string|array<string>>>>
+     */
     public function matchDataProvider(): array
     {
         return [
@@ -290,6 +295,8 @@ class PaymentMethodRuleTest extends TestCase
 
     /**
      * @dataProvider matchDataProvider
+     *
+     * @param array<string, string|array<string>> $ruleProperties
      */
     public function testMatch(array $ruleProperties, string $paymentMethodId, bool $expected): void
     {

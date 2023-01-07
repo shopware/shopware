@@ -18,7 +18,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package sales-channel
+ *
+ * @internal
  */
 class SeoUrlUpdateListener implements EventSubscriberInterface
 {
@@ -121,7 +123,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
 
         $query->setParameter('type', CategoryDefinition::TYPE_LINK);
 
-        $children = $query->execute()->fetchFirstColumn();
+        $children = $query->executeQuery()->fetchFirstColumn();
 
         if (!$children) {
             return [];

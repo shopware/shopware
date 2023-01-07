@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 class StoreHandshake implements AppHandshakeInterface
 {
@@ -49,7 +51,7 @@ class StoreHandshake implements AppHandshakeInterface
         $uri = Uri::withQueryValues($uri, [
             'shop-id' => $this->shopId,
             'shop-url' => $this->shopUrl,
-            'timestamp' => $date->getTimestamp(),
+            'timestamp' => (string) $date->getTimestamp(),
         ]);
 
         $signature = $this->signPayload($uri->getQuery());

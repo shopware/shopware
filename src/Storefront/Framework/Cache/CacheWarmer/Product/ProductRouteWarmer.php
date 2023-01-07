@@ -8,6 +8,9 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer;
 use Shopware\Storefront\Framework\Cache\CacheWarmer\WarmUpMessage;
 
+/**
+ * @package storefront
+ */
 class ProductRouteWarmer implements CacheRouteWarmer
 {
     /**

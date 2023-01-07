@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Error\LoaderError;
@@ -31,7 +31,7 @@ class EntityTemplateLoaderTest extends TestCase
         {% endblock %}
     ';
 
-    private EntityRepositoryInterface $templateRepository;
+    private EntityRepository $templateRepository;
 
     private EntityTemplateLoader $templateLoader;
 

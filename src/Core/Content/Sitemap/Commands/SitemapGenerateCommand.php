@@ -7,7 +7,7 @@ use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -16,17 +16,23 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package sales-channel
+ */
+#[AsCommand(
+    name: 'sitemap:generate',
+    description: 'Generates sitemap files',
+)]
 class SitemapGenerateCommand extends Command
 {
-    public static $defaultName = 'sitemap:generate';
-
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     private SitemapExporterInterface $sitemapExporter;
 
@@ -38,7 +44,7 @@ class SitemapGenerateCommand extends Command
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $salesChannelRepository,
+        EntityRepository $salesChannelRepository,
         SitemapExporterInterface $sitemapExporter,
         AbstractSalesChannelContextFactory $salesChannelContextFactory,
         EventDispatcherInterface $eventDispatcher

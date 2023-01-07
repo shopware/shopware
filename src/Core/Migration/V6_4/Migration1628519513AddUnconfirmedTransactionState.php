@@ -8,6 +8,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1628519513AddUnconfirmedTransactionState extends MigrationStep
 {
     public function getCreationTimestamp(): int

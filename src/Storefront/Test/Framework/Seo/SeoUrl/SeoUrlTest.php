@@ -12,7 +12,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -35,17 +35,17 @@ class SeoUrlTest extends TestCase
     use QueueTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $seoUrlTemplateRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $landingPageRepository;
 
@@ -381,7 +381,7 @@ class SeoUrlTest extends TestCase
 
     public function testSearchWithLimit(): void
     {
-        /** @var EntityRepositoryInterface $productRepo */
+        /** @var EntityRepository $productRepo */
         $productRepo = $this->getContainer()->get('product.repository');
 
         $productRepo->create([[
@@ -411,7 +411,7 @@ class SeoUrlTest extends TestCase
 
     public function testSearchWithFilter(): void
     {
-        /** @var EntityRepositoryInterface $productRepo */
+        /** @var EntityRepository $productRepo */
         $productRepo = $this->getContainer()->get('product.repository');
 
         $productRepo->create([[
@@ -553,7 +553,7 @@ class SeoUrlTest extends TestCase
         static::assertEquals($id, $seoUrl->getForeignKey());
     }
 
-    private function runChecks(array $cases, EntityRepositoryInterface $categoryRepository, Context $context, string $salesChannelId): void
+    private function runChecks(array $cases, EntityRepository $categoryRepository, Context $context, string $salesChannelId): void
     {
         foreach ($cases as $case) {
             $criteria = new Criteria([$case['categoryId']]);

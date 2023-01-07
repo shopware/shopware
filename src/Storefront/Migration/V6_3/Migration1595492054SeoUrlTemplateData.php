@@ -9,6 +9,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1595492054SeoUrlTemplateData extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,12 +24,12 @@ class Migration1595492054SeoUrlTemplateData extends MigrationStep
     public function update(Connection $connection): void
     {
         $stmt = $connection->prepare('SELECT count(`id`) FROM seo_url_template WHERE `entity_name` = ? AND `route_name` = ?');
-        $stmt->execute([
+        $result = $stmt->executeQuery([
             'product',
             ProductPageSeoUrlRoute::ROUTE_NAME,
         ]);
 
-        if ((int) $stmt->fetch(\PDO::FETCH_COLUMN) === 0) {
+        if ((int) $result->fetchOne() === 0) {
             $connection->insert('seo_url_template', [
                 'id' => Uuid::randomBytes(),
                 'sales_channel_id' => null,
@@ -35,12 +40,12 @@ class Migration1595492054SeoUrlTemplateData extends MigrationStep
             ]);
         }
 
-        $stmt->execute([
+        $result = $stmt->executeQuery([
             'category',
             NavigationPageSeoUrlRoute::ROUTE_NAME,
         ]);
 
-        if ((int) $stmt->fetch(\PDO::FETCH_COLUMN) === 0) {
+        if ((int) $result->fetchOne() === 0) {
             $connection->insert('seo_url_template', [
                 'id' => Uuid::randomBytes(),
                 'sales_channel_id' => null,

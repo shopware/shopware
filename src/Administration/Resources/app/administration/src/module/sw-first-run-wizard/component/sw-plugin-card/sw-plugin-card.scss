@@ -12,22 +12,22 @@
     }
 
     &__label {
-        font-size: 18px;
-        font-weight: 600;
+        font-size: $font-size-m;
+        font-weight: $font-weight-semi-bold;
         letter-spacing: 0.41px;
         line-height: 25px;
     }
 
     &__manufacturer {
         color: $color-gray-500;
-        font-size: 12px;
+        font-size: $font-size-xxs;
         font-weight: normal;
         letter-spacing: 0;
         line-height: 19px;
     }
 
     &__short-description {
-        font-size: 12px;
+        font-size: $font-size-xxs;
         font-weight: normal;
         letter-spacing: 0;
         line-height: 19px;
@@ -44,8 +44,8 @@
 
     .button-plugin-install {
         height: 32px;
-        font-size: 12px;
-        font-weight: 600;
+        font-size: $font-size-xxs;
+        font-weight: $font-weight-semi-bold;
         text-align: center;
         letter-spacing: 0;
         line-height: 19px !important;
@@ -54,7 +54,7 @@
     .plugin-installed {
         height: 23px;
         color: $color-emerald-500;
-        font-size: 14px;
+        font-size: $font-size-xs;
         font-weight: normal;
         letter-spacing: 0.1px;
         line-height: 22px;

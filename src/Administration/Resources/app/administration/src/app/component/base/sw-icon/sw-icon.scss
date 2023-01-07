@@ -1,9 +1,6 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-// @deprecated tag:v6.5.0 - styling will be imported
-// @import "@shopware-ag/meteor-icon-kit/icons/meteor-icon-kit";
-
 .sw-icon {
     @include size(24px);
 

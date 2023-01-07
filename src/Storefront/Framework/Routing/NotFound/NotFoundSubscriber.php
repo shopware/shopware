@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Framework\Routing\NotFound;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -27,7 +26,9 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
+ *
+ * @package storefront
  */
 class NotFoundSubscriber implements EventSubscriberInterface
 {
@@ -84,16 +85,10 @@ class NotFoundSubscriber implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-        if (Feature::isActive('v6.5.0.0')) {
-            return [
-                KernelEvents::EXCEPTION => [
-                    ['onError', -100],
-                ],
-                SystemConfigChangedEvent::class => 'onSystemConfigChanged',
-            ];
-        }
-
         return [
+            KernelEvents::EXCEPTION => [
+                ['onError', -100],
+            ],
             SystemConfigChangedEvent::class => 'onSystemConfigChanged',
         ];
     }
@@ -101,7 +96,7 @@ class NotFoundSubscriber implements EventSubscriberInterface
     public function onError(ExceptionEvent $event): void
     {
         $request = $event->getRequest();
-        if ($this->kernelDebug || $request->attributes->has(SalesChannelRequest::ATTRIBUTE_STORE_API_PROXY)) {
+        if ($this->kernelDebug) {
             return;
         }
 
@@ -168,10 +163,7 @@ class NotFoundSubscriber implements EventSubscriberInterface
         $this->cacheInvalidator->invalidate([self::ALL_TAG]);
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - reason:visibility-change - method will become private in v6.5.0
-     */
-    public static function buildName(string $salesChannelId, string $domainId, string $languageId): string
+    private static function buildName(string $salesChannelId, string $domainId, string $languageId): string
     {
         return 'error-page-' . $salesChannelId . $domainId . $languageId;
     }

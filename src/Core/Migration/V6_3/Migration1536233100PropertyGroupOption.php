@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1536233100PropertyGroupOption extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +19,7 @@ class Migration1536233100PropertyGroupOption extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `property_group_option` (
               `id` BINARY(16) NOT NULL,
               `property_group_id` BINARY(16) NOT NULL,
@@ -30,7 +35,7 @@ class Migration1536233100PropertyGroupOption extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `property_group_option_translation` (
               `property_group_option_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,

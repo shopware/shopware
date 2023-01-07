@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 
 import MediaPageObject from '../../../../support/pages/module/sw-media.page-object';
@@ -93,8 +96,9 @@ describe('Media: Test crud operations of folders', () => {
 
         page.openChildConfiguration('new child');
 
+
         // Uncheck use of inherited parent configuration
-        cy.get('[name="sw-field--folder-useParentConfiguration"]').should('be.checked').click();
+        cy.get('[name="sw-field--mediaFolder-useParentConfiguration"]').should('be.checked').click();
         // Uncheck keep aspect ratio & check 800x800 thumbnails as test metric
         cy.get('[name="sw-field--configuration-keepAspectRatio"]').should('be.checked').click();
         cy.get('[name="thumbnail-size-800-800-active"]').should('not.be.checked').click();
@@ -117,7 +121,7 @@ describe('Media: Test crud operations of folders', () => {
         cy.get('[name="sw-field--configuration-keepAspectRatio"]').should('not.be.checked');
         cy.get('[name="thumbnail-size-800-800-active"]').should('be.checked').click();
         // Test that use of parent configuration is disabled and enable it again
-        cy.get('[name="sw-field--folder-useParentConfiguration"]').should('not.be.checked').click();
+        cy.get('[name="sw-field--mediaFolder-useParentConfiguration"]').should('not.be.checked').click();
         // save
         cy.get('.sw-media-modal-folder-settings__confirm').click();
 
@@ -127,7 +131,7 @@ describe('Media: Test crud operations of folders', () => {
         page.openChildConfiguration('new child');
 
         // Test that child configuration has been inherited again
-        cy.get('[name="sw-field--folder-useParentConfiguration"]').should('be.checked');
+        cy.get('[name="sw-field--mediaFolder-useParentConfiguration"]').should('be.checked');
         // Test that keep aspect ratio is checked & 800x800 thumbnails unchecked again
         cy.get('[name="sw-field--configuration-keepAspectRatio"]').should('be.checked');
         cy.get('[name="thumbnail-size-800-800-active"]').should('not.be.checked');

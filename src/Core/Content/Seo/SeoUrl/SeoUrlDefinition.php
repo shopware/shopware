@@ -17,6 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package sales-channel
+ */
 class SeoUrlDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'seo_url';

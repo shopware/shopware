@@ -7,10 +7,7 @@
         <parameter key="env(INSTANCE_ID)"/>
         <parameter key="instance_id">%env(INSTANCE_ID)%</parameter>
         <parameter key="shopware.store_endpoints" type="collection">
-            <parameter key="ping">/ping</parameter>
             <parameter key="my_extensions">/swplatform/licenseenvironment</parameter>
-            <parameter key="my_licenses">/swplatform/licenses</parameter><!-- TODO @deprecated tag:v6.5.0 Unused parameter will be removed -->
-            <parameter key="my_plugin_licenses">/swplatform/pluginlicenses</parameter>
             <parameter key="my_plugin_updates">/swplatform/pluginupdates</parameter>
             <parameter key="environment_information">/swplatform/environmentinformation</parameter>
             <parameter key="updater_extension_compatibility">/swplatform/autoupdate</parameter>
@@ -26,8 +23,6 @@
     <services>
         <service id="Shopware\Core\Framework\Store\Api\StoreController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient" />
-            <argument type="service" id="plugin.repository" />
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService" />
             <argument type="service" id="user.repository" />
             <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider" />
             <call method="setContainer">
@@ -36,17 +31,27 @@
         </service>
 
         <service id="Shopware\Core\Framework\Store\Api\FirstRunWizardController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardService"/>
             <argument type="service" id="plugin.repository" />
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
 
+        <service id="Shopware\Core\Framework\Store\Services\FirstRunWizardService">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="shopware.filesystem.public"/>
+            <argument>%shopware.store.frw%</argument>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient"/>
+            <argument type="service" id="user_config.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\TrackingEventClient"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Store\Services\StoreClient">
             <argument>%shopware.store_endpoints%</argument>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService" />
-            <argument type="service" id="plugin.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider" />
             <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLoader" />
@@ -55,21 +60,14 @@
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient">
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="shopware.filesystem.public"/>
-            <argument>%shopware.store.frw%</argument>
-            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="shopware.store_client"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
-            <argument type="service" id="user_config.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\StoreService" lazy="true">
-            <argument type="service" id="shopware.store_client"/>
             <argument type="service" id="user.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\TrackingEventClient"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\InstanceService">
@@ -115,15 +113,11 @@
             <argument type="service" id="user_config.repository"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider" class="Shopware\Core\Framework\Store\Authentication\AuthenticationProvider">
-            <argument type="service" id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Store\Services\ExtensionLoader">
             <argument type="service" id="theme.repository" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Authentication\LocaleProvider"/>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
         </service>
 
@@ -228,6 +222,11 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="shopware.store_client.middleware"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\TrackingEventClient">
+            <argument type="service" id="shopware.store_client"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
         </service>
     </services>
 </container>

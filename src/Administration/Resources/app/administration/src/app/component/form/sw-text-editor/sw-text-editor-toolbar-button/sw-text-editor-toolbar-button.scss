@@ -35,11 +35,6 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 50%);
         .sw-icon {
             margin-left: 5px;
         }
-
-        .icon--regular-chevron-down.sw-icon {
-            // @deprecated tag:v6.5.0 - padding can be removed
-            padding: 0 !important;
-        }
     }
 }
 

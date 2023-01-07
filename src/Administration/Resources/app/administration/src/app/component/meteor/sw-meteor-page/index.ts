@@ -12,6 +12,8 @@ type ComponentData = {
 }
 
 /**
+ * @package admin
+ *
  * @private
  */
 Component.register('sw-meteor-page', {
@@ -89,14 +91,12 @@ Component.register('sw-meteor-page', {
         },
 
         initPage(): void {
-            /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-            // ts-expect-error
-            if (typeof this.$route.meta.$module !== 'undefined') {
+            if (typeof this.$route?.meta?.$module !== 'undefined') {
                 this.module = this.$route.meta.$module as ModuleManifest|null;
             }
 
-            if (typeof this.$route.meta.parentPath === 'string') {
-                this.parentRoute = this.$route.meta.parentPath as string;
+            if (typeof this.$route?.meta?.parentPath === 'string') {
+                this.parentRoute = this.$route.meta.parentPath;
             }
         },
     },

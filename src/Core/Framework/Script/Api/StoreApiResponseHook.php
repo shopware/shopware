@@ -20,6 +20,8 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
  * @hook-use-case custom_endpoint
  *
  * @since 6.4.9.0
+ *
+ * @package core
  */
 class StoreApiResponseHook extends FunctionHook implements SalesChannelContextAware, StoppableHook
 {

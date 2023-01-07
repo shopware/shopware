@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable;
 
+/**
+ * @package core
+ */
 class HookableBusinessEvent implements Hookable
 {
     private FlowEventAware $flowEventAware;

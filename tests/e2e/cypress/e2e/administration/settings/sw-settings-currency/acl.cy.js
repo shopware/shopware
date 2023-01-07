@@ -27,6 +27,8 @@ describe('Currency: Test acl privileges', () => {
             cy.get('.sw-loader').should('not.exist');
         });
 
+        cy.get('.sw-settings-currency-list-grid').should('be.visible');
+
         // click on first element in grid
         cy.get(`${page.elements.dataGridRow}--2`)
             .contains('Euro')
@@ -56,6 +58,8 @@ describe('Currency: Test acl privileges', () => {
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
+
+        cy.get('.sw-settings-currency-list-grid').should('be.visible');
 
         // Request we want to wait for later
         cy.intercept({
@@ -106,6 +110,8 @@ describe('Currency: Test acl privileges', () => {
             cy.get('.sw-loader').should('not.exist');
         });
 
+        cy.get('.sw-settings-currency-list-grid').should('be.visible');
+
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/currency`,
@@ -147,6 +153,8 @@ describe('Currency: Test acl privileges', () => {
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
+
+        cy.get('.sw-settings-currency-list-grid').should('be.visible');
 
         // Request we want to wait for later
         cy.intercept({

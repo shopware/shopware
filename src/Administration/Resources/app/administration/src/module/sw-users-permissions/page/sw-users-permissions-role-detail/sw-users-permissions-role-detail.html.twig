@@ -63,7 +63,7 @@
                 default-item="general"
                 position-identifier="sw-users-permissions-role-detail-content"
             >
-                <template slot-scope="{ active }">
+                <template #default="{ active }">
                     <sw-tabs-item
                         :route="{ name: 'sw.users.permissions.role.detail.general', params: { id: $route.params.id } }"
                         :title="$tc('sw-users-permissions.roles.tabs.general')"

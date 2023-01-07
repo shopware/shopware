@@ -10,6 +10,11 @@ use Shopware\Core\Migration\Traits\StateMachineMigration;
 use Shopware\Core\Migration\Traits\StateMachineMigrationTrait;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1643878976AddCaptureRefundStateMachines extends MigrationStep
 {
     use StateMachineMigrationTrait;

@@ -7,6 +7,8 @@ use Shopware\Core\Content\Sitemap\ConfigHandler\File;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  */
 class FileTest extends TestCase

@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerGroupCustomFieldAction;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
@@ -16,6 +15,8 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class SetCustomerGroupCustomFieldActionTest extends TestCase
@@ -24,15 +25,11 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
     use CacheTestBehaviour;
     use AdminApiTestBehaviour;
 
-    private EntityRepositoryInterface $flowRepository;
-
-    private Connection $connection;
+    private EntityRepository $flowRepository;
 
     protected function setUp(): void
     {
         $this->flowRepository = $this->getContainer()->get('flow.repository');
-
-        $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
@@ -41,9 +38,6 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
-
-        // all business event should be inactive.
-        $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
     /**

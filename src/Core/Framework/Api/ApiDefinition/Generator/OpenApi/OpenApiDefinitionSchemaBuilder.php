@@ -36,6 +36,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ */
 class OpenApiDefinitionSchemaBuilder
 {
     /**
@@ -116,11 +119,6 @@ class OpenApiDefinitionSchemaBuilder
         $extensionAttributes = $this->getExtensions($extensions, $exampleDetailPath);
 
         if (!empty($extensionAttributes)) {
-            $attributes['extensions'] = new Property([
-                'type' => 'object',
-                'properties' => $extensionAttributes,
-            ]);
-
             foreach ($extensions as $extension) {
                 if (!$extension instanceof AssociationField) {
                     continue;
@@ -128,6 +126,12 @@ class OpenApiDefinitionSchemaBuilder
 
                 $extensionRelationships[] = $extensionAttributes[$extension->getPropertyName()];
             }
+
+            $attributes[] = new Property([
+                'property' => 'extensions',
+                'type' => 'object',
+                'properties' => $extensionAttributes,
+            ]);
         }
 
         if ($definition->getTranslationDefinition()) {
@@ -173,12 +177,19 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         if (!empty($extensionRelationships)) {
-            $attributes['extensions'] = clone $attributes['extensions'];
+            $extensionRelationshipsProperty = new Property([
+                'property' => 'extensions',
+                'type' => 'object',
+                'properties' => $extensionAttributes,
+            ]);
+
             foreach ($extensionRelationships as $property => $relationship) {
                 $entity = $this->getRelationShipEntity($relationship);
                 $entityName = $this->snakeCaseToCamelCase($entity);
-                $attributes['extensions']->properties[$property] = new Property(['ref' => '#/components/schemas/' . $entityName]);
+                $extensionRelationshipsProperty->properties[$property] = new Property(['ref' => '#/components/schemas/' . $entityName]);
             }
+
+            $attributes[] = $extensionRelationshipsProperty;
         }
 
         // In some entities all fields are hidden, but not the id. This creates unwanted schemas. This removes it again

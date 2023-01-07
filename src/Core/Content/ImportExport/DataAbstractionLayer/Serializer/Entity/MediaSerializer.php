@@ -12,7 +12,7 @@ use Shopware\Core\Content\Media\MediaEvents;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -23,18 +23,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package core
+ *
+ * @internal
  */
 class MediaSerializer extends EntitySerializer implements EventSubscriberInterface, ResetInterface
 {
-    private FileSaver $fileSaver;
-
-    private MediaService $mediaService;
-
-    private EntityRepositoryInterface $mediaFolderRepository;
-
-    private EntityRepositoryInterface $mediaRepository;
-
     /**
      * @var array<string, array{media: MediaFile, destination: string}>
      */
@@ -44,15 +38,11 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
      * @internal
      */
     public function __construct(
-        MediaService $mediaService,
-        FileSaver $fileSaver,
-        EntityRepositoryInterface $mediaFolderRepository,
-        EntityRepositoryInterface $mediaRepository
+        private MediaService $mediaService,
+        private FileSaver $fileSaver,
+        private EntityRepository $mediaFolderRepository,
+        private EntityRepository $mediaRepository
     ) {
-        $this->mediaService = $mediaService;
-        $this->fileSaver = $fileSaver;
-        $this->mediaFolderRepository = $mediaFolderRepository;
-        $this->mediaRepository = $mediaRepository;
     }
 
     /**

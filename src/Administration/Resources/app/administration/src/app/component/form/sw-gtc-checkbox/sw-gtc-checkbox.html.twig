@@ -12,11 +12,10 @@
             {% block sw_gtc_checkbox_input_label %}
             {{ $tc('global.sw-gtc-checkbox.label') }}
 
-            {# @deprecated tag:v6.5.0 - CSS class "sw-gtc-checkbox__link" is deprecated, use "sw-external-link" instead #}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_gtc_checkbox_input_label_link %}
             <sw-external-link
-                class="sw-gtc-checkbox__link"
+                class="sw-external-link"
                 :href="$tc('global.sw-gtc-checkbox.url')"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -24,10 +23,6 @@
                 {{ $tc('global.sw-gtc-checkbox.link') }}
                 {% endblock %}
 
-                {# @deprecated tag:v6.5.0 - Block will be removed completely #}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_gtc_checkbox_input_label_link_icon %}
-                {% endblock %}
             </sw-external-link>
             {% endblock %}
             {% endblock %}

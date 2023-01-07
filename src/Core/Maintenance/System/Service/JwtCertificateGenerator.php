@@ -4,6 +4,9 @@ namespace Shopware\Core\Maintenance\System\Service;
 
 use Shopware\Core\Maintenance\System\Exception\JwtCertificateGenerationException;
 
+/**
+ * @package core
+ */
 class JwtCertificateGenerator
 {
     public function generate(string $privateKeyPath, string $publicKeyPath, ?string $passphrase = null): void

@@ -6,14 +6,16 @@ use Monolog\Logger;
 use Shopware\Core\Content\Flow\Dispatching\Aware\DataAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\TemplateDataAware;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Log\LogAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class MailBeforeValidateEvent extends Event implements BusinessEventInterface, LogAware, TemplateDataAware, DataAware
+/**
+ * @package sales-channel
+ */
+class MailBeforeValidateEvent extends Event implements LogAware, TemplateDataAware, DataAware
 {
     public const EVENT_NAME = 'mail.before.send';
 

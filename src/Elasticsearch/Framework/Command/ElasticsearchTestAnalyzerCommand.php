@@ -2,17 +2,23 @@
 
 namespace Shopware\Elasticsearch\Framework\Command;
 
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package core
+ */
+#[AsCommand(
+    name: 'es:test:analyzer',
+    description: 'Test the elasticsearch analyzer',
+)]
 class ElasticsearchTestAnalyzerCommand extends Command
 {
-    protected static $defaultName = 'es:test:analyzer';
-
     private Client $client;
 
     private ?ShopwareStyle $io;
@@ -49,7 +55,7 @@ class ElasticsearchTestAnalyzerCommand extends Command
             $rows[] = [$headline];
             $rows[] = ['###############'];
             foreach ($analyzers as $analyzer) {
-                /** @var array{'tokens': array} $analyzed */
+                /** @var array{'tokens': array{token: string}[]} $analyzed */
                 $analyzed = $this->client->indices()->analyze([
                     'body' => [
                         'analyzer' => $analyzer,
@@ -72,6 +78,9 @@ class ElasticsearchTestAnalyzerCommand extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * @return array<string, array<string>>
+     */
     protected function getAnalyzers(): array
     {
         return [

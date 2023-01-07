@@ -3,11 +3,11 @@
 namespace Shopware\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
-use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
-use ONGR\ElasticsearchDSL\Query\FullText\MatchPhrasePrefixQuery;
-use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
-use ONGR\ElasticsearchDSL\Query\Joining\NestedQuery;
-use ONGR\ElasticsearchDSL\Query\TermLevel\WildcardQuery;
+use OpenSearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\Query\FullText\MatchPhrasePrefixQuery;
+use OpenSearchDSL\Query\FullText\MatchQuery;
+use OpenSearchDSL\Query\Joining\NestedQuery;
+use OpenSearchDSL\Query\TermLevel\WildcardQuery;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package core
  * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: int}
  */
 class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder

@@ -7,17 +7,16 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEvent;
-use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\FlowLogEvent;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * @package business-ops
+ *
  * @internal not intended for decoration or replacement
  */
 class FlowDispatcher implements EventDispatcherInterface
@@ -57,36 +56,16 @@ class FlowDispatcher implements EventDispatcherInterface
             return $event;
         }
 
-        if (Feature::isActive('v6.5.0.0')) {
-            $flowLogEvent = new FlowLogEvent(FlowLogEvent::NAME, $event);
-            $this->dispatcher->dispatch($flowLogEvent, $flowLogEvent->getName());
-        }
+        $flowLogEvent = new FlowLogEvent(FlowLogEvent::NAME, $event);
+        $this->dispatcher->dispatch($flowLogEvent, $flowLogEvent->getName());
 
-        if (Feature::isActive('FEATURE_NEXT_17858')) {
-            if ($event instanceof FlowEvent) {
-                return $event;
-            }
-        } else {
-            if ($event instanceof BusinessEvent || $event instanceof FlowEvent) {
-                return $event;
-            }
-        }
-
-        if ($event instanceof StoppableEventInterface && $event->isPropagationStopped()) {
-            return $event;
-        }
-
-        if ($event->getContext()->hasState(Context::SKIP_TRIGGER_FLOW)) {
+        if (($event instanceof StoppableEventInterface && $event->isPropagationStopped())
+            || $event->getContext()->hasState(Context::SKIP_TRIGGER_FLOW)
+        ) {
             return $event;
         }
 
         $storableFlow = $this->flowFactory->create($event);
-
-        /** @deprecated tag:v6.5.0 Will be removed */
-        if (!Feature::isActive('v6.5.0.0')) {
-            $storableFlow->setOriginalEvent($event);
-        }
-
         $this->callFlowExecutor($storableFlow);
 
         return $event;
@@ -155,7 +134,7 @@ class FlowDispatcher implements EventDispatcherInterface
             throw new ServiceNotFoundException(FlowExecutor::class);
         }
 
-        foreach ($flows as $flowId => $flow) {
+        foreach ($flows as $flow) {
             try {
                 /** @var Flow $payload */
                 $payload = $flow['payload'];
@@ -164,7 +143,7 @@ class FlowDispatcher implements EventDispatcherInterface
                 $this->logger->error(
                     "Could not execute flow with error message:\n"
                     . 'Flow name: ' . $flow['name'] . "\n"
-                    . 'Flow id: ' . $flowId . "\n"
+                    . 'Flow id: ' . $flow['id'] . "\n"
                     . 'Sequence id: ' . $e->getSequenceId() . "\n"
                     . $e->getMessage() . "\n"
                     . 'Error Code: ' . $e->getCode() . "\n"
@@ -173,7 +152,7 @@ class FlowDispatcher implements EventDispatcherInterface
                 $this->logger->error(
                     "Could not execute flow with error message:\n"
                     . 'Flow name: ' . $flow['name'] . "\n"
-                    . 'Flow id: ' . $flowId . "\n"
+                    . 'Flow id: ' . $flow['id'] . "\n"
                     . $e->getMessage() . "\n"
                     . 'Error Code: ' . $e->getCode() . "\n"
                 );

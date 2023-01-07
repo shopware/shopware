@@ -6,6 +6,11 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1620634856UpdateRolePrivileges extends MigrationStep
 {
     public const NEW_PRIVILEGES = [
@@ -221,6 +226,11 @@ class Migration1620634856UpdateRolePrivileges extends MigrationStep
         // implement update destructive
     }
 
+    /**
+     * @param list<string> $rolePrivileges
+     *
+     * @return list<string>
+     */
     private function fixRolePrivileges(array $rolePrivileges): array
     {
         foreach (self::NEW_PRIVILEGES as $key => $new) {

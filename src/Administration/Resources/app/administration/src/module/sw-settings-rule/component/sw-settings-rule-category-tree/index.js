@@ -1,11 +1,13 @@
 import template from './sw-settings-rule-category-tree.html.twig';
 import './sw-settings-rule-category-tree.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-rule-category-tree', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -114,4 +116,4 @@ Component.register('sw-settings-rule-category-tree', {
             });
         },
     },
-});
+};

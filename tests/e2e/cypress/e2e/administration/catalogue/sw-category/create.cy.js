@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 
 import CategoryPageObject from '../../../../support/pages/module/sw-category.page-object';
@@ -88,12 +91,7 @@ describe('Category: Create several categories', () => {
             page.elements.contextMenuButton,
             `${page.elements.categoryTreeItemInner}:nth-of-type(1)`
         );
-        cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('Categorian');
-        cy.get(`${page.elements.categoryTreeItemInner}__content input`).then(($btn) => {
-            if ($btn) {
-                cy.get('.sw-category-tree__inner .sw-confirm-field__button--submit').click();
-            }
-        });
+        cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('Categorian{enter}');
 
         // Verify category
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);

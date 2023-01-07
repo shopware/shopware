@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Flow\Events;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
+/**
+ * @package business-ops
+ */
 class FlowIndexerEvent extends NestedEvent
 {
     private Context $context;

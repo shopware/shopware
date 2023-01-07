@@ -7,10 +7,10 @@ use Shopware\Core\Content\Product\Events\ProductListingRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +21,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
+ *
+ * @package inventory
  */
 class CachedProductListingRoute extends AbstractProductListingRoute
 {
@@ -35,6 +37,9 @@ class CachedProductListingRoute extends AbstractProductListingRoute
      */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @var array<string>
+     */
     private array $states;
 
     private EventDispatcherInterface $dispatcher;
@@ -43,6 +48,7 @@ class CachedProductListingRoute extends AbstractProductListingRoute
      * @internal
      *
      * @param AbstractCacheTracer<ProductListingRouteResponse> $tracer
+     * @param array<string> $states
      */
     public function __construct(
         AbstractProductListingRoute $decorated,
@@ -78,6 +84,10 @@ class CachedProductListingRoute extends AbstractProductListingRoute
 
         $key = $this->generateKey($categoryId, $request, $context, $criteria);
 
+        if ($key === null) {
+            return $this->getDecorated()->load($categoryId, $request, $context, $criteria);
+        }
+
         $value = $this->cache->get($key, function (ItemInterface $item) use ($categoryId, $request, $context, $criteria) {
             $name = self::buildName($categoryId);
 
@@ -98,19 +108,26 @@ class CachedProductListingRoute extends AbstractProductListingRoute
         return 'product-listing-route-' . $categoryId;
     }
 
-    private function generateKey(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): string
+    private function generateKey(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ?string
     {
         $parts = [
             $this->generator->getCriteriaHash($criteria),
-            $this->generator->getSalesChannelContextHash($context),
+            $this->generator->getSalesChannelContextHash($context, [RuleAreas::PRODUCT_AREA, RuleAreas::CATEGORY_AREA]),
         ];
 
         $event = new ProductListingRouteCacheKeyEvent($parts, $categoryId, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
+        if (!$event->shouldCache()) {
+            return null;
+        }
+
         return self::buildName($categoryId) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function generateTags(string $categoryId, Request $request, ProductListingRouteResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $streamId = $response->getResult()->getStreamId();

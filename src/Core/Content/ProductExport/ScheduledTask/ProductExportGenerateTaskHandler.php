@@ -5,63 +5,35 @@ namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
+/**
+ * @internal
+ *
+ * @package inventory
+ */
+#[AsMessageHandler(handles: ProductExportGenerateTask::class)]
+final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 {
-    /**
-     * @var AbstractSalesChannelContextFactory
-     */
-    private $salesChannelContextFactory;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productExportRepository;
-
-    /**
-     * @var MessageBusInterface
-     */
-    private $messageBus;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $scheduledTaskRepository,
-        AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        EntityRepositoryInterface $salesChannelRepository,
-        EntityRepositoryInterface $productExportRepository,
-        MessageBusInterface $messageBus
+        EntityRepository $scheduledTaskRepository,
+        private AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        private EntityRepository $salesChannelRepository,
+        private EntityRepository $productExportRepository,
+        private MessageBusInterface $messageBus
     ) {
         parent::__construct($scheduledTaskRepository);
-
-        $this->salesChannelContextFactory = $salesChannelContextFactory;
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->productExportRepository = $productExportRepository;
-        $this->messageBus = $messageBus;
-    }
-
-    /**
-     * @return iterable<class-string>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [
-            ProductExportGenerateTask::class,
-        ];
     }
 
     public function run(): void

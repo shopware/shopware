@@ -2,41 +2,33 @@
 
 namespace Shopware\Core\Content\ImportExport\Message;
 
-use League\Flysystem\FileNotFoundException;
-use League\Flysystem\FilesystemInterface;
-use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToDeleteFile;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class DeleteFileHandler extends AbstractMessageHandler
+/**
+ * @internal
+ *
+ * @package system-settings
+ */
+#[AsMessageHandler]
+final class DeleteFileHandler
 {
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
-
     /**
      * @internal
      */
-    public function __construct(FilesystemInterface $filesystem)
+    public function __construct(private FilesystemOperator $filesystem)
     {
-        $this->filesystem = $filesystem;
     }
 
-    /**
-     * @param DeleteFileMessage $message
-     */
-    public function handle($message): void
+    public function __invoke(DeleteFileMessage $message): void
     {
         foreach ($message->getFiles() as $file) {
             try {
                 $this->filesystem->delete($file);
-            } catch (FileNotFoundException $e) {
+            } catch (UnableToDeleteFile $e) {
                 //ignore file is already deleted
             }
         }
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        return [DeleteFileMessage::class];
     }
 }

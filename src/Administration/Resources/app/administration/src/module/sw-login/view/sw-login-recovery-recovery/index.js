@@ -1,8 +1,14 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-login-recovery-recovery.html.twig';
 
 const { Component } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-login-recovery-recovery', {
     template,
 
@@ -60,7 +66,8 @@ Component.register('sw-login-recovery-recovery', {
         updatePassword() {
             if (this.validatePasswords()) {
                 this.userRecoveryService.updateUserPassword(
-                    this.hash, this.newPassword,
+                    this.hash,
+                    this.newPassword,
                     this.newPasswordConfirm,
                 ).then(() => {
                     this.$router.push({ name: 'sw.login.index' });

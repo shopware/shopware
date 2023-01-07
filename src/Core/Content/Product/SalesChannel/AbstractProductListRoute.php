@@ -6,7 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * This route is an general route to get products of the sales channel
+ * This route is a general route to get products of the sales channel
+ *
+ * @package inventory
  */
 abstract class AbstractProductListRoute
 {

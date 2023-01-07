@@ -4,28 +4,26 @@ namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
-abstract class ScheduledTaskHandler extends AbstractMessageHandler
+/**
+ * @package core
+ *
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - Won't implement MessageSubscriberInterface anymore, tag all ScheduledTaskHandlers with #[AsMessageHandler] instead
+ */
+abstract class ScheduledTaskHandler implements MessageSubscriberInterface
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $scheduledTaskRepository;
+    protected EntityRepository $scheduledTaskRepository;
 
-    public function __construct(EntityRepositoryInterface $scheduledTaskRepository)
+    public function __construct(EntityRepository $scheduledTaskRepository)
     {
         $this->scheduledTaskRepository = $scheduledTaskRepository;
     }
 
-    abstract public function run(): void;
-
-    /**
-     * @param ScheduledTask $task
-     */
-    public function handle($task): void
+    public function __invoke(ScheduledTask $task): void
     {
         $taskId = $task->getTaskId();
 
@@ -57,6 +55,28 @@ abstract class ScheduledTaskHandler extends AbstractMessageHandler
 
         $this->rescheduleTask($task, $taskEntity);
     }
+
+    /**
+     * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - method will be removed, tag all ScheduledTaskHandlers with #[AsMessageHandler] instead
+     *
+     * @return iterable<string>
+     */
+    public static function getHandledMessages(): iterable
+    {
+        $reflection = new \ReflectionClass(static::class);
+        $attributes = $reflection->getAttributes(AsMessageHandler::class);
+
+        $messageClasses = [];
+        foreach ($attributes as $attribute) {
+            /** @var AsMessageHandler $messageAttribute */
+            $messageAttribute = $attribute->newInstance();
+            $messageClasses[] = $messageAttribute->handles;
+        }
+
+        return array_filter($messageClasses);
+    }
+
+    abstract public function run(): void;
 
     protected function markTaskRunning(ScheduledTask $task): void
     {

@@ -4,7 +4,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_list_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar
             initial-search-type="media"
             :initial-search="term"
@@ -17,7 +17,7 @@
     {% block sw_media_index_smart_bar %}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_index_bread_crumb_navigation %}
-    <template slot="smart-bar-back">
+    <template #smart-bar-back>
         <div class="sw-media-index__navigation">
 
             <template v-if="parentFolder">
@@ -49,7 +49,7 @@
     {% block sw_media_index_smart_bar_header %}
     <template
         v-if="currentFolder"
-        slot="smart-bar-header"
+        #smart-bar-header
     >
         <h2>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -60,7 +60,7 @@
     </template>
     {% endblock %}
 
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_index_smart_bar_media_upload %}
         <sw-media-upload-v2
@@ -81,14 +81,14 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_index_language_switch %}
-    <template slot="language-switch">
+    <template #language-switch>
         <sw-language-switch @on-change="reloadList" />
     </template>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_index_page_content %}
-    <template slot="content">
+    <template #content>
         <div class="sw-media-index__page-content">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_index_listing_grid %}

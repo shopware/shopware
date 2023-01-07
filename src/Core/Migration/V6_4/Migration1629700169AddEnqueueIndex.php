@@ -6,6 +6,11 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1629700169AddEnqueueIndex extends MigrationStep
 {
     public function getCreationTimestamp(): int

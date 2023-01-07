@@ -4,18 +4,20 @@ namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
+use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
-class QueryDataBagResolver implements ArgumentValueResolverInterface
+/**
+ * @package core
+ */
+class QueryDataBagResolver implements ValueResolverInterface
 {
-    public function supports(Request $request, ArgumentMetadata $argument): bool
+    public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
-        return $argument->getType() === QueryDataBag::class;
-    }
+        if ($argument->getType() !== QueryDataBag::class) {
+            return;
+        }
 
-    public function resolve(Request $request, ArgumentMetadata $argument): ?\Generator
-    {
         yield new QueryDataBag($request->query->all());
     }
 }

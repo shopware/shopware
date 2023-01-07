@@ -3,15 +3,16 @@
 namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Event\NavigationRouteCacheKeyEvent;
 use Shopware\Core\Content\Category\Event\NavigationRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -23,6 +24,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package content
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class CachedNavigationRoute extends AbstractNavigationRoute
@@ -42,6 +44,9 @@ class CachedNavigationRoute extends AbstractNavigationRoute
      */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @var array<string>
+     */
     private array $states;
 
     private EventDispatcherInterface $dispatcher;
@@ -50,6 +55,7 @@ class CachedNavigationRoute extends AbstractNavigationRoute
      * @internal
      *
      * @param AbstractCacheTracer<NavigationRouteResponse> $tracer
+     * @param array<string> $states
      */
     public function __construct(
         AbstractNavigationRoute $decorated,
@@ -108,9 +114,16 @@ class CachedNavigationRoute extends AbstractNavigationRoute
         return 'navigation-route-' . $id;
     }
 
+    /**
+     * @param array<string> $tags
+     */
     private function loadNavigation(Request $request, string $active, string $rootId, int $depth, SalesChannelContext $context, Criteria $criteria, array $tags = []): NavigationRouteResponse
     {
         $key = $this->generateKey($active, $rootId, $depth, $request, $context, $criteria);
+
+        if ($key === null) {
+            return $this->getDecorated()->load($active, $rootId, $request, $context, $criteria);
+        }
 
         $value = $this->cache->get($key, function (ItemInterface $item) use ($active, $depth, $rootId, $request, $context, $criteria, $tags) {
             $request->query->set('depth', (string) $depth);
@@ -136,11 +149,11 @@ class CachedNavigationRoute extends AbstractNavigationRoute
         }
 
         $active = $categories->get($activeId);
-        if ($active === null) {
+        if (!$active instanceof CategoryEntity) {
             return false;
         }
 
-        if ($active->getChildCount() === 0) {
+        if ($active->getChildCount() === 0 && \is_string($active->getParentId())) {
             return $categories->has($active->getParentId());
         }
 
@@ -153,21 +166,30 @@ class CachedNavigationRoute extends AbstractNavigationRoute
         return false;
     }
 
-    private function generateKey(string $active, string $rootId, int $depth, Request $request, SalesChannelContext $context, Criteria $criteria): string
+    private function generateKey(string $active, string $rootId, int $depth, Request $request, SalesChannelContext $context, Criteria $criteria): ?string
     {
         $parts = [
             $rootId,
             $depth,
             $this->generator->getCriteriaHash($criteria),
-            $this->generator->getSalesChannelContextHash($context),
+            $this->generator->getSalesChannelContextHash($context, [RuleAreas::CATEGORY_AREA]),
         ];
 
         $event = new NavigationRouteCacheKeyEvent($parts, $active, $rootId, $depth, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
+        if (!$event->shouldCache()) {
+            return null;
+        }
+
         return self::buildName($active) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
+    /**
+     * @param array<string> $tags
+     *
+     * @return array<string>
+     */
     private function generateTags(array $tags, string $active, string $rootId, int $depth, Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $tags = array_merge(

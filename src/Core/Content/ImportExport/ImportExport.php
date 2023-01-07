@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\Content\ImportExport;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
@@ -24,7 +23,7 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -36,64 +35,34 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteCommandEx
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package system-settings
+ */
 class ImportExport
 {
     private const PART_FILE_SUFFIX = '.offset_';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepository $repository;
 
-    /**
-     * @var AbstractPipe
-     */
-    private $pipe;
+    private AbstractPipe $pipe;
 
-    /**
-     * @var AbstractReader
-     */
-    private $reader;
+    private AbstractReader $reader;
 
-    /**
-     * @var AbstractWriter
-     */
-    private $writer;
+    private AbstractWriter $writer;
 
-    /**
-     * @var ImportExportLogEntity
-     */
-    private $logEntity;
+    private ImportExportLogEntity $logEntity;
 
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
+    private FilesystemOperator $filesystem;
 
-    /**
-     * @var int
-     */
-    private $importLimit;
+    private int $importLimit;
 
-    /**
-     * @var int
-     */
-    private $exportLimit;
+    private int $exportLimit;
 
-    /**
-     * @var int|null
-     */
-    private $total;
+    private ?int $total = null;
 
-    /**
-     * @var ImportExportService
-     */
-    private $importExportService;
+    private ImportExportService $importExportService;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     private Connection $connection;
 
@@ -110,10 +79,10 @@ class ImportExport
     public function __construct(
         ImportExportService $importExportService,
         ImportExportLogEntity $logEntity,
-        FilesystemInterface $filesystem,
+        FilesystemOperator $filesystem,
         EventDispatcherInterface $eventDispatcher,
         Connection $connection,
-        EntityRepositoryInterface $repository,
+        EntityRepository $repository,
         AbstractPipe $pipe,
         AbstractReader $reader,
         AbstractWriter $writer,
@@ -147,14 +116,14 @@ class ImportExport
         $processed = 0;
 
         $path = $this->logEntity->getFile()->getPath();
-        $progress->setTotal($this->filesystem->getSize($path));
+        $progress->setTotal($this->filesystem->fileSize($path));
         $invalidRecordsProgress = null;
 
         $failedRecords = [];
 
         $resource = $this->filesystem->readStream($path);
         $config = Config::fromLog($this->logEntity);
-        $overallResults = new ArrayCollection($this->logEntity->getResult());
+        $overallResults = $this->logEntity->getResult();
 
         $this->eventDispatcher->addListener(WriteCommandExceptionEvent::class, [$this, 'onWriteException']);
 
@@ -234,11 +203,7 @@ class ImportExport
 
             $this->importExportService->saveProgress($progress);
 
-            $this->logResults(
-                $overallResults,
-                $result,
-                $this->repository->getDefinition()->getEntityName()
-            );
+            $overallResults = $this->logResults($overallResults, $result, $this->repository->getDefinition()->getEntityName());
 
             ++$processed;
             if ($this->importLimit > 0 && $processed >= $this->importLimit) {
@@ -255,7 +220,7 @@ class ImportExport
         }
 
         // importing the file is complete
-        if ($this->reader->getOffset() === $this->filesystem->getSize($path)) {
+        if ($this->reader->getOffset() === $this->filesystem->fileSize($path)) {
             if ($this->logEntity->getInvalidRecordsLog() !== null) {
                 $invalidLog = $this->logEntity->getInvalidRecordsLog();
                 $invalidRecordsProgress = $invalidRecordsProgress
@@ -271,7 +236,7 @@ class ImportExport
             $progress->setState($invalidRecordsProgress === null ? Progress::STATE_SUCCEEDED : Progress::STATE_FAILED);
         }
 
-        $this->importExportService->saveProgress($progress, $overallResults->toArray());
+        $this->importExportService->saveProgress($progress, $overallResults);
 
         return $progress;
     }
@@ -303,7 +268,7 @@ class ImportExport
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
         $criteria->setLimit($this->exportLimit <= 0 ? 250 : $this->exportLimit);
-        $fullExport = $this->exportLimit === null || $this->exportLimit <= 0;
+        $fullExport = $this->exportLimit <= 0;
 
         $targetFile = $this->getPartFilePath($this->logEntity->getFile()->getPath(), $offset);
 
@@ -375,6 +340,7 @@ class ImportExport
         $this->importExportService->saveProgress($progress);
 
         $tmpFile = tempnam(sys_get_temp_dir(), '');
+        /** @var resource $tmp */
         $tmp = fopen($tmpFile, 'w+b');
 
         $target = $logEntity->getFile()->getPath();
@@ -400,13 +366,14 @@ class ImportExport
 
         // concatenate all part files into a temporary file
         foreach ($partFiles as $partFile) {
-            if (stream_copy_to_stream($this->filesystem->readStream($partFile), $tmp) === false) {
+            $stream = $this->filesystem->readStream($partFile);
+            if (stream_copy_to_stream($stream, $tmp) === false) {
                 throw new ProcessingException('Failed to merge files');
             }
         }
 
         // copy final file into filesystem
-        $this->filesystem->putStream($target, $tmp);
+        $this->filesystem->writeStream($target, $tmp);
 
         if (\is_resource($tmp)) {
             fclose($tmp);
@@ -428,7 +395,7 @@ class ImportExport
         $this->fileService->updateFile(
             Context::createDefaultContext(),
             $fileId,
-            ['size' => $this->filesystem->getSize($target)]
+            ['size' => $this->filesystem->fileSize($target)]
         );
 
         return $progress;
@@ -483,7 +450,7 @@ class ImportExport
         // created a invalid records export if it doesn't exist
         if (!$this->logEntity->getInvalidRecordsLogId()) {
             $pathInfo = pathinfo($this->logEntity->getFile()->getOriginalName());
-            $newName = $pathInfo['filename'] . '_failed.' . $pathInfo['extension'];
+            $newName = $pathInfo['filename'] . '_failed.' . ($pathInfo['extension'] ?? '');
 
             $newPath = $this->logEntity->getFile()->getPath() . '_invalid';
 
@@ -577,13 +544,15 @@ class ImportExport
     }
 
     /**
-     * @param ArrayCollection<int|string, array> $overallResults
+     * @param array<string, mixed> $overallResults
+     *
+     * @return array<string, mixed>
      */
     private function logResults(
-        ArrayCollection $overallResults,
+        array $overallResults,
         ?EntityWrittenContainerEvent $result,
         string $entityName
-    ): void {
+    ): array {
         $defaultTemplate = [
             sprintf('%sSkip', EntityWriteResult::OPERATION_INSERT) => 0,
             sprintf('%sSkip', EntityWriteResult::OPERATION_UPDATE) => 0,
@@ -595,11 +564,11 @@ class ImportExport
         ];
 
         if (!$result && !$this->failedWriteCommands) {
-            $entityResult = $overallResults->get($entityName) ?? $defaultTemplate;
+            $entityResult = $overallResults[$entityName] ?? $defaultTemplate;
             ++$entityResult['otherError'];
-            $overallResults->set($entityName, $entityResult);
+            $overallResults[$entityName] = $entityResult;
 
-            return;
+            return $overallResults;
         }
 
         if (!$result && $this->failedWriteCommands) {
@@ -609,20 +578,20 @@ class ImportExport
                 }
 
                 $entityName = $writeCommand->getDefinition()->getEntityName();
-                $entityResult = $overallResults->get($entityName) ?? $defaultTemplate;
+                $entityResult = $overallResults[$entityName] ?? $defaultTemplate;
                 $operation = $writeCommand->getEntityExistence()->exists()
                     ? EntityWriteResult::OPERATION_UPDATE
                     : EntityWriteResult::OPERATION_INSERT;
                 $type = $writeCommand->isFailed() ? 'Error' : 'Skip';
                 ++$entityResult[sprintf('%s%s', $operation, $type)];
-                $overallResults->set($entityName, $entityResult);
+                $overallResults[$entityName] = $entityResult;
             }
 
-            return;
+            return $overallResults;
         }
 
         if (!$result || !$result->getEvents()) {
-            return;
+            return $overallResults;
         }
 
         foreach ($result->getEvents() as $event) {
@@ -631,10 +600,12 @@ class ImportExport
             }
 
             foreach ($event->getWriteResults() as $writeResult) {
-                $entityResult = $overallResults->get($writeResult->getEntityName()) ?? $defaultTemplate;
+                $entityResult = $overallResults[$writeResult->getEntityName()] ?? $defaultTemplate;
                 ++$entityResult[$writeResult->getOperation()];
-                $overallResults->set($writeResult->getEntityName(), $entityResult);
+                $overallResults[$writeResult->getEntityName()] = $entityResult;
             }
         }
+
+        return $overallResults;
     }
 }

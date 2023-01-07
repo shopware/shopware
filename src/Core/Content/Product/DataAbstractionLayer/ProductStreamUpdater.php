@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
@@ -20,18 +20,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdat
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @package core
+ */
 class ProductStreamUpdater extends EntityIndexer
 {
     private Connection $connection;
 
     private ProductDefinition $productDefinition;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private MessageBusInterface $messageBus;
 
@@ -43,7 +45,7 @@ class ProductStreamUpdater extends EntityIndexer
     public function __construct(
         Connection $connection,
         ProductDefinition $productDefinition,
-        EntityRepositoryInterface $repository,
+        EntityRepository $repository,
         MessageBusInterface $messageBus,
         ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater
     ) {
@@ -59,20 +61,8 @@ class ProductStreamUpdater extends EntityIndexer
         return 'product_stream_mapping.indexer';
     }
 
-    /**
-     * @param array|null $offset
-     *
-     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
-     */
-    public function iterate(/*?array */$offset): ?EntityIndexingMessage
+    public function iterate(?array $offset): ?EntityIndexingMessage
     {
-        if ($offset !== null && !\is_array($offset)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Parameter `$offset` of method "iterate()" in class "ProductStreamUpdater" will be natively typed to `?array` in v6.5.0.0.'
-            );
-        }
-
         // in full index, the product indexer will call the `updateProducts` method
         return null;
     }
@@ -92,6 +82,10 @@ class ProductStreamUpdater extends EntityIndexer
             'SELECT api_filter FROM product_stream WHERE invalid = 0 AND api_filter IS NOT NULL AND id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
+        // if the filter is invalid
+        if ($filter === false) {
+            return;
+        }
 
         $insert = new MultiInsertQueryQueue($this->connection, 250, false, true);
 

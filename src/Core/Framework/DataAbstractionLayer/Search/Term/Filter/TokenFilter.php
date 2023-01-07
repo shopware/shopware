@@ -10,33 +10,23 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @phpstan-type FilterConfig array{excluded_terms: list<string>, min_search_length: int}
+ *
+ * @package core
  */
 class TokenFilter extends AbstractTokenFilter implements ResetInterface
 {
     private const DEFAULT_MIN_SEARCH_TERM_LENGTH = 2;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be private and directly initialized with []
-     *
      * @var array<string, FilterConfig>
      */
-    protected array $config;
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be private
-     */
-    protected Connection $connection;
+    private array $config = [];
 
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private Connection $connection)
     {
-        $this->connection = $connection;
-        /**
-         * @deprecated tag:v6.5.0 - Can be removed as the property will be correctly initialized
-         */
-        $this->config = [];
     }
 
     public function getDecorated(): AbstractTokenFilter

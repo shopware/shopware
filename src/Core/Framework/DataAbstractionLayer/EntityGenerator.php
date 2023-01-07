@@ -37,7 +37,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 
 /**
- * @final tag:v6.5.0
+ * @package core
+ *
+ * @final
  */
 class EntityGenerator
 {
@@ -87,6 +89,7 @@ namespace #domain#;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package core
  * @method void                add(#entityClass# \$entity)
  * @method void                set(string \$key, #entityClass# \$entity)
  * @method #entityClass#[]    getIterator()

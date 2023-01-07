@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -44,7 +45,7 @@ class PasswordFieldTest extends TestCase
         $kvPair = new KeyValuePair('password', null, true);
 
         $passwordFieldHandler = new PasswordFieldSerializer(
-            $this->getContainer()->get('validator'),
+            $this->getContainer()->get(ValidatorInterface::class),
             $this->getContainer()->get(DefinitionInstanceRegistry::class)
         );
 
@@ -66,7 +67,7 @@ class PasswordFieldTest extends TestCase
         $kvPair = new KeyValuePair('password', 'shopware', true);
 
         $passwordFieldHandler = new PasswordFieldSerializer(
-            $this->getContainer()->get('validator'),
+            $this->getContainer()->get(ValidatorInterface::class),
             $this->getContainer()->get(DefinitionInstanceRegistry::class)
         );
 
@@ -151,7 +152,7 @@ class PasswordFieldTest extends TestCase
         $kvPair = new KeyValuePair('password', $password, true);
 
         $passwordFieldHandler = new PasswordFieldSerializer(
-            $this->getContainer()->get('validator'),
+            $this->getContainer()->get(ValidatorInterface::class),
             $this->getContainer()->get(DefinitionInstanceRegistry::class)
         );
 

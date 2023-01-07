@@ -7,6 +7,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1573049297AddReopenTransitionToDeliveryStates extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -16,7 +21,7 @@ class Migration1573049297AddReopenTransitionToDeliveryStates extends MigrationSt
 
     public function update(Connection $connection): void
     {
-        $stateMachineId = (string) $connection->fetchColumn('
+        $stateMachineId = (string) $connection->fetchOne('
             SELECT id
             FROM state_machine
             WHERE technical_name = "order_delivery.state"
@@ -29,7 +34,7 @@ class Migration1573049297AddReopenTransitionToDeliveryStates extends MigrationSt
                 technical_name = "open" OR
                 technical_name = "cancelled"
             )
-        ', ['stateMachineId' => $stateMachineId])->fetchAll();
+        ', ['stateMachineId' => $stateMachineId])->fetchAllAssociative();
 
         $stateIds = [];
         foreach ($result as $row) {

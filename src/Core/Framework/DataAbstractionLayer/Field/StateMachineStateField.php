@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StateMachineStateFieldSerializer;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
+/**
+ * @package core
+ */
 class StateMachineStateField extends FkField
 {
     /**

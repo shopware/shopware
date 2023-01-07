@@ -8,6 +8,8 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Component\Routing\Router;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class RouteScopeTest extends KernelTestBehaviourTest

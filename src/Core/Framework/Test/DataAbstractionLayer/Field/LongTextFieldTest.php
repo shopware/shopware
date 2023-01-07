@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\LongTextFieldSe
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -71,13 +70,11 @@ class LongTextFieldTest extends TestCase
     }
 
     /**
-     * @return array
-     *               Structure:
-     *               TestType, input, expected, flags
+     * @return list<array{string, bool|string|null, ?string, Flag[]}>
      */
-    public function longTextFieldDataProvider()
+    public function longTextFieldDataProvider(): array
     {
-        $data = [
+        return [
             ['writeException', '<test>', 'This value should not be blank.', [new Required()]],
             ['writeException', null, 'This value should not be blank.', [new Required()]],
             ['writeException', '', 'This value should not be blank.', [new Required()]],
@@ -88,13 +85,8 @@ class LongTextFieldTest extends TestCase
             ['assertion', '', null, []],
             ['assertion', '', '', [new AllowEmptyString()]],
             ['assertion', '', '', [new Required(), new AllowEmptyString()]],
+            ['assertion', '<script></script>test12-B', 'test12-B', [new Required(), new AllowHtml()]],
         ];
-
-        if (Feature::isActive('FEATURE_NEXT_15172')) {
-            $data[] = ['assertion', '<script></script>test12-B', 'test12-B', [new Required(), new AllowHtml()]];
-        }
-
-        return $data;
     }
 
     private function getWriteParameterBagMock(): WriteParameterBag

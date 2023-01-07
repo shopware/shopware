@@ -1,11 +1,16 @@
 import './sw-order-promotion-field.scss';
 import template from './sw-order-promotion-field.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { Component } = Shopware;
+const { ChangesetGenerator } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-promotion-field', {
+export default {
     template,
 
     inject: [
@@ -29,6 +34,7 @@ Component.register('sw-order-promotion-field', {
     data() {
         return {
             promotionError: null,
+            disabledAutoPromotions: false,
         };
     },
 
@@ -85,21 +91,43 @@ Component.register('sw-order-promotion-field', {
             },
         },
 
-        disabledAutoPromotionVisibility: {
-            get() {
-                return !this.hasAutomaticPromotions;
-            },
-            set(state) {
-                this.toggleAutomaticPromotions(state);
-            },
-        },
-
         hasAutomaticPromotions() {
             return this.automaticPromotions.length > 0;
         },
+
+        changesetGenerator() {
+            return new ChangesetGenerator();
+        },
+
+        hasOrderUnsavedChanges() {
+            return this.changesetGenerator.generate(this.order).changes !== null;
+        },
+    },
+
+    watch: {
+        // Validate if switch can be toggled
+        disabledAutoPromotions(newState, oldState) {
+            // To prevent recursion when value is set in next tick
+            if (oldState === this.hasAutomaticPromotions) return;
+
+            this.toggleAutomaticPromotions(newState);
+        },
+
+        automaticPromotions() {
+            // Sync value with database
+            this.disabledAutoPromotions = !this.hasAutomaticPromotions;
+        },
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.disabledAutoPromotions = !this.hasAutomaticPromotions;
+        },
+
         deleteAutomaticPromotions() {
             if (this.automaticPromotions.length === 0) {
                 return Promise.resolve();
@@ -124,6 +152,16 @@ Component.register('sw-order-promotion-field', {
         toggleAutomaticPromotions(state) {
             this.$emit('loading-change', true);
 
+            // Throw notification warning and reset switch state
+            if (this.hasOrderUnsavedChanges) {
+                this.$emit('loading-change', false);
+                this.handleUnsavedOrderChangesResponse();
+                this.$nextTick(() => {
+                    this.disabledAutoPromotions = !state;
+                });
+                return;
+            }
+
             this.deleteAutomaticPromotions().then(() => {
                 return this.orderService.toggleAutomaticPromotions(
                     this.order.id,
@@ -141,6 +179,12 @@ Component.register('sw-order-promotion-field', {
 
         onSubmitCode(code) {
             this.$emit('loading-change', true);
+
+            if (this.hasOrderUnsavedChanges) {
+                this.$emit('loading-change', false);
+                this.handleUnsavedOrderChangesResponse();
+                return;
+            }
 
             this.orderService.addPromotionToOrder(
                 this.order.id,
@@ -182,8 +226,20 @@ Component.register('sw-order-promotion-field', {
             });
         },
 
+        handleUnsavedOrderChangesResponse() {
+            this.createNotificationWarning({
+                message: this.$tc('sw-order.detailBase.textUnsavedChanges', 0),
+            });
+        },
+
         onRemoveExistingCode(removedItem) {
             this.$emit('loading-change', true);
+
+            if (this.hasOrderUnsavedChanges) {
+                this.$emit('loading-change', false);
+                this.handleUnsavedOrderChangesResponse();
+                return;
+            }
 
             const lineItem = this.order.lineItems.find((item) => {
                 return item.type === 'promotion' && item.payload.code === removedItem.code;
@@ -206,4 +262,4 @@ Component.register('sw-order-promotion-field', {
             });
         },
     },
-});
+};

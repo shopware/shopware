@@ -10,6 +10,8 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 /**
  * @internal
  * @phpstan-type CustomEntityField array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}
+ *
+ * @package core
  */
 class SchemaUpdater
 {
@@ -154,7 +156,7 @@ class SchemaUpdater
 
             switch ($field['type']) {
                 case 'int':
-                    $table->addColumn($field['name'], Types::INTEGER, $nullable + ['unsinged' => true]);
+                    $table->addColumn($field['name'], Types::INTEGER, $nullable + ['unsigned' => true]);
 
                     break;
                 case 'bool':

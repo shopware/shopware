@@ -1,10 +1,13 @@
 import template from './sw-cms-list-item.html.twig';
 import './sw-cms-list-item.scss';
 
-const { Component, Filter } = Shopware;
+const { Filter } = Shopware;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-cms-list-item', {
+export default {
     template,
 
     inject: ['feature'],
@@ -94,11 +97,6 @@ Component.register('sw-cms-list-item', {
     },
 
     methods: {
-        /* @deprecated tag:v6.5.0 isActive is superfluous since the component now relies on the "active" prop only */
-        isActive() {
-            return this.active;
-        },
-
         onChangePreviewImage(page) {
             this.$emit('preview-image-change', page);
         },
@@ -129,4 +127,4 @@ Component.register('sw-cms-list-item', {
             this.$emit('cms-page-delete', page);
         },
     },
-});
+};

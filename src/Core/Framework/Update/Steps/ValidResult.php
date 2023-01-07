@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Update\Steps;
 
+/**
+ * @package system-settings
+ */
 class ValidResult
 {
     /**

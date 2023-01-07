@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Test\NumberRange\ValueGenerator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -20,17 +20,11 @@ class IncrementRedisStorageTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $numberRangeRepository;
+    private EntityRepository $numberRangeRepository;
 
-    /**
-     * @var MockObject|LockFactory
-     */
-    private $lockFactoryMock;
+    private MockObject&LockFactory $lockFactoryMock;
 
-    /**
-     * @var MockObject|\Redis
-     */
-    private $redisMock;
+    private MockObject&\Redis $redisMock;
 
     private IncrementRedisStorage $storage;
 
@@ -214,9 +208,10 @@ class IncrementRedisStorageTest extends TestCase
 
     public function testList(): void
     {
+        /** @var list<string> $numberRangeIds */
         $numberRangeIds = $this->numberRangeRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
 
-        $keys = array_map(fn ($id) => [$this->getKey($id)], $numberRangeIds);
+        $keys = array_map(fn (string $id) => [$this->getKey($id)], $numberRangeIds);
         $this->redisMock->expects(static::exactly(\count($keys)))
             ->method('get')
             ->withConsecutive(...$keys)

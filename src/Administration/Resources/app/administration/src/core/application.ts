@@ -1,9 +1,10 @@
 import type Bottle from 'bottlejs';
 import Vue from 'vue';
-import { setDefaultValues } from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
 import type ViewAdapter from './adapter/view.adapter';
 import type { ContextState } from '../app/state/context.store';
 /**
+ * @package admin
+ *
  * @module core/application
  */
 
@@ -24,6 +25,8 @@ interface bundlesPluginResponse {
 }
 
 /**
+ * @deprecated tag:v6.6.0 - Will be private
+ *
  * The application bootstrapper bootstraps the application and registers the necessary
  * and optional parts of the application in a shared DI container which provides you
  * with an easy-to-use way to add new services as well as decoration these services.
@@ -54,7 +57,7 @@ class ApplicationBootstrapper {
     }
 
     /**
-     * Returns all containers. Use this method if you're want to get initializers in your services.
+     * Returns all containers. Use this method if you want to get initializers in your services.
      */
     getContainer<T extends Bottle.IContainerChildren>(containerName: T): Bottle.IContainer[T] {
         if (typeof containerName === 'string' && this.$container.container[containerName]) {
@@ -395,13 +398,6 @@ class ApplicationBootstrapper {
          * 5. Create the application root
          */
 
-        if (!Shopware.Feature.isActive('FEATURE_NEXT_21547')) {
-            setDefaultValues({
-                page: 1,
-                limit: 25,
-            });
-        }
-
         return this.initializeInitializers(initContainer)
             .then(() => this.loadPlugins())
             .then(() => Promise.all(Shopware.Plugin.getBootPromises()))
@@ -467,7 +463,7 @@ class ApplicationBootstrapper {
      */
     viewInitialized = new Promise((resolve) => {
         this._resolveViewInitialized = resolve;
-    })
+    });
 
     /**
      * Creates the application root and show the error message.

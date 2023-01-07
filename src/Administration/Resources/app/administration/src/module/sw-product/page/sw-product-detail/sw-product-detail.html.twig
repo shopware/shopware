@@ -4,7 +4,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <h2>
             <sw-product-variant-info
                 :variations="product.variation"
@@ -18,7 +18,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_actions_abort %}
         <sw-button
@@ -58,7 +58,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_actions_save_context_menu %}
             <sw-context-button>
-                <template slot="button">
+                <template #button>
                     <sw-button
                         class="sw-product-detail__button-context-menu"
                         square
@@ -93,7 +93,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_language_switch %}
-    <template slot="language-switch">
+    <template #language-switch>
         <sw-language-switch
             :save-changes-function="saveOnLanguageChange"
             :abort-change-function="abortOnLanguageChange"
@@ -105,208 +105,210 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_content %}
-    <sw-card-view slot="content">
+    <template #content>
+        <sw-card-view>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_detail_content_top %}
-        <template v-if="!isLoading && isChild">
-            <router-link
-                v-if="advanceModeEnabled"
-                class="sw-card__back-link"
-                :to="{ name: 'sw.product.detail.variants', params: { id: product.parentId } }"
-            >
-                <sw-icon
-                    name="regular-long-arrow-left"
-                    small
-                />
-                {{ $tc('sw-product.general.backToParent') }}
-            </router-link>
-
-            <router-link
-                v-else
-                class="sw-card__back-link"
-                :to="{ name: 'sw.product.detail.base', params: { id: product.parentId } }"
-            >
-                <sw-icon
-                    name="regular-long-arrow-left"
-                    small
-                />
-                {{ $tc('sw-product.general.backToGeneralOverview') }}
-            </router-link>
-        </template>
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_detail_content_language_info %}
-        <sw-language-info
-            :entity-description="placeholder(product, 'name', $tc('sw-product.detail.textHeadline'))"
-            :is-new-entity="!productId"
-        />
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_detail_inheritance_warning %}
-        <sw-inheritance-warning
-            v-if="isChild"
-            :name="$tc('sw-product.general.inheritanceModuleName')"
-        />
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_detail_content_tabs %}
-        <sw-tabs
-            v-if="productId"
-            class="sw-product-detail-page__tabs"
-            position-identifier="sw-product-detail"
-        >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_content_tabs_general %}
-            <sw-tabs-item
-                class="sw-product-detail__tab-general"
-                :route="{ name: 'sw.product.detail.base', params: { id: $route.params.id } }"
-                :has-error="swProductDetailBaseError"
-                :title="$tc('sw-product.detail.tabGeneral')"
-            >
-                {{ $tc('sw-product.detail.tabGeneral') }}
-            </sw-tabs-item>
+            {% block sw_product_detail_content_top %}
+            <template v-if="!isLoading && isChild">
+                <router-link
+                    v-if="advanceModeEnabled"
+                    class="sw-card__back-link"
+                    :to="{ name: 'sw.product.detail.variants', params: { id: product.parentId } }"
+                >
+                    <sw-icon
+                        name="regular-long-arrow-left"
+                        small
+                    />
+                    {{ $tc('sw-product.general.backToParent') }}
+                </router-link>
+
+                <router-link
+                    v-else
+                    class="sw-card__back-link"
+                    :to="{ name: 'sw.product.detail.base', params: { id: product.parentId } }"
+                >
+                    <sw-icon
+                        name="regular-long-arrow-left"
+                        small
+                    />
+                    {{ $tc('sw-product.general.backToGeneralOverview') }}
+                </router-link>
+            </template>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_content_tabs_specifications %}
-            <sw-tabs-item
-                class="sw-product-detail__tab-specifications"
-                :route="{ name: 'sw.product.detail.specifications', params: { id: $route.params.id } }"
-                :title="$tc('sw-product.detail.tabSpecifications')"
-            >
-                {{ $tc('sw-product.detail.tabSpecifications') }}
-            </sw-tabs-item>
+            {% block sw_product_detail_content_language_info %}
+            <sw-language-info
+                :entity-description="placeholder(product, 'name', $tc('sw-product.detail.textHeadline'))"
+                :is-new-entity="!productId"
+            />
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_content_tabs_advanced_prices %}
-            <sw-tabs-item
-                v-show="showModeSetting"
-                class="sw-product-detail__tab-advanced-prices"
-                :route="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
-                :title="$tc('sw-product.detail.tabAdvancedPrices')"
-            >
-                {{ $tc('sw-product.detail.tabAdvancedPrices') }}
-            </sw-tabs-item>
+            {% block sw_product_detail_inheritance_warning %}
+            <sw-inheritance-warning
+                v-if="isChild"
+                :name="$tc('sw-product.general.inheritanceModuleName')"
+            />
             {% endblock %}
 
-            {# @deprecated tag:v6.5.0 - The tab content will be moved to "sw-product-detail-specifications" component, like following:
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_specifications %}
-            <div>
-                ...
+            {% block sw_product_detail_content_tabs %}
+            <sw-tabs
+                v-if="productId"
+                class="sw-product-detail-page__tabs"
+                position-identifier="sw-product-detail"
+            >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_detail_specifications_properties %}
-                <sw-product-detail-properties />
+                {% block sw_product_detail_content_tabs_general %}
+                <sw-tabs-item
+                    class="sw-product-detail__tab-general"
+                    :route="{ name: 'sw.product.detail.base', params: { id: $route.params.id } }"
+                    :has-error="swProductDetailBaseError"
+                    :title="$tc('sw-product.detail.tabGeneral')"
+                >
+                    {{ $tc('sw-product.detail.tabGeneral') }}
+                </sw-tabs-item>
                 {% endblock %}
-                ...
-            </div>
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_content_tabs_specifications %}
+                <sw-tabs-item
+                    class="sw-product-detail__tab-specifications"
+                    :route="{ name: 'sw.product.detail.specifications', params: { id: $route.params.id } }"
+                    :title="$tc('sw-product.detail.tabSpecifications')"
+                >
+                    {{ $tc('sw-product.detail.tabSpecifications') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_content_tabs_advanced_prices %}
+                <sw-tabs-item
+                    v-show="showModeSetting"
+                    class="sw-product-detail__tab-advanced-prices"
+                    :route="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
+                    :title="$tc('sw-product.detail.tabAdvancedPrices')"
+                >
+                    {{ $tc('sw-product.detail.tabAdvancedPrices') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {# @deprecated tag:v6.5.0 - The tab content will be moved to "sw-product-detail-specifications" component, like following:
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_specifications %}
+                <div>
+                    ...
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_product_detail_specifications_properties %}
+                    <sw-product-detail-properties />
+                    {% endblock %}
+                    ...
+                </div>
+                {% endblock %}
+                #}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_content_tabs_advanced_properties %}
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_content_tabs_advanced_variants %}
+                <sw-tabs-item
+                    v-show="!isChild && showModeSetting"
+                    class="sw-product-detail__tab-variants"
+                    :route="{ name: 'sw.product.detail.variants', params: { id: $route.params.id } }"
+                    :title="$tc('sw-product.detail.tabVariation')"
+                >
+                    {{ $tc('sw-product.detail.tabVariation') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_content_tabs_layout %}
+                <sw-tabs-item
+                    v-show="!isChild && showModeSetting"
+                    class="sw-product-detail__tab-layout"
+                    :route="{ name: 'sw.product.detail.layout', params: { id: $route.params.id } }"
+                    :title="$tc('sw-product.detail.tabLayout')"
+                >
+                    {{ $tc('sw-product.detail.tabLayout') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_content_tabs_seo %}
+                <sw-tabs-item
+                    v-show="showModeSetting"
+                    class="sw-product-detail__tab-seo"
+                    :route="{ name: 'sw.product.detail.seo', params: { id: $route.params.id } }"
+                    :title="$tc('sw-product.detail.tabSeo')"
+                >
+                    {{ $tc('sw-product.detail.tabSeo') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_content_tabs_cross_selling %}
+                <sw-tabs-item
+                    v-show="!isChild && showModeSetting"
+                    class="sw-product-detail__tab-cross-selling"
+                    :route="{ name: 'sw.product.detail.crossSelling', params: { id: $route.params.id } }"
+                    :has-error="swProductDetailCrossSellingError"
+                    :title="$tc('sw-product.detail.tabCrossSelling')"
+                >
+                    {{ $tc('sw-product.detail.tabCrossSelling') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_content_tabs_reviews %}
+                <sw-tabs-item
+                    v-show="showModeSetting"
+                    class="sw-product-detail__tab-reviews"
+                    :route="{ name: 'sw.product.detail.reviews', params: { id: $route.params.id } }"
+                    :title="$tc('sw-product.detail.tabReviews')"
+                >
+                    {{ $tc('sw-product.detail.tabReviews') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_content_tabs_additional %}
+                {% endblock %}
+
+            </sw-tabs>
             {% endblock %}
-            #}
+
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_content_tabs_advanced_properties %}
+            {% block sw_product_detail_content_view %}
+            <router-view
+                @media-drop="onAddItemToProduct"
+                @cover-change="onCoverChange"
+            />
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_content_tabs_advanced_variants %}
-            <sw-tabs-item
-                v-show="!isChild && showModeSetting"
-                class="sw-product-detail__tab-variants"
-                :route="{ name: 'sw.product.detail.variants', params: { id: $route.params.id } }"
-                :title="$tc('sw-product.detail.tabVariation')"
-            >
-                {{ $tc('sw-product.detail.tabVariation') }}
-            </sw-tabs-item>
+            {% block sw_product_detail_content_clone_modal %}
+            <sw-product-clone-modal
+                v-if="cloning"
+                :product="product"
+                @clone-finish="onDuplicateFinish"
+            />
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_content_tabs_layout %}
-            <sw-tabs-item
-                v-show="!isChild && showModeSetting"
-                class="sw-product-detail__tab-layout"
-                :route="{ name: 'sw.product.detail.layout', params: { id: $route.params.id } }"
-                :title="$tc('sw-product.detail.tabLayout')"
-            >
-                {{ $tc('sw-product.detail.tabLayout') }}
-            </sw-tabs-item>
+            {% block sw_product_settings_mode %}
+            <sw-product-settings-mode
+                v-if="showAdvanceModeSetting"
+                :is-loading="isLoading"
+                :mode-settings="advancedModeSetting"
+                @settings-item-change="onChangeSettingItem"
+                @settings-change="onChangeSetting"
+            />
             {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_content_tabs_seo %}
-            <sw-tabs-item
-                v-show="showModeSetting"
-                class="sw-product-detail__tab-seo"
-                :route="{ name: 'sw.product.detail.seo', params: { id: $route.params.id } }"
-                :title="$tc('sw-product.detail.tabSeo')"
-            >
-                {{ $tc('sw-product.detail.tabSeo') }}
-            </sw-tabs-item>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_content_tabs_cross_selling %}
-            <sw-tabs-item
-                v-show="!isChild && showModeSetting"
-                class="sw-product-detail__tab-cross-selling"
-                :route="{ name: 'sw.product.detail.crossSelling', params: { id: $route.params.id } }"
-                :has-error="swProductDetailCrossSellingError"
-                :title="$tc('sw-product.detail.tabCrossSelling')"
-            >
-                {{ $tc('sw-product.detail.tabCrossSelling') }}
-            </sw-tabs-item>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_content_tabs_reviews %}
-            <sw-tabs-item
-                v-show="showModeSetting"
-                class="sw-product-detail__tab-reviews"
-                :route="{ name: 'sw.product.detail.reviews', params: { id: $route.params.id } }"
-                :title="$tc('sw-product.detail.tabReviews')"
-            >
-                {{ $tc('sw-product.detail.tabReviews') }}
-            </sw-tabs-item>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_content_tabs_additional %}
-            {% endblock %}
-
-        </sw-tabs>
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_detail_content_view %}
-        <router-view
-            @media-drop="onAddItemToProduct"
-            @cover-change="onCoverChange"
-        />
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_detail_content_clone_modal %}
-        <sw-product-clone-modal
-            v-if="cloning"
-            :product="product"
-            @clone-finish="onDuplicateFinish"
-        />
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_settings_mode %}
-        <sw-product-settings-mode
-            v-if="showAdvanceModeSetting"
-            :is-loading="isLoading"
-            :mode-settings="advancedModeSetting"
-            @settings-item-change="onChangeSettingItem"
-            @settings-change="onChangeSetting"
-        />
-        {% endblock %}
-    </sw-card-view>
+        </sw-card-view>
+    </template>
     {% endblock %}
 
     {# @deprecated tag:v6.5.0 - Will be replaced by a media modal like in Shopping experiences. #}

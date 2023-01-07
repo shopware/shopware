@@ -16,6 +16,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
+ * @package core
+ *
  * @internal
  * @phpstan-type Shop array{name: string, locale: string, currency: string, additionalCurrencies: null|list<string>, country: string, email: string, host: string, basePath: string, schema: string, blueGreenDeployment: bool}
  * @phpstan-type AdminUser array{email: string, username: string, firstName: string, lastName: string, password: string}
@@ -93,7 +95,7 @@ class ShopConfigurationController extends InstallerController
             ];
 
             /** @var list<string>|null $availableCurrencies */
-            $availableCurrencies = $request->request->get('available_currencies');
+            $availableCurrencies = $request->request->all('available_currencies');
 
             $schema = 'http';
             // This is for supporting Apache 2.2

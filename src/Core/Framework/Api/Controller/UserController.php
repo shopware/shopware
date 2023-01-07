@@ -12,10 +12,8 @@ use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Acl;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\UserDefinition;
@@ -27,21 +25,23 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @package system-settings
  */
 class UserController extends AbstractController
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $userRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $roleRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $userRoleRepository;
 
@@ -51,7 +51,7 @@ class UserController extends AbstractController
     private $userDefinition;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $keyRepository;
 
@@ -59,10 +59,10 @@ class UserController extends AbstractController
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $userRepository,
-        EntityRepositoryInterface $userRoleRepository,
-        EntityRepositoryInterface $roleRepository,
-        EntityRepositoryInterface $keyRepository,
+        EntityRepository $userRepository,
+        EntityRepository $userRoleRepository,
+        EntityRepository $roleRepository,
+        EntityRepository $keyRepository,
         UserDefinition $userDefinition
     ) {
         $this->userRepository = $userRepository;

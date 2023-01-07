@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\Command;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
@@ -13,10 +13,11 @@ use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,29 +26,34 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * @package system-settings
+ */
+#[AsCommand(
+    name: 'import:entity',
+    description: 'Import entities from a csv file',
+)]
 class ImportEntityCommand extends Command
 {
-    protected static $defaultName = 'import:entity';
-
     private ImportExportService $initiationService;
 
-    private EntityRepositoryInterface $profileRepository;
+    private EntityRepository $profileRepository;
 
     private ImportExportFactory $importExportFactory;
 
     private Connection $connection;
 
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
     /**
      * @internal
      */
     public function __construct(
         ImportExportService $initiationService,
-        EntityRepositoryInterface $profileRepository,
+        EntityRepository $profileRepository,
         ImportExportFactory $importExportFactory,
         Connection $connection,
-        FilesystemInterface $filesystem
+        FilesystemOperator $filesystem
     ) {
         parent::__construct();
         $this->initiationService = $initiationService;
@@ -209,10 +215,6 @@ class ImportEntityCommand extends Command
         $reader = new CsvReader();
         $invalidLogFilePath = $log->getFile()->getPath() . '_invalid';
         $resource = $this->filesystem->readStream($invalidLogFilePath);
-
-        if (!$resource) {
-            return;
-        }
 
         $invalidRows = $reader->read($config, $resource, 0);
 

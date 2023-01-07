@@ -17,6 +17,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @group rules
  */
@@ -69,6 +71,9 @@ class LineItemReleaseDateRuleTest extends TestCase
         static::assertEquals(new Choice($expectedOperators), $operators[1]);
     }
 
+    /**
+     * @return array<string, array<bool|string|null>>
+     */
     public function getMatchValues(): array
     {
         return [
@@ -210,6 +215,9 @@ class LineItemReleaseDateRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return array<string, array<bool|string>>
+     */
     public function getCartRuleScopeTestData(): array
     {
         return [

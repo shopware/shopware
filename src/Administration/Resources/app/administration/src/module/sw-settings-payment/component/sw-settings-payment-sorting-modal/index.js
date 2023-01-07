@@ -1,10 +1,13 @@
 import template from './sw-settings-payment-sorting-modal.html.twig';
 import './sw-settings-payment-sorting-modal.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
+/**
+ * @package checkout
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-payment-sorting-modal', {
+export default {
     template,
 
     inject: [
@@ -86,4 +89,4 @@ Component.register('sw-settings-payment-sorting-modal', {
             return defaultPaymentMethods.includes(paymentMethod.handlerIdentifier);
         },
     },
-});
+};

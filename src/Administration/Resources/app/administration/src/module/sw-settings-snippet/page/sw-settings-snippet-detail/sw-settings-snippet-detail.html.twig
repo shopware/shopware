@@ -4,7 +4,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_detail_smart_bar %}
-    <template slot="smart-bar-back">
+    <template #smart-bar-back>
         <router-link
             class="smart-bar__back-btn"
             :to="backPath"
@@ -25,7 +25,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_detail_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <h2 v-if="translationKey">
             {{ translationKey }}
         </h2>
@@ -37,7 +37,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_detail_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_detail_actions_abort %}
         <sw-button
@@ -68,71 +68,73 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_detail_content %}
-    <sw-card-view slot="content">
-        <template v-if="isLoading">
-            <sw-skeleton />
-            <sw-skeleton />
-        </template>
+    <template #content>
+        <sw-card-view>
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
 
-        <template v-else>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_snippet_set_detail_card %}
-            <div class="sw-settings-snippet-set-detail-card">
+            <template v-else>
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_settings_snippet_set_detail_card_information %}
-                <sw-card
-                    position-identifier="sw-settings-snippet-detail-information"
-                    :title="$tc('sw-settings-snippet.detail.cardGeneralTitle')"
-                    :is-loading="isLoading"
-                >
-                    <div class="snippet-general-card">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_snippet_set_detail_card_information_key %}
-                        <sw-field
-                            v-model="translationKey"
-                            v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
-                            type="text"
-                            :label="$tc('sw-settings-snippet.detail.labelName')"
-                            :placeholder="$tc('sw-settings-snippet.detail.labelNamePlaceholder')"
-                            :disabled="!(isCreate || isAddedSnippet)"
-                            :error="invalidKeyError"
-                            @input="onChange"
-                        />
-                        {% endblock %}
-                    </div>
-                </sw-card>
-                {% endblock %}
+                {% block sw_settings_snippet_set_detail_card %}
+                <div class="sw-settings-snippet-set-detail-card">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_settings_snippet_set_detail_card_information %}
+                    <sw-card
+                        position-identifier="sw-settings-snippet-detail-information"
+                        :title="$tc('sw-settings-snippet.detail.cardGeneralTitle')"
+                        :is-loading="isLoading"
+                    >
+                        <div class="snippet-general-card">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_snippet_set_detail_card_information_key %}
+                            <sw-field
+                                v-model="translationKey"
+                                v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
+                                type="text"
+                                :label="$tc('sw-settings-snippet.detail.labelName')"
+                                :placeholder="$tc('sw-settings-snippet.detail.labelNamePlaceholder')"
+                                :disabled="!(isCreate || isAddedSnippet)"
+                                :error="invalidKeyError"
+                                @input="onChange"
+                            />
+                            {% endblock %}
+                        </div>
+                    </sw-card>
+                    {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_settings_snippet_set_detail_card_snippets %}
-                <sw-card
-                    position-identifier="sw-settings-snippet-detail-snippets"
-                    :title="$tc('sw-settings-snippet.detail.cardSnippetSetsTitle')"
-                    :is-loading="isLoading"
-                >
-                    <div class="snippet-overview-card">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_snippet_set_detail_card_snippets_fields %}
-                        <sw-field
-                            v-for="(snippet, index) in snippets"
-                            :key="snippet.setId"
-                            v-model="snippet.value"
-                            v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
-                            type="text"
-                            :class="`sw-settings-snippet-detail__translation-field--${index}`"
-                            :disabled="!acl.can('snippet.editor')"
-                            :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets.get(snippet.setId).name })"
-                            :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
-                            @input="onChange"
-                        />
-                        {% endblock %}
-                    </div>
-                </sw-card>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_settings_snippet_set_detail_card_snippets %}
+                    <sw-card
+                        position-identifier="sw-settings-snippet-detail-snippets"
+                        :title="$tc('sw-settings-snippet.detail.cardSnippetSetsTitle')"
+                        :is-loading="isLoading"
+                    >
+                        <div class="snippet-overview-card">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_snippet_set_detail_card_snippets_fields %}
+                            <sw-field
+                                v-for="(snippet, index) in snippets"
+                                :key="snippet.setId"
+                                v-model="snippet.value"
+                                v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
+                                type="text"
+                                :class="`sw-settings-snippet-detail__translation-field--${index}`"
+                                :disabled="!acl.can('snippet.editor')"
+                                :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets.get(snippet.setId).name })"
+                                :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
+                                @input="onChange"
+                            />
+                            {% endblock %}
+                        </div>
+                    </sw-card>
+                    {% endblock %}
+                </div>
                 {% endblock %}
-            </div>
-            {% endblock %}
-        </template>
-    </sw-card-view>
+            </template>
+        </sw-card-view>
+    </template>
     {% endblock %}
 </sw-page>
 {% endblock %}

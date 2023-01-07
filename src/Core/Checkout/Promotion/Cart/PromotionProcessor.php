@@ -4,11 +4,8 @@ namespace Shopware\Core\Checkout\Promotion\Cart;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -17,6 +14,9 @@ use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class PromotionProcessor implements CartProcessorInterface
 {
     public const DATA_KEY = 'promotions';
@@ -38,10 +38,7 @@ class PromotionProcessor implements CartProcessorInterface
     }
 
     /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      * @throws InvalidPriceDefinitionException
      */
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void

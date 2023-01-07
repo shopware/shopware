@@ -19,6 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Integration\IntegrationDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @package administration
+ */
 class NotificationDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'notification';
@@ -66,7 +69,7 @@ class NotificationDefinition extends EntityDefinition
             (new StringField('status', 'status'))->addFlags(new Required()),
             (new StringField('message', 'message'))->addFlags(new Required()),
             new BoolField('admin_only', 'adminOnly'),
-            (new ListField('required_privileges', 'requiredPrivileges'))->setStrict(true),
+            new ListField('required_privileges', 'requiredPrivileges'),
 
             new FkField('created_by_integration_id', 'createdByIntegrationId', IntegrationDefinition::class),
             new FkField('created_by_user_id', 'createdByUserId', UserDefinition::class),

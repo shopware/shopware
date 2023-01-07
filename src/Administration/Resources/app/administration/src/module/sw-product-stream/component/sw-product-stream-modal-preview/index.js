@@ -1,11 +1,18 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-stream-modal-preview.html.twig';
 import './sw-product-stream-modal-preview.scss';
 
-const { Component, Context, Feature } = Shopware;
+const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-stream-modal-preview', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     inject: ['repositoryFactory', 'productStreamPreviewService'],
@@ -88,34 +95,19 @@ Component.register('sw-product-stream-modal-preview', {
         },
     },
 
-    watch: {
-        /* @deprecated tag:v6.5.0 watcher not debounced anymore, use `@search-term-change` event */
-        searchTerm() {
-            if (!Feature.isActive('FEATURE_NEXT_16271')) {
-                this.page = 1;
-                this.isLoading = true;
-                this.loadEntityData()
-                    .then(() => {
-                        this.isLoading = false;
-                    });
-            }
-        },
-    },
-
     created() {
         this.createdComponent();
     },
 
     methods: {
-        onSearchTermChange() {
-            if (Feature.isActive('FEATURE_NEXT_16271')) {
-                this.page = 1;
-                this.isLoading = true;
-                this.loadEntityData()
-                    .then(() => {
-                        this.isLoading = false;
-                    });
-            }
+        onSearchTermChange(searchTerm) {
+            this.searchTerm = searchTerm;
+            this.page = 1;
+            this.isLoading = true;
+            this.loadEntityData()
+                .then(() => {
+                    this.isLoading = false;
+                });
         },
         onSalesChannelChange() {
             this.page = 1;
@@ -223,4 +215,4 @@ Component.register('sw-product-stream-modal-preview', {
                 });
         },
     },
-});
+};

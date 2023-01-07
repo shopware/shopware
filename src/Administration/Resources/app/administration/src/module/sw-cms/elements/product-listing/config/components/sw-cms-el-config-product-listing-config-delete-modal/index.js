@@ -2,9 +2,10 @@ import template from './sw-cms-el-config-product-listing-config-delete-modal.htm
 import './sw-cms-el-config-product-listing-config-delete-modal.scss';
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
-Shopware.Component.register('sw-cms-el-config-product-listing-config-delete-modal', {
+export default {
     template,
 
     props: {
@@ -23,4 +24,4 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-delete-moda
             this.$emit('cancel');
         },
     },
-});
+};

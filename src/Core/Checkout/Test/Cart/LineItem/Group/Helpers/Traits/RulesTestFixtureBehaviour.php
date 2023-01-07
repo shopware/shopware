@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package checkout
+ */
 trait RulesTestFixtureBehaviour
 {
     /**
@@ -53,6 +56,9 @@ trait RulesTestFixtureBehaviour
         return $rule;
     }
 
+    /**
+     * @param array<mixed> $itemIDs
+     */
     private function getProductsRule(array $itemIDs): LineItemRule
     {
         $rule = new LineItemRule();

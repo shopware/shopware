@@ -7,6 +7,9 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 
+/**
+ * @package core
+ */
 class MigrationRuntime
 {
     private Connection $connection;
@@ -91,7 +94,7 @@ class MigrationRuntime
     {
         return $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
             ->andWhere('`update` IS NULL')
-            ->execute()
+            ->executeQuery()
             ->fetchFirstColumn();
     }
 
@@ -103,7 +106,7 @@ class MigrationRuntime
         return $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
             ->andWhere('`update` IS NOT NULL')
             ->andWhere('`update_destructive` IS NULL')
-            ->execute()
+            ->executeQuery()
             ->fetchFirstColumn();
     }
 

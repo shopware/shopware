@@ -60,7 +60,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber">
-            <argument type="service" id="dead_message.repository"/>
             <argument type="service" id="webhook.repository"/>
             <argument type="service" id="webhook_event_log.repository"/>
 

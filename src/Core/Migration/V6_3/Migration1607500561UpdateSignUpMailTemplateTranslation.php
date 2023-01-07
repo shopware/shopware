@@ -9,6 +9,11 @@ use Shopware\Core\Migration\Traits\MailSubjectUpdate;
 use Shopware\Core\Migration\Traits\MailUpdate;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1607500561UpdateSignUpMailTemplateTranslation extends MigrationStep
 {
     use UpdateMailTrait;

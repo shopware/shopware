@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use League\Flysystem\Filesystem;
-use League\Flysystem\Memory\MemoryAdapter;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -25,14 +24,9 @@ trait FilesystemBehaviour
         return $this->getFilesystem('shopware.filesystem.public');
     }
 
-    /**
-     * @before
-     */
-    public function assertEmptyInMemoryFilesystem(): void
+    public function getPrivateFilesystem(): Filesystem
     {
-        if (!$this->getPublicFilesystem()->getAdapter() instanceof MemoryAdapter) {
-            throw new \RuntimeException('The service \'shopware.filesystem.public\' must be configured to use a MemoryAdapter in test environments.');
-        }
+        return $this->getFilesystem('shopware.filesystem.private');
     }
 
     /**

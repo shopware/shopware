@@ -3,6 +3,8 @@
 namespace Shopware\Core\Installer\Requirements\Struct;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class PathCheck extends RequirementCheck

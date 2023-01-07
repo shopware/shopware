@@ -12,9 +12,8 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -27,12 +26,14 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @package inventory
  */
 class ProductExportController extends AbstractController
 {
-    private EntityRepositoryInterface $salesChannelDomainRepository;
+    private EntityRepository $salesChannelDomainRepository;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     private ProductExportGeneratorInterface $productExportGenerator;
 
@@ -42,8 +43,8 @@ class ProductExportController extends AbstractController
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $salesChannelDomainRepository,
-        EntityRepositoryInterface $salesChannelRepository,
+        EntityRepository $salesChannelDomainRepository,
+        EntityRepository $salesChannelRepository,
         ProductExportGeneratorInterface $productExportGenerator,
         EventDispatcherInterface $eventDispatcher
     ) {

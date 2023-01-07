@@ -10,7 +10,7 @@ use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Test\Product\SalesChannel\Fixture\ListingTestData;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -27,21 +27,15 @@ class ProductSuggestFilterOutOfStockTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var string
-     */
-    private $categoryId;
+    private string $categoryId;
 
-    /**
-     * @var ListingTestData
-     */
-    private $testData;
+    private ListingTestData $testData;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
+        $parent = $this->getContainer()->get(Connection::class)->fetchOne(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
             ['id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]
         );
@@ -270,7 +264,7 @@ class ProductSuggestFilterOutOfStockTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepositoryInterface $repo */
+        /** @var EntityRepository $repo */
         $repo = $this->getContainer()->get('property_group.repository');
         $repo->create($data, Context::createDefaultContext());
     }

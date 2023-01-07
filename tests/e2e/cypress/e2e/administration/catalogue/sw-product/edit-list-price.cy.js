@@ -52,23 +52,18 @@ describe('Product: Edit in various ways', () => {
         // Verify product's list price in Storefront
         cy.visit('/');
 
-        cy.window().then((win) => {
-            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+        cy.get('.product-box .product-badges > .badge').should('be.visible');
+        cy.contains('.product-price', '49.98');
+        cy.contains('.product-price .list-price', '100');
+        cy.contains('.product-name', 'Product name').click();
 
-            cy.get('.product-box .product-badges > .badge').should('be.visible');
-            cy.contains('.product-price', '49.98');
-            cy.contains('.product-price .list-price', '100');
-            cy.contains('.product-name', 'Product name').click();
+        cy.get('.list-price-badge').should('be.visible');
+        cy.contains('.product-detail-price.with-list-price', '49.98');
+        cy.contains('.list-price-price', '100');
 
-            cy.get('.list-price-badge').should('be.visible');
-            cy.contains('.product-detail-price.with-list-price', '49.98');
-            cy.contains('.list-price-price', '100');
-
-            cy.get('.btn-buy').click();
-            cy.get('.offcanvas').should('be.visible');
-            cy.contains(`.offcanvas ${lineItemSelector}-label`, 'Product name');
-            cy.contains(`${lineItemSelector}-price`, '49.98');
-        });
+        cy.get('.btn-buy').click();
+        cy.get('.offcanvas').should('be.visible');
+        cy.contains(`.offcanvas .line-item-label`, 'Product name');
+        cy.contains('.line-item-price', '49.98');
     });
 });

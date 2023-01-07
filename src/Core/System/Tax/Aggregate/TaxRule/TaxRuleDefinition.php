@@ -18,6 +18,9 @@ use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @package customer-order
+ */
 class TaxRuleDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'tax_rule';
@@ -50,7 +53,7 @@ class TaxRuleDefinition extends EntityDefinition
             (new FkField('country_id', 'countryId', CountryDefinition::class))->addFlags(new Required()),
             (new FloatField('tax_rate', 'taxRate'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new JsonField('data', 'data', [
-                (new ListField('states', 'states'))->setStrict(true),
+                new ListField('states', 'states'),
                 new StringField('zipCode', 'zipCode'),
                 new StringField('fromZipCode', 'fromZipCode'),
                 new StringField('toZipCode', 'toZipCode'),

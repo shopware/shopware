@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Product\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 
+/**
+ * @package inventory
+ */
 class ProductLineItemFactory
 {
     public function createList(array $products): LineItemCollection

@@ -6,8 +6,11 @@ const { EntityCollection, Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { capitalizeString } = Shopware.Utils.string;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-tag-modal', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     inject: [
@@ -62,6 +65,20 @@ Component.register('sw-flow-tag-modal', {
 
         tagRepository() {
             return this.repositoryFactory.create('tag');
+        },
+
+        tagTitle() {
+            if (!this.action) return '';
+
+            if (this.action.match(/add.*tag/)) {
+                return this.$tc('sw-flow.modals.tag.labelAddTag');
+            }
+
+            if (this.action.match(/remove.*tag/)) {
+                return this.$tc('sw-flow.modals.tag.labelRemoveTag');
+            }
+
+            return '';
         },
 
         ...mapState('swFlowState', ['triggerEvent', 'triggerActions']),
@@ -200,4 +217,4 @@ Component.register('sw-flow-tag-modal', {
             return capitalizeString(normalText);
         },
     },
-});
+};

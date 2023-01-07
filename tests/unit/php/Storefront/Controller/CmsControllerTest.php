@@ -25,7 +25,6 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\CmsController;
-use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -74,7 +73,6 @@ class CmsControllerTest extends TestCase
             $this->createMock(ProductDetailRoute::class),
             $this->createMock(ProductReviewLoader::class),
             $this->createMock(FindProductVariantRoute::class),
-            $this->createMock(ProductCombinationFinder::class),
             $this->eventDispatcherMock
         );
     }

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
@@ -44,9 +45,13 @@ class ListAddressRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
     public function testListAddresses(): void
@@ -59,7 +64,7 @@ class ListAddressRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame(1, $response['total']);
         static::assertNotEmpty($response['elements']);
@@ -87,7 +92,7 @@ class ListAddressRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame(1, $response['total']);
         static::assertNotEmpty($response['elements']);
@@ -111,7 +116,7 @@ class ListAddressRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame(1, $response['total']);
         static::assertNotEmpty($response['elements']);

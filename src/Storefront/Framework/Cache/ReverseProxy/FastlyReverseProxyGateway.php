@@ -15,6 +15,9 @@ use function func_get_arg;
 use function implode;
 use function sprintf;
 
+/**
+ * @package storefront
+ */
 class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 {
     private const API_URL = 'https://api.fastly.com';
@@ -39,10 +42,12 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 
     private string $instanceTag;
 
+    private string $appUrl;
+
     /**
      * @internal
      */
-    public function __construct(Client $client, string $serviceId, string $apiKey, string $softPurge, int $concurrency, string $tagPrefix, string $instanceTag = '')
+    public function __construct(Client $client, string $serviceId, string $apiKey, string $softPurge, int $concurrency, string $tagPrefix, string $instanceTag, string $appUrl)
     {
         $this->client = $client;
         $this->serviceId = $serviceId;
@@ -51,6 +56,7 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
         $this->concurrency = $concurrency;
         $this->tagPrefix = $tagPrefix;
         $this->instanceTag = $instanceTag;
+        $this->appUrl = (string) preg_replace('/^https?:\/\//', '', $appUrl);
     }
 
     public function flush(): void
@@ -74,11 +80,9 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
     }
 
     /**
-     * @inerhitDoc
-     *
-     * @deprecated tag:v6.5.0 - Parameter $response will be required reason:class-hierarchy-change
+     * @param string[] $tags
      */
-    public function tag(array $tags, string $url/*, Response $response */): void
+    public function tag(array $tags, string $url, Response $response): void
     {
         if ($this->instanceTag !== '') {
             $tags[] = $this->instanceTag;
@@ -110,7 +114,7 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
         $list = [];
 
         foreach ($urls as $url) {
-            $list[] = new Request('PURGE', self::API_URL . $url, [
+            $list[] = new Request('POST', self::API_URL . '/purge/' . $this->appUrl . $url, [
                 'Fastly-Key' => $this->apiKey,
                 'fastly-soft-purge' => $this->softPurge,
             ]);

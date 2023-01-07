@@ -2,7 +2,12 @@
 
 namespace Shopware\Core\Content\ImportExport\Message;
 
-class DeleteFileMessage
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+
+/**
+ * @package system-settings
+ */
+class DeleteFileMessage implements AsyncMessageInterface
 {
     /**
      * @var array

@@ -6,8 +6,13 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Profiling\Profiler;
+use Shopware\Core\System\SalesChannel\Event\SalesChannelContextCreatedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package core
+ */
 class SalesChannelContextService implements SalesChannelContextServiceInterface
 {
     public const CURRENCY_ID = 'currencyId';
@@ -46,6 +51,8 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
     private CartService $cartService;
 
+    private EventDispatcherInterface $eventDispatcher;
+
     /**
      * @internal
      */
@@ -53,12 +60,14 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
         AbstractSalesChannelContextFactory $factory,
         CartRuleLoader $ruleLoader,
         SalesChannelContextPersister $contextPersister,
-        CartService $cartService
+        CartService $cartService,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->factory = $factory;
         $this->ruleLoader = $ruleLoader;
         $this->contextPersister = $contextPersister;
         $this->cartService = $cartService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function get(SalesChannelContextServiceParameters $parameters): SalesChannelContext
@@ -93,6 +102,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
             }
 
             $context = $this->factory->create($token, $parameters->getSalesChannelId(), $session);
+            $this->eventDispatcher->dispatch(new SalesChannelContextCreatedEvent($context, $token));
 
             $result = $this->ruleLoader->loadByToken($context, $token);
 

@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package storefront
+ */
 class VerificationHashNotConfiguredException extends ShopwareHttpException
 {
     public function __construct(?\Throwable $e = null)

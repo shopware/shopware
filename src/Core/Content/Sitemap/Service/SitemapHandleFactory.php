@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Content\Sitemap\Service;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package sales-channel
+ */
 class SitemapHandleFactory implements SitemapHandleFactoryInterface
 {
     private EventDispatcherInterface $eventDispatcher;
@@ -18,7 +21,7 @@ class SitemapHandleFactory implements SitemapHandleFactoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function create(FilesystemInterface $filesystem, SalesChannelContext $context, ?string $domain = null): SitemapHandleInterface
+    public function create(FilesystemOperator $filesystem, SalesChannelContext $context, ?string $domain = null): SitemapHandleInterface
     {
         return new SitemapHandle($filesystem, $context, $this->eventDispatcher, $domain);
     }

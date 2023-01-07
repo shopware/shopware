@@ -7,6 +7,7 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,12 +19,16 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Dotenv\Command\DotenvDumpCommand;
 
 /**
+ * @package core
+ *
  * @internal should be used over the CLI only
  */
+#[AsCommand(
+    name: 'system:setup',
+    description: 'Setup the system',
+)]
 class SystemSetupCommand extends Command
 {
-    public static $defaultName = 'system:setup';
-
     private string $projectDir;
 
     private JwtCertificateGenerator $jwtCertificateGenerator;
@@ -55,7 +60,7 @@ class SystemSetupCommand extends Command
             ->addOption('app-url', null, InputOption::VALUE_OPTIONAL, 'Application URL', $this->getDefault('APP_URL', 'http://localhost'))
             ->addOption('blue-green', null, InputOption::VALUE_OPTIONAL, 'Blue green deployment', $this->getDefault('BLUE_GREEN_DEPLOYMENT', '1'))
             ->addOption('es-enabled', null, InputOption::VALUE_OPTIONAL, 'Elasticsearch enabled', $this->getDefault('SHOPWARE_ES_ENABLED', '0'))
-            ->addOption('es-hosts', null, InputOption::VALUE_OPTIONAL, 'Elasticsearch Hosts', $this->getDefault('SHOPWARE_ES_HOSTS', 'elasticsearch:9200'))
+            ->addOption('es-hosts', null, InputOption::VALUE_OPTIONAL, 'Elasticsearch Hosts', $this->getDefault('OPENSEARCH_URL', 'elasticsearch:9200'))
             ->addOption('es-indexing-enabled', null, InputOption::VALUE_OPTIONAL, 'Elasticsearch Indexing enabled', $this->getDefault('SHOPWARE_ES_INDEXING_ENABLED', '0'))
             ->addOption('es-index-prefix', null, InputOption::VALUE_OPTIONAL, 'Elasticsearch Index prefix', $this->getDefault('SHOPWARE_ES_INDEX_PREFIX', 'sw'))
             ->addOption('http-cache-enabled', null, InputOption::VALUE_OPTIONAL, 'Http-Cache enabled', $this->getDefault('SHOPWARE_HTTP_CACHE_ENABLED', '1'))
@@ -72,7 +77,7 @@ class SystemSetupCommand extends Command
             'APP_ENV' => $input->getOption('app-env'),
             'APP_URL' => trim($input->getOption('app-url')), /* @phpstan-ignore-line */
             'DATABASE_URL' => $input->getOption('database-url'),
-            'SHOPWARE_ES_HOSTS' => $input->getOption('es-hosts'),
+            'OPENSEARCH_URL' => $input->getOption('es-hosts'),
             'SHOPWARE_ES_ENABLED' => $input->getOption('es-enabled'),
             'SHOPWARE_ES_INDEXING_ENABLED' => $input->getOption('es-indexing-enabled'),
             'SHOPWARE_ES_INDEX_PREFIX' => $input->getOption('es-index-prefix'),
@@ -105,6 +110,10 @@ class SystemSetupCommand extends Command
         }
 
         $io = new SymfonyStyle($input, $output);
+
+        if (file_exists($this->projectDir . '/symfony.lock')) {
+            $io->warning('It looks like you have installed Shopware with Symfony Flex. You should use a .env.local file instead of creating a complete new one');
+        }
 
         $io->title('Shopware setup process');
         $io->text('This tool will setup your instance.');

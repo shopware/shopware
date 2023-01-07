@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 
+/**
+ * @package core
+ */
 class CompiledFieldCollection extends FieldCollection
 {
     /**

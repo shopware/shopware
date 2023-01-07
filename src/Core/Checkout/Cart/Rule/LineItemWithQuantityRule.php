@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @package business-ops
+ */
 class LineItemWithQuantityRule extends Rule
 {
     protected ?string $id;
@@ -44,7 +47,7 @@ class LineItemWithQuantityRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->lineItemMatches($lineItem)) {
                 return true;
             }

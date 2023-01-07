@@ -1,3 +1,7 @@
+/**
+ * @package storefront
+ */
+
 const WebpackPluginInjector = require('@shopware-ag/webpack-plugin-injector');
 const babelrc = require('./.babelrc');
 const path = require('path');
@@ -9,6 +13,14 @@ const TerserPlugin = require('terser-webpack-plugin');
 const WebpackBar = require('webpackbar');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
+const crypto = require("crypto");
+
+/** HACK: OpenSSL 3 does not support md4 any more,
+ * but webpack hardcodes it all over the place: https://github.com/webpack/webpack/issues/13572
+ */
+const cryptoOrigCreateHash = crypto.createHash;
+crypto.createHash = algorithm => cryptoOrigCreateHash(algorithm === 'md4' ? 'sha256' : algorithm);
+
 
 const isProdMode = process.env.NODE_ENV === 'production';
 const isHotMode = process.env.MODE === 'hot';
@@ -31,12 +43,6 @@ if (fs.existsSync(featureConfigPath)) {
     features = require(featureConfigPath);
 } else {
     console.error(chalk.red('\n \u{26A0}️  The feature dump file "config_js_features.json" cannot be found. All features will be deactivated. Please execute bin/console feature:dump.  \u{26A0}️\n'));
-}
-
-/** @deprecated tag:v6.5.0 - Remove this warning message. */
-if (features['v6.5.0.0']) {
-    // eslint-disable-next-line no-console
-    console.log(chalk.yellow('\n \u{26A0}️  [Bootstrap v5 Warning] The feature flag v6.5.0.0 is activated and the Storefront is using Bootstrap v5.  \u{26A0}️\n'));
 }
 
 let hostName;
@@ -124,7 +130,7 @@ let webpackConfig = {
         rules: [
             {
                 test: /\.m?(t|j)s$/,
-                exclude: /(node_modules|bower_components|vendors)\/(?!(are-you-es5|fs-extra|nunito-fontface|query-string|split-on-first)\/).*/,
+                exclude: /(node_modules|bower_components|vendors)\/(?!(are-you-es5|fs-extra|query-string|split-on-first)\/).*/,
                 use: [
                     {
                         loader: 'babel-loader',
@@ -167,24 +173,6 @@ let webpackConfig = {
                     }
                 ]
             },
-            /** @deprecated tag:v6.5.0 - jQuery will be removed. Remove this function. */
-            ...(() => {
-                if (!features['v6.5.0.0']) {
-                    // Expose jQuery to the global scope for plugins which don't want to use Webpack
-                    return [{
-                        test: require.resolve('jquery/dist/jquery.slim'),
-                        use: [{
-                            loader: 'expose-loader',
-                            options: 'jQuery',
-                        }, {
-                            loader: 'expose-loader',
-                            options: '$',
-                        }],
-                    }]
-                }
-
-                return [];
-            })(),
             ...(() => {
                 if (isHotMode) {
                     return [
@@ -316,25 +304,6 @@ let webpackConfig = {
     plugins: [
         new webpack.NoEmitOnErrorsPlugin(),
         new webpack.ProvidePlugin({
-            /**
-             * @deprecated tag:v6.5.0 - jQuery will be removed.
-             *
-             * Keep `bootstrap` from if case.
-             * Remove else case and enclosing function.
-             */
-            ...(() => {
-                if (features['v6.5.0.0']) {
-                    return {
-                        bootstrap: require.resolve('bootstrap5/dist/js/bootstrap'),
-                    }
-                } else {
-                    return {
-                        $: require.resolve('jquery/dist/jquery.slim'),
-                        jQuery: require.resolve('jquery/dist/jquery.slim'),
-                        'window.jQuery': require.resolve('jquery/dist/jquery.slim'),
-                    }
-                }
-            })(),
             Popper: ['popper.js', 'default'],
         }),
         new WebpackBar({
@@ -372,35 +341,6 @@ let webpackConfig = {
             assets: path.resolve(__dirname, 'assets'),
             scss: path.resolve(__dirname, 'src/scss'),
             vendor: path.resolve(__dirname, 'vendor'),
-
-            /**
-             * @deprecated tag:v6.5.0 - Alias `vendorBootstrap` will be removed.
-             *
-             * Alias is used to import Bootstrap v5 if feature flag v6.5.0.0 is active.
-             * Package `bootstrap5` will be renamed to `bootstrap` and replace Bootstrap v4.
-             */
-            vendorBootstrap: features['v6.5.0.0']
-                ? path.resolve(__dirname, 'vendor/bootstrap5')
-                : path.resolve(__dirname, 'vendor/bootstrap'),
-
-            /**
-             * @deprecated tag:v6.5.0 - Alias `vendorBootstrapJs` will be removed.
-             *
-             * Alias is used to import Bootstrap v5 if feature flag v6.5.0.0 is active.
-             * Package `bootstrap5` will be renamed to `bootstrap` and replace Bootstrap v4.
-             */
-            vendorBootstrapJs: features['v6.5.0.0']
-                ? require.resolve('bootstrap5/dist/js/bootstrap')
-                : require.resolve('bootstrap/dist/js/bootstrap'),
-
-            /** @deprecated tag:v6.5.0 - jQuery will be removed. Remove this function. */
-            ...(() => {
-                if (!features['v6.5.0.0']) {
-                    return {
-                        jquery: 'jquery/dist/jquery.slim',
-                    }
-                }
-            })(),
         },
     },
     stats: 'minimal',

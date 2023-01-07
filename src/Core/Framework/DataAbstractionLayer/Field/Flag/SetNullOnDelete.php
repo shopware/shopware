@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
 /**
  * In case the referenced association data will be deleted, the related data will be set to null and an Written event will be thrown
+ *
+ * @package core
  */
 class SetNullOnDelete extends Flag
 {

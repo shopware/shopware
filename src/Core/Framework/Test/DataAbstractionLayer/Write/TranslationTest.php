@@ -20,7 +20,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -42,11 +41,11 @@ class TranslationTest extends TestCase
     use IntegrationTestBehaviour;
     use ArraySubsetAsserts;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
-    private EntityRepositoryInterface $currencyRepository;
+    private EntityRepository $currencyRepository;
 
-    private EntityRepositoryInterface $languageRepository;
+    private EntityRepository $languageRepository;
 
     private Context $context;
 
@@ -853,7 +852,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             ],
         ];
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('category.repository');
 
         $repository->create([$data], $context);
@@ -892,7 +891,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             ],
         ];
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('category.repository');
 
         $repository->create([$data], $context);
@@ -933,7 +932,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             ],
         ];
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('category.repository');
 
         $repository->create([$data], $context);
@@ -974,7 +973,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             ],
         ];
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('category.repository');
 
         $repository->create([$data], $context);
@@ -1027,7 +1026,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             ],
         ];
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('category.repository');
 
         $repository->create([$data], $this->context);
@@ -1086,7 +1085,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             ],
         ];
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('category.repository');
 
         $repository->create([$data], $this->context);

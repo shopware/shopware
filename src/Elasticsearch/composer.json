@@ -12,9 +12,6 @@
         ]
     },
     "config": {
-        "platform": {
-            "php": "7.4.3"
-        },
         "sort-packages": true
     },
     "support": {
@@ -26,20 +23,20 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "6.4.x-dev",
-            "dev-trunk": "6.4.x-dev"
+            "dev-master": "6.5.x-dev",
+            "dev-trunk": "6.5.x-dev"
         }
     },
     "minimum-stability": "stable",
     "require": {
-        "php": "^7.4.3 || ^8.0",
+        "php": "~8.1.0 || ~8.2.0",
         "ext-curl": "*",
-        "doctrine/dbal": "~2.13.8",
-        "elasticsearch/elasticsearch": "7.16.0",
-        "ongr/elasticsearch-dsl": "7.2.2",
+        "doctrine/dbal": "^3.5",
+        "opensearch-project/opensearch-php": "~2.0",
         "shopware/core": "*",
-        "symfony/http-foundation": "~5.4.1",
-        "symfony/messenger": "~5.4.0"
+        "shyim/opensearch-php-dsl": "~1.0.1",
+        "symfony/http-foundation": "~6.2.0",
+        "symfony/messenger": "~6.2.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~9.5.17"

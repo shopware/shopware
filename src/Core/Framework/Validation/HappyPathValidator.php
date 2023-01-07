@@ -21,6 +21,7 @@ use Symfony\Component\Validator\Validator\ContextualValidatorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
+ * @package core
  * calling into the validator machinery has a considerable overhead. Doing that thousands of time is notable.
  * this validator implements a subset of the functionality and calls into the real validator if needed.
  */
@@ -38,10 +39,8 @@ class HappyPathValidator implements ValidatorInterface
 
     /**
      * @param Constraint|Constraint[]|null $constraints
-     *
-     * @return ConstraintViolationListInterface
      */
-    public function validate($value, $constraints = null, $groups = null)
+    public function validate(mixed $value, $constraints = null, $groups = null): ConstraintViolationListInterface
     {
         if ($constraints === null) {
             return $this->inner->validate($value, $constraints, $groups);
@@ -59,52 +58,35 @@ class HappyPathValidator implements ValidatorInterface
         return new ConstraintViolationList();
     }
 
-    /**
-     * @return MetadataInterface
-     */
-    public function getMetadataFor($value)
+    public function getMetadataFor(mixed $value): MetadataInterface
     {
         return $this->inner->getMetadataFor($value);
     }
 
-    /**
-     * @return bool
-     */
-    public function hasMetadataFor($value)
+    public function hasMetadataFor(mixed $value): bool
     {
         return $this->inner->hasMetadataFor($value);
     }
 
     /**
      * @param object $object can not use native type hint as it is incompatible with symfony <5.3.4
-     *
-     * @return ConstraintViolationListInterface
      */
-    public function validateProperty($object, $propertyName, $groups = null)
+    public function validateProperty($object, $propertyName, $groups = null): ConstraintViolationListInterface
     {
         return $this->inner->validateProperty($object, $propertyName, $groups);
     }
 
-    /**
-     * @return ConstraintViolationListInterface
-     */
-    public function validatePropertyValue($objectOrClass, $propertyName, $value, $groups = null)
+    public function validatePropertyValue($objectOrClass, $propertyName, $value, $groups = null): ConstraintViolationListInterface
     {
         return $this->inner->validatePropertyValue($objectOrClass, $propertyName, $value, $groups);
     }
 
-    /**
-     * @return ContextualValidatorInterface
-     */
-    public function startContext()
+    public function startContext(): ContextualValidatorInterface
     {
         return $this->inner->startContext();
     }
 
-    /**
-     * @return ContextualValidatorInterface
-     */
-    public function inContext(ExecutionContextInterface $context)
+    public function inContext(ExecutionContextInterface $context): ContextualValidatorInterface
     {
         return $this->inner->inContext($context);
     }

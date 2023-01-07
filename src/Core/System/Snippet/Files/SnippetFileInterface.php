@@ -2,6 +2,13 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
+/**
+ * @deprecated tag:v6.5.0 - Use AbstractSnippetFile instead
+ *
+ * @method string getTechnicalName()
+ *
+ * @package system-settings
+ */
 interface SnippetFileInterface
 {
     /**

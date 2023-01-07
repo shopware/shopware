@@ -53,6 +53,8 @@ describe('Country: Test acl privileges', () => {
             method: 'PATCH'
         }).as('saveCountry');
 
+        // assert that there is an available list of countries
+        cy.get(`${page.elements.countryListContent}`).should('be.visible');
         // click on first element in grid
         cy.get(`
             ${page.elements.dataGridRow}--0
@@ -113,6 +115,8 @@ describe('Country: Test acl privileges', () => {
             method: 'POST'
         }).as('saveCountry');
 
+        // assert that there is an available list of countries
+        cy.get(`${page.elements.countryListContent}`).should('be.visible');
         // click on "Add country" button
         cy.get('a[href="#/sw/settings/country/create"]').click();
 
@@ -167,6 +171,8 @@ describe('Country: Test acl privileges', () => {
             method: 'delete'
         }).as('deleteCountry');
 
+        // assert that there is an available list of countries
+        cy.get(`${page.elements.countryListContent}`).should('be.visible');
         // find a country with the name is "Zimbabwe"
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Zimbabwe');
 
@@ -204,6 +210,8 @@ describe('Country: Test acl privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
         });
 
+        // assert that there is an available list of countries
+        cy.get(`${page.elements.countryListContent}`).should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.contains('.smart-bar__header', 'Countries');
@@ -254,6 +262,8 @@ describe('Country: Test acl privileges', () => {
             method: 'PATCH'
         }).as('saveCountryState');
 
+        // assert that there is an available list of countries
+        cy.get(`${page.elements.countryListContent}`).should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.contains('.smart-bar__header', 'Countries');
@@ -353,6 +363,8 @@ describe('Country: Test acl privileges', () => {
             method: 'POST'
         }).as('saveCountryState');
 
+        // assert that there is an available list of countries
+        cy.get(`${page.elements.countryListContent}`).should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.contains('.smart-bar__header', 'Countries');

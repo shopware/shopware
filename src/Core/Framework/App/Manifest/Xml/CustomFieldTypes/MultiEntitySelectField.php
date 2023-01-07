@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ *
+ * @package core
  */
 class MultiEntitySelectField extends SingleEntitySelectField
 {

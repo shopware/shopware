@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
 
+/**
+ * @package checkout
+ */
 class PromotionExcludedError extends Error
 {
     private const KEY = 'promotion-excluded';

@@ -10,6 +10,8 @@ const TYPE_RADIO = 'radio';
 /**
  * This plugin preserves a form, if the element or the form itself has changed.
  * After a reload of the page the form is filled up with the stored values
+ *
+ * @package content
  */
 export default class FormPreserverPlugin extends Plugin {
 

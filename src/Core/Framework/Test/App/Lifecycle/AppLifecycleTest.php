@@ -34,7 +34,6 @@ use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\App\Template\TemplateEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -63,11 +62,11 @@ class AppLifecycleTest extends TestCase
 
     private AppLifecycle $appLifecycle;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     private Context $context;
 
-    private EntityRepositoryInterface $actionButtonRepository;
+    private EntityRepository $actionButtonRepository;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -941,7 +940,7 @@ class AppLifecycleTest extends TestCase
                 [
                     'name' => 'app-deleted/delete.script.twig',
                     'hook' => 'app-deleted',
-                    'script' => "{% do debug.dump('deleted') %}",
+                    'script' => '{% do debug.dump(\'deleted\') %}',
                     'active' => true,
                 ],
             ],
@@ -970,12 +969,12 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->searchIds(new Criteria([$appId]), $this->context)->getIds();
         static::assertCount(0, $apps);
 
-        /** @var EntityRepositoryInterface $aclRoleRepository */
+        /** @var EntityRepository $aclRoleRepository */
         $aclRoleRepository = $this->getContainer()->get('acl_role.repository');
         $roles = $aclRoleRepository->searchIds(new Criteria([$roleId]), $this->context)->getIds();
         static::assertCount(1, $roles);
 
-        /** @var EntityRepositoryInterface $integrationRepository */
+        /** @var EntityRepository $integrationRepository */
         $integrationRepository = $this->getContainer()->get('integration.repository');
         $integrations = $integrationRepository->searchIds(new Criteria([$integrationId]), $this->context)->getIds();
         static::assertCount(1, $integrations);
@@ -1047,7 +1046,7 @@ class AppLifecycleTest extends TestCase
         static::assertCount(1, $apps);
 
         $filesystem = $this->getContainer()->get('shopware.filesystem.asset');
-        static::assertTrue($filesystem->has('bundles/test/asset.txt'));
+        static::assertTrue($filesystem->fileExists('bundles/test/asset.txt'));
 
         $app = [
             'id' => $apps->first()->getId(),
@@ -1059,7 +1058,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();
         static::assertCount(0, $apps);
 
-        static::assertFalse($filesystem->has('bundles/test/asset.txt'));
+        static::assertFalse($filesystem->fileExists('bundles/test/asset.txt'));
     }
 
     public function testDeleteAppDeletesConfigWhenUserDataShouldNotBeKept(): void
@@ -1139,7 +1138,7 @@ class AppLifecycleTest extends TestCase
         static::assertNotNull($appEntity);
         static::assertEquals('test', $appEntity->getName());
 
-        $privileges = $connection->fetchColumn('
+        $privileges = $connection->fetchOne('
             SELECT `privileges`
             FROM `acl_role`
             WHERE `id` = :aclRoleId
@@ -1173,7 +1172,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();
         static::assertCount(0, $apps);
 
-        /** @var EntityRepositoryInterface $aclRoleRepository */
+        /** @var EntityRepository $aclRoleRepository */
         $aclRoleRepository = $this->getContainer()->get('acl_role.repository');
         $aclRole = $aclRoleRepository->search(new Criteria([$aclRoleId]), $this->context)->first();
 
@@ -1315,7 +1314,7 @@ class AppLifecycleTest extends TestCase
         $query->where('id = :id');
         $query->setParameter('id', Uuid::fromHexToBytes($sequenceId));
 
-        return $query->execute()->fetchOne() ?: null;
+        return $query->executeQuery()->fetchOne() ?: null;
     }
 
     private function createFlow(string $flowId): void
@@ -1351,7 +1350,7 @@ class AppLifecycleTest extends TestCase
         $query->where('app_id = :appId');
         $query->setParameter('appId', Uuid::fromHexToBytes($appId));
 
-        return $query->execute()->fetchAll() ?: null;
+        return $query->executeQuery()->fetchAllAssociative() ?: null;
     }
 
     private function getAppId(): ?string
@@ -1360,7 +1359,7 @@ class AppLifecycleTest extends TestCase
         $query->select('lower(hex(id))');
         $query->from('app');
 
-        return $query->execute()->fetchOne() ?: null;
+        return $query->executeQuery()->fetchOne() ?: null;
     }
 
     private function assertDefaultActionButtons(): void
@@ -1406,7 +1405,7 @@ class AppLifecycleTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $privileges = $connection->fetchColumn('
+        $privileges = $connection->fetchOne('
             SELECT `privileges`
             FROM `acl_role`
             WHERE `id` = :aclRoleId
@@ -1436,7 +1435,7 @@ class AppLifecycleTest extends TestCase
 
     private function assertDefaultCustomFields(string $appId): void
     {
-        /** @var EntityRepositoryInterface $customFieldSetRepository */
+        /** @var EntityRepository $customFieldSetRepository */
         $customFieldSetRepository = $this->getContainer()->get('custom_field_set.repository');
 
         $criteria = new Criteria();
@@ -1490,7 +1489,7 @@ class AppLifecycleTest extends TestCase
 
     private function assertDefaultWebhooks(string $appId): void
     {
-        /** @var EntityRepositoryInterface $webhookRepository */
+        /** @var EntityRepository $webhookRepository */
         $webhookRepository = $this->getContainer()->get('webhook.repository');
 
         $criteria = new Criteria();
@@ -1522,7 +1521,7 @@ class AppLifecycleTest extends TestCase
 
     private function assertDefaultTemplate(string $appId, bool $active = true): void
     {
-        /** @var EntityRepositoryInterface $templateRepository */
+        /** @var EntityRepository $templateRepository */
         $templateRepository = $this->getContainer()->get('app_template.repository');
 
         $criteria = new Criteria();
@@ -1554,7 +1553,7 @@ class AppLifecycleTest extends TestCase
 
     private function assertDefaultScript(string $appId, bool $active = true): void
     {
-        /** @var EntityRepositoryInterface $scriptRepository */
+        /** @var EntityRepository $scriptRepository */
         $scriptRepository = $this->getContainer()->get('script.repository');
 
         $criteria = new Criteria();
@@ -1587,7 +1586,7 @@ class AppLifecycleTest extends TestCase
 
     private function assertDefaultPaymentMethods(string $appId): void
     {
-        /** @var EntityRepositoryInterface $paymentMethodRepository */
+        /** @var EntityRepository $paymentMethodRepository */
         $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
 
         $criteria = new Criteria();
@@ -1616,7 +1615,7 @@ class AppLifecycleTest extends TestCase
 
     private function assertDefaultCmsBlocks(string $appId): void
     {
-        /** @var EntityRepositoryInterface $cmsBlockRepository */
+        /** @var EntityRepository $cmsBlockRepository */
         $cmsBlockRepository = $this->getContainer()->get('app_cms_block.repository');
 
         $criteria = new Criteria();

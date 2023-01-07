@@ -1,9 +1,9 @@
 import template from './sw-settings-captcha-select.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-captcha-select', {
+export default {
     template,
 
     inject: ['feature', 'captchaService'],
@@ -84,4 +84,4 @@ Component.register('sw-settings-captcha-select', {
                 }), {});
         },
     },
-});
+};

@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -11,6 +10,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @package storefront
+ */
 class BasicCaptcha extends AbstractCaptcha
 {
     public const CAPTCHA_NAME = 'basicCaptcha';
@@ -34,15 +36,8 @@ class BasicCaptcha extends AbstractCaptcha
     /**
      * {@inheritdoc}
      */
-    public function supports(Request $request/* , array $captchaConfig */): bool
+    public function supports(Request $request, array $captchaConfig): bool
     {
-        if (\func_num_args() < 2 || !\is_array(func_get_arg(1))) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Method `supports()` in `BasicCaptcha` expects passing the `$captchaConfig` as array as the second parameter in v6.5.0.0.'
-            );
-        }
-
         /** @var SalesChannelContext|null $context */
         $context = $request->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
         $salesChannelId = $context ? $context->getSalesChannelId() : null;
@@ -61,15 +56,8 @@ class BasicCaptcha extends AbstractCaptcha
     /**
      * {@inheritdoc}
      */
-    public function isValid(Request $request /* , array $captchaConfig */): bool
+    public function isValid(Request $request, array $captchaConfig): bool
     {
-        if (\func_num_args() < 2 || !\is_array(func_get_arg(1))) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Method `isValid()` in `BasicCaptcha` expects passing the `$captchaConfig` as array as the second parameter in v6.5.0.0.'
-            );
-        }
-
         $basicCaptchaValue = $request->get(self::CAPTCHA_REQUEST_PARAMETER);
 
         if ($basicCaptchaValue === null) {

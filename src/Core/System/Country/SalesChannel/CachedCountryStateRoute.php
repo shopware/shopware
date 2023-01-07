@@ -21,6 +21,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
+ *
+ * @package system-settings
  */
 class CachedCountryStateRoute extends AbstractCountryStateRoute
 {
@@ -37,6 +39,9 @@ class CachedCountryStateRoute extends AbstractCountryStateRoute
      */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @var array<string>
+     */
     private array $states;
 
     private EventDispatcherInterface $dispatcher;
@@ -45,6 +50,7 @@ class CachedCountryStateRoute extends AbstractCountryStateRoute
      * @internal
      *
      * @param AbstractCacheTracer<CountryStateRouteResponse> $tracer
+     * @param array<string> $states
      */
     public function __construct(
         AbstractCountryStateRoute $decorated,
@@ -85,6 +91,10 @@ class CachedCountryStateRoute extends AbstractCountryStateRoute
 
         $key = $this->generateKey($countryId, $request, $context, $criteria);
 
+        if ($key === null) {
+            return $this->getDecorated()->load($countryId, $request, $criteria, $context);
+        }
+
         $value = $this->cache->get($key, function (ItemInterface $item) use ($countryId, $request, $criteria, $context) {
             $name = self::buildName($countryId);
             $response = $this->tracer->trace($name, function () use ($countryId, $request, $criteria, $context) {
@@ -99,7 +109,7 @@ class CachedCountryStateRoute extends AbstractCountryStateRoute
         return CacheValueCompressor::uncompress($value);
     }
 
-    private function generateKey(string $countryId, Request $request, SalesChannelContext $context, Criteria $criteria): string
+    private function generateKey(string $countryId, Request $request, SalesChannelContext $context, Criteria $criteria): ?string
     {
         $parts = [
             $countryId,
@@ -110,9 +120,16 @@ class CachedCountryStateRoute extends AbstractCountryStateRoute
         $event = new CountryStateRouteCacheKeyEvent($parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
+        if (!$event->shouldCache()) {
+            return null;
+        }
+
         return self::buildName($countryId) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function generateTags(string $countryId, Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $tags = array_merge(

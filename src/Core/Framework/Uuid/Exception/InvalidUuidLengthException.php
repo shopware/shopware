@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Uuid\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class InvalidUuidLengthException extends ShopwareHttpException
 {
     public function __construct(int $length, string $hex)

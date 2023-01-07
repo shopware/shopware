@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
+/**
+ * @package core
+ */
 class Tokenizer implements TokenizerInterface
 {
     private int $tokenMinimumLength;
@@ -20,7 +23,7 @@ class Tokenizer implements TokenizerInterface
         $string = trim(str_replace(['.', '/', '\\'], ' ', $string));
         $string = str_replace('<', ' <', $string);
         $string = strip_tags($string);
-        $string = trim(preg_replace("/[^\pL\-_0-9]/u", ' ', $string));
+        $string = trim((string) preg_replace("/[^\pL\-_0-9]/u", ' ', $string));
 
         $tags = explode(' ', $string);
 

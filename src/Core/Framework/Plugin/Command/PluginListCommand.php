@@ -4,30 +4,36 @@ namespace Shopware\Core\Framework\Plugin\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package core
+ */
+#[AsCommand(
+    name: 'plugin:list',
+    description: 'Lists all plugins',
+)]
 class PluginListCommand extends Command
 {
-    protected static $defaultName = 'plugin:list';
-
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $pluginRepo;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $pluginRepo)
+    public function __construct(EntityRepository $pluginRepo)
     {
         parent::__construct();
         $this->pluginRepo = $pluginRepo;

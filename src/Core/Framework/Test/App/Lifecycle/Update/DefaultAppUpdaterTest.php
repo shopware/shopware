@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
@@ -25,7 +25,7 @@ class DefaultAppUpdaterTest extends TestCase
 
     private AbstractAppUpdater $updater;
 
-    private EntityRepositoryInterface $appRepo;
+    private EntityRepository $appRepo;
 
     private Context $context;
 

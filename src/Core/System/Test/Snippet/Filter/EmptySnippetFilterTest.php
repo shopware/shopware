@@ -7,6 +7,8 @@ use Shopware\Core\System\Snippet\Filter\EmptySnippetFilter;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class EmptySnippetFilterTest extends TestCase
 {

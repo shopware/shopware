@@ -7,6 +7,9 @@ use Symfony\Component\Routing\RouterInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
+/**
+ * @package core
+ */
 class RawUrlFunctionExtension extends AbstractExtension
 {
     /**

@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package checkout
+ *
  * @extends Collection<DiscountPackage>
  */
 class DiscountPackageCollection extends Collection

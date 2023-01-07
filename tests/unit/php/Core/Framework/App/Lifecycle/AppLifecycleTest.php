@@ -28,7 +28,7 @@ use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
@@ -55,10 +55,10 @@ class AppLifecycleTest extends TestCase
      */
     public function testInstallSavesSnippets(
         Manifest $manifest,
-        EntityRepositoryInterface $appRepository,
-        EntityRepositoryInterface $aclRoleRepository,
+        EntityRepository $appRepository,
+        EntityRepository $aclRoleRepository,
         AppAdministrationSnippetPersister $appAdministrationSnippetPersister,
-        EntityRepositoryInterface $languageRepository,
+        EntityRepository $languageRepository,
         AbstractAppLoader $appLoader
     ): void {
         $appLifecycle = $this->getAppLifecycle(
@@ -79,10 +79,10 @@ class AppLifecycleTest extends TestCase
      */
     public function testUpdateSavesSnippets(
         Manifest $manifest,
-        EntityRepositoryInterface $appRepository,
-        EntityRepositoryInterface $aclRoleRepository,
+        EntityRepository $appRepository,
+        EntityRepository $aclRoleRepository,
         AppAdministrationSnippetPersister $appAdministrationSnippetPersister,
-        EntityRepositoryInterface $languageRepository,
+        EntityRepository $languageRepository,
         AbstractAppLoader $appLoader
     ): void {
         $appLifecycle = $this->getAppLifecycle(
@@ -100,7 +100,7 @@ class AppLifecycleTest extends TestCase
     }
 
     /**
-     * @return array<string, array{manifest: Manifest, appRepository: EntityRepositoryInterface, aclRoleRepository: EntityRepositoryInterface, appAdministrationSnippetPersister: AppAdministrationSnippetPersister, languageRepository: EntityRepositoryInterface, appLoader: AbstractAppLoader}>
+     * @return array<string, array{manifest: Manifest, appRepository: EntityRepository, aclRoleRepository: EntityRepository, appAdministrationSnippetPersister: AppAdministrationSnippetPersister, languageRepository: EntityRepository, appLoader: AbstractAppLoader}>
      */
     public function installDataProvider(): iterable
     {
@@ -154,7 +154,7 @@ class AppLifecycleTest extends TestCase
     }
 
     /**
-     * @return array<string, array{manifest: Manifest, appRepository: EntityRepositoryInterface, aclRoleRepository: EntityRepositoryInterface, appAdministrationSnippetPersister: AppAdministrationSnippetPersister, languageRepository: EntityRepositoryInterface, appLoader: AbstractAppLoader}>
+     * @return array<string, array{manifest: Manifest, appRepository: EntityRepository, aclRoleRepository: EntityRepository, appAdministrationSnippetPersister: AppAdministrationSnippetPersister, languageRepository: EntityRepository, appLoader: AbstractAppLoader}>
      */
     public function updateDataProvider(): iterable
     {
@@ -215,9 +215,9 @@ class AppLifecycleTest extends TestCase
     }
 
     private function getAppLifecycle(
-        EntityRepositoryInterface $appRepository,
-        EntityRepositoryInterface $aclRoleRepository,
-        EntityRepositoryInterface $languageRepository,
+        EntityRepository $appRepository,
+        EntityRepository $aclRoleRepository,
+        EntityRepository $languageRepository,
         AppAdministrationSnippetPersister $appAdministrationSnippetPersisterMock,
         AbstractAppLoader $appLoader
     ): AppLifecycle {
@@ -239,7 +239,7 @@ class AppLifecycleTest extends TestCase
             $languageRepository,
             $this->createMock(SystemConfigService::class),
             $this->createMock(ConfigValidator::class),
-            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(EntityRepository::class),
             $aclRoleRepository,
             $this->createMock(AssetService::class),
             $this->createMock(ScriptExecutor::class),
@@ -252,9 +252,9 @@ class AppLifecycleTest extends TestCase
         );
     }
 
-    private function getLanguageRepositoryMock(LanguageCollection $languageEntityCollection): EntityRepositoryInterface
+    private function getLanguageRepositoryMock(LanguageCollection $languageEntityCollection): EntityRepository
     {
-        $languageRepository = $this->createMock(EntityRepositoryInterface::class);
+        $languageRepository = $this->createMock(EntityRepository::class);
 
         $entitySearchResult = new EntitySearchResult(
             LanguageDefinition::ENTITY_NAME,
@@ -304,9 +304,9 @@ class AppLifecycleTest extends TestCase
     /**
      * @param array<int, array<int, array<string, mixed>>> $appEntities
      */
-    private function getAppRepositoryMock(array $appEntities): EntityRepositoryInterface
+    private function getAppRepositoryMock(array $appEntities): EntityRepository
     {
-        $appRepository = $this->createMock(EntityRepositoryInterface::class);
+        $appRepository = $this->createMock(EntityRepository::class);
 
         $searchResults = [];
         foreach ($appEntities as $entity) {
@@ -350,9 +350,9 @@ class AppLifecycleTest extends TestCase
         return new AppCollection($entities);
     }
 
-    private function getAclRoleRepositoryMock(AclRoleCollection $aclRoleCollection): EntityRepositoryInterface
+    private function getAclRoleRepositoryMock(AclRoleCollection $aclRoleCollection): EntityRepository
     {
-        $aclRoleRepository = $this->createMock(EntityRepositoryInterface::class);
+        $aclRoleRepository = $this->createMock(EntityRepository::class);
 
         $entitySearchResult = new EntitySearchResult(
             AclRoleDefinition::ENTITY_NAME,

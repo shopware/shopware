@@ -5,9 +5,7 @@ namespace Shopware\Storefront\Test\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
@@ -32,6 +30,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class DocumentControllerTest extends TestCase
@@ -40,15 +40,9 @@ class DocumentControllerTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -154,9 +148,7 @@ class DocumentControllerTest extends TestCase
     }
 
     /**
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      * @throws \Exception
      */
     private function generateDemoCart(int $lineItemCount): Cart

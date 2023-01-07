@@ -9,18 +9,28 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\Api\ApiDefinition\ApiRoute\StoreApiTestOtherRoute;
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
+ * @package core
  * @implements Rule<InClassNode>
+ *
+ * @internal
  */
 class InternalClassRule implements Rule
 {
     private const TEST_CLASS_EXCEPTIONS = [
         StoreApiTestOtherRoute::class, // The test route is used to test the OpenApiGenerator, that class would ignore internal classes
+    ];
+
+    private const INTERNAL_NAMESPACES = [
+        '\\DevOps\\StaticAnalyze',
+        '\\Framework\\Demodata',
     ];
 
     public function getNodeType(): string
@@ -52,15 +62,19 @@ class InternalClassRule implements Rule
         }
 
         if ($this->isEventSubscriber($node)) {
-            $classDeprecation = $node->getClassReflection()->getDeprecatedDescription() ?? '';
-            /**
-             * @deprecated tag:v6.5.0 - remove deprecation check, as all listener should become internal in v6.5.0
-             */
-            if (\str_contains($classDeprecation, 'reason:becomes-internal') || \str_contains($classDeprecation, 'reason:remove-subscriber')) {
-                return [];
-            }
-
             return ['Event subscribers must be flagged @internal to not be captured by the BC checker.'];
+        }
+
+        if ($namespace = $this->isInInternalNamespace($node)) {
+            return ['Classes in `' . $namespace . '` namespace must be flagged @internal to not be captured by the BC checker.'];
+        }
+
+        if ($this->isMigrationStep($node)) {
+            return ['Migrations must be flagged @internal to not be captured by the BC checker.'];
+        }
+
+        if ($this->isMessageHandler($node)) {
+            return ['MessageHandlers must be flagged @internal to not be captured by the BC checker.'];
         }
 
         return [];
@@ -137,5 +151,41 @@ class InternalClassRule implements Rule
         }
 
         return false;
+    }
+
+    private function isInInternalNamespace(InClassNode $node): ?string
+    {
+        $namespace = $node->getClassReflection()->getName();
+
+        foreach (self::INTERNAL_NAMESPACES as $internalNamespace) {
+            if (\str_contains($namespace, $internalNamespace)) {
+                return $internalNamespace;
+            }
+        }
+
+        return null;
+    }
+
+    private function isMigrationStep(InClassNode $node): bool
+    {
+        $class = $node->getClassReflection();
+
+        if ($class->getParentClass() === null) {
+            return false;
+        }
+
+        return $class->getParentClass()->getName() === MigrationStep::class;
+    }
+
+    private function isMessageHandler(InClassNode $node): bool
+    {
+        $class = $node->getClassReflection()->getNativeReflection();
+
+        if ($class->isAbstract()) {
+            // abstract base classes should not be final
+            return false;
+        }
+
+        return !empty($class->getAttributes(AsMessageHandler::class));
     }
 }

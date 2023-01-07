@@ -8,6 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  * @internal
  *
  * @extends EntityCollection<ActionButtonTranslationEntity>
+ *
+ * @package core
  */
 class ActionButtonTranslationCollection extends EntityCollection
 {

@@ -14,6 +14,7 @@ describe('Language: Test crud operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/language/index`);
+                cy.get('.sw-settings-language-list-grid').should('exist');
                 cy.get('.sw-skeleton').should('not.exist');
                 cy.get('.sw-loader').should('not.exist');
             });
@@ -31,6 +32,7 @@ describe('Language: Test crud operations', () => {
 
         cy.get('.sw-settings-language-list').should('be.visible');
         cy.get('a[href="#/sw/settings/language/create"]').click();
+        cy.get('.sw-settings-language-detail').should('be.visible');
 
         // Create language
         cy.get('input[name=sw-field--language-name]').typeAndCheck('Japanese');
@@ -52,6 +54,7 @@ describe('Language: Test crud operations', () => {
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-product'
         });
+        cy.get('.sw-product-list-grid').should('exist');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.clickContextMenuItem(

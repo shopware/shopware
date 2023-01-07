@@ -11,8 +11,6 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Util\Random;
@@ -21,8 +19,6 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
-use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
-use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -36,15 +32,15 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
+ *
+ * @package storefront
  */
 class StorefrontSubscriber implements EventSubscriberInterface
 {
     private RequestStack $requestStack;
 
     private RouterInterface $router;
-
-    private CsrfPlaceholderHandler $csrfPlaceholderHandler;
 
     private MaintenanceModeResolver $maintenanceModeResolver;
 
@@ -58,78 +54,37 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     private StorefrontPluginRegistryInterface $themeRegistry;
 
-    private NotFoundSubscriber $notFoundSubscriber;
-
     /**
      * @internal
      */
     public function __construct(
         RequestStack $requestStack,
         RouterInterface $router,
-        CsrfPlaceholderHandler $csrfPlaceholderHandler,
         HreflangLoaderInterface $hreflangLoader,
         MaintenanceModeResolver $maintenanceModeResolver,
         ShopIdProvider $shopIdProvider,
         ActiveAppsLoader $activeAppsLoader,
         SystemConfigService $systemConfigService,
-        StorefrontPluginRegistryInterface $themeRegistry,
-        NotFoundSubscriber $notFoundSubscriber
+        StorefrontPluginRegistryInterface $themeRegistry
     ) {
         $this->requestStack = $requestStack;
         $this->router = $router;
-        $this->csrfPlaceholderHandler = $csrfPlaceholderHandler;
         $this->maintenanceModeResolver = $maintenanceModeResolver;
         $this->hreflangLoader = $hreflangLoader;
         $this->shopIdProvider = $shopIdProvider;
         $this->activeAppsLoader = $activeAppsLoader;
         $this->systemConfigService = $systemConfigService;
         $this->themeRegistry = $themeRegistry;
-        $this->notFoundSubscriber = $notFoundSubscriber;
     }
 
     public static function getSubscribedEvents(): array
     {
-        if (Feature::isActive('v6.5.0.0')) {
-            return [
-                KernelEvents::REQUEST => [
-                    ['startSession', 40],
-                    ['maintenanceResolver'],
-                ],
-                KernelEvents::EXCEPTION => [
-                    ['customerNotLoggedInHandler'],
-                    ['maintenanceResolver'],
-                ],
-                KernelEvents::CONTROLLER => [
-                    ['preventPageLoadingFromXmlHttpRequest', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE],
-                ],
-                CustomerLoginEvent::class => [
-                    'updateSessionAfterLogin',
-                ],
-                CustomerLogoutEvent::class => [
-                    'updateSessionAfterLogout',
-                ],
-                BeforeSendResponseEvent::class => [
-                    ['replaceCsrfToken'],
-                    ['setCanonicalUrl'],
-                ],
-                StorefrontRenderEvent::class => [
-                    ['addHreflang'],
-                    ['addShopIdParameter'],
-                    ['addIconSetConfig'],
-                ],
-                SalesChannelContextResolvedEvent::class => [
-                    ['replaceContextToken'],
-                ],
-            ];
-        }
-
         return [
             KernelEvents::REQUEST => [
                 ['startSession', 40],
                 ['maintenanceResolver'],
             ],
             KernelEvents::EXCEPTION => [
-                ['showHtmlExceptionResponse', -100],
                 ['customerNotLoggedInHandler'],
                 ['maintenanceResolver'],
             ],
@@ -143,7 +98,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
                 'updateSessionAfterLogout',
             ],
             BeforeSendResponseEvent::class => [
-                ['replaceCsrfToken'],
                 ['setCanonicalUrl'],
             ],
             StorefrontRenderEvent::class => [
@@ -237,14 +191,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $master->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - reason:remove-subscriber - Use `NotFoundSubscriber::onError` instead
-     */
-    public function showHtmlExceptionResponse(ExceptionEvent $event): void
-    {
-        $this->notFoundSubscriber->onError($event);
-    }
-
     public function customerNotLoggedInHandler(ExceptionEvent $event): void
     {
         if (!$event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
@@ -285,11 +231,8 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var RouteScope|list<string> $scope */
+        /** @var list<string> $scope */
         $scope = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
-        if ($scope instanceof RouteScope) {
-            $scope = $scope->getScopes();
-        }
 
         if (!\in_array(StorefrontRouteScope::ID, $scope, true)) {
             return;
@@ -334,13 +277,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
             $canonical = sprintf('<%s>; rel="canonical"', $canonical);
             $event->getResponse()->headers->set('Link', $canonical);
         }
-    }
-
-    public function replaceCsrfToken(BeforeSendResponseEvent $event): void
-    {
-        $event->setResponse(
-            $this->csrfPlaceholderHandler->replaceCsrfToken($event->getResponse(), $event->getRequest())
-        );
     }
 
     public function addHreflang(StorefrontRenderEvent $event): void
@@ -397,9 +333,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         $iconConfig = [];
         foreach ($themeConfig->getIconSets() as $pack => $path) {
-            if (file_exists($path . '/../app/storefront/dist')) {
-                $path . '/../app/storefront/dist';
-            }
             $iconConfig[$pack] = [
                 'path' => $path,
                 'namespace' => $theme,

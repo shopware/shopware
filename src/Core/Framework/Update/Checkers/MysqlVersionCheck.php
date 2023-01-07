@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Update\Checkers;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Update\Struct\ValidationResult;
 
+/**
+ * @package system-settings
+ */
 class MysqlVersionCheck implements CheckerInterface
 {
     /**
@@ -30,7 +33,7 @@ class MysqlVersionCheck implements CheckerInterface
      */
     public function check($values): ValidationResult
     {
-        $currentVersion = $this->connection->fetchColumn('SELECT VERSION()');
+        $currentVersion = $this->connection->fetchOne('SELECT VERSION()');
 
         $vars = ['minVersion' => $values, 'currentVersion' => $currentVersion];
 

@@ -8,6 +8,9 @@ use Monolog\Logger;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ */
 class DoctrineSQLHandler extends AbstractProcessingHandler
 {
     /**

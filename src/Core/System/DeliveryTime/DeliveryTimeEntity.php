@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation\DeliveryTimeTranslationCollection;
 
+/**
+ * @package customer-order
+ */
 class DeliveryTimeEntity extends Entity
 {
     use EntityIdTrait;

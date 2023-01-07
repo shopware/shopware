@@ -11,7 +11,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -26,6 +26,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
+ * @package inventory
  */
 class ProductVisibilityTest extends TestCase
 {
@@ -77,7 +79,7 @@ class ProductVisibilityTest extends TestCase
     private $contextFactory;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productRepository;
 
@@ -279,7 +281,7 @@ class ProductVisibilityTest extends TestCase
         $id = $this->ids->create($key);
 
         $snippetSetId = (string) $this->getContainer()->get(Connection::class)
-            ->fetchColumn('SELECT id FROM snippet_set LIMIT 1');
+            ->fetchOne('SELECT id FROM snippet_set LIMIT 1');
 
         $data = [
             'id' => $id,

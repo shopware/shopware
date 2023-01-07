@@ -12,17 +12,19 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
 use Shopware\Core\Framework\App\Payment\PaymentMethodStateService;
 use Shopware\Core\Framework\App\Template\TemplateStateService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package core
+ *
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
 class AppStateService
 {
-    private EntityRepositoryInterface $appRepo;
+    private EntityRepository $appRepo;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -39,7 +41,7 @@ class AppStateService
     private RuleConditionPersister $ruleConditionPersister;
 
     public function __construct(
-        EntityRepositoryInterface $appRepo,
+        EntityRepository $appRepo,
         EventDispatcherInterface $eventDispatcher,
         ActiveAppsLoader $activeAppsLoader,
         TemplateStateService $templateStateService,

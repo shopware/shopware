@@ -10,10 +10,11 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -37,7 +38,7 @@ class ProductListingLoaderTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
@@ -124,6 +125,8 @@ class ProductListingLoaderTest extends TestCase
         static::assertContains($this->optionIds['red'], $mainVariant->getOptionIds() ?: []);
         static::assertContains($this->optionIds['l'], $mainVariant->getOptionIds() ?: []);
         static::assertTrue($mainVariant->hasExtension('search'));
+
+        static::assertTrue($listing->getCriteria()->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
     }
 
     public function testMainVariantInactive(): void
@@ -412,6 +415,27 @@ class ProductListingLoaderTest extends TestCase
         foreach ($listing as $variant) {
             static::assertTrue($variant->hasExtension('search'));
         }
+    }
+
+    public function testMainVariantHasScoreInSearchExtension(): void
+    {
+        $this->createProduct([], true);
+
+        $listing = $this->fetchListing();
+
+        static::assertEquals(1, $listing->getTotal());
+
+        /** @var ProductEntity $mainVariant */
+        $mainVariant = $listing->getEntities()->first();
+
+        static::assertEquals($this->mainVariantId, $mainVariant->getId());
+        static::assertContains($this->optionIds['red'], $mainVariant->getOptionIds() ?: []);
+        static::assertContains($this->optionIds['l'], $mainVariant->getOptionIds() ?: []);
+        static::assertTrue($mainVariant->hasExtension('search'));
+
+        /** @var ArrayEntity $searchData */
+        $searchData = $mainVariant->get('search');
+        static::assertTrue($searchData->get('_score') > 0);
     }
 
     private function fetchListing(?Criteria $criteria = null): EntitySearchResult

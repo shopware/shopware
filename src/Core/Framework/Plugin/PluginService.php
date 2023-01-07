@@ -6,7 +6,7 @@ use Composer\IO\IOInterface;
 use Composer\Package\CompletePackageInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
@@ -20,6 +20,8 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\Language\LanguageEntity;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class PluginService
@@ -37,12 +39,12 @@ class PluginService
     private $projectDir;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $pluginRepo;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $languageRepo;
 
@@ -64,8 +66,8 @@ class PluginService
     public function __construct(
         string $pluginDir,
         string $projectDir,
-        EntityRepositoryInterface $pluginRepo,
-        EntityRepositoryInterface $languageRepo,
+        EntityRepository $pluginRepo,
+        EntityRepository $languageRepo,
         ChangelogService $changelogService,
         PluginFinder $pluginFinder,
         VersionSanitizer $versionSanitizer

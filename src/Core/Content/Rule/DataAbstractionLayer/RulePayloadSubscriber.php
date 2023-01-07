@@ -13,31 +13,21 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package business-ops
+ *
+ * @internal
  */
 class RulePayloadSubscriber implements EventSubscriberInterface
 {
-    private RulePayloadUpdater $updater;
-
-    private ScriptTraces $traces;
-
-    private string $cacheDir;
-
-    private bool $debug;
-
     /**
      * @internal
      */
     public function __construct(
-        RulePayloadUpdater $updater,
-        ScriptTraces $traces,
-        string $cacheDir,
-        bool $debug
+        private RulePayloadUpdater $updater,
+        private ScriptTraces $traces,
+        private string $cacheDir,
+        private bool $debug
     ) {
-        $this->updater = $updater;
-        $this->traces = $traces;
-        $this->cacheDir = $cacheDir;
-        $this->debug = $debug;
     }
 
     public static function getSubscribedEvents(): array

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,10 +15,15 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package core
+ */
+#[AsCommand(
+    name: 'plugin:refresh',
+    description: 'Refreshes the plugin list',
+)]
 class PluginRefreshCommand extends Command
 {
-    protected static $defaultName = 'plugin:refresh';
-
     /**
      * @var PluginService
      */
@@ -40,7 +46,7 @@ class PluginRefreshCommand extends Command
     {
         $this
             ->setDescription('Refreshes the plugins list in the storage from the file system')
-            ->addOption('skipPluginList', 's', InputOption::VALUE_NONE, "Don't display plugin list after refresh");
+            ->addOption('skipPluginList', 's', InputOption::VALUE_NONE, 'Don\'t display plugin list after refresh');
     }
 
     /**

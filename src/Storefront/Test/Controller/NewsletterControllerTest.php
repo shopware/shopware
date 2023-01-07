@@ -8,7 +8,6 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,6 +17,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class NewsletterControllerTest extends TestCase
@@ -25,11 +26,13 @@ class NewsletterControllerTest extends TestCase
     use SalesChannelFunctionalTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
+    /**
+     * @var array<string, mixed>
+     */
     private array $customerData = [];
 
     public function testRegisterNewsletterForCustomerDirect(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14001', $this);
         $browser = $this->login();
         $data = [
             'option' => 'direct',
@@ -43,7 +46,7 @@ class NewsletterControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
@@ -55,13 +58,12 @@ class NewsletterControllerTest extends TestCase
         /** @var NewsletterRecipientEntity $recipientEntry */
         $recipientEntry = $repo->search($criteria, Context::createDefaultContext())->first();
 
-        static::assertEquals('direct', $recipientEntry->getStatus(), $recipientEntry->getStatus());
+        static::assertEquals('direct', (string) $recipientEntry->getStatus());
         $this->validateRecipientData($recipientEntry);
     }
 
     public function testRegisterNewsletterForCustomerDoi(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14001', $this);
         $browser = $this->login();
         $data = [
             'option' => 'subscribe',
@@ -75,7 +77,7 @@ class NewsletterControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
@@ -94,7 +96,7 @@ class NewsletterControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
@@ -104,7 +106,7 @@ class NewsletterControllerTest extends TestCase
         /** @var NewsletterRecipientEntity $recipientEntry */
         $recipientEntry = $repo->search($criteria, Context::createDefaultContext())->first();
 
-        static::assertEquals('optIn', $recipientEntry->getStatus(), $recipientEntry->getStatus());
+        static::assertEquals('optIn', (string) $recipientEntry->getStatus());
         $this->validateRecipientData($recipientEntry);
     }
 
@@ -122,11 +124,12 @@ class NewsletterControllerTest extends TestCase
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         $browser->request('GET', '/');
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
+        static::assertNotNull($response->getContext());
         static::assertNotNull($response->getContext()->getCustomer());
 
         return $browser;

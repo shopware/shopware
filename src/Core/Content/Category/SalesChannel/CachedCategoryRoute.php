@@ -10,8 +10,8 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -22,6 +22,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package content
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class CachedCategoryRoute extends AbstractCategoryRoute
@@ -37,6 +38,9 @@ class CachedCategoryRoute extends AbstractCategoryRoute
      */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @var array<string>
+     */
     private array $states;
 
     private EventDispatcherInterface $dispatcher;
@@ -45,6 +49,7 @@ class CachedCategoryRoute extends AbstractCategoryRoute
      * @internal
      *
      * @param AbstractCacheTracer<CategoryRouteResponse> $tracer
+     * @param array<string> $states
      */
     public function __construct(
         AbstractCategoryRoute $decorated,
@@ -85,6 +90,10 @@ class CachedCategoryRoute extends AbstractCategoryRoute
 
             $key = $this->generateKey($navigationId, $request, $context);
 
+            if ($key === null) {
+                return $this->getDecorated()->load($navigationId, $request, $context);
+            }
+
             $value = $this->cache->get($key, function (ItemInterface $item) use ($navigationId, $request, $context) {
                 $name = self::buildName($navigationId);
 
@@ -101,20 +110,27 @@ class CachedCategoryRoute extends AbstractCategoryRoute
         });
     }
 
-    private function generateKey(string $navigationId, Request $request, SalesChannelContext $context): string
+    private function generateKey(string $navigationId, Request $request, SalesChannelContext $context): ?string
     {
         $parts = array_merge(
             $request->query->all(),
             $request->request->all(),
-            [$this->generator->getSalesChannelContextHash($context)]
+            [$this->generator->getSalesChannelContextHash($context, [RuleAreas::CATEGORY_AREA, RuleAreas::PRODUCT_AREA])]
         );
 
         $event = new CategoryRouteCacheKeyEvent($navigationId, $parts, $request, $context, null);
         $this->dispatcher->dispatch($event);
 
+        if (!$event->shouldCache()) {
+            return null;
+        }
+
         return self::buildName($navigationId) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function generateTags(string $navigationId, CategoryRouteResponse $response, Request $request, SalesChannelContext $context): array
     {
         $tags = array_merge(
@@ -129,6 +145,9 @@ class CachedCategoryRoute extends AbstractCategoryRoute
         return array_unique(array_filter($event->getTags()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function extractProductIds(CategoryRouteResponse $response): array
     {
         $page = $response->getCategory()->getCmsPage();

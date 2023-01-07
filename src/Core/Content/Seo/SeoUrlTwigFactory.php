@@ -10,6 +10,9 @@ use Twig\Environment;
 use Twig\Extension\EscaperExtension;
 use Twig\Loader\ArrayLoader;
 
+/**
+ * @package sales-channel
+ */
 class SeoUrlTwigFactory
 {
     public function createTwigEnvironment(SlugifyInterface $slugify, iterable $twigExtensions = []): Environment

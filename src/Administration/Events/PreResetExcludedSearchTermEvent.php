@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package administration
+ */
 class PreResetExcludedSearchTermEvent extends Event implements ShopwareEvent
 {
     private string $searchConfigId;

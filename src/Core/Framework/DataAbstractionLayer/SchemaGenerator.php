@@ -42,7 +42,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @package core
+ *
+ * @internal
  */
 class SchemaGenerator
 {
@@ -177,7 +179,7 @@ EOL;
 
             case $field instanceof BoolField:
                 $type = 'TINYINT(1)';
-                $default = "DEFAULT '0'";
+                $default = 'DEFAULT \'0\'';
 
                 break;
 

@@ -7,6 +7,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1578042218DefaultPages extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -18,7 +23,7 @@ class Migration1578042218DefaultPages extends MigrationStep
     {
         $this->fixContactPageAssignment($connection);
 
-        if ($connection->fetchColumn('SELECT COUNT(*) FROM cms_page WHERE locked = 0')) {
+        if ($connection->fetchOne('SELECT COUNT(*) FROM cms_page WHERE locked = 0')) {
             // User has already created pages
             return;
         }
@@ -73,7 +78,7 @@ class Migration1578042218DefaultPages extends MigrationStep
         $sectionId = Uuid::randomBytes();
         $blockId = Uuid::randomBytes();
         $slotId = Uuid::randomBytes();
-        $versionId = $connection->fetchColumn('SELECT version_id FROM cms_slot LIMIT 1');
+        $versionId = $connection->fetchOne('SELECT version_id FROM cms_slot LIMIT 1');
         $languageIdDefault = $this->getLanguageIdByLocale($connection, 'en-GB');
         $languageIdDe = $this->getLanguageIdByLocale($connection, 'de-DE');
 
@@ -191,12 +196,12 @@ class Migration1578042218DefaultPages extends MigrationStep
 
     private function fixContactPageAssignment(Connection $connection): void
     {
-        if ($connection->fetchColumn('SELECT 1 FROM system_config WHERE configuration_key = ?', ['core.basicInformation.contactPage'])) {
+        if ($connection->fetchOne('SELECT 1 FROM system_config WHERE configuration_key = ?', ['core.basicInformation.contactPage'])) {
             // Contact page is assigned
             return;
         }
 
-        $id = $connection->fetchColumn('SELECT cms_page_id FROM cms_page_translation WHERE name = ?', ['Default shop page layout with contact form']);
+        $id = $connection->fetchOne('SELECT cms_page_id FROM cms_page_translation WHERE name = ?', ['Default shop page layout with contact form']);
         if ($id) {
             $connection->insert('system_config', [
                 'id' => Uuid::randomBytes(),
@@ -217,7 +222,7 @@ WHERE `locale`.`code` = :code
 SQL;
 
         /** @var string|false $languageId */
-        $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchColumn();
+        $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchOne();
         if (!$languageId && $locale !== 'en-GB') {
             return null;
         }

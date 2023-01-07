@@ -8,17 +8,19 @@ use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package content
+ */
 class CategoryIndexer extends EntityIndexer
 {
     public const CHILD_COUNT_UPDATER = 'category.child-count';
@@ -29,7 +31,7 @@ class CategoryIndexer extends EntityIndexer
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private ChildCountUpdater $childCountUpdater;
 
@@ -45,7 +47,7 @@ class CategoryIndexer extends EntityIndexer
     public function __construct(
         Connection $connection,
         IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
+        EntityRepository $repository,
         ChildCountUpdater $childCountUpdater,
         TreeUpdater $treeUpdater,
         CategoryBreadcrumbUpdater $breadcrumbUpdater,
@@ -70,20 +72,8 @@ class CategoryIndexer extends EntityIndexer
         return $this->getIterator(null)->fetchCount();
     }
 
-    /**
-     * @param array|null $offset
-     *
-     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
-     */
-    public function iterate(/*?array */$offset): ?EntityIndexingMessage
+    public function iterate(?array $offset): ?EntityIndexingMessage
     {
-        if ($offset !== null && !\is_array($offset)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Parameter `$offset` of method "iterate()" in class "CategoryIndexer" will be natively typed to `?array` in v6.5.0.0.'
-            );
-        }
-
         $iterator = $this->getIterator($offset);
 
         $ids = $iterator->fetch();
@@ -207,7 +197,7 @@ class CategoryIndexer extends EntityIndexer
         $query->andWhere('category.version_id = :version');
         $query->setParameter('version', Uuid::fromHexToBytes($versionId));
 
-        return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+        return $query->executeQuery()->fetchFirstColumn();
     }
 
     private function getIterator(?array $offset): IterableQuery

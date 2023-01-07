@@ -65,7 +65,10 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_info_description %}
-        <section class="sw-extension-card-base__info-description">
+        <section
+            class="sw-extension-card-base__info-description"
+            :title="description"
+        >
             {{ description }}
         </section>
         {% endblock %}
@@ -131,17 +134,6 @@
         >
             {{ $tc('sw-extension-store.component.sw-extension-card-base.installExtensionLabel') }}
         </span>
-
-        {# @deprecated tag:v6.5.0 - will be removed use `sw_extension_card_base_context_menu_theme_settings` as a replacement #}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-        <span
-            v-else-if="openLinkExists"
-            class="sw-extension-card-base__open-extension"
-            style="display: none;"
-            @click="openExtension"
-        >
-            {{ $tc(openLinkInformation.label || 'sw-extension-store.component.sw-extension-card-base.openExtensionLabel') }}
-        </span>
         {% endblock %}
     </div>
     {% endblock %}
@@ -184,7 +176,7 @@
             <span class="sw-extension-card-base__context-menu-privacy-link">
                 {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.privacyAndSafetyLabel') }}
                 <sw-icon
-                    name="regular-small-external"
+                    name="regular-external-link-s"
                     size="10px"
                 />
             </span>

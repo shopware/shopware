@@ -1,10 +1,11 @@
 import template from './sw-first-run-wizard-store.html.twig';
 import './sw-first-run-wizard-store.scss';
 
-const { Component } = Shopware;
-
+/**
+ * @package merchant-services
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-first-run-wizard-store', {
+export default {
     template,
 
     inject: ['extensionHelperService'],
@@ -145,4 +146,4 @@ Component.register('sw-first-run-wizard-store', {
             this.$emit('buttons-update', this.buttonConfig);
         },
     },
-});
+};

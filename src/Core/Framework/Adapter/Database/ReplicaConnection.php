@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Shopware\Core\Kernel;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class ReplicaConnection

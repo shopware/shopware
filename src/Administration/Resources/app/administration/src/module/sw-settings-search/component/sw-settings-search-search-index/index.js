@@ -1,13 +1,16 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-search-search-index.html.twig';
 import './sw-settings-search-search-index.scss';
 
 const PRODUCT_INDEXER_INTERVAL = 3000;
-const { Mixin, Component, Context } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { format } = Shopware.Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-search-search-index', {
+export default {
     template,
 
     inject: [
@@ -128,7 +131,7 @@ Component.register('sw-settings-search-search-index', {
                             message: this.$tc('sw-settings-search.notification.index.success'),
                         });
                     } else {
-                        this.progressBarValue = Math.floor(Math.max(this.offset, 1) / this.totalProduct * 100);
+                        this.progressBarValue = Math.floor(Math.max(this.offset, 1) / (this.totalProduct * 100));
                         this.offset = data.offset.offset;
                         this.updateProgress();
                     }
@@ -176,4 +179,4 @@ Component.register('sw-settings-search-search-index', {
             this.$emit('edit-change', this.isRebuildInProgress);
         },
     },
-});
+};

@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Plugin\Event;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package core
+ */
 abstract class PluginLifecycleEvent extends Event
 {
     /**

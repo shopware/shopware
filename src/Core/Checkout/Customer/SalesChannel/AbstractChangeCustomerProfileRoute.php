@@ -10,6 +10,8 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
 /**
  * This route can be used to change profile information about the logged-in user
  * The required fields are "salutationId", "firstName" and "lastName"
+ *
+ * @package customer-order
  */
 abstract class AbstractChangeCustomerProfileRoute
 {

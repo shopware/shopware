@@ -10,7 +10,7 @@ use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -21,11 +21,13 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class ProductStreamBuilderTest extends TestCase
@@ -34,12 +36,12 @@ class ProductStreamBuilderTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productStreamRepository;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var SalesChannelRepository
      */
     private $productRepository;
 
@@ -247,11 +249,11 @@ class ProductStreamBuilderTest extends TestCase
         $connection = $this->getContainer()->get(Connection::class);
 
         $connection->exec(
-            "
+            '
             INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
             VALUES
-                (UNHEX('137B079935714281BA80B40F83F8D7EB'), '[]', 0, '2019-08-16 08:43:57.488', NULL);
-        "
+                (UNHEX(\'137B079935714281BA80B40F83F8D7EB\'), \'[]\', 0, \'2019-08-16 08:43:57.488\', NULL);
+        '
         );
     }
 

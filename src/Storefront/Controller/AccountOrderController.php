@@ -2,8 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\OrderPaymentMethodNotChangeable;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
@@ -18,9 +16,6 @@ use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -45,9 +40,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package storefront
+ *
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class AccountOrderController extends StorefrontController
 {
@@ -210,7 +207,7 @@ class AccountOrderController extends StorefrontController
         $order = $this->orderRoute->load($request, $context, $criteria)->getOrders()->first();
 
         if ($order === null) {
-            throw new OrderNotFoundException($orderId);
+            throw OrderException::orderNotFound($orderId);
         }
 
         if ($context->getCurrency()->getId() !== $order->getCurrencyId()) {
@@ -286,15 +283,11 @@ class AccountOrderController extends StorefrontController
         $order = $this->orderRoute->load($request, $context, new Criteria([$orderId]))->getOrders()->first();
 
         if ($order === null) {
-            throw new OrderNotFoundException($orderId);
+            throw OrderException::orderNotFound($orderId);
         }
 
         if (!$this->orderService->isPaymentChangeableByTransactionState($order)) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::paymentMethodNotChangeable();
-            }
-
-            throw new OrderPaymentMethodNotChangeable();
+            throw OrderException::paymentMethodNotChangeable();
         }
 
         if ($context->getCurrency()->getId() !== $order->getCurrencyId()) {

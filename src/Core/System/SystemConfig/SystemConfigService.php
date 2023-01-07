@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -25,11 +24,14 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use function json_decode;
 
+/**
+ * @package system-settings
+ */
 class SystemConfigService
 {
     private Connection $connection;
 
-    private EntityRepositoryInterface $systemConfigRepository;
+    private EntityRepository $systemConfigRepository;
 
     private ConfigReader $configReader;
 
@@ -184,7 +186,7 @@ class SystemConfigService
             ->setParameter('prefix', $escapedDomain . '%')
             ->setParameter('salesChannelId', $salesChannelId);
 
-        $configs = $queryBuilder->execute()->fetchAllNumeric();
+        $configs = $queryBuilder->executeQuery()->fetchAllNumeric();
 
         if ($configs === []) {
             return [];

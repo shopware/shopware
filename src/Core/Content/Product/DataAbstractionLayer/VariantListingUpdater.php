@@ -3,10 +3,14 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ */
 class VariantListingUpdater
 {
     private Connection $connection;
@@ -22,7 +26,7 @@ class VariantListingUpdater
     /**
      * @param array<string> $ids
      *
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     public function update(array $ids, Context $context): void
     {
@@ -106,7 +110,7 @@ class VariantListingUpdater
             ) WHERE parent_id = :parentId AND version_id = :versionId';
 
             RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
-                $this->connection->executeUpdate($sql, $params);
+                $this->connection->executeStatement($sql, $params);
             });
         }
     }
@@ -114,7 +118,7 @@ class VariantListingUpdater
     /**
      * @param array<string> $ids
      *
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      *
      * @return array<int|string, array<string, mixed>>
      */
@@ -136,7 +140,7 @@ class VariantListingUpdater
         $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
         $query->setParameter('version', $versionBytes);
 
-        $configuration = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $configuration = $query->executeQuery()->fetchAllAssociative();
 
         $listingConfiguration = [];
         foreach ($configuration as $config) {

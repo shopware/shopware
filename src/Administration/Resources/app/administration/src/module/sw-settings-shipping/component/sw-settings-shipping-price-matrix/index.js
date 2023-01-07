@@ -1,12 +1,15 @@
 import template from './sw-settings-shipping-price-matrix.html.twig';
 import './sw-settings-shipping-price-matrix.scss';
 
-const { Component, Mixin, Context, Data: { Criteria } } = Shopware;
+const { Mixin, Context, Data: { Criteria } } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
+/**
+ * @package checkout
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-shipping-price-matrix', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'feature'],
@@ -101,9 +104,11 @@ Component.register('sw-settings-shipping-price-matrix', {
 
         confirmDeleteText() {
             const name = this.priceGroup.rule ? this.priceGroup.rule.name : '';
-            return this.$tc('sw-settings-shipping.priceMatrix.textDeleteConfirm',
+            return this.$tc(
+                'sw-settings-shipping.priceMatrix.textDeleteConfirm',
                 Number(!!this.priceGroup.rule),
-                { name: name });
+                { name: name },
+            );
         },
 
         ruleColumns() {
@@ -463,4 +468,4 @@ Component.register('sw-settings-shipping-price-matrix', {
             this.onAddNewShippingPrice();
         },
     },
-});
+};

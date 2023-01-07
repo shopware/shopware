@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package inventory
+ */
 class ProductVisibilityDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_visibility';

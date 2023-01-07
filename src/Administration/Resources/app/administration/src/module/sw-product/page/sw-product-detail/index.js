@@ -1,16 +1,20 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-detail.html.twig';
 import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
 
-const { Component, Context, Mixin } = Shopware;
+const { Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator } = Shopware.Data;
 const { hasOwnProperty, cloneDeep } = Shopware.Utils.object;
 const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 const type = Shopware.Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-detail', {
+export default {
     template,
 
     inject: [
@@ -772,7 +776,9 @@ Component.register('sw-product-detail', {
                     message: this.$tc('sw-product.detail.errorMinMaxPurchase'),
                 });
 
-                return new Promise((res) => res());
+                return new Promise((resolve) => {
+                    resolve();
+                });
             }
 
             this.validateProductPrices();
@@ -922,7 +928,8 @@ Component.register('sw-product-detail', {
                         if (errorCode === 'CONTENT__DUPLICATE_PRODUCT_NUMBER') {
                             const titleSaveError = this.$tc('global.default.error');
                             const messageSaveError = this.$t(
-                                'sw-product.notification.notificationSaveErrorProductNoAlreadyExists', {
+                                'sw-product.notification.notificationSaveErrorProductNoAlreadyExists',
+                                {
                                     productNo: response.response.data.errors[0].meta.parameters.number,
                                 },
                             );
@@ -1045,7 +1052,6 @@ Component.register('sw-product-detail', {
                 Shopware.State.commit('swProductDetail/setLoading', ['media', false]);
 
                 resolve(newMedia.mediaId);
-                return true;
             });
         },
 
@@ -1185,4 +1191,4 @@ Component.register('sw-product-detail', {
             });
         },
     },
-});
+};

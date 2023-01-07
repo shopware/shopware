@@ -12,7 +12,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
@@ -587,7 +586,7 @@ EOF;
 
         $this->assertEntityExists($browser, 'product', $id);
 
-        /** @var EntityRepositoryInterface $productRepo */
+        /** @var EntityRepository $productRepo */
         $productRepo = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
         $criteria = new Criteria([$id]);
         $criteria->addFilter(
@@ -1472,15 +1471,6 @@ EOF;
             if ($categoryB === $datum['categoryId']) {
                 ++$categoryBFound;
             }
-
-            if (Feature::isActive('v6.5.0.0')) {
-                continue;
-            }
-
-            static::assertArrayHasKey('product_id', $datum);
-            static::assertArrayHasKey('category_id', $datum);
-            static::assertEquals($datum['categoryId'], $datum['category_id']);
-            static::assertEquals($datum['productId'], $datum['product_id']);
         }
 
         static::assertEquals(1, $categoryAFound);
@@ -2295,7 +2285,7 @@ EOF;
 
     private function getNonSystemLanguageId(): string
     {
-        /** @var EntityRepositoryInterface $languageRepository */
+        /** @var EntityRepository $languageRepository */
         $languageRepository = $this->getContainer()->get('language.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new NotFilter(

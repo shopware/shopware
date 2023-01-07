@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Page\Suggest;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Storefront\Page\Page;
 
+/**
+ * @package system-settings
+ */
 class SuggestPage extends Page
 {
     /**

@@ -9,6 +9,8 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class ComparisonExtension extends AbstractExtension

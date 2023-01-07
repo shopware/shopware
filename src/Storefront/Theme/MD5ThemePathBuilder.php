@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
+/**
+ * @package storefront
+ */
 class MD5ThemePathBuilder extends AbstractThemePathBuilder
 {
     public function assemblePath(string $salesChannelId, string $themeId): string

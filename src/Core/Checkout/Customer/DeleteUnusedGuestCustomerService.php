@@ -4,18 +4,21 @@ namespace Shopware\Core\Checkout\Customer;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @package customer-order
+ */
 class DeleteUnusedGuestCustomerService
 {
     public const DELETE_CUSTOMERS_BATCH_SIZE = 100;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
     private SystemConfigService $systemConfigService;
 
@@ -23,7 +26,7 @@ class DeleteUnusedGuestCustomerService
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
+        EntityRepository $customerRepository,
         SystemConfigService $systemConfigService
     ) {
         $this->customerRepository = $customerRepository;
@@ -47,6 +50,9 @@ class DeleteUnusedGuestCustomerService
         return $this->customerRepository->search($criteria, $context)->getTotal();
     }
 
+    /**
+     * @return list<array{id: string}>
+     */
     public function deleteUnusedCustomers(Context $context): array
     {
         $maxLifeTime = $this->getUnusedGuestCustomerLifeTime();
@@ -58,10 +64,11 @@ class DeleteUnusedGuestCustomerService
         $criteria = $this->getUnusedCustomerCriteria($maxLifeTime);
         $criteria->setLimit(self::DELETE_CUSTOMERS_BATCH_SIZE);
 
+        /** @var list<string> $ids */
         $ids = $this->customerRepository->searchIds($criteria, $context)->getIds();
-        $ids = \array_map(static function ($id) {
+        $ids = \array_values(\array_map(static function (string $id) {
             return ['id' => $id];
-        }, $ids);
+        }, $ids));
 
         $this->customerRepository->delete($ids, $context);
 

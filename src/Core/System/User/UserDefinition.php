@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User;
 
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -36,6 +37,9 @@ use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 
+/**
+ * @package system-settings
+ */
 class UserDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'user';
@@ -101,6 +105,8 @@ class UserDefinition extends EntityDefinition
             (new StringField('store_token', 'storeToken'))->removeFlag(ApiAware::class),
             new OneToManyAssociationField('createdOrders', OrderDefinition::class, 'created_by_id', 'id'),
             new OneToManyAssociationField('updatedOrders', OrderDefinition::class, 'updated_by_id', 'id'),
+            new OneToManyAssociationField('createdCustomers', CustomerDefinition::class, 'created_by_id', 'id'),
+            new OneToManyAssociationField('updatedCustomers', CustomerDefinition::class, 'updated_by_id', 'id'),
         ]);
     }
 }

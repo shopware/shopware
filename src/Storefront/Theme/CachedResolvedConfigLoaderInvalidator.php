@@ -10,7 +10,9 @@ use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
+ *
+ * @package storefront
  */
 class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
 {
@@ -52,6 +54,10 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
     {
         $this->logger->invalidate([CachedResolvedConfigLoader::buildName($event->getThemeId())]);
         $this->logger->invalidate([CachedDomainLoader::CACHE_KEY]);
+
+        $salesChannelId = $event->getSalesChannelId();
+
+        $this->logger->invalidate(['translation.catalog.' . $salesChannelId], true);
     }
 
     public function reset(ThemeConfigResetEvent $event): void

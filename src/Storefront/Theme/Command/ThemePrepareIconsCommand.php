@@ -8,6 +8,7 @@ use SVG\Nodes\SVGNode;
 use SVG\Nodes\SVGNodeContainer;
 use SVG\Reading\SVGReader;
 use SVG\SVG;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,10 +16,15 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @package storefront
+ */
+#[AsCommand(
+    name: 'theme:prepare-icons',
+    description: 'Prepare the theme icons',
+)]
 class ThemePrepareIconsCommand extends Command
 {
-    protected static $defaultName = 'theme:prepare-icons';
-
     private SymfonyStyle $io;
 
     protected function configure(): void

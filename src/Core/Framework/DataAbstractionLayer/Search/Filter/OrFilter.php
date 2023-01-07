@@ -3,10 +3,15 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
 /**
- * @final tag:v6.5.0
+ * @final
+ *
+ * @package core
  */
 class OrFilter extends MultiFilter
 {
+    /**
+     * @param Filter[] $queries
+     */
     public function __construct(array $queries = [])
     {
         parent::__construct(self::CONNECTION_OR, $queries);

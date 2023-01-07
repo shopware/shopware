@@ -253,7 +253,7 @@
             <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator"/>
         </service>
 
-        <service id="shopware.app_system.guzzle" class="GuzzleHttp\Client" lazy="true">
+        <service id="shopware.app_system.guzzle" class="GuzzleHttp\Client">
             <argument type="collection">
                 <argument key="timeout">5</argument>
                 <argument key="connect_timeout">1</argument>
@@ -389,6 +389,12 @@
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
 
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\CreateAppCommand">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
+            <argument>%shopware.app_dir%</argument>
             <tag name="console.command"/>
         </service>
 

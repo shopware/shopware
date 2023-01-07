@@ -57,132 +57,133 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_manufacturer_detail_content %}
-    <sw-card-view slot="content">
-        <template v-if="manufacturerIsLoading">
-            <sw-skeleton variant="detail-bold" />
-            <sw-skeleton />
-        </template>
+    <template #content>
+        <sw-card-view>
+            <template v-if="manufacturerIsLoading">
+                <sw-skeleton variant="detail-bold" />
+                <sw-skeleton />
+            </template>
 
-        <template v-else>
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_manufacturer_detail_content_language_info %}
-            <sw-language-info
-                :entity-description="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline'))"
-            />
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_manufacturer_detail_base_basic_info_card %}
-            <sw-card
-                position-identifier="sw-manufacturer-detail-basic-info"
-                :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')"
-            >
-                <sw-container
-                    class="sw-manufacturer-detail__container"
-                    columns="repeat(auto-fit, minmax(250px, 1fr))"
-                    gap="0 30px"
-                >
-                    <div class="sw-manufacturer-detail__base-info-wrapper">
-
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_manufacturer_detail_base_info_field_name %}
-                        <sw-field
-                            v-model="manufacturer.name"
-                            type="text"
-                            :label="$tc('sw-manufacturer.detail.labelName')"
-                            :placeholder="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.placeholderName'))"
-                            name="name"
-                            validation="required"
-                            required
-                            :error="manufacturerNameError"
-                            :disabled="!acl.can('product_manufacturer.editor')"
-                        />
-                        {% endblock %}
-
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_manufacturer_detail_base_info_field_link %}
-                        <sw-field
-                            v-model="manufacturer.link"
-                            type="text"
-                            :label="$tc('sw-manufacturer.detail.labelLink')"
-                            :placeholder="$tc('sw-manufacturer.detail.placeholderLink')"
-                            name="link"
-                            :disabled="!acl.can('product_manufacturer.editor')"
-                        />
-                        {% endblock %}
-                    </div>
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_manufacturer_detail_logo_upload %}
-                    <sw-upload-listener
-                        :upload-tag="mediaUploadTag"
-                        auto-upload
-                        @media-upload-finish="setMediaItem"
-                    />
-                    <sw-media-upload-v2
-                        class="sw-manufacturer-detail__logo-upload"
-                        :source="manufacturer.mediaId"
-                        :allow-multi-select="false"
-                        variant="regular"
-                        :upload-tag="mediaUploadTag"
-                        :label="$tc('sw-manufacturer.detail.labelLogo')"
-                        :default-folder="manufacturerRepository.entityName"
-                        :disabled="!acl.can('product_manufacturer.editor')"
-                        @sw-media-upload-v2-media-upload-success="setMediaItem"
-                        @media-drop="onDropMedia"
-                        @media-upload-sidebar-open="openMediaSidebar"
-                        @media-upload-remove-image="onUnlinkLogo"
-                    />
-                    {% endblock %}
-                </sw-container>
+            <template v-else>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_manufacturer_detail_base_info_field_description %}
-                <sw-text-editor
-                    v-model="manufacturer.description"
-                    :label="$tc('sw-manufacturer.detail.labelDescription')"
-                    :placeholder="placeholder(manufacturer, 'description', $tc('sw-manufacturer.detail.placeholderDescription'))"
-                    name="description"
-                    sanitize-input
-                    sanitize-field-name="product_manufacturer_translation.description"
-                    :disabled="!acl.can('product_manufacturer.editor')"
+                {% block sw_manufacturer_detail_content_language_info %}
+                <sw-language-info
+                    :entity-description="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline'))"
                 />
                 {% endblock %}
-            </sw-card>
-            {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_manufacturer_detail_custom_field_sets %}
-            <sw-card
-                v-if="customFieldSets.length > 0"
-                position-identifier="sw-manufacturer-detail-custom-field-sets"
-                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                :is-loading="manufacturerIsLoading"
-            >
-                <sw-custom-field-set-renderer
-                    v-if="manufacturer"
-                    :entity="manufacturer"
-                    :sets="customFieldSets"
-                    :disabled="!acl.can('product_manufacturer.editor')"
-                />
-            </sw-card>
-            {% endblock %}
-        </template>
-    </sw-card-view>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_manufacturer_detail_base_basic_info_card %}
+                <sw-card
+                    position-identifier="sw-manufacturer-detail-basic-info"
+                    :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')"
+                >
+                    <sw-container
+                        class="sw-manufacturer-detail__container"
+                        columns="repeat(auto-fit, minmax(250px, 1fr))"
+                        gap="0 30px"
+                    >
+                        <div class="sw-manufacturer-detail__base-info-wrapper">
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_manufacturer_detail_base_info_field_name %}
+                            <sw-field
+                                v-model="manufacturer.name"
+                                type="text"
+                                :label="$tc('sw-manufacturer.detail.labelName')"
+                                :placeholder="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.placeholderName'))"
+                                name="name"
+                                validation="required"
+                                required
+                                :error="manufacturerNameError"
+                                :disabled="!acl.can('product_manufacturer.editor')"
+                            />
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_manufacturer_detail_base_info_field_link %}
+                            <sw-field
+                                v-model="manufacturer.link"
+                                type="text"
+                                :label="$tc('sw-manufacturer.detail.labelLink')"
+                                :placeholder="$tc('sw-manufacturer.detail.placeholderLink')"
+                                name="link"
+                                :disabled="!acl.can('product_manufacturer.editor')"
+                            />
+                            {% endblock %}
+                        </div>
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_manufacturer_detail_logo_upload %}
+                        <sw-upload-listener
+                            :upload-tag="mediaUploadTag"
+                            auto-upload
+                            @media-upload-finish="setMediaItem"
+                        />
+                        <sw-media-upload-v2
+                            class="sw-manufacturer-detail__logo-upload"
+                            :source="manufacturer.mediaId"
+                            :allow-multi-select="false"
+                            variant="regular"
+                            :upload-tag="mediaUploadTag"
+                            :label="$tc('sw-manufacturer.detail.labelLogo')"
+                            :default-folder="manufacturerRepository.entityName"
+                            :disabled="!acl.can('product_manufacturer.editor')"
+                            @sw-media-upload-v2-media-upload-success="setMediaItem"
+                            @media-drop="onDropMedia"
+                            @media-upload-sidebar-open="openMediaSidebar"
+                            @media-upload-remove-image="onUnlinkLogo"
+                        />
+                        {% endblock %}
+                    </sw-container>
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_manufacturer_detail_base_info_field_description %}
+                    <sw-text-editor
+                        v-model="manufacturer.description"
+                        :label="$tc('sw-manufacturer.detail.labelDescription')"
+                        :placeholder="placeholder(manufacturer, 'description', $tc('sw-manufacturer.detail.placeholderDescription'))"
+                        name="description"
+                        sanitize-input
+                        sanitize-field-name="product_manufacturer_translation.description"
+                        :disabled="!acl.can('product_manufacturer.editor')"
+                    />
+                    {% endblock %}
+                </sw-card>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_manufacturer_detail_custom_field_sets %}
+                <sw-card
+                    v-if="customFieldSets.length > 0"
+                    position-identifier="sw-manufacturer-detail-custom-field-sets"
+                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :is-loading="manufacturerIsLoading"
+                >
+                    <sw-custom-field-set-renderer
+                        v-if="manufacturer"
+                        :entity="manufacturer"
+                        :sets="customFieldSets"
+                        :disabled="!acl.can('product_manufacturer.editor')"
+                    />
+                </sw-card>
+                {% endblock %}
+            </template>
+        </sw-card-view>
+    </template>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_manufacturer_detail_sidebar %}
-    <template slot="sidebar">
+    <template #sidebar>
         <sw-sidebar :propagate-width="true">
             <sw-sidebar-media-item
                 ref="mediaSidebarItem"
                 :disabled="!acl.can('product_manufacturer.editor')"
             >
                 <template
-                    slot="context-menu-items"
-                    slot-scope="media"
+                    #context-menu-items="media"
                 >
                     <sw-context-menu-item @click="setMediaFromSidebar(media.mediaItem)">
                         {{ $tc('sw-manufacturer.detail.labelUseAsLogo') }}

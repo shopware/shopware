@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 
+/**
+ * @package core
+ */
 abstract class AbstractElasticsearchSearchHydrator
 {
     abstract public function getDecorated(): AbstractElasticsearchSearchHydrator;

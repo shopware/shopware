@@ -10,6 +10,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * @package core
+ *
+ * @internal
+ *
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - Will be remove on version 6.5.0
  */
 class CountryTaxFreeDeprecationUpdater implements EventSubscriberInterface
@@ -68,6 +72,9 @@ class CountryTaxFreeDeprecationUpdater implements EventSubscriberInterface
         $this->backport($companyTaxFreeBackport, CountryDefinition::TYPE_COMPANY_TAX_FREE);
     }
 
+    /**
+     * @param array<string|int> $ids
+     */
     private function port(array $ids, string $taxFreeType): void
     {
         $ids = array_unique(array_filter($ids));
@@ -116,6 +123,9 @@ class CountryTaxFreeDeprecationUpdater implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param array<string|int> $ids
+     */
     private function backport(array $ids, string $taxFreeType): void
     {
         $ids = array_unique(array_filter($ids));

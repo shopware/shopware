@@ -23,6 +23,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  */
 class SalesChannelContextPersisterTest extends TestCase
@@ -354,7 +356,7 @@ class SalesChannelContextPersisterTest extends TestCase
             [
                 'token' => $token,
             ]
-        )->fetchColumn();
+        )->fetchOne();
 
         return $result > 0;
     }
@@ -366,7 +368,7 @@ class SalesChannelContextPersisterTest extends TestCase
             [
                 'token' => $token,
             ]
-        )->fetchColumn();
+        )->fetchOne();
 
         return $result > 0;
     }

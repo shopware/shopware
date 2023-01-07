@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package inventory
+ */
 class ProductListingCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**

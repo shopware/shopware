@@ -20,6 +20,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package inventory
+ */
 class ProductMediaDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_media';

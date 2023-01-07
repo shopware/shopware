@@ -6,23 +6,26 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @package core
+ */
 class LanguageSerializer extends EntitySerializer implements ResetInterface
 {
-    private EntityRepositoryInterface $languageRepository;
+    private EntityRepository $languageRepository;
 
     private array $cacheLanguages = [];
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $languageRepository)
+    public function __construct(EntityRepository $languageRepository)
     {
         $this->languageRepository = $languageRepository;
     }

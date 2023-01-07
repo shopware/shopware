@@ -7,21 +7,20 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
 /**
+ * @package core
  * This class contains the needed functions in order to do the query highlighting
  */
 class DoctrineExtension extends AbstractExtension
 {
     /**
      * Number of maximum characters that one single line can hold in the interface
-     *
-     * @var int
      */
-    private $maxCharWidth = 100;
+    private int $maxCharWidth = 100;
 
     /**
      * Define our functions
      *
-     * @return TwigFilter[]
+     * @return list<TwigFilter>
      */
     public function getFilters(): array
     {
@@ -98,7 +97,7 @@ class DoctrineExtension extends AbstractExtension
                 break;
 
             case \is_string($result):
-                $result = "'" . addslashes($result) . "'";
+                $result = '\'' . addslashes($result) . '\'';
 
                 break;
 
@@ -137,10 +136,16 @@ class DoctrineExtension extends AbstractExtension
      */
     public function replaceQueryParameters(string $query, $parameters): string
     {
+        /** @var array<mixed> $values */
         $values = $parameters;
 
         if ($parameters instanceof Data) {
+            /** @var array<mixed> $values */
             $values = $parameters->getValue(true);
+        }
+
+        if (!\is_array($values)) {
+            return $query;
         }
 
         $i = 0;

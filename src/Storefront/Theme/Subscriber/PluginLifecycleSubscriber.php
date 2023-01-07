@@ -3,16 +3,15 @@
 namespace Shopware\Storefront\Theme\Subscriber;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Event\PluginLifecycleEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivationFailedEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPreActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
@@ -23,7 +22,9 @@ use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
+ *
+ * @package storefront
  */
 class PluginLifecycleSubscriber implements EventSubscriberInterface
 {
@@ -59,19 +60,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        if (Feature::isActive('v6.5.0.0')) {
-            return [
-                PluginPostActivateEvent::class => 'pluginPostActivate',
-                PluginPreUpdateEvent::class => 'pluginUpdate',
-                PluginPreDeactivateEvent::class => 'pluginDeactivateAndUninstall',
-                PluginPostDeactivationFailedEvent::class => 'pluginPostDeactivateFailed',
-                PluginPreUninstallEvent::class => 'pluginDeactivateAndUninstall',
-                PluginPostUninstallEvent::class => 'pluginPostUninstall',
-            ];
-        }
-
         return [
-            PluginPreActivateEvent::class => 'pluginActivate',
             PluginPostActivateEvent::class => 'pluginPostActivate',
             PluginPreUpdateEvent::class => 'pluginUpdate',
             PluginPreDeactivateEvent::class => 'pluginDeactivateAndUninstall',
@@ -79,18 +68,6 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
             PluginPreUninstallEvent::class => 'pluginDeactivateAndUninstall',
             PluginPostUninstallEvent::class => 'pluginPostUninstall',
         ];
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Method will be removed. use pluginPostActivate instead
-     */
-    public function pluginActivate(PluginPreActivateEvent $event): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            sprintf('Method pluginActivate of Class %s is deprecated. Use method pluginPostActivate instead', static::class)
-        );
-        // do nothing
     }
 
     public function pluginPostActivate(PluginPostActivateEvent $event): void
@@ -186,7 +163,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
             $event->getPlugin()->getBaseClass()
         );
 
-        // add plugin configuration to the list of all active plugin configurations
+        // ensure plugin configuration is in the list of all active plugin configurations
         $configurationCollection = clone $this->storefrontPluginRegistry->getConfigurations();
         $configurationCollection->add($storefrontPluginConfig);
 
@@ -199,6 +176,6 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
 
     private function skipCompile(Context $context): bool
     {
-        return $context->hasState(Plugin\PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
+        return $context->hasState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
     }
 }

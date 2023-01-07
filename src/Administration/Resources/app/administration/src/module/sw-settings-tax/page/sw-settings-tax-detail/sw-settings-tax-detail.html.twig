@@ -3,7 +3,7 @@
 <sw-page class="sw-settings-tax-detail">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tax_detail_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <h2 v-if="label">
             {{ label }}
         </h2>
@@ -15,7 +15,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tax_detail_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_tax_detail_actions_abort %}
         <sw-button
@@ -44,7 +44,7 @@
     </template>
     {% endblock %}
 
-    <template slot="language-switch">
+    <template #language-switch>
         <sw-language-switch
             :save-changes-function="saveOnLanguageChange"
             :abort-change-function="abortOnLanguageChange"
@@ -54,102 +54,104 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tax_detail_content %}
-    <sw-card-view slot="content">
-        <template v-if="isLoading">
-            <sw-skeleton />
-            <sw-skeleton />
-        </template>
+    <template #content>
+        <sw-card-view>
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
 
-        <template v-else>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_tax_detail_content_card %}
-            <sw-card
-                :title="$tc('sw-settings-tax.detail.titleCard')"
-                position-identifier="sw-settings-tax-detail-content"
-            >
-                <sw-container
-                    columns="repeat(auto-fit, minmax(250px, 1fr))"
-                    gap="0px 30px"
+            <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_tax_detail_content_card %}
+                <sw-card
+                    :title="$tc('sw-settings-tax.detail.titleCard')"
+                    position-identifier="sw-settings-tax-detail-content"
                 >
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_tax_detail_content_field_name %}
-                    <sw-text-field
-                        id="sw-field--tax-name"
-                        :value="label"
-                        required
-                        name="sw-field--tax-name"
-                        :disabled="!acl.can('tax.editor') || isShopwareDefaultTax"
-                        :label="$tc('sw-settings-tax.detail.labelName')"
-                        :placeholder="$tc('sw-settings-tax.detail.placeholderName')"
-                        :error="taxNameError"
-                        @change="changeName"
-                    />
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_tax_detail_content_field_tax_rate %}
-                    <sw-number-field
-                        v-model="tax.taxRate"
-                        required
-                        :disabled="!acl.can('tax.editor')"
-                        :label="$tc('sw-settings-tax.detail.labelDefaultTaxRate')"
-                        :placeholder="$tc('sw-settings-tax.detail.placeholderDefaultTaxRate')"
-                        :error="taxTaxRateError"
+                    <sw-container
+                        columns="repeat(auto-fit, minmax(250px, 1fr))"
+                        gap="0px 30px"
                     >
-                        <template #suffix>
-                            <span>
-                                <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))"></span>
-                            </span>
-                        </template>
-                    </sw-number-field>
-                    {% endblock %}
 
-                    <div class="sw-settings-tax-detail__switches">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_tax_detail_content_field_default_tax_rate %}
-                        <sw-switch-field
-                            :key="isDefault"
-                            class="sw-settings-tax-detail__default-tax-rate"
-                            :label="$tc('sw-settings-tax.detail.defaultTaxLabel')"
-                            :help-text="$tc('sw-settings-tax.detail.defaultTaxHelpText')"
-                            :value="isDefault"
-                            @change="onChangeDefaultTaxRate"
+                        {% block sw_settings_tax_detail_content_field_name %}
+                        <sw-text-field
+                            id="sw-field--tax-name"
+                            :value="label"
+                            required
+                            name="sw-field--tax-name"
+                            :disabled="!acl.can('tax.editor') || isShopwareDefaultTax"
+                            :label="$tc('sw-settings-tax.detail.labelName')"
+                            :placeholder="$tc('sw-settings-tax.detail.placeholderName')"
+                            :error="taxNameError"
+                            @change="changeName"
                         />
-                    {% endblock %}
-                    </div>
-                </sw-container>
-            </sw-card>
-            {% endblock %}
+                        {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_tax_detail_rule_card %}
-            <sw-tax-rule-card
-                v-if="tax.id"
-                :disabled="!taxId"
-                class="sw-settings-tax-detail__tax-rule-grid"
-                :tax="tax"
-                :is-loading="isLoading"
-            />
-            {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_tax_detail_content_field_tax_rate %}
+                        <sw-number-field
+                            v-model="tax.taxRate"
+                            required
+                            :disabled="!acl.can('tax.editor')"
+                            :label="$tc('sw-settings-tax.detail.labelDefaultTaxRate')"
+                            :placeholder="$tc('sw-settings-tax.detail.placeholderDefaultTaxRate')"
+                            :error="taxTaxRateError"
+                        >
+                            <template #suffix>
+                                <span>
+                                    <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))"></span>
+                                </span>
+                            </template>
+                        </sw-number-field>
+                        {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_tax_detail_custom_field_sets %}
-            <sw-card
-                v-if="showCustomFields"
-                position-identifier="sw-settings-tax-detail-custom-field-sets"
-                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                :is-loading="isLoading"
-            >
-                <sw-custom-field-set-renderer
-                    :entity="tax"
-                    :disabled="!acl.can('tax.editor')"
-                    :sets="customFieldSets"
+                        <div class="sw-settings-tax-detail__switches">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_tax_detail_content_field_default_tax_rate %}
+                            <sw-switch-field
+                                :key="isDefault"
+                                class="sw-settings-tax-detail__default-tax-rate"
+                                :label="$tc('sw-settings-tax.detail.defaultTaxLabel')"
+                                :help-text="$tc('sw-settings-tax.detail.defaultTaxHelpText')"
+                                :value="isDefault"
+                                @change="onChangeDefaultTaxRate"
+                            />
+                        {% endblock %}
+                        </div>
+                    </sw-container>
+                </sw-card>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_tax_detail_rule_card %}
+                <sw-tax-rule-card
+                    v-if="tax.id"
+                    :disabled="!taxId"
+                    class="sw-settings-tax-detail__tax-rule-grid"
+                    :tax="tax"
+                    :is-loading="isLoading"
                 />
-            </sw-card>
-            {% endblock %}
-        </template>
-    </sw-card-view>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_tax_detail_custom_field_sets %}
+                <sw-card
+                    v-if="showCustomFields"
+                    position-identifier="sw-settings-tax-detail-custom-field-sets"
+                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :is-loading="isLoading"
+                >
+                    <sw-custom-field-set-renderer
+                        :entity="tax"
+                        :disabled="!acl.can('tax.editor')"
+                        :sets="customFieldSets"
+                    />
+                </sw-card>
+                {% endblock %}
+            </template>
+        </sw-card-view>
+    </template>
     {% endblock %}
 </sw-page>
 {% endblock %}

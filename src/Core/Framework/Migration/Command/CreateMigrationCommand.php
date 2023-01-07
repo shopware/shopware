@@ -4,16 +4,22 @@ namespace Shopware\Core\Framework\Migration\Command;
 
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package core
+ */
+#[AsCommand(
+    name: 'database:create-migration',
+    description: 'Creates a new migration file',
+)]
 class CreateMigrationCommand extends Command
 {
-    protected static $defaultName = 'database:create-migration';
-
     private string $coreDir;
 
     private KernelPluginCollection $kernelPluginCollection;
@@ -113,32 +119,12 @@ class CreateMigrationCommand extends Command
             // We create a core-migration in case no plugin was given
             $directory = $this->coreDir . '/Migration/V6_' . $major;
             $namespace = 'Shopware\\Core\\Migration\\V6_' . $major;
-
-            // create legacy migration
-            $legacyDirectory = $this->coreDir . '/Migration';
-            $legacyNamespace = 'Shopware\\Core\\Migration';
-
-            // @deprecated tag:v6.5.0 - Only necessary until 6.5.0.0
-            $output->writeln('Creating legacy core migration ...');
-            // @deprecated tag:v6.5.0 - Only necessary until 6.5.0.0
-            $this->createMigrationFile(
-                $output,
-                $legacyDirectory,
-                \dirname(__DIR__) . '/Template/MigrationTemplateLegacy.txt',
-                [
-                    '%%timestamp%%' => $timestamp,
-                    '%%name%%' => $name,
-                    '%%namespace%%' => $legacyNamespace,
-                    '%%superclassnamespace%%' => '\\' . $namespace,
-                ]
-            );
         }
 
         $params = [
             '%%timestamp%%' => $timestamp,
             '%%name%%' => $name,
             '%%namespace%%' => $namespace,
-            '%%superclassnamespace%%' => $namespace,
         ];
 
         $output->writeln('Creating core-migration ...');
@@ -153,9 +139,11 @@ class CreateMigrationCommand extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * @param array{"%%timestamp%%": int, "%%name%%": string, "%%namespace%%": string} $params
+     */
     private function createMigrationFile(OutputInterface $output, string $directory, string $templatePatch, array $params): void
     {
-        $params['%%timestamp%%'] = $params['%%timestamp%%'] ?? (new \DateTime())->getTimestamp();
         $path = rtrim($directory, '/') . '/Migration' . $params['%%timestamp%%'] . $params['%%name%%'] . '.php';
         $file = fopen($path, 'wb');
         if ($file === false) {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
-use Shopware\Core\Checkout\Cart\Exception\MissingLineItemPriceException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
@@ -13,10 +12,12 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class Calculator
 {
     private QuantityPriceCalculator $quantityPriceCalculator;
@@ -114,10 +115,6 @@ class Calculator
             return $this->quantityPriceCalculator->calculate($definition, $context);
         }
 
-        if (Feature::isActive('v6.5.0.0')) {
-            throw CartException::missingLineItemPrice($lineItem->getId());
-        }
-
-        throw new MissingLineItemPriceException($lineItem->getId());
+        throw CartException::missingLineItemPrice($lineItem->getId());
     }
 }

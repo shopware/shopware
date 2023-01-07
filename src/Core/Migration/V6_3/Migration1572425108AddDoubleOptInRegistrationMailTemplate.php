@@ -3,13 +3,18 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends MigrationStep
 {
     private const GERMAN_LANGUAGE_NAME = 'Deutsch';
@@ -39,11 +44,11 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
     private function fetchLanguageIdByName(string $languageName, Connection $connection): ?string
     {
         try {
-            return (string) $connection->fetchColumn(
+            return (string) $connection->fetchOne(
                 'SELECT id FROM `language` WHERE `name` = :languageName',
                 ['languageName' => $languageName]
             );
-        } catch (DBALException $e) {
+        } catch (Exception $e) {
             return null;
         }
     }

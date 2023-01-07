@@ -8,23 +8,25 @@ use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @package administration
+ */
 class AdminProductStreamController extends AbstractController
 {
     private ProductDefinition $productDefinition;
 
-    private SalesChannelRepositoryInterface $salesChannelProductRepository;
+    private SalesChannelRepository $salesChannelProductRepository;
 
     private SalesChannelContextServiceInterface $salesChannelContextService;
 
@@ -35,7 +37,7 @@ class AdminProductStreamController extends AbstractController
      */
     public function __construct(
         ProductDefinition $productDefinition,
-        SalesChannelRepositoryInterface $salesChannelProductRepository,
+        SalesChannelRepository $salesChannelProductRepository,
         SalesChannelContextServiceInterface $salesChannelContextService,
         RequestCriteriaBuilder $criteriaBuilder
     ) {
@@ -60,7 +62,7 @@ class AdminProductStreamController extends AbstractController
             )
         );
 
-        if (empty($request->request->get('ids'))) {
+        if (empty($request->request->all('ids'))) {
             $request->request->remove('ids');
         }
 

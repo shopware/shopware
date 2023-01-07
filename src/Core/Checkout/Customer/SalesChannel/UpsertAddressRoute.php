@@ -6,12 +6,11 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDef
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\DataMappingEvent;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
@@ -28,6 +27,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package customer-order
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class UpsertAddressRoute extends AbstractUpsertAddressRoute
@@ -35,7 +36,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
     use CustomerAddressValidationTrait;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $addressRepository;
 
@@ -65,7 +66,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $addressRepository,
+        EntityRepository $addressRepository,
         DataValidator $validator,
         EventDispatcherInterface $eventDispatcher,
         DataValidationFactoryInterface $addressValidationFactory,
@@ -156,6 +157,8 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')) {
             $validation->add('company', new NotBlank());
         }
+
+        $validation->set('zipcode', new CustomerZipCode(['countryId' => $data->get('countryId')]));
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());

@@ -3,13 +3,11 @@
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,18 +16,20 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package customer-order
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class CancelOrderRoute extends AbstractCancelOrderRoute
 {
     private OrderService $orderService;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     /**
      * @internal
      */
-    public function __construct(OrderService $orderService, EntityRepositoryInterface $orderRepository)
+    public function __construct(OrderService $orderService, EntityRepository $orderRepository)
     {
         $this->orderService = $orderService;
         $this->orderRepository = $orderRepository;

@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package checkout
+ */
 class AddressTransformer
 {
     public static function transformCollection(CustomerAddressCollection $addresses, bool $useIdAsKey = false): array

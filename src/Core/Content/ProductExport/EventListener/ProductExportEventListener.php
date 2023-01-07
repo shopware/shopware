@@ -2,36 +2,29 @@
 
 namespace Shopware\Core\Content\ProductExport\EventListener;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package inventory
+ *
+ * @internal
  */
 class ProductExportEventListener implements EventSubscriberInterface
 {
-    private EntityRepositoryInterface $productExportRepository;
-
-    private ProductExportFileHandlerInterface $productExportFileHandler;
-
-    private FilesystemInterface $fileSystem;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $productExportRepository,
-        ProductExportFileHandlerInterface $productExportFileHandler,
-        FilesystemInterface $fileSystem
+        private EntityRepository $productExportRepository,
+        private ProductExportFileHandlerInterface $productExportFileHandler,
+        private FilesystemOperator $fileSystem
     ) {
-        $this->productExportRepository = $productExportRepository;
-        $this->productExportFileHandler = $productExportFileHandler;
-        $this->fileSystem = $fileSystem;
     }
 
     public static function getSubscribedEvents(): array
@@ -65,7 +58,7 @@ class ProductExportEventListener implements EventSubscriberInterface
                 $productExport = $productExportResult->first();
 
                 $filePath = $this->productExportFileHandler->getFilePath($productExport);
-                if ($this->fileSystem->has($filePath)) {
+                if ($this->fileSystem->fileExists($filePath)) {
                     $this->fileSystem->delete($filePath);
                 }
             }

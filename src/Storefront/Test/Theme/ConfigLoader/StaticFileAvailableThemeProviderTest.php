@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Storefront\Test\Theme\ConfigLoader;
 
 use League\Flysystem\Filesystem;
-use League\Flysystem\Memory\MemoryAdapter;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -20,14 +20,14 @@ class StaticFileAvailableThemeProviderTest extends TestCase
         static::expectException(\RuntimeException::class);
         static::expectExceptionMessage('Cannot find theme configuration. Did you run bin/console theme:dump');
 
-        $fs = new Filesystem(new MemoryAdapter());
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
         $s = new StaticFileAvailableThemeProvider($fs);
         $s->load(Context::createDefaultContext());
     }
 
     public function testFileExists(): void
     {
-        $fs = new Filesystem(new MemoryAdapter());
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
         $fs->write(StaticFileAvailableThemeProvider::THEME_INDEX, json_encode(['test' => 'test']));
 
         $s = new StaticFileAvailableThemeProvider($fs);
@@ -38,7 +38,7 @@ class StaticFileAvailableThemeProviderTest extends TestCase
     {
         static::expectException(DecorationPatternException::class);
 
-        $fs = new Filesystem(new MemoryAdapter());
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
         $s = new StaticFileAvailableThemeProvider($fs);
         $s->getDecorated(Context::createDefaultContext());
     }

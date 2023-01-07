@@ -1,11 +1,13 @@
 /**
+ * @package admin
+ *
  * @module app/service/shortcut
  */
 
 const { Application } = Shopware;
 
 /**
- *
+ * @deprecated tag:v6.6.0 - Will be private
  * @memberOf module:core/service/shortcut
  * @constructor
  * @method createShortcutService

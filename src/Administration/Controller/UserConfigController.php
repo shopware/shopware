@@ -9,12 +9,11 @@ use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
@@ -25,16 +24,19 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @package system-settings
+ */
 class UserConfigController extends AbstractController
 {
-    private EntityRepositoryInterface $userConfigRepository;
+    private EntityRepository $userConfigRepository;
 
     private Connection $connection;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $userConfigRepository, Connection $connection)
+    public function __construct(EntityRepository $userConfigRepository, Connection $connection)
     {
         $this->userConfigRepository = $userConfigRepository;
         $this->connection = $connection;

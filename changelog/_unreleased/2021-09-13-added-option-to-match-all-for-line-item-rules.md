@@ -1,7 +1,6 @@
 ---
 title: Added option to match all for line item rules
 issue: NEXT-14317
-flag: FEATURE_NEXT_17016
 author: d.neustadt
 author_email: d.neustadt@shopware.com 
 author_github: dneustadt

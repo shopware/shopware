@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Store\Services;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class ExtensionDataProvider extends AbstractExtensionDataProvider
@@ -22,16 +24,16 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
 
     private ExtensionLoader $extensionLoader;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
-    private EntityRepositoryInterface $pluginRepository;
+    private EntityRepository $pluginRepository;
 
     private ExtensionListingLoader $extensionListingLoader;
 
     public function __construct(
         ExtensionLoader $extensionLoader,
-        EntityRepositoryInterface $appRepository,
-        EntityRepositoryInterface $pluginRepository,
+        EntityRepository $appRepository,
+        EntityRepository $pluginRepository,
         ExtensionListingLoader $extensionListingLoader
     ) {
         $this->extensionLoader = $extensionLoader;

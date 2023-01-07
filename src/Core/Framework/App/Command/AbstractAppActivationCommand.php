@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\Console\Command\Command;
@@ -14,11 +14,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ *
+ * @package core
  */
 abstract class AbstractAppActivationCommand extends Command
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     protected $appRepo;
 
@@ -27,7 +29,7 @@ abstract class AbstractAppActivationCommand extends Command
      */
     private $action;
 
-    public function __construct(EntityRepositoryInterface $appRepo, string $action)
+    public function __construct(EntityRepository $appRepo, string $action)
     {
         $this->appRepo = $appRepo;
         $this->action = $action;

@@ -5,7 +5,7 @@
     background: $color-white;
     font-size: 22px;
     color: $color-darkgray-200;
-    font-weight: 600;
+    font-weight: $font-weight-semi-bold;
 
     .sw-cms-el-category-placeholder-listing div {
         margin: 10px 0;
@@ -31,7 +31,7 @@
     }
 
     p {
-        font-size: 14px;
+        font-size: $font-size-xs;
         margin: auto 10px auto 0;
     }
 }

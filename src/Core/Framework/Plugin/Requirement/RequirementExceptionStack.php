@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Plugin\Requirement;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementException;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
 
+/**
+ * @package core
+ */
 class RequirementExceptionStack
 {
     /**

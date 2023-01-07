@@ -8,7 +8,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
+ *
+ * @package storefront
  */
 class CartMergedSubscriber implements EventSubscriberInterface
 {
@@ -36,13 +38,6 @@ class CartMergedSubscriber implements EventSubscriberInterface
 
     public function addCartMergedNoticeFlash(CartMergedEvent $event): void
     {
-        /*
-        * @feature-depretacted tag:6.5.0.0 (flag:FEATURE_NEXT_16824) - Remove this check on 6.5.0.0
-        */
-        if ($event->getPreviousCart() === null) {
-            return;
-        }
-
         $mainRequest = $this->requestStack->getMainRequest();
 
         if ($mainRequest === null) {

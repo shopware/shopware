@@ -10,6 +10,8 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
  * @internal
+ *
+ * @package administration
  */
 class Administration extends Bundle
 {

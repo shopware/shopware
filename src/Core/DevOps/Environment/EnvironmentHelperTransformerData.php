@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\DevOps\Environment;
 
+/**
+ * @package core
+ */
 class EnvironmentHelperTransformerData
 {
     private string $key;

@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
 use Shopware\Core\Framework\App\FlowAction\AppFlowActionLoadedSubscriber;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -27,7 +27,7 @@ class AppFlowActionLoadedSubscriberTest extends TestCase
 
     public function testUnserialize(): void
     {
-        /** @var EntityRepositoryInterface $appFlowActionRepository */
+        /** @var EntityRepository $appFlowActionRepository */
         $appFlowActionRepository = $this->getContainer()->get('app_flow_action.repository');
 
         $idFlowAction = $this->registerFlowAction();
@@ -36,14 +36,14 @@ class AppFlowActionLoadedSubscriberTest extends TestCase
         $appFlowAction = $appFlowActionRepository->search(new Criteria([$idFlowAction]), Context::createDefaultContext())->get($idFlowAction);
         static::assertNotNull($appFlowAction);
         static::assertEquals(
-            base64_encode(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
+            base64_encode((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             $appFlowAction->getIcon()
         );
     }
 
     private function registerFlowAction(): string
     {
-        /** @var EntityRepositoryInterface $appRepository */
+        /** @var EntityRepository $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $idFlowAction = Uuid::randomHex();

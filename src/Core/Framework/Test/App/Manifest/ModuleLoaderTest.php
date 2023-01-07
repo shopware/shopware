@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\ModuleLoader;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -18,7 +18,7 @@ class ModuleLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface  $appRepository;
+    private EntityRepository  $appRepository;
 
     private Context $context;
 

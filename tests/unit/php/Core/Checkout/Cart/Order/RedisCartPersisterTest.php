@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -99,8 +98,6 @@ class RedisCartPersisterTest extends TestCase
     }
 
     /**
-     * @ActiveFeatures(features={"v6_5_0_0"})
-     *
      * @dataProvider dataProviderInvalidData
      *
      * @param mixed $data

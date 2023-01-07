@@ -7,6 +7,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package checkout
+ *
  * This route can be used to remove line items from cart
  */
 abstract class AbstractCartItemRemoveRoute

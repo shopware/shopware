@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Test\ImportExport\Service;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\FileEmptyException;
@@ -13,15 +13,18 @@ use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\MappingService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use const PHP_EOL;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class MappingServiceTest extends TestCase
 {
@@ -29,11 +32,11 @@ class MappingServiceTest extends TestCase
 
     private MappingService $mappingService;
 
-    private EntityRepositoryInterface $profileRepository;
+    private EntityRepository $profileRepository;
 
-    private EntityRepositoryInterface $fileRepository;
+    private EntityRepository $fileRepository;
 
-    private FilesystemInterface $fileSystem;
+    private FilesystemOperator $fileSystem;
 
     protected function setUp(): void
     {
@@ -116,6 +119,7 @@ class MappingServiceTest extends TestCase
         $filePath = tempnam(sys_get_temp_dir(), '');
         if (!isset($data['emptyFile']) || $data['emptyFile'] === false) {
             $file = fopen($filePath, 'wb');
+            static::assertIsResource($file);
             fwrite($file, $data['csvHeader']);
             fclose($file);
         }
@@ -316,7 +320,7 @@ class MappingServiceTest extends TestCase
             [
                 'expectedErrorClass' => InvalidFileContentException::class,
                 'sourceEntity' => 'product',
-                'csvHeader' => '' . \PHP_EOL,
+                'csvHeader' => '' . PHP_EOL,
             ],
         ];
 

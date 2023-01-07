@@ -6,6 +6,9 @@ use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 
+/**
+ * @package content
+ */
 class DocumentTypeDetector implements TypeDetectorInterface
 {
     protected const SUPPORTED_FILE_EXTENSIONS = [

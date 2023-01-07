@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import Vue from 'vue';
 
 const { Directive } = Shopware;
@@ -14,6 +18,9 @@ const availableTooltipPlacements = [
 
 const tooltipRegistry = new Map();
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 class Tooltip {
     /**
      * @param {object} obj

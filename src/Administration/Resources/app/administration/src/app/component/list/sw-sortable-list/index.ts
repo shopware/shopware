@@ -31,6 +31,9 @@ interface ScrollOnDragConf {
 }
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @example-type static
@@ -50,7 +53,7 @@ Component.register('sw-sortable-list', {
 
     props: {
         items: {
-            type: Array as PropType<Array<Entity>>,
+            type: Array as PropType<Array<Entity<keyof EntitySchema.Entities>>>,
             required: true,
         },
         sortable: {
@@ -89,7 +92,7 @@ Component.register('sw-sortable-list', {
         dragElement: Element|null,
         defaultConfig: DragConfig,
         defaultScrollOnDragConf: ScrollOnDragConf,
-        sortedItems: Array<Entity>,
+        sortedItems: Array<Entity<keyof EntitySchema.Entities>>,
         scrollEventTicking: boolean,
         } {
         return {
@@ -157,7 +160,10 @@ Component.register('sw-sortable-list', {
             return JSON.stringify(this.sortedItems) === JSON.stringify(this.items);
         },
 
-        onDragEnter(draggedComponent: Entity, droppedComponent: Entity): void {
+        onDragEnter(
+            draggedComponent: Entity<keyof EntitySchema.Entities>,
+            droppedComponent: Entity<keyof EntitySchema.Entities>,
+        ): void {
             if (!this.isSortable) {
                 return;
             }

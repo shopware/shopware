@@ -33,7 +33,7 @@ class DeprecatedDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
             (new IntField('price', 'price'))->addFlags(new ApiAware(), new Deprecated('v1', 'v2', 'prices')),
-            (new ListField('prices', 'prices', IntField::class))->setStrict(true)->addFlags(new ApiAware()),
+            (new ListField('prices', 'prices', IntField::class))->addFlags(new ApiAware()),
             (new FkField('tax_id', 'taxId', TaxDefinition::class))->addFlags(new ApiAware(), new Deprecated('v1', 'v2')),
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class))->addFlags(new ApiAware(), new Deprecated('v1', 'v2')),
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new ApiAware()),

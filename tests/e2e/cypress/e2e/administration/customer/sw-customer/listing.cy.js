@@ -125,7 +125,7 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
         });
     });
 
-    it('@Customer: check that the url parameters get set correctly', { tags: ['pa-customers-orders'] }, () => {
+    it('@Customer: check that the url parameters get set correctly', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);

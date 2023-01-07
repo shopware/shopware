@@ -15,18 +15,6 @@
 
         <template v-else>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_seo_url_card_toolbar %}
-            <template slot="toolbar">
-                <sw-sales-channel-switch
-                    ref="salesChannelSwitch"
-                    :disabled="disabled"
-                    :label="$tc('sw-seo-url.labelSalesChannelSelect')"
-                    @change-sales-channel-id="onSalesChannelChanged"
-                />
-            </template>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_seo_url_card_seo_path %}
             <sw-inherit-wrapper
                 v-model="currentSeoUrl.seoPathInfo"
@@ -52,6 +40,21 @@
             </sw-inherit-wrapper>
             {% endblock %}
         </template>
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_seo_url_card_toolbar %}
+        <template
+            v-if="!showEmptySeoUrlError"
+            #toolbar
+        >
+            <sw-sales-channel-switch
+                ref="salesChannelSwitch"
+                :disabled="disabled"
+                :label="$tc('sw-seo-url.labelSalesChannelSelect')"
+                @change-sales-channel-id="onSalesChannelChanged"
+            />
+        </template>
+        {% endblock %}
 
         <div
             v-if="hasAdditionalSeoSlot"

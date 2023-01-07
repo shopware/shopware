@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -43,6 +43,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ *
+ * @package inventory
  */
 class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 {
@@ -50,9 +52,9 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     public const PROPERTY_GROUP_IDS_REQUEST_PARAM = 'property-whitelist';
 
-    private EntityRepositoryInterface $optionRepository;
+    private EntityRepository $optionRepository;
 
-    private EntityRepositoryInterface $sortingRepository;
+    private EntityRepository $sortingRepository;
 
     private Connection $connection;
 
@@ -65,8 +67,8 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         Connection $connection,
-        EntityRepositoryInterface $optionRepository,
-        EntityRepositoryInterface $productSortingRepository,
+        EntityRepository $optionRepository,
+        EntityRepository $productSortingRepository,
         SystemConfigService $systemConfigService,
         EventDispatcherInterface $dispatcher
     ) {
@@ -558,7 +560,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             );
         }
 
-        $grouped = $this->connection->fetchAll(
+        $grouped = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(property_group_id)) as property_group_id, LOWER(HEX(id)) as id
              FROM property_group_option
              WHERE id IN (:ids)',

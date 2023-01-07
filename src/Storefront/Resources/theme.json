@@ -77,7 +77,7 @@
           "de-DE": "Primärfarbe"
         },
         "type": "color",
-        "value": "#008490",
+        "value": "#0b539b",
         "editable": true,
         "block": "themeColors",
         "order": 100
@@ -88,7 +88,7 @@
           "de-DE": "Sekundärfarbe"
         },
         "type": "color",
-        "value": "#526e7f",
+        "value": "#3d444d",
         "editable": true,
         "block": "themeColors",
         "order": 200
@@ -99,7 +99,7 @@
           "de-DE": "Rahmen"
         },
         "type": "color",
-        "value": "#bcc1c7",
+        "value": "#798490",
         "editable": true,
         "block": "themeColors",
         "order": 300
@@ -176,7 +176,7 @@
           "de-DE": "Textfarbe"
         },
         "type": "color",
-        "value": "#4a545b",
+        "value": "#2b3136",
         "editable": true,
         "block": "typography",
         "order": 200
@@ -198,7 +198,7 @@
           "de-DE": "Überschriftfarbe"
         },
         "type": "color",
-        "value": "#4a545b",
+        "value": "#2b3136",
         "editable": true,
         "block": "typography",
         "order": 400
@@ -209,7 +209,7 @@
           "de-DE": "Preis"
         },
         "type": "color",
-        "value": "#4a545b",
+        "value": "#2b3136",
         "editable": true,
         "block": "eCommerce",
         "order": 100
@@ -220,7 +220,7 @@
           "de-DE": "Kaufen-Button"
         },
         "type": "color",
-        "value": "#008490",
+        "value": "#0b539b",
         "editable": true,
         "block": "eCommerce",
         "order": 200

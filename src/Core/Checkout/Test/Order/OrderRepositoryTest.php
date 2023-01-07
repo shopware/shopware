@@ -20,7 +20,7 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -34,6 +34,8 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class OrderRepositoryTest extends TestCase
@@ -41,35 +43,17 @@ class OrderRepositoryTest extends TestCase
     use IntegrationTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderRepository;
+    private EntityRepository $orderRepository;
 
-    /**
-     * @var OrderPersister
-     */
-    private $orderPersister;
+    private OrderPersister $orderPersister;
 
-    /**
-     * @var Processor
-     */
-    private $processor;
+    private Processor $processor;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    private EntityRepository $customerRepository;
 
-    /**
-     * @var AbstractSalesChannelContextFactory
-     */
-    private $salesChannelContextFactory;
+    private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
-    /**
-     * @var StateMachineRegistry
-     */
-    private $stateMachineRegistry;
+    private StateMachineRegistry $stateMachineRegistry;
 
     protected function setUp(): void
     {
@@ -199,14 +183,14 @@ class OrderRepositoryTest extends TestCase
 
         $id = $this->orderPersister->persist($cart, $context);
 
-        $count = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+        $count = $this->getContainer()->get(Connection::class)->fetchAllAssociative('SELECT * FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertCount(1, $count);
 
         $this->orderRepository->delete([
             ['id' => $id],
         ], Context::createDefaultContext());
 
-        $count = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+        $count = $this->getContainer()->get(Connection::class)->fetchAllAssociative('SELECT * FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertCount(0, $count);
     }
 

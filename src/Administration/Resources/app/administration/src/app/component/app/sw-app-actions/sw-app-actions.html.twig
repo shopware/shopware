@@ -6,7 +6,7 @@
 >
     <template v-if="areActionsAvailable">
         <sw-context-button class="sw-app-actions__action-button">
-            <template slot="button">
+            <template #button>
                 <sw-button>
                     <sw-icon
                         name="solid-ellipsis-h-s"
@@ -34,7 +34,7 @@
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_app_action_modal_header %}
-            <template slot="modal-header">
+            <template #modal-header>
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_app_action_modal_slot_header %}
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -102,7 +102,7 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_app_action_modal_confirm_footer %}
-            <template slot="modal-footer">
+            <template #modal-footer>
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_app_action_modal_confirm_checkbox %}
                 <sw-checkbox-field
@@ -111,7 +111,7 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_app_action_modal_confirm_checkbox_label %}
-                    <template slot="label">
+                    <template #label>
                         {{ $tc('sw-app.component.sw-app-actions.dontAskMeAgain') }}
                     </template>
                     {% endblock %}

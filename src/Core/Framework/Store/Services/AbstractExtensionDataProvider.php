@@ -7,6 +7,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 
+/**
+ * @package merchant-services
+ *
+ * @internal
+ */
 abstract class AbstractExtensionDataProvider
 {
     abstract public function getInstalledExtensions(Context $context, bool $loadCloudExtensions = true, ?Criteria $searchCriteria = null): ExtensionCollection;

@@ -6,6 +6,9 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\UrlAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Event\FlowEventAware;
 
+/**
+ * @package business-ops
+ */
 class UrlStorer extends FlowStorer
 {
     /**

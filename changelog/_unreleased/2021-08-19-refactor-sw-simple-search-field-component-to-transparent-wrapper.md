@@ -1,7 +1,6 @@
 ---
 title: Refactor `sw-simple-search-field` component to transparent wrapper
 issue: NEXT-16271
-flag: FEATURE_NEXT_16271
 author: Raoul Kramer
 author_email: r.kramer@shopware.com 
 author_github: @djpogo

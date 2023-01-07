@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -22,7 +22,7 @@ class VariantListingIndexerTest extends TestCase
     use QueueTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
@@ -98,7 +98,7 @@ class VariantListingIndexerTest extends TestCase
 
         static::assertCount(1, $listing->ids);
 
-        $listing = $this->connection->fetchAll(
+        $listing = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(id)) as id FROM product WHERE display_group IS NOT NULL AND product.id = :parentId',
             ['parentId' => Uuid::fromHexToBytes($this->productId)]
         );
@@ -334,7 +334,7 @@ class VariantListingIndexerTest extends TestCase
 
     private function fetchListing(): Listing
     {
-        $listing = $this->connection->fetchAll(
+        $listing = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(id)) as id, option_ids
              FROM product
              WHERE product.parent_id = :parentId

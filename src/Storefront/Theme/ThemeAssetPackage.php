@@ -3,12 +3,14 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * @package storefront
+ */
 class ThemeAssetPackage extends FallbackUrlPackage
 {
     private RequestStack $requestStack;
@@ -29,10 +31,7 @@ class ThemeAssetPackage extends FallbackUrlPackage
         $this->themePathBuilder = $themePathBuilder;
     }
 
-    /**
-     * @return string
-     */
-    public function getUrl(string $path)
+    public function getUrl(string $path): string
     {
         if ($this->isAbsoluteUrl($path)) {
             return $path;
@@ -41,24 +40,6 @@ class ThemeAssetPackage extends FallbackUrlPackage
         $url = $path;
         if ($url && $url[0] !== '/') {
             $url = '/' . $url;
-        }
-
-        /**
-         * @deprecated tag:v6.5.0 - whole if can be removed, as it is not supported anymore
-         */
-        if (str_starts_with($url, '/bundles') || str_starts_with($url, '/theme/')) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Accessing "theme" asset with "/bundles" or "/themes" prefixed path will be removed with 6.5.0.0'
-            );
-
-            $url = $this->getVersionStrategy()->applyVersion($url);
-
-            if ($this->isAbsoluteUrl($url)) {
-                return $url;
-            }
-
-            return $this->getBaseUrl($path) . $url;
         }
 
         $url = $this->getVersionStrategy()->applyVersion($this->appendThemePath() . $url);

@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1614249488ChangeProductSortingsToCheapestPrice extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -65,7 +70,7 @@ class Migration1614249488ChangeProductSortingsToCheapestPrice extends MigrationS
 
     private function migrateCmsSortings(Connection $connection): void
     {
-        $elements = $connection->fetchAllAssociative("SELECT cms_slot_id, cms_slot_version_id, language_id, config FROM cms_slot_translation WHERE config LIKE '%listingPrices%'");
+        $elements = $connection->fetchAllAssociative('SELECT cms_slot_id, cms_slot_version_id, language_id, config FROM cms_slot_translation WHERE config LIKE \'%listingPrices%\'');
 
         foreach ($elements as $element) {
             $config = json_decode($element['config'], true);

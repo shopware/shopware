@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-number-range-detail.html.twig';
 import './sw-settings-number-range-detail.scss';
 
@@ -5,7 +8,7 @@ const { Component, Mixin, Data: { Criteria } } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-number-range-detail', {
+export default {
     template,
 
     inject: [
@@ -334,9 +337,7 @@ Component.register('sw-settings-number-range-detail', {
                 .catch((exception) => {
                     this.isLoading = false;
                     this.createNotificationError({
-                        message: this.$tc(
-                            'sw-settings-number-range.detail.messageSaveError', 0, { name: numberRangeName },
-                        ),
+                        message: this.$tc('sw-settings-number-range.detail.messageSaveError', 0, { name: numberRangeName }),
                     });
                     throw exception;
                 })
@@ -432,4 +433,4 @@ Component.register('sw-settings-number-range-detail', {
             );
         },
     },
-});
+};

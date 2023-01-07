@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @package business-ops
+ */
 class LineItemOfManufacturerRule extends Rule
 {
     /**
@@ -41,7 +44,7 @@ class LineItemOfManufacturerRule extends Rule
 
     /**
      * @throws UnsupportedOperatorException
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     public function match(RuleScope $scope): bool
     {
@@ -53,7 +56,7 @@ class LineItemOfManufacturerRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchesOneOfManufacturers($lineItem)) {
                 return true;
             }
@@ -86,7 +89,7 @@ class LineItemOfManufacturerRule extends Rule
 
     /**
      * @throws UnsupportedOperatorException
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     private function matchesOneOfManufacturers(LineItem $lineItem): bool
     {

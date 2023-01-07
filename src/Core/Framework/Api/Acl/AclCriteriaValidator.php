@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
+/**
+ * @package core
+ */
 class AclCriteriaValidator
 {
     private DefinitionInstanceRegistry $registry;

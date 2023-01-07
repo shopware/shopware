@@ -11,21 +11,25 @@ use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @group store-api
  */
@@ -34,20 +38,11 @@ class LoginRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    private EntityRepository $customerRepository;
 
     protected function setUp(): void
     {
@@ -72,7 +67,7 @@ class LoginRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('Unauthorized', $response['errors'][0]['title']);
@@ -88,7 +83,7 @@ class LoginRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_AUTH_BAD_CREDENTIALS', $response['errors'][0]['code']);
@@ -110,9 +105,10 @@ class LoginRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayHasKey('contextToken', $response);
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
     }
 
     public function testItUpdatesCustomerLanguageIdOnValidLogin(): void
@@ -159,9 +155,10 @@ class LoginRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayHasKey('contextToken', $response);
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
     }
 
     public function testLoginWithInvalidBoundSalesChannelId(): void
@@ -288,10 +285,9 @@ class LoginRouteTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $countryStatement = $connection->executeQuery('SELECT id FROM country WHERE active = 1 ORDER BY `position`');
-        $defaultCountry = $countryStatement->fetchColumn();
-        $defaultPaymentMethod = $connection->executeQuery('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`')->fetchColumn();
-        $defaultShippingMethod = $connection->executeQuery('SELECT id FROM shipping_method WHERE active = 1')->fetchColumn();
+        $defaultCountry = $connection->fetchOne('SELECT id FROM country WHERE active = 1 ORDER BY `position`');
+        $defaultPaymentMethod = $connection->fetchOne('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`');
+        $defaultShippingMethod = $connection->fetchOne('SELECT id FROM shipping_method WHERE active = 1');
 
         // @deprecated tag:v6.6.0 - keep $column = 'payload'
         $column = 'cart';
@@ -302,7 +298,7 @@ class LoginRouteTest extends TestCase
         $connection->insert('cart', [
             'token' => $contextToken,
             'name' => $cartName,
-            $column => serialize(new Cart($cartName, $contextToken)),
+            $column => serialize(new Cart((string) $cartName, $contextToken)),
             'line_item_count' => 1,
             'rule_ids' => json_encode([]),
             'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
@@ -315,6 +311,9 @@ class LoginRouteTest extends TestCase
         ]);
     }
 
+    /**
+     * @param array<mixed> $salesChannelData
+     */
     private function createSalesChannelContext(string $contextToken, array $salesChannelData, ?string $customerId, ?string $salesChannelId = null): SalesChannelContext
     {
         if ($customerId) {

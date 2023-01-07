@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Checkout\Cart\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
 
+/**
+ * @package checkout
+ */
 class PaymentMethodChangedError extends Error
 {
     private const KEY = 'payment-method-changed';

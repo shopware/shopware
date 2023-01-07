@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -23,6 +23,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @package checkout
+ */
 class PaymentController extends AbstractController
 {
     private PaymentService $paymentService;
@@ -31,7 +34,7 @@ class PaymentController extends AbstractController
 
     private TokenFactoryInterfaceV2 $tokenFactoryInterfaceV2;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     /**
      * @internal
@@ -40,7 +43,7 @@ class PaymentController extends AbstractController
         PaymentService $paymentService,
         OrderConverter $orderConverter,
         TokenFactoryInterfaceV2 $tokenFactoryInterfaceV2,
-        EntityRepositoryInterface $orderRepository
+        EntityRepository $orderRepository
     ) {
         $this->paymentService = $paymentService;
         $this->orderConverter = $orderConverter;

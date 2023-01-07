@@ -18,6 +18,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
 
+/**
+ * @package inventory
+ */
 class ProductSearchConfigDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_search_config';
@@ -63,7 +66,7 @@ class ProductSearchConfigDefinition extends EntityDefinition
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
             (new BoolField('and_logic', 'andLogic'))->addFlags(new Required()),
             (new IntField('min_search_length', 'minSearchLength'))->addFlags(new Required()),
-            (new ListField('excluded_terms', 'excludedTerms', StringField::class))->setStrict(true),
+            new ListField('excluded_terms', 'excludedTerms', StringField::class),
             new OneToOneAssociationField('language', 'language_id', 'id', LanguageDefinition::class, false),
             (new OneToManyAssociationField('configFields', ProductSearchConfigFieldDefinition::class, 'product_search_config_id', 'id'))->addFlags(new CascadeDelete()),
         ]);

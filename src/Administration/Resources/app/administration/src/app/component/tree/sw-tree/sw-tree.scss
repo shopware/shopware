@@ -14,7 +14,7 @@
     .sw-tree-actions__headline {
         display: grid;
         color: $color-darkgray-200;
-        font-size: 18px;
+        font-size: $font-size-m;
         padding: 21px 40px;
         grid-template-columns: 1fr auto;
         align-items: center;
@@ -23,7 +23,7 @@
 
         .sw-tree__batch-delete {
             color: $color-crimson-500;
-            font-size: 14px;
+            font-size: $font-size-xs;
             cursor: pointer;
         }
     }

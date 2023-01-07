@@ -26,7 +26,6 @@ use Shopware\Core\Checkout\Promotion\Cart\Error\AutoPromotionNotFoundError;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -39,6 +38,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class ProcessorTest extends TestCase
@@ -359,7 +360,6 @@ class ProcessorTest extends TestCase
 
     public function testProcessorsAndCollectorsAreSkippedIfCartIsEmpty(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
         $cart = new Cart('test', 'test');
 
         $collector = $this->createMock(CartDataCollectorInterface::class);

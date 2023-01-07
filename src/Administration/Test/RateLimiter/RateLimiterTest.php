@@ -5,7 +5,7 @@ namespace Shopware\Administration\Test\RateLimiter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -21,7 +21,7 @@ class RateLimiterTest extends TestCase
 
     private Context $context;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     public static function setUpBeforeClass(): void
     {

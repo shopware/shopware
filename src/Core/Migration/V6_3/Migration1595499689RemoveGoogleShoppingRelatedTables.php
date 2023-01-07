@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1595499689RemoveGoogleShoppingRelatedTables extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +19,7 @@ class Migration1595499689RemoveGoogleShoppingRelatedTables extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->exec('
+        $connection->executeStatement('
             DROP TABLE IF EXISTS google_shopping_ads_account;
             DROP TABLE IF EXISTS google_shopping_merchant_account;
             DROP TABLE IF EXISTS google_shopping_account;

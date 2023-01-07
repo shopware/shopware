@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\User;
 
+/**
+ * @package system-settings
+ */
 class UserEvents
 {
     /**

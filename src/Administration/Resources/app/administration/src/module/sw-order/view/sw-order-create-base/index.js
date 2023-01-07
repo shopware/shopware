@@ -1,12 +1,16 @@
 import template from './sw-order-create-base.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, State, Utils, Data, Service, Mixin } = Shopware;
 const { Criteria } = Data;
 const { get, format, array } = Utils;
 const { mapGetters } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-create-base', {
+export default {
     template,
 
     inject: ['feature'],
@@ -112,7 +116,7 @@ Component.register('sw-order-create-base', {
         },
 
         currency() {
-            return State.get('swOrder').currency;
+            return State.get('swOrder').context.currency;
         },
 
         cartDelivery() {
@@ -532,4 +536,4 @@ Component.register('sw-order-create-base', {
             this.loadCart();
         },
     },
-});
+};

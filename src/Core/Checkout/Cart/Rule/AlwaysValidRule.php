@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @package business-ops
+ */
 class AlwaysValidRule extends Rule
 {
     public function getName(): string

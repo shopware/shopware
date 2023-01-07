@@ -22,7 +22,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -30,7 +30,12 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
-final class DocumentGenerator
+/**
+ * @package customer-order
+ *
+ * @final
+ */
+class DocumentGenerator
 {
     private DocumentRendererRegistry $rendererRegistry;
 
@@ -38,7 +43,7 @@ final class DocumentGenerator
 
     private MediaService $mediaService;
 
-    private EntityRepositoryInterface $documentRepository;
+    private EntityRepository $documentRepository;
 
     private Connection $connection;
 
@@ -49,7 +54,7 @@ final class DocumentGenerator
         DocumentRendererRegistry $rendererRegistry,
         PdfRenderer $pdfRenderer,
         MediaService $mediaService,
-        EntityRepositoryInterface $documentRepository,
+        EntityRepository $documentRepository,
         Connection $connection
     ) {
         $this->rendererRegistry = $rendererRegistry;
@@ -72,9 +77,10 @@ final class DocumentGenerator
             'documentType',
         ]);
 
+        /** @var DocumentEntity|null $document */
         $document = $this->documentRepository->search($criteria, $context)->get($documentId);
 
-        if ($document === null) {
+        if (!$document instanceof DocumentEntity) {
             throw new InvalidDocumentException($documentId);
         }
 
@@ -225,6 +231,9 @@ final class DocumentGenerator
         return new DocumentIdStruct($documentId, $document->getDeepLinkCode(), $mediaId);
     }
 
+    /**
+     * @param array<mixed> $records
+     */
     private function writeRecords(array $records, Context $context): void
     {
         if (empty($records)) {

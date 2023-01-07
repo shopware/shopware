@@ -2,13 +2,16 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @package business-ops
+ */
 class LineItemIsNewRule extends Rule
 {
     protected bool $isNew;
@@ -29,7 +32,7 @@ class LineItemIsNewRule extends Rule
     }
 
     /**
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     public function match(RuleScope $scope): bool
     {
@@ -41,7 +44,7 @@ class LineItemIsNewRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchLineItemIsNew($lineItem)) {
                 return true;
             }
@@ -64,7 +67,7 @@ class LineItemIsNewRule extends Rule
     }
 
     /**
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     private function matchLineItemIsNew(LineItem $lineItem): bool
     {

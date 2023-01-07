@@ -10,7 +10,7 @@ use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -38,7 +38,7 @@ class ProductSearchRouteTest extends TestCase
 
     private SearchKeywordUpdater $searchKeywordUpdater;
 
-    private EntityRepositoryInterface $productSearchConfigRepository;
+    private EntityRepository $productSearchConfigRepository;
 
     private string $productSearchConfigId;
 
@@ -679,7 +679,7 @@ class ProductSearchRouteTest extends TestCase
 
     private function setupProductsForImplementSearch(): void
     {
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productIds = [];
         $productsNames = [

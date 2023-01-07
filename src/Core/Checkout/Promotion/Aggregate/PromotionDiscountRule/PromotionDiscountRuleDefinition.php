@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 
+/**
+ * @package checkout
+ */
 class PromotionDiscountRuleDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'promotion_discount_rule';

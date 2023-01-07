@@ -21,10 +21,8 @@
             <helpText lang="de-DE">Nutze das Double Opt-In Verfahren für Newsletter Anmeldungen.</helpText>
         </input-field>
 
-        <!-- @internal (FEATURE_NEXT_14001) remove this comment -->
         <input-field type="bool">
             <name>doubleOptInRegistered</name>
-            <flag>FEATURE_NEXT_14001</flag>
             <label>Double opt-in for registered customers</label>
             <label lang="de-DE">Double Opt-in für registrierte Kunden</label>
             <helpText>Use Double Opt-in for newsletter subscriptions for registered Customers.</helpText>

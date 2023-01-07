@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Event;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package core
  * @extends Collection<NestedEvent>
  */
 class NestedEventCollection extends Collection

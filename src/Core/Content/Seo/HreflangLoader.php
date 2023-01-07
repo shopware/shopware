@@ -5,34 +5,21 @@ namespace Shopware\Core\Content\Seo;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\Hreflang\HreflangCollection;
 use Shopware\Core\Content\Seo\Hreflang\HreflangStruct;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @package sales-channel
+ */
 class HreflangLoader implements HreflangLoaderInterface
 {
-    private RouterInterface $router;
-
-    private EntityRepositoryInterface $salesChannelDomainRepository;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
     public function __construct(
-        RouterInterface $router,
-        EntityRepositoryInterface $salesChannelDomainRepository,
-        Connection $connection
+        private RouterInterface $router,
+        private Connection $connection
     ) {
-        $this->router = $router;
-        $this->connection = $connection;
-        $this->salesChannelDomainRepository = $salesChannelDomainRepository;
     }
 
     public function load(HreflangLoaderParameter $parameter): HreflangCollection
@@ -75,51 +62,6 @@ class HreflangLoader implements HreflangLoaderInterface
         }
 
         return $hreflangCollection;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 will be removed, use `load()` with route='frontend.home.page'
-     */
-    protected function generateHreflangHome(SalesChannelContext $salesChannelContext): HreflangCollection
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'load()')
-        );
-
-        $collection = new HreflangCollection();
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('salesChannelId', $salesChannelContext->getSalesChannel()->getId()));
-        $criteria->addAssociation('language.locale');
-
-        /** @var SalesChannelDomainEntity[] $domains */
-        $domains = $this->salesChannelDomainRepository->search($criteria, $salesChannelContext->getContext());
-
-        if (\count($domains) <= 1) {
-            return new HreflangCollection();
-        }
-
-        foreach ($domains as $domain) {
-            $hrefLang = new HreflangStruct();
-            $hrefLang->setUrl($domain->getUrl());
-            $locale = $domain->getLanguage()->getLocale()->getCode();
-
-            if ($domain->isHreflangUseOnlyLocale()) {
-                $locale = mb_substr($locale, 0, 2);
-            }
-
-            if ($domain->getId() === $salesChannelContext->getSalesChannel()->getHreflangDefaultDomainId()) {
-                $mainLang = clone $hrefLang;
-                $mainLang->setLocale('x-default');
-                $collection->add($mainLang);
-            }
-
-            $hrefLang->setLocale($locale);
-            $collection->add($hrefLang);
-        }
-
-        return $collection;
     }
 
     /**

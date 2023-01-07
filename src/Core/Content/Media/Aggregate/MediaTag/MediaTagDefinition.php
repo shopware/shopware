@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
+/**
+ * @package content
+ */
 class MediaTagDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'media_tag';

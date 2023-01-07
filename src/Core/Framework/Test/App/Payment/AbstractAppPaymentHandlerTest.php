@@ -26,7 +26,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
@@ -63,11 +63,11 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
 
     protected IdsCollection $ids;
 
-    protected EntityRepositoryInterface $orderRepository;
+    protected EntityRepository $orderRepository;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
-    private EntityRepositoryInterface $paymentMethodRepository;
+    private EntityRepository $paymentMethodRepository;
 
     private StateMachineRegistry $stateMachineRegistry;
 
@@ -75,11 +75,11 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
 
     private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
-    private EntityRepositoryInterface $orderTransactionRepository;
+    private EntityRepository $orderTransactionRepository;
 
-    private EntityRepositoryInterface $orderTransactionCaptureRepository;
+    private EntityRepository $orderTransactionCaptureRepository;
 
-    private EntityRepositoryInterface $orderTransactionCaptureRefundRepository;
+    private EntityRepository $orderTransactionCaptureRefundRepository;
 
     private Context $context;
 

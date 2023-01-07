@@ -6,6 +6,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\PageletLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package storefront
+ */
 class BasicCaptchaPageletLoadedEvent extends PageletLoadedEvent
 {
     protected BasicCaptchaPagelet $pagelet;

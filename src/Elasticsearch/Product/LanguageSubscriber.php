@@ -2,7 +2,7 @@
 
 namespace Shopware\Elasticsearch\Product;
 
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -12,6 +12,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
+ * @package core
+ *
  * @internal
  *
  * When an language is created, we need to trigger an indexing for that

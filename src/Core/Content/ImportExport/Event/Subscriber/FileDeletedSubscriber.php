@@ -11,18 +11,17 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
+ *
+ * @package system-settings
  */
 class FileDeletedSubscriber implements EventSubscriberInterface
 {
-    private MessageBusInterface $messageBus;
-
     /**
      * @internal
      */
-    public function __construct(MessageBusInterface $messageBus)
+    public function __construct(private MessageBusInterface $messageBus)
     {
-        $this->messageBus = $messageBus;
     }
 
     /**

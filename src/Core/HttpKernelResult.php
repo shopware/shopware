@@ -5,22 +5,13 @@ namespace Shopware\Core;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class HttpKernelResult
 {
-    /**
-     * @var Request
-     */
-    protected $request;
-
-    /**
-     * @var Response
-     */
-    protected $response;
-
-    public function __construct(Request $request, Response $response)
+    public function __construct(protected Request $request, protected Response $response)
     {
-        $this->request = $request;
-        $this->response = $response;
     }
 
     public function getRequest(): Request

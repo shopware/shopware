@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<ProductSortingEntity>
+ *
+ * @package inventory
  */
 class ProductSortingCollection extends EntityCollection
 {

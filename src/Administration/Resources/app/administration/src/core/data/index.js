@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import ChangesetGenerator from './changeset-generator.data';
 import Criteria from './criteria.data';
 import Entity from './entity.data';

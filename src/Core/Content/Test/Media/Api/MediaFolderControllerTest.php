@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Test\Media\Api;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,7 +19,7 @@ class MediaFolderControllerTest extends TestCase
     use MediaFixtures;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaFolderRepo;
 
@@ -29,7 +29,7 @@ class MediaFolderControllerTest extends TestCase
     private $context;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaFolderConfigRepo;
 
@@ -53,7 +53,7 @@ class MediaFolderControllerTest extends TestCase
             $url
         );
         $response = $this->getBrowser()->getResponse();
-        $responseData = json_decode($response->getContent(), true);
+        $responseData = json_decode((string) $response->getContent(), true);
 
         static::assertEquals(404, $response->getStatusCode());
         static::assertEquals('CONTENT__MEDIA_FOLDER_NOT_FOUND', $responseData['errors'][0]['code']);
@@ -88,7 +88,7 @@ class MediaFolderControllerTest extends TestCase
         );
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
+        static::assertEquals(204, $response->getStatusCode(), (string) $response->getContent());
         static::assertEmpty($response->getContent());
 
         $folder = $this->mediaFolderRepo->search(new Criteria([$folderId]), $this->context)->get($folderId);

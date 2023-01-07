@@ -6,6 +6,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package core
+ */
 class DecodeByHydratorException extends ShopwareHttpException
 {
     public function __construct(Field $field)

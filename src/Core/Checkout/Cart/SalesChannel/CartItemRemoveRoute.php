@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,29 +17,22 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package checkout
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
 {
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var CartCalculator
-     */
-    private $cartCalculator;
+    private CartCalculator $cartCalculator;
 
-    /**
-     * @var CartPersisterInterface
-     */
-    private $cartPersister;
+    private AbstractCartPersister $cartPersister;
 
     /**
      * @internal
      */
-    public function __construct(EventDispatcherInterface $eventDispatcher, CartCalculator $cartCalculator, CartPersisterInterface $cartPersister)
+    public function __construct(EventDispatcherInterface $eventDispatcher, CartCalculator $cartCalculator, AbstractCartPersister $cartPersister)
     {
         $this->eventDispatcher = $eventDispatcher;
         $this->cartCalculator = $cartCalculator;
@@ -68,11 +58,7 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
             $lineItems[] = $lineItem;
 
             if (!$lineItem) {
-                if (Feature::isActive('v6.5.0.0')) {
-                    throw CartException::lineItemNotFound($id);
-                }
-
-                throw new LineItemNotFoundException($id);
+                throw CartException::lineItemNotFound($id);
             }
 
             $cart->remove($id);

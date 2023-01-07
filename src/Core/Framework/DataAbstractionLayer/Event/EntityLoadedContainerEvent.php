@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 
+/**
+ * @package core
+ */
 class EntityLoadedContainerEvent extends NestedEvent
 {
     private Context $context;

@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package checkout
+ */
 class LineItemGroupSorterNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $key)

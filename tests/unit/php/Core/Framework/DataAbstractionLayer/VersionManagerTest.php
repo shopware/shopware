@@ -4,16 +4,13 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\CompiledFieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitCollection;
@@ -28,12 +25,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ManyToOneProductDefinition;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -64,14 +62,6 @@ class VersionManagerTest extends TestCase
             $this->createMock(LockFactory::class)
         );
 
-        $fieldMock = $this->createMock(ManyToOneAssociationField::class);
-        $definitionMock = $this->createMock(EntityDefinition::class);
-        $definitionMock
-            ->method('getFields')->willReturn(new CompiledFieldCollection(
-                $this->createMock(DefinitionInstanceRegistry::class),
-                [$fieldMock, new FkField('many_to_one_id', 'manyToOneId', ManyToOneProductDefinition::class)]
-            ));
-
         $entityCollectionMock = $this->createMock(EntityCollection::class);
         $entityCollectionMock->expects(static::once())->method('first')->willReturn(new Entity());
 
@@ -79,7 +69,6 @@ class VersionManagerTest extends TestCase
         $serializer->expects(static::once())->method('serialize')
             ->willReturn('{"extensions":{"foreignKeys":{"extensions":[],"apiAlias":null,"manyToOneId":"' . Uuid::randomHex() . '"}}}');
 
-        $fieldMock->expects(static::once())->method('is')->willReturn(true);
         $writeContextMock = $this->createMock(WriteContext::class);
 
         $writeContextMockWithVersionId = $this->createMock(WriteContext::class);
@@ -100,8 +89,16 @@ class VersionManagerTest extends TestCase
 
         $writeContextMockWithVersionId->expects(static::exactly(2))->method('getContext')->willReturn(Context::createDefaultContext());
 
+        $registry = new StaticDefinitionInstanceRegistry(
+            [
+                VersionManagerTestDefinition::class,
+            ],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+
         $entityWriteResult = $this->versionManager->clone(
-            $definitionMock,
+            $registry->getByEntityName('product'),
             Uuid::randomHex(),
             Uuid::randomHex(),
             Uuid::randomHex(),
@@ -117,9 +114,15 @@ class VersionManagerTest extends TestCase
     public function testMergeEntityWithInsertVersionCommitActionWhenEmptyPayload(): void
     {
         $entityReaderMock = $this->createMock(EntityReaderInterface::class);
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
-
         $lockFactory = $this->createMock(LockFactory::class);
+
+        $registry = new StaticDefinitionInstanceRegistry(
+            [
+                VersionManagerTestDefinition::class,
+            ],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
 
         $this->versionManager = new VersionManager(
             $this->createMock(EntityWriterInterface::class),
@@ -150,12 +153,6 @@ class VersionManagerTest extends TestCase
 
         $entityReaderMock->expects(static::once())->method('read')->willReturn(new VersionCommitCollection([$versionCommit]));
 
-        $entityDefinitionMock = $this->createMock(EntityDefinition::class);
-        $entityDefinitionMock->method('getFields')
-            ->willReturn(new CompiledFieldCollection($registry, [new VersionField()]));
-
-        $registry->expects(static::exactly(2))->method('getByEntityName')->willReturn($entityDefinitionMock);
-
         $writeContextMock = $this->createMock(WriteContext::class);
 
         $this->versionManager->merge(
@@ -167,9 +164,16 @@ class VersionManagerTest extends TestCase
     public function testMergeEntityWithUpsertVersionCommitAction(): void
     {
         $entityReaderMock = $this->createMock(EntityReaderInterface::class);
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
 
         $lockFactory = $this->createMock(LockFactory::class);
+
+        $registry = new StaticDefinitionInstanceRegistry(
+            [
+                VersionManagerTestDefinition::class,
+            ],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
 
         $this->versionManager = new VersionManager(
             $this->createMock(EntityWriterInterface::class),
@@ -200,12 +204,6 @@ class VersionManagerTest extends TestCase
         $versionCommit->setId(Uuid::randomHex());
 
         $entityReaderMock->expects(static::once())->method('read')->willReturn(new VersionCommitCollection([$versionCommit]));
-        $entityDefinitionMock = $this->createMock(EntityTranslationDefinition::class);
-
-        $entityDefinitionMock->method('getFields')
-            ->willReturn(new CompiledFieldCollection($registry, [new VersionField()]));
-
-        $registry->expects(static::exactly(3))->method('getByEntityName')->willReturn($entityDefinitionMock);
 
         $writeContextMock = $this->createMock(WriteContext::class);
 
@@ -213,5 +211,23 @@ class VersionManagerTest extends TestCase
             Uuid::randomHex(),
             $writeContextMock
         );
+    }
+}
+
+/**
+ * @internal
+ */
+class VersionManagerTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'product';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            new VersionField(),
+        ]);
     }
 }

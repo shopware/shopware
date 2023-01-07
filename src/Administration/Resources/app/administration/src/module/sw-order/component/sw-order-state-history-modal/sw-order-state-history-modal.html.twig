@@ -73,6 +73,16 @@
             </sw-label>
         </template>
         {% endblock %}
+
+        <template #pagination>
+            <sw-pagination
+                :page="page"
+                :limit="limit"
+                :total="total"
+                :steps="steps"
+                @page-change="onPageChange"
+            />
+        </template>
     </sw-data-grid>
     {% endblock %}
 

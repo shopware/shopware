@@ -10,7 +10,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package core
+ *
+ * @internal
  */
 class RouteEventSubscriber implements EventSubscriberInterface
 {

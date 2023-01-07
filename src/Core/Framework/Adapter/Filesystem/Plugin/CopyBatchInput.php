@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Plugin;
 
+/**
+ * @package core
+ */
 class CopyBatchInput
 {
     /**
@@ -22,7 +25,7 @@ class CopyBatchInput
     {
         if (!\is_resource($sourceFile) && !\is_string($sourceFile)) {
             throw new \InvalidArgumentException(sprintf(
-                'CopyBatchInpit expects first parameter to be either a resource or the filepath as a string, "%s" given.',
+                'CopyBatchInput expects first parameter to be either a resource or the filepath as a string, "%s" given.',
                 \gettype($sourceFile)
             ));
         }

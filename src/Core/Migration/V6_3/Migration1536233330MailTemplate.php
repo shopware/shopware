@@ -5,6 +5,11 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1536233330MailTemplate extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +19,7 @@ class Migration1536233330MailTemplate extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `mail_template_type` (
               `id` BINARY(16) NOT NULL,
               `technical_name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -27,7 +32,7 @@ class Migration1536233330MailTemplate extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `mail_template_type_translation` (
               `mail_template_type_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,
@@ -44,7 +49,7 @@ class Migration1536233330MailTemplate extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `mail_template` (
               `id` BINARY(16) NOT NULL,
               `mail_template_type_id` BINARY(16) NULL,
@@ -57,7 +62,7 @@ class Migration1536233330MailTemplate extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `mail_template_translation` (
               `mail_template_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,
@@ -76,7 +81,7 @@ class Migration1536233330MailTemplate extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `mail_template_sales_channel` (
               `id` BINARY(16) NOT NULL,
               `mail_template_id` BINARY(16) NOT NULL,

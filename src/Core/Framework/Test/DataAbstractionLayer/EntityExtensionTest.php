@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -95,8 +95,8 @@ class EntityExtensionTest extends TestCase
         $this->connection->rollBack();
 
         try {
-            $this->connection->executeUpdate('ALTER TABLE `product` ADD COLUMN my_tax_id binary(16) NULL');
-        } catch (DBALException $e) {
+            $this->connection->executeStatement('ALTER TABLE `product` ADD COLUMN my_tax_id binary(16) NULL');
+        } catch (Exception $e) {
         }
 
         $this->connection->beginTransaction();
@@ -163,7 +163,7 @@ class EntityExtensionTest extends TestCase
 
         $this->productRepository->create([$data], Context::createDefaultContext());
 
-        $count = $this->connection->fetchAll(
+        $count = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_price WHERE product_id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
@@ -179,7 +179,7 @@ class EntityExtensionTest extends TestCase
 
         $this->productRepository->create([$data], Context::createDefaultContext());
 
-        $count = $this->connection->fetchAll(
+        $count = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_price WHERE product_id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
@@ -341,7 +341,7 @@ class EntityExtensionTest extends TestCase
 
         $this->productRepository->create([$data], Context::createDefaultContext());
 
-        $count = $this->connection->fetchAll(
+        $count = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_category WHERE product_id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
@@ -357,7 +357,7 @@ class EntityExtensionTest extends TestCase
 
         $this->productRepository->create([$data], Context::createDefaultContext());
 
-        $count = $this->connection->fetchAll(
+        $count = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_category WHERE product_id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );

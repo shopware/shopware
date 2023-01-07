@@ -7,6 +7,8 @@ use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
 /**
+ * @package business-ops
+ *
  * @internal not intended for decoration or replacement
  */
 class FlowBuilder

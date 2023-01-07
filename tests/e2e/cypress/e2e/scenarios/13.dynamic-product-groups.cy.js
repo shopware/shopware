@@ -70,9 +70,11 @@ describe('Dynamic Product Groups in categories', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
+
         cy.get('.tree-link > .sw-tree-item__label').click();
         cy.get('[title="Producten"]').click();
-        cy.get('.sw-single-select__selection').type('Dynamische productgroep');
+        cy.get('.sw-category-detail-products__product-assignment-type-select .sw-single-select__selection')
+            .type('Dynamische productgroep');
         cy.get('.sw-highlight-text__highlight').click( {force: true} );
         cy.get('[label] .sw-entity-single-select__selection').type('Dynamic Products');
         cy.get('.sw-highlight-text__highlight').click();
@@ -94,7 +96,7 @@ describe('Dynamic Product Groups in categories', () => {
         cy.wait('@getUserConfig').its('response.statusCode').should('equal', 200);
         cy.get('.sw-product-bulk-edit-modal').should('exist');
         cy.get('.sw-modal__footer .sw-button--primary').click();
-        cy.contains('.smart-bar__header', 'Bulk edit: 3 products');
+        cy.contains('.smart-bar__header', 'Bulk bewerking: 3 producten');
         cy.get('.sw-bulk-edit-change-field-visibilities [type="checkbox"]').click();
         cy.get('div[name="visibilities"]').typeMultiSelectAndCheck('E2E install test');
 
@@ -106,7 +108,7 @@ describe('Dynamic Product Groups in categories', () => {
         cy.get('.sw-bulk-edit-save-modal').should('exist');
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
         cy.get('.sw-bulk-edit-save-modal').should('exist');
-        cy.contains('.sw-bulk-edit-save-modal', 'Bulk edit - Success');
+        cy.contains('.sw-bulk-edit-save-modal', 'Bulk edit - Succes');
         cy.contains('.footer-right .sw-button--primary', 'Sluiten');
         cy.get('.footer-right .sw-button--primary').click();
         cy.get('.sw-bulk-edit-save-modal').should('not.exist');

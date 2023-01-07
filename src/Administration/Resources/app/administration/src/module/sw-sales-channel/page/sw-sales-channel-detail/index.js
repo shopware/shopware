@@ -1,10 +1,14 @@
+/**
+ * @package sales-channel
+ */
+
 import template from './sw-sales-channel-detail.html.twig';
 
-const { Component, Mixin, Context, Defaults } = Shopware;
+const { Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sales-channel-detail', {
+export default {
     template,
 
     inject: [
@@ -152,6 +156,11 @@ Component.register('sw-sales-channel-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-sales-channel-detail__salesChannel',
+                path: 'salesChannel',
+                scope: this,
+            });
             this.loadEntityData();
             this.loadProductExportTemplates();
         },
@@ -198,7 +207,8 @@ Component.register('sw-sales-channel-detail', {
             criteria.addAssociation('paymentMethods');
             criteria.addAssociation('shippingMethods');
             criteria.addAssociation('countries');
-            criteria.addAssociation('currencies');
+            criteria.getAssociation('currencies')
+                .addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('domains');
             criteria.addAssociation('languages');
             criteria.addAssociation('analytics');
@@ -342,4 +352,4 @@ Component.register('sw-sales-channel-detail', {
             this.loadEntityData();
         },
     },
-});
+};

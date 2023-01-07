@@ -1,15 +1,14 @@
 {% block component_product_wishlist %}
+    {# @deprecated tag:v6.5.0 - Options addToWishlistOptions.router.add.token and addToWishlistOptions.remove.add.token will be removed. #}
     {% set addToWishlistOptions = {
         productId: productId,
         router: {
             add: {
                 afterLoginPath: path('frontend.wishlist.add.after.login', { productId: productId }),
                 path: path('frontend.wishlist.product.add', { productId: productId }),
-                token: sw_csrf('frontend.wishlist.product.add', {"mode": "token"})
             },
             remove: {
                 path: path('frontend.wishlist.product.remove', { productId: productId }),
-                token: sw_csrf('frontend.wishlist.product.remove', {"mode": "token"}),
             }
         }
     } %}

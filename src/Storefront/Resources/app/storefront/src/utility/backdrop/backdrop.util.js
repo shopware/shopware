@@ -11,6 +11,9 @@ export const BACKDROP_EVENT = {
     ON_CLICK: 'backdrop/onclick',
 };
 
+/**
+ * @package storefront
+ */
 class BackdropSingleton {
 
     /**

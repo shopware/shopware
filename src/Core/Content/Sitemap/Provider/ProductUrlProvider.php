@@ -18,6 +18,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @package sales-channel
+ */
 class ProductUrlProvider extends AbstractUrlProvider
 {
     public const CHANGE_FREQ = 'hourly';
@@ -159,7 +162,7 @@ class ProductUrlProvider extends AbstractUrlProvider
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
 
-        return $query->execute()->fetchAll();
+        return $query->executeQuery()->fetchAllAssociative();
     }
 
     private function getExcludedProductIds(SalesChannelContext $salesChannelContext): array

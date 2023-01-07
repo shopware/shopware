@@ -4,6 +4,9 @@ import './sw-circle-icon.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Renders an icon from the icon library. For a list of available variants see sw-label.
  * @status ready
@@ -18,7 +21,6 @@ const { Component } = Shopware;
  *     <sw-circle-icon size="50" variant="info" iconName="regular-times-hexagon">
  * </div>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-circle-icon', {
     template,
 

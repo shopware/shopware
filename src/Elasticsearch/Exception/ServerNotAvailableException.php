@@ -4,6 +4,9 @@ namespace Shopware\Elasticsearch\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package core
+ */
 class ServerNotAvailableException extends ShopwareHttpException
 {
     public const CODE = 'ELASTICSEARCH_SERVER_NOT_AVAILABLE';

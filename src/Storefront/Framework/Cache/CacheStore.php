@@ -15,6 +15,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package storefront
+ */
 class CacheStore implements StoreInterface
 {
     public const TAG_HEADER = 'sw-cache-tags';
@@ -65,10 +68,7 @@ class CacheStore implements StoreInterface
         $this->sessionName = $sessionOptions['name'] ?? 'session-';
     }
 
-    /**
-     * @return Response|null
-     */
-    public function lookup(Request $request)
+    public function lookup(Request $request): ?Response
     {
         // maintenance mode active and current ip is whitelisted > disable caching
         if (!$this->maintenanceResolver->shouldBeCached($request)) {
@@ -97,10 +97,7 @@ class CacheStore implements StoreInterface
         return $response;
     }
 
-    /**
-     * @return string
-     */
-    public function write(Request $request, Response $response)
+    public function write(Request $request, Response $response): string
     {
         $key = $this->cacheKeyGenerator->generate($request);
 
@@ -170,9 +167,7 @@ class CacheStore implements StoreInterface
 
     public function invalidate(Request $request): void
     {
-        $this->cache->deleteItem(
-            $this->cacheKeyGenerator->generate($request)
-        );
+        // @see https://github.com/symfony/symfony/issues/48301
     }
 
     /**
@@ -187,10 +182,8 @@ class CacheStore implements StoreInterface
 
     /**
      * Tries to lock the cache for a given Request, without blocking.
-     *
-     * @return bool|string true if the lock is acquired, the path to the current lock otherwise
      */
-    public function lock(Request $request)
+    public function lock(Request $request): bool|string
     {
         $key = $this->getLockKey($request);
         if ($this->cache->hasItem($key)) {
@@ -209,10 +202,8 @@ class CacheStore implements StoreInterface
 
     /**
      * Releases the lock for the given Request.
-     *
-     * @return bool False if the lock file does not exist or cannot be unlocked, true otherwise
      */
-    public function unlock(Request $request)
+    public function unlock(Request $request): bool
     {
         $key = $this->getLockKey($request);
 
@@ -225,20 +216,15 @@ class CacheStore implements StoreInterface
 
     /**
      * Returns whether or not a lock exists.
-     *
-     * @return bool true if lock exists, false otherwise
      */
-    public function isLocked(Request $request)
+    public function isLocked(Request $request): bool
     {
         return $this->cache->hasItem(
             $this->getLockKey($request)
         );
     }
 
-    /**
-     * @return bool
-     */
-    public function purge(string $url)
+    public function purge(string $url): bool
     {
         $http = preg_replace('#^https:#', 'http:', $url);
         if ($http === null) {

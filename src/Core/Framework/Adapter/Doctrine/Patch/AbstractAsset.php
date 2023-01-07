@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 /**
+ * @package core
  * Doctrine breaks all FK fields due namespacing. This reverts that feature
  */
 
@@ -22,6 +23,7 @@ if (class_exists('\Doctrine\DBAL\Schema\AbstractAsset', false)) {
 }
 
 /**
+ * @package core
  * The abstract asset allows to reset the name of all assets without publishing this to the public userland.
  *
  * This encapsulation hack is necessary to keep a consistent state of the database schema. Say we have a list of tables

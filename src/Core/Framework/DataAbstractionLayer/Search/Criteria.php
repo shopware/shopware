@@ -11,12 +11,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @final tag:v6.5.0
+ * @final
+ *
+ * @package core
  */
 class Criteria extends Struct implements \Stringable
 {
@@ -129,13 +130,7 @@ class Criteria extends Struct implements \Stringable
 
         $ids = array_filter($ids);
         if (empty($ids)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'The `Criteria()` constructor does not support passing an empty array of ids from v6.5.0.0 onwards'
-            );
-            if (Feature::isActive('FEATURE_NEXT_16710')) {
-                throw new \RuntimeException('Empty ids provided in criteria');
-            }
+            throw new \RuntimeException('Empty ids provided in criteria');
         }
 
         $this->ids = $ids;
@@ -613,8 +608,6 @@ class Criteria extends Struct implements \Stringable
      */
     public function addFields(array $fields): self
     {
-        Feature::throwException('v6.5.0.0', 'Partial data loading is not active', false);
-
         $this->fields = array_merge($this->fields, $fields);
 
         return $this;

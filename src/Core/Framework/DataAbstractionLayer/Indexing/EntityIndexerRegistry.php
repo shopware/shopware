@@ -3,71 +3,70 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:remove-subscriber - EntityIndexerRegistry will not implement EventSubscriberInterface anymore
+ * @final
+ *
+ * @internal
+ *
+ * @phpstan-import-type Offset from IterableQuery
+ *
+ * @package core
  */
-class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubscriberInterface
+#[AsMessageHandler]
+class EntityIndexerRegistry
 {
     public const EXTENSION_INDEXER_SKIP = 'indexer-skip';
 
-    /**
-     * @deprecated tag:v6.5.0 - `$context->addExtension(EntityIndexerRegistry::USE_INDEXING_QUEUE, ...)` will be ignored, use `context->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE)` instead
-     */
     public const USE_INDEXING_QUEUE = 'use-queue-indexing';
 
-    /**
-     * @deprecated tag:v6.5.0 - `$context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, ...)` will be ignored, use `context->addState(EntityIndexerRegistry::DISABLE_INDEXING)` instead
-     */
     public const DISABLE_INDEXING = 'disable-indexing';
 
-    /**
-     * @var iterable<EntityIndexer>
-     */
-    private iterable $indexer;
-
-    private MessageBusInterface $messageBus;
-
     private bool $working = false;
-
-    private EventDispatcherInterface $dispatcher;
 
     /**
      * @internal
      *
      * @param iterable<EntityIndexer> $indexer
      */
-    public function __construct(iterable $indexer, MessageBusInterface $messageBus, EventDispatcherInterface $dispatcher)
-    {
-        $this->indexer = $indexer;
-        $this->messageBus = $messageBus;
-        $this->dispatcher = $dispatcher;
+    public function __construct(
+        private iterable $indexer,
+        private MessageBusInterface $messageBus,
+        private EventDispatcherInterface $dispatcher
+    ) {
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - reason:remove-subscriber - will be removed in v6.5.0, event handling is done in `EntityIndexingSubscriber`
-     */
-    public static function getSubscribedEvents(): array
+    public function __invoke(EntityIndexingMessage|IterateEntityIndexerMessage $message): void
     {
-        return [];
-    }
+        if ($message instanceof EntityIndexingMessage) {
+            $indexer = $this->getIndexer($message->getIndexer());
 
-    public static function getHandledMessages(): iterable
-    {
-        return [
-            EntityIndexingMessage::class,
-            IterateEntityIndexerMessage::class,
-        ];
+            if ($indexer) {
+                $indexer->handle($message);
+            }
+
+            return;
+        }
+
+        if ($message instanceof IterateEntityIndexerMessage) {
+            $next = $this->iterateIndexer($message->getIndexer(), $message->getOffset(), true, $message->getSkip());
+
+            if (!$next) {
+                return;
+            }
+
+            $this->messageBus->dispatch(new IterateEntityIndexerMessage($message->getIndexer(), $next->getOffset(), $message->getSkip()));
+        }
     }
 
     /**
@@ -149,33 +148,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         /** @var ArrayStruct<string, mixed> $skip */
         $skip = $context->getExtension(self::EXTENSION_INDEXER_SKIP);
 
-        $message->addSkip(...$skip->all());
-    }
-
-    /**
-     * @param mixed $message
-     */
-    public function handle($message): void
-    {
-        if ($message instanceof EntityIndexingMessage) {
-            $indexer = $this->getIndexer($message->getIndexer());
-
-            if ($indexer) {
-                $indexer->handle($message);
-            }
-
-            return;
-        }
-
-        if ($message instanceof IterateEntityIndexerMessage) {
-            $next = $this->iterateIndexer($message->getIndexer(), $message->getOffset(), true, $message->getSkip());
-
-            if (!$next) {
-                return;
-            }
-
-            $this->messageBus->dispatch(new IterateEntityIndexerMessage($message->getIndexer(), $next->getOffset(), $message->getSkip()));
-        }
+        $message->addSkip(...$skip->get('skips'));
     }
 
     /**
@@ -222,12 +195,12 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
 
     private function useQueue(Context $context): bool
     {
-        return $context->hasExtension(self::USE_INDEXING_QUEUE) || $context->hasState(self::USE_INDEXING_QUEUE);
+        return $context->hasState(self::USE_INDEXING_QUEUE);
     }
 
     private function disabled(Context $context): bool
     {
-        return $context->hasExtension(self::DISABLE_INDEXING) || $context->hasState(self::DISABLE_INDEXING);
+        return $context->hasState(self::DISABLE_INDEXING);
     }
 
     private function sendOrHandle(EntityIndexingMessage $message, bool $useQueue): void
@@ -237,11 +210,11 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
 
             return;
         }
-        $this->handle($message);
+        $this->__invoke($message);
     }
 
     /**
-     * @param array<string, string>|null $offset
+     * @param Offset|null $offset
      * @param list<string> $skip
      */
     private function iterateIndexer(string $name, ?array $offset, bool $useQueue, array $skip): ?EntityIndexingMessage

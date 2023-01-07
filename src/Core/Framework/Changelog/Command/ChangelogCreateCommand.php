@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Changelog\Command;
 
 use Shopware\Core\Framework\Changelog\ChangelogDefinition;
 use Shopware\Core\Framework\Changelog\Processor\ChangelogGenerator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,24 +14,22 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\Process;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
+ * @internal
+ *
+ * @package core
  */
+#[AsCommand(
+    name: 'changelog:create',
+    description: 'Creates a changelog file',
+)]
 class ChangelogCreateCommand extends Command
 {
-    protected static $defaultName = 'changelog:create';
-
-    /**
-     * @var ChangelogGenerator
-     */
-    private $generator;
-
     /**
      * @internal
      */
-    public function __construct(ChangelogGenerator $generator)
+    public function __construct(private ChangelogGenerator $generator)
     {
         parent::__construct();
-        $this->generator = $generator;
     }
 
     protected function configure(): void
@@ -103,6 +102,9 @@ class ChangelogCreateCommand extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * @return array{date: string, author: string, authorEmail: string, authorGithub: string}
+     */
     private function getDefaultData(): array
     {
         $process = new Process(['git', 'config', 'user.name']);

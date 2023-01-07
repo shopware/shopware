@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<BusinessEventDefinition>
+ *
+ * @package business-ops
  */
 class BusinessEventCollectorResponse extends Collection
 {

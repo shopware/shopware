@@ -9,6 +9,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNull extends MigrationStep
 {
     public function getCreationTimestamp(): int

@@ -10,16 +10,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package sales-channel
+ */
 class SeoUrlPersister
 {
     private Connection $connection;
 
-    private EntityRepositoryInterface $seoUrlRepository;
+    private EntityRepository $seoUrlRepository;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -28,7 +31,7 @@ class SeoUrlPersister
      */
     public function __construct(
         Connection $connection,
-        EntityRepositoryInterface $seoUrlRepository,
+        EntityRepository $seoUrlRepository,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->connection = $connection;
@@ -37,16 +40,11 @@ class SeoUrlPersister
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_13410) Parameter $salesChannel will be required
-     *
      * @param list<string> $foreignKeys
      * @param iterable<array<mixed>|Entity> $seoUrls
      */
-    public function updateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls/*, SalesChannelEntity $salesChannel*/): void
+    public function updateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls, SalesChannelEntity $salesChannel): void
     {
-        /** @var SalesChannelEntity|null $salesChannel */
-        $salesChannel = \func_num_args() === 5 ? func_get_arg(4) : null;
-
         $languageId = $context->getLanguageId();
         $canonicals = $this->findCanonicalPaths($routeName, $languageId, $foreignKeys);
         $dateTime = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -57,8 +55,7 @@ class SeoUrlPersister
 
         $processed = [];
 
-        // should be provided
-        $salesChannelId = $salesChannel ? $salesChannel->getId() : null;
+        $salesChannelId = $salesChannel->getId();
         $updates = [];
         foreach ($seoUrls as $seoUrl) {
             if ($seoUrl instanceof \JsonSerializable) {
@@ -67,7 +64,6 @@ class SeoUrlPersister
             $updates[] = $seoUrl;
 
             $fk = $seoUrl['foreignKey'];
-            /** @var string|null $salesChannelId */
             $salesChannelId = $seoUrl['salesChannelId'] = $seoUrl['salesChannelId'] ?? null;
 
             // skip duplicates
@@ -117,15 +113,15 @@ class SeoUrlPersister
             $insertQuery->addInsert($this->seoUrlRepository->getDefinition()->getEntityName(), $insert);
         }
 
-        RetryableTransaction::retryable($this->connection, function () use ($obsoleted, $dateTime, $insertQuery, $foreignKeys, $updatedFks, $salesChannelId): void {
+        RetryableTransaction::retryable($this->connection, function () use ($obsoleted, $insertQuery, $foreignKeys, $updatedFks, $salesChannelId): void {
             $this->obsoleteIds($obsoleted, $salesChannelId);
             $insertQuery->execute();
 
             $deletedIds = array_diff($foreignKeys, $updatedFks);
             $notDeletedIds = array_unique(array_intersect($foreignKeys, $updatedFks));
 
-            $this->markAsDeleted(true, $deletedIds, $dateTime, $salesChannelId);
-            $this->markAsDeleted(false, $notDeletedIds, $dateTime, $salesChannelId);
+            $this->markAsDeleted(true, $deletedIds, $salesChannelId);
+            $this->markAsDeleted(false, $notDeletedIds, $salesChannelId);
         });
 
         $this->eventDispatcher->dispatch(new SeoUrlUpdateEvent($updates));
@@ -174,7 +170,7 @@ class SeoUrlPersister
         $query->setParameter('language_id', $languageId);
         $query->setParameter('foreign_keys', $fks, Connection::PARAM_STR_ARRAY);
 
-        $rows = $query->execute()->fetchAllAssociative();
+        $rows = $query->executeQuery()->fetchAllAssociative();
 
         $canonicals = [];
         foreach ($rows as $row) {
@@ -192,8 +188,6 @@ class SeoUrlPersister
     }
 
     /**
-     * @internal (flag:FEATURE_NEXT_13410) Parameter $salesChannelId will be required
-     *
      * @param list<string> $ids
      */
     private function obsoleteIds(array $ids, ?string $salesChannelId): void
@@ -216,16 +210,14 @@ class SeoUrlPersister
         }
 
         RetryableQuery::retryable($this->connection, function () use ($query): void {
-            $query->execute();
+            $query->executeStatement();
         });
     }
 
     /**
-     * @internal (flag:FEATURE_NEXT_13410) Parameter $salesChannelId will be required
-     *
      * @param list<string> $ids
      */
-    private function markAsDeleted(bool $deleted, array $ids, string $dateTime, ?string $salesChannelId): void
+    private function markAsDeleted(bool $deleted, array $ids, ?string $salesChannelId): void
     {
         if (empty($ids)) {
             return;
@@ -243,6 +235,6 @@ class SeoUrlPersister
             $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
         }
 
-        $query->execute();
+        $query->executeStatement();
     }
 }

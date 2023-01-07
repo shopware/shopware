@@ -65,23 +65,18 @@ describe('Flow builder: generate document testing', () => {
 
         cy.visit('/');
 
-        cy.window().then((win) => {
-            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+        cy.contains('.btn-buy', 'Add to shopping ').click();
+        cy.get('.offcanvas').should('be.visible');
+        cy.contains('.line-item-price', 49.98);
 
-            cy.contains('.btn-buy', 'Add to shopping ').click();
-            cy.get('.offcanvas').should('be.visible');
-            cy.contains(`${lineItemSelector}-price`, 49.98);
+        // Checkout
+        cy.get('.offcanvas-cart-actions .btn-primary').click();
+        cy.get('.checkout-confirm-tos-label').click(1, 1);
 
-            // Checkout
-            cy.get('.offcanvas-cart-actions .btn-primary').click();
-            cy.get('.checkout-confirm-tos-label').click(1, 1);
-
-            // Finish checkout
-            cy.get('#confirmFormSubmit').scrollIntoView();
-            cy.get('#confirmFormSubmit').click();
-            cy.contains('.finish-ordernumber', 'Your order number: #10000');
-        });
+        // Finish checkout
+        cy.get('#confirmFormSubmit').scrollIntoView();
+        cy.get('#confirmFormSubmit').click();
+        cy.contains('.finish-ordernumber', 'Your order number: #10000');
 
         // Clear Storefront cookie
         cy.clearCookies();
@@ -103,19 +98,10 @@ describe('Flow builder: generate document testing', () => {
 
         cy.get('.sw-loader').should('not.exist');
 
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-detail-base__document-grid').scrollIntoView().then(() => {
-                cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0').should('be.visible');
-                cy.contains('.sw-order-detail-base__document-grid .sw-data-grid__row--0', 'Invoice');
-            });
-        });
+        cy.get('.sw-tabs-item[title="Documents"]').click();
+        cy.get('.sw-loader').should('not.exist');
 
-        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-tabs-item[title="Documents"]').click();
-            cy.get('.sw-loader').should('not.exist');
-
-            cy.get('.sw-data-grid__row--0').should('be.visible');
-            cy.contains('.sw-data-grid__row--0', 'Invoice');
-        });
+        cy.get('.sw-data-grid__row--0').should('be.visible');
+        cy.contains('.sw-data-grid__row--0', 'Invoice');
     });
 });

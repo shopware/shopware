@@ -44,17 +44,13 @@
                         <form
                             action="{{ path('frontend.checkout.configure') }}"
                             name="confirmShippingForm"
-                            data-form-csrf-handler="true"
                             method="post">
-                            {% block page_checkout_confirm_shipping_form_csrf %}
-                                {{ sw_csrf('frontend.checkout.configure') }}
-                            {% endblock %}
 
                             <input type="hidden" name="forwardTo" value="frontend.cart.offcanvas">
 
                             {% block component_offcanvas_summary_content_shipping_select %}
 
-                                <select class="{{ formSelectClass }} mt-2 col-12" name="shippingMethodId">
+                                <select class="form-select mt-2 col-12" name="shippingMethodId">
                                     <option disabled>{{ "checkout.confirmChangeShipping"|trans|sw_sanitize }}</option>
 
                                     {% for shippingMethod in page.shippingMethods %}

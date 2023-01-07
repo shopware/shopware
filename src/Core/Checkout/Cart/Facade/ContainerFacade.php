@@ -14,11 +14,16 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package checkout
+ */
+/**
  * The ContainerFacade allows you to wrap multiple line-items inside a container line-item.
  *
  * @script-service cart_manipulation
  *
  * @internal
+ *
+ * @package checkout
  */
 class ContainerFacade extends ItemFacade
 {

@@ -8,33 +8,30 @@ use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class CartConvertedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
+
+    private OrderConversionContext $conversionContext;
+
+    private Cart $cart;
 
     /**
-     * @var OrderConversionContext
+     * @var array<mixed>
      */
-    private $conversionContext;
+    private array $originalConvertedCart;
 
     /**
-     * @var Cart
+     * @var array<mixed>
      */
-    private $cart;
+    private array $convertedCart;
 
     /**
-     * @var array
+     * @param array<mixed> $convertedCart
      */
-    private $originalConvertedCart;
-
-    /**
-     * @var array
-     */
-    private $convertedCart;
-
     public function __construct(
         Cart $cart,
         array $convertedCart,
@@ -58,16 +55,25 @@ class CartConvertedEvent extends NestedEvent implements ShopwareSalesChannelEven
         return $this->cart;
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getOriginalConvertedCart(): array
     {
         return $this->originalConvertedCart;
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getConvertedCart(): array
     {
         return $this->convertedCart;
     }
 
+    /**
+     * @param mixed[] $convertedCart
+     */
     public function setConvertedCart(array $convertedCart): void
     {
         $this->convertedCart = $convertedCart;

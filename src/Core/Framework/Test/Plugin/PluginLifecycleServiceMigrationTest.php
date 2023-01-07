@@ -6,7 +6,7 @@ use Composer\IO\NullIO;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
@@ -43,7 +43,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
     private $container;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $pluginRepo;
 
@@ -170,7 +170,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $migrationSource = ReflectionHelper::getPropertyValue($migrationCollection, 'migrationSource');
 
         $dbMigrations = $connection
-            ->fetchAll(
+            ->fetchAllAssociative(
                 'SELECT * FROM `migration` WHERE `class` REGEXP :pattern ORDER BY `creation_timestamp`',
                 ['pattern' => $migrationSource->getNamespacePattern()]
             );

@@ -10,6 +10,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\Traits\Translations;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1625831469AddImportExportCrossSellingProfile extends MigrationStep
 {
     use ImportTranslationsTrait;

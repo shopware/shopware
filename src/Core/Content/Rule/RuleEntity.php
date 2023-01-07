@@ -14,11 +14,12 @@ use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\Tag\TagCollection;
 
+/**
+ * @package business-ops
+ */
 class RuleEntity extends Entity
 {
     use EntityIdTrait;
@@ -40,14 +41,14 @@ class RuleEntity extends Entity
     protected $priority;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @var string|Rule|null
      */
     protected $payload;
 
     /**
-     * @var array|null
+     * @var string[]|null
      */
     protected $moduleTypes;
 
@@ -67,13 +68,6 @@ class RuleEntity extends Entity
     protected $paymentMethods;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     *
-     * @var EventActionCollection|null
-     */
-    protected $eventActions;
-
-    /**
      * @var RuleConditionCollection|null
      */
     protected $conditions;
@@ -82,6 +76,11 @@ class RuleEntity extends Entity
      * @var bool
      */
     protected $invalid;
+
+    /**
+     * @var string[]|null
+     */
+    protected ?array $areas = null;
 
     /**
      * @var ShippingMethodPriceCollection|null
@@ -138,6 +137,9 @@ class RuleEntity extends Entity
         $this->name = $name;
     }
 
+    /**
+     * @return Rule|string|null
+     */
     public function getPayload()
     {
         $this->checkIfPropertyAccessIsAllowed('payload');
@@ -146,7 +148,9 @@ class RuleEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
+     * @internal
+     *
+     * @param Rule|string|null $payload
      */
     public function setPayload($payload): void
     {
@@ -223,11 +227,33 @@ class RuleEntity extends Entity
         $this->invalid = $invalid;
     }
 
+    /**
+     * @return string[]|null
+     */
+    public function getAreas(): ?array
+    {
+        return $this->areas;
+    }
+
+    /**
+     * @param string[] $areas
+     */
+    public function setAreas(array $areas): void
+    {
+        $this->areas = $areas;
+    }
+
+    /**
+     * @return string[]|null
+     */
     public function getModuleTypes(): ?array
     {
         return $this->moduleTypes;
     }
 
+    /**
+     * @param string[]|null $moduleTypes
+     */
     public function setModuleTypes(?array $moduleTypes): void
     {
         $this->moduleTypes = $moduleTypes;
@@ -345,31 +371,5 @@ class RuleEntity extends Entity
     public function setCartPromotions(PromotionCollection $cartPromotions): void
     {
         $this->cartPromotions = $cartPromotions;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     */
-    public function getEventActions(): ?EventActionCollection
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return $this->eventActions;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     */
-    public function setEventActions(EventActionCollection $eventActions): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $this->eventActions = $eventActions;
     }
 }

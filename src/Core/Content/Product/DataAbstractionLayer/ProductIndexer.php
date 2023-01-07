@@ -9,7 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
@@ -17,13 +17,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package core
+ */
 class ProductIndexer extends EntityIndexer
 {
     public const INHERITANCE_UPDATER = 'product.inheritance';
@@ -39,7 +41,7 @@ class ProductIndexer extends EntityIndexer
 
     private IteratorFactory $iteratorFactory;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private Connection $connection;
 
@@ -72,7 +74,7 @@ class ProductIndexer extends EntityIndexer
      */
     public function __construct(
         IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
+        EntityRepository $repository,
         Connection $connection,
         VariantListingUpdater $variantListingUpdater,
         ProductCategoryDenormalizer $categoryDenormalizer,
@@ -109,20 +111,8 @@ class ProductIndexer extends EntityIndexer
         return 'product.indexer';
     }
 
-    /**
-     * @param array|null $offset
-     *
-     * @deprecated tag:v6.5.0 The parameter $offset will be natively typed
-     */
-    public function iterate(/*?array */$offset): ?EntityIndexingMessage
+    public function iterate(?array $offset): ?EntityIndexingMessage
     {
-        if ($offset !== null && !\is_array($offset)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Parameter `$offset` of method "iterate()" in class "ProductIndexer" will be natively typed to `?array` in v6.5.0.0.'
-            );
-        }
-
         $iterator = $this->getIterator($offset);
 
         $ids = $iterator->fetch();
@@ -292,7 +282,7 @@ class ProductIndexer extends EntityIndexer
 
     private function getChildrenIds(array $ids): array
     {
-        $childrenIds = $this->connection->fetchAll(
+        $childrenIds = $this->connection->fetchAllAssociative(
             'SELECT DISTINCT LOWER(HEX(id)) as id FROM product WHERE parent_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => Connection::PARAM_STR_ARRAY]

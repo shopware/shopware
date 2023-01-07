@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Subscriber;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -14,7 +14,9 @@ use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
+ *
+ * @package storefront
  */
 class UpdateSubscriber implements EventSubscriberInterface
 {
@@ -22,7 +24,7 @@ class UpdateSubscriber implements EventSubscriberInterface
 
     private ThemeLifecycleService $themeLifecycleService;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     /**
      * @internal
@@ -30,7 +32,7 @@ class UpdateSubscriber implements EventSubscriberInterface
     public function __construct(
         ThemeService $themeService,
         ThemeLifecycleService $themeLifecycleService,
-        EntityRepositoryInterface $salesChannelRepository
+        EntityRepository $salesChannelRepository
     ) {
         $this->themeService = $themeService;
         $this->themeLifecycleService = $themeLifecycleService;

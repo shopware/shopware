@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 
+/**
+ * @package customer-order
+ */
 class TaxEntity extends Entity
 {
     use EntityIdTrait;

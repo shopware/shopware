@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\LandingPage;
 
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
 
+/**
+ * @package content
+ */
 class LandingPageEvents
 {
     /**

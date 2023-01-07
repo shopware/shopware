@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
@@ -11,6 +10,8 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Symfony\Component\Finder\Finder;
 
 /**
+ * @package storefront
+ *
  * @Decoratable
  */
 class ThemeFileImporter implements ThemeFileImporterInterface
@@ -65,22 +66,12 @@ class ThemeFileImporter implements ThemeFileImporterInterface
             $relativePathname = $file->getRelativePathname();
             $assetDir = basename($assetPath);
 
-            if (Feature::isActive('FEATURE_NEXT_14699')) {
-                $assets[] = new CopyBatchInput(
-                    $assetPath . \DIRECTORY_SEPARATOR . $relativePathname,
-                    [
-                        $outputPath . \DIRECTORY_SEPARATOR . $assetDir . \DIRECTORY_SEPARATOR . $relativePathname,
-                    ]
-                );
-            } else {
-                $assets[] = new CopyBatchInput(
-                    $assetPath . \DIRECTORY_SEPARATOR . $relativePathname,
-                    [
-                        'bundles' . \DIRECTORY_SEPARATOR . mb_strtolower($configuration->getTechnicalName()) . \DIRECTORY_SEPARATOR . $assetDir . \DIRECTORY_SEPARATOR . $relativePathname,
-                        $outputPath . \DIRECTORY_SEPARATOR . $assetDir . \DIRECTORY_SEPARATOR . $relativePathname,
-                    ]
-                );
-            }
+            $assets[] = new CopyBatchInput(
+                $assetPath . \DIRECTORY_SEPARATOR . $relativePathname,
+                [
+                    $outputPath . \DIRECTORY_SEPARATOR . $assetDir . \DIRECTORY_SEPARATOR . $relativePathname,
+                ]
+            );
         }
 
         return $assets;

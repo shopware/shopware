@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package sales-channel
+ */
 class SalesChannelProcessCriteriaEvent implements ShopwareSalesChannelEvent
 {
     private Criteria $criteria;

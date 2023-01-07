@@ -77,6 +77,7 @@ describe('Manufacturers: Appearance in Storefront & Product Filter', () => {
 
         // assign manufacturer to the product
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.contains('.sw-page__smart-bar-amount', '1');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');

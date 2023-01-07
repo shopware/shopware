@@ -11,6 +11,9 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 
+/**
+ * @package sales-channel
+ */
 class SalesChannelDomainEntity extends Entity
 {
     use EntityIdTrait;

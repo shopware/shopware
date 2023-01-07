@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { CookieStorage } from 'cookie-storage';
 
 interface AuthObject {
@@ -242,11 +246,31 @@ export default function createLoginService(
             clearTimeout(autoRefreshTokenTimeoutId);
         }
 
+        if (lastActivityOverThreshold()) {
+            logout();
+            return;
+        }
+
         const timeUntilExpiry = expiryTimestamp * 1000 - Date.now();
 
         autoRefreshTokenTimeoutId = setTimeout(() => {
             void refreshToken();
         }, timeUntilExpiry / 2);
+    }
+
+    /**
+     * Returns true if the last user activity is over the 30-minute threshold
+     *
+     * @private
+     */
+    function lastActivityOverThreshold(): boolean {
+        const lastActivity = Shopware.Context.app.lastActivity;
+
+        // (Current time in seconds) - 25 minutes
+        // 25 minutes + half the 10-minute expiry = 30 minute threshold
+        const threshold = Math.round(+new Date() / 1000) - 1500;
+
+        return lastActivity <= threshold;
     }
 
     /**
@@ -284,10 +308,6 @@ export default function createLoginService(
     function logout(): boolean {
         if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
             cookieStorage.removeItem(storageKey);
-
-            // @deprecated tag:v6.5.0 - Was needed for old cookies set without domain
-            // eslint-disable-next-line max-len,@typescript-eslint/no-non-null-assertion
-            document.cookie = `bearerAuth=deleted; expires=Thu, 18 Dec 2013 12:00:00 UTC;path=${context.basePath! + context.pathInfo!}`;
         }
 
         context.authToken = null;

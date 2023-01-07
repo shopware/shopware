@@ -1,0 +1,94 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_media_url_form %}
+<sw-modal
+    v-if="variant === 'modal'"
+    class="sw-media-url-form"
+    variant="small"
+    :title="$tc('global.sw-media-url-form.title')"
+    v-on="$listeners"
+>
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_url_form_input %}
+    <sw-text-field
+        v-model="url"
+        class="sw-media-url-form__url-input"
+        label="URL"
+        :error="invalidUrlError"
+        :placeholder="$tc('global.sw-media-url-form.example')"
+    />
+
+    <sw-text-field
+        v-if="missingFileExtension"
+        v-model="extensionFromInput"
+        class="sw-media-url-form__extension-input"
+        :label="$tc('global.sw-media-url-form.labelFileExtension')"
+        validation="required"
+        placeholder="jpg"
+        :help-text="$tc('global.sw-media-url-form.missingFileExtension')"
+    />
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_url_form_footer %}
+    <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_url_form_cancel_button %}
+        <sw-button
+            size="small"
+            @click="closeModal"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_url_form_submit_button %}
+        <sw-button
+            class="sw-media-url-form__submit-button"
+            variant="primary"
+            size="small"
+            :disabled="!isValid"
+            @click.prevent="emitUrl"
+        >
+
+            {{ $tc('global.sw-media-url-form.upload') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+
+<div v-else-if="variant === 'inline'">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_url_form_input_inline %}
+    <sw-text-field
+        v-model="url"
+        class="sw-media-url-form__url-input"
+        label="URL"
+        :error="invalidUrlError"
+        :placeholder="$tc('global.sw-media-url-form.example')"
+    />
+
+    <sw-text-field
+        v-if="missingFileExtension"
+        v-model="extensionFromInput"
+        class="sw-media-url-form__extension-input"
+        :label="$tc('global.sw-media-url-form.labelFileExtension')"
+        validation="required"
+        placeholder="jpg"
+        :help-text="$tc('global.sw-media-url-form.missingFileExtension')"
+    />
+    {% endblock %}
+
+    <sw-button
+        class="sw-media-url-form__submit-button"
+        :disabled="!isValid"
+        size="small"
+        variant="primary"
+        @click="emitUrl"
+    >
+        {{ $tc('global.sw-media-url-form.upload') }}
+    </sw-button>
+</div>
+{% endblock %}

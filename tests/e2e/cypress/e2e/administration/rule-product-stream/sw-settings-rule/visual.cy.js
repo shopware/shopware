@@ -76,7 +76,7 @@ describe('Rule builder: Visual tests', () => {
                 value: 'No'
             });
 
-            cy.get('button.sw-button').contains('And').click();
+            cy.get('button.sw-button').contains('Add AND condition').click();
             cy.get('.sw-condition').should('have.length', 2);
 
             cy.get('.sw-condition').eq(1).as('second-condition');
@@ -126,8 +126,8 @@ describe('Rule builder: Visual tests', () => {
             });
         });
 
-        cy.get('.sw-condition-tree .sw-condition-or-container button.sw-button')
-            .contains('Or')
+        cy.get('.sw-condition-tree .sw-condition-or-container__actions button.sw-button')
+            .contains('Add OR condition')
             .click();
 
         cy.get('.sw-condition-tree .sw-condition-or-container .sw-condition-and-container')
@@ -142,7 +142,7 @@ describe('Rule builder: Visual tests', () => {
                 value: 'Yes'
             });
 
-            cy.get('button.sw-button').contains('Subcondition').click();
+            cy.get('button.sw-button').contains('Add subconditions').click();
             cy.get('.sw-condition').should('have.length', 2);
 
             cy.get('.sw-condition').eq(1).as('subcontainer');

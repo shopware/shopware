@@ -11,7 +11,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
+use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -39,15 +39,20 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"administration"}})
+ *
+ * @package administration
  */
 class AdministrationController extends AbstractController
 {
     private TemplateFinder $finder;
 
-    private FirstRunWizardClient $firstRunWizardClient;
+    private FirstRunWizardService $firstRunWizardService;
 
     private SnippetFinderInterface $snippetFinder;
 
+    /**
+     * @var array<int, int>
+     */
     private array $supportedApiVersions;
 
     private KnownIpsCollectorInterface $knownIpsCollector;
@@ -58,9 +63,9 @@ class AdministrationController extends AbstractController
 
     private string $shopwareCoreDir;
 
-    private EntityRepositoryInterface $customerRepo;
+    private EntityRepository $customerRepo;
 
-    private EntityRepositoryInterface $currencyRepository;
+    private EntityRepository $currencyRepository;
 
     private HtmlSanitizer $htmlSanitizer;
 
@@ -68,23 +73,25 @@ class AdministrationController extends AbstractController
 
     /**
      * @internal
+     *
+     * @param array<int, int> $supportedApiVersions
      */
     public function __construct(
         TemplateFinder $finder,
-        FirstRunWizardClient $firstRunWizardClient,
+        FirstRunWizardService $firstRunWizardService,
         SnippetFinderInterface $snippetFinder,
         array $supportedApiVersions,
         KnownIpsCollectorInterface $knownIpsCollector,
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
         string $shopwareCoreDir,
-        EntityRepositoryInterface $customerRepo,
-        EntityRepositoryInterface $currencyRepository,
+        EntityRepository $customerRepo,
+        EntityRepository $currencyRepository,
         HtmlSanitizer $htmlSanitizer,
         DefinitionInstanceRegistry $definitionInstanceRegistry
     ) {
         $this->finder = $finder;
-        $this->firstRunWizardClient = $firstRunWizardClient;
+        $this->firstRunWizardService = $firstRunWizardService;
         $this->snippetFinder = $snippetFinder;
         $this->supportedApiVersions = $supportedApiVersions;
         $this->knownIpsCollector = $knownIpsCollector;
@@ -116,7 +123,7 @@ class AdministrationController extends AbstractController
             'disableExtensions' => EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false),
             'systemCurrencyISOCode' => $defaultCurrency->getIsoCode(),
             'liveVersionId' => Defaults::LIVE_VERSION,
-            'firstRunWizard' => $this->firstRunWizardClient->frwShouldRun(),
+            'firstRunWizard' => $this->firstRunWizardService->frwShouldRun(),
             'apiVersion' => $this->getLatestApiVersion(),
             'cspNonce' => $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE),
         ]);
@@ -157,16 +164,12 @@ class AdministrationController extends AbstractController
     }
 
     /**
-     * @deprecated tag:v6.5.0 - native return type JsonResponse will be added
-     *
      * @Since("6.4.0.1")
      * @Route("/api/_admin/reset-excluded-search-term", name="api.admin.reset-excluded-search-term", methods={"POST"}, defaults={"_acl"={"system_config:update", "system_config:create", "system_config:delete"}})
-     *
-     * @return JsonResponse
      */
-    public function resetExcludedSearchTerm(Context $context)
+    public function resetExcludedSearchTerm(Context $context): JsonResponse
     {
-        $searchConfigId = $this->connection->fetchColumn('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => Uuid::fromHexToBytes($context->getLanguageId())]);
+        $searchConfigId = $this->connection->fetchOne('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => Uuid::fromHexToBytes($context->getLanguageId())]);
 
         if ($searchConfigId === false) {
             throw new LanguageNotFoundException($context->getLanguageId());
@@ -190,7 +193,7 @@ class AdministrationController extends AbstractController
                 $defaultExcludedTerm = $preResetExcludedSearchTermEvent->getExcludedTerms();
         }
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE `product_search_config` SET `excluded_terms` = :excludedTerms WHERE `id` = :id',
             [
                 'excludedTerms' => json_encode($defaultExcludedTerm),
@@ -296,7 +299,7 @@ class AdministrationController extends AbstractController
 
     private function fetchLanguageIdByName(string $isoCode, Connection $connection): ?string
     {
-        $languageId = $connection->fetchColumn(
+        $languageId = $connection->fetchOne(
             '
             SELECT `language`.id FROM `language`
             INNER JOIN locale ON language.translation_code_id = locale.id
@@ -307,10 +310,10 @@ class AdministrationController extends AbstractController
         return $languageId === false ? null : Uuid::fromBytesToHex($languageId);
     }
 
-    private function getLatestApiVersion(): int
+    private function getLatestApiVersion(): ?int
     {
         $sortedSupportedApiVersions = array_values($this->supportedApiVersions);
-        usort($sortedSupportedApiVersions, 'version_compare');
+        usort($sortedSupportedApiVersions, fn (mixed $a, mixed $b) => (int) version_compare((string) $a, (string) $b));
 
         return array_pop($sortedSupportedApiVersions);
     }

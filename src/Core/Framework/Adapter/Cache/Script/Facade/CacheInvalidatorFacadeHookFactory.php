@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class CacheInvalidatorFacadeHookFactory extends HookServiceFactory

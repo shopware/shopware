@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Twig\Cache\FilesystemCache;
 
+/**
+ * @package core
+ */
 class ConfigurableFilesystemCache extends FilesystemCache
 {
     /**

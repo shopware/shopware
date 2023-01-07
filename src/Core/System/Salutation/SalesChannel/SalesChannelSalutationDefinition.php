@@ -7,6 +7,9 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
+/**
+ * @package customer-order
+ */
 class SalesChannelSalutationDefinition extends SalutationDefinition implements SalesChannelDefinitionInterface
 {
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void

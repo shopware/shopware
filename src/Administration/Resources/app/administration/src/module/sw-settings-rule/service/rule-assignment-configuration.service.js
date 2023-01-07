@@ -6,13 +6,13 @@ const { Criteria } = Shopware.Data;
  */
 
 /**
- *
+ * @private
+ * @package business-ops
  * @memberOf module:core/service/rule-assignment-configuration
  * @constructor
  * @method createRuleAssignmentConfigService
  * @returns {Object}
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createRuleAssignmentConfigService(ruleId, associationLimit) {
     const configuration = {
         product: {
@@ -30,7 +30,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 return criteria;
             },
             api: () => {
-                const api = Object.assign({}, Context.api);
+                const api = { ...Context.api };
                 api.inheritance = true;
 
                 return api;
@@ -491,86 +491,6 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                     routerLink: 'sw.promotion.v2.detail.conditions',
                 },
             ],
-        },
-        /**
-         * @deprecated tag:v6.5.0 - will be removed
-         */
-        event_action: {
-            id: 'event_action',
-            associationName: 'eventActions',
-            notAssignedDataTotal: 0,
-            allowAdd: true,
-            entityName: 'event_action',
-            label: 'sw-settings-rule.detail.associations.eventActions',
-            criteria: () => {
-                const criteria = new Criteria(1, associationLimit);
-                criteria.addFilter(Criteria.equals('rules.id', ruleId));
-                criteria.addAssociation('rules');
-
-                return criteria;
-            },
-            detailRoute: 'sw.event.action.detail',
-            gridColumns: [
-                {
-                    property: 'eventName',
-                    label: 'Business Event',
-                    rawData: true,
-                    sortable: true,
-                    width: '50%',
-                    routerLink: 'sw.event.action.detail',
-                },
-                {
-                    property: 'title',
-                    label: 'Business Event title',
-                    rawData: true,
-                    sortable: true,
-                    width: '50%',
-                    routerLink: 'sw.event.action.detail',
-                },
-            ],
-            deleteContext: {
-                type: 'many-to-many',
-                entity: 'event_action',
-                column: 'rules',
-            },
-            addContext: {
-                type: 'many-to-many',
-                entity: 'event_action_rule',
-                column: 'eventActionId',
-                searchColumn: 'eventName',
-                association: 'rules',
-                criteria: () => {
-                    const criteria = new Criteria(1, 25);
-                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('rules.id', ruleId)]));
-                    criteria.addFilter(Criteria.equals('actionName', 'action.mail.send'));
-                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('config.mail_template_id', null)]));
-
-                    return criteria;
-                },
-                gridColumns: [
-                    {
-                        property: 'eventName',
-                        label: 'Event',
-                        rawData: true,
-                        sortable: true,
-                        allowEdit: false,
-                    },
-                    {
-                        property: 'title',
-                        label: 'Title',
-                        rawData: true,
-                        sortable: true,
-                        allowEdit: false,
-                    },
-                    {
-                        property: 'active',
-                        label: 'Active',
-                        rawData: true,
-                        sortable: true,
-                        allowEdit: false,
-                    },
-                ],
-            },
         },
         flow: {
             id: 'flow',

@@ -15,6 +15,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 
+/**
+ * @package checkout
+ */
 class ShippingMethodEntity extends Entity
 {
     use EntityIdTrait;
@@ -24,6 +27,7 @@ class ShippingMethodEntity extends Entity
     public const TAX_TYPE_FIXED = 'fixed';
     public const TAX_TYPE_HIGHEST = 'highest';
     public const POSITION_DEFAULT = 1;
+    public const ACTIVE_DEFAULT = true;
 
     /**
      * @var string|null

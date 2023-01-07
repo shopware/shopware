@@ -20,7 +20,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -64,7 +64,7 @@ class RecalculationServiceTest extends TestCase
         $order->setSalesChannelId(Uuid::randomHex());
         $order->setTaxStatus(CartPrice::TAX_STATE_FREE);
 
-        $entityRepository = $this->createMock(EntityRepositoryInterface::class);
+        $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->method('search')->willReturnOnConsecutiveCalls(
             new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $this->salesChannelContext->getContext()),
         );

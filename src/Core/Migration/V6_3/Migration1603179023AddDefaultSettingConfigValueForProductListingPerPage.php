@@ -7,6 +7,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ *
+ * @internal
+ */
 class Migration1603179023AddDefaultSettingConfigValueForProductListingPerPage extends MigrationStep
 {
     public const CONFIG_KEY = 'core.listing.productsPerPage';
@@ -37,7 +42,7 @@ class Migration1603179023AddDefaultSettingConfigValueForProductListingPerPage ex
 
     private function configPresent(Connection $connection): bool
     {
-        return $connection->fetchColumn(
+        return $connection->fetchOne(
             'SELECT `id` FROM `system_config` WHERE `configuration_key` = :config_key LIMIT 1;',
             ['config_key' => self::CONFIG_KEY]
         ) !== false;

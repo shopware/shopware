@@ -3,13 +3,16 @@
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @group store-api
  */
@@ -19,7 +22,7 @@ class ChangePasswordRouteTest extends TestCase
     use CustomerTestTrait;
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     * @var KernelBrowser
      */
     private $browser;
 
@@ -27,11 +30,6 @@ class ChangePasswordRouteTest extends TestCase
      * @var TestDataCollection
      */
     private $ids;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
 
     /**
      * @var string
@@ -56,7 +54,6 @@ class ChangePasswordRouteTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
 
         $this->email = Uuid::randomHex() . '@example.com';
         $this->customerId = $this->createCustomer('shopware', $this->email);
@@ -71,11 +68,12 @@ class ChangePasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
 
-        $this->contextToken = $response['contextToken'];
+        $this->contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($this->contextToken);
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->contextToken);
     }
 
     public function testEmptyRequest(): void
@@ -88,7 +86,7 @@ class ChangePasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('VIOLATION::IS_BLANK_ERROR', $response['errors'][0]['code']);
@@ -106,7 +104,7 @@ class ChangePasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT', $response['errors'][0]['code']);
@@ -125,11 +123,13 @@ class ChangePasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayNotHasKey('errors', $response);
+        $responseContent = json_decode((string) $response->getContent(), true);
+        static::assertArrayNotHasKey('errors', $responseContent);
 
-        static::assertNotEmpty($response['contextToken']);
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
 
         $this->browser
             ->request(
@@ -141,10 +141,13 @@ class ChangePasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayNotHasKey('errors', $response);
-        static::assertArrayHasKey('contextToken', $response);
+        $responseContent = json_decode((string) $response->getContent(), true);
+        static::assertArrayNotHasKey('errors', $responseContent);
+
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
     }
 
     public function testContextTokenIsReplacedAfterChangingPassword(): void
@@ -160,16 +163,19 @@ class ChangePasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
+
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
 
         $oldContextExists = $this->getContainer()->get(SalesChannelContextPersister::class)->load($this->contextToken, $this->ids->get('sales-channel'));
 
         static::assertEmpty($oldContextExists);
 
         // Token is replaced
-        static::assertNotEquals($this->contextToken, $response['contextToken']);
+        static::assertNotEquals($this->contextToken, $contextToken);
 
-        $newContextExists = $this->getContainer()->get(SalesChannelContextPersister::class)->load($response['contextToken'], $this->ids->get('sales-channel'), $this->customerId);
+        $newContextExists = $this->getContainer()->get(SalesChannelContextPersister::class)->load($contextToken, $this->ids->get('sales-channel'), $this->customerId);
 
         static::assertNotEmpty($newContextExists);
     }

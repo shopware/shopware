@@ -5,7 +5,12 @@ namespace Shopware\Core\Checkout\Document;
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
 use Shopware\Core\Framework\Struct\Struct;
 
-final class DocumentGenerationResult extends Struct
+/**
+ * @package customer-order
+ *
+ * @final
+ */
+class DocumentGenerationResult extends Struct
 {
     private DocumentIdCollection $success;
 
@@ -29,6 +34,9 @@ final class DocumentGenerationResult extends Struct
         $this->success->add($document);
     }
 
+    /**
+     * @return \Throwable[]
+     */
     public function getErrors(): array
     {
         return $this->errors;

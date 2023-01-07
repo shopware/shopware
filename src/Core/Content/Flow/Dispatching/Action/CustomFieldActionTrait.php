@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package business-ops
+ */
 trait CustomFieldActionTrait
 {
     /**

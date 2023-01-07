@@ -7,10 +7,9 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -20,6 +19,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class CustomerNumberRuleTest extends TestCase
@@ -27,25 +28,13 @@ class CustomerNumberRuleTest extends TestCase
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $ruleRepository;
+    private EntityRepository $ruleRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $conditionRepository;
+    private EntityRepository $conditionRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var CustomerNumberRule
-     */
-    private $rule;
+    private CustomerNumberRule $rule;
 
     protected function setUp(): void
     {
@@ -146,6 +135,8 @@ class CustomerNumberRuleTest extends TestCase
 
     /**
      * @dataProvider getMatchValues
+     *
+     * @param array<string> $customerNumbers
      */
     public function testRuleMatching(string $operator, bool $isMatching, array $customerNumbers, bool $noCustomer = false): void
     {
@@ -169,6 +160,9 @@ class CustomerNumberRuleTest extends TestCase
         }
     }
 
+    /**
+     * @return \Traversable<string, array<string|bool|array<string>>>
+     */
     public function getMatchValues(): \Traversable
     {
         yield 'operator_eq / match / customer number' => [Rule::OPERATOR_EQ, true, ['1337']];
@@ -177,12 +171,6 @@ class CustomerNumberRuleTest extends TestCase
 
         yield 'operator_neq / no match / customer number' => [Rule::OPERATOR_NEQ, false, ['1337']];
         yield 'operator_neq / match / customer number' => [Rule::OPERATOR_NEQ, true, ['0000']];
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            yield 'operator_neq / match / empty customer' => [Rule::OPERATOR_NEQ, false, ['0000'], true];
-
-            return;
-        }
 
         yield 'operator_neq / match / empty customer' => [Rule::OPERATOR_NEQ, true, ['0000'], true];
     }

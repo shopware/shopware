@@ -4,38 +4,37 @@ namespace Shopware\Storefront\Framework\Command;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @final
+ *
+ * @package storefront
+ */
+#[AsCommand(
+    name: 'sales-channel:create:storefront',
+    description: 'Creates a new storefront sales channel',
+)]
 class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 {
-    protected static $defaultName = 'sales-channel:create:storefront';
-
-    private EntityRepositoryInterface $snippetSetRepository;
+    private EntityRepository $snippetSetRepository;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $paymentMethodRepository,
-        EntityRepositoryInterface $shippingMethodRepository,
-        EntityRepositoryInterface $countryRepository,
-        EntityRepositoryInterface $snippetSetRepository,
-        EntityRepositoryInterface $categoryRepository,
+        EntityRepository $snippetSetRepository,
         SalesChannelCreator $salesChannelCreator
     ) {
         parent::__construct(
-            $paymentMethodRepository,
-            $shippingMethodRepository,
-            $countryRepository,
-            $snippetSetRepository,
-            $categoryRepository,
             $salesChannelCreator
         );
 
@@ -49,6 +48,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
         $this
             ->addOption('url', null, InputOption::VALUE_REQUIRED, 'App URL for storefront')
             ->addOption('snippetSetId', null, InputOption::VALUE_REQUIRED, 'Default snippet set')
+            ->addOption('isoCode', null, InputOption::VALUE_REQUIRED, 'Snippet set iso code')
         ;
     }
 
@@ -59,7 +59,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 
     protected function getSalesChannelConfiguration(InputInterface $input, OutputInterface $output): array
     {
-        $snippetSet = $input->getOption('snippetSetId') ?? $this->getSnippetSetId();
+        $snippetSet = $input->getOption('snippetSetId') ?? $this->getSnippetSetId($input->getOption('isoCode'));
 
         return [
             'domains' => [
@@ -75,17 +75,16 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
         ];
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - reason:visibility-change - Will be made private when parent implementation is removed
-     */
-    protected function getSnippetSetId(): string
+    private function getSnippetSetId(?string $isoCode = 'en-GB'): string
     {
+        $isoCode = $isoCode ?: 'en-GB';
+        $isoCode = str_replace('_', '-', $isoCode);
         $criteria = (new Criteria())
             ->setLimit(1)
-            ->addFilter(new EqualsFilter('iso', 'en-GB'));
+            ->addFilter(new EqualsFilter('iso', $isoCode));
 
         /** @var string|null $id */
-        $id = $this->snippetSetRepository->searchIds($criteria, Context::createDefaultContext())->getIds()[0] ?? null;
+        $id = $this->snippetSetRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
 
         if ($id === null) {
             throw new \InvalidArgumentException('Unable to get default SnippetSet. Please provide a valid SnippetSetId.');

@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Framework\Context;
 
+/**
+ * @package checkout
+ */
 class TransactionTransformer
 {
     public static function transformCollection(

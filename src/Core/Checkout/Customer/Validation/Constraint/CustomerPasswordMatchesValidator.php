@@ -7,12 +7,12 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
+/**
+ * @package customer-order
+ */
 class CustomerPasswordMatchesValidator extends ConstraintValidator
 {
-    /**
-     * @var AccountService
-     */
-    private $accountService;
+    private AccountService $accountService;
 
     /**
      * @internal
@@ -22,7 +22,7 @@ class CustomerPasswordMatchesValidator extends ConstraintValidator
         $this->accountService = $accountService;
     }
 
-    public function validate($password, Constraint $constraint): void
+    public function validate(mixed $password, Constraint $constraint): void
     {
         if (!$constraint instanceof CustomerPasswordMatches) {
             return;

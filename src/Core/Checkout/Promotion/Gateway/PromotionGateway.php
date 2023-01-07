@@ -5,22 +5,25 @@ namespace Shopware\Core\Checkout\Promotion\Gateway;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class PromotionGateway implements PromotionGatewayInterface
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $promotionRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $promotionRepository)
+    public function __construct(EntityRepository $promotionRepository)
     {
         $this->promotionRepository = $promotionRepository;
     }

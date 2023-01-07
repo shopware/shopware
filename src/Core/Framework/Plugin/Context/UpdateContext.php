@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Plugin;
 
+/**
+ * @package core
+ */
 class UpdateContext extends InstallContext
 {
     /**

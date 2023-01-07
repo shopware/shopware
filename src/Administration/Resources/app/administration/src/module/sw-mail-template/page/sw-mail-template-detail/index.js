@@ -2,13 +2,13 @@ import { dom } from 'src/core/service/util.service';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-mail-template-detail', {
+export default {
     template,
 
     inject: ['mailService', 'entityMappingService', 'repositoryFactory', 'acl', 'feature'],
@@ -93,9 +93,7 @@ Component.register('sw-mail-template-detail', {
                 function completerFunction(prefix) {
                     const properties = [];
                     Object.keys(
-                        entityMappingService.getEntityMapping(
-                            prefix, innerMailTemplateType.availableEntities,
-                        ),
+                        entityMappingService.getEntityMapping(prefix, innerMailTemplateType.availableEntities),
                     ).forEach((val) => {
                         properties.push({
                             value: val,
@@ -174,6 +172,41 @@ Component.register('sw-mail-template-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-mail-template-detail__mailTemplate',
+                path: 'mailTemplate',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-mail-template-detail__mailTemplateMedia',
+                path: 'mailTemplateMedia',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-mail-template-detail__mailTemplateMediaSelected',
+                path: 'mailTemplateMediaSelected',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-mail-template-detail__mailTemplateType',
+                path: 'mailTemplateType',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-mail-template-detail__availableVariables',
+                path: 'availableVariables',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-mail-template-detail__testMailSalesChannelId',
+                path: 'testMailSalesChannelId',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-mail-template-detail__testerMail',
+                path: 'testerMail',
+                scope: this,
+            });
             if (this.$route.params.id) {
                 this.mailTemplateId = this.$route.params.id;
                 this.loadEntityData();
@@ -297,7 +330,16 @@ Component.register('sw-mail-template-detail', {
                 this.mailPreviewContent(),
                 this.mailTemplateMedia,
                 this.testMailSalesChannelId,
-            ).then(() => {
+            ).then((response) => {
+                // Size is the length of the mail message, if the size is zero then no mail was sent
+                const isMailSent = response?.size !== 0;
+                if (!isMailSent) {
+                    this.createNotificationError({
+                        message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
+                    });
+                    return;
+                }
+
                 this.createNotificationSuccess(notificationTestMailSuccess);
             }).catch((exception) => {
                 this.createNotificationError(notificationTestMailError);
@@ -313,6 +355,21 @@ Component.register('sw-mail-template-detail', {
                 this.mailPreviewContent(),
             ).then((response) => {
                 this.mailPreview = response;
+            }).catch((error) => {
+                this.mailPreview = null;
+                if (!error.response?.data?.errors?.[0]?.detail) {
+                    this.createNotificationError({
+                        message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
+                    });
+                } else {
+                    this.createNotificationError({
+                        message: this.$tc(
+                            'sw-mail-template.general.notificationSyntaxValidationErrorMessage',
+                            0,
+                            { errorMsg: error.response?.data?.errors?.[0]?.detail },
+                        ),
+                    });
+                }
             }).finally(() => {
                 this.isLoading = false;
             });
@@ -560,4 +617,4 @@ Component.register('sw-mail-template-detail', {
             });
         },
     },
-});
+};

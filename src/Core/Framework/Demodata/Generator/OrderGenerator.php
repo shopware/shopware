@@ -21,23 +21,17 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ *
+ * @package core
+ */
 class OrderGenerator implements DemodataGeneratorInterface
 {
-    private Connection $connection;
-
-    private AbstractSalesChannelContextFactory $contextFactory;
-
-    private CartService $cartService;
-
-    private OrderConverter $orderConverter;
-
-    private EntityWriterInterface $writer;
-
-    private OrderDefinition $orderDefinition;
-
+    /**
+     * @var array<string, SalesChannelContext>
+     */
     private array $contexts = [];
-
-    private CartCalculator $cartCalculator;
 
     private Generator $faker;
 
@@ -45,21 +39,14 @@ class OrderGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        AbstractSalesChannelContextFactory $contextFactory,
-        CartService $cartService,
-        OrderConverter $orderConverter,
-        EntityWriterInterface $writer,
-        OrderDefinition $orderDefinition,
-        CartCalculator $cartCalculator
+        private Connection $connection,
+        private AbstractSalesChannelContextFactory $contextFactory,
+        private CartService $cartService,
+        private OrderConverter $orderConverter,
+        private EntityWriterInterface $writer,
+        private OrderDefinition $orderDefinition,
+        private CartCalculator $cartCalculator
     ) {
-        $this->connection = $connection;
-        $this->contextFactory = $contextFactory;
-        $this->cartService = $cartService;
-        $this->orderConverter = $orderConverter;
-        $this->writer = $writer;
-        $this->orderDefinition = $orderDefinition;
-        $this->cartCalculator = $cartCalculator;
     }
 
     public function getDefinition(): string
@@ -73,8 +60,7 @@ class OrderGenerator implements DemodataGeneratorInterface
         $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
         $productIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM `product` ORDER BY RAND() LIMIT 1000');
         $promotionCodes = $this->connection->fetchFirstColumn('SELECT `code` FROM `promotion` ORDER BY RAND() LIMIT 1000');
-        $customerIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 10');
-        $customerIds = array_column($customerIds, 'id');
+        $customerIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 10');
         $tags = $this->getIds('tag');
         $writeContext = WriteContext::createFromContext($context->getContext());
 
@@ -138,6 +124,11 @@ class OrderGenerator implements DemodataGeneratorInterface
         $context->getConsole()->progressFinish();
     }
 
+    /**
+     * @param list<string> $tags
+     *
+     * @return list<array{id: string}>
+     */
     private function getTags(array $tags): array
     {
         $tagAssignments = [];
@@ -147,7 +138,7 @@ class OrderGenerator implements DemodataGeneratorInterface
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(
-                    function ($id) {
+                    function (string $id) {
                         return ['id' => $id];
                     },
                     $chosenTags
@@ -158,11 +149,12 @@ class OrderGenerator implements DemodataGeneratorInterface
         return $tagAssignments;
     }
 
+    /**
+     * @return list<string>
+     */
     private function getIds(string $table): array
     {
-        $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
-
-        return array_column($ids, 'id');
+        return $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
     }
 
     /**

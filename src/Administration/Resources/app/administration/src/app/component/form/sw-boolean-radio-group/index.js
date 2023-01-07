@@ -3,6 +3,9 @@ import './sw-boolean-radio-group.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description radio input field for boolean and named entries.
  * @status ready
@@ -15,7 +18,6 @@ const { Component } = Shopware;
  *      :bordered="bordered">
  * </sw-boolean-radio-group>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-boolean-radio-group', {
 
     template:

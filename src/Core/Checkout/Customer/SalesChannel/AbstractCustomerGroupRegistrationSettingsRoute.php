@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package customer-order
+ */
 abstract class AbstractCustomerGroupRegistrationSettingsRoute
 {
     abstract public function getDecorated(): AbstractCustomerGroupRegistrationSettingsRoute;

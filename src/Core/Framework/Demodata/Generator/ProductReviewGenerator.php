@@ -11,34 +11,21 @@ use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ *
+ * @package core
+ */
 class ProductReviewGenerator implements DemodataGeneratorInterface
 {
-    /**
-     * @var EntityWriterInterface
-     */
-    private $writer;
-
-    /**
-     * @var ProductReviewDefinition
-     */
-    private $productReviewDefinition;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityWriterInterface $writer,
-        ProductReviewDefinition $productReviewDefinition,
-        Connection $connection
+        private EntityWriterInterface $writer,
+        private ProductReviewDefinition $productReviewDefinition,
+        private Connection $connection
     ) {
-        $this->writer = $writer;
-        $this->productReviewDefinition = $productReviewDefinition;
-        $this->connection = $connection;
     }
 
     public function getDefinition(): string

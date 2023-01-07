@@ -2,13 +2,14 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
-use Elasticsearch\Client;
-use Elasticsearch\Namespaces\IndicesNamespace;
+use OpenSearch\Client;
+use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Test\CollectingMessageBus;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Product\LanguageSubscriber;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -44,8 +45,7 @@ class LanguageSubscriberTest extends TestCase
 
     public function testOnNewLanguageIndexGetsCreated(): void
     {
-        $bus = $this->createMock(MessageBusInterface::class);
-        $bus->expects(static::once())->method('dispatch');
+        $bus = new CollectingMessageBus();
 
         $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
         $elasticsearchHelper->method('allowIndexing')->willReturn(true);
@@ -61,6 +61,8 @@ class LanguageSubscriberTest extends TestCase
         $writeResultUpdated = new EntityWriteResult('1', ['languageId' => '1'], 'sales_channel_language', EntityWriteResult::OPERATION_UPDATE);
         $event = new EntityWrittenEvent('sales_channel_language', [$writeResultCreated, $writeResultUpdated], Context::createDefaultContext());
         $subscriber->onSalesChannelWritten($event);
+
+        static::assertCount(1, $bus->getMessages());
     }
 
     public function testOnNewLanguageIndexExistsAlready(): void

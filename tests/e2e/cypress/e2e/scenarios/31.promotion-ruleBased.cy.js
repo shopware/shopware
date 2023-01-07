@@ -1,3 +1,6 @@
+/**
+ * @package checkout
+ */
 /// <reference types="Cypress" />
 import ProductPageObject from '../../support/pages/module/sw-product.page-object';
 import CheckoutPageObject from '../../support/pages/checkout.page-object';
@@ -117,30 +120,25 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-button-process__content', 'Opslaan').should('be.visible');
 
-        // Check from the store front
+        // Check from the Storefront
         cy.visit('/');
 
-        cy.window().then((win) => {
-            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+        cy.contains('Home');
+        cy.get('.header-search-input')
+            .should('be.visible')
+            .type('Test Product');
+        cy.contains('.search-suggest-product-name', 'Test Product').click();
+        cy.get('.product-detail-buy .btn-buy').click();
 
-            cy.contains('Home');
-            cy.get('.header-search-input')
-                .should('be.visible')
-                .type('Test Product');
-            cy.contains('.search-suggest-product-name', 'Test Product').click();
-            cy.get('.product-detail-buy .btn-buy').click();
+        // Off canvas, verify promotion is not available
+        cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
+        cy.contains('.line-item-label', 'Test Product');
+        cy.contains('Thunder Tuesday').should('not.exist');
+        cy.get('.summary-value.summary-total').should('include.text', '60,00');
 
-            // Off canvas, verify promotion is not available
-            cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
-            cy.contains(`${lineItemSelector}-label`, 'Test Product');
-            cy.contains('Thunder Tuesday').should('not.exist');
-            cy.get('.summary-value.summary-total').should('include.text', '60,00');
-
-            // Set the product number to 10, price over 500€ and verify promo code is visible
-            cy.get(`${lineItemSelector}-quantity-container > .custom-select`).select('10');
-            cy.contains('Thunder Tuesday').should('exist');
-            cy.get('.summary-value.summary-total').should('include.text', '540,00');
-        });
+        // Set the product number to 10, price over 500€ and verify promo code is visible
+        cy.get('.line-item-quantity-container > .custom-select').select('10');
+        cy.contains('Thunder Tuesday').should('exist');
+        cy.get('.summary-value.summary-total').should('include.text', '540,00');
     });
 });

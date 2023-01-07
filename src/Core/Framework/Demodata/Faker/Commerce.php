@@ -4,6 +4,11 @@ namespace Shopware\Core\Framework\Demodata\Faker;
 
 use Bezhanov\Faker\Provider\Commerce as FakerCommerce;
 
+/**
+ * @internal
+ *
+ * @package core
+ */
 class Commerce extends FakerCommerce
 {
     /**

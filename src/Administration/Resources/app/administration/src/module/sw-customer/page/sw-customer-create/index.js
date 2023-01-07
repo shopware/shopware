@@ -1,10 +1,14 @@
 import template from './sw-customer-create.html.twig';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
-const { Component, Mixin } = Shopware;
+/**
+ * @package customer-order
+ */
+
+const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-customer-create', {
+export default {
     template,
 
     inject: [
@@ -102,20 +106,24 @@ Component.register('sw-customer-create', {
                 boundSalesChannelId,
             }).then((emailIsValid) => {
                 if (this.errorEmailCustomer) {
-                    Shopware.State.dispatch('error/addApiError',
+                    Shopware.State.dispatch(
+                        'error/addApiError',
                         {
                             expression: `customer.${this.customer.id}.email`,
                             error: null,
-                        });
+                        },
+                    );
                 }
 
                 return emailIsValid;
             }).catch((exception) => {
-                Shopware.State.dispatch('error/addApiError',
+                Shopware.State.dispatch(
+                    'error/addApiError',
                     {
                         expression: `customer.${this.customer.id}.email`,
                         error: exception.response.data.errors[0],
-                    });
+                    },
+                );
             });
         },
 
@@ -200,4 +208,4 @@ Component.register('sw-customer-create', {
             });
         },
     },
-});
+};

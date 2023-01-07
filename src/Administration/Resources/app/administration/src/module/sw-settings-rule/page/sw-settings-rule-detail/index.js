@@ -5,8 +5,11 @@ const { Component, Mixin, Context } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-rule-detail', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     inject: [
@@ -80,6 +83,12 @@ Component.register('sw-settings-rule-detail', {
             criteria.addAssociation('cartPromotions');
             criteria.addAssociation('promotionDiscounts');
             criteria.addAssociation('promotionSetGroups');
+            criteria.addAssociation('flowSequences.flow');
+            criteria.addAssociation('shippingMethodPriceCalculations');
+            criteria.addAssociation('shippingMethodPrices');
+            criteria.addAssociation('productPrices');
+            criteria.addAssociation('shippingMethods');
+            criteria.addAssociation('paymentMethods');
 
             return criteria;
         },
@@ -203,10 +212,6 @@ Component.register('sw-settings-rule-detail', {
         loadConditionData() {
             const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
             const criteria = new Criteria(1, 500);
-
-            if (!this.feature.isActive('v6.5.0.0')) {
-                return this.appScriptConditionRepository.search(criteria, context);
-            }
 
             return Promise.all([
                 this.appScriptConditionRepository.search(criteria, context),
@@ -435,4 +440,4 @@ Component.register('sw-settings-rule-detail', {
             });
         },
     },
-});
+};

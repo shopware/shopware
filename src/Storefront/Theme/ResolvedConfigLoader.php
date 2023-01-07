@@ -3,16 +3,19 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package storefront
+ */
 class ResolvedConfigLoader extends AbstractResolvedConfigLoader
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
@@ -24,7 +27,7 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $repository, ThemeService $service)
+    public function __construct(EntityRepository $repository, ThemeService $service)
     {
         $this->repository = $repository;
         $this->service = $service;

@@ -5,11 +5,12 @@ namespace Shopware\Core\Content\Test\ImportExport\Processing\Mapping;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class MappingCollectionTest extends TestCase
 {
@@ -48,6 +49,7 @@ class MappingCollectionTest extends TestCase
     public function testInvalidElement(): void
     {
         $this->expectException(\InvalidArgumentException::class);
+        // @phpstan-ignore-next-line
         new MappingCollection([new ArrayEntity()]);
     }
 
@@ -78,18 +80,22 @@ class MappingCollectionTest extends TestCase
 
         static::assertCount(3, $mappingCollection);
 
-        static::assertSame('foo', $mappingCollection->get('foo')->getKey());
-        static::assertSame('asdf', $mappingCollection->get('asdf')->getKey());
+        $mappingFoo = $mappingCollection->get('foo');
+        static::assertInstanceOf(Mapping::class, $mappingFoo);
+        static::assertSame('foo', $mappingFoo->getKey());
 
-        static::assertSame('id', $mappingCollection->get('id')->getKey());
-        static::assertSame('id', $mappingCollection->getMapped('id')->getMappedKey());
+        $mappingAsdf = $mappingCollection->get('asdf');
+        static::assertInstanceOf(Mapping::class, $mappingAsdf);
+        static::assertSame('asdf', $mappingAsdf->getKey());
 
-        static::assertNull($mappingCollection->get('id')->getDefaultValue());
+        $idMapping = $mappingCollection->get('id');
+        static::assertInstanceOf(Mapping::class, $idMapping);
+        static::assertSame('id', $idMapping->getKey());
+        static::assertNull($idMapping->getDefaultValue());
 
-        if (!Feature::isActive('v6.5.0.0')) {
-            static::assertNull($mappingCollection->get('id')->getDefault());
-            static::assertNull($mappingCollection->get('id')->getMappedDefault());
-        }
+        $idMappedKey = $mappingCollection->getMapped('id');
+        static::assertInstanceOf(Mapping::class, $idMappedKey);
+        static::assertSame('id', $idMappedKey->getMappedKey());
     }
 
     public function testInvalidMappingThrows(): void

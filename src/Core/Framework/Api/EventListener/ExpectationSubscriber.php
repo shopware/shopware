@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Api\EventListener;
 use Composer\InstalledVersions;
 use Composer\Semver\Semver;
 use Shopware\Core\Framework\Api\Exception\ExceptionFailedException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
@@ -15,9 +14,11 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  *
  * @phpstan-type PluginData array{'composerName': string, 'active': bool, 'version': string}
+ *
+ * @package core
  */
 class ExpectationSubscriber implements EventSubscriberInterface
 {
@@ -62,12 +63,8 @@ class ExpectationSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var RouteScope|list<string> $scope */
+        /** @var list<string> $scope */
         $scope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
-
-        if ($scope instanceof RouteScope) {
-            $scope = $scope->getScopes();
-        }
 
         if (!\in_array(ApiRouteScope::ID, $scope, true)) {
             return;

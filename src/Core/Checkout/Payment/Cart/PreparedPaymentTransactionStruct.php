@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart;
 
+/**
+ * @package checkout
+ */
 class PreparedPaymentTransactionStruct extends SyncPaymentTransactionStruct
 {
 }

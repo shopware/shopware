@@ -17,6 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
  * Keep in mind that your app needs to have the correct permissions for the data it queries through this service.
  *
  * @script-service data_loading
+ *
+ * @package core
  */
 class RepositoryFacade
 {

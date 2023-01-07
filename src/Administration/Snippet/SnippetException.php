@@ -5,6 +5,9 @@ namespace Shopware\Administration\Snippet;
 use Shopware\Core\Framework\HttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package administration
+ */
 class SnippetException extends HttpException
 {
     public const SNIPPET_DUPLICATED_FIRST_LEVEL_KEY_EXCEPTION = 'SNIPPET__DUPLICATED_FIRST_LEVEL_KEY';

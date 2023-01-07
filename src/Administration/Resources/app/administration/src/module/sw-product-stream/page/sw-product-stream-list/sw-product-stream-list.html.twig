@@ -4,7 +4,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_list_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar
             initial-search-type="product_stream"
             :placeholder="$tc('sw-product-stream.general.placeholderSearchBar')"
@@ -16,7 +16,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_list_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_list_smart_bar_header_title %}
         <h2>
@@ -41,7 +41,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_list_smart_bar_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_list_smart_bar_actions_add %}
         <sw-button
@@ -59,13 +59,12 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_manufacturer_list_language_switch %}
-    <sw-language-switch
-        slot="language-switch"
-        @on-change="onChangeLanguage"
-    />
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
     {% endblock %}
 
-    <template slot="content">
+    <template #content>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_list_content %}
@@ -198,17 +197,19 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_list_sidebar %}
-    <sw-sidebar slot="sidebar">
+    <template #sidebar>
+        <sw-sidebar>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_stream_list_sidebar_refresh %}
-        <sw-sidebar-item
-            icon="regular-undo"
-            :title="$tc('sw-product-stream.list.titleSidebarItemRefresh')"
-            @click="onRefresh"
-        />
-        {% endblock %}
-    </sw-sidebar>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_stream_list_sidebar_refresh %}
+            <sw-sidebar-item
+                icon="regular-undo"
+                :title="$tc('sw-product-stream.list.titleSidebarItemRefresh')"
+                @click="onRefresh"
+            />
+            {% endblock %}
+        </sw-sidebar>
+    </template>
     {% endblock %}
 
 </sw-page>

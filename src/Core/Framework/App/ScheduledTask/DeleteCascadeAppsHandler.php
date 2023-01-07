@@ -4,27 +4,32 @@ namespace Shopware\Core\Framework\App\ScheduledTask;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class DeleteCascadeAppsHandler extends ScheduledTaskHandler
+/**
+ * @package core
+ *
+ * @internal
+ */
+#[AsMessageHandler(handles: DeleteCascadeAppsTask::class)]
+
+final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
 {
     private const HARD_DELETE_AFTER_DAYS = 1;
-
-    private EntityRepositoryInterface $aclRoleRepository;
-
-    private EntityRepositoryInterface $integrationRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $scheduledTaskRepository, EntityRepositoryInterface $aclRoleRepository, EntityRepositoryInterface $integrationRepository)
-    {
+    public function __construct(
+        EntityRepository $scheduledTaskRepository,
+        private EntityRepository $aclRoleRepository,
+        private EntityRepository $integrationRepository
+    ) {
         parent::__construct($scheduledTaskRepository);
-        $this->aclRoleRepository = $aclRoleRepository;
-        $this->integrationRepository = $integrationRepository;
     }
 
     public function run(): void
@@ -41,12 +46,7 @@ class DeleteCascadeAppsHandler extends ScheduledTaskHandler
         $this->deleteIds($this->integrationRepository, $criteria, $context);
     }
 
-    public static function getHandledMessages(): iterable
-    {
-        return [DeleteCascadeAppsTask::class];
-    }
-
-    private function deleteIds(EntityRepositoryInterface $repository, Criteria $criteria, Context $context): void
+    private function deleteIds(EntityRepository $repository, Criteria $criteria, Context $context): void
     {
         $data = $repository->searchIds($criteria, $context)->getData();
 

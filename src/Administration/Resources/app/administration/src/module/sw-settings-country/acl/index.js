@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'permissions',
     parent: 'settings',
@@ -12,6 +15,9 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'custom_field_set_relation:read',
                 'currency:read',
                 'user_config:read',
+                'customer:read',
+                'salutation:read',
+                'customer_address:read',
             ],
             dependencies: [],
         },

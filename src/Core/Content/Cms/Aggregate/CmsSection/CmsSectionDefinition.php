@@ -22,6 +22,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package content
+ */
 class CmsSectionDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'cms_section';

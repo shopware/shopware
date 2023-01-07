@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package storefront
+ */
 class ThemeConfigField extends Struct
 {
     /**

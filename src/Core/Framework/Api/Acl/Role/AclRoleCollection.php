@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<AclRoleEntity>
+ *
+ * @package core
  */
 class AclRoleCollection extends EntityCollection
 {

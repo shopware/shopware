@@ -8,6 +8,9 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 
+/**
+ * @package core
+ */
 class MigrationCollectionLoader
 {
     /**

@@ -86,7 +86,6 @@ describe('Flow builder: Test acl privilege', () => {
         cy.get('#sw-field--flow-name').clearTypeAndCheck('Order placed v2');
         cy.get('.sw-flow-detail__tab-flow').click();
 
-        cy.get('.sw-flow-sequence-action__add-button').click();
         cy.get('.sw-flow-sequence-action__selection-action')
             .typeSingleSelect('Generate document', '.sw-flow-sequence-action__selection-action');
 

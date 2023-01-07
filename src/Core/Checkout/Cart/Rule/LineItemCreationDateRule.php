@@ -2,15 +2,17 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @package business-ops
+ */
 class LineItemCreationDateRule extends Rule
 {
     protected ?string $lineItemCreationDate;
@@ -61,7 +63,7 @@ class LineItemCreationDateRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchesCreationDate($lineItem, $ruleValue)) {
                 return true;
             }
@@ -78,7 +80,7 @@ class LineItemCreationDateRule extends Rule
     }
 
     /**
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     private function matchesCreationDate(LineItem $lineItem, \DateTime $ruleValue): bool
     {
@@ -87,10 +89,6 @@ class LineItemCreationDateRule extends Rule
             $itemCreatedString = $lineItem->getPayloadValue('createdAt');
 
             if ($itemCreatedString === null) {
-                if (!Feature::isActive('v6.5.0.0')) {
-                    return false;
-                }
-
                 return RuleComparison::isNegativeOperator($this->operator);
             }
 

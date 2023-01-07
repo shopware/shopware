@@ -1,11 +1,15 @@
 /**
+ * @package admin
+ *
  * @module core/factory/worker-notification
  */
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 import types from 'src/core/service/utils/types.utils';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default {
     getRegistry,
     register,

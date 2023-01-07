@@ -4,6 +4,9 @@ import './sw-search-more-results.scss';
 const { Component, Application } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description
  * Renders the search result show more based on the item type.
@@ -22,15 +25,8 @@ Component.register('sw-search-more-results', {
     ],
 
     props: {
-        // @deprecated tag:v6.5.0 - `result` will be removed
-        result: {
-            required: false,
-            type: Object,
-            default: null,
-        },
-        // @deprecated tag:v6.5.0 - required will be true
         entity: {
-            required: false,
+            required: true,
             type: String,
             default: '',
         },

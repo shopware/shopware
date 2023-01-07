@@ -4,21 +4,18 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidChildQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Framework\Feature;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class LineItemTest extends TestCase
 {
     /**
-     * @throws InvalidQuantityException
+     * @throws CartException
      */
     public function testCreateLineItem(): void
     {
@@ -30,38 +27,28 @@ class LineItemTest extends TestCase
     }
 
     /**
-     * @throws InvalidQuantityException
+     * @throws CartException
      */
     public function testCreateLineItemWithInvalidQuantity(): void
     {
-        if (Feature::isActive('v6.5.0.0')) {
-            $this->expectException(CartException::class);
-        } else {
-            $this->expectException(InvalidQuantityException::class);
-        }
+        $this->expectException(CartException::class);
 
         new LineItem('A', 'type', null, -1);
     }
 
     /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
+     * @throws CartException
      */
     public function testChangeLineItemToInvalidQuantity(): void
     {
-        if (Feature::isActive('v6.5.0.0')) {
-            $this->expectException(CartException::class);
-        } else {
-            $this->expectException(InvalidQuantityException::class);
-        }
+        $this->expectException(CartException::class);
 
         $lineItem = new LineItem('A', 'type');
         $lineItem->setQuantity(0);
     }
 
     /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
+     * @throws CartException
      */
     public function testChangeLineItemQuantity(): void
     {
@@ -72,16 +59,12 @@ class LineItemTest extends TestCase
     }
 
     /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
+     * @throws CartException
      */
     public function testChangeNonStackableLineItemQuantity(): void
     {
-        if (Feature::isActive('v6.5.0.0')) {
-            $this->expectException(CartException::class);
-        } else {
-            $this->expectException(LineItemNotStackableException::class);
-        }
+        $this->expectException(CartException::class);
+
         $lineItem = new LineItem('A', 'type');
         $lineItem->setStackable(false);
         $lineItem->setQuantity(5);
@@ -89,9 +72,7 @@ class LineItemTest extends TestCase
     }
 
     /**
-     * @throws InvalidChildQuantityException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
+     * @throws CartException
      */
     public function testChangeQuantityOfParentLineItem(): void
     {
@@ -137,9 +118,7 @@ class LineItemTest extends TestCase
     }
 
     /**
-     * @throws InvalidChildQuantityException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
+     * @throws CartException
      */
     public function testChangeQuantityOfParentLineItemWithNonStackableChildren(): void
     {
@@ -158,11 +137,7 @@ class LineItemTest extends TestCase
 
         $lineItem->setChildren(new LineItemCollection([$child1, $child2, $child3]));
 
-        if (Feature::isActive('v6.5.0.0')) {
-            $this->expectException(CartException::class);
-        } else {
-            $this->expectException(LineItemNotStackableException::class);
-        }
+        $this->expectException(CartException::class);
 
         $lineItem->setQuantity(2);
 
@@ -193,10 +168,7 @@ class LineItemTest extends TestCase
     }
 
     /**
-     * @throws InvalidChildQuantityException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testAddChildrenToLineItemWithInvalidQuantity(): void
     {
@@ -206,11 +178,7 @@ class LineItemTest extends TestCase
         $child2 = new LineItem('A.2', 'child', null, 2);
         $child3 = new LineItem('A.3', 'child');
 
-        if (Feature::isActive('v6.5.0.0')) {
-            $this->expectException(CartException::class);
-        } else {
-            $this->expectException(InvalidChildQuantityException::class);
-        }
+        $this->expectException(CartException::class);
 
         $lineItem->addChild($child1);
         $lineItem->addChild($child2);
@@ -218,8 +186,7 @@ class LineItemTest extends TestCase
     }
 
     /**
-     * @throws InvalidChildQuantityException
-     * @throws InvalidQuantityException
+     * @throws CartException
      */
     public function testSetChildrenToLineItemWithInvalidQuantity(): void
     {
@@ -229,20 +196,13 @@ class LineItemTest extends TestCase
         $child2 = new LineItem('A.2', 'child', null, 2);
         $child3 = new LineItem('A.3', 'child');
 
-        if (Feature::isActive('v6.5.0.0')) {
-            $this->expectException(CartException::class);
-        } else {
-            $this->expectException(InvalidChildQuantityException::class);
-        }
+        $this->expectException(CartException::class);
 
         $lineItem->setChildren(new LineItemCollection([$child1, $child2, $child3]));
     }
 
     /**
-     * @throws InvalidChildQuantityException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testAddChildToLineItemWithQuantity1(): void
     {
@@ -259,10 +219,7 @@ class LineItemTest extends TestCase
     }
 
     /**
-     * @throws InvalidChildQuantityException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testAddChildToLineItemWithQuantity1AndParentStackable(): void
     {
@@ -271,11 +228,7 @@ class LineItemTest extends TestCase
 
         $child = new LineItem('123', 'child');
 
-        if (Feature::isActive('v6.5.0.0')) {
-            $this->expectException(CartException::class);
-        } else {
-            $this->expectException(InvalidChildQuantityException::class);
-        }
+        $this->expectException(CartException::class);
 
         $lineItem->addChild($child);
     }

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter as DALFilter;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package inventory
+ */
 class Filter extends Struct
 {
     /**

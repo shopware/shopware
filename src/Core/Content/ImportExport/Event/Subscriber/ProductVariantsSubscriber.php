@@ -11,28 +11,21 @@ use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
+ *
+ * @package system-settings
  */
 class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterface
 {
-    private SyncServiceInterface $syncService;
-
-    private Connection $connection;
-
-    private EntityRepositoryInterface $groupRepository;
-
-    private EntityRepositoryInterface $optionRepository;
-
     /**
      * @var array<string, string>
      */
@@ -47,15 +40,11 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
      * @internal
      */
     public function __construct(
-        SyncServiceInterface $syncService,
-        Connection $connection,
-        EntityRepositoryInterface $groupRepository,
-        EntityRepositoryInterface $optionRepository
+        private SyncServiceInterface $syncService,
+        private Connection $connection,
+        private EntityRepository $groupRepository,
+        private EntityRepository $optionRepository
     ) {
-        $this->syncService = $syncService;
-        $this->connection = $connection;
-        $this->groupRepository = $groupRepository;
-        $this->optionRepository = $optionRepository;
     }
 
     /**
@@ -118,13 +107,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        if (Feature::isActive('FEATURE_NEXT_15815')) {
-            $behavior = new SyncBehavior();
-        } else {
-            $behavior = new SyncBehavior(true, true);
-        }
-
-        $result = $this->syncService->sync([
+        $this->syncService->sync([
             new SyncOperation(
                 'write',
                 ProductDefinition::ENTITY_NAME,
@@ -137,22 +120,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
                 SyncOperation::ACTION_UPSERT,
                 $configuratorSettingPayload
             ),
-        ], Context::createDefaultContext(), $behavior);
-
-        if (Feature::isActive('FEATURE_NEXT_15815')) {
-            // @internal (flag:FEATURE_NEXT_15815) - remove code below, "isSuccess" function will be removed, simply return because sync service would throw an exception in error case
-            return;
-        }
-
-        if (!$result->isSuccess()) {
-            $operation = $result->get('write');
-
-            throw new ProcessingException(sprintf(
-                'Failed writing variants for %s with errors: %s',
-                $parentPayload['productNumber'],
-                $operation ? json_encode(array_column($operation->getResult(), 'errors')) : ''
-            ));
-        }
+        ], Context::createDefaultContext(), new SyncBehavior());
     }
 
     public function reset(): void

@@ -2,6 +2,11 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Message;
 
-class CleanupOldCacheFolders
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+
+/**
+ * @package core
+ */
+class CleanupOldCacheFolders implements AsyncMessageInterface
 {
 }

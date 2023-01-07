@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Script\Api;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
@@ -19,6 +18,8 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @package core
  */
 class ScriptApiRoute
 {

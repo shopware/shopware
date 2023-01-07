@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
 
+/**
+ * @package core
+ */
 class RetryableTransaction
 {
     /**
@@ -20,6 +23,8 @@ class RetryableTransaction
     }
 
     /**
+     * @param \Closure(Connection):mixed $closure The function to execute transactionally.
+     *
      * @return mixed
      */
     private static function retry(Connection $connection, \Closure $closure, int $counter)

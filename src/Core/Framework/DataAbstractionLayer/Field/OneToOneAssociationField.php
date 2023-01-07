@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToOneAssociationFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\OneToOneAssociationFieldSerializer;
 
+/**
+ * @package core
+ */
 class OneToOneAssociationField extends AssociationField
 {
     public const PRIORITY = 80;

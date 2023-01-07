@@ -2,20 +2,14 @@
 
 namespace Shopware\Storefront\Test\Framework\Routing;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
@@ -33,10 +27,7 @@ class StorefrontSubscriberTest extends TestCase
     use AppSystemTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     public function setUp(): void
     {
@@ -60,35 +51,6 @@ class StorefrontSubscriberTest extends TestCase
         $eventDispatcher->dispatch($event);
 
         static::assertArrayHasKey('appShopId', $event->getParameters());
-    }
-
-    public function testExpiredToken(): void
-    {
-        $token = Uuid::randomHex();
-
-        $id = Uuid::randomHex();
-
-        $browser = $this->createCustomSalesChannelBrowser(['id' => $id]);
-
-        $session = $this->getSession();
-
-        $session->start();
-
-        $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
-
-        $this->getContainer()->get(SalesChannelContextPersister::class)
-            ->save($token, [SalesChannelContextService::CURRENCY_ID => Defaults::CURRENCY], $id);
-
-        $this->getContainer()->get(Connection::class)
-            ->executeStatement('UPDATE sales_channel_api_context SET updated_at = :expire', ['expire' => '2000-01-01']);
-
-        $browser->request('GET', '/');
-
-        $response = $browser->getResponse();
-
-        static::assertEquals(200, $response->getStatusCode());
-        static::assertTrue($session->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertNotEquals($token, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     public function testItDoesNotAddShopIdParamWhenAppIsInactive(): void
@@ -172,19 +134,7 @@ class StorefrontSubscriberTest extends TestCase
 
         $defaultVar = $_SERVER['v6_5_0_0'] ?? null;
 
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertCount(2, (array) StorefrontSubscriber::getSubscribedEvents()[KernelEvents::EXCEPTION]);
-
-            $_SERVER['V6_5_0_0'] = '0';
-
-            static::assertCount(3, (array) StorefrontSubscriber::getSubscribedEvents()[KernelEvents::EXCEPTION]);
-        } else {
-            static::assertCount(3, (array) StorefrontSubscriber::getSubscribedEvents()[KernelEvents::EXCEPTION]);
-
-            $_SERVER['V6_5_0_0'] = '1';
-
-            static::assertCount(2, (array) StorefrontSubscriber::getSubscribedEvents()[KernelEvents::EXCEPTION]);
-        }
+        static::assertCount(2, (array) StorefrontSubscriber::getSubscribedEvents()[KernelEvents::EXCEPTION]);
 
         if ($defaultVar !== null) {
             $_SERVER['V6_5_0_0'] = $defaultVar;

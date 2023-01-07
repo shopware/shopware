@@ -29,9 +29,9 @@ class ManifestTest extends TestCase
     public function testThrowsXmlParsingExceptionIfInvalidWebhookEventNames(): void
     {
         static::expectException(XmlParsingException::class);
-        static::expectExceptionMessage("attribute 'event': 'test event' is not a valid value");
-        static::expectExceptionMessage("attribute 'event': '' is not a valid value");
-        static::expectExceptionMessage("Duplicate key-sequence ['hook2'] in unique identity-constraint 'uniqueWebhookName'");
+        static::expectExceptionMessage('attribute \'event\': \'test event\' is not a valid value');
+        static::expectExceptionMessage('attribute \'event\': \'\' is not a valid value');
+        static::expectExceptionMessage('Duplicate key-sequence [\'hook2\'] in unique identity-constraint \'uniqueWebhookName\'');
 
         Manifest::createFromXmlFile(__DIR__ . '/_fixtures/invalidWebhookEventNames/manifest.xml');
     }

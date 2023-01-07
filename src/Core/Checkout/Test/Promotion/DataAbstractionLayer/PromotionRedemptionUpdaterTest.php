@@ -16,7 +16,7 @@ use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtu
 use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -26,6 +26,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class PromotionRedemptionUpdaterTest extends TestCase
@@ -124,7 +126,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     private function createPromotionsAndOrder(): void
     {
-        /** @var EntityRepositoryInterface $promotionRepository */
+        /** @var EntityRepository $promotionRepository */
         $promotionRepository = $this->getContainer()->get('promotion.repository');
 
         $voucherA = $this->ids->create('voucherA');
@@ -136,14 +138,14 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $this->ids->set('customer', $this->createCustomer('shopware', 'johndoe@example.com'));
         $this->createOrder($this->ids->get('customer'));
 
-        $lineItems = $this->connection->fetchAll('SELECT id FROM order_line_item;');
+        $lineItems = $this->connection->fetchAllAssociative('SELECT id FROM order_line_item;');
 
         static::assertCount(3, $lineItems);
     }
 
     private function assertUpdatedCounts(): void
     {
-        $promotions = $this->connection->fetchAll('SELECT * FROM promotion;');
+        $promotions = $this->connection->fetchAllAssociative('SELECT * FROM promotion;');
 
         static::assertCount(2, $promotions);
 
@@ -263,8 +265,6 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     private function fetchFirstIdFromTable(string $table): string
     {
-        $connection = $this->getContainer()->get(Connection::class);
-
-        return Uuid::fromBytesToHex((string) $connection->fetchColumn("SELECT id FROM {$table} LIMIT 1"));
+        return Uuid::fromBytesToHex((string) $this->connection->fetchOne('SELECT id FROM ' . $table . ' LIMIT 1'));
     }
 }

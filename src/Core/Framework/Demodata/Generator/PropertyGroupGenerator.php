@@ -4,25 +4,24 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ *
+ * @package inventory
+ */
 class PropertyGroupGenerator implements DemodataGeneratorInterface
 {
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $propertyGroupRepository;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $propertyGroupRepository)
+    public function __construct(private EntityRepository $propertyGroupRepository)
     {
-        $this->propertyGroupRepository = $propertyGroupRepository;
     }
 
     public function getDefinition(): string

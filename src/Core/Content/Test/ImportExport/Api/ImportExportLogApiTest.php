@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Test\ImportExport\Api;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -13,28 +13,30 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class ImportExportLogApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $logRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $profileRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $fileRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $userRepository;
 
@@ -229,7 +231,7 @@ class ImportExportLogApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
         static::assertCount($num, $records);
 
         $this->getBrowser()->request('DELETE', $this->prepareRoute() . $deleteId, [], [], [
@@ -238,7 +240,7 @@ class ImportExportLogApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
         static::assertCount($num, $records);
     }
 

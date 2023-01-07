@@ -6,7 +6,7 @@ use Google\Auth\Cache\MemoryCacheItemPool;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -299,7 +299,7 @@ class KernelPluginIntegrationTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        /** @var EntityRepositoryInterface $scheduledTasksRepo */
+        /** @var EntityRepository $scheduledTasksRepo */
         $scheduledTasksRepo = $this->kernel->getContainer()->get('scheduled_task.repository');
         $result = $scheduledTasksRepo->search($criteria, $context)->getEntities()->first();
         static::assertNull($result);
@@ -307,14 +307,14 @@ class KernelPluginIntegrationTest extends TestCase
         $pluginLifecycleManager = $this->makePluginLifecycleService();
         $pluginLifecycleManager->activatePlugin($plugin, $context);
 
-        /** @var EntityRepositoryInterface $scheduledTasksRepo */
+        /** @var EntityRepository $scheduledTasksRepo */
         $scheduledTasksRepo = $this->kernel->getContainer()->get('scheduled_task.repository');
         $result = $scheduledTasksRepo->search($criteria, $context)->getEntities();
         static::assertNotNull($result);
 
         $pluginLifecycleManager->deactivatePlugin($plugin, $context);
 
-        /** @var EntityRepositoryInterface $scheduledTasksRepo */
+        /** @var EntityRepository $scheduledTasksRepo */
         $scheduledTasksRepo = $this->kernel->getContainer()->get('scheduled_task.repository');
         $result = $scheduledTasksRepo->search($criteria, $context)->getEntities()->first();
         static::assertNull($result);
@@ -325,7 +325,7 @@ class KernelPluginIntegrationTest extends TestCase
         $container = $this->kernel->getContainer();
 
         $emptyPluginCollection = new PluginCollection();
-        $pluginRepoMock = $this->createMock(EntityRepositoryInterface::class);
+        $pluginRepoMock = $this->createMock(EntityRepository::class);
 
         $pluginRepoMock
             ->method('search')

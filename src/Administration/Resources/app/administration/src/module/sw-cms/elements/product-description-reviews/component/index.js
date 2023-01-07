@@ -1,12 +1,13 @@
 import template from './sw-cms-el-product-description-reviews.html.twig';
 import './sw-cms-el-product-description-reviews.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
-Component.register('sw-cms-el-product-description-reviews', {
+export default {
     template,
 
     mixins: [
@@ -79,4 +80,4 @@ Component.register('sw-cms-el-product-description-reviews', {
             this.$set(this.element, 'locked', this.isProductPageType);
         },
     },
-});
+};

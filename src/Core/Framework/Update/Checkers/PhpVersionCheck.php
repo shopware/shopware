@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Update\Checkers;
 
 use Shopware\Core\Framework\Update\Struct\ValidationResult;
 
+/**
+ * @package system-settings
+ */
 class PhpVersionCheck implements CheckerInterface
 {
     public function supports(string $check): bool

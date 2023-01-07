@@ -1,9 +1,12 @@
 .sw-order-create-initial-modal {
-    &.sw-modal .sw-modal__body .sw-data-grid .sw-data-grid__bulk {
-        padding-left: 70px;
-    }
-
     .sw-modal__body {
         height: 700px;
+    }
+
+    .sw-order-line-items-grid-sales-channel {
+        .sw-empty-state {
+            max-height: 540px;
+            min-height: 320px;
+        }
     }
 }

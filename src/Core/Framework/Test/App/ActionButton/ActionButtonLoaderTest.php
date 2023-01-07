@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\App\ActionButton;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\ActionButtonLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -16,45 +16,21 @@ class ActionButtonLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
+    private EntityRepository $appRepository;
 
-    /**
-     * @var ActionButtonLoader
-     */
-    private $actionButtonLoader;
+    private ActionButtonLoader $actionButtonLoader;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var string
-     */
-    private $app1OrderDetailButtonId;
+    private string $app1OrderDetailButtonId;
 
-    /**
-     * @var string
-     */
-    private $app1ProductDetailButtonId;
+    private string $app1ProductDetailButtonId;
 
-    /**
-     * @var string
-     */
-    private $app1OrderListButtonId;
+    private string $app1OrderListButtonId;
 
-    /**
-     * @var string
-     */
-    private $app2OrderDetailButtonId;
+    private string $app2OrderDetailButtonId;
 
-    /**
-     * @var string
-     */
-    private $app3OrderDetailButtonId;
+    private string $app3OrderDetailButtonId;
 
     public function setUp(): void
     {
@@ -94,7 +70,7 @@ class ActionButtonLoaderTest extends TestCase
                  * and will be processed in the Executor with an OpenNewTabResponse response instead.
                  */
                 'openNewTab' => false,
-                'icon' => base64_encode(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
+                'icon' => base64_encode((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             ], [
                 'app' => 'App2',
                 'id' => $this->app2OrderDetailButtonId,

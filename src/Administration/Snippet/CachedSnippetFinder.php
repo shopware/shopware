@@ -4,6 +4,9 @@ namespace Shopware\Administration\Snippet;
 
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 
+/**
+ * @package administration
+ */
 class CachedSnippetFinder implements SnippetFinderInterface
 {
     /**

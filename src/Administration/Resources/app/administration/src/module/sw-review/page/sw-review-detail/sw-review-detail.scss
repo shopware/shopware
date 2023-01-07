@@ -15,8 +15,8 @@ $sw-review-detail-base-color-text: $color-darkgray-200;
     }
 
     .star-count-description {
-        font-weight: 700;
-        font-size: 16px;
+        font-weight: $font-weight-bold;
+        font-size: $font-size-s;
         margin-top: -8px;
     }
 
@@ -43,15 +43,15 @@ $sw-review-detail-base-color-text: $color-darkgray-200;
     }
 
     .sw-review-detail__metadata-review-title {
-        font-weight: 600;
-        font-size: 18px;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-m;
         margin-bottom: 1px;
         word-break: break-word;
     }
 
     .sw-review-base-info {
         color: $sw-review-detail-base-color-text;
-        font-size: 14px;
+        font-size: $font-size-xs;
         margin-bottom: 16px;
 
         .sw-review-base-info-columns {

@@ -4,6 +4,9 @@ namespace Shopware\Recovery\Update;
 
 use Symfony\Component\Dotenv\Dotenv;
 
+/**
+ * @package system-settings
+ */
 class Utils
 {
     /**
@@ -182,7 +185,7 @@ class Utils
 
         $dsn = 'mysql:' . implode(';', $dsn);
 
-        $parameters = [\PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8MB4'"];
+        $parameters = [\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8MB4\''];
 
         if (isset($_ENV['DATABASE_SSL_CA'])) {
             $parameters[\PDO::MYSQL_ATTR_SSL_CA] = $_ENV['DATABASE_SSL_CA'];
@@ -266,7 +269,7 @@ class Utils
 
     protected static function setNonStrictSQLMode(\PDO $conn): void
     {
-        $conn->exec("SET @@session.sql_mode = ''");
+        $conn->exec('SET @@session.sql_mode = \'\'');
     }
 
     /**

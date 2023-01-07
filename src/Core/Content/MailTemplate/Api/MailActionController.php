@@ -6,8 +6,6 @@ use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\MailTemplate\Service\AttachmentLoader;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,6 +15,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @package sales-channel
  */
 class MailActionController extends AbstractController
 {
@@ -48,7 +48,7 @@ class MailActionController extends AbstractController
         $data = $post->all();
         $mailTemplateData = $data['mailTemplateData'] ?? [];
 
-        if (Feature::isActive('FEATURE_NEXT_7530') && !empty($data['documentIds'])) {
+        if (!empty($data['documentIds'])) {
             $data['binAttachments'] = \array_merge(
                 $data['binAttachments'] ?? [],
                 $this->attachmentLoader->load($data['documentIds'], $context)

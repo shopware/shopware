@@ -8,6 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<PropertyGroupOptionEntity>
+ *
+ * @package inventory
  */
 class PropertyGroupOptionCollection extends EntityCollection
 {

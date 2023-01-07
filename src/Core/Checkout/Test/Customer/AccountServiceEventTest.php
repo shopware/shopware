@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
@@ -27,6 +27,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class AccountServiceEventTest extends TestCase
@@ -39,7 +41,7 @@ class AccountServiceEventTest extends TestCase
     private $accountService;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerRepository;
 

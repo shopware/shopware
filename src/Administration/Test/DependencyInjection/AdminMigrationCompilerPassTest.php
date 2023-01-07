@@ -21,14 +21,10 @@ class AdminMigrationCompilerPassTest extends TestCase
         $container->compile();
 
         $calls = $container->getDefinition(MigrationSource::class . '.core.V6_4')->getMethodCalls();
-        static::assertCount(2, $calls);
+        static::assertCount(1, $calls);
 
         static::assertSame('addDirectory', $calls[0][0]);
         static::assertStringContainsString('Migration/V6_4', $calls[0][1][0]);
         static::assertSame('Shopware\Administration\Migration\V6_4', $calls[0][1][1]);
-
-        static::assertSame('addReplacementPattern', $calls[1][0]);
-        static::assertSame('#^(Shopware\\\\Administration\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', $calls[1][1][0]);
-        static::assertSame('$1$2', $calls[1][1][1]);
     }
 }

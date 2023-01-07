@@ -1,9 +1,10 @@
-import template from './sw-custom-field-detail-base.html.twig';
-
-const { Component } = Shopware;
+/**
+ * @package system-settings
+ */
+import template from './sw-custom-field-set-detail-base.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-custom-field-set-detail-base', {
+export default {
     template,
 
     inject: ['customFieldDataProviderService', 'acl'],
@@ -120,4 +121,4 @@ Component.register('sw-custom-field-set-detail-base', {
             this.$emit('reset-errors');
         },
     },
-});
+};

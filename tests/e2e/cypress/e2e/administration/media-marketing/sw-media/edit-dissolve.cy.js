@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 
 import MediaPageObject from '../../../../support/pages/module/sw-media.page-object';
@@ -38,7 +41,7 @@ describe('Media: Dissolve folder', () => {
             '',
             true
         );
-        page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
-        page.dissolve('sw_logo_white.png');
+        page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/plugin-manager--login.png`);
+        page.dissolve('plugin-manager--login.png');
     });
 });

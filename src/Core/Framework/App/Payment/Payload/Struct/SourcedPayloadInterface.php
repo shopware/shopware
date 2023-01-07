@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\App\Payment\Payload\Struct;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 interface SourcedPayloadInterface extends \JsonSerializable
 {

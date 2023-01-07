@@ -13,6 +13,8 @@ use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @covers \Shopware\Core\System\Currency\Rule\CurrencyRule
  */

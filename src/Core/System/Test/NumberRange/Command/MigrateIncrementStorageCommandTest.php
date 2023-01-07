@@ -46,14 +46,16 @@ class MigrateIncrementStorageCommandTest extends TestCase
     {
         $this->sqlStorage->set(Uuid::randomHex(), 10);
         static::assertNotEmpty($this->sqlStorage->list());
-        static::assertEmpty($this->arrayStorage->list());
+        $before = $this->arrayStorage->list();
+        static::assertEmpty($before);
 
         $this->tester->setInputs(['yes']);
         $this->tester->execute(['from' => 'SQL', 'to' => 'Array']);
 
         $this->tester->assertCommandIsSuccessful();
 
-        static::assertNotEmpty($this->arrayStorage->list());
+        $after = $this->arrayStorage->list();
+        static::assertNotEmpty($after);
         static::assertEquals($this->sqlStorage->list(), $this->arrayStorage->list());
     }
 

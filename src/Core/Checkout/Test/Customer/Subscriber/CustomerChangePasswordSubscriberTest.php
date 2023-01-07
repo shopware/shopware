@@ -5,17 +5,21 @@ namespace Shopware\Core\Checkout\Test\Customer\Subscriber;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class CustomerChangePasswordSubscriberTest extends TestCase
@@ -24,7 +28,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
     use SalesChannelApiTestBehaviour;
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     * @var KernelBrowser
      */
     private $browser;
 
@@ -34,7 +38,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
     private $ids;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerRepository;
 
@@ -67,7 +71,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $customerId));
@@ -98,7 +102,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $customerId));
@@ -125,9 +129,11 @@ class CustomerChangePasswordSubscriberTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayHasKey('contextToken', $response);
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
     }
 
     private function createCustomer(string $email, string $password): string

@@ -1,4 +1,8 @@
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default function initializeNotifications(): void {
     // Handle incoming notifications from the ExtensionAPI
     Shopware.ExtensionAPI.handle('notificationDispatch', async (notificationOptions) => {

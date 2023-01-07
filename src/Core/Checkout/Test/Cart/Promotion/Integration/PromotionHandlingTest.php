@@ -12,6 +12,8 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class PromotionHandlingTest extends TestCase
@@ -76,7 +78,7 @@ class PromotionHandlingTest extends TestCase
         // add our promotion to our cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
-        /** @var array $ids */
+        /** @var array<mixed> $ids */
         $ids = array_keys($cart->getLineItems()->getElements());
 
         // remove our first item (product)

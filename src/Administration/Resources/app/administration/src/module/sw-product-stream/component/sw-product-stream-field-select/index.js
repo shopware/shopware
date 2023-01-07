@@ -1,10 +1,15 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-stream-field-select.html.twig';
 import './sw-product-stream-field-select.scss';
 
-const { Component } = Shopware;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-stream-field-select', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     inject: [
@@ -120,4 +125,4 @@ Component.register('sw-product-stream-field-select', {
             return translated === translationKey ? property : translated;
         },
     },
-});
+};

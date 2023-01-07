@@ -32,7 +32,7 @@
       "buttonDelete": "Löschen",
       "buttonCancel": "Abbrechen",
       "textDeleteConfirm": "Möchten Sie diese Bestellung ({orderNumber}) wirklich löschen?",
-      "labelManualOrder": "Manuelle Bestellung"
+      "labelManualOrder": "Erstellt von Admin"
     },
     "detail": {
       "buttonCancel": "Änderungen verwerfen",
@@ -46,7 +46,7 @@
       "messageRecalculationError": "Bei der Preisberechnung ist ein Fehler aufgetreten: <br>",
       "messageSaveError": "Beim Speichern ist ein Fehler aufgetreten",
       "messageShippingNotAvailable": "Lieferung in das Zielland nicht möglich.",
-      "labelManualOrder": "Manuelle Bestellung"
+      "labelManualOrder": "Erstellt von Admin"
     },
     "create": {
       "textNewOrder": "Neue Bestellung",
@@ -148,6 +148,7 @@
       "summaryLabelAmountWithoutTaxes": "Gesamtsumme ohne MwSt.",
       "summaryLabelAmountTotal": "Gesamtsumme inkl. MwSt.",
       "summaryLabelAmountTotalRounded": "Gesamtsumme gerundet inkl. MwSt.",
+      "labelShippingCosts": "Versandkosten",
       "summaryLabelShippingCosts": "Versandkosten",
       "discountLabelShippingCosts": "Versandkostenrabatt",
       "summaryLabelTaxes": "zzgl. {taxRate}% MwSt.",
@@ -197,6 +198,7 @@
       "columnTax": "Steuersatz",
       "columnPriceNet": "Nettopreis",
       "columnTotalPriceNet": "Gesamt",
+      "columnProductNumber": "Produktnummer",
       "contextMenuShowProduct": "Produkt anzeigen",
       "contextMenuDelete": "Aus Bestellung entfernen",
       "summaryLabelAmount": "Summe",
@@ -250,10 +252,12 @@
       "textCreditTax": "auto",
       "taxDetail": "{taxRate}%: {tax}",
       "textPromotionRemoved": "Rabatt {promotion} wurde entfernt",
+      "textUnsavedChanges": "Es gibt ungespeicherte Änderungen. Bitte speichere, bevor Du dieses Feld bearbeitest.",
       "textMissingProductLineItems": "Die folgenden Positionen sind mit Produkten assoziiert, die gelöscht wurden:",
       "textMissingProductLineItemsDescription": "Preise dieser Produkte können nicht neu berechnet werden. Daher werden diese Positionen beim Speichern der Bestellung in benutzerdefinierte Positionen umgewandelt.",
       "textConvertedProductLineItems": "Die folgenden Positionen waren mit Produkten assoziiert, die gelöscht wurden:",
-      "textConvertedProductLineItemsDescription": "Preise dieser Produkte können nicht neu berechnet werden. Bitte sei besonders vorsichtig beim Bearbeiten der Bestellung."
+      "textConvertedProductLineItemsDescription": "Preise dieser Produkte können nicht neu berechnet werden. Bitte sei besonders vorsichtig beim Bearbeiten der Bestellung.",
+      "textDeleteLineItemConfirm": "Möchten Sie die Position ({label}) wirklich löschen?"
     },
     "nestedLineItemsModal": {
       "titlePrefix": "Position: {lineItemLabel} - {price}",
@@ -300,6 +304,7 @@
       "headlineOrderState": "Bestellstatus",
       "headlineTransactionState": "Zahlungsstatus",
       "headlineDeliveryState": "Lieferstatus",
+      "draftPlaceholder": "Entwurf",
       "labelHistory": "Status geändert {time} von {author}",
       "labelShowHistoryModal": "Statusverlauf anzeigen",
       "labelLastEditedBy": "Zuletzt geändert von",
@@ -452,56 +457,17 @@
         "contextOpenButton": "Öffnen",
         "columnCustomerName": "Name",
         "columnCustomerNumber": "Kundennummer",
+        "columnSalesChannel": "Verkaufskanal",
         "columnEmailAddress": "E-Mail-Adresse"
       },
       "options": {
         "textHeadlineOrder": "Bestellung",
         "textHeadlinePayment": "Zahlungsart",
         "textHeadlineShipment": "Versandart",
-        "labelTestOrder": "Testbestellung",
-        "helpTextTestOrder": "Diese Bestellung wird im Testmodus erstellt",
         "placeholderAddPromotion": "Rabattaktion hinzufügen",
+        "labelSameAsBillingAddress": "Lieferadresse ist gleich Rechnungsadresse",
         "textSameAsBillingAddress": "Wie Rechnungsadresse",
-        "textSameAsShippingAddress": "Wie Versandadresse"
-      }
-    },
-    "addItemsModal": {
-      "title": "Positionen hinzufügen",
-      "tabProducts": {
-        "title": "Produkte"
-      },
-      "tabCustomItem": {
-        "title": "Eigene Position"
-      },
-      "tabCredit": {
-        "title": "Gutschrift"
-      },
-      "buttonAddItems": "Positionen hinzufügen"
-    },
-    "itemModal": {
-      "productGrid": {
-        "columnAmount": "Summe",
-        "columnProductName": "Name",
-        "columnProductNumber": "Produktnummer",
-        "textEmptySearch": "Keine Daten für {name} vorhanden",
-        "textValue": "Wert..."
-      },
-      "customItem": {
-        "labelName": "Name",
-        "placeholderName": "Positionsnamen eingeben ...",
-        "placeholderPriceNet": "Preis (netto) eingeben ...",
-        "placeholderPriceGross": "Preis (brutto) eingeben ...",
-        "placeholderPriceTaxFree": "Preis (steuerfrei) eingeben ...",
-        "labelAmount": "Summe",
-        "placeholderAmount": "Positionssumme eingeben ...",
-        "labelVat": "Mehrwertsteuer",
-        "placeholderSelectVat": "Mehrwertsteuersatz auswählen ..."
-      },
-      "credit": {
-        "labelCreditName": "Name",
-        "placeholderCreditName": "Gutschriftnamen eingeben ...",
-        "labelCreditAmount": "Summe",
-        "placeholderAmount": "Gutschriftsumme eingeben ..."
+        "labelShippingCosts": "Versandkosten"
       }
     },
     "filters": {

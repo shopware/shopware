@@ -9,6 +9,9 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
+/**
+ * @package storefront
+ */
 class ThemeFileResolver
 {
     public const SCRIPT_FILES = 'script';
@@ -24,6 +27,9 @@ class ThemeFileResolver
         $this->themeFileImporter = $themeFileImporter;
     }
 
+    /**
+     * @return array<string, FileCollection>
+     */
     public function resolveFiles(
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
@@ -79,6 +85,9 @@ class ThemeFileResolver
         ];
     }
 
+    /**
+     * @param array<int, string> $included
+     */
     private function resolve(
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,

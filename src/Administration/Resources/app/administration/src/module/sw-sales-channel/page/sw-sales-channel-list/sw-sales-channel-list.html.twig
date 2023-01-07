@@ -61,153 +61,156 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_list_content %}
-    <sw-card-view slot="content">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_sales_channel_list_content_card %}
-        <sw-card
-            v-if="entitySearchable && total > 0"
-            position-identifier="sw-sales-channel-list"
-            :title="$tc('sw-sales-channel.list.title')"
-            :subtitle="$tc('sw-sales-channel.list.subTitle')"
-        >
+    <template #content>
+        <sw-card-view>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_sales_channel_list_grid %}
-            <sw-entity-listing
-                slot="grid"
-                :is-loading="isLoading"
-                identifier="sw-sales-channel-list"
-                :columns="salesChannelColumns"
-                :repository="salesChannelRepository"
-                :items="salesChannels"
-                :full-page="false"
-                :show-selection="false"
-                :sort-by="currentSortBy"
-                :sort-direction="sortDirection"
-                :plain-appearance="true"
-                :show-settings="true"
-                :allow-column-edit="true"
+            {% block sw_sales_channel_list_content_card %}
+            <sw-card
+                v-if="entitySearchable && total > 0"
+                position-identifier="sw-sales-channel-list"
+                :title="$tc('sw-sales-channel.list.title')"
+                :subtitle="$tc('sw-sales-channel.list.subTitle')"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_sales_channel_list_grid_column_name %}
-                <template #column-name="{ item }">
-                    <sw-icon
-                        :name="item.type.iconName"
-                        size="18px"
-                    />
-                    <router-link
-                        :to="{
-                            name: 'sw.sales.channel.detail',
-                            params: { id: item.id }
-                        }"
-                    >{{ item.translated.name || item.name }}</router-link>
-                </template>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_sales_channel_list_grid_column_product_visibilites %}
-                <template #column-product_visibilities="{ item }">
-                    {{ getCountForSalesChannel(item.id) }}
-                    {{ $tc('sw-sales-channel.list.productsCount', getCountForSalesChannel(item.id)) }}
-                </template>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_sales_channel_list_grid_column_status %}
-                <template #column-status="{ item }">
-                    <template v-if="item.maintenance">
-                        <sw-status color="orange">
-                            {{ $tc('sw-sales-channel.list.status.maintenance') }}
-                        </sw-status>
-                    </template>
-
-                    <template v-else-if="item.active">
-                        <sw-status color="green">
-                            {{ $tc('sw-sales-channel.list.status.online') }}
-                        </sw-status>
-                    </template>
-
-                    <template v-else>
-                        <sw-status color="gray">
-                            {{ $tc('sw-sales-channel.list.status.offline') }}
-                        </sw-status>
-                    </template>
-                </template>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_sales_channel_list_grid_column_created_at %}
-                <template #column-createdAt="{ item }">
-                    {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
-                </template>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_sales_channel_list_grid_column_favorite %}
-                <template #column-id="{ item }">
-                    <sw-switch-field
-                        v-tooltip.right="{ message: $tc('sw-sales-channel.detail.favouriteLabel') }"
-                        class="favorite-switch"
-                        :disabled="!acl.can('user_config:create') || !acl.can('user_config:update')"
-                        :value="isFavorite(item.id)"
-                        @change="(isFavorite) => { salesChannelFavoritesService?.update(isFavorite, item.id) }"
-                    />
-                </template>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_sales_channel_list_grid_actions %}
-                <template #actions="{ item }">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_sales_channel_list_grid_actions_item_detail %}
-                    <sw-context-menu-item
-                        :router-link="{
-                            name: 'sw.sales.channel.detail',
-                            params: { id: item.id }
-                        }"
+                {% block sw_sales_channel_list_grid %}
+                <template #grid>
+                    <sw-entity-listing
+                        :is-loading="isLoading"
+                        identifier="sw-sales-channel-list"
+                        :columns="salesChannelColumns"
+                        :repository="salesChannelRepository"
+                        :items="salesChannels"
+                        :full-page="false"
+                        :show-selection="false"
+                        :sort-by="currentSortBy"
+                        :sort-direction="sortDirection"
+                        :plain-appearance="true"
+                        :show-settings="true"
+                        :allow-column-edit="true"
                     >
-                        {{ $tc('sw-sales-channel.list.contextMenuEdit') }}
-                    </sw-context-menu-item>
-                    {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_sales_channel_list_grid_column_name %}
+                        <template #column-name="{ item }">
+                            <sw-icon
+                                :name="item.type.iconName"
+                                size="18px"
+                            />
+                            <router-link
+                                :to="{
+                                    name: 'sw.sales.channel.detail',
+                                    params: { id: item.id }
+                                }"
+                            >{{ item.translated.name || item.name }}</router-link>
+                        </template>
+                        {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_sales_channel_list_grid_actions_item_open_storefront %}
-                    <sw-context-menu-item
-                        v-if="isStorefrontSalesChannel(item)"
-                        :disabled="!item.active || !checkForDomainLink(item)"
-                        @click.prevent="openStorefrontLink(item.domainLink)"
-                    >
-                        {{ $tc('sw-sales-channel.general.tooltipOpenStorefront') }}
-                    </sw-context-menu-item>
-                    {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_sales_channel_list_grid_column_product_visibilites %}
+                        <template #column-product_visibilities="{ item }">
+                            {{ getCountForSalesChannel(item.id) }}
+                            {{ $tc('sw-sales-channel.list.productsCount', getCountForSalesChannel(item.id)) }}
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_sales_channel_list_grid_column_status %}
+                        <template #column-status="{ item }">
+                            <template v-if="item.maintenance">
+                                <sw-status color="orange">
+                                    {{ $tc('sw-sales-channel.list.status.maintenance') }}
+                                </sw-status>
+                            </template>
+
+                            <template v-else-if="item.active">
+                                <sw-status color="green">
+                                    {{ $tc('sw-sales-channel.list.status.online') }}
+                                </sw-status>
+                            </template>
+
+                            <template v-else>
+                                <sw-status color="gray">
+                                    {{ $tc('sw-sales-channel.list.status.offline') }}
+                                </sw-status>
+                            </template>
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_sales_channel_list_grid_column_created_at %}
+                        <template #column-createdAt="{ item }">
+                            {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_sales_channel_list_grid_column_favorite %}
+                        <template #column-id="{ item }">
+                            <sw-switch-field
+                                v-tooltip.right="{ message: $tc('sw-sales-channel.detail.favouriteLabel') }"
+                                class="favorite-switch"
+                                :disabled="!acl.can('user_config:create') || !acl.can('user_config:update')"
+                                :value="isFavorite(item.id)"
+                                @change="(isFavorite) => { salesChannelFavoritesService?.update(isFavorite, item.id) }"
+                            />
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_sales_channel_list_grid_actions %}
+                        <template #actions="{ item }">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_sales_channel_list_grid_actions_item_detail %}
+                            <sw-context-menu-item
+                                :router-link="{
+                                    name: 'sw.sales.channel.detail',
+                                    params: { id: item.id }
+                                }"
+                            >
+                                {{ $tc('sw-sales-channel.list.contextMenuEdit') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_sales_channel_list_grid_actions_item_open_storefront %}
+                            <sw-context-menu-item
+                                v-if="isStorefrontSalesChannel(item)"
+                                :disabled="!item.active || !checkForDomainLink(item)"
+                                @click.prevent="openStorefrontLink(item.domainLink)"
+                            >
+                                {{ $tc('sw-sales-channel.general.tooltipOpenStorefront') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+                    </sw-entity-listing>
                 </template>
                 {% endblock %}
-            </sw-entity-listing>
+            </sw-card>
             {% endblock %}
-        </sw-card>
-        {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_sales_channel_list_empty_state %}
-        <template v-if="!isLoading && !total">
-            <sw-empty-state
-                v-if="isValidTerm(term)"
-                :style="{ minHeight: '200px' }"
-                :title="$tc('sw-empty-state.messageNoResultTitle')"
-            >
-                <template #default>
-                    {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                    <router-link
-                        class="sw-empty-state__description-link"
-                        :to="{ name: 'sw.profile.index.searchPreferences' }"
-                    >
-                        {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                    </router-link>
-                    {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-                </template>
-            </sw-empty-state>
-        </template>
-        {% endblock %}
-    </sw-card-view>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_sales_channel_list_empty_state %}
+            <template v-if="!isLoading && !total">
+                <sw-empty-state
+                    v-if="isValidTerm(term)"
+                    :style="{ minHeight: '200px' }"
+                    :title="$tc('sw-empty-state.messageNoResultTitle')"
+                >
+                    <template #default>
+                        {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
+                        <router-link
+                            class="sw-empty-state__description-link"
+                            :to="{ name: 'sw.profile.index.searchPreferences' }"
+                        >
+                            {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
+                        </router-link>
+                        {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
+                    </template>
+                </sw-empty-state>
+            </template>
+            {% endblock %}
+        </sw-card-view>
+    </template>
     {% endblock %}
 </sw-page>
 {% endblock %}

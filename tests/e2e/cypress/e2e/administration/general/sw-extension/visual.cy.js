@@ -1,6 +1,6 @@
 // / <reference types="Cypress" />
 
-describe('Dashboard:  Visual tests', () => {
+describe('Extension:  Visual tests', () => {
     // eslint-disable-next-line no-undef
     beforeEach(() => {
         const now = new Date(2018, 1, 1);
@@ -15,8 +15,7 @@ describe('Dashboard:  Visual tests', () => {
             });
     });
 
-    // skipped because it has a dependency to the sbp, see NEXT-15818
-    it('@visual: check appearance of my extension overview', { tags: ['quarantined', 'pa-merchant-services'] }, () => {
+    it('@visual: check appearance of my extension overview', { tags: ['pa-merchant-services'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/extension/installed`,
             method: 'GET'
@@ -25,63 +24,6 @@ describe('Dashboard:  Visual tests', () => {
             url: `${Cypress.env('apiPath')}/search/**`,
             method: 'POST'
         }).as('searchResultCall');
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/_action/extension-store/list`,
-            method: 'POST'
-        }).as('extensionList');
-
-        cy.clickMainMenuItem({
-            targetPath: '#/sw/extension/store',
-            mainMenuId: 'sw-extension',
-            subMenuId: 'sw-extension-store'
-        });
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-
-        // Check extension store
-        cy.get('.sw-extension-store-landing-page').should('be.visible');
-        cy.get('.sw-button').click();
-        cy.get('.sw-extension-store-landing-page__wrapper-loading').should('be.visible');
-        cy.contains('Activating the Shopware Store...');
-        cy.get('.sw-extension-store-landing-page__wrapper-loading').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-
-        cy.wait('@extensionList')
-            .its('response.statusCode').should('equal', 200);
-
-        // Prepare and do snapshot
-        cy.get('.sw-extension-store-listing').should('be.visible');
-        cy.get('.sw-extension-listing-card__info-name')
-            .invoke('prop', 'innerText', 'My plugin');
-        cy.get('.sw-extension-listing-card__info-description')
-            .invoke('prop', 'innerText', 'If it wasn\'t for you… This message would never happened.');
-        cy.get('.sw-extension-listing-card__info-price')
-            .invoke('prop', 'innerText', 'Free');
-
-        // Change background-image of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            '.sw-extension-listing-card__preview',
-            `background-image: url("${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png")`
-        );
-
-        // Change visibility of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            '.sw-extension-listing-card__extension-type-label',
-            'visibility: hidden'
-        );
-
-        // Change visibility of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            '.sw-extension-listing-card__info-rating',
-            'visibility: hidden'
-        );
-        cy.prepareAdminForScreenshot();
-        cy.takeSnapshot('[My extensions] Store', '.sw-extension-store-listing', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
-
-        cy.visit(Cypress.env('admin'));
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-dashboard-index__card--bg-checklist').should('be.visible');
 
         // Check my extensions listing
         cy.clickMainMenuItem({
@@ -95,6 +37,13 @@ describe('Dashboard:  Visual tests', () => {
 
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
+
+        // Plugin "SDK Testplugin" should be installed and activated
+        const extensionCard = cy.get('.sw-extension-card-base__info')
+            .filter(':contains("SDK Testplugin")')
+            .closest('.sw-extension-card-base');
+        extensionCard.should('be.visible');
+        extensionCard.find('.sw-field--switch__input input[type=checkbox]').should('be.checked');
 
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling(

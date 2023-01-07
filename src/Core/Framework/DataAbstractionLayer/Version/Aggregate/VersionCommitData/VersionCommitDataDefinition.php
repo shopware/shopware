@@ -16,6 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 
+/**
+ * @package core
+ */
 class VersionCommitDataDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'version_commit_data';

@@ -9,14 +9,12 @@ use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\PasswordRecoveryUrlEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
-use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
@@ -40,13 +38,15 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package customer-order
+ *
  * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
 class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRoute
 {
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
-    private EntityRepositoryInterface $customerRecoveryRepository;
+    private EntityRepository $customerRecoveryRepository;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -62,8 +62,8 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
-        EntityRepositoryInterface $customerRecoveryRepository,
+        EntityRepository $customerRepository,
+        EntityRepository $customerRecoveryRepository,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator,
         SystemConfigService $systemConfigService,

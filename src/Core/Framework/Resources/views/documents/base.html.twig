@@ -40,13 +40,6 @@ merge 16.11.2020
         {% set itemsPerPage = config.itemsPerPage|intval %}
     {% endif %}
 
-    {# @deprecated tag:v6.5.0 - pages variable will be removed due to unused #}
-    {% sw_silent_feature_call "v6.5.0.0" %}
-        {% set pages = (total / itemsPerPage)|round(0,'ceil') %}
-        {% if config.displayLineItems == false %}
-            {% set pages = 1 %}
-        {% endif %}
-    {% endsw_silent_feature_call %}
     <!DOCTYPE html>
     <html>
     <head>

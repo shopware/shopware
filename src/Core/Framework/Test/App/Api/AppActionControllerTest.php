@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
@@ -28,7 +28,12 @@ class AppActionControllerTest extends TestCase
     {
         $url = '/api/app-system/action-button/product/index';
         $this->getBrowser()->request('GET', $url);
-        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+
+        $content = $this->getBrowser()->getResponse()->getContent();
+
+        static::assertIsString($content);
+
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('actions', $response);
@@ -41,15 +46,25 @@ class AppActionControllerTest extends TestCase
         $url = '/api/app-system/action-button/order/detail';
         $this->getBrowser()->request('GET', $url);
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        $response = $this->getBrowser()->getResponse();
 
-        $result = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        static::assertEquals(200, $response->getStatusCode());
+
+        $content = $response->getContent();
+
+        static::assertIsString($content);
+
+        $result = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
         static::assertArrayHasKey('actions', $result);
 
         $result = $result['actions'];
         static::assertCount(1, $result);
         static::assertTrue(Uuid::isValid($result[0]['id']));
         unset($result[0]['id']);
+
+        $icon = file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png');
+        static::assertIsString($icon);
 
         static::assertEquals([
             [
@@ -65,15 +80,15 @@ class AppActionControllerTest extends TestCase
                  * It will no longer be used in the manifest.xml file
                  * and will be processed in the Executor with an OpenNewTabResponse response instead.
                  */
-                'openNewTab' => true,
-                'icon' => base64_encode(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
+                'openNewTab' => false,
+                'icon' => base64_encode($icon),
             ],
         ], $result);
     }
 
     public function testRunAction(): void
     {
-        /** @var EntityRepositoryInterface $actionRepo */
+        /** @var EntityRepository $actionRepo */
         $actionRepo = $this->getContainer()->get('app_action_button.repository');
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
 
@@ -94,22 +109,28 @@ class AppActionControllerTest extends TestCase
         ];
 
         $this->appendNewResponse(new Response(200));
-        $this->getBrowser()->request('POST', $url, [], [], [], json_encode($postData));
+        $this->getBrowser()->request('POST', $url, [], [], [], json_encode($postData, \JSON_THROW_ON_ERROR));
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $request = $this->getLastRequest();
 
+        static::assertNotNull($request);
+
         static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
-        $data = json_decode($body, true);
+        $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
 
         $shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
 
+        $app = $action->getApp();
+
+        static::assertNotNull($app);
+
         $expectedSource = [
             'url' => getenv('APP_URL'),
-            'appVersion' => $action->getApp()->getVersion(),
+            'appVersion' => $app->getVersion(),
             'shopId' => $shopIdProvider->getShopId(),
         ];
         $expectedData = [
@@ -126,7 +147,7 @@ class AppActionControllerTest extends TestCase
 
     public function testRunActionEmpty(): void
     {
-        /** @var EntityRepositoryInterface $actionRepo */
+        /** @var EntityRepository $actionRepo */
         $actionRepo = $this->getContainer()->get('app_action_button.repository');
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
 
@@ -143,16 +164,17 @@ class AppActionControllerTest extends TestCase
         $postData = ['ids' => []];
 
         $this->appendNewResponse(new Response(200));
-        $this->getBrowser()->request('POST', $url, [], [], [], json_encode($postData));
+        $this->getBrowser()->request('POST', $url, [], [], [], json_encode($postData, \JSON_THROW_ON_ERROR));
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $request = $this->getLastRequest();
 
+        static::assertNotNull($request);
         static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
-        $data = json_decode($body, true);
+        $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
 
         $expectedData = [
             'ids' => [],
@@ -169,7 +191,7 @@ class AppActionControllerTest extends TestCase
 
         $postData = ['ids' => []];
 
-        $this->getBrowser()->request('POST', $url, [], [], [], json_encode($postData));
+        $this->getBrowser()->request('POST', $url, [], [], [], json_encode($postData, \JSON_THROW_ON_ERROR));
 
         static::assertEquals(404, $this->getBrowser()->getResponse()->getStatusCode());
     }
@@ -200,7 +222,11 @@ class AppActionControllerTest extends TestCase
 
         static::assertEquals(200, $response->getStatusCode());
 
-        $payload = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $content = $response->getContent();
+
+        static::assertIsString($content);
+
+        $payload = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals([
             'actionType' => 'notification',
@@ -218,7 +244,11 @@ class AppActionControllerTest extends TestCase
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
-        $result = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = $this->getBrowser()->getResponse()->getContent();
+
+        static::assertIsString($content);
+
+        $result = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         // the query strings of the sources contain non-deterministic values like timestamps
         // they are validated in `\Swag\SaasConnect\Test\Core\Content\App\Action\ModuleLoaderTest::validateSources`
@@ -263,6 +293,11 @@ class AppActionControllerTest extends TestCase
         ], $result);
     }
 
+    /**
+     * @param array<string, mixed> $result
+     *
+     * @return array<string, mixed>
+     */
     private function removeQueryStringsFromResult(array $result): array
     {
         $result['modules'][0]['modules'][0]['source'] = preg_replace(

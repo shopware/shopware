@@ -11,12 +11,15 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package customer-order
+ */
 final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'delivery_note';
@@ -29,7 +32,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
     private string $rootDir;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
 
@@ -39,7 +42,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $orderRepository,
+        EntityRepository $orderRepository,
         DocumentConfigLoader $documentConfigLoader,
         EventDispatcherInterface $eventDispatcher,
         DocumentTemplateRenderer $documentTemplateRenderer,
@@ -88,7 +91,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
             /** @var OrderCollection $orders */
             $orders = $this->orderRepository->search($criteria, $context)->getEntities();
 
-            $this->eventDispatcher->dispatch(new DeliveryNoteOrdersEvent($orders, $context));
+            $this->eventDispatcher->dispatch(new DeliveryNoteOrdersEvent($orders, $context, $operations));
 
             foreach ($orders as $order) {
                 $orderId = $order->getId();

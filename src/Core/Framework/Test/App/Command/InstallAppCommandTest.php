@@ -8,7 +8,7 @@ use Shopware\Core\Framework\App\Command\InstallAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
@@ -22,7 +22,7 @@ class InstallAppCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     public function setUp(): void
     {

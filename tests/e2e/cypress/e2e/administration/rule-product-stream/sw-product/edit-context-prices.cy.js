@@ -134,7 +134,7 @@ describe('Product: Editing context prices', () => {
             .scrollIntoView()
             .should('be.visible');
 
-        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${priceCell}-USD .sw-inheritance-switch .icon--custom-uninherited`)
+        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${priceCell}-USD .sw-inheritance-switch .icon--regular-link-horizontal-slash`)
             .scrollIntoView()
             .should('be.visible');
 

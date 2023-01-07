@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module core/factory/filter
  */
 import { warn } from 'src/core/service/utils/debug.utils';
@@ -21,14 +23,6 @@ interface FilterRegistry extends Map<string, FilterTypes[keyof FilterTypes]> {
 const filterRegistry: FilterRegistry = new Map();
 
 /**
- * @description Empty function, used as the default parameter for the register method
- *
- * @deprecated tag:v6.5.0 - will be removed
- */
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const noop = (): void => {};
-
-/**
  * Factory name
  */
 const name = 'FilterFactory';
@@ -42,12 +36,10 @@ function getRegistry(): FilterRegistry {
 
 /**
  * @description Register a new filter
- *
- * @deprecated tag:v6.5.0 - second parameter filterFactoryMethod will be required in future version
  */
 function register<A extends string>(
     filterName: A,
-    filterFactoryMethod: FilterTypes[A] = noop,
+    filterFactoryMethod: FilterTypes[A],
 ): boolean {
     if (!filterName || !filterName.length) {
         warn(

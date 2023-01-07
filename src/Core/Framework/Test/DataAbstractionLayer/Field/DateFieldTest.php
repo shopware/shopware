@@ -21,10 +21,7 @@ class DateFieldTest extends TestCase
     use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -40,14 +37,14 @@ CREATE TABLE `_date_field_test` (
   PRIMARY KEY `id` (`id`)
 );
 EOF;
-        $this->connection->executeUpdate($nullableTable);
+        $this->connection->executeStatement($nullableTable);
         $this->connection->beginTransaction();
     }
 
     public function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeUpdate('DROP TABLE `_date_field_test`');
+        $this->connection->executeStatement('DROP TABLE `_date_field_test`');
 
         parent::tearDown();
     }
@@ -67,7 +64,7 @@ EOF;
 
         $this->getWriter()->insert($this->registerDefinition(DateDefinition::class), [$data], $context);
 
-        $data = $this->connection->fetchAll('SELECT * FROM `_date_field_test`');
+        $data = $this->connection->fetchAllAssociative('SELECT * FROM `_date_field_test`');
 
         static::assertCount(1, $data);
         static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);

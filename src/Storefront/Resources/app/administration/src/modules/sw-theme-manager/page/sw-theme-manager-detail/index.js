@@ -1,6 +1,10 @@
 import template from './sw-theme-manager-detail.html.twig';
 import './sw-theme-manager-detail.scss';
 
+/**
+ * @package sales-channel
+ */
+
 const { Component, Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 const { getObjectDiff, cloneDeep } = Shopware.Utils.object;
@@ -170,11 +174,6 @@ Component.register('sw-theme-manager-detail', {
 
                 this.isLoading = false;
             });
-        },
-
-        /** @deprecated tag:v6.5.0 method will be removed */
-        checkInheritance(value) {
-            return !value;
         },
 
         checkInheritanceFunction(fieldName) {

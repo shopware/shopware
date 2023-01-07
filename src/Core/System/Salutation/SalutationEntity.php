@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationCollection;
 
+/**
+ * @package customer-order
+ */
 class SalutationEntity extends Entity
 {
     use EntityIdTrait;

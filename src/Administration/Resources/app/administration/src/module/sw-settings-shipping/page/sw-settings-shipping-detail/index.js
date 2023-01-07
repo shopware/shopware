@@ -3,13 +3,16 @@ import template from './sw-settings-shipping-detail.html.twig';
 import './sw-settings-shipping-detail.scss';
 import swShippingDetailState from './state';
 
-const { Component, Mixin, Context } = Shopware;
+const { Mixin, Context } = Shopware;
 const { mapState } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
+/**
+ * @package checkout
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-shipping-detail', {
+export default {
     template,
 
     inject: [
@@ -330,4 +333,4 @@ Component.register('sw-settings-shipping-detail', {
             return currencies;
         },
     },
-});
+};

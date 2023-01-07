@@ -2,6 +2,9 @@
 
 namespace Shopware\Core;
 
+/**
+ * @package core
+ */
 final class PlatformRequest
 {
     /**
@@ -32,6 +35,8 @@ final class PlatformRequest
 
     /**
      * This header is used in the administration to get all fields
+     *
+     * @deprecated tag:v6.6.0 - Will be removed as it is not used and has no effect anymore
      */
     public const HEADER_IGNORE_DEPRECATIONS = 'sw-api-compatibility';
 

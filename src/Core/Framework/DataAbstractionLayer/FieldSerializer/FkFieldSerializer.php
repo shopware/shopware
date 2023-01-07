@@ -15,7 +15,9 @@ use Shopware\Core\Framework\Validation\Constraint\Uuid as UuidConstraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ *
+ * @package core
  */
 class FkFieldSerializer extends AbstractFieldSerializer
 {
@@ -74,7 +76,7 @@ class FkFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $value;
     }
 
-    public function decode(Field $field, $value): ?string
+    public function decode(Field $field, mixed $value): ?string
     {
         if ($value === null) {
             return null;

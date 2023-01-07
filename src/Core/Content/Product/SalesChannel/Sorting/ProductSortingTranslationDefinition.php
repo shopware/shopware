@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package inventory
+ */
 class ProductSortingTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'product_sorting_translation';

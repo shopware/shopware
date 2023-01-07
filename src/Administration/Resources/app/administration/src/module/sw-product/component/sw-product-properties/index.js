@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-properties.html.twig';
 import './sw-product-properties.scss';
 
@@ -6,7 +10,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 const { mapState, mapGetters } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-properties', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -265,4 +269,4 @@ Component.register('sw-product-properties', {
             });
         },
     },
-});
+};

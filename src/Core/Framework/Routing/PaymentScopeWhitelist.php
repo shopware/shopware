@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Checkout\Payment\Controller\PaymentController;
 
+/**
+ * @package core
+ */
 class PaymentScopeWhitelist implements RouteScopeWhitelistInterface
 {
     public function applies(string $controllerClass): bool

@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import Criteria from 'src/core/data/criteria.data';
 import template from './sw-product-detail-base.html.twig';
 import './sw-product-detail-base.scss';
@@ -7,7 +11,7 @@ const { mapState, mapGetters } = Component.getComponentHelper();
 const { isEmpty } = Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-detail-base', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -447,4 +451,4 @@ Component.register('sw-product-detail-base', {
             this.onLayoutSelect(null);
         },
     },
-});
+};

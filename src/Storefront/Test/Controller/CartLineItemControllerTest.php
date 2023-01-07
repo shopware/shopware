@@ -41,7 +41,7 @@ class CartLineItemControllerTest extends TestCase
     /**
      * @dataProvider productNumbers
      */
-    public function testAddAndDeleteProductByNumber(?string $productId, string $productNumber, bool $available = true): void
+    public function testAddAndDeleteProductByNumber(string $productId, string $productNumber, bool $available = true): void
     {
         $contextToken = Uuid::randomHex();
 
@@ -69,7 +69,7 @@ class CartLineItemControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
 
         // Delete
-        if ($productId === null) {
+        if ($productId === '') {
             return;
         }
 
@@ -98,8 +98,8 @@ class CartLineItemControllerTest extends TestCase
             [Uuid::randomHex(), 'testäüö123'],
             [Uuid::randomHex(), 'test/123'],
             [Uuid::randomHex(), 'test/unavailableProduct', false],
-            [null, 'nonExisting'],
-            [null, 'with<br>HTML'],
+            ['', 'nonExisting'],
+            ['', 'with<br>HTML'],
         ];
     }
 

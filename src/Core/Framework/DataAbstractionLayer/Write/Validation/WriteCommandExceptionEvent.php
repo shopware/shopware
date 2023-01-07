@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package core
+ */
 class WriteCommandExceptionEvent extends Event implements ShopwareEvent
 {
     private \Throwable $exception;

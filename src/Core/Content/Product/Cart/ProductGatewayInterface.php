@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Product\Cart;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package inventory
+ */
 interface ProductGatewayInterface
 {
     public function get(array $ids, SalesChannelContext $context): ProductCollection;

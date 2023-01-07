@@ -11,6 +11,9 @@ use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package content
+ */
 class LandingPageLoader
 {
     /**
@@ -50,23 +53,22 @@ class LandingPageLoader
 
         $landingPage = $this->landingPageRoute->load($landingPageId, $request, $context)->getLandingPage();
 
-        $cmsPage = $landingPage->getCmsPage();
-        if ($cmsPage === null) {
+        if ($landingPage->getCmsPage() === null) {
             throw new PageNotFoundException($landingPageId);
         }
 
         $page = $this->genericPageLoader->load($request, $context);
+        /** @var LandingPage $page */
         $page = LandingPage::createFrom($page);
+
+        $page->setLandingPage($landingPage);
 
         $metaInformation = new MetaInformation();
         $metaTitle = $landingPage->getMetaTitle() ?? $landingPage->getName();
-        $page->setCmsPage($cmsPage);
-        $page->setNavigationId($landingPage->getId());
         $metaInformation->setMetaTitle($metaTitle ?? '');
         $metaInformation->setMetaDescription($landingPage->getMetaDescription() ?? '');
         $metaInformation->setMetaKeywords($landingPage->getKeywords() ?? '');
         $page->setMetaInformation($metaInformation);
-        $page->setCustomFields($landingPage->getCustomFields());
 
         $this->eventDispatcher->dispatch(
             new LandingPageLoadedEvent($page, $context, $request)

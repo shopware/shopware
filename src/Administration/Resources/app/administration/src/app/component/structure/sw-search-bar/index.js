@@ -7,6 +7,9 @@ const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description
  * Renders the search bar. This component uses the search service to find entities in the administration.
@@ -117,13 +120,6 @@ Component.register('sw-search-bar', {
             criteria.addAssociation('type');
 
             return criteria;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         */
-        canViewSalesChannels() {
-            return this.acl.can('sales_channel.viewer');
         },
 
         canCreateSalesChannels() {
@@ -592,54 +588,6 @@ Component.register('sw-search-bar', {
             });
         },
 
-        /* @deprecated tag:v6.5.0 - Will be removed */
-        navigateLeftResults() {
-            if (this.showTypeSelectContainer) {
-                if (this.activeTypeListIndex !== 0) {
-                    this.activeTypeListIndex -= 1;
-                }
-            }
-
-            if (!this.showResultsContainer) {
-                return;
-            }
-
-            if (this.activeResultColumn > 0) {
-                this.activeResultColumn -= 1;
-                const itemsInColumn = this.results[this.activeResultColumn].entities.length;
-                if (this.activeResultIndex + 1 > itemsInColumn) {
-                    this.activeResultIndex = itemsInColumn - 1;
-                }
-            }
-
-            this.setActiveResultPosition({ index: this.activeResultIndex, column: this.activeResultColumn });
-            this.checkScrollPosition();
-        },
-
-        /* @deprecated tag:v6.5.0 - Will be removed */
-        navigateRightResults() {
-            if (this.showTypeSelectContainer) {
-                if (this.activeTypeListIndex !== this.typeSelectResults.length - 1) {
-                    this.activeTypeListIndex += 1;
-                }
-            }
-
-            if (!this.showResultsContainer) {
-                return;
-            }
-
-            if (this.activeResultColumn < this.results.length - 1) {
-                this.activeResultColumn += 1;
-                const itemsInColumn = this.results[this.activeResultColumn].entities.length;
-                if (this.activeResultIndex + 1 > itemsInColumn) {
-                    this.activeResultIndex = itemsInColumn - 1;
-                }
-            }
-
-            this.setActiveResultPosition({ index: this.activeResultIndex, column: this.activeResultColumn });
-            this.checkScrollPosition();
-        },
-
         navigateUpResults() {
             if (this.showTypeSelectContainer) {
                 if (this.activeTypeListIndex !== 0) {
@@ -774,20 +722,6 @@ Component.register('sw-search-bar', {
             this.showModuleFiltersContainer = true;
             this.showTypeSelectContainer = false;
             this.showResultsSearchTrends = false;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         */
-        loadSalesChannel() {
-            return new Promise(resolve => {
-                this.salesChannelRepository
-                    .search(this.salesChannelCriteria)
-                    .then(response => {
-                        this.salesChannels = response;
-                        resolve(response);
-                    });
-            });
         },
 
         loadSalesChannelType() {
@@ -930,7 +864,7 @@ Component.register('sw-search-bar', {
         },
 
         getRecentlySearch() {
-            return new Promise(async resolve => {
+            return new Promise(resolve => {
                 const items = this.recentlySearchService.get(this.currentUser.id);
 
                 const queries = {};
@@ -955,32 +889,32 @@ Component.register('sw-search-bar', {
                     return;
                 }
 
-                const searchResult = await this.searchService.searchQuery(queries, { 'sw-inheritance': true });
-
-                if (!searchResult.data) {
-                    resolve();
-                    return;
-                }
-
-                const mapResult = [];
-
-                items.forEach(item => {
-                    const entities = searchResult.data[item.entity] ? searchResult.data[item.entity].data : {};
-
-                    const foundEntity = entities[item.id];
-
-                    if (foundEntity) {
-                        mapResult.push({
-                            item: foundEntity,
-                            entity: item.entity,
-                        });
+                this.searchService.searchQuery(queries, { 'sw-inheritance': true }).then((searchResult) => {
+                    if (!searchResult.data) {
+                        resolve();
+                        return;
                     }
-                });
 
-                resolve({
-                    entity: 'recently_searched',
-                    total: mapResult.length,
-                    entities: mapResult,
+                    const mapResult = [];
+
+                    items.forEach(item => {
+                        const entities = searchResult.data[item.entity] ? searchResult.data[item.entity].data : {};
+
+                        const foundEntity = entities[item.id];
+
+                        if (foundEntity) {
+                            mapResult.push({
+                                item: foundEntity,
+                                entity: item.entity,
+                            });
+                        }
+                    });
+
+                    resolve({
+                        entity: 'recently_searched',
+                        total: mapResult.length,
+                        entities: mapResult,
+                    });
                 });
             });
         },

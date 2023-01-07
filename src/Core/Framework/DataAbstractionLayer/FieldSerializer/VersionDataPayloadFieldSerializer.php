@@ -10,7 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ *
+ * @package core
  */
 class VersionDataPayloadFieldSerializer implements FieldSerializerInterface
 {
@@ -28,7 +30,7 @@ class VersionDataPayloadFieldSerializer implements FieldSerializerInterface
         yield $field->getStorageName() => $data->getValue();
     }
 
-    public function decode(Field $field, $value)
+    public function decode(Field $field, mixed $value): mixed
     {
         if ($value === null) {
             return null;

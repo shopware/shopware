@@ -7,6 +7,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 /**
+ * @package sales-channel
+ *
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
 class CachedSeoResolver extends AbstractSeoResolver

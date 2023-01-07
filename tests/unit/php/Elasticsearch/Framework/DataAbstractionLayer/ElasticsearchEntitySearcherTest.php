@@ -2,8 +2,8 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
-use Elasticsearch\Client;
-use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
+use OpenSearch\Client;
+use OpenSearch\Common\Exceptions\NoNodesAvailableException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;

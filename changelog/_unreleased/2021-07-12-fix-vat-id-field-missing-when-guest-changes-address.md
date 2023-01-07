@@ -1,7 +1,6 @@
 ---
 title: Fix VAT id field missing when guest changes address in checkout
 issue: NEXT-15957
-flag: FEATURE_NEXT_15957
 ---
 # Storefront
 * Changed a function `addressBook` at `Shopware\Storefront\Controller\AddressController` to update VAT id when guest changes address in checkout.

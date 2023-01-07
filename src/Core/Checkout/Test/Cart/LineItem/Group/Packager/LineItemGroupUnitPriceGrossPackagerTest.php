@@ -11,6 +11,8 @@ use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestF
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class LineItemGroupUnitPriceGrossPackagerTest extends TestCase

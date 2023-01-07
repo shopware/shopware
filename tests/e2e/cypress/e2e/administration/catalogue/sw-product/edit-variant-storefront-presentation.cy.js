@@ -2,7 +2,7 @@
 
 import ProductPageObject from '../../../../support/pages/module/sw-product.page-object';
 
-describe('Product: Test variants', () => {
+describe('Product: Test Storefront presentation of variants', () => {
     beforeEach(() => {
         cy.loginViaApi()
             .then(() => {
@@ -89,15 +89,15 @@ describe('Product: Test variants', () => {
             .its('response.statusCode')
             .should('equal', 200);
 
+        // This wait is currently necessary due to rendering issues
+        cy.wait(1000);
+
         // Activate diversification
         cy.get('.sw-product-variants__configure-storefront-action').click();
         cy.get('.sw-modal').should('be.visible');
         cy.contains('Product listings').click();
 
         cy.get('.sw-product-variants-delivery-listing-config-options').should('be.visible');
-
-        // This wait is currently necessary due to rendering issues
-        cy.wait(1000);
 
         // Verify 'Expand property values in product listings' is checked
         cy.contains('.sw-field__radio-option > label', 'Expand property values in product listings')
@@ -123,7 +123,7 @@ describe('Product: Test variants', () => {
         cy.contains('.product-variant-characteristics', 'Color: Green | Size: L');
     });
 
-    it('@catalogue: test main variant presentation with parent and variant given', { tags: ['quarantined', 'pa-inventory'] }, () => {
+    it('@catalogue: test main variant presentation with parent and variant given', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -192,13 +192,13 @@ describe('Product: Test variants', () => {
         cy.get('.sw-product-variants-overview').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist')
 
+        // This wait is currently necessary due to rendering issues
+        cy.wait(1000);
+
         // Activate main variant visualization
         cy.get('.sw-product-variants__configure-storefront-action').click();
         cy.get('.sw-modal').should('be.visible');
         cy.get('.sw-loader').should('not.exist')
-
-        // This wait is currently necessary due to rendering issues
-        cy.wait(1000);
 
         cy.contains('.sw-tabs-item', 'Product listings').click();
         cy.get('.sw-product-variants-delivery-listing-config-options').should('be.visible');
@@ -210,8 +210,6 @@ describe('Product: Test variants', () => {
 
         cy.contains('.sw-product-variants-delivery-listing-config .sw-field__radio-option-label span', 'Variant')
             .should('be.visible');
-        cy.contains('.sw-product-variants-delivery-listing-config .sw-field__radio-option-label span', 'Variant')
-            .click();
         cy.get('sw-product-variants-delivery-listing_entity-select.is--disabled')
             .should('not.exist');
         cy.get('#mainVariant').typeSingleSelectAndCheck('Green', '#mainVariant');
@@ -288,5 +286,107 @@ describe('Product: Test variants', () => {
 
         cy.url().should('contain', '/Variant-product-name');
         cy.contains('h1', 'Variant product name').should('be.visible');
+    });
+
+    it('@catalogue: test sorting of multidimensional variant order', { tags: ['pa-inventory'] }, () => {
+        const page = new ProductPageObject();
+
+        // Request we want to wait for later
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/category`,
+            method: 'POST'
+        }).as('loadCategory');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'POST'
+        }).as('saveData');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/product`,
+            method: 'POST',
+        }).as('searchCall');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/property-group`,
+            method: 'POST',
+        }).as('propertyGroup');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product/*`,
+            method: 'PATCH',
+        }).as('savePresentation');
+
+        cy.searchViaAdminApi({
+            data: {
+                field: 'name',
+                value: 'Storefront'
+            },
+            endpoint: 'sales-channel'
+        }).then((salesChannel) => {
+                cy.createDefaultFixture('product', {
+                visibilities: [{
+                    visibility: 30,
+                    salesChannelId: salesChannel.id
+                }]
+            }, 'product-variants-storefront.json')
+        });
+
+        cy.get(':nth-child(1) > .sw-sidebar-navigation-item').should('be.visible');
+        cy.get(':nth-child(1) > .sw-sidebar-navigation-item').click();
+
+        // Navigate to variant generator listing and start
+        cy.contains('.sw-data-grid__cell--name a', 'Test product').click();
+
+        cy.get(page.elements.loader).should('not.exist');
+
+        // Open storefront presentation settings
+        cy.get('.sw-product-detail__tab-variants').click();
+        cy.get('.sw-product-detail__tab-variants').scrollIntoView();
+
+        cy.get(page.elements.loader).should('not.exist');
+
+        // Reload the variant tab to avoid xhr timing issues from previous requests
+        cy.get('.sw-product-detail__tab-variants').click();
+        cy.get(page.elements.loader).should('not.exist');
+
+        // Wait for every needed xhr request to load the current product
+        cy.wait('@searchCall')
+            .its('response.statusCode').should('equal', 200);
+        cy.wait('@searchCall')
+            .its('response.statusCode').should('equal', 200);
+        cy.wait('@propertyGroup')
+            .its('response.statusCode').should('equal', 200);
+
+        cy.get('.sw-product-variants-overview').should('be.visible');
+        cy.get('.sw-skeleton').should('not.exist');
+
+        // This wait is currently necessary due to rendering issues
+        cy.wait(1000);
+
+        // Activate main variant visualization
+        cy.get('.sw-product-variants__configure-storefront-action').click();
+        cy.get('.sw-modal').should('be.visible');
+        cy.get('.sw-loader').should('not.exist');
+
+        // Sort variant groups
+        cy.get('.sw-tree-item').last().should('contain', 'size');
+        cy.get('.sw-product-variants-delivery-order__groups > .sw-tree > .sw-tree__content > .tree-items > :nth-child(1) > .sw-tree-item__element')
+            .dragTo('.sw-product-variants-delivery-order__groups > .sw-tree > .sw-tree__content > .tree-items > :nth-child(2) > .sw-tree-item__element');
+        cy.get('.sw-tree-item').last().should('contain', 'Color');
+
+        // Save product
+        cy.contains('.sw-modal__footer .sw-button', 'Save').click();
+        cy.wait('@savePresentation').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-modal').should('not.exist');
+
+        // Verify in storefront
+        cy.visit('/');
+        cy.get('input[name=search]').type('Test product');
+        cy.get('.search-suggest-container').should('be.visible');
+        cy.contains('.search-suggest-product-name','Test product')
+            .click();
+
+        cy.contains('h1', 'Test product').should('be.visible');
+        cy.get('.product-detail-configurator-group-title').eq(0) // First Heading
+            .should('contain', 'size');
+        cy.get('.product-detail-configurator-group-title').eq(1) // Second Heading
+            .should('contain', 'Color');
     });
 });

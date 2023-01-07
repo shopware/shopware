@@ -6,19 +6,21 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class RuleLoader extends AbstractRuleLoader
 {
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
-    public function __construct(EntityRepositoryInterface $repository)
+    public function __construct(EntityRepository $repository)
     {
         $this->repository = $repository;
     }

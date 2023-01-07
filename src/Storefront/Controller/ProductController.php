@@ -8,7 +8,6 @@ use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -16,7 +15,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
-use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\ProductPageLoadedHook;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
@@ -30,9 +28,11 @@ use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package storefront
+ *
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class ProductController extends StorefrontController
 {
@@ -51,16 +51,10 @@ class ProductController extends StorefrontController
     private AbstractProductReviewSaveRoute $productReviewSaveRoute;
 
     /**
-     * @deprecated tag:v6.5.0 - will be removed
-     */
-    private ProductCombinationFinder $productCombinationFinder;
-
-    /**
      * @internal
      */
     public function __construct(
         ProductPageLoader $productPageLoader,
-        ProductCombinationFinder $productCombinationFinder,
         AbstractFindProductVariantRoute $findVariantRoute,
         MinimalQuickViewPageLoader $minimalQuickViewPageLoader,
         AbstractProductReviewSaveRoute $productReviewSaveRoute,
@@ -75,7 +69,6 @@ class ProductController extends StorefrontController
         $this->productReviewLoader = $productReviewLoader;
         $this->systemConfigService = $systemConfigService;
         $this->productReviewSaveRoute = $productReviewSaveRoute;
-        $this->productCombinationFinder = $productCombinationFinder;
     }
 
     /**
@@ -90,17 +83,6 @@ class ProductController extends StorefrontController
         $this->hook(new ProductPageLoadedHook($page, $context));
 
         $ratingSuccess = $request->get('success');
-
-        /**
-         * @deprecated tag:v6.5.0 - remove complete if statement, cms page id is always set
-         *
-         * Fallback layout for non-assigned product layout
-         */
-        if (!$page->getCmsPage()) {
-            Feature::throwException('v6.5.0.0', 'Fallback will be removed because cms page is always set in subscriber.');
-
-            return $this->renderStorefront('@Storefront/storefront/page/product-detail/index.html.twig', ['page' => $page, 'ratingSuccess' => $ratingSuccess]);
-        }
 
         return $this->renderStorefront('@Storefront/storefront/page/content/product-detail.html.twig', ['page' => $page]);
     }
@@ -118,29 +100,18 @@ class ProductController extends StorefrontController
         $options = json_decode($request->query->get('options', ''), true);
 
         try {
-            if (Feature::isActive('v6.5.0.0')) {
-                $variantResponse = $this->findVariantRoute->load(
-                    $productId,
-                    new Request(
-                        [
-                            'switchedGroup' => $switchedGroup,
-                            'options' => $options ?? [],
-                        ]
-                    ),
-                    $salesChannelContext
-                );
+            $variantResponse = $this->findVariantRoute->load(
+                $productId,
+                new Request(
+                    [
+                        'switchedGroup' => $switchedGroup,
+                        'options' => $options ?? [],
+                    ]
+                ),
+                $salesChannelContext
+            );
 
-                $productId = $variantResponse->getFoundCombination()->getVariantId();
-            } else {
-                $finderResponse = $this->productCombinationFinder->find(
-                    $productId,
-                    $switchedGroup,
-                    $options ?? [],
-                    $salesChannelContext
-                );
-
-                $productId = $finderResponse->getVariantId();
-            }
+            $productId = $variantResponse->getFoundCombination()->getVariantId();
         } catch (VariantNotFoundException|ProductNotFoundException $productNotFoundException) {
             //nth
         }

@@ -610,7 +610,7 @@ export default {
         loadProduct() {
             Shopware.State.commit('swProductDetail/setLoading', ['product', true]);
 
-            this.productRepository.get(
+            return this.productRepository.get(
                 this.productId || this.product.id,
                 Shopware.Context.api,
                 this.productCriteria,

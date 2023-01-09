@@ -37,7 +37,7 @@ class LineItemTotalPriceRuleTest extends TestCase
             $rule->match(new LineItemScope($lineItem, $context))
         );
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->add($lineItem);
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -59,7 +59,7 @@ class LineItemTotalPriceRuleTest extends TestCase
             $rule->match(new LineItemScope($lineItem, $context))
         );
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->add($lineItem);
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))

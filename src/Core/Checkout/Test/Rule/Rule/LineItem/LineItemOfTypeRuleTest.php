@@ -27,7 +27,7 @@ class LineItemOfTypeRuleTest extends TestCase
             $rule->match(new LineItemScope(new LineItem('A', 'product'), $context))
         );
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->add(new LineItem('A', 'product'));
 
         static::assertTrue(
@@ -45,7 +45,7 @@ class LineItemOfTypeRuleTest extends TestCase
             $rule->match(new LineItemScope(new LineItem('A', 'product'), $context))
         );
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->add(new LineItem('A', 'product'));
 
         $scope = new CartRuleScope($cart, $context);

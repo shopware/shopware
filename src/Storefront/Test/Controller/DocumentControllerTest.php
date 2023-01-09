@@ -153,7 +153,7 @@ class DocumentControllerTest extends TestCase
      */
     private function generateDemoCart(int $lineItemCount): Cart
     {
-        $cart = new Cart('A', 'a-b-c');
+        $cart = new Cart('a-b-c');
 
         $keywords = ['awesome', 'epic', 'high quality'];
 

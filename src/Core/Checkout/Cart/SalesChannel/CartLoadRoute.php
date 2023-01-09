@@ -44,14 +44,13 @@ class CartLoadRoute extends AbstractCartLoadRoute
      */
     public function load(Request $request, SalesChannelContext $context): CartResponse
     {
-        $name = $request->get('name', CartService::SALES_CHANNEL);
         $token = $request->get('token', $context->getToken());
         $taxed = $request->get('taxed', false);
 
         try {
             $cart = $this->persister->load($token, $context);
         } catch (CartTokenNotFoundException $e) {
-            $cart = $this->createNew($token, $name);
+            $cart = $this->createNew($token);
         }
 
         $cart = $this->cartCalculator->calculate($cart, $context);
@@ -63,9 +62,9 @@ class CartLoadRoute extends AbstractCartLoadRoute
         return new CartResponse($cart);
     }
 
-    private function createNew(string $token, string $name): Cart
+    private function createNew(string $token): Cart
     {
-        $cart = new Cart($name, $token);
+        $cart = new Cart($token);
 
         $this->eventDispatcher->dispatch(new CartCreatedEvent($cart));
 

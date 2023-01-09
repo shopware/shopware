@@ -46,7 +46,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
      */
     public function testMatchWithCartRuleScope(string $operator, array $prices, float $total, bool $matches): void
     {
-        $cart = new Cart('test-cart', 'test-token');
+        $cart = new Cart('test-token');
         $cart->setLineItems(new LineItemCollection(array_map(function (float $price): LineItem {
             return $this->createLineItem($price);
         }, $prices)));
@@ -149,7 +149,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
 
     public function testMatchWithoutPayload(): void
     {
-        $cart = new Cart('test-cart', 'test-token');
+        $cart = new Cart('test-token');
         $cart->setLineItems(new LineItemCollection([
             new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex()),
         ]));

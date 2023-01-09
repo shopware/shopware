@@ -42,7 +42,7 @@ class ProductLineItemProviderTest extends TestCase
 
     public function testItThrowsDecorationPatternException(): void
     {
-        static::expectException(DecorationPatternException::class);
+        $this->expectException(DecorationPatternException::class);
 
         $this->provider->getDecorated();
     }
@@ -56,7 +56,7 @@ class ProductLineItemProviderTest extends TestCase
             new LineItem(Uuid::randomHex(), LineItem::CUSTOM_LINE_ITEM_TYPE),
         ];
 
-        $cart = new Cart('test', 'token');
+        $cart = new Cart('token');
         $cart->addLineItems(new LineItemCollection($items));
 
         return $cart;

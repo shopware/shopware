@@ -76,7 +76,7 @@ trait CartRuleHelperTrait
 
     protected function createCart(LineItemCollection $lineItemCollection): Cart
     {
-        $cart = new Cart('test', Uuid::randomHex());
+        $cart = new Cart(Uuid::randomHex());
         $cart->addLineItems($lineItemCollection);
 
         return $cart;

@@ -23,7 +23,7 @@ class ShippingCountryRuleTest extends TestCase
     {
         $rule = (new ShippingCountryRule())->assign(['countryIds' => ['SWAG-AREA-COUNTRY-ID-1'], 'operator' => ShippingCountryRule::OPERATOR_EQ]);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -43,7 +43,7 @@ class ShippingCountryRuleTest extends TestCase
     {
         $rule = (new ShippingCountryRule())->assign(['countryIds' => ['SWAG-AREA-COUNTRY-ID-1'], 'operator' => ShippingCountryRule::OPERATOR_NEQ]);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -63,7 +63,7 @@ class ShippingCountryRuleTest extends TestCase
     {
         $rule = (new ShippingCountryRule())->assign(['countryIds' => ['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], 'operator' => ShippingCountryRule::OPERATOR_EQ]);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -83,7 +83,7 @@ class ShippingCountryRuleTest extends TestCase
     {
         $rule = (new ShippingCountryRule())->assign(['countryIds' => ['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], 'operator' => ShippingCountryRule::OPERATOR_NEQ]);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -110,7 +110,7 @@ class ShippingCountryRuleTest extends TestCase
                 'operator' => $operator,
             ]);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -133,7 +133,7 @@ class ShippingCountryRuleTest extends TestCase
                 'operator' => ShippingCountryRule::OPERATOR_GTE,
             ]);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -152,6 +152,9 @@ class ShippingCountryRuleTest extends TestCase
         }
     }
 
+    /**
+     * @return array<array{0: string}>
+     */
     public function unsupportedOperators(): array
     {
         return [

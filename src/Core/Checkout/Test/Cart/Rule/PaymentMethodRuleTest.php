@@ -310,7 +310,7 @@ class PaymentMethodRuleTest extends TestCase
         $salesChannelContext->method('getPaymentMethod')->willReturn($paymentMethodEntity);
 
         $ruleScope = new CartRuleScope(
-            new Cart('test', 'test'),
+            new Cart('test'),
             $salesChannelContext
         );
 
@@ -329,7 +329,7 @@ class PaymentMethodRuleTest extends TestCase
         $salesChannelContext->method('getPaymentMethod')->willReturn($paymentMethodEntity);
 
         $ruleScope = new CartRuleScope(
-            new Cart('test', 'test'),
+            new Cart('test'),
             $salesChannelContext
         );
 

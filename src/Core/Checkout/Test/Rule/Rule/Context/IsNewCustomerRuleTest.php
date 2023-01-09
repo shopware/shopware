@@ -25,7 +25,7 @@ class IsNewCustomerRuleTest extends TestCase
 
         $rule = new IsNewCustomerRule();
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $customer = new CustomerEntity();
         $customer->setFirstLogin(new \DateTime());
@@ -47,7 +47,7 @@ class IsNewCustomerRuleTest extends TestCase
 
         $rule = new IsNewCustomerRule();
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $customer = new CustomerEntity();
         $customer->setFirstLogin(
@@ -73,7 +73,7 @@ class IsNewCustomerRuleTest extends TestCase
 
         $rule = new IsNewCustomerRule();
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $customer = new CustomerEntity();
         $customer->setFirstLogin(
@@ -99,7 +99,7 @@ class IsNewCustomerRuleTest extends TestCase
 
         $rule = new IsNewCustomerRule();
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);
 

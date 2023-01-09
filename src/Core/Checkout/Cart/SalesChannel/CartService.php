@@ -22,8 +22,6 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class CartService implements ResetInterface
 {
-    public const SALES_CHANNEL = 'sales-channel';
-
     /**
      * @var Cart[]
      */
@@ -77,9 +75,9 @@ class CartService implements ResetInterface
         $this->cart[$cart->getToken()] = $cart;
     }
 
-    public function createNew(string $token, string $name = self::SALES_CHANNEL): Cart
+    public function createNew(string $token): Cart
     {
-        $cart = new Cart($name, $token);
+        $cart = new Cart($token);
 
         $this->eventDispatcher->dispatch(new CartCreatedEvent($cart));
 
@@ -89,7 +87,6 @@ class CartService implements ResetInterface
     public function getCart(
         string $token,
         SalesChannelContext $context,
-        string $name = self::SALES_CHANNEL,
         bool $caching = true,
         bool $taxed = false
     ): Cart {
@@ -98,7 +95,6 @@ class CartService implements ResetInterface
         }
 
         $request = new Request();
-        $request->query->set('name', $name);
         $request->query->set('token', $token);
         $request->query->set('taxed', $taxed);
 
@@ -166,7 +162,7 @@ class CartService implements ResetInterface
             unset($this->cart[$cart->getToken()]);
         }
 
-        $cart = $this->createNew($context->getToken(), $cart->getName());
+        $cart = $this->createNew($context->getToken());
         $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
 
         return $orderId;

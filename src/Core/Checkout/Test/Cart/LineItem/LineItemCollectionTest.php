@@ -224,7 +224,7 @@ class LineItemCollectionTest extends TestCase
 
     public function testCartThrowsExceptionOnLineItemCollision(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $cart->add(new LineItem('a', 'first-type'));
 

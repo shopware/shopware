@@ -41,9 +41,9 @@ class DeliveryBuilderTest extends TestCase
                 ])
             );
 
-        static::expectException(ShippingMethodNotFoundException::class);
+        $this->expectException(ShippingMethodNotFoundException::class);
         (new DeliveryBuilder())->build(
-            new Cart('best-cart', 'cart-token'),
+            new Cart('cart-token'),
             new CartDataCollection([]),
             $salesChannelContext,
             new CartBehavior(),
@@ -61,13 +61,13 @@ class DeliveryBuilderTest extends TestCase
             ->method('getShippingMethod')
             ->willReturn($shippingMethod);
 
-        $cart = new Cart('best-cart', 'cart-token');
+        $cart = new Cart('cart-token');
         $cartDataCollection = new CartDataCollection([
             'shipping-method-shipping-method-id' => $shippingMethod,
         ]);
 
         /** @var DeliveryBuilder|MockObject $deliveryBuilder */
-        $deliveryBuilder = static::getMockBuilder(DeliveryBuilder::class)
+        $deliveryBuilder = $this->getMockBuilder(DeliveryBuilder::class)
             // don't mock build because it is the function under test
             ->onlyMethods(['buildByUsingShippingMethod'])
             ->getMock();
@@ -89,7 +89,7 @@ class DeliveryBuilderTest extends TestCase
      */
     public function testLineItemResultInAnEmptyDelivery(LineItemCollection $lineItems): void
     {
-        $cart = new Cart('best-cart', 'cart-token');
+        $cart = new Cart('cart-token');
         $cart->setLineItems($lineItems);
 
         $deliveries = (new DeliveryBuilder())->buildByUsingShippingMethod(
@@ -134,7 +134,7 @@ class DeliveryBuilderTest extends TestCase
      */
     public function testDeliveryTimesForSingleDelivery(LineItemCollection $lineItems, DeliveryDate $expectedDeliveryDate): void
     {
-        $cart = new Cart('best-cart', 'cart-token');
+        $cart = new Cart('cart-token');
         $cart->setLineItems($lineItems);
 
         $shippingMethod = new ShippingMethodEntity();

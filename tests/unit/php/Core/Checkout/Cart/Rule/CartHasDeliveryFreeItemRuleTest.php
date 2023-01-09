@@ -42,7 +42,7 @@ class CartHasDeliveryFreeItemRuleTest extends TestCase
      */
     public function testMatchInCartScope(?bool $lineItemWithFreeDelivery): void
     {
-        $scope = new CartRuleScope(new Cart(Uuid::randomHex(), Uuid::randomHex()), $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope(new Cart(Uuid::randomHex()), $this->createMock(SalesChannelContext::class));
         $scope->getCart()->addLineItems(new LineItemCollection([$this->getLineItem($lineItemWithFreeDelivery)]));
 
         $rule = new CartHasDeliveryFreeItemRule(true);
@@ -53,7 +53,7 @@ class CartHasDeliveryFreeItemRuleTest extends TestCase
 
     public function testMatchInCartScopeWithEmptyCart(): void
     {
-        $scope = new CartRuleScope(new Cart(Uuid::randomHex(), Uuid::randomHex()), $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope(new Cart(Uuid::randomHex()), $this->createMock(SalesChannelContext::class));
 
         $rule = new CartHasDeliveryFreeItemRule(true);
         static::assertFalse($rule->match($scope));

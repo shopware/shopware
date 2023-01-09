@@ -101,7 +101,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cartBehavior = new CartBehavior([
             DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => 1,
         ]);

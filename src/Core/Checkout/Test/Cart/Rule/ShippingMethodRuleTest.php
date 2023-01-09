@@ -310,7 +310,7 @@ class ShippingMethodRuleTest extends TestCase
         $salesChannelContext->method('getShippingMethod')->willReturn($shippingMethod);
 
         $ruleScope = new CartRuleScope(
-            new Cart('test', 'test'),
+            new Cart('test'),
             $salesChannelContext
         );
 
@@ -329,7 +329,7 @@ class ShippingMethodRuleTest extends TestCase
         $salesChannelContext->method('getShippingMethod')->willReturn($shippingMethod);
 
         $ruleScope = new CartRuleScope(
-            new Cart('test', 'test'),
+            new Cart('test'),
             $salesChannelContext
         );
 

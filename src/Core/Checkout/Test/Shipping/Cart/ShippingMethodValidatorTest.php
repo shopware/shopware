@@ -30,7 +30,7 @@ class ShippingMethodValidatorTest extends TestCase
 {
     public function testValidateWithEmptyCart(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $validator = new DeliveryValidator();
         $errors = new ErrorCollection();
@@ -43,7 +43,7 @@ class ShippingMethodValidatorTest extends TestCase
     {
         $deliveryTime = $this->generateDeliveryTimeDummy();
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $context = $this->createMock(SalesChannelContext::class);
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
@@ -70,7 +70,7 @@ class ShippingMethodValidatorTest extends TestCase
 
     public function testValidateWithEmptyRules(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $context = $this->createMock(SalesChannelContext::class);
 
         $deliveryTime = $this->generateDeliveryTimeDummy();
@@ -99,7 +99,7 @@ class ShippingMethodValidatorTest extends TestCase
 
     public function testValidateWithAvailabilityRules(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $context = $this->createMock(SalesChannelContext::class);
 
         $deliveryTime = $this->generateDeliveryTimeDummy();
@@ -130,7 +130,7 @@ class ShippingMethodValidatorTest extends TestCase
 
     public function testValidateWithNotMatchingRules(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $context = $this->createMock(SalesChannelContext::class);
 
         $deliveryTime = $this->generateDeliveryTimeDummy();
@@ -164,7 +164,7 @@ class ShippingMethodValidatorTest extends TestCase
 
     public function testValidateWithMultiDeliveries(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $context = $this->createMock(SalesChannelContext::class);
 
         $deliveryTime = $this->generateDeliveryTimeDummy();

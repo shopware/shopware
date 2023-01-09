@@ -260,7 +260,7 @@ class LineItemWithQuantityRuleTest extends TestCase
      */
     public function testMatch(LineItem $lineItem, LineItemWithQuantityRule $rule, bool $shouldMatch): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->setLineItems(new LineItemCollection([$lineItem]));
 
         $context = $this->createMock(SalesChannelContext::class);

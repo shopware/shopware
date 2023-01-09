@@ -28,14 +28,14 @@ class RedisCartPersisterTest extends TestCase
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
         $persister = new RedisCartPersister($redis, $eventDispatcher, $cartSerializationCleaner, true, 90);
-        static::expectException(DecorationPatternException::class);
+        $this->expectException(DecorationPatternException::class);
         $persister->getDecorated();
     }
 
     public function testSave(): void
     {
         $token = Uuid::randomHex();
-        $cart = new Cart('test', $token);
+        $cart = new Cart($token);
         $cart->add(new LineItem('test', 'test'));
 
         $dispatcher = $this->createMock(EventDispatcher::class);
@@ -56,7 +56,7 @@ class RedisCartPersisterTest extends TestCase
     public function testEmptyCartGetsDeleted(): void
     {
         $token = Uuid::randomHex();
-        $cart = new Cart('test', $token);
+        $cart = new Cart($token);
 
         $dispatcher = $this->createMock(EventDispatcher::class);
 
@@ -75,7 +75,7 @@ class RedisCartPersisterTest extends TestCase
     public function testLoad(): void
     {
         $token = Uuid::randomHex();
-        $cart = new Cart('test', $token);
+        $cart = new Cart($token);
         $cart->add(new LineItem('test', 'test'));
 
         $dispatcher = $this->createMock(EventDispatcher::class);
@@ -116,7 +116,7 @@ class RedisCartPersisterTest extends TestCase
             ->willReturn($data);
 
         $context = $this->createMock(SalesChannelContext::class);
-        static::expectException($exceptionClass);
+        $this->expectException($exceptionClass);
         (new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true, 90))->load($token, $context);
     }
 
@@ -154,7 +154,7 @@ class RedisCartPersisterTest extends TestCase
     public function testLoadWithDifferentCompression(): void
     {
         $token = Uuid::randomHex();
-        $cart = new Cart('test', $token);
+        $cart = new Cart($token);
         $cart->add(new LineItem('test', 'test'));
 
         $dispatcher = $this->createMock(EventDispatcher::class);
@@ -195,7 +195,7 @@ class RedisCartPersisterTest extends TestCase
     {
         $oldToken = Uuid::randomHex();
         $newToken = Uuid::randomHex();
-        $cart = new Cart('test', $oldToken);
+        $cart = new Cart($oldToken);
         $cart->add(new LineItem('test', 'test'));
 
         $dispatcher = $this->createMock(EventDispatcher::class);
@@ -248,7 +248,7 @@ class RedisCartPersisterTest extends TestCase
     public function testExpiration(): void
     {
         $token = Uuid::randomHex();
-        $cart = new Cart('test', $token);
+        $cart = new Cart($token);
         $cart->add(new LineItem('test', 'test'));
 
         $dispatcher = $this->createMock(EventDispatcher::class);

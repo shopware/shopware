@@ -92,7 +92,7 @@ class CartSerializationCleanerTest extends TestCase
     public function cleanupCustomFieldsProvider(): \Generator
     {
         yield 'Test empty cart' => [
-            new Cart('test', 'test'),
+            new Cart('test'),
             [],
         ];
 
@@ -187,7 +187,7 @@ class CartSerializationCleanerTest extends TestCase
      */
     private static function payloadCart(string $id, array $payload): Cart
     {
-        $cart = (new Cart('test', 'test'))->add(self::payloadItem($id, $payload));
+        $cart = (new Cart('test'))->add(self::payloadItem($id, $payload));
         $cart->addDeliveries(self::itemDelivery(self::payloadItem($id, $payload)));
 
         return $cart;
@@ -195,7 +195,7 @@ class CartSerializationCleanerTest extends TestCase
 
     private static function coverCart(string $id, ?string $thumbnailString, bool $skipCover = false): Cart
     {
-        $cart = (new Cart('test', 'test'))->add(self::coverItem($id, $thumbnailString, $skipCover));
+        $cart = (new Cart('test'))->add(self::coverItem($id, $thumbnailString, $skipCover));
         $cart->addDeliveries(self::itemDelivery(self::coverItem($id, $thumbnailString, $skipCover)));
 
         return $cart;

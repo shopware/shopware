@@ -182,7 +182,7 @@ class CurrencyRuleTest extends TestCase
             ->method('getContext')
             ->willReturn($context);
 
-        $cart = new Cart('foo', 'bar');
+        $cart = new Cart('bar');
 
         return new CartRuleScope($cart, $salesChannelContext);
     }

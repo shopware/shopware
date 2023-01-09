@@ -185,7 +185,7 @@ class Generator extends TestCase
 
     public static function createCart(): Cart
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->setLineItems(
             new LineItemCollection([
                 (new LineItem('A', 'product', 'A', 27))

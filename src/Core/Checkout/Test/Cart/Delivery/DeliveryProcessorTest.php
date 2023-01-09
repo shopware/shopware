@@ -60,8 +60,8 @@ class DeliveryProcessorTest extends TestCase
             DeliveryProcessor::buildKey($this->salesChannelContext->getShippingMethod()->getId()),
             $this->salesChannelContext->getShippingMethod()
         );
-        $originalCart = new Cart('original', 'original');
-        $calculatedCart = new Cart('calculated', 'calculated');
+        $originalCart = new Cart('original');
+        $calculatedCart = new Cart('calculated');
 
         $lineItem = new LineItem('test', LineItem::PRODUCT_LINE_ITEM_TYPE);
         $lineItem->setDeliveryInformation(new DeliveryInformation(5, 0, false));

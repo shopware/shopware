@@ -237,7 +237,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             ->method('getViolations')
             ->willReturn($violations);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $cartService = $this->createMock(StorefrontCartFacade::class);
         $cartService
@@ -295,7 +295,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             ->method('getViolations')
             ->willReturn($violations);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $cartService = $this->createMock(StorefrontCartFacade::class);
         $cartService

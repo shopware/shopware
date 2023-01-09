@@ -138,7 +138,6 @@ class RedisCartPersister extends AbstractCartPersister
             // used for migration
             'token' => $cart->getToken(),
             'customer_id' => $context->getCustomerId(),
-            'name' => $cart->getName(),
             'rule_ids' => $context->getRuleIds(),
             'currency_id' => $context->getCurrency()->getId(),
             'shipping_method_id' => $context->getShippingMethod()->getId(),

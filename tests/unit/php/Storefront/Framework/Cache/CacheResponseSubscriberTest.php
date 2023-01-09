@@ -210,7 +210,7 @@ class CacheResponseSubscriberTest extends TestCase
             $response
         );
 
-        $cart = new Cart('a', 'token');
+        $cart = new Cart('token');
 
         $count = $shouldBeCached ? 1 : 0;
 
@@ -226,10 +226,10 @@ class CacheResponseSubscriberTest extends TestCase
      */
     public function cashHashProvider(): iterable
     {
-        $emptyCart = new Cart('empty', 'empty');
+        $emptyCart = new Cart('empty');
         $customer = $this->createMock(CustomerEntity::class);
 
-        $filledCart = new Cart('filled', 'filled');
+        $filledCart = new Cart('filled');
         $filledCart->add(new LineItem('test', 'test', 'test'));
 
         yield 'Test with no logged in customer' => [null, $emptyCart, false];
@@ -465,7 +465,7 @@ class CacheResponseSubscriberTest extends TestCase
     public function testNoCachingWhenInvalidateStateMatches(): void
     {
         $cartService = $this->createMock(CartService::class);
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->add(new LineItem('test', 'test', 'test', 1));
         $cartService->method('getCart')->willReturn($cart);
 

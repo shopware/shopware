@@ -230,7 +230,7 @@ class OrderConverter
             throw OrderException::missingAssociation('deliveries');
         }
 
-        $cart = new Cart(self::CART_TYPE, Uuid::randomHex());
+        $cart = new Cart(Uuid::randomHex());
         $cart->setPrice($order->getPrice());
         $cart->setCustomerComment($order->getCustomerComment());
         $cart->setAffiliateCode($order->getAffiliateCode());

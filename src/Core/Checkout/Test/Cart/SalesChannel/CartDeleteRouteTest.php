@@ -100,7 +100,7 @@ class CartDeleteRouteTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $cart = new Cart('sales-channel', $this->ids->get('token'));
+        $cart = new Cart($this->ids->get('token'));
         $cart->add(new LineItem($this->ids->create('productId'), LineItem::PRODUCT_LINE_ITEM_TYPE, $this->ids->get('productId')));
 
         $this->cartPersister->save($cart, $this->salesChannelFactory->create($this->ids->get('token'), $this->ids->get('sales-channel')));

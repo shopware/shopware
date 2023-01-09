@@ -18,7 +18,7 @@ class ProductLineItemValidatorTest extends TestCase
 {
     public function testValidateOnDuplicateProductsAtMaxPurchase(): void
     {
-        $cart = new Cart(Uuid::randomHex(), Uuid::randomHex());
+        $cart = new Cart(Uuid::randomHex());
         $builder = new ProductLineItemFactory();
         $cart->add(
             $builder
@@ -52,7 +52,7 @@ class ProductLineItemValidatorTest extends TestCase
 
     public function testValidateOnDuplicateProductsWithSafeQuantity(): void
     {
-        $cart = new Cart(Uuid::randomHex(), Uuid::randomHex());
+        $cart = new Cart(Uuid::randomHex());
         $builder = new ProductLineItemFactory();
         $cart->add(
             $builder
@@ -86,7 +86,7 @@ class ProductLineItemValidatorTest extends TestCase
 
     public function testValidateOnDuplicateProductsWithoutQuantityInformation(): void
     {
-        $cart = new Cart(Uuid::randomHex(), Uuid::randomHex());
+        $cart = new Cart(Uuid::randomHex());
         $builder = new ProductLineItemFactory();
         $cart->add($builder->create('product-1'));
         $cart->add($builder->create('product-2')->setReferencedId('product-1'));

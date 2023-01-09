@@ -40,7 +40,7 @@ class AddressValidatorTest extends TestCase
 
     public function testValidateShippingAddressWithMixedItems(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->add((new LineItem('a', 'test'))->setStates([State::IS_DOWNLOAD]));
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -75,7 +75,7 @@ class AddressValidatorTest extends TestCase
 
     public function testValidateShippingAddressWithOnlyPhysicalItems(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $context = $this->createMock(SalesChannelContext::class);
 
         $country = new CountryEntity();
@@ -104,7 +104,7 @@ class AddressValidatorTest extends TestCase
 
     public function testValidateShippingAddressWithOnlyDownloadItems(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $context = $this->createMock(SalesChannelContext::class);
 
         $country = new CountryEntity();

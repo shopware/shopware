@@ -62,7 +62,7 @@ class ProcessorTest extends TestCase
 
     public function testDeliveryCreatedForDeliverableLineItem(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $id = Uuid::randomHex();
         $tax = ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'];
@@ -114,7 +114,7 @@ class ProcessorTest extends TestCase
     {
         $extension = new class() extends Struct {
         };
-        $cart = new Cart('foo', 'bar');
+        $cart = new Cart('bar');
         $cart->addExtension('unit-test', $extension);
 
         $processorProperty = ReflectionHelper::getProperty(Processor::class, 'processors');
@@ -142,7 +142,7 @@ class ProcessorTest extends TestCase
 
     public function testCalculatedCreditTaxesIncludeCustomItemTax(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $productId = Uuid::randomHex();
         $customItemId = Uuid::randomHex();
@@ -212,7 +212,7 @@ class ProcessorTest extends TestCase
 
     public function testShippingCostIsCalculatedWithCustomItemOnly(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $customItemId = Uuid::randomHex();
 
@@ -242,7 +242,7 @@ class ProcessorTest extends TestCase
 
     public function testShippingCostCalculatedTaxesIncludeCustomItemTax(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $productId = Uuid::randomHex();
         $customItemId = Uuid::randomHex();
@@ -309,7 +309,7 @@ class ProcessorTest extends TestCase
 
     public function testPersistentErrors(): void
     {
-        $cart = new Cart(Uuid::randomHex(), Uuid::randomHex());
+        $cart = new Cart(Uuid::randomHex());
 
         $cart->addErrors(new NonePersistentError(), new PersistentError());
 
@@ -326,7 +326,7 @@ class ProcessorTest extends TestCase
 
     public function testCartHasErrorDataAddedFromPromotionProcessor(): void
     {
-        $originalCart = new Cart(Uuid::randomHex(), Uuid::randomHex());
+        $originalCart = new Cart(Uuid::randomHex());
 
         $id = Uuid::randomHex();
         $tax = ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'];
@@ -360,7 +360,7 @@ class ProcessorTest extends TestCase
 
     public function testProcessorsAndCollectorsAreSkippedIfCartIsEmpty(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $collector = $this->createMock(CartDataCollectorInterface::class);
         $collector->expects(static::never())

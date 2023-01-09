@@ -521,7 +521,7 @@ class OrderConverterTest extends TestCase
 
     private function getCart(): Cart
     {
-        $cart = new Cart('cart-name', 'cart-token');
+        $cart = new Cart('cart-token');
         $cart->add(
             (new LineItem('line-item-id-1', 'line-item-type-1'))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
@@ -835,7 +835,6 @@ class OrderConverterTest extends TestCase
                     'id' => '10000',
                 ],
             ],
-            'name' => 'recalculation',
             'price' => [
                 'netPrice' => 19.5,
                 'totalPrice' => 19.5,

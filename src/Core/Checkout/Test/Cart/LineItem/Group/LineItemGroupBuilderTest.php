@@ -396,7 +396,7 @@ class LineItemGroupBuilderTest extends TestCase
             $products[] = $this->createProductItem(100, 0);
         }
 
-        $cart = new Cart('test', 'token');
+        $cart = new Cart('token');
         $cart->addLineItems(new LineItemCollection($products));
 
         return $cart;

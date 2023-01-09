@@ -1901,7 +1901,7 @@ class VersioningTest extends TestCase
 
     private function createDemoCart(SalesChannelContext $salesChannelContext): Cart
     {
-        $cart = new Cart('A', 'a-b-c');
+        $cart = new Cart('a-b-c');
 
         $id = Uuid::randomHex();
 

@@ -83,7 +83,7 @@ class CartRuleLoader implements ResetInterface
 
             return $this->load($context, $cart, new CartBehavior($context->getPermissions()), false);
         } catch (CartTokenNotFoundException $e) {
-            $cart = new Cart($context->getSalesChannel()->getTypeId(), $cartToken);
+            $cart = new Cart($cartToken);
             $this->dispatcher->dispatch(new CartCreatedEvent($cart));
 
             return $this->load($context, $cart, new CartBehavior($context->getPermissions()), true);

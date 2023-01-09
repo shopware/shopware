@@ -67,7 +67,7 @@ class AppPayloadServiceHelperTest extends TestCase
             ->method('getContext')
             ->willReturn($context);
 
-        $cart = new Cart('cart', $this->ids->get('cart'));
+        $cart = new Cart($this->ids->get('cart'));
         $source = new Source('https://shopware.com', $this->ids->get('shop-id'), '1.0.0');
         $payload = new TaxProviderPayload($cart, $salesChannelContext);
         $payload->setSource($source);

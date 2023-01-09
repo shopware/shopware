@@ -88,7 +88,7 @@ trait DocumentTrait
     {
         $cartService = $this->getContainer()->get(CartService::class);
 
-        $cart = $cartService->createNew('a-b-c', 'A');
+        $cart = $cartService->createNew('a-b-c');
 
         $keywords = ['awesome', 'epic', 'high quality'];
 

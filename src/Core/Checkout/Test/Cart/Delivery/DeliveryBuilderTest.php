@@ -95,7 +95,7 @@ class DeliveryBuilderTest extends TestCase
 
     private function createCart(bool $withoutLineItems = false): Cart
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         if ($withoutLineItems) {
             return $cart;
         }

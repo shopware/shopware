@@ -305,7 +305,6 @@ class CleanPersonalDataCommandTest extends TestCase
     {
         $cartData = [
             'token' => Uuid::randomHex(),
-            'name' => 'test',
             'payload' => '',
             'price' => 0,
             'line_item_count' => '',

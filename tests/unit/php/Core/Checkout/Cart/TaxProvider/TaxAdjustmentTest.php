@@ -481,10 +481,7 @@ class TaxAdjustmentTest extends TestCase
 
     private function createCart(): Cart
     {
-        $cart = new Cart(
-            'test',
-            'test',
-        );
+        $cart = new Cart('test');
 
         $lineItem = new LineItem(
             $this->ids->get('line-item-1'),
@@ -552,7 +549,7 @@ class TaxAdjustmentTest extends TestCase
             $context
         );
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->add($lineItem);
         $cart->addDeliveries($deliveries);
         $cart->setPrice($cartPrice);

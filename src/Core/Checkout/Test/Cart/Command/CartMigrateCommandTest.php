@@ -42,7 +42,7 @@ class CartMigrateCommandTest extends TestCase
 
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM cart');
 
-        $redisCart = new Cart('shopware', Uuid::randomHex());
+        $redisCart = new Cart(Uuid::randomHex());
         $redisCart->add(
             (new LineItem('A', 'test'))
                 ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
@@ -85,7 +85,7 @@ class CartMigrateCommandTest extends TestCase
 
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM cart');
 
-        $redisCart = new Cart('shopware', Uuid::randomHex());
+        $redisCart = new Cart(Uuid::randomHex());
         $redisCart->add(
             (new LineItem('A', 'test'))
                 ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
@@ -128,7 +128,7 @@ class CartMigrateCommandTest extends TestCase
 
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM cart');
 
-        $sqlCart = new Cart('shopware', Uuid::randomHex());
+        $sqlCart = new Cart(Uuid::randomHex());
         $sqlCart->add(
             (new LineItem('A', 'test'))
                 ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))

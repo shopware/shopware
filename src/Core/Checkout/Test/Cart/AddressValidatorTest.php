@@ -54,7 +54,7 @@ class AddressValidatorTest extends TestCase
 
         $context = $this->getContextMock($location);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $errors = new ErrorCollection();
 
         $validator->validate($cart, $errors, $context);
@@ -87,7 +87,7 @@ class AddressValidatorTest extends TestCase
         $country = $this->getCountryStub($id);
         $location = new ShippingLocation($country, null, null);
         $context = $this->getContextMock($location);
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $errors = new ErrorCollection();
 
         $context->method('getCustomer')

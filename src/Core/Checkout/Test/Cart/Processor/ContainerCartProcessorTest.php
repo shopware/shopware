@@ -42,10 +42,10 @@ class ContainerCartProcessorTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->setLineItems(new LineItemCollection([$item]));
 
-        $new = new Cart('after', 'after');
+        $new = new Cart('after');
         $processor->process(new CartDataCollection(), $cart, $new, $context, new CartBehavior());
 
         if ($expected === null) {

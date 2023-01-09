@@ -69,7 +69,6 @@ class CleanupCartTaskHandlerTest extends TestCase
 
         $cart = [
             'token' => $token,
-            'name' => 'test',
             $column => '',
             'price' => 1,
             'line_item_count' => 1,

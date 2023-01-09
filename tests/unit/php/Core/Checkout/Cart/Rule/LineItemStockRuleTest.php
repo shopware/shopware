@@ -99,7 +99,7 @@ class LineItemStockRuleTest extends TestCase
      */
     public function testMatchWithCartRuleScopeWithOneItem(string $operator, int $lineItemStock, bool $matches): void
     {
-        $cart = new Cart('test-cart', 'test-token');
+        $cart = new Cart('test-token');
         $cart->setLineItems(new LineItemCollection([
             $this->createLineItem($lineItemStock),
         ]));
@@ -114,7 +114,7 @@ class LineItemStockRuleTest extends TestCase
     public function testNoMatchWithEmptyCartRuleScope(): void
     {
         $ruleScope = new CartRuleScope(
-            new Cart('test-cart', 'test-token'),
+            new Cart('test-token'),
             static::createMock(SalesChannelContext::class)
         );
 
@@ -128,13 +128,13 @@ class LineItemStockRuleTest extends TestCase
         $matchingLineItem = $this->createLineItem(5, 'matching-line-item');
         $nonMatchingLineItem = $this->createLineItem(2, 'non-matching-line-item');
 
-        $cartMatchingFirst = new Cart('test-cart', 'test-token');
+        $cartMatchingFirst = new Cart('test-token');
         $cartMatchingFirst->setLineItems(new LineItemCollection([
             $matchingLineItem,
             $nonMatchingLineItem,
         ]));
 
-        $cartMatchingLast = new Cart('test-cart', 'test-token');
+        $cartMatchingLast = new Cart('test-token');
         $cartMatchingLast->setLineItems(new LineItemCollection([
             $nonMatchingLineItem,
             $matchingLineItem,
@@ -153,7 +153,7 @@ class LineItemStockRuleTest extends TestCase
 
     public function testNoMatchIfNoLineItemMatches(): void
     {
-        $cart = new Cart('test-cart', 'test-token');
+        $cart = new Cart('test-token');
         $cart->setLineItems(new LineItemCollection([
             $this->createLineItem(2, 'non-matching-with-2'),
             $this->createLineItem(9, 'non-matching-with-9'),
@@ -172,7 +172,7 @@ class LineItemStockRuleTest extends TestCase
 
         static::assertNull($lineItem->getDeliveryInformation());
 
-        $cart = new Cart('test-cart', 'some-token');
+        $cart = new Cart('some-token');
         $cart->setLineItems(new LineItemCollection([$lineItem]));
 
         $lineItemScope = new LineItemScope($lineItem, static::createMock(SalesChannelContext::class));

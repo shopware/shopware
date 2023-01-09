@@ -143,7 +143,7 @@ class TaxProviderProcessorTest extends TestCase
         // empty data set should result in exception to prevent invalid taxes
         $taxProviderStruct = new TaxProviderResult();
 
-        $cart = new Cart('foo', 'bar');
+        $cart = new Cart('foo');
         $salesChannelContext = static::createMock(SalesChannelContext::class);
         $salesChannelContext
             ->method('getTotalRounding')
@@ -314,12 +314,12 @@ class TaxProviderProcessorTest extends TestCase
         static::expectException(TaxProviderExceptions::class);
         static::expectExceptionMessage('There were 1 errors while fetching taxes from providers: ' . \PHP_EOL . 'Tax provider \'foo_bar\' threw an exception: No tax provider found for identifier foo_bar');
 
-        $processor->process(new Cart('foo', 'bar'), static::createMock(SalesChannelContext::class));
+        $processor->process(new Cart('foo'), static::createMock(SalesChannelContext::class));
     }
 
     public function testNoProvidersAvailableWillDoNothing(): void
     {
-        $cart = new Cart('foo', 'bar');
+        $cart = new Cart('foo');
 
         $salesChannelContext = static::createMock(SalesChannelContext::class);
 
@@ -356,7 +356,7 @@ class TaxProviderProcessorTest extends TestCase
 
     public function testLoggerIsCalledOnException(): void
     {
-        $cart = new Cart('foo', 'bar');
+        $cart = new Cart('foo');
 
         $salesChannelContext = static::createMock(SalesChannelContext::class);
 
@@ -510,7 +510,7 @@ class TaxProviderProcessorTest extends TestCase
             $payloadService
         );
 
-        $cart = new Cart('foo', 'bar');
+        $cart = new Cart('foo');
         $context = static::createMock(SalesChannelContext::class);
         $context
             ->method('getTaxState')
@@ -521,10 +521,7 @@ class TaxProviderProcessorTest extends TestCase
 
     private function createCart(): Cart
     {
-        $cart = new Cart(
-            'test',
-            'test',
-        );
+        $cart = new Cart('test');
 
         $lineItem = new LineItem(
             $this->ids->get('line-item-1'),

@@ -20,7 +20,7 @@ class LastNameRuleTest extends TestCase
     {
         $rule = (new LastNameRule())->assign(['lastName' => 'shopware']);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $customer = new CustomerEntity();
         $customer->setLastName('shopware');
@@ -40,7 +40,7 @@ class LastNameRuleTest extends TestCase
     {
         $rule = (new LastNameRule())->assign(['lastName' => 'shopware']);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $customer = new CustomerEntity();
         $customer->setLastName('ShopWare');
@@ -60,7 +60,7 @@ class LastNameRuleTest extends TestCase
     {
         $rule = new LastNameRule();
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);
 

@@ -322,13 +322,14 @@ class OrderConverter
             $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $delivery->getShippingMethodId();
         }
 
-        //get the first not paid transaction or, if all paid, the last transaction
+        //get the first not paid transaction and not cancelled or, if all paid or cancelled, the last transaction
         if ($order->getTransactions() !== null) {
             foreach ($order->getTransactions() as $transaction) {
                 $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $transaction->getPaymentMethodId();
                 if (
                     $transaction->getStateMachineState() !== null
                     && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_PAID
+                    && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_CANCELLED
                 ) {
                     break;
                 }

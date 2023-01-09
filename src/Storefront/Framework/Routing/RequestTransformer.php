@@ -205,6 +205,7 @@ class RequestTransformer implements RequestTransformerInterface
         $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, $salesChannel['themeId']);
         $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, $salesChannel['themeName']);
         $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, $salesChannel['parentThemeName']);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_HASH, $salesChannel['themeHash'] ?? '');
 
         $transformedRequest->attributes->set(
             SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE,

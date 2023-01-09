@@ -52,6 +52,7 @@ class DomainLoader extends AbstractDomainLoader
             'sales_channel.maintenance maintenance',
             'sales_channel.maintenance_ip_whitelist maintenanceIpWhitelist',
             'snippet_set.iso as locale',
+            'theme_sales_channel.hash as themeHash',
             'theme.technical_name as themeName',
             'parentTheme.technical_name as parentThemeName',
         ]);

@@ -19,9 +19,11 @@ use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeVariablesSubscriber;
+use Shopware\Storefront\Theme\AbstractThemePathBuilder;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
+use Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage;
 use Shopware\Storefront\Theme\ScssPhpCompiler;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -34,6 +36,10 @@ use Shopware\Storefront\Theme\ThemeFileResolver;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBus;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\DelayStamp;
 
 /**
  * @internal
@@ -73,7 +79,8 @@ class ThemeCompilerTest extends TestCase
             $this->createMock(CacheInvalidator::class),
             new MD5ThemePathBuilder(),
             __DIR__,
-            $this->createMock(ScssPhpCompiler::class)
+            $this->createMock(ScssPhpCompiler::class),
+            new MessageBus()
         );
     }
 
@@ -378,7 +385,8 @@ PHP_EOL;
             $this->createMock(CacheInvalidator::class),
             new MD5ThemePathBuilder(),
             __DIR__,
-            $this->createMock(ScssPhpCompiler::class)
+            $this->createMock(ScssPhpCompiler::class),
+            new MessageBus()
         );
 
         $config = new StorefrontPluginConfiguration('test');
@@ -435,7 +443,8 @@ PHP_EOL;
             $this->createMock(CacheInvalidator::class),
             new MD5ThemePathBuilder(),
             __DIR__,
-            $this->createMock(ScssPhpCompiler::class)
+            $this->createMock(ScssPhpCompiler::class),
+            new MessageBus()
         );
 
         $config = new StorefrontPluginConfiguration('test');
@@ -491,7 +500,8 @@ PHP_EOL;
             $this->createMock(CacheInvalidator::class),
             new MD5ThemePathBuilder(),
             __DIR__,
-            $scssCompiler
+            $scssCompiler,
+            new MessageBus()
         );
 
         $config = new StorefrontPluginConfiguration('test');
@@ -517,6 +527,139 @@ PHP_EOL;
 
         static::assertTrue($wasThrown);
         static::assertTrue($fs->fileExists('theme/9a11a759d278b4a55cb5e2c3414733c1/all.js'));
+    }
+
+    public function testNewFilesAreDeletedOnCompileError(): void
+    {
+        $resolver = $this->createMock(ThemeFileResolver::class);
+        $resolver->method('resolveFiles')->willReturn([ThemeFileResolver::SCRIPT_FILES => new FileCollection(), ThemeFileResolver::STYLE_FILES => new FileCollection()]);
+
+        $fs = new Filesystem(new MemoryFilesystemAdapter());
+        $tmpFs = new Filesystem(new MemoryFilesystemAdapter());
+
+        $fs->createDirectory('theme/current');
+        $fs->write('theme/current/all.js', '');
+
+        $importer = $this->createMock(ThemeFileImporter::class);
+        $importer->expects(static::never())
+            ->method('getCopyBatchInputsForAssets');
+
+        $scssCompiler = $this->createMock(ScssPhpCompiler::class);
+        $scssCompiler->expects(static::once())->method('compileString')->willThrowException(new \Exception());
+
+        $pathBuilder = $this->createMock(AbstractThemePathBuilder::class);
+        $pathBuilder->method('assemblePath')->willReturn('current');
+        $pathBuilder->method('generateNewPath')->willReturn('new');
+        $pathBuilder->expects(static::never())->method('saveSeed');
+
+        $compiler = new ThemeCompiler(
+            $fs,
+            $tmpFs,
+            $resolver,
+            true,
+            $this->createMock(EventDispatcher::class),
+            $importer,
+            [],
+            $this->createMock(CacheInvalidator::class),
+            $pathBuilder,
+            __DIR__,
+            $scssCompiler,
+            new MessageBus()
+        );
+
+        $config = new StorefrontPluginConfiguration('test');
+        $config->setAssetPaths(['assets']);
+
+        $wasThrown = false;
+
+        try {
+            $compiler->compileTheme(
+                TestDefaults::SALES_CHANNEL,
+                'test',
+                $config,
+                new StorefrontPluginConfigurationCollection(),
+                true,
+                Context::createDefaultContext()
+            );
+        } catch (ThemeCompileException $e) {
+            $wasThrown = true;
+        }
+
+        static::assertTrue($wasThrown);
+        static::assertTrue($fs->fileExists('theme/current/all.js'));
+        static::assertFalse($fs->fileExists('theme/new/all.js'));
+    }
+
+    public function testOldThemeFilesAreDeletedDelayedOnThemeCompileSuccess(): void
+    {
+        $resolver = $this->createMock(ThemeFileResolver::class);
+        $resolver->method('resolveFiles')->willReturn([ThemeFileResolver::SCRIPT_FILES => new FileCollection(), ThemeFileResolver::STYLE_FILES => new FileCollection()]);
+
+        $fs = new Filesystem(new MemoryFilesystemAdapter());
+        $tmpFs = new Filesystem(new MemoryFilesystemAdapter());
+
+        $fs->createDirectory('theme/current');
+        $fs->write('theme/current/all.js', '');
+
+        $importer = $this->createMock(ThemeFileImporter::class);
+        $importer->expects(static::once())
+            ->method('getCopyBatchInputsForAssets');
+
+        $scssCompiler = $this->createMock(ScssPhpCompiler::class);
+        $scssCompiler->expects(static::once())->method('compileString')->willReturn('');
+
+        $pathBuilder = $this->createMock(AbstractThemePathBuilder::class);
+        $pathBuilder->method('assemblePath')->willReturn('current');
+        $pathBuilder->expects(static::once())
+            ->method('generateNewPath')
+            ->with(
+                TestDefaults::SALES_CHANNEL,
+                'test'
+            )
+            ->willReturn('new');
+        $pathBuilder->expects(static::once())
+            ->method('saveSeed')
+            ->with(TestDefaults::SALES_CHANNEL, 'test');
+
+        $expectedEnvelope = new Envelope(
+            new DeleteThemeFilesMessage('current', TestDefaults::SALES_CHANNEL, 'test'),
+            [new DelayStamp(3600000)]
+        );
+
+        $messageBusMock = $this->createMock(MessageBusInterface::class);
+        $messageBusMock->expects(static::once())
+            ->method('dispatch')
+            ->with($expectedEnvelope)
+            ->willReturn($expectedEnvelope);
+
+        $compiler = new ThemeCompiler(
+            $fs,
+            $tmpFs,
+            $resolver,
+            true,
+            $this->createMock(EventDispatcher::class),
+            $importer,
+            [],
+            $this->createMock(CacheInvalidator::class),
+            $pathBuilder,
+            __DIR__,
+            $scssCompiler,
+            $messageBusMock
+        );
+
+        $config = new StorefrontPluginConfiguration('test');
+        $config->setAssetPaths(['assets']);
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'test',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            true,
+            Context::createDefaultContext()
+        );
+
+        static::assertTrue($fs->fileExists('theme/current/all.js'));
     }
 
     /**

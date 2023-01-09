@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -35,6 +36,8 @@ class ThemeSalesChannelDefinition extends MappingEntityDefinition
             (new FkField('theme_id', 'themeId', ThemeDefinition::class))->addFlags(new Required()),
             new ManyToOneAssociationField('theme', 'theme_id', ThemeDefinition::class),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class),
+
+            new StringField('hash', 'hash'),
         ]);
     }
 }

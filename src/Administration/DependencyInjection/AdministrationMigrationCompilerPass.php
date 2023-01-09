@@ -19,13 +19,13 @@ class AdministrationMigrationCompilerPass implements CompilerPassInterface
         $migrationSourceV4 = $container->getDefinition(MigrationSource::class . '.core.V6_4');
         $migrationSourceV4->addMethodCall('addDirectory', [$migrationPath . '/V6_4', 'Shopware\Administration\Migration\V6_4']);
 
-        $majors = ['6_5', '6_6'];
+        $majors = ['V6_5', 'V6_6'];
         foreach ($majors as $major) {
             $migrationPathV5 = $migrationPath . '/' . $major;
 
             if (\is_dir($migrationPathV5)) {
-                $migrationSource = $container->getDefinition(MigrationSource::class . '.core.V' . $major);
-                $migrationSource->addMethodCall('addDirectory', [$migrationPathV5, 'Shopware\Administration\Migration\V' . $major]);
+                $migrationSource = $container->getDefinition(MigrationSource::class . '.core.' . $major);
+                $migrationSource->addMethodCall('addDirectory', [$migrationPathV5, 'Shopware\Administration\Migration\\' . $major]);
             }
         }
     }

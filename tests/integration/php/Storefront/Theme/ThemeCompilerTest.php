@@ -44,6 +44,7 @@ use Shopware\Storefront\Theme\ThemeFileResolver;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Messenger\MessageBus;
 
 /**
  * @internal
@@ -83,7 +84,8 @@ class ThemeCompilerTest extends TestCase
             $this->getContainer()->get(CacheInvalidator::class),
             new MD5ThemePathBuilder(),
             $this->getContainer()->getParameter('kernel.project_dir'),
-            $this->getContainer()->get(ScssPhpCompiler::class)
+            $this->getContainer()->get(ScssPhpCompiler::class),
+            new MessageBus()
         );
     }
 
@@ -422,7 +424,8 @@ PHP_EOL;
             $this->createMock(CacheInvalidator::class),
             new MD5ThemePathBuilder(),
             $this->getContainer()->getParameter('kernel.project_dir'),
-            $this->getContainer()->get(ScssPhpCompiler::class)
+            $this->getContainer()->get(ScssPhpCompiler::class),
+            new MessageBus()
         );
 
         $config = new StorefrontPluginConfiguration('test');

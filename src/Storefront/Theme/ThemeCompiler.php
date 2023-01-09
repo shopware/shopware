@@ -420,10 +420,8 @@ PHP_EOL;
             $this->filesystem->deleteDirectory($path);
         }
 
-        if ($this->scssCompiler->filesHandledInternal() === false) {
-            $cssFilePath = $path . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css';
-            $this->filesystem->write($cssFilePath, $compiled);
-        }
+        $cssFilePath = $path . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css';
+        $this->filesystem->write($cssFilePath, $compiled);
 
         $scriptFilepath = $path . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . 'all.js';
         $this->filesystem->write($scriptFilepath, $concatenatedScripts);

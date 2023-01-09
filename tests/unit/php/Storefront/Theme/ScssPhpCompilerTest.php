@@ -42,11 +42,4 @@ class ScssPhpCompilerTest extends TestCase
 
         static::assertEquals('background-color:#123456', preg_replace('/\r?\n$/', ' ', $compiled), $compiled);
     }
-
-    public function testFilesHandlesInternalFalse(): void
-    {
-        $scssCompiler = new ScssPhpCompiler();
-
-        static::assertFalse($scssCompiler->filesHandledInternal());
-    }
 }

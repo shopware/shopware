@@ -14,11 +14,4 @@ abstract class AbstractScssCompiler
         string $scss,
         ?string $path = null
     ): string;
-
-    /**
-     * If true, the caller should not process the result.
-     * It will be processed internally and this SCSS Compiler takes care
-     * about publishing the resulting css files
-     */
-    abstract public function filesHandledInternal(): bool;
 }

@@ -53,9 +53,4 @@ class ScssPhpCompiler extends AbstractScssCompiler
 
         return $css;
     }
-
-    public function filesHandledInternal(): bool
-    {
-        return false;
-    }
 }

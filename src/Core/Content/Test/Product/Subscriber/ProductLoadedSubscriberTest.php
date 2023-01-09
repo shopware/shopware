@@ -187,15 +187,6 @@ class ProductLoadedSubscriberTest extends TestCase
             ->search($criteria, $salesChannelContext)
             ->first();
 
-        $subscriber = $this->getContainer()->get(ProductSubscriber::class);
-        $productLoadedEvent = new EntityLoadedEvent(
-            $this->getContainer()->get(ProductDefinition::class),
-            [$productEntity],
-            Context::createDefaultContext()
-        );
-
-        $subscriber->loaded($productLoadedEvent);
-
         $sortedProperties = array_values($productEntity->get('sortedProperties')->getElements());
 
         foreach ($expected as $expectedGroupKey => $expectedGroup) {

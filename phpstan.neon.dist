@@ -87,6 +87,7 @@ parameters:
             path: src/Core/Framework/Api/Controller/CacheController.php
         # @final annotation of internal classes
         - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult\.#'
+        - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.#'
 
         # dynamic hydrator performance
         -

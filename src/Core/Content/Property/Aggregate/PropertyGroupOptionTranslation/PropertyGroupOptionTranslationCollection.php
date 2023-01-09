@@ -16,9 +16,12 @@ class PropertyGroupOptionTranslationCollection extends EntityCollection
      */
     public function getPropertyGroupOptionIds(): array
     {
-        return $this->fmap(function (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) {
+        /** @var list<string> $ids */
+        $ids = $this->fmap(function (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) {
             return $propertyGroupOptionTranslation->getPropertyGroupOptionId();
         });
+
+        return $ids;
     }
 
     public function filterByPropertyGroupOptionId(string $id): self
@@ -33,9 +36,12 @@ class PropertyGroupOptionTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) {
+        /** @var list<string> $ids */
+        $ids = $this->fmap(function (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) {
             return $propertyGroupOptionTranslation->getLanguageId();
         });
+
+        return $ids;
     }
 
     public function filterByLanguageId(string $id): self

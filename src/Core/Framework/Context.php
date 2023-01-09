@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\SalesChannel\Exception\ContextRulesLockedException;
 
 /**
  * @package core
@@ -52,6 +53,8 @@ class Context extends Struct
     protected string $taxState = CartPrice::TAX_STATE_GROSS;
 
     protected CashRoundingConfig $rounding;
+
+    protected bool $rulesLocked = false;
 
     /**
      * @param array<string> $languageIdChain
@@ -221,6 +224,10 @@ class Context extends Struct
      */
     public function setRuleIds(array $ruleIds): void
     {
+        if ($this->rulesLocked) {
+            throw new ContextRulesLockedException();
+        }
+
         $this->ruleIds = array_filter(array_values($ruleIds));
     }
 
@@ -263,5 +270,10 @@ class Context extends Struct
     public function setRounding(CashRoundingConfig $rounding): void
     {
         $this->rounding = $rounding;
+    }
+
+    public function lockRules(): void
+    {
+        $this->rulesLocked = true;
     }
 }

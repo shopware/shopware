@@ -38,6 +38,9 @@ class ArrayEntity extends Entity implements \ArrayAccess
      */
     public function __set($name, mixed $value): void
     {
+        if ($name === 'id') {
+            $this->_uniqueIdentifier = $value;
+        }
         $this->data[$name] = $value;
     }
 

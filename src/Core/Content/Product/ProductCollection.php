@@ -22,9 +22,12 @@ class ProductCollection extends EntityCollection
      */
     public function getParentIds(): array
     {
-        return $this->fmap(function (ProductEntity $product) {
+        /** @var list<string> $ids */
+        $ids = $this->fmap(function (ProductEntity $product) {
             return $product->getParentId();
         });
+
+        return $ids;
     }
 
     public function filterByParentId(string $id): self
@@ -39,9 +42,12 @@ class ProductCollection extends EntityCollection
      */
     public function getTaxIds(): array
     {
-        return $this->fmap(function (ProductEntity $product) {
+        /** @var list<string> $ids */
+        $ids = $this->fmap(function (ProductEntity $product) {
             return $product->getTaxId();
         });
+
+        return $ids;
     }
 
     public function filterByTaxId(string $id): self
@@ -56,9 +62,12 @@ class ProductCollection extends EntityCollection
      */
     public function getManufacturerIds(): array
     {
-        return $this->fmap(function (ProductEntity $product) {
+        /** @var list<string> $ids */
+        $ids = $this->fmap(function (ProductEntity $product) {
             return $product->getManufacturerId();
         });
+
+        return $ids;
     }
 
     public function filterByManufacturerId(string $id): self
@@ -73,9 +82,12 @@ class ProductCollection extends EntityCollection
      */
     public function getUnitIds(): array
     {
-        return $this->fmap(function (ProductEntity $product) {
+        /** @var list<string> $ids */
+        $ids = $this->fmap(function (ProductEntity $product) {
             return $product->getUnitId();
         });
+
+        return $ids;
     }
 
     public function filterByUnitId(string $id): self

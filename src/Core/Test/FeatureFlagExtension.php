@@ -45,8 +45,9 @@ class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
         preg_match('/([^:]+)::([^$ ]+)($| )/', $test, $matches);
 
         if (empty($matches)) {
-            debug_print_backtrace(5);
+            return;
         }
+
         $class = $matches[1];
         $method = $matches[2];
 
@@ -98,6 +99,11 @@ class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
     public function executeAfterTest(string $test, float $time): void
     {
         preg_match('/([^:]+)::([^$ ]+)($| )/', $test, $matches);
+
+        if (empty($matches)) {
+            return;
+        }
+
         $class = $matches[1];
 
         // do not run when this class is unit tested

@@ -16,7 +16,7 @@ describe('CMS: check validation of product detail page', () => {
     it('@content: create product detail page', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Fill in basic data

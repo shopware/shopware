@@ -26,7 +26,7 @@ describe('Checkout: Visual tests', () => {
 
         cy.intercept({
             url: '/widgets/checkout/info',
-            method: 'GET'
+            method: 'GET',
         }).as('cartInfo');
 
         // Take snapshot for visual testing on desktop

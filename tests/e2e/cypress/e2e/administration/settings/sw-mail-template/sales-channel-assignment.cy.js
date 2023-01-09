@@ -4,12 +4,12 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
     beforeEach(() => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-header-footer`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveTemplate');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
@@ -21,7 +21,7 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
 
         cy.get('#sw-mail-template').click();
@@ -60,7 +60,7 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
 
         cy.get('#sw-mail-template').click();
@@ -127,7 +127,7 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
 
         cy.get('#sw-mail-template').click();

@@ -17,8 +17,8 @@ describe('Promotions: pre-conditions', () => {
             price: [{
                 currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
                 linked: true,
-                gross: 60
-            }]
+                gross: 60,
+            }],
         }).then(() => {
             return cy.createDefaultFixture('promotion');
         }).then(() => {
@@ -31,12 +31,12 @@ describe('Promotions: pre-conditions', () => {
     it('@package: should create promotion, configure conditions and discounts', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
-            method: 'POST'
+            method: 'POST',
         }).as('savePromotion');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'post',
         }).as('saveProduct');
 
         cy.url().should('include', 'promotion/v2/index');
@@ -100,7 +100,7 @@ describe('Promotions: pre-conditions', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains('h2', 'Test Product').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()

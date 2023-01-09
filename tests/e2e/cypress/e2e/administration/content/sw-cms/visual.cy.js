@@ -17,18 +17,18 @@ describe('CMS: Visual tests', () => {
     it('@visual: check appearance of cms layout workflow', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCategory');
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/cms/index',
             mainMenuId: 'sw-content',
-            subMenuId: 'sw-cms'
+            subMenuId: 'sw-cms',
         });
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

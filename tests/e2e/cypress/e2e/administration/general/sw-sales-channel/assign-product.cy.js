@@ -9,21 +9,21 @@ describe('Sales Channel: Test product assignment operations', () => {
             endpoint: 'category',
             data: {
                 field: 'name',
-                value: 'Home'
-            }
+                value: 'Home',
+            },
         }).then(({ id: categoryId }) => {
             cy.createCategoryFixture({
                 name: 'Test category',
                 type: 'page',
                 parentId: categoryId,
-                active: true
+                active: true,
             });
         })
-        .then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@general: assign individual products to sales channel', { tags: ['pa-sales-channels'] }, () => {
@@ -33,17 +33,17 @@ describe('Sales Channel: Test product assignment operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'POST'
+            method: 'POST',
         }).as('calculatePrice');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-visibility`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProductVisibility');
 
 
@@ -117,17 +117,17 @@ describe('Sales Channel: Test product assignment operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'POST'
+            method: 'POST',
         }).as('calculatePrice');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-visibility`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProductVisibility');
 
 

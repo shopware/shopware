@@ -131,7 +131,7 @@ describe('Test payment and shipping methods selection', () => {
         cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(3) .payment-method-label`).click(1, 1);
 
         cy.get(`${page.elements.shippingMethodsContainer} .shipping-method-label`)
-            .contains('Express').click(1, 1)
+            .contains('Express').click(1, 1);
 
         cy.get('#confirmFormSubmit').scrollIntoView();
         cy.get('#confirmFormSubmit').click();
@@ -213,7 +213,7 @@ describe('Test payment and shipping methods selection', () => {
     });
 
     it('@base @confirm @package: should cancel the order', { tags: ['pa-checkout'] }, () => {
-        cy.authenticate().then((result) => {
+        cy.getBearerAuth().then((result) => {
             const requestConfig = {
                 headers: {
                     Authorization: `Bearer ${result.access}`,
@@ -251,7 +251,7 @@ describe('Test payment and shipping methods selection', () => {
             .contains('Invoice');
         cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(1) .payment-method-label`).click(1, 1);
         cy.get(`${page.elements.shippingMethodsContainer} .shipping-method-label`)
-            .contains('Standard').click(1, 1)
+            .contains('Standard').click(1, 1);
 
         cy.get('#confirmFormSubmit').scrollIntoView();
         cy.get('#confirmFormSubmit').click();
@@ -275,15 +275,15 @@ describe('Test payment and shipping methods selection', () => {
     it('@base @confirm: should have a working wishlist', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `**/wishlist/add/**`,
-            method: 'POST'
+            method: 'POST',
         }).as('wishlistAdd');
 
         cy.intercept({
             url: `**/wishlist/remove/**`,
-            method: 'POST'
+            method: 'POST',
         }).as('wishlistRemove');
 
-        cy.authenticate().then((result) => {
+        cy.getBearerAuth().then((result) => {
             const requestConfig = {
                 headers: {
                     Authorization: `Bearer ${result.access}`,
@@ -351,7 +351,7 @@ describe('Test payment and shipping methods selection', () => {
     it('@base @confirm: should have correct order of shipping methods', { tags: ['pa-checkout'] }, () => {
         cy.window().then((win) => {
             const salesChannels = [
-                { id: win.salesChannelId }
+                { id: win.salesChannelId },
             ];
 
             const SHIPPING_METHOD_STANDARD = 'Standard';
@@ -370,7 +370,7 @@ describe('Test payment and shipping methods selection', () => {
                 data: {
                     field: 'name',
                     value: 'Storefront',
-                }
+                },
             }).then((salesChannel) => {
                 defaultShippingMethodId = salesChannel.attributes.shippingMethodId;
 
@@ -379,7 +379,7 @@ describe('Test payment and shipping methods selection', () => {
                     data: {
                         field: 'name',
                         value: SHIPPING_METHOD_STANDARD,
-                    }
+                    },
                 });
             }).then((standardShippingMethod) => {
                 const {id} = standardShippingMethod;
@@ -391,8 +391,8 @@ describe('Test payment and shipping methods selection', () => {
                     data: {
                         field: 'name',
                         value: SHIPPING_METHOD_EXPRESS,
-                    }
-                })
+                    },
+                });
             }).then((expressShippingMethod) => {
                 const {id} = expressShippingMethod;
 
@@ -460,15 +460,15 @@ describe('Test payment and shipping methods selection', () => {
                             3: remainingShippingMethod,     // position:  1
                             4: 'Test Method #2',            // position:  3
                             5: 'Test Method #4',            // position:  4
-                        }
+                        };
 
                         cy.get(`${page.elements.shippingMethodsContainer} .shipping-method-description`)
                             .each(($div, index) => {
                                 expect($div.text().trim()).to.equal(expectedOrder[index]);
                             });
                     });
-                });
             });
+        });
 
 
     });

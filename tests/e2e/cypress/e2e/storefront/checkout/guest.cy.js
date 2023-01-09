@@ -9,7 +9,7 @@ describe(`Checkout as Guest`, () => {
     beforeEach(() => {
         cy.createDefaultFixture('category')
             .then(() => {
-                return cy.createProductFixture()
+                return cy.createProductFixture();
             }, { timeout: 30000 }).then(() => {
                 return cy.fixture('product');
             }).then((result) => {
@@ -22,7 +22,7 @@ describe(`Checkout as Guest`, () => {
         const page = new CheckoutPageObject();
         const accountPage = new AccountPageObject();
 
-        cy.window().then((win) => {
+        cy.window().then(() => {
             // Product detail
             cy.get('.header-search-input').should('be.visible');
             cy.get('.header-search-input').type(product.name);
@@ -82,16 +82,16 @@ describe(`Checkout as Guest`, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`
+                    Authorization: `Bearer ${result.access}`,
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
                         'core.loginRegistration.showAccountTypeSelection': true,
-                        'core.cart.logoutGuestAfterCheckout' : true
-                    }
-                }
+                        'core.cart.logoutGuestAfterCheckout' : true,
+                    },
+                },
             };
 
             return cy.request(requestConfig);

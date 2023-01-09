@@ -7,19 +7,19 @@ describe('Rule builder: Sorting rules', () => {
         cy.createDefaultFixture('rule', {
             paymentMethods: [
                 { name: 'foo' },
-                { name: 'bar' }
-            ]
+                { name: 'bar' },
+            ],
         }).then(() => {
             return cy.createDefaultFixture('rule', {
                 name: 'Foobar',
                 paymentMethods: [
-                    { name: 'baz' }
-                ]
+                    { name: 'baz' },
+                ],
             });
         })
-        .then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
-        });
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            });
     });
 
     it('@base @rule: sort rules by assignment counts', { tags: ['pa-business-ops'] }, () => {
@@ -27,7 +27,7 @@ describe('Rule builder: Sorting rules', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadData');
 
         cy.get('.sw-data-grid-skeleton').should('exist');

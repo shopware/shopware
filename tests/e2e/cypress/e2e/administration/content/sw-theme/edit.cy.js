@@ -15,7 +15,7 @@ describe('Theme: Test common editing of theme', () => {
     it('@base @media @content: change theme logo image', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
@@ -58,7 +58,7 @@ describe('Theme: Test common editing of theme', () => {
     it('@base @content: saves theme primary color', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
@@ -83,7 +83,7 @@ describe('Theme: Test common editing of theme', () => {
     it('@base @media @content: change theme logo image by sidebar', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')

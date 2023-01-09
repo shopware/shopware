@@ -13,9 +13,9 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
                     currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
                     net: 34.115658,
                     linked: true,
-                    gross: 49.115658
-                }
-            ]
+                    gross: 49.115658,
+                },
+            ],
         });
     });
 
@@ -25,19 +25,19 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/currency/**/country-roundings`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveCurrencyCountry');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/currency`,
-            method: 'POST'
+            method: 'POST',
         }).as('getCurrencySettings');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
         cy.intercept({
             url: `/account/register`,
-            method: 'POST'
+            method: 'POST',
         }).as('registerCustomer');
 
         // Set tax-free
@@ -49,7 +49,7 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
         cy.clickContextMenuItem(
             '.sw-currency-list__edit-action',
             '.sw-context-button__button',
-            `.sw-data-grid__row--0`
+            `.sw-data-grid__row--0`,
         );
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -94,7 +94,7 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

@@ -13,13 +13,13 @@ describe('Mailer: Visual testing', () => {
     it('@base @visual: check appearance of mailer module', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config?domain=core.mailerSettings`,
-            method: 'GET'
+            method: 'GET',
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
         cy.get('.sw-settings__tab-system').click();
         cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');

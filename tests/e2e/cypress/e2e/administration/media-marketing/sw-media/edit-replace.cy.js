@@ -20,7 +20,7 @@ describe('Media: Replace media', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'POST'
+            method: 'POST',
         }).as('uploadMedia');
         cy.setEntitySearchable('media', ['fileName', 'title']);
 
@@ -68,7 +68,7 @@ describe('Media: Replace media', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'POST'
+            method: 'POST',
         }).as('uploadMedia');
 
         cy.setEntitySearchable('media', ['fileName', 'title']);

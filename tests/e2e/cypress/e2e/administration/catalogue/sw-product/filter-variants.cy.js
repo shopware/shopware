@@ -4,43 +4,43 @@ describe('Product: Test filter variants', () => {
     beforeEach(() => {
         cy.createPropertyFixture({
             name: 'Size',
-            options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }]
+            options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }],
         }).then(() => {
             return cy.createProductFixture({
-                name: 'Parent Product'
+                name: 'Parent Product',
             });
         })
-        .then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
 
-            cy.get('.sw-data-grid__cell--name')
-                .click();
+                cy.get('.sw-data-grid__cell--name')
+                    .click();
 
-            cy.get('.sw-product-detail__tab-variants').click();
+                cy.get('.sw-product-detail__tab-variants').click();
 
-            cy.get('.sw-product-detail-variants__generated-variants-empty-state .sw-button')
-                .click();
+                cy.get('.sw-product-detail-variants__generated-variants-empty-state .sw-button')
+                    .click();
 
-            cy.get('.sw-grid__row--0 .group_grid__column-name')
-                .click();
+                cy.get('.sw-grid__row--0 .group_grid__column-name')
+                    .click();
 
-            cy.get('.sw-property-search__tree-selection__option_grid .sw-grid__row--0 > :nth-child(2)').click();
-            cy.get('.sw-property-search__tree-selection__option_grid .sw-grid__row--1 > :nth-child(2)').click();
+                cy.get('.sw-property-search__tree-selection__option_grid .sw-grid__row--0 > :nth-child(2)').click();
+                cy.get('.sw-property-search__tree-selection__option_grid .sw-grid__row--1 > :nth-child(2)').click();
 
-            cy.get('.sw-product-variant-generation__generate-action').click();
+                cy.get('.sw-product-variant-generation__generate-action').click();
 
-            cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary').click();
+                cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary').click();
 
-            cy.get('.sw-modal').should('not.exist');
-        });
+                cy.get('.sw-modal').should('not.exist');
+            });
     });
 
     it('@catalogue: should filter options by properties', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchVariants');
 
         cy.get('.sw-product-variants-overview__filter-list-button > .sw-button')

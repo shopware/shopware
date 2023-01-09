@@ -19,7 +19,7 @@ describe('Delivery times group: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/delivery-time`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-settings-delivery-time-list').should('be.visible');
@@ -54,7 +54,7 @@ describe('Delivery times group: Test crud operations', () => {
         cy.clickMainMenuItem({
             targetPath: '#/sw/product/index',
             mainMenuId: 'sw-catalogue',
-            subMenuId: 'sw-product'
+            subMenuId: 'sw-product',
         });
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -62,7 +62,7 @@ describe('Delivery times group: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.product-deliverability-form').scrollIntoView();
@@ -73,7 +73,7 @@ describe('Delivery times group: Test crud operations', () => {
     it('@settings: Try to create delivery time with empty required fields', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/delivery-time`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveEmptyData');
 
         cy.get('.sw-settings-delivery-time-list').should('be.visible');
@@ -100,7 +100,7 @@ describe('Delivery times group: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/delivery-time/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('updateData');
 
         cy.get('.sw-settings-delivery-time-list').should('be.visible');
@@ -111,7 +111,7 @@ describe('Delivery times group: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Verify correct detail page
@@ -137,7 +137,7 @@ describe('Delivery times group: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/delivery-time/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         cy.get('.sw-settings-delivery-time-list').should('be.visible');
@@ -148,7 +148,7 @@ describe('Delivery times group: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.contains('.sw-modal__body', 'Are you sure you want to delete this item?');

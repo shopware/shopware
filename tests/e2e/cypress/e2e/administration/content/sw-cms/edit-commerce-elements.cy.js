@@ -8,44 +8,44 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         cy.createCmsFixture().then(() => {
             return cy.createDefaultFixture('product-stream', {}, 'product-stream-valid');
         })
-        .then(() => {
-            return cy.createProductFixture({
-                name: 'First product',
-                productNumber: 'RS-11111',
-                description: 'Pudding wafer apple pie fruitcake cupcake. Biscuit cotton candy gingerbread liquorice tootsie roll caramels soufflé. Wafer gummies chocolate cake soufflé.'
+            .then(() => {
+                return cy.createProductFixture({
+                    name: 'First product',
+                    productNumber: 'RS-11111',
+                    description: 'Pudding wafer apple pie fruitcake cupcake. Biscuit cotton candy gingerbread liquorice tootsie roll caramels soufflé. Wafer gummies chocolate cake soufflé.',
+                });
+            })
+            .then(() => {
+                return cy.createProductFixture({
+                    name: 'Second product',
+                    productNumber: 'RS-22222',
+                    description: 'Jelly beans jelly-o toffee I love jelly pie tart cupcake topping. Cotton candy jelly beans tootsie roll pie tootsie roll chocolate cake brownie. I love pudding brownie I love.',
+                });
+            })
+            .then(() => {
+                return cy.createProductFixture({
+                    name: 'Third product',
+                    productNumber: 'RS-33333',
+                    description: 'Cookie bonbon tootsie roll lemon drops soufflé powder gummies bonbon. Jelly-o lemon drops cheesecake. I love carrot cake I love toffee jelly beans I love jelly.',
+                });
+            })
+            .then(() => {
+                cy.viewport(1920, 1080);
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
-        })
-        .then(() => {
-            return cy.createProductFixture({
-                name: 'Second product',
-                productNumber: 'RS-22222',
-                description: 'Jelly beans jelly-o toffee I love jelly pie tart cupcake topping. Cotton candy jelly beans tootsie roll pie tootsie roll chocolate cake brownie. I love pudding brownie I love.'
-            });
-        })
-        .then(() => {
-            return cy.createProductFixture({
-                name: 'Third product',
-                productNumber: 'RS-33333',
-                description: 'Cookie bonbon tootsie roll lemon drops soufflé powder gummies bonbon. Jelly-o lemon drops cheesecake. I love carrot cake I love toffee jelly beans I love jelly.'
-            });
-        })
-        .then(() => {
-            cy.viewport(1920, 1080);
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
     });
 
     it('@base @content: use simple product block', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -117,12 +117,12 @@ describe('CMS: Check usage and editing of commerce elements', () => {
     it('@base @content: use product slider block with dynamic product group', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();

@@ -20,7 +20,7 @@ describe('Media: Test crud operations of folders', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/media-folder`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Create folder
@@ -38,7 +38,7 @@ describe('Media: Test crud operations of folders', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/media-folder/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         // Edit folder's name
@@ -50,7 +50,7 @@ describe('Media: Test crud operations of folders', () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`,
             '',
-            true
+            true,
         );
 
         cy.get(`${page.elements.folderNameInput}`).clear();
@@ -67,15 +67,15 @@ describe('Media: Test crud operations of folders', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/media-folder`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/media-folder-configuration`,
-            method: 'POST'
+            method: 'POST',
         }).as('postChildConfiguration');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/media-folder-configuration/**`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteChildConfiguration');
 
         // navigate to subfolder
@@ -139,7 +139,7 @@ describe('Media: Test crud operations of folders', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/media-folder/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         // Delete folder
@@ -151,7 +151,7 @@ describe('Media: Test crud operations of folders', () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`,
             '',
-            true
+            true,
         );
         cy.contains(`${page.elements.modal}__body p`,
             'Are you sure you want to delete the folder "A thing to fold about"?');

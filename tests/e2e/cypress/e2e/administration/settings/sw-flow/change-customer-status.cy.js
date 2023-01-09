@@ -3,7 +3,7 @@ import CustomerPageObject from '../../../../support/pages/module/sw-customer.pag
 
 describe('Flow builder: change customer status testing', () => {
     beforeEach(() => {
-        cy.createCustomerFixture()
+        cy.createCustomerFixture();
     });
 
     it('@settings: change customer status flow', { tags: ['pa-business-ops'] }, () => {
@@ -13,7 +13,7 @@ describe('Flow builder: change customer status testing', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -72,7 +72,7 @@ describe('Flow builder: change customer status testing', () => {
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-loader').should('not.exist');

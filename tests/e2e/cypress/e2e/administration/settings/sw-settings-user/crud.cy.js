@@ -11,17 +11,17 @@ describe('User: Test crud operations', () => {
         // Requests we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user`,
-            method: 'POST'
+            method: 'POST',
         }).as('createCall');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user/**`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteCall');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
-            method: 'POST'
+            method: 'POST',
         }).as('oauthCall');
 
         // create a new user
@@ -35,7 +35,7 @@ describe('User: Test crud operations', () => {
             '#sw-field--user-lastName': 'Allison',
             '#sw-field--user-email': 'test@shopware.com',
             '#sw-field--user-username': 'abraham',
-            '.sw-field--password__container > input[type=password]': 'mesecurepassword'
+            '.sw-field--password__container > input[type=password]': 'mesecurepassword',
         };
 
         Object.keys(userFields).forEach((key) => {
@@ -81,7 +81,7 @@ describe('User: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user`,
-            method: 'POST'
+            method: 'POST',
         }).as('userSearchCall');
 
         cy.get('.sw-users-permissions-user-listing .sw-simple-search-field')
@@ -96,7 +96,7 @@ describe('User: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-settings-user-list__user-delete-action',
             '.sw-context-button__button',
-            '.sw-data-grid__row--0'
+            '.sw-data-grid__row--0',
         );
 
         // expect modal to be open
@@ -127,13 +127,13 @@ describe('User: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
-            method: 'POST'
+            method: 'POST',
         }).as('oauthCall');
 
         cy.clickContextMenuItem(
             '.sw-settings-user-list__user-view-action',
             '.sw-context-button__button',
-            '.sw-data-grid__row--0'
+            '.sw-data-grid__row--0',
         );
 
         cy.get('#sw-field--user-email')
@@ -176,12 +176,12 @@ describe('User: Test crud operations', () => {
         // Requests we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user`,
-            method: 'POST'
+            method: 'POST',
         }).as('createCall');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
-            method: 'POST'
+            method: 'POST',
         }).as('oauthCall');
 
         // create a new user
@@ -193,7 +193,7 @@ describe('User: Test crud operations', () => {
         const userFields = {
             '#sw-field--user-lastName': 'Allison',
             '#sw-field--user-email': 'test@shopware.com',
-            '#sw-field--user-username': 'abraham'
+            '#sw-field--user-username': 'abraham',
         };
 
         Object.keys(userFields).forEach((key) => {

@@ -20,17 +20,17 @@ describe('Import/Export - Check import dry run functionality', () => {
     it('@base @settings: Perform import dry run with product profile', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
-            method: 'POST'
+            method: 'POST',
         }).as('prepare');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/process`,
-            method: 'POST'
+            method: 'POST',
         }).as('process');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
-            method: 'POST'
+            method: 'POST',
         }).as('importExportLog');
 
         cy.get('.sw-import-export-view-import').should('be.visible');
@@ -40,7 +40,7 @@ describe('Import/Export - Check import dry run functionality', () => {
             .attachFile({
                 filePath: 'csv/single-product.csv',
                 fileName: 'single-product.csv',
-                mimeType: 'text/csv'
+                mimeType: 'text/csv',
             });
 
         // File upload component should display file name

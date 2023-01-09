@@ -21,7 +21,7 @@ describe('Product: Test variants', () => {
     it('@catalogue: delete variants in modal', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             method: 'POST',
-            url: 'api/_action/sync'
+            url: 'api/_action/sync',
         }).as('deleteData');
 
         cy.get('.sw-data-grid__select-all .sw-field__checkbox input').click();

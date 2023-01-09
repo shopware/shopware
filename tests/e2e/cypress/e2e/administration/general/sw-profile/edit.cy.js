@@ -4,7 +4,7 @@ describe('Profile module', () => {
     beforeEach(() => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_info/config`,
-            method: 'GET'
+            method: 'GET',
         }).as('infoCall');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/profile/index`);
@@ -87,14 +87,14 @@ describe('Profile module', () => {
     it('@base @general: profile change avatar',  { tags: ['pa-system-settings'] }, () => {
         cy.get('.sw-media-upload-v2 .sw-media-upload-v2__button')
             .eq(1)
-            .click()
+            .click();
 
         // Add avatar to profile
         cy.get('#files')
             .attachFile({
                 filePath: 'img/sw-test-image.png',
                 fileName: 'sw-test-image.png',
-                mimeType: 'image/png'
+                mimeType: 'image/png',
             });
 
         cy.get('.sw-media-preview-v2__item')

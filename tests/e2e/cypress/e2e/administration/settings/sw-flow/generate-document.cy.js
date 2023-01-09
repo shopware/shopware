@@ -6,17 +6,17 @@ describe('Flow builder: generate document testing', () => {
         cy.createProductFixture().then(() => {
             return cy.createCustomerFixture();
         })
-        .then(() => {
-            cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+            .then(() => {
+                cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@settings: generate document flow', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -89,7 +89,7 @@ describe('Flow builder: generate document testing', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-loader').should('not.exist');

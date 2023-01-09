@@ -16,12 +16,12 @@ describe('CMS: Check order of slots throughout layout edits', () => {
     it('@base @content: create two column texts and test order', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();

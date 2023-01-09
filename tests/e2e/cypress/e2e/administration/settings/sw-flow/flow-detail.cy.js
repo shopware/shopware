@@ -7,18 +7,18 @@ describe('Flow builder: flow detail page', () => {
         cy.createProductFixture().then(() => {
             return cy.createCustomerFixture();
         })
-        .then(() => {
-            cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+            .then(() => {
+                cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@settings: show warning modal when unsaved changes on flow detail page', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get(`${page.elements.dataGridRow}--0 a`).click();
@@ -42,7 +42,7 @@ describe('Flow builder: flow detail page', () => {
         cy.get('.sw-flow-leave-page-modal__stay-on-page').click();
 
         // custom active checkbox
-        cy.get('.sw-flow-detail-general__general-active input[type=checkbox]').check()
+        cy.get('.sw-flow-detail-general__general-active input[type=checkbox]').check();
         cy.get(page.elements.smartBarBack).click();
         cy.get('.sw-flow-leave-page-modal').should('be.visible');
         cy.get('.sw-flow-leave-page-modal__leave-page').click();

@@ -17,14 +17,14 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-product-detail__tab-variants').click();
@@ -58,7 +58,7 @@ describe('Product: Test variants', () => {
             .should('be.visible');
     });
 
-    it('@base @catalogue: test multidimensional variant with restrictions', { tags: ['pa-inventory'] }, () => {
+    it.only('@base @catalogue: test multidimensional variant with restrictions', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
         const optionsIndicator = '' +
             '.sw-property-search__tree-selection__column-items-selected.sw-grid-column--right span';
@@ -73,22 +73,22 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/product/**/combinations`,
-            method: 'GET'
+            method: 'GET',
         }).as('combinationCall');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-product-detail__tab-variants').click();
@@ -100,12 +100,10 @@ describe('Product: Test variants', () => {
 
         // Create and verify multi-dimensional variant
         cy.contains('.group_grid__column-name', propertyName).click();
-        for (const entry in Object.values(optionPosition)) { // eslint-disable-line
-            if (optionPosition.hasOwnProperty(entry)) {
-                cy.get(
-                    `.sw-property-search__tree-selection__option_grid .sw-grid__row--${entry} .sw-field__checkbox input`
-                ).click();
-            }
+        for (const entry in Object.values(optionPosition)) {
+            cy.get(
+                `.sw-property-search__tree-selection__option_grid .sw-grid__row--${entry} .sw-field__checkbox input`,
+            ).click();
         }
         cy.contains(`.sw-grid ${optionsIndicator}`,`${optionPosition.length} ${optionString} selected`);
         cy.get('.sw-variant-modal__restriction-configuration').should('be.visible');

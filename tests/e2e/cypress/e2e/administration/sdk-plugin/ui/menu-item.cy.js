@@ -4,7 +4,7 @@ describe('Category: SDK Test', ()=> {
     beforeEach(() => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/locale`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchLocale');
 
         // reset mouse position to neutral state
@@ -48,7 +48,7 @@ describe('Category: SDK Test', ()=> {
             .should('be.visible');
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
-            .contains('Hello from the new Menu Page')
+            .contains('Hello from the new Menu Page');
 
         cy.get('.sw-page__search-bar')
             .should('not.exist');
@@ -78,7 +78,7 @@ describe('Category: SDK Test', ()=> {
             .should('be.visible');
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
-            .contains('Hello from the new Menu Page')
+            .contains('Hello from the new Menu Page');
 
         /**  Information: The complete flyout can't be tested because when one hover gets triggered
          * the next one won't work in Cypress because the previous hover gets closed */
@@ -107,4 +107,4 @@ describe('Category: SDK Test', ()=> {
             .first()
             .contains('First item');
     });
-})
+});

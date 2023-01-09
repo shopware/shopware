@@ -5,7 +5,7 @@ import ProductStreamObject from '../../../../support/pages/module/sw-product-str
 describe('Dynamic product group: Test notification on failed delete', () => {
     beforeEach(() => {
         cy.createDefaultFixture('product-stream', {
-            categories: [{ name: 'first' }, { name: 'second' }]
+            categories: [{ name: 'first' }, { name: 'second' }],
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -20,7 +20,7 @@ describe('Dynamic product group: Test notification on failed delete', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-stream/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('1st Productstream');
@@ -31,7 +31,7 @@ describe('Dynamic product group: Test notification on failed delete', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains('button.sw-button', 'Delete').click();
 

@@ -3,10 +3,10 @@
  */
 const platforms = [{
     name: 'youtube',
-    videoId: 'https://www.youtube.com/watch?v=Ds7c_AKSk7s'
+    videoId: 'https://www.youtube.com/watch?v=Ds7c_AKSk7s',
 }, {
     name: 'vimeo',
-    videoId: 'https://vimeo.com/68765485'
+    videoId: 'https://vimeo.com/68765485',
 }];
 
 describe('CMS: Check GDPR compliant video elements', () => {
@@ -23,12 +23,12 @@ describe('CMS: Check GDPR compliant video elements', () => {
         it(`use ${name} element with GDPR compliant options`, { tags: ['pa-content-management'] }, () => {
             cy.intercept({
                 url: `**/${Cypress.env('apiPath')}/cms-page/*`,
-                method: 'PATCH'
+                method: 'PATCH',
             }).as('saveData');
 
             cy.intercept({
                 url: `**/${Cypress.env('apiPath')}/category/*`,
-                method: 'PATCH'
+                method: 'PATCH',
             }).as('saveCategory');
 
             cy.get('.sw-cms-list-item--0').click();

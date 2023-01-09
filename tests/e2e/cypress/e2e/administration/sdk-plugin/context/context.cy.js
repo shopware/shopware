@@ -12,7 +12,7 @@ describe('SDK Tests: Context', ()=> {
         cy.createProductFixture().then(() => {
             cy.intercept({
                 url: `${Cypress.env('apiPath')}/search/locale`,
-                method: 'POST'
+                method: 'POST',
             }).as('searchLocale');
 
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
@@ -32,11 +32,11 @@ describe('SDK Tests: Context', ()=> {
 
             cy.get('.navigation-list-item__type-plugin')
                 .should('have.length.least', 3);
-        })
+        });
     });
 
     it('@sdk: get current language', { tags: ['ct-admin'] }, ()=> {
-        cy.log('Go to extension page')
+        cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');
@@ -47,7 +47,7 @@ describe('SDK Tests: Context', ()=> {
         cy.contains('.sw-admin-menu__navigation-link', 'Test item')
             .click();
 
-        cy.log('Get the current language')
+        cy.log('Get the current language');
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .find('button')
@@ -61,7 +61,7 @@ describe('SDK Tests: Context', ()=> {
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .contains(`languageId: ${DEFAULT_LANGUAGE_ID}`);
-    })
+    });
 
     it('@sdk: subscribe on language changes', { tags: ['ct-admin'] }, ()=> {
         cy.log('Change the language of the current user');
@@ -78,7 +78,7 @@ describe('SDK Tests: Context', ()=> {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-product-detail__tab-general')
@@ -121,7 +121,7 @@ describe('SDK Tests: Context', ()=> {
             .contains('languageId: '); // ID changes everytime therefore no check
         cy.get('.sw-alert__message')
             .contains(`systemLanguageId: ${DEFAULT_LANGUAGE_ID}`);
-    })
+    });
 
     it('@sdk: get current environment', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to extension page');
@@ -146,7 +146,7 @@ describe('SDK Tests: Context', ()=> {
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .contains(`Environment: production`);
-    })
+    });
 
     it('@sdk: get current locale', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to extension page');
@@ -160,7 +160,7 @@ describe('SDK Tests: Context', ()=> {
         cy.contains('.sw-admin-menu__navigation-link', 'Test item')
             .click();
 
-        cy.log('Get the current locale')
+        cy.log('Get the current locale');
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .find('button')
@@ -174,7 +174,7 @@ describe('SDK Tests: Context', ()=> {
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .contains(`Fallback Locale: ${FALLBACK_LOCALE}`);
-    })
+    });
 
     it('@sdk: subscribe on locale changes', { tags: ['ct-admin'] }, ()=> {
         cy.get('.sw-catalogue')
@@ -186,7 +186,7 @@ describe('SDK Tests: Context', ()=> {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-product-detail__tab-general')
@@ -226,7 +226,7 @@ describe('SDK Tests: Context', ()=> {
             .click();
 
         cy.get('#sw-field--confirm-password')
-            .type('shopware')
+            .type('shopware');
 
         cy.contains('button', 'Confirm')
             .click();
@@ -243,7 +243,7 @@ describe('SDK Tests: Context', ()=> {
             .contains('locale: de-DE');
         cy.get('.sw-alert__message')
             .contains('fallbackLocale: en-GB');
-    })
+    });
 
     it('@sdk: get current shopware version', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to extension page');
@@ -269,7 +269,7 @@ describe('SDK Tests: Context', ()=> {
         // Only check if the version starts with 6. to avoid adjustments for each version
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .contains('Shopware version: 6.');
-    })
+    });
 
     it('@sdk: get app information', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to extension page');
@@ -290,14 +290,14 @@ describe('SDK Tests: Context', ()=> {
             .contains('Get app information')
             .click();
 
-        cy.log('Check the app information')
+        cy.log('Check the app information');
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .contains('App name: TestPlugin');
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .contains('App type: plugin');
-    })
+    });
 
     it('@sdk: get module information', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to extension page');
@@ -318,7 +318,7 @@ describe('SDK Tests: Context', ()=> {
             .contains('Get module information')
             .click();
 
-        cy.log('Check the module information')
+        cy.log('Check the module information');
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .contains('Id:');
@@ -331,5 +331,5 @@ describe('SDK Tests: Context', ()=> {
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .contains('LocationId: ui-menu-item-add-menu-item-with-searchbar');
-    })
-})
+    });
+});

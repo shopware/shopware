@@ -1,14 +1,10 @@
 // / <reference types="Cypress" />
 
-import ProductPageObject from "../../../../support/pages/module/sw-product.page-object";
-
-const page = new ProductPageObject();
-
 describe('SDK Tests: Notification', ()=> {
     beforeEach(() => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/locale`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchLocale');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
@@ -31,7 +27,7 @@ describe('SDK Tests: Notification', ()=> {
     });
 
     it('@sdk: dispatch a notification', { tags: ['ct-admin'] }, ()=> {
-        cy.log('Go to extension page')
+        cy.log('Go to extension page');
 
         cy.get('.sw-admin-menu__item--sw-order')
             .click();
@@ -49,5 +45,5 @@ describe('SDK Tests: Notification', ()=> {
         cy.contains('.sw-alert__title', 'Your title');
 
         cy.contains('.sw-alert__message', 'Your message');
-    })
-})
+    });
+});

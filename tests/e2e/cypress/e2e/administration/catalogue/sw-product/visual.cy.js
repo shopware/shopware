@@ -12,8 +12,8 @@ describe('Product: Visual tests', () => {
             .then(() => {
                 return cy.createPropertyFixture({
                     options: [{
-                        name: 'Red'
-                    }]
+                        name: 'Red',
+                    }],
                 });
             })
             .then(() => {
@@ -26,14 +26,14 @@ describe('Product: Visual tests', () => {
     it('@visual: check appearance of basic product workflow', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.get('.sw-product-list-grid').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/product/index',
             mainMenuId: 'sw-catalogue',
-            subMenuId: 'sw-product'
+            subMenuId: 'sw-product',
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
@@ -72,7 +72,7 @@ describe('Product: Visual tests', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-product-detail-base').should('be.visible');
         cy.get('.sw-skeleton__detail-bold').should('not.exist');
@@ -103,7 +103,7 @@ describe('Product: Visual tests', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-product-detail-base').should('be.visible');
         cy.get('.sw-skeleton__detail-bold').should('not.exist');
@@ -122,11 +122,11 @@ describe('Product: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'POST'
+            method: 'POST',
         }).as('getPropertyGroups');
 
         cy.get('.sw-product-list-grid').should('be.visible');
@@ -135,10 +135,10 @@ describe('Product: Visual tests', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
-        cy.get('.sw-product-detail__tab-variants').should('be.visible')
+        cy.get('.sw-product-detail__tab-variants').should('be.visible');
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get('.sw-product-detail-page__tabs').should('be.visible');
         cy.get('.sw-skeleton__detail').should('not.exist');
@@ -184,28 +184,28 @@ describe('Product: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/product-stream`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveStream');
 
         cy.createProductFixture({
             name: 'Original product',
             productNumber: 'RS-11111',
-            description: 'Pudding wafer apple pie fruitcake cupcake.'
+            description: 'Pudding wafer apple pie fruitcake cupcake.',
         }).then(() => {
             cy.createProductFixture({
                 name: 'Second product',
                 productNumber: 'RS-22222',
-                description: 'Jelly beans jelly-o toffee I love jelly pie tart cupcake topping.'
+                description: 'Jelly beans jelly-o toffee I love jelly pie tart cupcake topping.',
             });
         }).then(() => {
             cy.createProductFixture({
                 name: 'Third product',
                 productNumber: 'RS-33333',
-                description: 'Cookie bonbon tootsie roll lemon drops soufflé powder gummies bonbon.'
+                description: 'Cookie bonbon tootsie roll lemon drops soufflé powder gummies bonbon.',
             });
         });
 
@@ -223,7 +223,7 @@ describe('Product: Visual tests', () => {
 
         cy.contains(
             `.sw-empty-state ${page.elements.ghostButton}`,
-            'Add new Cross Selling'
+            'Add new Cross Selling',
         ).should('be.visible').click();
         cy.get('.product-detail-cross-selling-form').should('be.visible');
 
@@ -232,7 +232,7 @@ describe('Product: Visual tests', () => {
         cy.get('#sw-field--crossSelling-product-group')
             .typeSingleSelectAndCheck(
                 '2nd Product stream',
-                '#sw-field--crossSelling-product-group'
+                '#sw-field--crossSelling-product-group',
             );
         cy.get('input[name="sw-field--crossSelling-active"]').click();
 

@@ -4,54 +4,54 @@ describe('Product: Test variants', () => {
     beforeEach(() => {
         cy.createPropertyFixture({
             name: 'Size',
-            options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }]
+            options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }],
         }).then(() => {
             return cy.createProductFixture({
-                name: 'Parent Product'
+                name: 'Parent Product',
             });
         })
-        .then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
 
-            cy.get('.sw-data-grid__cell--name')
-                .click();
+                cy.get('.sw-data-grid__cell--name')
+                    .click();
 
-            cy.get('.sw-product-detail__tab-variants').click();
+                cy.get('.sw-product-detail__tab-variants').click();
 
-            cy.get('.sw-product-detail-variants__generated-variants-empty-state .sw-button')
-                .click();
+                cy.get('.sw-product-detail-variants__generated-variants-empty-state .sw-button')
+                    .click();
 
-            cy.get('.sw-grid__row--0 .group_grid__column-name')
-                .click();
+                cy.get('.sw-grid__row--0 .group_grid__column-name')
+                    .click();
 
-            cy.get('.sw-property-search__tree-selection__option_grid .sw-grid__row--0 > :nth-child(2)').click();
+                cy.get('.sw-property-search__tree-selection__option_grid .sw-grid__row--0 > :nth-child(2)').click();
 
-            cy.get('.sw-product-variant-generation__generate-action').click();
+                cy.get('.sw-product-variant-generation__generate-action').click();
 
-            cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary').click();
+                cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary').click();
 
-            cy.get('.sw-modal').should('not.exist');
+                cy.get('.sw-modal').should('not.exist');
 
-            cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
+                cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
 
-            // open variant modal
-            cy.get(':nth-child(2) > .sw-button')
-                .should('be.visible')
-                .click();
+                // open variant modal
+                cy.get(':nth-child(2) > .sw-button')
+                    .should('be.visible')
+                    .click();
 
-            cy.get('.sw-modal')
-                .should('be.visible');
-        });
+                cy.get('.sw-modal')
+                    .should('be.visible');
+            });
     });
 
     it('@catalogue: should edit variants in modal', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             method: 'PATCH',
-            url: `${Cypress.env('apiPath')}/product/*`
+            url: `${Cypress.env('apiPath')}/product/*`,
         }).as('saveChanges');
 
         cy.get('.sw-modal .sw-data-grid__row--0')
@@ -81,7 +81,7 @@ describe('Product: Test variants', () => {
     it('@catalogue @base: delete variants in modal', { tags: ['quarantined', 'pa-inventory'] }, () => {
         cy.intercept({
             method: 'POST',
-            url: 'api/_action/sync'
+            url: 'api/_action/sync',
         }).as('deleteData');
 
         cy.get('.sw-modal .sw-data-grid__actions-menu')

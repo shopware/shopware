@@ -18,12 +18,12 @@ describe('Media: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveDataFileUpload');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw_logo_white`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveDataUrlUpload');
 
         cy.setEntitySearchable('media', ['fileName', 'title']);
@@ -42,12 +42,12 @@ describe('Media: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveDataFileUpload');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=plugin-manager--login`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveDataUrlUpload');
 
         cy.setEntitySearchable('media', ['fileName', 'title']);
@@ -55,7 +55,7 @@ describe('Media: Test crud operations', () => {
         // Upload medium
         cy.clickContextMenuItem(
             '.sw-media-upload-v2__button-url-upload',
-            '.sw-media-upload-v2__button-context-menu'
+            '.sw-media-upload-v2__button-context-menu',
         );
         page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/plugin-manager--login.png`);
 
@@ -76,13 +76,13 @@ describe('Media: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/media/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         // Upload medium
         cy.clickContextMenuItem(
             '.sw-media-upload-v2__button-url-upload',
-            '.sw-media-upload-v2__button-context-menu'
+            '.sw-media-upload-v2__button-context-menu',
         );
         cy.setEntitySearchable('media', ['fileName', 'title']);
 
@@ -114,17 +114,17 @@ describe('Media: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/media/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveDataFileUpload');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=plugin-manager--login`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveDataUrlUpload');
 
         cy.setEntitySearchable('media', ['fileName', 'title']);
@@ -132,7 +132,7 @@ describe('Media: Test crud operations', () => {
         // Upload medium
         cy.clickContextMenuItem(
             '.sw-media-upload-v2__button-url-upload',
-            '.sw-media-upload-v2__button-context-menu'
+            '.sw-media-upload-v2__button-context-menu',
         );
         page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/plugin-manager--login.png`);
 

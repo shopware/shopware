@@ -4,22 +4,22 @@ import ProductPageObject from '../../support/pages/module/sw-product.page-object
 
 describe('Product creation via API and commercial customer registration', () => {
     beforeEach(() => {
-        cy.createProductFixture()
+        cy.createProductFixture();
     });
 
     it('@package: should order as commercial customer', { tags: ['pa-customers-orders'] }, () => {
         const page = new ProductPageObject();
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `/account/register`,
-            method: 'POST'
+            method: 'POST',
         }).as('registerCustomer');
 
         // Saleschannel initial settings
@@ -88,7 +88,7 @@ describe('Product creation via API and commercial customer registration', () => 
                 cy.get('[name="sw-field--country-checkPostalCodePattern"]').check();
                 cy.get('[name="sw-field--country-checkAdvancedPostalCodePattern"]').check();
             }
-        })
+        });
         cy.get('[name="sw-field--country-forceStateInRegistration"]').check();
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);

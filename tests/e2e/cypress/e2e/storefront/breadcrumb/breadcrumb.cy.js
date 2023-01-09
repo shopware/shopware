@@ -4,8 +4,8 @@ describe('Test if breadcrumb works correctly', () => {
             endpoint: 'category',
             data: {
                 field: 'name',
-                value: 'Home'
-            }
+                value: 'Home',
+            },
         }).then(({id: categoryId}) => {
             cy.createCategoryFixture({
                 name: 'Test category 1',
@@ -14,9 +14,9 @@ describe('Test if breadcrumb works correctly', () => {
                 children: [
                     {
                         name: 'Sub 1',
-                        type: 'page'
-                    }
-                ]
+                        type: 'page',
+                    },
+                ],
             });
 
             cy.createCategoryFixture({
@@ -26,9 +26,9 @@ describe('Test if breadcrumb works correctly', () => {
                 children: [
                     {
                         name: 'Sub 2',
-                        type: 'page'
-                    }
-                ]
+                        type: 'page',
+                    },
+                ],
             });
 
             cy.createCategoryFixture({
@@ -38,9 +38,9 @@ describe('Test if breadcrumb works correctly', () => {
                 children: [
                     {
                         name: 'Sub 3',
-                        type: 'page'
-                    }
-                ]
+                        type: 'page',
+                    },
+                ],
             });
         }).then(() => {
             cy.visit('/');

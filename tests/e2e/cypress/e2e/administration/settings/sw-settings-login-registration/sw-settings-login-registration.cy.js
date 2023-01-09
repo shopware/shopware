@@ -9,7 +9,7 @@ describe('Login / Registration: Test show operations on templates', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveSettings');
 
         cy.get('input[name="core.systemWideLoginRegistration.isCustomerBoundToSalesChannel"]')
@@ -24,7 +24,7 @@ describe('Login / Registration: Test show operations on templates', () => {
         cy.get('#salesChannelSelect')
             .typeSingleSelectAndCheck(
                 'Storefront',
-                '#salesChannelSelect'
+                '#salesChannelSelect',
             );
 
         cy.get('input[name="core.systemWideLoginRegistration.isCustomerBoundToSalesChannel"]').scrollIntoView();

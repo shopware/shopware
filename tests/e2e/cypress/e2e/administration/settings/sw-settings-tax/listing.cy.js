@@ -22,11 +22,11 @@ describe('Tax: Test tax-rule listing operations', () => {
                 text: 'Country',
                 propertyName: 'country.name',
                 sortDirection: 'ASC',
-                location: 0
+                location: 0,
             },
             page: 1,
             limit: 25,
-            changesUrl: false
+            changesUrl: false,
         });
     });
 
@@ -41,11 +41,11 @@ describe('Tax: Test tax-rule listing operations', () => {
                 text: 'Country',
                 propertyName: 'country.name',
                 sortDirection: 'ASC',
-                location: 0
+                location: 0,
             },
             page: 1,
             limit: 25,
-            changesUrl: false
+            changesUrl: false,
         });
 
         cy.log('change Sorting direction from ASC to DESC');
@@ -57,11 +57,11 @@ describe('Tax: Test tax-rule listing operations', () => {
                 text: 'Country',
                 propertyName: 'country.name',
                 sortDirection: 'DESC',
-                location: 0
+                location: 0,
             },
             page: 1,
             limit: 25,
-            changesUrl: false
+            changesUrl: false,
         });
 
         cy.log('change items per page to 10');
@@ -72,11 +72,11 @@ describe('Tax: Test tax-rule listing operations', () => {
                 text: 'Country',
                 propertyName: 'country.name',
                 sortDirection: 'DESC',
-                location: 0
+                location: 0,
             },
             page: 1,
             limit: 10,
-            changesUrl: false
+            changesUrl: false,
         });
 
         cy.log('go to second page');
@@ -88,11 +88,11 @@ describe('Tax: Test tax-rule listing operations', () => {
                 text: 'Country',
                 propertyName: 'country.name',
                 sortDirection: 'DESC',
-                location: 0
+                location: 0,
             },
             page: 2,
             limit: 10,
-            changesUrl: false
+            changesUrl: false,
         });
 
         cy.log('change sorting to Rate');
@@ -104,11 +104,11 @@ describe('Tax: Test tax-rule listing operations', () => {
                 text: 'Rate',
                 propertyName: 'taxRate',
                 sortDirection: 'ASC',
-                location: 2
+                location: 2,
             },
             page: 2,
             limit: 10,
-            changesUrl: false
+            changesUrl: false,
         });
     });
 });

@@ -14,8 +14,8 @@ describe('Landing pages: Test ACL privileges', () => {
             data: {
                 field: 'name',
                 type: 'equals',
-                value: 'Storefront'
-            }
+                value: 'Storefront',
+            },
         })
             .then((data) => {
                 salesChannel = data.id;
@@ -26,9 +26,9 @@ describe('Landing pages: Test ACL privileges', () => {
                     cmsPage: data,
                     salesChannels: [
                         {
-                            id: salesChannel
-                        }
-                    ]
+                            id: salesChannel,
+                        },
+                    ],
                 }, 'landing-page');
             })
             .then(() => {
@@ -40,20 +40,20 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'landing_page',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -63,7 +63,7 @@ describe('Landing pages: Test ACL privileges', () => {
         // Request for duplicate landing page
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/landing-page/*`,
-            method: 'POST'
+            method: 'POST',
         }).as('duplicateData');
 
         // Request for loading landing pages
@@ -81,7 +81,7 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu__duplicate-action',
             page.elements.contextMenuButton,
-            `${page.elements.categoryTreeItem}:nth-of-type(1)`
+            `${page.elements.categoryTreeItem}:nth-of-type(1)`,
         );
 
         // Verify duplicate
@@ -94,20 +94,20 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'landing_page',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -117,7 +117,7 @@ describe('Landing pages: Test ACL privileges', () => {
         // Request for save landing page
         cy.intercept({
             url: `${Cypress.env('apiPath')}/landing-page`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Request for loading the landing pages
@@ -152,12 +152,12 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -189,16 +189,16 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -208,7 +208,7 @@ describe('Landing pages: Test ACL privileges', () => {
         // Request for update landing page
         cy.intercept({
             url: `${Cypress.env('apiPath')}/landing-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         // Request for loading landing pages
@@ -245,24 +245,24 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'landing_page',
-                role: 'creator'
+                role: 'creator',
             },
             {
                 key: 'landing_page',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -272,7 +272,7 @@ describe('Landing pages: Test ACL privileges', () => {
         // Request for delete landing page
         cy.intercept({
             url: `${Cypress.env('apiPath')}/landing-page/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         // Request for loading landing pages
@@ -290,7 +290,7 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu__group-button-delete',
             page.elements.contextMenuButton,
-            `${page.elements.categoryTreeItem}:nth-of-type(1)`
+            `${page.elements.categoryTreeItem}:nth-of-type(1)`,
         );
 
         // Expect delete modal to be open

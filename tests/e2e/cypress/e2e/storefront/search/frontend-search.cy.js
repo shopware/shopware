@@ -5,7 +5,7 @@ describe('Searches for products', () => {
         cy.visit('');
 
         return cy.createProductFixture().then(() => {
-            return cy.createDefaultFixture('category')
+            return cy.createDefaultFixture('category');
         }).then(() => {
             return cy.fixture('product');
         }).then((result) => {

@@ -10,20 +10,20 @@ describe('Dynamic product group: Test product has cover image filter with and wi
             cover: {
                 media: {
                     alt: 'Lorem Ipsum dolor',
-                    url: 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=='
-                }
-            }
+                    url: 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
+                },
+            },
         }).then(() => {
             return cy.createProductFixture({
                 name: 'Product without image',
                 productNumber: 'SW-11112',
             });
         })
-        .then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/create`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/create`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@catalogue: filters products by cover image existing', { tags: ['pa-business-ops'] }, () => {
@@ -36,8 +36,8 @@ describe('Dynamic product group: Test product has cover image filter with and wi
             {
                 field: 'Has cover image',
                 operator: null,
-                value: 'Yes'
-            }
+                value: 'Yes',
+            },
         );
 
         // open preview
@@ -66,8 +66,8 @@ describe('Dynamic product group: Test product has cover image filter with and wi
             {
                 field: 'Has cover image',
                 operator: null,
-                value: 'No'
-            }
+                value: 'No',
+            },
         );
 
         // open preview

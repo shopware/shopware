@@ -13,9 +13,9 @@ describe('Media: Test thumbnails', { browser: 'chrome' }, () => {
                 thumbnailQuality: 50,
                 keepAspectRatio: false,
                 mediaThumbnailSizes: [
-                    { id: '912ba2cfbf654aeca677d514ebf5c772', width: 5000, height: 2500 }
-                ]
-            }
+                    { id: '912ba2cfbf654aeca677d514ebf5c772', width: 5000, height: 2500 },
+                ],
+            },
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -36,7 +36,7 @@ describe('Media: Test thumbnails', { browser: 'chrome' }, () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`,
             '',
-            true
+            true,
         );
 
         cy.get('.sw-media-folder-settings__thumbnails-tab').click();
@@ -65,7 +65,7 @@ describe('Media: Test thumbnails', { browser: 'chrome' }, () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`,
             '',
-            true
+            true,
         );
 
         cy.get('.sw-media-folder-settings__thumbnails-tab').click();
@@ -85,7 +85,7 @@ describe('Media: Test thumbnails', { browser: 'chrome' }, () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`,
             '',
-            true
+            true,
         );
 
         cy.contains(page.elements.smartBarHeader, 'A thing to fold about');
@@ -98,7 +98,7 @@ describe('Media: Test thumbnails', { browser: 'chrome' }, () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`,
             '',
-            true
+            true,
         );
 
         cy.get('.sw-media-folder-settings__thumbnails-tab').click();
@@ -124,7 +124,7 @@ describe('Media: Test thumbnails', { browser: 'chrome' }, () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`,
             '',
-            true
+            true,
         );
 
         cy.get('.sw-media-folder-settings__thumbnails-tab').click();

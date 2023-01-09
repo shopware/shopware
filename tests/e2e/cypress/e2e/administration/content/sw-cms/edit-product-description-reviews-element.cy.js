@@ -9,31 +9,31 @@ describe('CMS: Check usage and editing of product description reviews element', 
             return cy.createProductFixture({
                 name: 'Product name',
                 productNumber: 'RS-11111',
-                description: 'Pudding wafer apple pie fruitcake cupcake'
+                description: 'Pudding wafer apple pie fruitcake cupcake',
             });
         })
-        .then(() => {
-            cy.viewport(1920, 1080);
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+            .then(() => {
+                cy.viewport(1920, 1080);
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@content: use product description reviews element in another block', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCategory');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveProductData');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -100,12 +100,12 @@ describe('CMS: Check usage and editing of product description reviews element', 
     it('@content: use product description reviews block in landing page', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCategory');
 
         cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);

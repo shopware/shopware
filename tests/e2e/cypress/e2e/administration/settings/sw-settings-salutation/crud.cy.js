@@ -14,7 +14,7 @@ describe('Salutation: crud salutations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/salutation`,
-            method: 'POST'
+            method: 'POST',
         }).as('createSalutation');
 
         // go to salutaion module
@@ -58,7 +58,7 @@ describe('Salutation: crud salutations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/salutation/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('editSalutation');
 
         // go to salutation module
@@ -92,7 +92,7 @@ describe('Salutation: crud salutations', () => {
         // Prepare api to delete salutation
         cy.intercept({
             url: `${Cypress.env('apiPath')}/salutation/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteSalutation');
 
         // go to salutaion module
@@ -113,7 +113,7 @@ describe('Salutation: crud salutations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // assert that confirmation modal appears

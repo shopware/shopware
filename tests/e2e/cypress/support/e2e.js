@@ -32,13 +32,13 @@ Cypress.on('window:before:load', (window) => {
 })
 
 beforeEach(() => {
-    if (!Cypress.env('SKIP_INIT')) {
-        return cy.setToInitialState().then(() => {
-            return cy.authenticate();
-        });
-    }
-
-    return cy.authenticate();
+    return cy.authenticate().then(() => {
+        if (!Cypress.env('SKIP_INIT')) {
+            return cy.setToInitialState().then(() => {
+                return cy.authenticate();
+            });
+        }
+    });
 });
 
 // we need to use the classic function syntax to bind `this` correctly

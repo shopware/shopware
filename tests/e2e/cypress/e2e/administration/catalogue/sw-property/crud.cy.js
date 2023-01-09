@@ -5,7 +5,7 @@ import PropertyPageObject from '../../../../support/pages/module/sw-property.pag
 describe('Property: Test crud operations', () => {
     beforeEach(() => {
         cy.createPropertyFixture({
-            options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]
+            options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }],
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/property/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -19,7 +19,7 @@ describe('Property: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/property-group`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-loader').should('not.exist');
@@ -44,14 +44,14 @@ describe('Property: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/property-group`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Add option to property group
         cy.clickContextMenuItem(
             '.sw-property-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(page.elements.cardTitle, 'Basic information');
 
@@ -82,14 +82,14 @@ describe('Property: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/property-group/**`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         // Delete option in property
         cy.clickContextMenuItem(
             '.sw-property-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get(page.elements.loader).should('not.exist');
 
@@ -97,7 +97,7 @@ describe('Property: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get(`${page.elements.gridRow}--2`).should('not.exist');
@@ -111,7 +111,7 @@ describe('Property: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.modal} .sw-property-list__confirm-delete-text`,
             'Are you sure you really want to delete the property "Color"?');

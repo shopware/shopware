@@ -19,7 +19,7 @@ describe('Customer group: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/customer-group`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Create customer-group
@@ -43,7 +43,7 @@ describe('Customer group: Test crud operations', () => {
         cy.clickMainMenuItem({
             targetPath: '#/sw/customer/index',
             mainMenuId: 'sw-customer',
-            subMenuId: 'sw-customer-index'
+            subMenuId: 'sw-customer-index',
         });
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -67,7 +67,7 @@ describe('Customer group: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/customer-group/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         // Edit base data
@@ -75,7 +75,7 @@ describe('Customer group: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('#sw-field--customerGroup-name').clearTypeAndCheck('E2E Merchant');
@@ -96,7 +96,7 @@ describe('Customer group: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/customer-group/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         // Delete customer group
@@ -104,7 +104,7 @@ describe('Customer group: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-modal__body').should('be.visible');
@@ -122,14 +122,14 @@ describe('Customer group: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/customer-group/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         cy.get('.sw-settings-customer-group-list').should('be.visible');
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--1`
+            `${page.elements.dataGridRow}--1`,
         );
 
         cy.get('.sw-modal__body').should('be.visible');

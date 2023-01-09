@@ -23,7 +23,7 @@ describe('Media: Dissolve folder', () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`,
             '',
-            true
+            true,
         );
 
         // Upload image in folder
@@ -35,7 +35,7 @@ describe('Media: Dissolve folder', () => {
             '.sw-media-upload-v2__button-context-menu',
             null,
             '',
-            true
+            true,
         );
         page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/plugin-manager--login.png`);
         page.dissolve('plugin-manager--login.png');

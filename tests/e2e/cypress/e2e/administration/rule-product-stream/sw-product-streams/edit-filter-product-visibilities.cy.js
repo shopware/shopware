@@ -7,22 +7,22 @@ describe('Dynamic product group: Test product visibilities filter', () => {
         cy.searchViaAdminApi({
             data: {
                 field: 'name',
-                value: 'Storefront'
+                value: 'Storefront',
             },
-            endpoint: 'sales-channel'
+            endpoint: 'sales-channel',
         }).then((saleschannel) => {
             return cy.createProductFixture({
                 visibilities: [{
                     visibility: 30,
-                    salesChannelId: saleschannel.id
-                }]
+                    salesChannelId: saleschannel.id,
+                }],
             });
         })
-        .then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/create`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/create`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@catalogue: can see and add product visibilities', { tags: ['pa-business-ops'] }, () => {
@@ -37,8 +37,8 @@ describe('Dynamic product group: Test product visibilities filter', () => {
             {
                 field: 'Visibility.Product in Sales Channel',
                 operator: 'Is equal to',
-                value: 'Storefront'
-            }
+                value: 'Storefront',
+            },
         );
 
         cy.get('@productStreamFilterWithSingleSelect').should(($productStreamFilter) => {
@@ -54,8 +54,8 @@ describe('Dynamic product group: Test product visibilities filter', () => {
             {
                 field: 'Visibility.Sales Channel',
                 operator: 'Is equal to any of',
-                value: ['Storefront']
-            }
+                value: ['Storefront'],
+            },
         );
 
         cy.get('@productStreamFilterWithMultiSelect').should(($productStreamFilter) => {

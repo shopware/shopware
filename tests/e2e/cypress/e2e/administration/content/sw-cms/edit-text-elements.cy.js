@@ -16,11 +16,11 @@ describe('CMS: Check usage and editing of text elements', () => {
     it('@base @content: use text block with headline', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -70,7 +70,7 @@ describe('CMS: Check usage and editing of text elements', () => {
     it('@base @content: edit text block settings', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -112,11 +112,11 @@ describe('CMS: Check usage and editing of text elements', () => {
     it('@content: use text block with three columns', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();

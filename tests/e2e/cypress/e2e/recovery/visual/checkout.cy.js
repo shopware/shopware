@@ -1,8 +1,6 @@
 import CheckoutPageObject from '../../../support/pages/checkout.page-object';
 import AccountPageObject from '../../../support/pages/account.page-object';
 
-let product = {};
-
 describe('Checkout: Visual tests', () => {
     beforeEach(() => {
         cy.visit('/');
@@ -18,13 +16,13 @@ describe('Checkout: Visual tests', () => {
 
         cy.intercept({
             url: '/widgets/checkout/info',
-            method: 'get'
+            method: 'get',
         }).as('cartInfo');
 
         // Take snapshot for visual testing on desktop
         cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Checkout - Search product`,
             '.header-search-input',
-            {widths: [375, 1920]}
+            {widths: [375, 1920]},
         );
 
         // Product detail
@@ -37,7 +35,7 @@ describe('Checkout: Visual tests', () => {
         // Take snapshot for visual testing
         cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Checkout - See product`,
             '.product-detail-buy',
-            {widths: [375, 1920]}
+            {widths: [375, 1920]},
         );
 
         cy.get('.product-detail-buy .btn-buy').click();
@@ -62,7 +60,7 @@ describe('Checkout: Visual tests', () => {
         // Take snapshot for visual testing on desktop
         cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Checkout - Offcanvas`,
             page.elements.offCanvasCart,
-            {widths: [375, 1920]}
+            {widths: [375, 1920]},
         );
         cy.get('.line-item-label').contains('Adidas R.Y.V. Hoodie');
 
@@ -138,7 +136,7 @@ describe('Checkout: Visual tests', () => {
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`,
-            '', true
+            '', true,
         );
         cy.get('.sw-order-detail').should('be.visible');
 
@@ -154,7 +152,7 @@ describe('Checkout: Visual tests', () => {
         // Change text of the element to ensure consistent snapshots
         cy.changeElementText('.sw-order-state-history-card__order-state .sw-order-state-card__date', '01 Jan 2018, 00:00');
 
-       // Change text of the element to ensure consistent snapshots
+        // Change text of the element to ensure consistent snapshots
         cy.changeElementText('div.sw-card.sw-card--grid.has--header.has--title.sw-order-user-card > div.sw-card__content > div > div.sw-card-section.sw-card-section--secondary.sw-card-section--slim > div > dl:nth-child(2) > dd:nth-child(4)', '01 Jan 2018, 00:00');
 
         // Change text of the element to ensure consistent snapshots

@@ -1,5 +1,3 @@
-import AccountPageObject from '../../../support/pages/account.page-object';
-
 /**
  * @package checkout
  */
@@ -11,7 +9,6 @@ describe('Account: Handle addresses as customer', () => {
     });
 
     it('@base @customer @package: Add new address and swap roles of these two addresses', { tags: ['pa-customers-orders'] }, () => {
-        const page = new AccountPageObject();
         cy.visit('/account/login');
 
         // Login
@@ -64,15 +61,15 @@ describe('Account: Handle addresses as customer', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`
+                    Authorization: `Bearer ${result.access}`,
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.loginRegistration.showAccountTypeSelection': true
-                    }
-                }
+                        'core.loginRegistration.showAccountTypeSelection': true,
+                    },
+                },
             };
 
             return cy.request(requestConfig);
@@ -115,7 +112,7 @@ describe('Account: Handle addresses as customer', () => {
         cy.get(accountTypeSelector).typeAndSelect('Commercial');
         cy.get(billingAddressCompanySelector).should('be.visible');
         cy.get(billingAddressCompanySelector).type('Company Testing');
-        cy.get(billingAddressDepartmentSelector).should('be.visible')
+        cy.get(billingAddressDepartmentSelector).should('be.visible');
         cy.get(billingAddressDepartmentSelector).type('Department Testing');
 
         cy.get('.address-form-submit').click();

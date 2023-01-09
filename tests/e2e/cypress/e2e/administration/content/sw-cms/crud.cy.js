@@ -16,7 +16,7 @@ describe('CMS: Test crud operations of layouts', () => {
     it('@base @content @package: create and read layout', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Fill in basic data
@@ -62,12 +62,12 @@ describe('CMS: Test crud operations of layouts', () => {
     it('@base @content @package: update and read layout', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -115,7 +115,7 @@ describe('CMS: Test crud operations of layouts', () => {
     it('@base @content @package: delete layout', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         cy.clickContextMenuItem(
@@ -123,7 +123,7 @@ describe('CMS: Test crud operations of layouts', () => {
             '.sw-cms-list-item__options',
             '.sw-cms-list-item--0',
             '',
-            true
+            true,
         );
         cy.contains('.sw_tree__confirm-delete-text',
             'Are you sure you really want to delete the layout "Vierte Wand"?');

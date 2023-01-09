@@ -8,17 +8,17 @@ import MediaPageObject from '../../../../support/pages/module/sw-media.page-obje
 describe('Media: Move folder and image', () => {
     beforeEach(() => {
         cy.createDefaultFixture('media-folder', {
-            name: '1st folder'
+            name: '1st folder',
         }).then(() => {
             return cy.createDefaultFixture('media-folder', {
-                name: '2nd folder'
+                name: '2nd folder',
             });
         })
-        .then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@media: move folder and medium', { tags: ['pa-content-management'] }, () => {
@@ -30,7 +30,7 @@ describe('Media: Move folder and image', () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`,
             '',
-            true
+            true,
         );
         cy.contains(page.elements.smartBarHeader, '1st folder');
         cy.setEntitySearchable('media', ['fileName', 'title']);
@@ -52,12 +52,12 @@ describe('Media: Move folder and image', () => {
         // Move image to second folder
         page.moveMediaItem('sw-test-image.png', {
             itemType: 'medium',
-            listingPosition: 1
+            listingPosition: 1,
         });
 
         // Move first folder to second one
         page.moveMediaItem('1st folder', {
-            itemType: 'folder'
+            itemType: 'folder',
         });
 
         // Verify movement
@@ -67,7 +67,7 @@ describe('Media: Move folder and image', () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`,
             '',
-            true
+            true,
         );
         cy.get(page.elements.loader).should('not.exist');
         cy.contains(page.elements.smartBarHeader, '2nd folder');
@@ -79,7 +79,7 @@ describe('Media: Move folder and image', () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`,
             '',
-            true
+            true,
         );
         cy.get(page.elements.loader).should('not.exist');
         cy.contains(page.elements.smartBarHeader, '1st folder');

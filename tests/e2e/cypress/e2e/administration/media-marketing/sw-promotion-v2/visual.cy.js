@@ -10,17 +10,17 @@ describe('Promotion v2: Visual tests', () => {
         cy.createDefaultFixture('promotion').then(() => {
             return cy.createProductFixture();
         })
-        .then(() => {
-            return cy.createCustomerFixture();
-        })
-        .then(() => {
-            return cy.setShippingMethodInSalesChannel('Standard');
-        })
-        .then(() => {
-            cy.openInitialPage(Cypress.env('admin'));
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+            .then(() => {
+                return cy.createCustomerFixture();
+            })
+            .then(() => {
+                return cy.setShippingMethodInSalesChannel('Standard');
+            })
+            .then(() => {
+                cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@visual: check appearance of basic promotion workflow', { tags: ['pa-checkout'] }, () => {
@@ -29,25 +29,25 @@ describe('Promotion v2: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/promotion`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/promotion/**`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('patchPromotion');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/promotion`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
         cy.intercept({
             url: '/widgets/checkout/info',
-            method: 'GET'
+            method: 'GET',
         }).as('cartInfo');
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/promotion/v2/index',
             mainMenuId: 'sw-marketing',
-            subMenuId: 'sw-promotion-v2'
+            subMenuId: 'sw-promotion-v2',
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
@@ -128,13 +128,13 @@ describe('Promotion v2: Visual tests', () => {
 
         cy.changeElementStyling(
             '.header-search',
-            'visibility: hidden'
+            'visibility: hidden',
         );
         cy.get('.header-search')
             .should('have.css', 'visibility', 'hidden');
         cy.changeElementStyling(
             '#accountWidget',
-            'visibility: hidden'
+            'visibility: hidden',
         );
         cy.get('#accountWidget')
             .should('have.css', 'visibility', 'hidden');

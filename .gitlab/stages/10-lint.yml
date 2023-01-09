@@ -26,6 +26,21 @@
     - src/Administration/Resources/app/administration/.jestcache
   policy: push
 
+.e2e-node-cache: &e2e-node-cache
+  key:
+    files:
+      - tests/e2e/package-lock.json
+  paths:
+    - tests/e2e/node_modules/
+    - .Cypress/
+  policy: push
+
+.e2e-eslint-cache: &e2e-eslint-cache
+  key: 'eslint-e2e'
+  paths:
+    - tests/e2e/.eslintcache
+  policy: push
+
 .storefront-node-cache: &storefront-node-cache
   key:
     files:
@@ -145,6 +160,35 @@ ESLint (Storefront):
             - eslint.junit.xml
         reports:
             junit: eslint.junit.xml
+
+ESLint (E2E):
+  extends: .base
+  stage: lint
+  rules:
+    - !reference [.rules, skip]
+    - !reference [.rules, run]
+    - changes:
+        - 'tests/e2e/**/*'
+  cache:
+    - <<: *e2e-node-cache
+      policy: pull
+    - <<: *e2e-eslint-cache
+      policy: pull
+  before_script:
+    - composer install --no-scripts --quiet
+    - '[[ -d tests/e2e/node_modules/ ]] || npm --prefix tests/e2e/ ci'
+    - !reference [ .scripts, install-node, script ]
+  script:
+    - cd tests/e2e
+    - npm run lint -- --format junit --output-file $CI_PROJECT_DIR/eslint.junit.xml
+  after_script:
+    - grep 'failure message' eslint.junit.xml
+  artifacts:
+    when: on_failure
+    paths:
+      - eslint.junit.xml
+    reports:
+      junit: eslint.junit.xml
 
 Stylelint (Administration):
     extends: .base-no-setup

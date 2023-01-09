@@ -19,12 +19,12 @@ describe('Currency: Test crud operations', () => {
 
             cy.intercept({
                 url: `**/${Cypress.env('apiPath')}/currency`,
-                method: 'POST'
+                method: 'POST',
             }).as('saveData');
 
             cy.intercept({
                 url: `**/${Cypress.env('apiPath')}/currency/**/country-roundings`,
-                method: 'POST'
+                method: 'POST',
             }).as('saveCurrencyCountry');
 
 

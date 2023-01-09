@@ -5,9 +5,11 @@ import AccountPageObject from '../../../support/pages/account.page-object';
  */
 describe('Account: Login as customer', () => {
     beforeEach(() => {
-        cy.clearCookies()
-            .then(() => cy.createCustomerFixtureStorefront())
-            .then(() => cy.createProductFixture());
+        cy.createCustomerFixtureStorefront().then(() => {
+            return cy.createProductFixture();
+        }).then(() => {
+            return cy.clearCookies();
+        });
     });
 
     it('@login: Login with wrong credentials', { tags: ['pa-customers-orders'] }, () => {
@@ -41,15 +43,15 @@ describe('Account: Login as customer', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`
+                    Authorization: `Bearer ${result.access}`,
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.loginRegistration.invalidateSessionOnLogOut': true
-                    }
-                }
+                        'core.loginRegistration.invalidateSessionOnLogOut': true,
+                    },
+                },
             };
             return cy.request(requestConfig);
         });

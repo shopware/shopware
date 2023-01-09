@@ -56,23 +56,23 @@ describe('Promotion v2: Test code operations', () => {
     it('@base @marketing: generate and save individual promotion codes and replace afterwards with a custom pattern', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=pre_%25s%25s%25s%25s%25s_post`,
-            method: 'GET'
+            method: 'GET',
         }).as('previewCode1');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=pre_%25s%25s_post`,
-            method: 'GET'
+            method: 'GET',
         }).as('previewCode2');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=new_%25d%25d%25d_new!`,
-            method: 'GET'
+            method: 'GET',
         }).as('previewCode3');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/promotion/codes/replace-individual`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('generateCodes');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/promotion`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadCodes');
 
         cy.get('#sw-field--selectedCodeType').select('Individual promotion codes');

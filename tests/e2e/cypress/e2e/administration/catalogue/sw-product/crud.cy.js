@@ -19,11 +19,11 @@ describe('Product: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'POST'
+            method: 'POST',
         }).as('calculatePrice');
 
         // Add basic data to product
@@ -93,14 +93,14 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Edit base data of product
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('input[name=sw-field--product-name]').clearTypeAndCheck('What remains of Edith Finch');
@@ -120,17 +120,17 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         // Delete product
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.modal} .sw-listing__confirm-delete-text`,
-            'Are you sure you want to delete this item?'
+            'Are you sure you want to delete this item?',
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
@@ -144,7 +144,7 @@ describe('Product: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-product-settings-mode').should('be.visible');
@@ -156,14 +156,14 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Edit base data of product
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('input[name=sw-field--product-name]').clearTypeAndCheck('What remains of Edith Finch');
@@ -203,7 +203,7 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'POST'
+            method: 'POST',
         }).as('calculatePrice');
 
         // Add basic data to product

@@ -26,7 +26,7 @@ describe('Category: SDK Test', ()=> {
             .should('be.visible');
 
         cy.getSDKiFrame('ui-menu-item-add-menu-item')
-            .contains('Hello from the new Menu Page')
+            .contains('Hello from the new Menu Page');
 
         cy.get('.sw-page__search-bar')
             .should('not.exist');
@@ -54,9 +54,9 @@ describe('Category: SDK Test', ()=> {
             .should('be.visible');
 
         cy.getSDKiFrame('ui-menu-item-add-menu-item')
-            .contains('Hello from the new menu page with searchbar')
+            .contains('Hello from the new menu page with searchbar');
 
         cy.get('.sw-page__search-bar')
             .should('exist');
-    })
+    });
 });

@@ -31,7 +31,7 @@ describe('Theme: Test loading and saving of theme', () => {
         const page = new ProductPageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
@@ -40,7 +40,7 @@ describe('Theme: Test loading and saving of theme', () => {
 
         cy.clickContextMenuItem(
             '.sw-context-menu-item:nth-of-type(1)',
-            `.sw-theme-manager-detail__info-card ${page.elements.contextMenuButton}`
+            `.sw-theme-manager-detail__info-card ${page.elements.contextMenuButton}`,
         );
 
         cy.get('.sw-modal').should('be.visible');

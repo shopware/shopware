@@ -17,7 +17,7 @@ describe('Customer:  Edit in various ways', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         // Inline edit customer
@@ -38,13 +38,13 @@ describe('Customer:  Edit in various ways', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.clickContextMenuItem(
             '.sw-customer-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('#sw-field--customer-firstName').clearTypeAndCheck('Woody');
@@ -54,12 +54,12 @@ describe('Customer:  Edit in various ways', () => {
 
         cy.get('.sw-customer-base-info__payment-select').typeSingleSelectAndCheck(
             'Direct Debit',
-            '.sw-customer-base-info__payment-select'
-            );
+            '.sw-customer-base-info__payment-select',
+        );
 
         cy.get('.sw-customer-base-info__language-select').typeSingleSelectAndCheck(
             'Deutsch',
-            '.sw-customer-base-info__language-select'
+            '.sw-customer-base-info__language-select',
         );
 
         cy.get(page.elements.customerSaveAction).click();

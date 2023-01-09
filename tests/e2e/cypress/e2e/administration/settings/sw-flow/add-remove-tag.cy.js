@@ -15,7 +15,7 @@ describe('Flow builder: Add remove tag testing', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'post'
+            method: 'post',
         }).as('saveData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -170,7 +170,7 @@ describe('Flow builder: Add remove tag testing', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-loader').should('not.exist');
@@ -184,7 +184,7 @@ describe('Flow builder: Add remove tag testing', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--1`
+            `${page.elements.dataGridRow}--1`,
         );
 
         cy.get('.sw-loader').should('not.exist');

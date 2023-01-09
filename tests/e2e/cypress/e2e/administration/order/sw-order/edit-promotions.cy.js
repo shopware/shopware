@@ -11,29 +11,29 @@ describe('Order: Test promotions in existing orders', () => {
                 endpoint: 'product',
                 data: {
                     field: 'name',
-                    value: 'Product name'
-                }
+                    value: 'Product name',
+                },
             });
         })
-        .then((result) => {
-            return cy.createGuestOrder(result.id);
-        })
-        .then(() => {
-            return cy.searchViaAdminApi({
-                endpoint: 'sales-channel',
-                data: {
-                    field: 'name',
-                    value: 'Storefront'
-                }
-            });
-        })
-        .then((data) => {
-            salesChannelId = data.id;
+            .then((result) => {
+                return cy.createGuestOrder(result.id);
+            })
+            .then(() => {
+                return cy.searchViaAdminApi({
+                    endpoint: 'sales-channel',
+                    data: {
+                        field: 'name',
+                        value: 'Storefront',
+                    },
+                });
+            })
+            .then((data) => {
+                salesChannelId = data.id;
 
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@base @order: add promotion to existing order', { tags: ['pa-customers-orders'] }, () => {
@@ -46,35 +46,35 @@ describe('Order: Test promotions in existing orders', () => {
             active: true,
             salesChannels: [{
                 salesChannelId: salesChannelId,
-                priority: 1
+                priority: 1,
             }],
             discounts: [{
                 scope: 'cart',
                 type: 'absolute',
                 value: 5.0,
-                considerAdvancedRules: false
-            }]
+                considerAdvancedRules: false,
+            }],
         });
 
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
+            method: 'POST',
         }).as('orderCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/order/**/promotion-item`,
-            method: 'POST'
+            method: 'POST',
         }).as('orderAddPromotionCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/order/**/`,
-            method: 'POST'
+            method: 'POST',
         }).as('orderRemovePromotionCall');
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         page.changeActiveTab('details');
@@ -104,31 +104,31 @@ describe('Order: Test promotions in existing orders', () => {
             active: true,
             salesChannels: [{
                 salesChannelId: salesChannelId,
-                priority: 1
+                priority: 1,
             }],
             discounts: [{
                 scope: 'cart',
                 type: 'absolute',
                 value: 5.0,
-                considerAdvancedRules: false
-            }]
+                considerAdvancedRules: false,
+            }],
         });
 
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
+            method: 'POST',
         }).as('orderCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/order/**/toggleAutomaticPromotions`,
-            method: 'POST'
+            method: 'POST',
         }).as('toggleAutomaticPromotionsCall');
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.wait('@orderCall').its('response.statusCode').should('equal', 200);

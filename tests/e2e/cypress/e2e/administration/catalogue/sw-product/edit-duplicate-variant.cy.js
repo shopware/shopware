@@ -17,15 +17,15 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/product/*`,
-            method: 'POST'
+            method: 'POST',
         }).as('duplicateProduct');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/**/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('getProduct');
 
 
@@ -33,7 +33,7 @@ describe('Product: Test variants', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-product-detail__tab-variants').click();
@@ -80,7 +80,7 @@ describe('Product: Test variants', () => {
         cy.clickContextMenuItem(
             '.sw-product-list-grid__duplicate-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Verify product
@@ -97,15 +97,15 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/product/*`,
-            method: 'POST'
+            method: 'POST',
         }).as('duplicateProduct');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/**/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('getProduct');
 
 
@@ -113,7 +113,7 @@ describe('Product: Test variants', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-product-detail__tab-variants').click();
@@ -158,14 +158,14 @@ describe('Product: Test variants', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.wait('@getProduct').its('response.statusCode').should('equal', 200);
 
         // Save and duplicate
         cy.clickContextMenuItem(
             '.sw-product-detail__save-duplicate-action',
-            '.sw-product-detail__save-button-group .sw-context-button'
+            '.sw-product-detail__save-button-group .sw-context-button',
         );
 
         // Verify product
@@ -173,7 +173,7 @@ describe('Product: Test variants', () => {
         cy.get('.clone-variant__modal').should('not.exist');
         cy.get('input[name=sw-field--product-name]').should(
             'have.value',
-            'Variant product name Copy'
+            'Variant product name Copy',
         );
     });
 });

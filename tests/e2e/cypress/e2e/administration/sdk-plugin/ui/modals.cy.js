@@ -24,7 +24,7 @@ describe('Category: SDK Test', ()=> {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             Page.elements.contextMenuButton,
-            `${Page.elements.dataGridRow}--0`
+            `${Page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-product-detail__tab-general')
@@ -107,5 +107,5 @@ describe('Category: SDK Test', ()=> {
         cy.get('.sw-modal__dialog > .sw-modal__footer > .sw-button').last()
             .contains('Close modal')
             .click();
-    })
-})
+    });
+});

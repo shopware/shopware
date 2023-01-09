@@ -14,7 +14,7 @@ describe('Flow builder: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -52,7 +52,7 @@ describe('Flow builder: Test crud operations', () => {
     it('@settings: Try to create flow with empty required fields', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveEmptyData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -100,11 +100,11 @@ describe('Flow builder: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('updateData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/flow`,
-            method: 'POST'
+            method: 'POST',
         }).as('getFlow');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -121,7 +121,7 @@ describe('Flow builder: Test crud operations', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`,
             'Edit',
-            true
+            true,
         );
 
         // Verify correct detail page
@@ -164,7 +164,7 @@ describe('Flow builder: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/flow/*`,
-            method: 'POST'
+            method: 'POST',
         }).as('duplicateData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -180,7 +180,7 @@ describe('Flow builder: Test crud operations', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`,
             'Duplicate',
-            true
+            true,
         );
 
         cy.wait('@duplicateData').its('response.statusCode').should('equal', 200);
@@ -201,7 +201,7 @@ describe('Flow builder: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow/*`,
-            method: 'DELETE'
+            method: 'DELETE',
         }).as('deleteData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -219,7 +219,7 @@ describe('Flow builder: Test crud operations', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`,
             'Delete',
-            true
+            true,
         );
 
         cy.contains('.sw-modal__body', 'If you delete this flow, no more actions will be performed for the trigger. Are you sure you want to delete this flow?');

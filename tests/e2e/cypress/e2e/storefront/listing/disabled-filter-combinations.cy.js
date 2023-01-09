@@ -14,8 +14,8 @@ describe('Test product filters get disabled if a combination is not possible', (
                     endpoint: 'sales-channel',
                     data: {
                         field: 'name',
-                        value: 'Storefront'
-                    }
+                        value: 'Storefront',
+                    },
                 });
             })
             .then((salesChannel) => {
@@ -24,12 +24,12 @@ describe('Test product filters get disabled if a combination is not possible', (
                     endpoint: 'language',
                     data: {
                         field: 'name',
-                        value: 'English'
-                    }
+                        value: 'English',
+                    },
                 });
             })
             .then((language) => {
-                languageId = language.id
+                languageId = language.id;
 
                 variant1.productReviews = [
                     {
@@ -40,8 +40,8 @@ describe('Test product filters get disabled if a combination is not possible', (
                         points: 3,
                         status: true,
                         content: 'This is the best product I have ever seen!',
-                        title: 'Impressed'
-                    }
+                        title: 'Impressed',
+                    },
                 ];
                 return cy.createProductFixture(variant1);
             })

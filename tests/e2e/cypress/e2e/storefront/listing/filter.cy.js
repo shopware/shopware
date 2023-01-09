@@ -49,7 +49,7 @@ describe('Filter on startpage', () => {
 
         cy.get(elements.productDetailManufacturerLink).should(
             'contain',
-            manufacturer
+            manufacturer,
         );
     });
 });

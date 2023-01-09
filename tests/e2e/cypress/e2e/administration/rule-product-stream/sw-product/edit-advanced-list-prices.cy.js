@@ -19,14 +19,14 @@ describe('Product: Edit list prices of context prices', () => {
             // Request we want to wait for later
             cy.intercept({
                 url: `${Cypress.env('apiPath')}/_action/sync`,
-                method: 'POST'
+                method: 'POST',
             }).as('saveData');
 
             // Edit base data of product
             cy.clickContextMenuItem(
                 '.sw-entity-listing__context-menu-edit-action',
                 page.elements.contextMenuButton,
-                `${page.elements.dataGridRow}--0`
+                `${page.elements.dataGridRow}--0`,
             );
             cy.get('.sw-product-detail__tab-advanced-prices').click();
 

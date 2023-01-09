@@ -5,7 +5,7 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 describe('Tax: Test default tax rates', () => {
     beforeEach(() => {
         cy.createDefaultFixture('tax', {
-            id: '70359730b8f244bf94f4372ab4646fe5'
+            id: '70359730b8f244bf94f4372ab4646fe5',
         })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/tax/index`);
@@ -20,7 +20,7 @@ describe('Tax: Test default tax rates', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Edit tax' base data
@@ -28,7 +28,7 @@ describe('Tax: Test default tax rates', () => {
         cy.clickContextMenuItem(
             '.sw-tax-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-settings-tax-detail__default-tax-rate').click();

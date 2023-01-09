@@ -13,13 +13,13 @@ describe('Sitemap: Visual testing', () => {
     it('@visual: check appearance of sitemap module', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/schema?domain=core.sitemap`,
-            method: 'GET'
+            method: 'GET',
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
         cy.contains('Sitemap').click();
         cy.wait('@getData')

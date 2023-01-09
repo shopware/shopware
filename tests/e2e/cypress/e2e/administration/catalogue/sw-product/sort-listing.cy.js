@@ -6,8 +6,8 @@ describe('Product: Sort grid', () => {
             endpoint: 'currency',
             data: {
                 field: 'isoCode',
-                value: 'GBP'
-            }
+                value: 'GBP',
+            },
         }).then(response => {
             const currencyId = response.id;
 
@@ -20,52 +20,52 @@ describe('Product: Sort grid', () => {
                         currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
                         net: 55,
                         linked: false,
-                        gross: 210
+                        gross: 210,
                     },
                     {
                         currencyId,
                         net: 67,
                         linked: false,
-                        gross: 67
-                    }
-                ]
-            });
-        })
-        .then(response => {
-            const currencyId = response.price[1].currencyId;
-
-            return cy.createProductFixture({
-                name: 'Second product',
-                productNumber: 'RS-22222',
-                description: 'Jelly beans jelly-o toffee I love jelly pie tart cupcake topping.',
-                price: [
-                    {
-                        currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                        net: 24,
-                        linked: false,
-                        gross: 128
+                        gross: 67,
                     },
-                    {
-                        currencyId,
-                        net: 12,
-                        linked: false,
-                        gross: 232
-                    }
-                ]
+                ],
             });
         })
-        .then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+            .then(response => {
+                const currencyId = response.price[1].currencyId;
+
+                return cy.createProductFixture({
+                    name: 'Second product',
+                    productNumber: 'RS-22222',
+                    description: 'Jelly beans jelly-o toffee I love jelly pie tart cupcake topping.',
+                    price: [
+                        {
+                            currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                            net: 24,
+                            linked: false,
+                            gross: 128,
+                        },
+                        {
+                            currencyId,
+                            net: 12,
+                            linked: false,
+                            gross: 232,
+                        },
+                    ],
+                });
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@catalogue: sort product listing', { tags: ['pa-inventory'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('search');
 
         // open context menu and display pound

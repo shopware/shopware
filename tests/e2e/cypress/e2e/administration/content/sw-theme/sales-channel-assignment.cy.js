@@ -17,7 +17,7 @@ describe('Theme: Test sales channel assignment', () => {
     it('@base @content: basic sales-channel assignment works', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
@@ -47,12 +47,12 @@ describe('Theme: Test sales channel assignment', () => {
     it('@content: can\'t remove saved sales-channel from default theme', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*/configuration`,
-            method: 'GET'
+            method: 'GET',
         }).as('loadData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
@@ -122,7 +122,7 @@ describe('Theme: Test sales channel assignment', () => {
     it('@content: can remove saved sales-channel from non-default theme', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
@@ -203,7 +203,7 @@ describe('Theme: Test sales channel assignment', () => {
     it('@content: shows warning in modal when sales-channel is removed from non-default theme', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
@@ -251,7 +251,7 @@ describe('Theme: Test sales channel assignment', () => {
     it('@content: removing sales-channel from non-default theme will assign it to default theme', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')

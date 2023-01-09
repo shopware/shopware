@@ -11,16 +11,16 @@ const additionalData = {
                 type: 'referencePrice',
                 id: null,
                 name: null,
-                position: 0
-            }
-        ]
+                position: 0,
+            },
+        ],
     },
     unit: {
         shortCode: 'l',
-        name: 'litres'
+        name: 'litres',
     },
     purchaseUnit: 2,
-    referenceUnit: 0.33
+    referenceUnit: 0.33,
 };
 
 /**
@@ -29,7 +29,7 @@ const additionalData = {
 describe('Test if essential characteristics are displayed in checkout', () => {
     beforeEach(() => {
         cy.createProductFixture(additionalData).then(() => {
-            return cy.createDefaultFixture('category')
+            return cy.createDefaultFixture('category');
         }).then(() => {
             return cy.fixture('product');
         }).then((result) => {

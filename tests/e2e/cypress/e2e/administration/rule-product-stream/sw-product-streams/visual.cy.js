@@ -8,17 +8,17 @@ describe('Dynamic product groups: Visual tests', () => {
         cy.createDefaultFixture('product-stream').then(() => {
             return cy.createProductFixture();
         })
-        .then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@visual: check appearance of basic product stream workflow', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchProducts');
 
         const page = new ProductStreamObject();
@@ -41,7 +41,7 @@ describe('Dynamic product groups: Visual tests', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.contains(page.elements.smartBarHeader, '1st Productstream');
@@ -54,8 +54,8 @@ describe('Dynamic product groups: Visual tests', () => {
             {
                 field: null,
                 operator: 'Is equal to any of',
-                value: ['Product name']
-            }
+                value: ['Product name'],
+            },
         );
 
         cy.contains('button.sw-button', 'Preview').click();
@@ -95,8 +95,8 @@ describe('Dynamic product groups: Visual tests', () => {
             {
                 field: null,
                 operator: 'Is not equal to any of',
-                value: []
-            }
+                value: [],
+            },
         );
 
         // Take snapshot for visual testing

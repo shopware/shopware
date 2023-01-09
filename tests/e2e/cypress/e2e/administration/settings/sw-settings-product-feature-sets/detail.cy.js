@@ -11,7 +11,7 @@ const selectors = {
     button: 'button.sw-button',
     valueTable: 'table.sw-data-grid__table tbody',
     valueTableRow: '.sw-data-grid__row',
-    checkbox: 'input[type=checkbox]'
+    checkbox: 'input[type=checkbox]',
 };
 
 describe('Essential characteristics: Test create operation', () => {
@@ -25,11 +25,11 @@ describe('Essential characteristics: Test create operation', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-feature-set`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-feature-set/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('addField');
 
         // Create country

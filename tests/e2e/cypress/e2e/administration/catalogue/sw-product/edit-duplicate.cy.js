@@ -17,19 +17,19 @@ describe('Product: Duplicate product', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/product/*`,
-            method: 'POST'
+            method: 'POST',
         }).as('duplicateProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/**/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('getProduct');
 
         // Duplicate product by using context menu option
         cy.clickContextMenuItem(
             '.sw-product-list-grid__duplicate-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Verify product
@@ -48,24 +48,24 @@ describe('Product: Duplicate product', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/product/*`,
-            method: 'POST'
+            method: 'POST',
         }).as('duplicateProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('getProduct');
 
         // Open product to duplicate
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.wait('@getProduct').its('response.statusCode').should('equal', 200);
@@ -82,14 +82,14 @@ describe('Product: Duplicate product', () => {
         // Save and duplicate
         cy.clickContextMenuItem(
             '.sw-product-detail__save-duplicate-action',
-            '.sw-product-detail__save-button-group .sw-context-button'
+            '.sw-product-detail__save-button-group .sw-context-button',
         );
 
         // Verify product
         cy.wait('@duplicateProduct').its('response.statusCode').should('equal', 200);
         cy.get('input[name=sw-field--product-name]').should(
             'have.value',
-            'What remains of Edith Finch Copy'
+            'What remains of Edith Finch Copy',
         );
 
         // check description
@@ -149,19 +149,19 @@ describe('Product: Duplicate product', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/product/*`,
-            method: 'POST'
+            method: 'POST',
         }).as('duplicateProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('getProduct');
 
         // Open product to duplicate
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.wait('@getProduct').its('response.statusCode').should('equal', 200);
@@ -170,27 +170,27 @@ describe('Product: Duplicate product', () => {
         // Save and duplicate
         cy.clickContextMenuItem(
             '.sw-product-detail__save-duplicate-action',
-            '.sw-product-detail__save-button-group .sw-context-button'
+            '.sw-product-detail__save-button-group .sw-context-button',
         );
 
         // Verify product
         cy.wait('@duplicateProduct').its('response.statusCode').should('equal', 200);
         cy.get('input[name=sw-field--product-name]').should(
             'have.value',
-            'What remains of Edith Finch Copy'
+            'What remains of Edith Finch Copy',
         );
 
         // Save and duplicate
         cy.clickContextMenuItem(
             '.sw-product-detail__save-duplicate-action',
-            '.sw-product-detail__save-button-group .sw-context-button'
+            '.sw-product-detail__save-button-group .sw-context-button',
         );
 
         // Verify product
         cy.wait('@duplicateProduct').its('response.statusCode').should('equal', 200);
         cy.get('input[name=sw-field--product-name]').should(
             'have.value',
-            'What remains of Edith Finch Copy Copy'
+            'What remains of Edith Finch Copy Copy',
         );
 
         cy.contains('Cancel').click();

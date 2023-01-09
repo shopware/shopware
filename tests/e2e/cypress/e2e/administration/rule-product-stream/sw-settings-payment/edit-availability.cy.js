@@ -19,7 +19,7 @@ describe('Payment: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/payment-method/**`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.contains('.sw-card', 'CredStick')
@@ -41,7 +41,7 @@ describe('Payment: Test crud operations', () => {
                 type: 'New customer',
                 selector: '.sw-condition',
                 operator: null,
-                value: 'Yes'
+                value: 'Yes',
             });
 
             cy.contains('button.sw-button', 'Save').click();

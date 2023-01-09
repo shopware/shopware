@@ -28,9 +28,9 @@ describe('Category: SDK Test', ()=> {
 
         // nesting is wanted to just click the button in the SDK Testplugin
         cy.contains('.sw-meteor-card__content-wrapper', 'SDK Testplugin').within(() => {
-                cy.get('.sw-context-button > .sw-context-button__button')
-                    .click();
-            })
+            cy.get('.sw-context-button > .sw-context-button__button')
+                .click();
+        });
 
         cy.get('.sw-context-menu__content').contains('Open extension')
             .click();

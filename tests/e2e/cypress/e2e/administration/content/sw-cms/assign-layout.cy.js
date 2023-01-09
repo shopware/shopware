@@ -11,43 +11,43 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
             data: {
                 field: 'name',
                 type: 'equals',
-                value: 'Storefront'
-            }
+                value: 'Storefront',
+            },
         }).then((data) => {
             salesChannel = data.id;
             return cy.createCmsFixture();
         })
-        .then(() => {
-            return cy.createDefaultFixture('cms-page', {}, 'cms-page-shop-page');
-        })
-        .then(() => {
-            return cy.createDefaultFixture('cms-page', { name: 'Testing page', type: 'landingpage' }, 'cms-page-shop-page');
-        })
-        .then((page) => {
-            page.name = 'Initial Page';
-            page.type = 'landingpage';
+            .then(() => {
+                return cy.createDefaultFixture('cms-page', {}, 'cms-page-shop-page');
+            })
+            .then(() => {
+                return cy.createDefaultFixture('cms-page', { name: 'Testing page', type: 'landingpage' }, 'cms-page-shop-page');
+            })
+            .then((page) => {
+                page.name = 'Initial Page';
+                page.type = 'landingpage';
 
-            return cy.createDefaultFixture('landing-page', {
-                cmsPage: page,
-                salesChannels: [
-                    {
-                        id: salesChannel
-                    }
-                ]
+                return cy.createDefaultFixture('landing-page', {
+                    cmsPage: page,
+                    salesChannels: [
+                        {
+                            id: salesChannel,
+                        },
+                    ],
+                });
+            })
+            .then(() => {
+                cy.viewport(1920, 1080);
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
-        })
-        .then(() => {
-            cy.viewport(1920, 1080);
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
     });
 
     it('@base @content: assign layout to landing page from layout editor', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         // Go to detail view
@@ -120,7 +120,7 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
     it('@base @content: assign layout to category from layout editor', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         // Go to detail view
@@ -189,12 +189,12 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
     it('@base @content: assign layout to shop page from layout editor', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveShopPageData');
 
         // Go to detail view

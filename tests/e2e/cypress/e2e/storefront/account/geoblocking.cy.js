@@ -11,19 +11,19 @@ describe('Account: indicate non shippable country on register page', () => {
             endpoint: 'country',
             data: {
                 field: 'iso',
-                value: 'DE'
-            }
+                value: 'DE',
+            },
         }).then(result => {
             return cy.updateViaAdminApi('country', result.id, {
                 data: {
-                    shippingAvailable: false
-                }
+                    shippingAvailable: false,
+                },
             });
         })
-        .then(() => {
-            return cy.createCustomerFixtureStorefront();
-        });
-    })
+            .then(() => {
+                return cy.createCustomerFixtureStorefront();
+            });
+    });
 
     it('@registration: Register with non shippable countries', { tags: ['pa-customers-orders'] }, () => {
         const page = new AccountPageObject();
@@ -79,10 +79,9 @@ describe('Account: indicate non shippable country on register page', () => {
     it('User is not able to set new shipping address with a non-shippable country', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             method: 'POST',
-            url: '/country/country-state-data'
+            url: '/country/country-state-data',
         }).as('countryStateRequest');
 
-        const page = new AccountPageObject();
         cy.visit('/account/login');
 
         cy.get('#loginMail').typeAndCheck('test@example.com');

@@ -8,7 +8,7 @@ describe('Index page on various viewports', () => {
         beforeEach(() => {
             // run these tests as if in a desktop
             // browser with a 720p monitor
-            cy.viewport(1280, 720)
+            cy.viewport(1280, 720);
         });
 
         it('displays full header', { tags: ['ct-storefront'] }, () => {

@@ -11,9 +11,9 @@ const additionalProducts = [
                 'currencyId': 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
                 'net': 8.40,
                 'linked': false,
-                'gross': 10
-            }
-        ]
+                'gross': 10,
+            },
+        ],
     },
     {
         name: '7% Product',
@@ -24,9 +24,9 @@ const additionalProducts = [
                 'currencyId': 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
                 'net': 8.40,
                 'linked': false,
-                'gross': 10
-            }
-        ]
+                'gross': 10,
+            },
+        ],
     },
     {
         name: 'Mixed Products',
@@ -37,10 +37,10 @@ const additionalProducts = [
                 'currencyId': 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
                 'net': 8.40,
                 'linked': false,
-                'gross': 10
-            }
-        ]
-    }
+                'gross': 10,
+            },
+        ],
+    },
 ];
 let product = {};
 
@@ -51,15 +51,15 @@ describe('Checkout: Use different taxes in products while checkout', () => {
 
     beforeEach(() => {
         return cy.createProductFixture().then(() => {
-            return cy.createDefaultFixture('category')
+            return cy.createDefaultFixture('category');
         }).then(() => {
             return cy.fixture('product');
         }).then((result) => {
             product = result;
-            return cy.createCustomerFixtureStorefront()
+            return cy.createCustomerFixtureStorefront();
         }).then(() => {
             cy.visit('/');
-        })
+        });
     });
 
     additionalProducts.forEach(additionalProduct => {
@@ -70,7 +70,7 @@ describe('Checkout: Use different taxes in products while checkout', () => {
             beforeEach(() => {
                 return cy.createProductFixture(additionalProduct).then(() => {
                     cy.visit('/');
-                })
+                });
             });
 
             it('@base @checkout @package: Run checkout', { tags: ['pa-checkout'] }, () => {

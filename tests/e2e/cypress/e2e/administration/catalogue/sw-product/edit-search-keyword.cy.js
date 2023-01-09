@@ -25,12 +25,12 @@ describe('Product: Search Keyword product', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             method: 'POST',
-            url: `${Cypress.env('apiPath')}/search/product`
+            url: `${Cypress.env('apiPath')}/search/product`,
         }).as('searchData');
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Product name');
@@ -38,7 +38,7 @@ describe('Product: Search Keyword product', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Create new search keyword

@@ -9,7 +9,7 @@ function uploadImageUsingFileUpload(path, name) {
         .attachFile({
             filePath: path,
             fileName: name,
-            mimeType: 'image/png'
+            mimeType: 'image/png',
         });
 
     const altValue = name.substr(0, name.lastIndexOf('.'));
@@ -25,23 +25,23 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         cy.createCmsFixture().then(() => {
             return cy.createProductFixture(variantProduct);
         })
-        .then(() => {
-            cy.viewport(1920, 1080);
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+            .then(() => {
+                cy.viewport(1920, 1080);
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@base @content: use simple buy box element', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCategory');
 
         cy.intercept('GET', '/widgets/cms/buybox/**').as('loadData');
@@ -121,17 +121,17 @@ describe('CMS: Check usage and editing of buy box elements', () => {
     it('@base @content: use simple gallery buy box block', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCategory');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveDataFileUpload');
 
         cy.get('.sw-cms-list-item--0').click();

@@ -13,8 +13,8 @@ describe('Dashboard:  Visual tests', () => {
                     endpoint: 'product',
                     data: {
                         field: 'name',
-                        value: 'Product name'
-                    }
+                        value: 'Product name',
+                    },
                 });
             })
             .then((result) => {
@@ -46,7 +46,7 @@ describe('Dashboard:  Visual tests', () => {
         cy.get('.sw-skeleton__detail').should('not.exist');
         cy.changeElementStyling(
             '.apexcharts-xaxis-label',
-            'display: none;'
+            'display: none;',
         );
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();

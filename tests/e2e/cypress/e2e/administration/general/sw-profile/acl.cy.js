@@ -4,7 +4,7 @@ describe('Review: Test ACL privileges', () => {
     beforeEach(() => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_info/config`,
-            method: 'GET'
+            method: 'GET',
         }).as('infoCall');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/profile/index`);
@@ -23,8 +23,8 @@ describe('Review: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'sales_channel',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/profile/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -48,8 +48,8 @@ describe('Review: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'user',
-                role: 'update_profile'
-            }
+                role: 'update_profile',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/profile/index`);
 

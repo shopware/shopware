@@ -11,13 +11,13 @@ describe('Address settings: Visual testing', () => {
     it('@visual: check appearance of address settings module', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/schema?domain=core.address`,
-            method: 'GET'
+            method: 'GET',
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
         cy.get('a[href="#/sw/settings/address/index"]').click();
         cy.wait('@getData')

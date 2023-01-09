@@ -1,7 +1,6 @@
 /// <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
-import ProductStreamObject from '../../../support/pages/module/sw-product-stream.page-object';
 
 describe('Product: Visual tests', () => {
     beforeEach(() => {
@@ -18,11 +17,11 @@ describe('Product: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'post',
         }).as('saveData');
         cy.intercept({
             url: '/api/_action/calculate-price',
-            method: 'post'
+            method: 'post',
         }).as('calculatePrice');
 
         // Add basic data to product

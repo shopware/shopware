@@ -30,7 +30,7 @@ describe('Tag: Test listing sorting', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/tag`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadTags');
 
         cy.get('.sw-skeleton').should('not.exist');

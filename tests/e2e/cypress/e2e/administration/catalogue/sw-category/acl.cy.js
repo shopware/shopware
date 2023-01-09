@@ -12,8 +12,8 @@ describe('Category: Test ACL privileges', () => {
                 return cy.createCategoryFixture({
                     parent: {
                         name: 'ParentCategory',
-                        active: true
-                    }
+                        active: true,
+                    },
                 });
             })
             .then(() => {
@@ -30,8 +30,8 @@ describe('Category: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -93,12 +93,12 @@ describe('Category: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'category',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -110,7 +110,7 @@ describe('Category: Test ACL privileges', () => {
 
         cy.intercept({
             method: 'PATCH',
-            url: `${Cypress.env('apiPath')}/category/*`
+            url: `${Cypress.env('apiPath')}/category/*`,
         }).as('saveData');
 
         // Select a category
@@ -137,16 +137,16 @@ describe('Category: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'category',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'category',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
         });
@@ -156,14 +156,14 @@ describe('Category: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'POST',
-            url: `${Cypress.env('apiPath')}/category`
+            url: `${Cypress.env('apiPath')}/category`,
         }).as('saveData');
 
         // Add category before root one
         cy.clickContextMenuItem(
             `${page.elements.categoryTreeItem}__before-action`,
             page.elements.contextMenuButton,
-            `${page.elements.categoryTreeItemInner}:nth-of-type(1)`
+            `${page.elements.categoryTreeItemInner}:nth-of-type(1)`,
         );
         cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('Categorian');
         cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('{enter}');
@@ -185,27 +185,27 @@ describe('Category: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'category',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'category',
-                role: 'creator'
+                role: 'creator',
             },
             {
                 key: 'category',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
         });
 
         cy.intercept({
             method: 'delete',
-            url: `${Cypress.env('apiPath')}/category/*`
+            url: `${Cypress.env('apiPath')}/category/*`,
         }).as('deleteData');
 
         const page = new CategoryPageObject();
@@ -213,7 +213,7 @@ describe('Category: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu__group-button-delete',
             page.elements.contextMenuButton,
-            `${page.elements.categoryTreeItem}:nth-of-type(2)`
+            `${page.elements.categoryTreeItem}:nth-of-type(2)`,
         );
 
         // expect modal to be open

@@ -20,7 +20,7 @@ describe('Category: SDK Test', ()=> {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             Page.elements.contextMenuButton,
-            `${Page.elements.dataGridRow}--0`
+            `${Page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-product-detail__tab-general')
@@ -37,5 +37,5 @@ describe('Category: SDK Test', ()=> {
 
         cy.getSDKiFrame('ui-modals')
             .should('exist');
-    })
-})
+    });
+});

@@ -13,8 +13,8 @@ describe('Minimal install', () => {
     it('@install: en-GB and GBP', { tags: ['pa-system-settings'] }, () => {
         cy.visit('/installer', {
             headers: {
-                'Accept-Language': Cypress.env('acceptLanguage')
-            }
+                'Accept-Language': Cypress.env('acceptLanguage'),
+            },
         });
 
         cy.get('.content--main').should('be.visible');
@@ -214,7 +214,7 @@ describe('Minimal install', () => {
 
         cy.intercept({
             url: '/api/_action/store/frw/finish',
-            method: 'post'
+            method: 'post',
         }).as('finishCall');
 
         cy.get('.sw-button span').contains('Finish').click();

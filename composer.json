@@ -305,9 +305,12 @@
         "eslint:admin": "@npm:admin run lint:all",
         "eslint:admin:fix": "@npm:admin run lint:fix",
         "eslint:storefront": "@npm:storefront:bin eslint --config .eslintrc.js --ext .js,.vue",
+        "eslint:e2e": "@npm:e2e run lint",
+        "eslint:e2e:fix": "@npm:e2e run lint:fix",
         "eslint": [
             "@eslint:admin",
-            "@eslint:storefront"
+            "@eslint:storefront",
+            "@eslint:e2e"
         ],
         "ecs": "ecs check src tests",
         "ecs-fix": "ecs check --fix src tests",

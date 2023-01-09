@@ -17,22 +17,22 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'PATCH',
-            url: `${Cypress.env('apiPath')}/product/*`
+            url: `${Cypress.env('apiPath')}/product/*`,
         }).as('saveData');
         cy.intercept({
             method: 'GET',
-            url: `${Cypress.config('baseUrl')}/detail/**/switch?options=*`
+            url: `${Cypress.config('baseUrl')}/detail/**/switch?options=*`,
         }).as('changeVariant');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchVariantGroup');
 
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-product-detail__tab-variants').click();

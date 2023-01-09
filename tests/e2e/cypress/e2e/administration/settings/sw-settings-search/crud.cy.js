@@ -16,7 +16,7 @@ describe('Search: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/search/product-search-config',
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Make sure that everything need to load first.
@@ -30,7 +30,7 @@ describe('Search: Test crud operations', () => {
 
         cy.get('.sw-language-switch__select').typeSingleSelectAndCheck(
             'Philippine',
-            '.sw-language-switch__select'
+            '.sw-language-switch__select',
         );
 
         // Verify save search config method
@@ -42,7 +42,7 @@ describe('Search: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/search/product-search-config',
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Make sure that everything need to load first.

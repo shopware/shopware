@@ -18,13 +18,13 @@ describe('Mail templates: Check module navigation in settings', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
         cy.get('#sw-mail-template').click();
         cy.wait('@getData').its('response.statusCode').should('equals', 200);
@@ -40,7 +40,7 @@ describe('Mail templates: Check module navigation in settings', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `#mailTemplateGrid ${page.elements.dataGridRow}--0`
+            `#mailTemplateGrid ${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-loader').should('not.exist');

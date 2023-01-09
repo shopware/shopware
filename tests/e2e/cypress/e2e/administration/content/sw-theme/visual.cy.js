@@ -15,17 +15,17 @@ describe('Theme: Visual tests', () => {
     it('@visual: check appearance of basic theme workflow', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/theme`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/theme/manager/index',
             mainMenuId: 'sw-content',
-            subMenuId: 'sw-theme-manager'
+            subMenuId: 'sw-theme-manager',
         });
 
         cy.wait('@getData')

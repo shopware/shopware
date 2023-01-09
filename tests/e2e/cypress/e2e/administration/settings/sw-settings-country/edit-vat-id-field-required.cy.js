@@ -12,12 +12,12 @@ describe('Country: Test can setting VAT id field required', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveSettings');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCountry');
 
         cy.get('input[name="core.loginRegistration.showAccountTypeSelection"]').scrollIntoView();

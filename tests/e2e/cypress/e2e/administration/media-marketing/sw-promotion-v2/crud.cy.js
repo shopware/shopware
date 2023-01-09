@@ -21,7 +21,7 @@ describe('Promotion v2: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.waitFor('.sw-promotion-v2-list__smart-bar-button-add');
@@ -178,7 +178,7 @@ describe('Promotion v2: Test crud operations', () => {
     it('@base @marketing: create promotion in non system language', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/promotion`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.waitFor('.sw-language-switch');
@@ -199,14 +199,14 @@ describe('Promotion v2: Test crud operations', () => {
         const page = new ProductPageObject();
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         // Delete product
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.modal} .sw-listing__confirm-delete-text`,
             'Are you sure you want to delete this item?');

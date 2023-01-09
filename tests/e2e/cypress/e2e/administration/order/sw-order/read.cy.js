@@ -9,18 +9,18 @@ describe('Order: Read order', () => {
                 endpoint: 'product',
                 data: {
                     field: 'name',
-                    value: 'Product name'
-                }
+                    value: 'Product name',
+                },
             });
         })
-        .then((result) => {
-            return cy.createGuestOrder(result.id);
-        })
-        .then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+            .then((result) => {
+                return cy.createGuestOrder(result.id);
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@package @order: read order', { tags: ['pa-customers-orders'] }, () => {
@@ -30,7 +30,7 @@ describe('Order: Read order', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get(page.elements.tabs.general.generalInfoCard).should('exist');
@@ -65,7 +65,7 @@ describe('Order: Read order', () => {
             '.sw-context-menu__content',
             page.elements.contextMenuButton,
             '.sw-order-detail-general__line-item-grid-card',
-            'Show product'
+            'Show product',
         );
 
         cy.contains(page.elements.smartBarHeader, 'Product name');

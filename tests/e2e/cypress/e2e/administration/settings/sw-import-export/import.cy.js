@@ -20,17 +20,17 @@ describe('Import/Export - Check import functionality', () => {
     it('@base @settings: Perform import with product profile', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
-            method: 'POST'
+            method: 'POST',
         }).as('prepare');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/process`,
-            method: 'POST'
+            method: 'POST',
         }).as('process');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
-            method: 'POST'
+            method: 'POST',
         }).as('importExportLog');
 
         cy.get('.sw-import-export-view-import').should('be.visible');

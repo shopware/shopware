@@ -18,7 +18,7 @@ describe('Payment: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/payment-method`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.setEntitySearchable('payment_method', 'name');
@@ -44,7 +44,7 @@ describe('Payment: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/payment-method/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-card__title')
@@ -72,7 +72,7 @@ describe('Payment: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/payment-method/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         cy.setEntitySearchable('payment_method', 'name');
@@ -81,7 +81,7 @@ describe('Payment: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-modal__body').should('be.visible');

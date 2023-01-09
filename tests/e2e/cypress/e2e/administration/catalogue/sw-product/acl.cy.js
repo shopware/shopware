@@ -12,7 +12,7 @@ describe('Product: Test ACL privileges', () => {
     it('@base @catalogue: can view product', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'POST'
+            method: 'POST',
         }).as('propertyGroupSearch');
 
         const page = new ProductPageObject();
@@ -20,8 +20,8 @@ describe('Product: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -72,7 +72,7 @@ describe('Product: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
 
         const page = new ProductPageObject();
@@ -80,12 +80,12 @@ describe('Product: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'product',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -116,11 +116,11 @@ describe('Product: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
         cy.intercept({
             method: 'POST',
-            url: `${Cypress.env('apiPath')}/_action/calculate-price`
+            url: `${Cypress.env('apiPath')}/_action/calculate-price`,
         }).as('calculatePrice');
 
         const page = new ProductPageObject();
@@ -128,16 +128,16 @@ describe('Product: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'product',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'product',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -195,7 +195,7 @@ describe('Product: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         const page = new ProductPageObject();
@@ -203,12 +203,12 @@ describe('Product: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'product',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -219,10 +219,10 @@ describe('Product: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.modal} .sw-listing__confirm-delete-text`,
-            'Are you sure you want to delete this item?'
+            'Are you sure you want to delete this item?',
         );
         cy.get(`${page.elements.modal}__footer .sw-button--danger`).click();
 

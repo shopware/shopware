@@ -16,11 +16,11 @@ describe('Admin & Storefront - product visibility', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'post',
         }).as('saveProduct');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'post'
+            method: 'post',
         }).as('assignProductToCategory');
 
         const page = new ProductPageObject();
@@ -29,7 +29,7 @@ describe('Admin & Storefront - product visibility', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains('h2','Product name').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
@@ -71,11 +71,11 @@ describe('Admin & Storefront - product visibility', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'post',
         }).as('saveProduct');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'post'
+            method: 'post',
         }).as('assignProductToCategory');
 
         const page = new ProductPageObject();
@@ -84,7 +84,7 @@ describe('Admin & Storefront - product visibility', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains('h2','Product name').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
@@ -126,11 +126,11 @@ describe('Admin & Storefront - product visibility', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'post',
         }).as('saveProduct');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'post'
+            method: 'post',
         }).as('assignProductToCategory');
 
         const page = new ProductPageObject();
@@ -139,7 +139,7 @@ describe('Admin & Storefront - product visibility', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains('h2','Product name').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()

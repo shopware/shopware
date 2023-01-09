@@ -28,14 +28,14 @@ describe('Product: Editing context prices', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Open the product
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Go to context prices
@@ -153,7 +153,7 @@ describe('Product: Editing context prices', () => {
         cy.clickContextMenuItem(
             '.product-detail-context-prices__context-delete',
             page.elements.contextMenuButton,
-            `${priceGroup}-0 ${page.elements.dataGridRow}--1`
+            `${priceGroup}-0 ${page.elements.dataGridRow}--1`,
         );
 
         // check if other values in price group were adjusted to the deletion
@@ -164,7 +164,7 @@ describe('Product: Editing context prices', () => {
         cy.clickContextMenuItem(
             '.product-detail-context-prices__context-delete',
             page.elements.contextMenuButton,
-            `${priceGroup}-1 ${page.elements.dataGridRow}--0`
+            `${priceGroup}-1 ${page.elements.dataGridRow}--0`,
         );
 
         // check if new first rule in price group were adjusted to the deletion

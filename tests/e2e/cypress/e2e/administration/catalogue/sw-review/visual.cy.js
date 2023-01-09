@@ -16,14 +16,14 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to review module', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/product-review`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         // Open reviews
         cy.clickMainMenuItem({
             targetPath: '#/sw/review/index',
             mainMenuId: 'sw-catalogue',
-            subMenuId: 'sw-review'
+            subMenuId: 'sw-review',
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);

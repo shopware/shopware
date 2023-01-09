@@ -5,8 +5,8 @@ describe('Offcanvas navigation with regards to children visibility', () => {
             endpoint: 'category',
             data: {
                 field: 'name',
-                value: 'Home'
-            }
+                value: 'Home',
+            },
         }).then(({id: categoryId}) => {
             cy.createCategoryFixture({
                 name: 'Visible children',
@@ -19,9 +19,9 @@ describe('Offcanvas navigation with regards to children visibility', () => {
                         children: [
                             {
                                 name: 'Visible',
-                                type: 'page'
-                            }
-                        ]
+                                type: 'page',
+                            },
+                        ],
                     },
                     {
                         name: 'Invisible grandchildren',
@@ -30,11 +30,11 @@ describe('Offcanvas navigation with regards to children visibility', () => {
                             {
                                 name: 'Invisible',
                                 type: 'page',
-                                visible: false
-                            }
-                        ]
-                    }
-                ]
+                                visible: false,
+                            },
+                        ],
+                    },
+                ],
             });
 
             cy.createCategoryFixture({
@@ -45,9 +45,9 @@ describe('Offcanvas navigation with regards to children visibility', () => {
                     {
                         name: 'Invisible',
                         type: 'page',
-                        visible: false
-                    }
-                ]
+                        visible: false,
+                    },
+                ],
             });
         }).then(() => {
             cy.visit('/');
@@ -64,7 +64,7 @@ describe('Offcanvas navigation with regards to children visibility', () => {
         it('@navigation: Check menu entries for visible children', { tags: ['pa-sales-channels'] }, () => {
             cy.intercept({
                 url: '/widgets/menu/offcanvas*',
-                method: 'GET'
+                method: 'GET',
             }).as('offcanvasMenuRequest');
 
             cy.get('.nav.main-navigation-menu').should('not.be.visible');

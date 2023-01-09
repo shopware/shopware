@@ -12,21 +12,21 @@ describe('Flow builder: Visual testing', () => {
     it('@visual: @check appearance of flow builder workflow', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/flow`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/tag`,
-            method: 'POST'
+            method: 'POST',
         }).as('setTag');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/tag`,
-            method: 'POST'
+            method: 'POST',
         }).as('getTag');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
         cy.get('#sw-flow').click();
         cy.wait('@getData').its('response.statusCode').should('equal', 200);

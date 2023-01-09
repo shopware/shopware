@@ -23,7 +23,7 @@ describe('Flow builder: Create a flow from flow template', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Verify successful clone

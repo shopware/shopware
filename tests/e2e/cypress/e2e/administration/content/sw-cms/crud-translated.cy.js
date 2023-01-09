@@ -10,33 +10,33 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.createCmsFixture().then(() => {
             return cy.setSalesChannelDomain('Storefront');
         })
-        .then(() => {
-            cy.viewport(1920, 1080);
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+            .then(() => {
+                cy.viewport(1920, 1080);
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@base @content: create, translate and read layout', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('updateData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/cms-page`,
-            method: 'POST'
+            method: 'POST',
         }).as('reloadPage');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/language`,
-            method: 'POST'
+            method: 'POST',
         }).as('changeLang');
 
         cy.contains('Create new layout').click();
@@ -121,17 +121,17 @@ describe('CMS: Test crud operations of layouts', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/language`,
-            method: 'POST'
+            method: 'POST',
         }).as('changeLang');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();

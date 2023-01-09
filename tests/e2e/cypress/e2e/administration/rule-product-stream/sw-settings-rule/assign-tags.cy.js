@@ -17,7 +17,7 @@ describe('Rule builder: Test assigning tags', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-loader').should('not.exist');

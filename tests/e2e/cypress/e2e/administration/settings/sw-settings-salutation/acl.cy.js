@@ -13,8 +13,8 @@ describe('Salutation: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'salutation',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/salutation/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -31,12 +31,12 @@ describe('Salutation: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'salutation',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'salutation',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/salutation/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -46,7 +46,7 @@ describe('Salutation: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/salutation`,
-            method: 'POST'
+            method: 'POST',
         }).as('createSalutation');
 
         // go to create salutation page
@@ -97,12 +97,12 @@ describe('Salutation: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'salutation',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'salutation',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/salutation/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -112,7 +112,7 @@ describe('Salutation: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/salutation/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('editSalutation');
 
         // assert that there is an available list of salutations
@@ -153,12 +153,12 @@ describe('Salutation: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'salutation',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'salutation',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/salutation/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -168,7 +168,7 @@ describe('Salutation: Test acl privileges', () => {
         // prepare api to delete salutation
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/salutation/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteSalutation');
 
         // assert that there is an available list of salutations
@@ -184,7 +184,7 @@ describe('Salutation: Test acl privileges', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // assert that confirmation modal appears

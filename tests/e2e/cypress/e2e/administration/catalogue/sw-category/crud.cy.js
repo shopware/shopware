@@ -18,15 +18,15 @@ describe('Category: Create several categories', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadCategory');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/**`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('editCategory');
 
         // Add category before root one
@@ -34,7 +34,7 @@ describe('Category: Create several categories', () => {
         cy.clickContextMenuItem(
             `${page.elements.categoryTreeItem}__sub-action`,
             page.elements.contextMenuButton,
-            `${page.elements.categoryTreeItemInner}:nth-of-type(1)`
+            `${page.elements.categoryTreeItemInner}:nth-of-type(1)`,
         );
         cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('Invisibilian');
         cy.get(`${page.elements.categoryTreeItemInner}__content input`).then(($btn) => {
@@ -145,11 +145,11 @@ describe('Category: Create several categories', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadCategory');
 
         // Add category before root one
@@ -157,7 +157,7 @@ describe('Category: Create several categories', () => {
         cy.clickContextMenuItem(
             `${page.elements.categoryTreeItem}__sub-action`,
             page.elements.contextMenuButton,
-            `${page.elements.categoryTreeItemInner}:nth-of-type(1)`
+            `${page.elements.categoryTreeItemInner}:nth-of-type(1)`,
         );
         cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('Categorian');
         cy.get(`${page.elements.categoryTreeItemInner}__content input`).then(($btn) => {

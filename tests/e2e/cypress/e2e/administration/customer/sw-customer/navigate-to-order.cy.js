@@ -19,7 +19,7 @@ describe('Customer:  Edit in various ways', () => {
         cy.clickContextMenuItem(
             '.sw-customer-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-customer-detail__tab-order').click();

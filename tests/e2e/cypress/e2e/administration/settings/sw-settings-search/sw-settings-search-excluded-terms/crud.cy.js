@@ -31,7 +31,7 @@ describe('Product Search: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-search-config/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-settings-search-excluded-search-terms').scrollIntoView();
@@ -62,27 +62,27 @@ describe('Product Search: Test crud operations', () => {
                     cy.get(`.sw-settings-search-excluded-search-terms ${page.elements.dataGridRow}--0`)
                         .contains('.sw-data-grid__cell-value', index);
                 })
-                .then(($lis) => {
+                    .then(() => {
                     // update excluded terms
-                    cy.wrap([1, 2, 3, 4, 5]).each(($el, index) => {
-                        cy.get(`.sw-settings-search-excluded-search-terms ${page.elements.dataGridRow}--${index}`).dblclick();
-                        cy.get(`.sw-settings-search-excluded-search-terms ${page.elements.dataGridRow}--${index} input[name=sw-field--currentValue]`)
-                            .clearTypeAndCheck(`${index} edited`);
-                        cy.get(`.sw-settings-search-excluded-search-terms ${page.elements.dataGridRow}--${index} .sw-data-grid__inline-edit-save`)
-                            .click();
+                        cy.wrap([1, 2, 3, 4, 5]).each(($el, index) => {
+                            cy.get(`.sw-settings-search-excluded-search-terms ${page.elements.dataGridRow}--${index}`).dblclick();
+                            cy.get(`.sw-settings-search-excluded-search-terms ${page.elements.dataGridRow}--${index} input[name=sw-field--currentValue]`)
+                                .clearTypeAndCheck(`${index} edited`);
+                            cy.get(`.sw-settings-search-excluded-search-terms ${page.elements.dataGridRow}--${index} .sw-data-grid__inline-edit-save`)
+                                .click();
 
-                        cy.get(`.sw-settings-search-excluded-search-terms ${page.elements.dataGridRow}--${index} .sw-data-grid__cell-value`)
-                            .invoke('text')
-                            .should((resultTextAfter) => {
-                                expect(resultTextBefore.trim()).to.not.equal(resultTextAfter.trim());
-                            });
+                            cy.get(`.sw-settings-search-excluded-search-terms ${page.elements.dataGridRow}--${index} .sw-data-grid__cell-value`)
+                                .invoke('text')
+                                .should((resultTextAfter) => {
+                                    expect(resultTextBefore.trim()).to.not.equal(resultTextAfter.trim());
+                                });
 
-                        cy.wait('@saveData').its('response.statusCode').should('within', 200, 204);
-                        cy.awaitAndCheckNotification('Excluded search term updated.');
-                        cy.get(`.sw-settings-search-excluded-search-terms ${page.elements.dataGridRow}--${index}`)
-                            .contains('.sw-data-grid__cell-value', `${index} edited`);
-                    })
-                });
+                            cy.wait('@saveData').its('response.statusCode').should('within', 200, 204);
+                            cy.awaitAndCheckNotification('Excluded search term updated.');
+                            cy.get(`.sw-settings-search-excluded-search-terms ${page.elements.dataGridRow}--${index}`)
+                                .contains('.sw-data-grid__cell-value', `${index} edited`);
+                        });
+                    });
             });
     });
 
@@ -91,7 +91,7 @@ describe('Product Search: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-search-config/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-settings-search-excluded-search-terms').scrollIntoView();

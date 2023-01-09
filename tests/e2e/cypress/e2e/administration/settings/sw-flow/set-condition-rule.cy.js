@@ -18,7 +18,7 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('getRule');
 
         cy.get('.sw-flow-list').should('be.visible');

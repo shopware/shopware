@@ -36,7 +36,7 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.createCategoryFixture({ name: 'Sub Category'})
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-            })
+            });
 
         cy.get('.sw-dashboard')
             .should('exist');
@@ -102,23 +102,23 @@ describe('Search bar: Check search module with short keyword', () => {
                             "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
                             "net": 24,
                             "linked": false,
-                            "gross": 128
-                        }
-                    ]
+                            "gross": 128,
+                        },
+                    ],
                 });
             }).then(() => {
-            return cy.searchViaAdminApi({
-                endpoint: 'product',
-                data: {
-                    field: 'name',
-                    value: 'Product name'
-                }
+                return cy.searchViaAdminApi({
+                    endpoint: 'product',
+                    data: {
+                        field: 'name',
+                        value: 'Product name',
+                    },
+                });
+            }).then((result) => {
+                return cy.createGuestOrder(result.id);
+            }).then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
-        }).then((result) => {
-            return cy.createGuestOrder(result.id);
-        }).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-        });
 
         cy.get('.sw-dashboard')
             .should('exist');
@@ -161,7 +161,7 @@ describe('Search bar: Check search module with short keyword', () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`,
             '',
-            true
+            true,
         );
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

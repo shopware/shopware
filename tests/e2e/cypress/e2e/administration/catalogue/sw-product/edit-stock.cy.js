@@ -17,13 +17,13 @@ describe('Product: Edit in various ways', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-loader').should('not.exist');
@@ -42,7 +42,7 @@ describe('Product: Edit in various ways', () => {
         cy.get('.btn-buy').click();
         cy.get('.offcanvas').should('be.visible');
 
-        cy.window().then((win) => {
+        cy.window().then(() => {
             cy.contains(`.offcanvas .line-item-label`, 'Product name');
         });
     });
@@ -53,13 +53,13 @@ describe('Product: Edit in various ways', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-loader').should('not.exist');
@@ -74,7 +74,7 @@ describe('Product: Edit in various ways', () => {
         // Put product in cart
         cy.visit('/');
 
-        cy.window().then((win) => {
+        cy.window().then(() => {
             cy.get('.btn-buy').should('be.visible');
             cy.get('.btn-buy').click();
             cy.get('.offcanvas').should('be.visible');
@@ -88,13 +88,13 @@ describe('Product: Edit in various ways', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-loader').should('not.exist');

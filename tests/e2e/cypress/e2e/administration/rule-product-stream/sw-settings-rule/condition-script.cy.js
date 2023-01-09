@@ -9,7 +9,7 @@ function createTestRoleViaApi({ roleID, roleName }) {
         let headers = {
             Accept: 'application/vnd.api+json',
             Authorization: `Bearer ${JSON.parse(cookie.value).access_token}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         };
 
         return cy.request({
@@ -21,14 +21,14 @@ function createTestRoleViaApi({ roleID, roleName }) {
                 client_id: 'administration',
                 scope: 'user-verified',
                 username: 'admin',
-                password: 'shopware'
-            }
+                password: 'shopware',
+            },
         }).then(response => {
             // overwrite headers with new scope
             headers = {
                 Accept: 'application/vnd.api+json',
                 Authorization: `Bearer ${response.body.access_token}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             };
 
             return cy.request({
@@ -38,8 +38,8 @@ function createTestRoleViaApi({ roleID, roleName }) {
                 body: {
                     id: roleID,
                     name: roleName,
-                    privileges: []
-                }
+                    privileges: [],
+                },
             });
         });
     });
@@ -54,19 +54,17 @@ describe('Rule builder: Test app script conditions', () => {
             roleName: 'e2e-test-role',
         }).then(() => {
             return cy.createDefaultFixture('app', {
-                aclRoleId: roleID
+                aclRoleId: roleID,
             });
         })
-        .then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@base @rule: test script conditions are selectable and rendered', { tags: ['pa-business-ops'] }, () => {
-        const page = new RulePageObject();
-
         cy.get('a[href="#/sw/settings/rule/create"]').click();
 
         cy.get('.sw-skeleton').should('not.exist');
@@ -86,14 +84,14 @@ describe('Rule builder: Test app script conditions', () => {
             'Custom media': 'sw-media-field',
             'Custom price': 'sw-field--number',
             'Custom textarea': 'sw-field--text',
-            'Custom without fields': null
+            'Custom without fields': null,
         };
 
         Object.entries(conditions).forEach(([conditionName, fieldClass]) => {
             cy.get('.sw-condition-type-select__select')
                 .typeSingleSelectAndCheck(
                     conditionName,
-                    '.sw-condition-type-select__select'
+                    '.sw-condition-type-select__select',
                 );
 
             if (fieldClass === null) {
@@ -109,14 +107,14 @@ describe('Rule builder: Test app script conditions', () => {
         cy.get('.sw-condition-type-select__select')
             .typeSingleSelectAndCheck(
                 'Customer group',
-                '.sw-condition-type-select__select'
+                '.sw-condition-type-select__select',
             );
         cy.get('.sw-condition .sw-condition-operator-select__select').should('exist');
 
         cy.get('.sw-condition-type-select__select')
             .typeSingleSelectAndCheck(
                 'Custom text',
-                '.sw-condition-type-select__select'
+                '.sw-condition-type-select__select',
             );
         cy.get('.sw-condition .sw-condition-operator-select__select').should('not.exist');
         cy.get('.sw-condition-script .sw-field--text').should('exist');
@@ -127,12 +125,12 @@ describe('Rule builder: Test app script conditions', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('a[href="#/sw/settings/rule/create"]').click();
@@ -180,7 +178,7 @@ describe('Rule builder: Test app script conditions', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // verify that selected conditions persisted

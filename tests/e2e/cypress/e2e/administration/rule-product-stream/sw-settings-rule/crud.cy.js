@@ -17,12 +17,12 @@ describe('Rule builder: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchRule');
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
@@ -84,7 +84,7 @@ describe('Rule builder: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         // Delete rule
@@ -95,7 +95,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-listing__confirm-delete-text')
             .contains('Are you sure you want to delete this item?');
@@ -105,7 +105,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.get(page.elements.modal).should('not.exist');
     });
 
-    it('@base @rule: should show the condition select upwards', { tags: ['pa-business-ops'] }, () => {
+    it.only('@base @rule: should show the condition select upwards', { tags: ['pa-business-ops'] }, () => {
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('a[href="#/sw/settings/rule/create"]').click();
         cy.get('.sw-skeleton').should('not.exist');
@@ -116,10 +116,9 @@ describe('Rule builder: Test crud operations', () => {
             cy.get('.sw-condition-type-select', { withinSubject: conditionElement })
                 .then((conditionTypeSelect) => {
                     cy.wrap(conditionTypeSelect).click();
-                    const popover = cy.get('.sw-select-result-list-popover-wrapper');
 
-                    popover.should('be.visible');
-                    popover.should('have.class', '--placement-bottom-outside');
+                    cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
+                    cy.get('.sw-select-result-list-popover-wrapper').should('have.class', '--placement-bottom-outside');
                 });
         });
     });

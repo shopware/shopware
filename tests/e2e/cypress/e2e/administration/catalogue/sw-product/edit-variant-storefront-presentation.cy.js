@@ -17,11 +17,11 @@ describe('Product: Test Storefront presentation of variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadCategory');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
@@ -36,7 +36,7 @@ describe('Product: Test Storefront presentation of variants', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get(page.elements.loader).should('not.exist');
@@ -85,9 +85,6 @@ describe('Product: Test Storefront presentation of variants', () => {
             .its('response.statusCode')
             .should('equal', 200);
 
-        // This wait is currently necessary due to rendering issues
-        cy.wait(1000);
-
         // Activate diversification
         cy.get('.sw-product-variants__configure-storefront-action').click();
         cy.get('.sw-modal').should('be.visible');
@@ -125,11 +122,11 @@ describe('Product: Test Storefront presentation of variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadCategory');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
@@ -148,7 +145,7 @@ describe('Product: Test Storefront presentation of variants', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get(page.elements.loader).should('not.exist');
@@ -186,15 +183,12 @@ describe('Product: Test Storefront presentation of variants', () => {
             .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-product-variants-overview').should('be.visible');
-        cy.get('.sw-skeleton').should('not.exist')
-
-        // This wait is currently necessary due to rendering issues
-        cy.wait(1000);
+        cy.get('.sw-skeleton').should('not.exist');
 
         // Activate main variant visualization
         cy.get('.sw-product-variants__configure-storefront-action').click();
         cy.get('.sw-modal').should('be.visible');
-        cy.get('.sw-loader').should('not.exist')
+        cy.get('.sw-loader').should('not.exist');
 
         cy.contains('.sw-tabs-item', 'Product listings').click();
         cy.get('.sw-product-variants-delivery-listing-config-options').should('be.visible');
@@ -228,11 +222,11 @@ describe('Product: Test Storefront presentation of variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadCategory');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
@@ -251,7 +245,7 @@ describe('Product: Test Storefront presentation of variants', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get(page.elements.loader).should('not.exist');
@@ -283,6 +277,29 @@ describe('Product: Test Storefront presentation of variants', () => {
         cy.url().should('contain', '/Variant-product-name');
         cy.contains('h1', 'Variant product name').should('be.visible');
     });
+});
+
+describe('Product: Test Storefront presentation of variants different setup', () => {
+    beforeEach(() => {
+        cy.searchViaAdminApi({
+            data: {
+                field: 'name',
+                value: 'Storefront',
+            },
+            endpoint: 'sales-channel',
+        }).then((salesChannel) => {
+            return cy.createDefaultFixture('product', {
+                visibilities: [{
+                    visibility: 30,
+                    salesChannelId: salesChannel.id,
+                }],
+            }, 'product-variants-storefront.json');
+        }).then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
+    });
 
     it('@catalogue: test sorting of multidimensional variant order', {tags: ['pa-inventory']}, () => {
         const page = new ProductPageObject();
@@ -290,11 +307,11 @@ describe('Product: Test Storefront presentation of variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadCategory');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
@@ -308,21 +325,6 @@ describe('Product: Test Storefront presentation of variants', () => {
             url: `${Cypress.env('apiPath')}/product/*`,
             method: 'PATCH',
         }).as('savePresentation');
-
-        cy.searchViaAdminApi({
-            data: {
-                field: 'name',
-                value: 'Storefront'
-            },
-            endpoint: 'sales-channel'
-        }).then((salesChannel) => {
-            cy.createDefaultFixture('product', {
-                visibilities: [{
-                    visibility: 30,
-                    salesChannelId: salesChannel.id
-                }]
-            }, 'product-variants-storefront.json')
-        });
 
         cy.get(':nth-child(1) > .sw-sidebar-navigation-item').should('be.visible');
         cy.get(':nth-child(1) > .sw-sidebar-navigation-item').click();
@@ -352,9 +354,6 @@ describe('Product: Test Storefront presentation of variants', () => {
 
         cy.get('.sw-product-variants-overview').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
-
-        // This wait is currently necessary due to rendering issues
-        cy.wait(1000);
 
         // Activate main variant visualization
         cy.get('.sw-product-variants__configure-storefront-action').click();

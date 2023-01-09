@@ -8,14 +8,14 @@ describe('Property: Visual tests', () => {
             sortingType: 'position',
             options: [{
                 name: 'Red',
-                position: 2
+                position: 2,
             }, {
                 name: 'Yellow',
-                position: 3
+                position: 3,
             }, {
                 name: 'Green',
-                position: 1
-            }]
+                position: 1,
+            }],
         }).then(() => {
             cy.openInitialPage(Cypress.env('admin'));
             cy.get('.sw-skeleton').should('not.exist');
@@ -29,21 +29,21 @@ describe('Property: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/media-default-folder`,
-            method: 'POST'
+            method: 'POST',
         }).as('getMediaFolder');
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/property/index',
             mainMenuId: 'sw-catalogue',
-            subMenuId: 'sw-property'
+            subMenuId: 'sw-property',
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
@@ -66,7 +66,7 @@ describe('Property: Visual tests', () => {
         cy.clickContextMenuItem(
             '.sw-property-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-page__main-content').should('be.visible');
         cy.get('.sw-skeleton__detail-bold').should('not.exist');

@@ -18,22 +18,22 @@ describe('Dynamic Product Groups in categories', () => {
     it('@package: should create a dynamic product groups and assign it to a category and check at the storefront', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('getCategory');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-stream`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProductStream');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/user-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('getUserConfig');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Go to dynamic product pages

@@ -6,7 +6,7 @@ describe('Flow builder: change customer group testing', () => {
         cy.createCustomerFixture().then(() => {
             return cy.setCustomerGroup('RS-1232123', {
                 name: 'Net customergroup',
-                displayGross: false
+                displayGross: false,
             });
         });
     });
@@ -18,7 +18,7 @@ describe('Flow builder: change customer group testing', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -77,7 +77,7 @@ describe('Flow builder: change customer group testing', () => {
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-loader').should('not.exist');

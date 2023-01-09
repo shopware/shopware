@@ -55,7 +55,7 @@ describe('Snippet set: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.gridRow}--0`
+            `${page.elements.gridRow}--0`,
         );
 
         cy.get('.sw-modal__body').should('be.visible');

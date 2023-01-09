@@ -4,21 +4,21 @@
 describe('Account: Edit order', () => {
     beforeEach(() => {
         return cy.createProductFixture().then(() => {
-            return cy.createCustomerFixtureStorefront()
+            return cy.createCustomerFixtureStorefront();
         }).then(() => {
             return cy.searchViaAdminApi({
                 endpoint: 'product',
                 data: {
                     field: 'name',
-                    value: 'Product name'
-                }
+                    value: 'Product name',
+                },
             });
         }).then((result) => {
             return cy.createOrder(result.id, {
                 username: 'test@example.com',
-                password: 'shopware'
+                password: 'shopware',
             });
-        })
+        });
     });
 
     it('@customer: reorder order', { tags: ['pa-customers-orders'] }, () => {

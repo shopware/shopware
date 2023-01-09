@@ -1,7 +1,5 @@
 /// <reference types="Cypress" />
 
-import SalesChannelPageObject from '../../../support/pages/module/sw-sales-channel.page-object';
-
 describe('Sales Channel: Visual tests', () => {
     beforeEach(() => {
         cy.setLocaleToEnGb()
@@ -18,12 +16,10 @@ describe('Sales Channel: Visual tests', () => {
     });
 
     it('@visual: check appearance of basic sales channel workflow', { tags: ['pa-system-settings'] }, () => {
-        const page = new SalesChannelPageObject();
-
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/sales-channel`,
-            method: 'post'
+            method: 'post',
         }).as('saveData');
 
         // Open sales channel
@@ -48,13 +44,13 @@ describe('Sales Channel: Visual tests', () => {
         // Change display of the element to ensure consistent snapshots
         cy.changeElementStyling(
             '.sw-entity-multi-select .sw-select-selection-list',
-            'display: none'
+            'display: none',
         );
 
         // Change background-color of the element to ensure consistent snapshots
         cy.changeElementStyling(
             '.sw-entity-multi-select .sw-select__selection',
-            'background-color: #189EF'
+            'background-color: #189EF',
         );
 
         // Take snapshot for visual testing

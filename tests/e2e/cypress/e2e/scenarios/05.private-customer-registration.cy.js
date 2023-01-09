@@ -5,30 +5,30 @@ describe('Product creation via UI and private customer registration', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`
+                    Authorization: `Bearer ${result.access}`,
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
                         'core.cart.showCustomerComment': true,
-                        'core.cart.showDeliveryTime': true
-                    }
-                }
+                        'core.cart.showDeliveryTime': true,
+                    },
+                },
             };
             return cy.request(requestConfig);
         });
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('createProduct');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'POST'
+            method: 'POST',
         }).as('calculatePrice');
         cy.intercept({
             url: `/account/register`,
-            method: 'POST'
+            method: 'POST',
         }).as('registerCustomer');
 
         // Saleschannel initial settings
@@ -76,8 +76,8 @@ describe('Product creation via UI and private customer registration', () => {
         cy.get('#deliveryTimeId').typeSingleSelectAndCheck('1-3 days', '#deliveryTimeId');
         cy.get('#sw-field--product-restock-time').typeAndCheck('10');
         cy.get('.sw-product-deliverability__min-purchase [type]').typeAndCheck('1');
-        cy.get('.sw-product-deliverability__purchase-step [type]').typeAndCheck('1')
-        cy.get('.sw-product-deliverability__max-purchase [type]').typeAndCheck('10')
+        cy.get('.sw-product-deliverability__purchase-step [type]').typeAndCheck('1');
+        cy.get('.sw-product-deliverability__max-purchase [type]').typeAndCheck('10');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView();
         cy.contains('.sw-product-detail__select-visibility', 'E2E install test');
         cy.get('.sw-product-category-form [type="checkbox"]').should('be.checked');

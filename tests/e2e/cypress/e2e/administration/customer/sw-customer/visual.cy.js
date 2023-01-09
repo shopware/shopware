@@ -6,32 +6,32 @@ let customer = {
     salutation: 'Mr.',
     country: 'Germany',
     company: 'Company',
-    department: 'Department'
+    department: 'Department',
 };
 
 describe('Customer:  Visual test', () => {
     beforeEach(() => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/customer`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.createCustomerFixture().then(() => {
             return cy.fixture('customer');
         })
-        .then((result) => {
-            customer = Cypress._.merge(customer, result);
+            .then((result) => {
+                customer = Cypress._.merge(customer, result);
 
-            return cy.fixture('customer-address');
-        })
-        .then((result) => {
-            customer = Cypress._.merge(customer, result);
-        })
-        .then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+                return cy.fixture('customer-address');
+            })
+            .then((result) => {
+                customer = Cypress._.merge(customer, result);
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@visual: check appearance of basic customer workflow', { tags: ['pa-customers-orders'] }, () => {
@@ -39,7 +39,7 @@ describe('Customer:  Visual test', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-customer-list').should('be.visible');
@@ -111,7 +111,7 @@ describe('Customer:  Visual test', () => {
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get(`${page.elements.customerMetaData}-customer-name`)
             .contains(`Mr. ${customer.firstName} ${customer.lastName}`);
@@ -143,7 +143,7 @@ describe('Customer:  Visual test', () => {
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.customerMetaData}-customer-name`,
             `Mr. ${customer.firstName} ${customer.lastName}`);

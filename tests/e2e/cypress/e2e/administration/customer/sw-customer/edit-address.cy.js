@@ -7,7 +7,7 @@ let customer = {
     country: 'Germany',
     company: 'Test Company',
     department: 'Test Department',
-    vatId: 'TEST-VAT-ID'
+    vatId: 'TEST-VAT-ID',
 };
 const newAddress = {
     salutation: 'Mr.',
@@ -16,11 +16,11 @@ const newAddress = {
     addresses: [{
         street: 'Ligusterweg 4',
         zipcode: '333333',
-        city: 'Little Whinging'
+        city: 'Little Whinging',
     }],
     country: 'United Kingdom',
     company: 'Test Company',
-    department: 'Test Department'
+    department: 'Test Department',
 };
 
 describe('Customer: Edit customer\'s addresses', () => {
@@ -28,12 +28,12 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.createCustomerFixture().then(() => {
             return cy.fixture('customer');
         })
-        .then(result => {
-            customer = result;
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+            .then(result => {
+                customer = result;
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@base @customer: add new billing address', { tags: ['pa-customers-orders'] }, () => {
@@ -43,13 +43,15 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.customerMetaData}-customer-name`,
             `Mr. ${customer.firstName} ${customer.lastName}`);
 
         // Open and add new address
         cy.get('.sw-customer-detail__tab-addresses').click();
+        cy.get('.sw-customer-detail-addresses').should('be.visible');
+        cy.get('.sw-skeleton').should('not.exist');
 
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
         cy.get('.sw-customer-detail-addresses__add-address-action').click();
@@ -67,14 +69,14 @@ describe('Customer: Edit customer\'s addresses', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/customer-address/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteAddress');
 
         // Open customer
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.customerMetaData}-customer-name`,
             `Mr. ${customer.firstName} ${customer.lastName}`);
@@ -91,10 +93,10 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--1`
+            `${page.elements.dataGridRow}--1`,
         );
         cy.contains(`${page.elements.modal} p`,
-            'Are you sure you want to delete this address?'
+            'Are you sure you want to delete this address?',
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
@@ -109,14 +111,14 @@ describe('Customer: Edit customer\'s addresses', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/customer-address/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteAddress');
 
         // Open customer
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.customerMetaData}-customer-name`,
             `Mr. ${customer.firstName} ${customer.lastName}`);
@@ -139,15 +141,15 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get('.sw-data-grid__cell--2').click();
 
         // check that the checked pseudo element was added
-        cy.get(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`)
+        cy.get(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`);
 
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--1`
+            `${page.elements.dataGridRow}--1`,
         );
         cy.contains(`${page.elements.modal} p`,
-            'Are you sure you want to delete this address?'
+            'Are you sure you want to delete this address?',
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
@@ -165,7 +167,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Open and swap default in addresses
@@ -193,38 +195,40 @@ describe('Customer: Edit customer\'s addresses', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/customer/**/addresses`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchAddresses');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/clone/customer-address/**`,
-            method: 'POST'
+            method: 'POST',
         }).as('cloneAddress');
 
         // Open customer
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.customerMetaData}-customer-name`,
             `Mr. ${customer.firstName} ${customer.lastName}`);
 
         // Remove address
         cy.get('.sw-customer-detail__tab-addresses').click();
+        cy.get('.sw-customer-detail-addresses').should('be.visible');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
 
         // click on the radio box
         cy.get('.sw-data-grid__cell--2').click();
 
         // check that the checked pseudo element was added
-        cy.get(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`)
+        cy.get(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`);
 
         cy.clickContextMenuItem(
             '.sw-context-menu-item',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--1`,
-            'Duplicate'
+            'Duplicate',
         );
 
         cy.wait('@cloneAddress')
@@ -240,14 +244,14 @@ describe('Customer: Edit customer\'s addresses', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/customer/**/addresses`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchAddresses');
 
         // Open customer
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.customerMetaData}-customer-name`,
             `Mr. ${customer.firstName} ${customer.lastName}`);

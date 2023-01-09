@@ -1,6 +1,17 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.18.1
+## Twig filter whitelist for `map`, `filter`, `reduce` and `sort` 
+
+The whitelist can be extended using a yaml configuration:
+
+```yaml
+shopware:
+    twig:
+        allowed_php_functions: [ "is_bool" ]
+```
+
 # 6.4.18.0
 ## Define country address formatting structure
 From the next major v6.5.0.0, address of a country are no longer fixed, but you can modify it by drag-drop address elements in admin Settings > Countries > detail page > Address tab

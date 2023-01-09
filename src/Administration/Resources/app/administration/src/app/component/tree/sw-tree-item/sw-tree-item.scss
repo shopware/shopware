@@ -1,5 +1,6 @@
 /* stylelint-disable max-nesting-depth */
 @import "~scss/variables";
+@import "~scss/mixins";
 
 $sw-tree-item-color-border: $color-gray-300;
 $sw-tree-item-color-background: $color-gray-50;
@@ -162,7 +163,7 @@ $sw-tree-item-color-text: $color-darkgray-200;
         .icon--regular-chevron-right-xxs {
             padding-top: 6px;
             padding-right: 7px;
-            padding-bottom: 6px;
+            padding-bottom: 8px;
             padding-left: 9px;
         }
     }
@@ -221,6 +222,24 @@ $sw-tree-item-color-text: $color-darkgray-200;
             .sw-tree-item__children {
                 border-left: 1px solid $color-gray-300;
             }
+        }
+    }
+
+    &__icon {
+        display: flex;
+        align-items: center;
+
+        .icon--regular-circle-xxs {
+            margin-left: 3px;
+
+            @include size(8px);
+        }
+    }
+
+    &__content {
+        .icon--regular-times-xs,
+        .icon--regular-checkmark-xxs {
+            @include size(8px);
         }
     }
 }

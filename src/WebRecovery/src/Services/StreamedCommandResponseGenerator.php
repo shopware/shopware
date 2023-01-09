@@ -16,6 +16,7 @@ class StreamedCommandResponseGenerator
     {
         $process = new Process($params);
         $process->setEnv(['COMPOSER_HOME' => sys_get_temp_dir() . '/composer']);
+        $process->setTimeout(300);
 
         $process->start();
 

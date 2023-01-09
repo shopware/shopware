@@ -19,6 +19,7 @@ variables:
     BLUE_GREEN_DEPLOYMENT: 1
     NODE_VERSION: '18.14'
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+    CYPRESS_CACHE_FOLDER: $CI_PROJECT_DIR/.cache/Cypress
 
 # for jobs which should run on each MR/Pipeline
 .base:

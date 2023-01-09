@@ -24,9 +24,9 @@ class LicenseCheck
         $licenseHost = $this->systemConfigService->get('core.store.licenseHost');
 
         if (empty($licenseHost) || $this->storeClient->isShopUpgradeable()) {
-            return new ValidationResult('validShopwareLicense', true, 'validShopwareLicense', []);
+            return new ValidationResult('validShopwareLicense', true, 'validShopwareLicense');
         }
 
-        return new ValidationResult('invalidShopwareLicense', false, 'invalidShopwareLicense', []);
+        return new ValidationResult('invalidShopwareLicense', false, 'invalidShopwareLicense');
     }
 }

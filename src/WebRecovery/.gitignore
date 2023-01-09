@@ -7,4 +7,4 @@
 /update.zip
 /node_modules
 /vendor-bin/*/vendor
-/shopware-recovery.phar
+/shopware-recovery.phar.php

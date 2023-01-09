@@ -32,6 +32,7 @@ class FlexMigrator
         'config/etc',
         'config/services',
         'public/recovery',
+        'files/update',
     ];
 
     private const ENV_DEFAULT = <<<EOT

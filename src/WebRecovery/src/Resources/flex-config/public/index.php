@@ -28,19 +28,6 @@ return function (array $context) {
         }
     }
 
-    if (is_file(dirname(__DIR__) . '/files/update/update.json') || is_dir(dirname(__DIR__) . '/update-assets')) {
-        header('Content-type: text/html; charset=utf-8', true, 503);
-        header('Status: 503 Service Temporarily Unavailable');
-        header('Retry-After: 1200');
-        if (file_exists(__DIR__ . '/maintenance.html')) {
-            readfile(__DIR__ . '/maintenance.html');
-        } else {
-            readfile(__DIR__ . '/recovery/update/maintenance.html');
-        }
-
-        exit;
-    }
-
     $appEnv = $context['APP_ENV'] ?? 'dev';
     $debug = (bool) ($context['APP_DEBUG'] ?? ($appEnv !== 'prod'));
 

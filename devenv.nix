@@ -4,6 +4,7 @@
   packages = [
     pkgs.gnupatch
     pkgs.nodePackages_latest.yalc
+    pkgs.gnused
     pkgs.symfony-cli
     pkgs.deno
   ];

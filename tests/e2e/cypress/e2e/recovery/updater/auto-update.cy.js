@@ -10,9 +10,7 @@ describe('Minimal auto update', () => {
     it('@update: de-DE and EUR', { tags: ['pa-system-settings'] }, () => {
         // Routes to wait for
         cy.intercept({ url: '*download-latest-update*', method: 'get' }).as('downloadLatestUpdate');
-        cy.intercept({ url: '*deactivate-extensions*', method: 'get' }).as('deactivateExtension');
         cy.intercept({ url: '*unpack*', method: 'get' }).as('unpack');
-        cy.intercept({ url: '*applyMigrations*', method: 'get' }).as('applyMigrations');
 
         cy.clearCookies();
         cy.clearCookie('bearerAuth')
@@ -51,7 +49,7 @@ describe('Minimal auto update', () => {
         cy.wait('@downloadLatestUpdate', { responseTimeout: 600000, timeout: 600000 })
             .its('response.statusCode').should('equal', 200);
 
-        cy.wait('@deactivateExtension', { responseTimeout: 600000, timeout: 600000 })
+        cy.wait('@unpack', { responseTimeout: 600000, timeout: 600000 })
             .its('response.statusCode').should('equal', 200);
 
         cy.get('.card__title').contains('Configure PHP executable');
@@ -68,6 +66,7 @@ describe('Minimal auto update', () => {
         cy.wait('@updateFinish', {timeout: 120000});
 
         // Shows finish page
+        cy.url().should('contain', '/finish')
         cy.get('.card__title', {timeout: 60000}).contains('Finish');
 
         cy.get('.btn-primary').click();

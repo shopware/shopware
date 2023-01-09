@@ -14,7 +14,7 @@ class ValidationResultTest extends TestCase
 {
     public function testCreateResult(): void
     {
-        $result = new ValidationResult('name', true, 'message');
+        $result = new ValidationResult('name', true, 'message', ['var' => 'value']);
         $vars = $result->getVars();
 
         static::assertSame('name', $vars['name']);

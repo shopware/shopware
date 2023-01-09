@@ -348,7 +348,9 @@
             "@putenv SW_RECOVERY_NEXT_VERSION=6.5.99.9",
             "@putenv CYPRESS_SKIP_INIT=1",
             "symfony local:server:stop --dir=shop",
+            "symfony local:server:stop --dir=tests/e2e/update-api-mock",
             "APP_URL=${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}} symfony local:server:start --dir=shop --port=8050 -d",
+            "symfony local:server:start --dir=tests/e2e/update-api-mock --port=8060 -d",
             "export CYPRESS_baseUrl=${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}}; export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress open"
         ],
         "e2e:recovery:setup": [
@@ -360,10 +362,14 @@
             "echo PROJECT_ROOT=$PWD/shop >> shop/.env",
             "cd shop; APP_URL=${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}} bin/console system:install --basic-setup --create-database --drop-database --force -n",
             "cd shop; bin/console system:config:set core.frw.completedAt '2019-10-07T10:46:23+00:00'",
+            "cd shop; bin/console system:config:set core.store.apiUri http://localhost:8060",
+            "cd shop; bin/console system:config:set core.update.apiUri http://localhost:8060",
             "cd shop; composer config repositories.0 '{\"type\": \"path\", \"url\": \"../src/*\"}'",
+            "cd shop; sed -i '/\\$this->verifyResponseSignature(\\$response);/d' vendor/shopware/core/Framework/Update/Services/ApiClient.php",
+            "cd shop; sed -i 's/\\$signatureHeaderName = self::SHOPWARE_SIGNATURE_HEADER;/return \\$response;/g' vendor/shopware/core/Framework/Store/Services/VerifyResponseSignatureMiddleware.php",
             "cd src/WebRecovery; composer install",
             "cd src/WebRecovery; composer build-phar",
-            "mv src/WebRecovery/shopware-recovery.phar shop/public/shopware-recovery.phar.php"
+            "mv src/WebRecovery/shopware-recovery.phar.php shop/public/shopware-recovery.phar.php"
         ],
         "ecs": "ecs check src tests",
         "ecs-fix": "ecs check --fix src tests",

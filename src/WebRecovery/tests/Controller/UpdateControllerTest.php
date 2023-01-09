@@ -205,7 +205,7 @@ class UpdateControllerTest extends TestCase
 
         $recoveryManager->method('getShopwareLocation')->willReturn($tmpDir);
         $recoveryManager->method('getCurrentShopwareVersion')->willReturn($shopwareVersion);
-        $recoveryManager->method('getBinary')->willReturn('/var/www/shopware-recovery.phar');
+        $recoveryManager->method('getBinary')->willReturn('/var/www/shopware-recovery.phar.php');
         $recoveryManager->method('getPHPBinary')->willReturn('/usr/bin/php');
 
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
@@ -214,7 +214,7 @@ class UpdateControllerTest extends TestCase
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
-                '/var/www/shopware-recovery.phar',
+                '/var/www/shopware-recovery.phar.php',
                 'composer',
                 'update',
                 '-d',
@@ -278,7 +278,7 @@ class UpdateControllerTest extends TestCase
 
         $recoveryManager->method('getShopwareLocation')->willReturn($tmpDir);
         $recoveryManager->method('getCurrentShopwareVersion')->willReturn('6.4.17.2');
-        $recoveryManager->method('getBinary')->willReturn('/var/www/shopware-recovery.phar');
+        $recoveryManager->method('getBinary')->willReturn('/var/www/shopware-recovery.phar.php');
         $recoveryManager->method('getPHPBinary')->willReturn('/usr/bin/php');
 
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
@@ -287,7 +287,7 @@ class UpdateControllerTest extends TestCase
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
-                '/var/www/shopware-recovery.phar',
+                '/var/www/shopware-recovery.phar.php',
                 'composer',
                 'update',
                 '-d',
@@ -325,10 +325,16 @@ class UpdateControllerTest extends TestCase
     {
         $recoveryManager = $this->createMock(RecoveryManager::class);
 
-        $recoveryManager->method('getShopwareLocation')->willReturn('/path/to/shopware');
+        $tmpDir = sys_get_temp_dir() . '/' . uniqid('test', true);
+        $fs = new Filesystem();
+        $fs->mkdir($tmpDir . '/vendor/symfony/flex/src/');
+        $optionFile = $tmpDir . '/vendor/symfony/flex/src/Options.php';
+        copy(__DIR__ . '/../_fixtures/Options.php', $optionFile);
+
+        $recoveryManager->method('getShopwareLocation')->willReturn($tmpDir);
         $recoveryManager->method('getCurrentShopwareVersion')->willReturn('6.4.17.0');
         $recoveryManager->method('getPHPBinary')->willReturn('/usr/bin/php');
-        $recoveryManager->method('getBinary')->willReturn('/var/www/shopware-recovery.phar');
+        $recoveryManager->method('getBinary')->willReturn('/var/www/shopware-recovery.phar.php');
 
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
         $responseGenerator
@@ -336,10 +342,10 @@ class UpdateControllerTest extends TestCase
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
-                '/var/www/shopware-recovery.phar',
+                '/var/www/shopware-recovery.phar.php',
                 'composer',
                 '-d',
-                '/path/to/shopware',
+                $tmpDir,
                 'symfony:recipes:install',
                 '--force',
                 '--reset',
@@ -360,6 +366,10 @@ class UpdateControllerTest extends TestCase
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
         $response = $controller->resetConfig($request);
+
+        $optionContent = (string) file_get_contents($optionFile);
+        static::assertStringNotContainsString(', $file), false);', $optionContent);
+        static::assertStringNotContainsString(', $name), false);', $optionContent);
 
         static::assertInstanceOf(StreamedResponse::class, $response);
     }

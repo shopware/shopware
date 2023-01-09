@@ -58,7 +58,7 @@ final class ApiClient
             return;
         }
 
-        $content = $this->client->request('GET', 'https://github.com/shopware/web-recovery/releases/latest/download/shopware-recovery.phar')->getContent();
+        $content = $this->client->request('GET', 'https://github.com/shopware/web-recovery/releases/latest/download/shopware-recovery.phar.php')->getContent();
 
         file_put_contents($this->projectDir . '/public/shopware-recovery.phar.php', $content);
     }

@@ -87,6 +87,8 @@ class UpdateController extends AbstractController
 
         $shopwarePath = $this->recoveryManager->getShopwareLocation();
 
+        $this->patchSymfonyFlex($shopwarePath);
+
         return $this->streamedCommandResponseGenerator->runJSON([
             $this->recoveryManager->getPhpBinary($request),
             $this->recoveryManager->getBinary(),
@@ -126,6 +128,28 @@ class UpdateController extends AbstractController
             'system:update:finish',
             '--no-interaction',
         ]);
+    }
+
+    /**
+     * @see https://github.com/symfony/flex/pull/963
+     */
+    public function patchSymfonyFlex(string $shopwarePath): void
+    {
+        $optionsPhp = (string) file_get_contents($shopwarePath . '/vendor/symfony/flex/src/Options.php');
+
+        $optionsPhp = str_replace(
+            'return $this->io && $this->io->askConfirmation(sprintf(\'Cannot determine the state of the "%s" file, overwrite anyway? [y/N] \', $file), false);',
+            'return $this->io && $this->io->askConfirmation(sprintf(\'Cannot determine the state of the "%s" file, overwrite anyway? [y/N] \', $file));',
+            $optionsPhp
+        );
+
+        $optionsPhp = str_replace(
+            'return $this->io && $this->io->askConfirmation(sprintf(\'File "%s" has uncommitted changes, overwrite? [y/N] \', $name), false);',
+            'return $this->io && $this->io->askConfirmation(sprintf(\'File "%s" has uncommitted changes, overwrite? [y/N] \', $name));',
+            $optionsPhp
+        );
+
+        file_put_contents($shopwarePath . '/vendor/symfony/flex/src/Options.php', $optionsPhp);
     }
 
     private function getLatestVersion(Request $request): string

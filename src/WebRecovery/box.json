@@ -11,5 +11,5 @@
         }
     ],
     "git-version": "package_version",
-    "output": "shopware-recovery.phar"
+    "output": "shopware-recovery.phar.php"
 }

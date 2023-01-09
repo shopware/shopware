@@ -4,13 +4,10 @@ namespace Shopware\Core\System\Test\NumberRange\ValueGenerator;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\NumberRange\Exception\IncrementStorageMigrationNotSupportedException;
 use Shopware\Core\System\NumberRange\Exception\IncrementStorageNotFoundException;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage;
-use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageInterface;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry;
 
 /**
@@ -110,47 +107,5 @@ class IncrementStorageRegistryTest extends TestCase
     {
         static::expectException(IncrementStorageNotFoundException::class);
         $this->registry->migrate('SQL', 'foo');
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 test case can safely be deleted after we remove IncrementStorageInterface
-     */
-    public function testMigrateWithLegacyFromStorageThrows(): void
-    {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-
-        $registry = new IncrementStorageRegistry(
-            new \ArrayObject(
-                [
-                    'SQL' => $this->getContainer()->get(IncrementSqlStorage::class),
-                    'Legacy' => $this->createMock(IncrementStorageInterface::class),
-                ],
-            ),
-            'SQL'
-        );
-
-        static::expectException(IncrementStorageMigrationNotSupportedException::class);
-        $registry->migrate('Legacy', 'SQL');
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 test case can safely be deleted after we remove IncrementStorageInterface
-     */
-    public function testMigrateWithLegacyToStorageThrows(): void
-    {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-
-        $registry = new IncrementStorageRegistry(
-            new \ArrayObject(
-                [
-                    'SQL' => $this->getContainer()->get(IncrementSqlStorage::class),
-                    'Legacy' => $this->createMock(IncrementStorageInterface::class),
-                ],
-            ),
-            'SQL'
-        );
-
-        static::expectException(IncrementStorageMigrationNotSupportedException::class);
-        $registry->migrate('SQL', 'Legacy');
     }
 }

@@ -39,10 +39,6 @@ export default {
             itemsPerRequest: 100,
             processStatus: '',
             order: {},
-            /**
-             * @deprecated tag:v6.5.0 - Will be removed
-             */
-            showBulkEditDocumentWarning: false,
         };
     },
 

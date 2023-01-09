@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\App\Manifest\Xml;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 
 /**
@@ -26,15 +25,6 @@ class AdminTest extends TestCase
         static::assertEquals('detail', $firstActionButton->getView());
         static::assertEquals('https://swag-test.com/your-order', $firstActionButton->getUrl());
 
-        /*
-         * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - will be removed.
-         * It will no longer be used in the manifest.xml file
-         * and will be processed in the Executor with an OpenNewTabResponse response instead.
-         */
-        if (!Feature::isActive('FEATURE_NEXT_14360')) {
-            static::assertFalse($firstActionButton->isOpenNewTab());
-        }
-
         static::assertEquals([
             'en-GB' => 'View Order',
             'de-DE' => 'Zeige Bestellung',
@@ -45,15 +35,6 @@ class AdminTest extends TestCase
         static::assertEquals('product', $secondActionButton->getEntity());
         static::assertEquals('list', $secondActionButton->getView());
         static::assertEquals('https://swag-test.com/do-stuff', $secondActionButton->getUrl());
-
-        /*
-         * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - will be removed.
-         * It will no longer be used in the manifest.xml file
-         * and will be processed in the Executor with an OpenNewTabResponse response instead.
-         */
-        if (!Feature::isActive('FEATURE_NEXT_14360')) {
-            static::assertFalse($secondActionButton->isOpenNewTab());
-        }
 
         static::assertEquals([
             'en-GB' => 'Do Stuff',

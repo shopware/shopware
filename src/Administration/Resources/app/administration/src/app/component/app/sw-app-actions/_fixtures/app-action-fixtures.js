@@ -60,12 +60,6 @@ export const actionButtonData = [{
         'de-DE': 'Product hinzufügen',
         'en-GB': 'Add product',
     },
-    /**
-     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - "openNewTab" key will be removed.
-     * It will no longer be used in the manifest.xml file
-     * and will be processed in the Executor with an OpenNewTabResponse response instead.
-     */
-    openNewTab: false,
     url: 'http://test-url/actions/product/add',
 }, {
     id: Shopware.Utils.createId(),
@@ -76,12 +70,6 @@ export const actionButtonData = [{
         'de-DE': 'Product umbenennen',
         'en-GB': 'Rename product',
     },
-    /**
-     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - "openNewTab" key will be removed.
-     * It will no longer be used in the manifest.xml file
-     * and will be processed in the Executor with an OpenNewTabResponse response instead.
-     */
-    openNewTab: false,
     url: 'http://test-url/actions/product/rename',
 }];
 

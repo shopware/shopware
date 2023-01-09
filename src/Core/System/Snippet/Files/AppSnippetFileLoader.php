@@ -89,7 +89,8 @@ class AppSnippetFileLoader
             $fileInfo->getPathname(),
             $nameParts[1],
             $author,
-            false
+            false,
+            ''
         );
     }
 
@@ -103,7 +104,8 @@ class AppSnippetFileLoader
             $fileInfo->getPathname(),
             $nameParts[1],
             $author,
-            $nameParts[2] === 'base'
+            $nameParts[2] === 'base',
+            ''
         );
     }
 

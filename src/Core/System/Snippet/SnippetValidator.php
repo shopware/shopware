@@ -10,20 +10,11 @@ use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
  */
 class SnippetValidator implements SnippetValidatorInterface
 {
-    /**
-     * @var SnippetFileCollection
-     */
-    private $deprecatedSnippetFiles;
+    private SnippetFileCollection $deprecatedSnippetFiles;
 
-    /**
-     * @var SnippetFileHandler
-     */
-    private $snippetFileHandler;
+    private SnippetFileHandler $snippetFileHandler;
 
-    /**
-     * @var string
-     */
-    private $projectDir;
+    private string $projectDir;
 
     /**
      * @internal
@@ -35,6 +26,9 @@ class SnippetValidator implements SnippetValidatorInterface
         $this->projectDir = $projectDir;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function validate(): array
     {
         $files = $this->getAllFiles();
@@ -70,6 +64,9 @@ class SnippetValidator implements SnippetValidatorInterface
         return $this->hydrateFiles(array_merge($deprecatedFiles, $administrationFiles, $storefrontSnippetFiles));
     }
 
+    /**
+     * @param array<string> $files
+     */
     private function hydrateFiles(array $files): SnippetFileCollection
     {
         $snippetFileCollection = new SnippetFileCollection();
@@ -81,7 +78,8 @@ class SnippetValidator implements SnippetValidatorInterface
                 $filePath,
                 $this->getLocaleFromFileName($fileName),
                 'Shopware',
-                false
+                false,
+                ''
             ));
         }
 
@@ -100,6 +98,11 @@ class SnippetValidator implements SnippetValidatorInterface
         return $matches[1];
     }
 
+    /**
+     * @param array<mixed> $dataSet
+     *
+     * @return array<int, array<string, mixed>>
+     */
     private function getRecursiveArrayKeys(array $dataSet, string $keyString = ''): array
     {
         $keyPaths = [];
@@ -121,6 +124,12 @@ class SnippetValidator implements SnippetValidatorInterface
         return $keyPaths;
     }
 
+    /**
+     * @param array<string, array<string, array<string, mixed>>> $snippetFileMappings
+     * @param array<int, string> $availableISOs
+     *
+     * @return array<string, mixed>
+     */
     private function findMissingSnippets(array $snippetFileMappings, array $availableISOs): array
     {
         $availableISOs = array_keys(array_flip($availableISOs));
@@ -148,6 +157,9 @@ class SnippetValidator implements SnippetValidatorInterface
         return $missingSnippetsArray;
     }
 
+    /**
+     * @return array<string>
+     */
     private function findDeprecatedSnippetFiles(): array
     {
         return array_column($this->deprecatedSnippetFiles->toArray(), 'path');

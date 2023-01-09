@@ -696,7 +696,6 @@ class OrderRouteTest extends TestCase
         $repository = $this->getContainer()->get('country.repository');
 
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('taxFree', 0))
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('shippingAvailable', true));
 

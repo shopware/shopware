@@ -2,32 +2,20 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\NumberRange\NumberRangeEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
-use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - won't implement ValueGeneratorPatternInterface anymore
- *
  * @package checkout
  */
-class ValueGeneratorPatternIncrement extends AbstractValueGenerator implements ValueGeneratorPatternInterface
+class ValueGeneratorPatternIncrement extends AbstractValueGenerator
 {
-    /**
-     * @var IncrementStorageInterface|AbstractIncrementStorage
-     */
-    private $incrementConnector;
+    private AbstractIncrementStorage $incrementConnector;
 
     /**
      * @internal
-     *
-     * @param IncrementStorageInterface|AbstractIncrementStorage $incrementConnector
-     *
-     * @deprecated tag:v6.5.0 incrementConnector will require a AbstractIncrementStorage
      */
-    public function __construct(/*: AbstractIncrementStorage*/ $incrementConnector)
+    public function __construct(AbstractIncrementStorage $incrementConnector)
     {
         $this->incrementConnector = $incrementConnector;
     }
@@ -37,21 +25,11 @@ class ValueGeneratorPatternIncrement extends AbstractValueGenerator implements V
         return 'n';
     }
 
+    /**
+     * @param array<int, string> $args
+     */
     public function generate(array $config, ?array $args = null, ?bool $preview = false): string
     {
-        /**
-         * @deprecated tag:v6.5.0 whole if statement can be removed if we remove IncrementStorageInterface
-         */
-        if (!$this->incrementConnector instanceof AbstractIncrementStorage) {
-            $entity = $this->getEntityFromConfig($config);
-
-            if ($preview === true) {
-                return $this->incrementConnector->getNext($entity);
-            }
-
-            return $this->incrementConnector->pullState($entity);
-        }
-
         if ($preview === true) {
             return (string) $this->incrementConnector->preview($config);
         }
@@ -62,30 +40,5 @@ class ValueGeneratorPatternIncrement extends AbstractValueGenerator implements V
     public function getDecorated(): AbstractValueGenerator
     {
         throw new DecorationPatternException(self::class);
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 will be removed, use `generate()` instead
-     */
-    public function resolve(NumberRangeEntity $configuration, ?array $args = null, ?bool $preview = false): string
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'ValueGeneratorPatternIncrement::generate()')
-        );
-
-        $config = [
-            'id' => $configuration->getId(),
-            'start' => $configuration->getStart(),
-            'pattern' => $configuration->getPattern() ?? '',
-        ];
-
-        return $this->generate($config, $args, $preview);
-    }
-
-    private function getEntityFromConfig(array $config): NumberRangeEntity
-    {
-        return (new NumberRangeEntity())
-            ->assign($config);
     }
 }

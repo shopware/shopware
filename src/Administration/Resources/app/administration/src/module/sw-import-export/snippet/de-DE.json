@@ -27,25 +27,6 @@
                 "downloadInvalidFile": "Fehlerhafte Einträge herunterladen",
                 "showResults": "Zusammenfassung anzeigen"
             },
-            "detail": {
-                "modalTitle": "Log-Informationen",
-                "labelClose": "Schließen",
-                "labelFilename": "Dateiname",
-                "labelType": "Typ",
-                "labelImportRecords": "Erfolgreich importierte Einträge",
-                "labelExportRecords": "Erfolgreich exportierte Einträge",
-                "labelFailedRecords": "Fehlgeschlagene Einträge",
-                "labelSize": "Dateigröße",
-                "labelUser": "Benutzer",
-                "labelDate": "Datum / Zeit",
-                "labelState": "Status",
-                "exportLabel": "Export",
-                "importLabel": "Import",
-                "dryrunLabel": "Testlauf",
-                "labelDownloadFile": "Datei herunterladen",
-                "labelDownloadInvalidFile": "Fehlerhafte Einträge herunterladen",
-                "helpTextFailedRecords": "Fehlgeschlagene Einträge können runtergeladen, bearbeitet und neu importiert werden."
-            },
             "logInfo": {
               "modalTitle": "Log-Informationen",
               "labelClose": "Schließen",

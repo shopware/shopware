@@ -97,9 +97,6 @@
                 {{ $tc('sw-import-export.activity.contextMenu.showResults') }}
             </sw-context-menu-item>
             {% endblock %}
-            {# @deprecated tag:v6.5.0 - will be removed, use "sw_import_export_activity_listing_actions_show_log_info" instead #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_import_export_activity_listing_actions_show_log %}{% endblock %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_activity_listing_actions_show_log_info %}
             <sw-context-menu-item
@@ -173,10 +170,6 @@
         icon="regular-database"
     />
     {% endblock %}
-
-    {# @deprecated tag:v6.5.0 - block will removed #}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_import_export_activity_detail_modal %}{% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_activity_log_info_modal %}

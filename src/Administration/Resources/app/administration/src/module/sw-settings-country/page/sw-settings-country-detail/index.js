@@ -77,13 +77,6 @@ export default {
             return this.repositoryFactory.create('user_config');
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        currencyRepository() {
-            return this.repositoryFactory.create('currency');
-        },
-
         identifier() {
             return this.placeholder(this.country, 'name');
         },
@@ -228,92 +221,6 @@ export default {
 
         onCancel() {
             this.$router.push({ name: 'sw.settings.country.index' });
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        countryStateSelectionChanged(selection, selectionCount) {
-            this.deleteButtonDisabled = selectionCount <= 0;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        onDeleteCountryStates() {
-            const selection = this.$refs.countryStateGrid.selection;
-
-            const countryStateIds = Object.keys(selection);
-            if (!countryStateIds.length) {
-                return Promise.resolve();
-            }
-
-            this.countryStateLoading = true;
-
-            return this.countryStateRepository.syncDeleted(countryStateIds, Shopware.Context.api)
-                .finally(() => {
-                    this.countryStateLoading = false;
-                });
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        onAddCountryState() {
-            this.currentCountryState = this.countryStateRepository.create();
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        onSearchCountryState() {
-            this.country.states.criteria.setTerm(this.term);
-            this.refreshCountryStateList();
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        refreshCountryStateList() {
-            this.countryStateLoading = true;
-
-            this.$refs.countryStateGrid.load().then(() => {
-                this.countryStateLoading = false;
-            });
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        onSaveCountryState() {
-            // dont send requests if we are on local mode(creating a new country)
-            if (this.country.isNew()) {
-                this.country.states.add(this.currentCountryState);
-            } else {
-                this.countryStateRepository.save(this.currentCountryState).then(() => {
-                    this.refreshCountryStateList();
-                });
-            }
-
-            this.currentCountryState = null;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        onCancelCountryState() {
-            this.currentCountryState = null;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        onClickCountryState(item) {
-            // Create a copy with the same id which will be edited
-            const copy = this.countryStateRepository.create(Shopware.Context.api, item.id);
-            copy._isNew = false;
-
-            this.currentCountryState = Object.assign(copy, item);
         },
 
         abortOnLanguageChange() {

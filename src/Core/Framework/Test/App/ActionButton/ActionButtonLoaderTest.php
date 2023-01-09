@@ -64,12 +64,6 @@ class ActionButtonLoaderTest extends TestCase
                 ],
                 'action' => 'orderDetailApp1',
                 'url' => 'app1.com/order/detail',
-                /*
-                 * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - "openNewTab" key will be removed.
-                 * It will no longer be used in the manifest.xml file
-                 * and will be processed in the Executor with an OpenNewTabResponse response instead.
-                 */
-                'openNewTab' => false,
                 'icon' => base64_encode((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             ], [
                 'app' => 'App2',
@@ -79,12 +73,6 @@ class ActionButtonLoaderTest extends TestCase
                 ],
                 'action' => 'orderDetailApp2',
                 'url' => 'app2.com/order/detail',
-                /*
-                 * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - "openNewTab" key will be removed.
-                 * It will no longer be used in the manifest.xml file
-                 * and will be processed in the Executor with an OpenNewTabResponse response instead.
-                 */
-                'openNewTab' => false,
                 'icon' => null,
             ],
         ], $loadedActionButtons);

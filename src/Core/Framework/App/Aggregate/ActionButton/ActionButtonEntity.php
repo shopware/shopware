@@ -42,15 +42,6 @@ class ActionButtonEntity extends Entity
     protected $url;
 
     /**
-     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - Will be remove on version 6.5.0.
-     * It will no longer be used in the manifest.xml file
-     * and will be processed in the Executor with an OpenNewTabResponse response instead.
-     *
-     * @var bool
-     */
-    protected $openNewTab = false;
-
-    /**
      * @var string
      */
     protected $appId;
@@ -88,16 +79,6 @@ class ActionButtonEntity extends Entity
     public function getUrl(): string
     {
         return $this->url;
-    }
-
-    /**
-     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - Will be remove on version 6.5.0.
-     * It will no longer be used in the manifest.xml file
-     * and will be processed in the Executor with an OpenNewTabResponse response instead.
-     */
-    public function isOpenNewTab(): bool
-    {
-        return $this->openNewTab;
     }
 
     public function getAppId(): string
@@ -143,16 +124,6 @@ class ActionButtonEntity extends Entity
     public function setUrl(string $url): void
     {
         $this->url = $url;
-    }
-
-    /**
-     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - Will be remove on version 6.5.0.
-     * It will no longer be used in the manifest.xml file
-     * and will be processed in the Executor with an OpenNewTabResponse response instead.
-     */
-    public function setOpenNewTab(bool $openNewTab): void
-    {
-        $this->openNewTab = $openNewTab;
     }
 
     public function getTranslations(): ?ActionButtonTranslationCollection

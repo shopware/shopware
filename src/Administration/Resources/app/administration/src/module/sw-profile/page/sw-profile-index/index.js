@@ -336,11 +336,6 @@ export default {
             context.authToken.access = authToken;
 
             this.userRepository.save(this.user, context).then(async () => {
-                // @deprecated tag:v6.5.0 - Will be removed
-                if (this.$refs.mediaSidebarItem) {
-                    this.$refs.mediaSidebarItem.getList();
-                }
-
                 await this.updateCurrentUser();
                 Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
 
@@ -418,20 +413,9 @@ export default {
             this.confirmPasswordModal = false;
         },
 
-        /* @deprecated tag:v6.5.0 - Will be removed */
-        setMediaFromSidebar(mediaEntity) {
-            this.avatarMediaItem = mediaEntity;
-            this.user.avatarId = mediaEntity.id;
-        },
-
         onUnlinkAvatar() {
             this.avatarMediaItem = null;
             this.user.avatarId = null;
-        },
-
-        /* @deprecated tag:v6.5.0 - Will be removed */
-        openMediaSidebar() {
-            this.$refs.mediaSidebarItem.openContent();
         },
 
         openMediaModal() {

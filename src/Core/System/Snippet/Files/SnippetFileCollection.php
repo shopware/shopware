@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException;
 
 /**
- * @extends Collection<AbstractSnippetFile|SnippetFileInterface>
+ * @extends Collection<AbstractSnippetFile>
  *
  * @package system-settings
  */
@@ -15,25 +14,13 @@ class SnippetFileCollection extends Collection
 {
     /**
      * @param AbstractSnippetFile $snippetFile
-     *
-     * @deprecated tag:v6.5.0 The parameter $snippetFile will be native typed
      */
     public function add($snippetFile): void
     {
-        if (!$snippetFile instanceof AbstractSnippetFile) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Parameter `$snippetFile` of method "add()" in class "SnippetFileCollection" will be natively typed to `AbstractSnippetFile` from v6.5.0.0.'
-            );
-        }
-
         $this->set(null, $snippetFile);
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - reason:return-type-change - return type hinted will be changed to AbstractSnippetFile
-     */
-    public function get($key): ?SnippetFileInterface
+    public function get($key): ?AbstractSnippetFile
     {
         if ($this->has($key)) {
             return $this->elements[$key];
@@ -42,21 +29,8 @@ class SnippetFileCollection extends Collection
         return $this->getByName($key);
     }
 
-    /**
-     * @deprecated tag:v6.5.0 The parameter $key will be native typed
-     * @deprecated tag:v6.5.0 - reason:return-type-change - return type hinted will be changed to AbstractSnippetFile
-     *
-     * @param string $key
-     */
-    public function getByName($key): ?SnippetFileInterface
+    public function getByName(string $key): ?AbstractSnippetFile
     {
-        if (!\is_string($key)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Parameter `$key` of method "getByName()" in class "SnippetFileCollection" will be natively typed to `string` from v6.5.0.0.'
-            );
-        }
-
         foreach ($this->elements as $index => $element) {
             if ($element->getName() === $key) {
                 return $this->elements[$index];
@@ -106,7 +80,7 @@ class SnippetFileCollection extends Collection
     }
 
     /**
-     * @return array<int, AbstractSnippetFile|SnippetFileInterface>
+     * @return array<int, AbstractSnippetFile>
      */
     public function getSnippetFilesByIso(string $iso): array
     {
@@ -117,10 +91,8 @@ class SnippetFileCollection extends Collection
 
     /**
      * @throws InvalidSnippetFileException
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - return type hinted will be changed to AbstractSnippetFile
      */
-    public function getBaseFileByIso(string $iso): SnippetFileInterface
+    public function getBaseFileByIso(string $iso): AbstractSnippetFile
     {
         foreach ($this->getSnippetFilesByIso($iso) as $file) {
             if (!$file->isBase()) {
@@ -142,26 +114,22 @@ class SnippetFileCollection extends Collection
     {
         $filePath = realpath($filePath);
 
-        $filesWithMatchingPath = $this->filter(/**
-         * @deprecated tag:v6.5.0 native type hinted will be changed to AbstractSnippetFile
-         */ static function (SnippetFileInterface $file) use ($filePath): bool {
-            return realpath($file->getPath()) === $filePath;
-        });
+        $filesWithMatchingPath = $this->filter(
+            static function (AbstractSnippetFile $file) use ($filePath): bool {
+                return realpath($file->getPath()) === $filePath;
+            }
+        );
 
         return $filesWithMatchingPath->count() > 0;
     }
 
     protected function getExpectedClass(): ?string
     {
-        if (Feature::isActive('v6.5.0.0')) {
-            return AbstractSnippetFile::class;
-        }
-
-        return SnippetFileInterface::class;
+        return AbstractSnippetFile::class;
     }
 
     /**
-     * @return array<string, array<int, SnippetFileInterface|AbstractSnippetFile>>
+     * @return array<string, array<int, AbstractSnippetFile>>
      */
     private function getListSortedByIso(): array
     {

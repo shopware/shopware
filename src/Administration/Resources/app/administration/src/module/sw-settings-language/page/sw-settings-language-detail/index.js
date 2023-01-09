@@ -260,16 +260,5 @@ export default {
         onCancel() {
             this.$router.push({ name: 'sw.settings.language.index' });
         },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         */
-        onChangeLanguage() {
-            if (this.feature.isActive('v6.5.0.0')) {
-                return;
-            }
-
-            this.loadEntityData();
-        },
     },
 };

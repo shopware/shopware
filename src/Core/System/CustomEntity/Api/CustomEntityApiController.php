@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal, should only be used over the provided API
+ * @internal
  *
  * @Route(defaults={"_routeScope"={"api"}})
  *

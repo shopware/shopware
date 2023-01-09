@@ -1,7 +1,6 @@
 ---
 title: Smartbar buttons open modal with iframe
 issue: NEXT-14361
-flag: FEATURE_NEXT_14360
 ---
 # Core
 * Added following response class to define the response formats: `src/Core/Framework/App/ActionButton/Response/OpenModalResponse.php`

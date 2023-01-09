@@ -13,12 +13,10 @@ import 'src/app/component/grid/sw-grid-row';
 import 'src/app/component/grid/sw-grid-column';
 import 'src/app/component/base/sw-card';
 import swImportExportActivity from 'src/module/sw-import-export/component/sw-import-export-activity';
-import swImportExportActivityDetailModal from 'src/module/sw-import-export/component/sw-import-export-activity-detail-modal';
 import swImportExportActivityResultModal from 'src/module/sw-import-export/component/sw-import-export-activity-result-modal';
 import swImportExportActivityLogInfoModal from 'src/module/sw-import-export/component/sw-import-export-activity-log-info-modal';
 
 Shopware.Component.register('sw-import-export-activity', swImportExportActivity);
-Shopware.Component.register('sw-import-export-activity-detail-modal', swImportExportActivityDetailModal);
 Shopware.Component.register('sw-import-export-activity-result-modal', swImportExportActivityResultModal);
 Shopware.Component.register('sw-import-export-activity-log-info-modal', swImportExportActivityLogInfoModal);
 
@@ -87,7 +85,6 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                 'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
                 'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
                 'sw-context-button': await Shopware.Component.build('sw-context-button'),
-                'sw-import-export-activity-detail-modal': await Shopware.Component.build('sw-import-export-activity-detail-modal'),
                 'sw-import-export-activity-result-modal': await Shopware.Component.build('sw-import-export-activity-result-modal'),
                 'sw-import-export-edit-profile-modal': {
                     template: '<div></div>'

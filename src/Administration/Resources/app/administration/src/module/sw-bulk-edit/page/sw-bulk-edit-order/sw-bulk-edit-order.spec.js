@@ -534,33 +534,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(emptyState.find('.sw-empty-state__title').text()).toBe('sw-bulk-edit.order.messageEmptyTitle');
     });
 
-    /**
-     * @deprecated tag:v6.5.0 - will be removed
-     */
-    it('should show documents warning alert', async () => {
-        wrapper = await createWrapper();
-
-        await wrapper.setData({
-            isLoadedData: true,
-            showBulkEditDocumentWarning: false,
-            customFieldSets: [],
-        });
-
-        let warning = wrapper.find('.sw-bulk-edit-order-base__documents-warning');
-
-        expect(warning.exists()).toBeFalsy();
-
-        await wrapper.setData({
-            showBulkEditDocumentWarning: true
-        });
-
-        warning = wrapper.find('.sw-bulk-edit-order-base__documents-warning');
-
-        expect(warning.exists()).toBeTruthy();
-
-        expect(warning.text()).toBe('sw-bulk-edit.order.documents.warning');
-    });
-
     it('should open confirm modal', async () => {
         wrapper = await createWrapper();
         await flushPromises();

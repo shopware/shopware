@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Snippet\Files;
 /**
  * @package system-settings
  */
-abstract class AbstractSnippetFile implements SnippetFileInterface
+abstract class AbstractSnippetFile
 {
     /**
      * Returns the displayed name.

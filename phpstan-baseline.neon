@@ -9281,46 +9281,6 @@ parameters:
 			path: src/Core/Framework/Api/Serializer/Record.php
 
 		-
-			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\ActionButtonTranslation\\\\ActionButtonTranslationCollection\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/ActionButtonLoader.php
-
-		-
-			message: "#^Cannot call method getCode\\(\\) on Shopware\\\\Core\\\\System\\\\Locale\\\\LocaleEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/ActionButtonLoader.php
-
-		-
-			message: "#^Cannot call method getIcon\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/ActionButtonLoader.php
-
-		-
-			message: "#^Cannot call method getLocale\\(\\) on Shopware\\\\Core\\\\System\\\\Language\\\\LanguageEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/ActionButtonLoader.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/ActionButtonLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\ActionButtonLoader\\:\\:formatCollection\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/ActionButtonLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\ActionButtonLoader\\:\\:loadActionButtonsForView\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/ActionButtonLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\ActionButtonLoader\\:\\:mapTranslatedLabels\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/ActionButtonLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\AppAction\\:\\:asPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/ActionButton/AppAction.php
@@ -9914,36 +9874,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\ModuleLoader\\:\\:mapTranslatedLabels\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/ModuleLoader.php
-
-		-
-			message: "#^Argument of an invalid type DOMNamedNodeMap\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/ActionButton.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\ActionButton\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/ActionButton.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\ActionButton\\:\\:getLabel\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/ActionButton.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\ActionButton\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/ActionButton.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\ActionButton\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/ActionButton.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\ActionButton\\:\\:\\$label type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/ActionButton.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Admin\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
@@ -18681,11 +18611,6 @@ parameters:
 			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\Exception\\\\LanguageForeignKeyDeleteException\\:\\:__construct\\(\\) has parameter \\$e with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Language/Exception/LanguageForeignKeyDeleteException.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\LanguageCollection\\:\\:getLocaleIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/System/Language/LanguageCollection.php
@@ -18761,31 +18686,6 @@ parameters:
 			path: src/Core/System/NumberRange/Aggregate/NumberRangeTypeTranslation/NumberRangeTypeTranslationCollection.php
 
 		-
-			message: "#^Argument of an invalid type array\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\NumberRangeValueGenerator\\:\\:generate\\(\\) has parameter \\$parsedPattern with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\NumberRangeValueGenerator\\:\\:parsePattern\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\NumberRangeValueGenerator\\:\\:parsePattern\\(\\) should return array\\|null but returns array\\<int, string\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
-
-		-
-			message: "#^Parameter \\#2 \\$subject of function preg_split expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\AbstractValueGenerator\\:\\:generate\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/NumberRange/ValueGenerator/Pattern/AbstractValueGenerator.php
@@ -18794,56 +18694,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\IncrementStorage\\\\IncrementRedisStorage\\:\\:getNumberRangeIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/NumberRange/ValueGenerator/Pattern/IncrementStorage/IncrementRedisStorage.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\IncrementStorage\\\\IncrementStorageRegistry\\:\\:__construct\\(\\) has parameter \\$storages with no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/IncrementStorage/IncrementStorageRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternDate\\:\\:generate\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternDate.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternDate\\:\\:resolve\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternDate.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternIncrement\\:\\:generate\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternIncrement.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternIncrement\\:\\:getEntityFromConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternIncrement.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternIncrement\\:\\:resolve\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternIncrement.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternInterface\\:\\:resolve\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternRegistry\\:\\:__construct\\(\\) has parameter \\$patterns with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternRegistry\\:\\:generatePattern\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternRegistry\\:\\:getEntityFromConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternRegistry.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelTranslation\\\\SalesChannelTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"
@@ -19044,11 +18894,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Event\\\\SalesChannelIndexerEvent\\:\\:\\$skip type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Event/SalesChannelIndexerEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Exception\\\\LanguageOfSalesChannelDomainDeleteException\\:\\:__construct\\(\\) has parameter \\$e with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Exception/LanguageOfSalesChannelDomainDeleteException.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannel\\\\ContextSwitchRoute\\:\\:checkNewDomain\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
@@ -19351,46 +19196,6 @@ parameters:
 			path: src/Core/System/Snippet/SnippetFixer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetValidator\\:\\:findDeprecatedSnippetFiles\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/SnippetValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetValidator\\:\\:findMissingSnippets\\(\\) has parameter \\$availableISOs with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/SnippetValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetValidator\\:\\:findMissingSnippets\\(\\) has parameter \\$snippetFileMappings with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/SnippetValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetValidator\\:\\:findMissingSnippets\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/SnippetValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetValidator\\:\\:getRecursiveArrayKeys\\(\\) has parameter \\$dataSet with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/SnippetValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetValidator\\:\\:getRecursiveArrayKeys\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/SnippetValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetValidator\\:\\:hydrateFiles\\(\\) has parameter \\$files with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/SnippetValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetValidator\\:\\:validate\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/SnippetValidator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetValidatorInterface\\:\\:validate\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Snippet/SnippetValidatorInterface.php
@@ -19449,21 +19254,6 @@ parameters:
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/System/StateMachine/StateMachineEntity.php
-
-		-
-			message: "#^Argument of an invalid type Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineTransition\\\\StateMachineTransitionCollection\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 2
-			path: src/Core/System/StateMachine/StateMachineRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineRegistry\\:\\:getAvailableTransitions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/StateMachineRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineRegistry\\:\\:getAvailableTransitionsById\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/StateMachineRegistry.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"
@@ -19889,46 +19679,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Country\\\\CachedCountryRouteTest\\:\\:invalidationProvider\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/System/Test/Country/CachedCountryRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Country\\\\CountryTaxFreeDeprecationUpdaterTest\\:\\:dataCreate\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/Country/CountryTaxFreeDeprecationUpdaterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Country\\\\CountryTaxFreeDeprecationUpdaterTest\\:\\:dataUpdate\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/Country/CountryTaxFreeDeprecationUpdaterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Country\\\\CountryTaxFreeDeprecationUpdaterTest\\:\\:testCreate\\(\\) has parameter \\$companyTaxExpected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/Country/CountryTaxFreeDeprecationUpdaterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Country\\\\CountryTaxFreeDeprecationUpdaterTest\\:\\:testCreate\\(\\) has parameter \\$customerTaxExpected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/Country/CountryTaxFreeDeprecationUpdaterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Country\\\\CountryTaxFreeDeprecationUpdaterTest\\:\\:testCreate\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/Country/CountryTaxFreeDeprecationUpdaterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Country\\\\CountryTaxFreeDeprecationUpdaterTest\\:\\:testUpdate\\(\\) has parameter \\$companyTaxExpected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/Country/CountryTaxFreeDeprecationUpdaterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Country\\\\CountryTaxFreeDeprecationUpdaterTest\\:\\:testUpdate\\(\\) has parameter \\$customerTaxExpected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/Country/CountryTaxFreeDeprecationUpdaterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Country\\\\CountryTaxFreeDeprecationUpdaterTest\\:\\:testUpdate\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/Country/CountryTaxFreeDeprecationUpdaterTest.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\Country\\\\Repository\\\\CountryRepositoryTest\\:\\:\\$connection is never read, only written\\.$#"

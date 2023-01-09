@@ -26,10 +26,6 @@ shopware:
         default: false
         major: true
         description: "Refactoring of Storefront theme assets"
-      - name: FEATURE_NEXT_14360
-        default: false
-        major: true
-        description: "App System 4.0 - Build action button messaging system"
         # issue: NEXT-14360
       - name: FEATURE_NEXT_16200
         default: false

@@ -249,8 +249,7 @@ export default {
             return this.systemRequiredFields[item.key] !== undefined;
         },
 
-        // @deprecated tag:v6.5.0 - parameter 'mapping' will be removed there is no replacement
-        updateSorting(mapping, index, direction) {
+        updateSorting(index, direction) {
             const clonedMappings = cloneDeep(this.sortedMappings);
             const clonedMapping = clonedMappings[index];
 

@@ -526,7 +526,6 @@ const missingTests = [
     'sw-import-export-new-profile-wizard-csv-page/index.js',
     'sw-import-export-new-profile-wizard-general-page/index.js',
     'sw-import-export-new-profile-wizard-mapping-page/index.js',
-    'sw-import-export-activity-detail-modal/index.js',
     'sw-import-export-edit-profile-field-indicators/index.js',
     'sw-import-export/index.js',
     'mappings.mock.js',

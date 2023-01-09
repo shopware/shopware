@@ -142,17 +142,6 @@ export default {
             return this.parentLanguages.get(item.parentId).name;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         */
-        onChangeLanguage() {
-            if (this.feature.isActive('v6.5.0.0')) {
-                return;
-            }
-
-            this.getList();
-        },
-
         isDefault(languageId) {
             return Shopware.Context.api.systemLanguageId
                 ? Shopware.Context.api.systemLanguageId.includes(languageId)

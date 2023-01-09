@@ -16,7 +16,6 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
-use Shopware\Core\System\Snippet\Files\SnippetFileInterface;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -332,7 +331,7 @@ class SnippetService
     /**
      * @param array<string, string> $isoList
      *
-     * @return array<string, array<int, AbstractSnippetFile|SnippetFileInterface>>
+     * @return array<string, array<int, AbstractSnippetFile>>
      */
     private function getSnippetFilesByIso(array $isoList): array
     {
@@ -345,7 +344,7 @@ class SnippetService
     }
 
     /**
-     * @param array<int, AbstractSnippetFile|SnippetFileInterface> $languageFiles
+     * @param array<int, AbstractSnippetFile> $languageFiles
      *
      * @return array<string, array<string, string|null>>
      */
@@ -441,7 +440,7 @@ class SnippetService
     }
 
     /**
-     * @param array<string, array<int, SnippetFileInterface|AbstractSnippetFile>> $languageFiles
+     * @param array<string, array<int, AbstractSnippetFile>> $languageFiles
      * @param array<string, string> $isoList
      *
      * @return array<string, array<string, array<string, array<string, string|null>>>>

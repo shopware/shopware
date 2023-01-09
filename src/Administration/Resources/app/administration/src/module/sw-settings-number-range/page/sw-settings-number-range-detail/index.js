@@ -139,26 +139,6 @@ export default {
             return this.repositoryFactory.create('sales_channel');
         },
 
-        /**
-         * @deprecated tag:v6.5.0 will be removed, as the state can also be stored in redis, use `numberRangeService` instead
-         */
-        numberRangeStateRepository() {
-            return this.repositoryFactory.create('number_range_state');
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 will be removed, as the state can also be stored in redis, use `numberRangeService` instead
-         */
-        numberRangeStateCriteria() {
-            const criteria = new Criteria(1, 25);
-
-            criteria.addFilter(
-                Criteria.equals('numberRangeId', this.numberRangeId),
-            );
-
-            return criteria;
-        },
-
         numberRangeSalesChannelsRepository() {
             return this.repositoryFactory.create('number_range_sales_channel');
         },

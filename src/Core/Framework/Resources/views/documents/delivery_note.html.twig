@@ -30,7 +30,6 @@ The blocks from the templates in the /includes folder can be overwritten directl
             address: deliveryAddress
         } %}<br/>
     {% else %}
-        {# @deprecated tag:v6.5.0 - Block will be removed #}
         {% block document_recipient_sender %}{% endblock %}
 
         {% if deliveryAddress.company %}

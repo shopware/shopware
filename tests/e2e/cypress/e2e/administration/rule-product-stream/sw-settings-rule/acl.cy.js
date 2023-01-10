@@ -127,14 +127,6 @@ describe('Rule builder: Test crud operations', () => {
             .should('have.not.class', 'sw-button--disabled');
         cy.get('.sw-settings-rule-detail-assignments__card-promotion_cart_rule .sw-settings-rule-detail-assignments__add-button')
             .should('have.not.class', 'sw-button--disabled');
-
-        /**
-         * @deprecated tag:v6.5.0 - assertion can be removed as business events will be removed
-         */
-        if (!cy.featureIsActive('v6.5.0.0')) {
-            cy.get('.sw-settings-rule-detail-assignments__card-event_action .sw-settings-rule-detail-assignments__add-button')
-                .should('have.not.class', 'sw-button--disabled');
-        }
     });
 
     it('@base @rule: create and read rule', { tags: ['pa-business-ops'] }, () => {

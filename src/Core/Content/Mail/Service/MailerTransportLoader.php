@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use Doctrine\DBAL\Exception\DriverException;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -9,6 +10,7 @@ use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Transport\Dsn;
 use Symfony\Component\Mailer\Transport\SendmailTransport;
 use Symfony\Component\Mailer\Transport\TransportInterface;
+use Symfony\Component\Mailer\Transport\Transports;
 
 /**
  * @internal
@@ -44,15 +46,34 @@ class MailerTransportLoader
         $this->documentRepository = $documentRepository;
     }
 
+    /**
+     * @param array<string, string> $dsns
+     */
+    public function fromStrings(array $dsns): Transports
+    {
+        $transports = [];
+        foreach ($dsns as $name => $dsn) {
+            if ($name === 'main') {
+                $transports[$name] = $this->fromString($dsn);
+            } else {
+                $transports[$name] = $this->createTransportUsingDSN($dsn);
+            }
+        }
+
+        return new Transports($transports);
+    }
+
     public function fromString(string $dsn): TransportInterface
     {
-        if (trim($this->configService->getString('core.mailerSettings.emailAgent')) === '') {
-            return new MailerTransportDecorator(
-                $this->envBasedTransport->fromString($dsn),
-                $this->attachmentsBuilder,
-                $this->filesystem,
-                $this->documentRepository
-            );
+        try {
+            $transportConfig = trim($this->configService->getString('core.mailerSettings.emailAgent'));
+
+            if ($transportConfig === '') {
+                return $this->createTransportUsingDSN($dsn);
+            }
+        } catch (DriverException $e) {
+            // We don't have a database connection right now
+            return $this->createTransportUsingDSN($dsn);
         }
 
         return new MailerTransportDecorator(
@@ -63,18 +84,25 @@ class MailerTransportLoader
         );
     }
 
+    public function createTransportUsingDSN(string $dsn): MailerTransportDecorator
+    {
+        return new MailerTransportDecorator(
+            $this->envBasedTransport->fromString($dsn),
+            $this->attachmentsBuilder,
+            $this->filesystem,
+            $this->documentRepository
+        );
+    }
+
     private function create(): TransportInterface
     {
         $emailAgent = $this->configService->getString('core.mailerSettings.emailAgent');
 
-        switch ($emailAgent) {
-            case 'smtp':
-                return $this->createSmtpTransport($this->configService);
-            case 'local':
-                return new SendmailTransport($this->getSendMailCommandLineArgument($this->configService));
-            default:
-                throw new \RuntimeException(sprintf('Invalid mail agent given "%s"', $emailAgent));
-        }
+        return match ($emailAgent) {
+            'smtp' => $this->createSmtpTransport($this->configService),
+            'local' => new SendmailTransport($this->getSendMailCommandLineArgument($this->configService)),
+            default => throw new \RuntimeException(sprintf('Invalid mail agent given "%s"', $emailAgent)),
+        };
     }
 
     private function createSmtpTransport(SystemConfigService $configService): TransportInterface
@@ -95,14 +123,11 @@ class MailerTransportLoader
     {
         $encryption = $configService->getString('core.mailerSettings.encryption');
 
-        switch ($encryption) {
-            case 'ssl':
-                return 'ssl';
-            case 'tls':
-                return 'tls';
-            default:
-                return null;
-        }
+        return match ($encryption) {
+            'ssl' => 'ssl',
+            'tls' => 'tls',
+            default => null,
+        };
     }
 
     private function getSendMailCommandLineArgument(SystemConfigService $configService): string

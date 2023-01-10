@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content;
 
+use Shopware\Core\Content\Mail\MailerConfigurationCompilerPass;
 use Shopware\Core\Framework\Bundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -42,5 +43,7 @@ class Content extends Bundle
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');
         }
+
+        $container->addCompilerPass(new MailerConfigurationCompilerPass());
     }
 }

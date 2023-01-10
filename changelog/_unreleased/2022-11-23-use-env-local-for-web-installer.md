@@ -5,7 +5,17 @@ issue: NEXT-24091
 
 # Core
 
-* Renamed `SHOPWARE_ES_HOSTS` to `OPENSEARCH_URL` to use more generic environment variable name used by cloud providers.
+* Added support for multiple mailers defined in Symfony framework configuration
+
+___
+
+# Upgrade Information
+
+## Change of environment variables
+
+* Renamed following environment variables to use more generic environment variable name used by cloud providers:
+  * `SHOPWARE_ES_HOSTS` to `OPENSEARCH_URL`
+  * `MAILER_URL` to `MAILER_DSN`
 
 You can change this variable back in your installation using a `config/packages/elasticsearch.yaml` with
 

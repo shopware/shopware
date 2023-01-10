@@ -46,6 +46,16 @@ parameters:
 			path: src/Administration/Service/AdminSearcher.php
 
 		-
+			message: "#^Parameter \\#1 \\$keys of static method Shopware\\\\Administration\\\\Snippet\\\\SnippetException\\:\\:extendOrOverwriteCore\\(\\) expects list\\<string\\>, non\\-empty\\-array\\<int\\<0, max\\>, string\\> given\\.$#"
+			count: 1
+			path: src/Administration/Snippet/AppAdministrationSnippetPersister.php
+
+		-
+			message: "#^Parameter \\#1 \\$duplicatedKeys of static method Shopware\\\\Administration\\\\Snippet\\\\SnippetException\\:\\:duplicatedFirstLevelKey\\(\\) expects list\\<string\\>, non\\-empty\\-array\\<int\\<0, max\\>, string\\> given\\.$#"
+			count: 1
+			path: src/Administration/Snippet/SnippetFinder.php
+
+		-
 			message: "#^Method Shopware\\\\Administration\\\\Test\\\\Controller\\\\AdminExtensionApiControllerTest\\:\\:providerRunAction\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Administration/Test/Controller/AdminExtensionApiControllerTest.php
@@ -1554,11 +1564,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\DeleteUnusedGuestCustomerServiceTest\\:\\:createOrderForCustomer\\(\\) has parameter \\$customer with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/DeleteUnusedGuestCustomerServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Repository\\\\CustomerTagTest\\:\\:createCustomer\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/Repository/CustomerTagTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Rule\\\\ShippingCountryRuleTest\\:\\:getMatchValues\\(\\) return type has no value type specified in iterable type array\\.$#"

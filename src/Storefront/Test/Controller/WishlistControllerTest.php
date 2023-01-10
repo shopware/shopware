@@ -403,9 +403,6 @@ class WishlistControllerTest extends TestCase
         return $browser;
     }
 
-    /**
-     * @param array<string, mixed> $config
-     */
     private function createProduct(?string $salesChannelId = null): string
     {
         $id = Uuid::randomHex();

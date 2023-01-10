@@ -112,6 +112,7 @@ class ImportExportLogRepositoryTest extends TestCase
             unset($entry[$property]);
 
             try {
+                static::assertNotNull($entry);
                 $this->logRepository->create([$entry], $this->context);
                 static::fail(sprintf('Create without required property \'%s\'', $property));
             } catch (\Exception $e) {
@@ -155,10 +156,12 @@ class ImportExportLogRepositoryTest extends TestCase
         foreach ($requiredProperties as $property) {
             $entry = array_shift($incompleteData);
             unset($entry[$property]);
+            static::assertNotNull($entry);
             array_push($data, $entry);
         }
 
         try {
+            static::assertNotNull($data);
             $this->logRepository->create(array_values($data), $this->context);
             static::fail('Create without required properties');
         } catch (WriteException $e) {

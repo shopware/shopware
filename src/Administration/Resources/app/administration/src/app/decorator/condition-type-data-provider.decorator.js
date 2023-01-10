@@ -523,6 +523,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'customer',
     });
 
+    ruleConditionService.addCondition('customerSalutation', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.customerSalutationRule',
+        scopes: ['checkout'],
+        group: 'customer',
+    });
+
     ruleConditionService.addCondition('orderTag', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderTagRule',

@@ -769,7 +769,8 @@
         "customerCustomFieldRule": "Customer with custom field",
         "zipCodeWildcardPlaceholder": "Use \"*\" as a wildcard character...",
         "customerBirthdayRule": "Customer date of birth",
-        "customerCreatedByAdminRule": "Customer created by admin"
+        "customerCreatedByAdminRule": "Customer created by admin",
+        "customerSalutationRule": "Customer salutation"
       }
     },
     "sw-condition-generic": {

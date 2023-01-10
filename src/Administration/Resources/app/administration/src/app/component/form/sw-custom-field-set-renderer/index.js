@@ -173,6 +173,11 @@ Component.register('sw-custom-field-set-renderer', {
                 return;
             }
 
+            // Check if translated custom fields are available
+            if (this.entity.translated?.customFields && Object.keys(this.entity.translated?.customFields).length <= 0) {
+                return;
+            }
+
             this.customFields = this.entity.translated?.customFields ?? this.entity.customFields;
         },
 
@@ -359,6 +364,14 @@ Component.register('sw-custom-field-set-renderer', {
                 this.tabWaitsAttempts += 1;
                 this.waitForTabComponent();
             });
+        },
+
+        getTabLabel(set) {
+            if (set.config && this.getInlineSnippet(set.config.label)) {
+                return this.getInlineSnippet(set.config.label);
+            }
+
+            return set.name;
         },
 
         onChangeCustomFieldSets(value, updateFn) {

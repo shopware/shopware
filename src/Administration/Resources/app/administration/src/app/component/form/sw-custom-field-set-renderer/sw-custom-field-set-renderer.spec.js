@@ -667,6 +667,76 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabs).toHaveLength(2);
     });
 
+    it('should render the correct tab label given from the config', async () => {
+        const props = {
+            entity: {
+                customFields: {
+                    field1: null
+                },
+                customFieldSetSelectionActive: null
+            },
+            sets: createEntityCollection([{
+                id: 'set1',
+                name: 'set1',
+                config: {
+                    label: {
+                        'en-GB': 'Set 1 Label'
+                    }
+                },
+                customFields: [{
+                    name: 'field1',
+                    type: 'text',
+                    config: {
+                        label: 'field1Label'
+                    }
+                }]
+            }]),
+            showCustomFieldSetSelection: true
+        };
+
+        wrapper = await createWrapper(props);
+
+        expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(1);
+        const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
+        expect(tabs).toHaveLength(1);
+        expect(tabs.at(0).text()).toBe('Set 1 Label');
+    });
+
+    it('should render the fallback tab label when no label exists in the config', async () => {
+        const props = {
+            entity: {
+                customFields: {
+                    field1: null
+                },
+                customFieldSetSelectionActive: null
+            },
+            sets: createEntityCollection([{
+                id: 'set1',
+                name: 'set1',
+                config: {
+                    label: {
+                        'en-GB': null
+                    }
+                },
+                customFields: [{
+                    name: 'field1',
+                    type: 'text',
+                    config: {
+                        label: 'field1Label'
+                    }
+                }]
+            }]),
+            showCustomFieldSetSelection: true
+        };
+
+        wrapper = await createWrapper(props);
+
+        expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(1);
+        const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
+        expect(tabs).toHaveLength(1);
+        expect(tabs.at(0).text()).toBe('set1');
+    });
+
     it('should not filter custom field sets when entity has no customFieldSetSelectionActive column', async () => {
         const props = {
             entity: {
@@ -1056,6 +1126,42 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(scoreField.isVisible()).toBe(false);
         expect(nameField.exists()).toBe(true);
         expect(nameField.isVisible()).toBe(true);
+    });
+
+    it('should not assign empty custom fields to the given translated entity entry', async () => {
+        const props = {
+            entity: {
+                customFields: null,
+                customFieldSetSelectionActive: null,
+                translated: {
+                    customFields: {},
+                }
+            },
+            sets: createEntityCollection([{
+                id: 'set1',
+                name: 'set1',
+                config: {
+                    label: {
+                        'en-GB': 'Set 1 Label'
+                    }
+                },
+                customFields: [{
+                    name: 'field1',
+                    type: 'text',
+                    config: {
+                        label: 'field1Label'
+                    }
+                }]
+            }]),
+            showCustomFieldSetSelection: true
+        };
+
+        wrapper = await createWrapper(props);
+
+        await flushPromises();
+
+        const entityCustomFields = wrapper.vm.entity.customFields;
+        expect(entityCustomFields).toBe(null);
     });
 
     /**

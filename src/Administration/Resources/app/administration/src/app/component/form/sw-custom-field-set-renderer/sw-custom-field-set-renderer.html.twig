@@ -24,7 +24,7 @@
                         :class="'sw-tab--name-' + set.name"
                         :active-tab="active"
                     >
-                        {{ set.config ? getInlineSnippet(set.config.label) : set.name }}
+                        {{ getTabLabel(set) }}
                     </sw-tabs-item>
                 </template>
             </template>
@@ -44,7 +44,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_custom_field_set_renderer_card_form_renderer %}
                         <sw-skeleton
-                            v-if="!set.customFields || !set.customFields.length"
+                            v-if="!set.customFields"
                             style="width:100%"
                         />
                         <template

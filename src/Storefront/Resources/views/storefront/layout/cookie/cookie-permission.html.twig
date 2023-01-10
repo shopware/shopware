@@ -10,7 +10,7 @@
 
                     {% block layout_cookie_permission_inner_content %}
                         <div class="col cookie-permission-content">
-                            {{ "cookie.message"|trans({
+                            {{ "cookie.messageText"|trans({
                                 '%url%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') })
                             })|raw }}
                         </div>

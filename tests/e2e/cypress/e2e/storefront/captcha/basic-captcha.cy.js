@@ -1,5 +1,5 @@
 const selector = {
-    footerLinkContact: '.footer-contact-form a[data-toggle="modal"]',
+    footerLinkContact: '.footer-contact-form a[data-ajax-modal="true"]',
     formContact: 'form[action="/form/contact"]',
     formContactSalutation: '#form-Salutation',
     formContactFirstName: '#form-firstName',

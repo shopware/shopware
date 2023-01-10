@@ -160,7 +160,9 @@ PluginManager.register('BuyBox', BuyBoxPlugin, '[data-buy-box]');
 PluginManager.register('Fading', FadingPlugin, '[data-fading]');
 PluginManager.register('BasicCaptcha', BasicCaptchaPlugin, '[data-basic-captcha]');
 
+/** @deprecated tag:v6.6.0 - Using selector [data-bs-toggle="modal"][data-url] to open AjaxModal is deprecated. Use selector [data-ajax-modal][data-url] instead. */
 PluginManager.register('AjaxModal', AjaxModalPlugin, '[data-bs-toggle="modal"][data-url]');
+PluginManager.register('AjaxModal', AjaxModalPlugin, '[data-ajax-modal][data-url]');
 
 if (window.useDefaultCookieConsent) {
     PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie-permission]');

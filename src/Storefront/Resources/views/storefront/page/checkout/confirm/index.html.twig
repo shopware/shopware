@@ -65,7 +65,7 @@
                                 {% block page_checkout_confirm_tos_control_label %}
                                     <label for="tos"
                                            class="checkout-confirm-tos-label custom-control-label">
-                                        {{ "checkout.confirmTerms"|trans({
+                                        {{ "checkout.confirmTermsText"|trans({
                                             '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.tosPage') })
                                         })|raw }}
                                     </label>

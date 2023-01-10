@@ -20,7 +20,7 @@
                     {% block component_privacy_dpi_label %}
                         <label class="custom-control-label no-validation"
                                for="acceptedDataProtection">
-                            {{ "general.privacyNotice"|trans({
+                            {{ "general.privacyNoticeText"|trans({
                                 '%privacyUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') }),
                                 '%tosUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.tosPage') })
                             })|raw }}
@@ -33,7 +33,7 @@
                 <div class="data-protection-information">
                     {% block component_privacy_label %}
                         <label>
-                            {{ "general.privacyNotice"|trans({
+                            {{ "general.privacyNoticeText"|trans({
                                 '%privacyUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') }),
                                 '%tosUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.tosPage') })
                             })|raw }}

@@ -94,7 +94,7 @@ describe('CMS: Check GDPR compliant video elements', () => {
             cy.get(`.cms-element-${name}-video__backdrop`).should('be.visible');
 
             // Check the privacy notice modal
-            cy.get(`.cms-element-${name}-video__backdrop a[data-toggle="modal"]`).click();
+            cy.get(`.cms-element-${name}-video__backdrop a[data-ajax-modal="true"]`).click();
             cy.get('.js-pseudo-modal .modal').should('exist');
             cy.contains('.js-pseudo-modal .modal .cms-element-text h2', 'Privacy');
 

@@ -2,29 +2,23 @@
 
 namespace Shopware\Storefront\Framework\Routing\Annotation;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
+use Shopware\Core\Framework\Routing\Annotation\BaseAnnotation;
 
 /**
  * @package storefront
  *
  * @Annotation
  */
-class NoStore extends ConfigurationAnnotation
+class NoStore extends BaseAnnotation
 {
     public const ALIAS = 'noStore';
 
-    /**
-     * @return string
-     */
-    public function getAliasName()
+    public function getAliasName(): string
     {
         return self::ALIAS;
     }
 
-    /**
-     * @return bool
-     */
-    public function allowArray()
+    public function allowArray(): bool
     {
         return false;
     }

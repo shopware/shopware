@@ -2,32 +2,21 @@
 
 namespace Shopware\Core\Framework\Routing\Annotation;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
-
 /**
  * @Annotation
  *
  * @package core
  */
-class Entity extends ConfigurationAnnotation
+class Entity extends BaseAnnotation
 {
-    /**
-     * @var string
-     */
-    private $value;
+    private string $value;
 
-    /**
-     * @return string
-     */
-    public function getAliasName()
+    public function getAliasName(): string
     {
         return 'entity';
     }
 
-    /**
-     * @return bool
-     */
-    public function allowArray()
+    public function allowArray(): bool
     {
         return false;
     }

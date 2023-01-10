@@ -78,7 +78,6 @@
         "psr/http-factory": "~1.0.1",
         "psr/http-message": "~1.0.1",
         "psr/log": "~3.0.0",
-        "sensio/framework-extra-bundle": "~6.2.1",
         "shopware/conflicts": "*",
         "symfony/asset": "~6.2.0",
         "symfony/cache": "~6.2.0",

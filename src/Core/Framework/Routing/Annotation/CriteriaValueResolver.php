@@ -30,6 +30,7 @@ class CriteriaValueResolver implements ValueResolverInterface
         }
 
         $annotation = $request->attributes->get('_entity');
+        var_dump($annotation);
 
         if (!$annotation instanceof Entity) {
             $route = $request->attributes->get('_route');

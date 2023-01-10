@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Cache\Annotation;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
+use Shopware\Core\Framework\Routing\Annotation\BaseAnnotation;
 use Shopware\Core\Framework\Script\Api\ResponseCacheConfiguration;
 
 /**
@@ -10,26 +10,23 @@ use Shopware\Core\Framework\Script\Api\ResponseCacheConfiguration;
  *
  * @Annotation
  */
-class HttpCache extends ConfigurationAnnotation
+class HttpCache extends BaseAnnotation
 {
     public const ALIAS = 'httpCache';
 
     private ?int $maxAge = null;
 
+    /**
+     * @var list<string>|null
+     */
     private ?array $states = null;
 
-    /**
-     * @return string
-     */
-    public function getAliasName()
+    public function getAliasName(): string
     {
         return self::ALIAS;
     }
 
-    /**
-     * @return bool
-     */
-    public function allowArray()
+    public function allowArray(): bool
     {
         return true;
     }
@@ -44,11 +41,17 @@ class HttpCache extends ConfigurationAnnotation
         $this->maxAge = $maxAge;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getStates(): array
     {
         return $this->states ?? [];
     }
 
+    /**
+     * @param list<string>|null $states
+     */
     public function setStates(?array $states): void
     {
         $this->states = $states;

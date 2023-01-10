@@ -2,32 +2,21 @@
 
 namespace Shopware\Core\Framework\Routing\Annotation;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
-
 /**
  * @Annotation
  *
  * @package core
  */
-class Since extends ConfigurationAnnotation
+class Since extends BaseAnnotation
 {
-    /**
-     * @var string
-     */
-    private $value;
+    private string $value;
 
-    /**
-     * @return string
-     */
-    public function getAliasName()
+    public function getAliasName(): string
     {
         return 'since';
     }
 
-    /**
-     * @return bool
-     */
-    public function allowArray()
+    public function allowArray(): bool
     {
         return false;
     }

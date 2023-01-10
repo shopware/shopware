@@ -544,6 +544,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'flow',
     });
 
+    ruleConditionService.addCondition('orderDeliveryStatus', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.orderDeliveryStatusRule',
+        scopes: ['flow'],
+        group: 'flow',
+    });
+
     ruleConditionService.addAwarenessConfiguration(
         'personaPromotions',
         {
@@ -907,410 +914,275 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         },
     );
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_transaction.state.open',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_transaction_state_open',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_transaction.state.open', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_transaction_state_open',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_transaction.state.open',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_transaction_state_open',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_transaction.state.open', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_transaction_state_open',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_transaction.state.open',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_transaction_state_paid',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_transaction.state.open', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_transaction_state_paid',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_transaction.state.open',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_transaction_state_paid',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_transaction.state.open', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_transaction_state_paid',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_transaction.state.open',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_transaction_state_refunded_partially',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_transaction.state.open', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_transaction_state_refunded_partially',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_transaction.state.open',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_transaction_state_refunded_partially',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_transaction.state.open', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_transaction_state_refunded_partially',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order_transaction.state.open',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_transaction_state_chargeback',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order_transaction.state.open', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_transaction_state_chargeback',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order_transaction.state.paid',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_transaction_state_chargeback',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order_transaction.state.paid', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_transaction_state_chargeback',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_transaction.state.paid',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_transaction_state_paid_partially',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_transaction.state.paid', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_transaction_state_paid_partially',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_transaction.state.refunded_partially',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_transaction_state_paid_partially',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_transaction.state.refunded_partially', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_transaction_state_paid_partially',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order_transaction.state.refunded_partially',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_transaction_state_failed',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order_transaction.state.refunded_partially', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_transaction_state_failed',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_transaction.state.chargeback',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_transaction_state_failed',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_transaction.state.chargeback', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_transaction_state_failed',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order_transaction.state.chargeback',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_transaction_state_reminded',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order_transaction.state.chargeback', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_transaction_state_reminded',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_transaction.state.paid_partially',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_transaction_state_reminded',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_transaction.state.paid_partially', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_transaction_state_reminded',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order_transaction.state.paid_partially',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_transaction_state_authorized',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order_transaction.state.paid_partially', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_transaction_state_authorized',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_transaction.state.failed',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_transaction_state_authorized',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_transaction.state.failed', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_transaction_state_authorized',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order_transaction.state.failed',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_transaction_state_cancelled',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order_transaction.state.failed', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_transaction_state_cancelled',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_transaction.state.reminded',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_transaction_state_cancelled',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_transaction.state.reminded', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_transaction_state_cancelled',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order_transaction.state.reminded',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_transaction_state_refunded',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order_transaction.state.reminded', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_transaction_state_refunded',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_transaction.state.authorized',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_transaction_state_refunded',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_transaction.state.authorized', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_transaction_state_refunded',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order_transaction.state.authorized',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_transaction_state_in_progress',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order_transaction.state.authorized', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_transaction_state_in_progress',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_transaction.state.cancelled',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_transaction_state_in_progress',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_transaction.state.cancelled', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_transaction_state_in_progress',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order_transaction.state.cancelled',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_delivery_state_returned_partially',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order_transaction.state.cancelled', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_delivery_state_returned_partially',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_transaction.state.refunded',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_delivery_state_returned_partially',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_transaction.state.refunded', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_delivery_state_returned_partially',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order_transaction.state.refunded',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_delivery_state_returned',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order_transaction.state.refunded', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_delivery_state_returned',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_transaction.state.in_progress',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_delivery_state_returned',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_transaction.state.in_progress', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_delivery_state_returned',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order_transaction.state.in_progress',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_delivery_state_cancelled',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order_transaction.state.in_progress', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_delivery_state_cancelled',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_delivery.state.returned_partially',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_delivery_state_cancelled',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_delivery.state.returned_partially', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_delivery_state_cancelled',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order_delivery.state.returned_partially',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_delivery_state_open',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order_delivery.state.returned_partially', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_delivery_state_open',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_delivery.state.returned',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_delivery_state_open',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_delivery.state.returned', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_delivery_state_open',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order_delivery.state.returned',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_delivery_state_shipped',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order_delivery.state.returned', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_delivery_state_shipped',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_delivery.state.cancelled',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_delivery_state_returned_partially',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_delivery.state.cancelled', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_delivery_state_returned_partially',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order_delivery.state.cancelled',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_delivery_state_shipped_partially',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order_delivery.state.cancelled', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_delivery_state_shipped_partially',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_delivery.state.open',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_delivery_state_shipped_partially',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_delivery.state.open', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_delivery_state_shipped_partially',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order_delivery.state.open',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_delivery_state_shipped',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order_delivery.state.open', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_delivery_state_shipped',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_delivery.state.shipped',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_state_in_progress',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_delivery.state.shipped', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_state_in_progress',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order_delivery.state.shipped',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_state_in_progress',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order_delivery.state.shipped', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_state_in_progress',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order_delivery.state.shipped_partially',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_state_completed',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order_delivery.state.shipped_partially', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_state_completed',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order_delivery.state.shipped_partially',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_state_completed',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order_delivery.state.shipped_partially', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_state_completed',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order.state.in_progress',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_state_open',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order.state.in_progress', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_state_open',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order.state.in_progress',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_state_open',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order.state.in_progress', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_state_open',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order.state.completed',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_state_cancelled',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order.state.completed', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_state_cancelled',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order.state.completed',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_state_cancelled',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order.state.completed', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_state_cancelled',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_enter.order.state.open',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_enter_order_transaction_state_unconfirmed',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_enter.order.state.open', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_enter_order_transaction_state_unconfirmed',
+    });
 
-    ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.state_leave.order.state.open',
-        {
-            equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer'),
-            scopes: ['global', 'cart', 'item', 'promotion', 'customer'],
-            snippet: 'global.businessEvents.state_leave_order_transaction_state_unconfirmed',
-        },
-    );
+    ruleConditionService.addAwarenessConfiguration('flowTrigger.state_leave.order.state.open', {
+        equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'cart', 'item', 'promotion', 'customer', 'flow'),
+        scopes: ['global', 'cart', 'item', 'promotion', 'customer', 'flow'],
+        snippet: 'global.businessEvents.state_leave_order_transaction_state_unconfirmed',
+    });
 
     return ruleConditionService;
 });

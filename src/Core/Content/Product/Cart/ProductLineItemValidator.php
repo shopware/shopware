@@ -19,13 +19,22 @@ class ProductLineItemValidator implements CartValidatorInterface
             return $lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE;
         });
 
+        $quantities = [];
+        $refs = [];
         foreach ($productLineItems as $lineItem) {
             $productId = $lineItem->getReferencedId();
             if ($productId === null) {
                 continue;
             }
-            $totalQuantity = $this->getTotalQuantity($productId, $productLineItems);
 
+            $quantities[$productId] = $lineItem->getQuantity() + ($quantities[$productId] ?? 0);
+
+            // only needed one time to check max quantity
+            $refs[$productId] = $lineItem;
+        }
+
+        foreach ($quantities as $productId => $quantity) {
+            $lineItem = $refs[$productId];
             $quantityInformation = $lineItem->getQuantityInformation();
             if ($quantityInformation === null) {
                 continue;
@@ -35,7 +44,7 @@ class ProductLineItemValidator implements CartValidatorInterface
             $available = $quantityInformation->getMaxPurchase() ?? 0;
             $steps = $quantityInformation->getPurchaseSteps() ?? 1;
 
-            if ($available >= $totalQuantity) {
+            if ($available >= $quantity) {
                 continue;
             }
 
@@ -45,20 +54,5 @@ class ProductLineItemValidator implements CartValidatorInterface
                 new ProductStockReachedError($productId, (string) $lineItem->getLabel(), $maxAvailable, false),
             );
         }
-    }
-
-    /**
-     * @param LineItem[] $productLineItems
-     */
-    private function getTotalQuantity(string $productId, array $productLineItems): int
-    {
-        $totalQuantity = 0;
-        foreach ($productLineItems as $lineItem) {
-            if ($lineItem->getReferencedId() === $productId) {
-                $totalQuantity += $lineItem->getQuantity();
-            }
-        }
-
-        return $totalQuantity;
     }
 }

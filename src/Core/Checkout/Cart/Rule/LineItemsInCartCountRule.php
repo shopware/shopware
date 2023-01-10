@@ -13,14 +13,11 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemsInCartCountRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemsInCartCount';
+
     protected int $count;
 
     protected string $operator;
-
-    public function getName(): string
-    {
-        return 'cartLineItemsInCartCount';
-    }
 
     public function match(RuleScope $scope): bool
     {

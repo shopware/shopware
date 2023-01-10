@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CartTaxDisplayRule extends Rule
 {
+    public const RULE_NAME = 'cartTaxDisplay';
+
     protected string $taxDisplay;
 
     /**
@@ -34,11 +36,6 @@ class CartTaxDisplayRule extends Rule
         return [
             'taxDisplay' => RuleConstraints::string(),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'cartTaxDisplay';
     }
 
     public function getConfig(): RuleConfig

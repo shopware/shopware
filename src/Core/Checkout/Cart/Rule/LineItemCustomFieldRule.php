@@ -17,6 +17,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class LineItemCustomFieldRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemCustomField';
+
     protected string $operator;
 
     /**
@@ -40,11 +42,6 @@ class LineItemCustomFieldRule extends Rule
 
         $this->operator = $operator;
         $this->renderedField = $renderedField;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemCustomField';
     }
 
     /**

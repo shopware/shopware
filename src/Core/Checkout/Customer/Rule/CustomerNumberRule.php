@@ -15,8 +15,10 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CustomerNumberRule extends Rule
 {
+    public const RULE_NAME = 'customerCustomerNumber';
+
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $numbers = null;
 
@@ -25,7 +27,7 @@ class CustomerNumberRule extends Rule
     /**
      * @internal
      *
-     * @param array<string>|null $numbers
+     * @param list<string>|null $numbers
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $numbers = null)
     {
@@ -57,11 +59,6 @@ class CustomerNumberRule extends Rule
             'numbers' => RuleConstraints::stringArray(),
             'operator' => RuleConstraints::stringOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'customerCustomerNumber';
     }
 
     public function getConfig(): RuleConfig

@@ -14,22 +14,19 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
  */
 class CurrencyRule extends Rule
 {
-    private const NAME = 'currency';
+    public const RULE_NAME = 'currency';
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
-    protected $currencyIds;
+    protected ?array $currencyIds;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     /**
      * @internal
      *
-     * @param array<string>|null $currencyIds
+     * @param list<string>|null $currencyIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $currencyIds = null)
     {
@@ -50,11 +47,6 @@ class CurrencyRule extends Rule
             'currencyIds' => RuleConstraints::uuids(),
             'operator' => RuleConstraints::uuidOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getConfig(): RuleConfig

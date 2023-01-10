@@ -18,8 +18,10 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class ShippingStateRule extends Rule
 {
+    public const RULE_NAME = 'customerShippingState';
+
     /**
-     * @var string[]
+     * @var list<string>|null
      */
     protected ?array $stateIds;
 
@@ -75,11 +77,6 @@ class ShippingStateRule extends Rule
         $constraints['stateIds'] = [new NotBlank(), new ArrayOfUuid()];
 
         return $constraints;
-    }
-
-    public function getName(): string
-    {
-        return 'customerShippingState';
     }
 
     public function getConfig(): RuleConfig

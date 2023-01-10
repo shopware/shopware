@@ -14,17 +14,17 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class PaymentMethodRule extends Rule
 {
-    private const NAME = 'paymentMethod';
+    public const RULE_NAME = 'paymentMethod';
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $paymentMethodIds;
 
     protected string $operator;
 
     /**
-     * @param array<string> $paymentMethodIds
+     * @param list<string> $paymentMethodIds
      *
      * @internal
      */
@@ -47,11 +47,6 @@ class PaymentMethodRule extends Rule
             'paymentMethodIds' => RuleConstraints::uuids(),
             'operator' => RuleConstraints::uuidOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getConfig(): RuleConfig

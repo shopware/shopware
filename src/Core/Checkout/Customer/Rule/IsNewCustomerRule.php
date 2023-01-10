@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class IsNewCustomerRule extends Rule
 {
+    public const RULE_NAME = 'customerIsNewCustomer';
+
     /**
      * @var bool
      */
@@ -53,11 +55,6 @@ class IsNewCustomerRule extends Rule
         return [
             'isNew' => RuleConstraints::bool(true),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'customerIsNewCustomer';
     }
 
     public function getConfig(): RuleConfig

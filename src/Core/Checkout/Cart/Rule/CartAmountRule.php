@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CartAmountRule extends Rule
 {
+    public const RULE_NAME = 'cartCartAmount';
+
     protected float $amount;
 
     protected string $operator;
@@ -47,11 +49,6 @@ class CartAmountRule extends Rule
             'amount' => RuleConstraints::float(),
             'operator' => RuleConstraints::numericOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'cartCartAmount';
     }
 
     public function getConfig(): RuleConfig

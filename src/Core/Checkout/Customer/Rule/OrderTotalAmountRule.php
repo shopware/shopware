@@ -14,14 +14,11 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class OrderTotalAmountRule extends Rule
 {
+    public const RULE_NAME = 'customerOrderTotalAmount';
+
     protected string $operator;
 
     protected float $amount;
-
-    public function getName(): string
-    {
-        return 'customerOrderTotalAmount';
-    }
 
     public function match(RuleScope $scope): bool
     {

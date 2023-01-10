@@ -7,6 +7,8 @@ namespace Shopware\Core\Framework\Rule;
  */
 class SimpleRule extends Rule
 {
+    public const RULE_NAME = 'simple';
+
     protected bool $match = false;
 
     /**
@@ -17,11 +19,6 @@ class SimpleRule extends Rule
         parent::__construct();
 
         $this->match = $match;
-    }
-
-    public function getName(): string
-    {
-        return 'simple';
     }
 
     public function match(RuleScope $scope): bool

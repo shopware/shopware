@@ -16,17 +16,19 @@ use Symfony\Component\Validator\Constraint;
  */
 class LineItemTagRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemTag';
+
     protected string $operator;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $identifiers;
 
     /**
      * @internal
      *
-     * @param array<string>|null $identifiers
+     * @param list<string>|null $identifiers
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $identifiers = null)
     {
@@ -34,11 +36,6 @@ class LineItemTagRule extends Rule
 
         $this->operator = $operator;
         $this->identifiers = $identifiers;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemTag';
     }
 
     public function match(RuleScope $scope): bool

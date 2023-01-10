@@ -17,8 +17,10 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemInProductStreamRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemInProductStream';
+
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $streamIds;
 
@@ -27,7 +29,7 @@ class LineItemInProductStreamRule extends Rule
     /**
      * @internal
      *
-     * @param array<string> $streamIds
+     * @param list<string> $streamIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, array $streamIds = [])
     {
@@ -35,11 +37,6 @@ class LineItemInProductStreamRule extends Rule
 
         $this->streamIds = $streamIds;
         $this->operator = $operator;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemInProductStream';
     }
 
     public function match(RuleScope $scope): bool

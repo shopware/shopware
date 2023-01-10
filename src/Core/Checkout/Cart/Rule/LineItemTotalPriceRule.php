@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemTotalPriceRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemTotalPrice';
+
     protected ?float $amount;
 
     protected string $operator;
@@ -58,11 +60,6 @@ class LineItemTotalPriceRule extends Rule
             'amount' => RuleConstraints::float(),
             'operator' => RuleConstraints::numericOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemTotalPrice';
     }
 
     public function getConfig(): RuleConfig

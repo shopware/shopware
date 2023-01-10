@@ -17,8 +17,10 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemOfManufacturerRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemOfManufacturer';
+
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $manufacturerIds;
 
@@ -27,7 +29,7 @@ class LineItemOfManufacturerRule extends Rule
     /**
      * @internal
      *
-     * @param array<string> $manufacturerIds
+     * @param list<string> $manufacturerIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, array $manufacturerIds = [])
     {
@@ -35,11 +37,6 @@ class LineItemOfManufacturerRule extends Rule
 
         $this->manufacturerIds = $manufacturerIds;
         $this->operator = $operator;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemOfManufacturer';
     }
 
     /**

@@ -15,28 +15,25 @@ use Shopware\Core\System\Tag\TagDefinition;
  */
 class OrderTagRule extends FlowRule
 {
+    public const RULE_NAME = 'orderTag';
+
     protected string $operator;
 
     /**
-     * @var string[]|null
+     * @var list<string>|null
      */
     protected ?array $identifiers;
 
     /**
      * @internal
      *
-     * @param string[]|null $identifiers
+     * @param list<string>|null $identifiers
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $identifiers = null)
     {
         parent::__construct();
         $this->operator = $operator;
         $this->identifiers = $identifiers;
-    }
-
-    public function getName(): string
-    {
-        return 'orderTag';
     }
 
     public function match(RuleScope $scope): bool
@@ -71,7 +68,7 @@ class OrderTagRule extends FlowRule
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     private function extractTagIds(OrderEntity $order): array
     {

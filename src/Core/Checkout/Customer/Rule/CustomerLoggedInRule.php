@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CustomerLoggedInRule extends Rule
 {
+    public const RULE_NAME = 'customerLoggedIn';
+
     protected bool $isLoggedIn;
 
     /**
@@ -42,11 +44,6 @@ class CustomerLoggedInRule extends Rule
         return [
             'isLoggedIn' => RuleConstraints::bool(true),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'customerLoggedIn';
     }
 
     public function getConfig(): RuleConfig

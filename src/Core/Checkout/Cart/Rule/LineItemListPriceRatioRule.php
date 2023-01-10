@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemListPriceRatioRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemListPriceRatio';
+
     protected ?float $amount;
 
     protected string $operator;
@@ -30,11 +32,6 @@ class LineItemListPriceRatioRule extends Rule
 
         $this->operator = $operator;
         $this->amount = $amount;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemListPriceRatio';
     }
 
     public function match(RuleScope $scope): bool

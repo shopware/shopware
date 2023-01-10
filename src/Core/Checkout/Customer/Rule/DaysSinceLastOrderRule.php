@@ -14,14 +14,11 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class DaysSinceLastOrderRule extends Rule
 {
+    public const RULE_NAME = 'customerDaysSinceLastOrder';
+
     protected string $operator = Rule::OPERATOR_EQ;
 
     protected ?int $daysPassed = null;
-
-    public function getName(): string
-    {
-        return 'customerDaysSinceLastOrder';
-    }
 
     public function match(RuleScope $scope): bool
     {

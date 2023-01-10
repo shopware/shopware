@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemDimensionVolumeRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemDimensionVolume';
+
     protected ?float $amount;
 
     protected string $operator;
@@ -29,11 +31,6 @@ class LineItemDimensionVolumeRule extends Rule
 
         $this->operator = $operator;
         $this->amount = $amount;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemDimensionVolume';
     }
 
     public function match(RuleScope $scope): bool

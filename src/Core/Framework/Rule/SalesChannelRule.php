@@ -9,20 +9,19 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class SalesChannelRule extends Rule
 {
-    /**
-     * @var array<string>|null
-     */
-    protected $salesChannelIds;
+    public const RULE_NAME = 'salesChannel';
 
     /**
-     * @var string
+     * @var list<string>|null
      */
-    protected $operator;
+    protected ?array $salesChannelIds;
+
+    protected string $operator;
 
     /**
      * @internal
      *
-     * @param array<string>|null $salesChannelIds
+     * @param list<string>|null $salesChannelIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $salesChannelIds = null)
     {
@@ -43,11 +42,6 @@ class SalesChannelRule extends Rule
             'salesChannelIds' => RuleConstraints::uuids(),
             'operator' => RuleConstraints::uuidOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'salesChannel';
     }
 
     public function getConfig(): RuleConfig

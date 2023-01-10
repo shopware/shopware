@@ -14,6 +14,8 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class DifferentAddressesRule extends Rule
 {
+    public const RULE_NAME = 'customerDifferentAddresses';
+
     /**
      * @var bool
      */
@@ -58,11 +60,6 @@ class DifferentAddressesRule extends Rule
         return [
             'isDifferent' => [new NotNull(), new Type('bool')],
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'customerDifferentAddresses';
     }
 
     public function getConfig(): RuleConfig

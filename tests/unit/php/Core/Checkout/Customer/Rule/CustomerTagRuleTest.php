@@ -73,14 +73,16 @@ class CustomerTagRuleTest extends TestCase
     /**
      * @dataProvider getMatchValues
      *
-     * @param array<string>|string|null $givenIdentifier
+     * @param string|list<string>|null $givenIdentifier
      * @param array<string> $ruleIdentifiers
      */
-    public function testRuleMatching(string $operator, bool $isMatching, array $ruleIdentifiers, $givenIdentifier, bool $noCustomer = false): void
+    public function testRuleMatching(string $operator, bool $isMatching, array $ruleIdentifiers, array|string|null $givenIdentifier, bool $noCustomer = false): void
     {
         $customer = new CustomerEntity();
-        $customerIdentifiers = \is_array($givenIdentifier) ? $givenIdentifier : [$givenIdentifier];
-        $customer->setTagIds(array_filter($customerIdentifiers));
+
+        /** @var list<string> $customerIdentifiers */
+        $customerIdentifiers = array_filter(\is_array($givenIdentifier) ? $givenIdentifier : [$givenIdentifier]);
+        $customer->setTagIds($customerIdentifiers);
 
         if ($noCustomer) {
             $customer = null;

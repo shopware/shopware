@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class PromotionValueRule extends FilterRule
 {
+    public const RULE_NAME = 'promotionValue';
+
     protected float $amount;
 
     protected string $operator;
@@ -65,11 +67,6 @@ class PromotionValueRule extends FilterRule
             'amount' => RuleConstraints::float(),
             'operator' => RuleConstraints::numericOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'promotionValue';
     }
 
     public function getConfig(): RuleConfig

@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class NotRule extends Container
 {
+    public const RULE_NAME = 'notContainer';
+
     public function addRule(Rule $rule): void
     {
         parent::addRule($rule);
@@ -35,11 +37,6 @@ class NotRule extends Container
         }
 
         return !$rule->match($scope);
-    }
-
-    public function getName(): string
-    {
-        return 'notContainer';
     }
 
     /**

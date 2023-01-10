@@ -19,6 +19,8 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class LineItemGroupRule extends FilterRule
 {
+    public const RULE_NAME = 'cartLineItemInGroup';
+
     protected string $groupId;
 
     protected string $packagerKey;
@@ -73,10 +75,5 @@ class LineItemGroupRule extends FilterRule
             'sorterKey' => RuleConstraints::string(),
             'rules' => [new NotBlank(), new Type('container')],
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemInGroup';
     }
 }

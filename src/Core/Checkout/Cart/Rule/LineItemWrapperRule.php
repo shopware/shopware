@@ -14,6 +14,8 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class LineItemWrapperRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemWrapper';
+
     protected Container $container;
 
     public function match(RuleScope $scope): bool
@@ -45,10 +47,5 @@ class LineItemWrapperRule extends Rule
         return [
             'container' => [new NotBlank(), new Type(Container::class)],
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemWrapper';
     }
 }

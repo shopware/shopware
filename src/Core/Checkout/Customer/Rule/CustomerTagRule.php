@@ -16,28 +16,25 @@ use Shopware\Core\System\Tag\TagDefinition;
  */
 class CustomerTagRule extends Rule
 {
+    public const RULE_NAME = 'customerTag';
+
     protected string $operator;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $identifiers = null;
 
     /**
      * @internal
      *
-     * @param array<string>|null $identifiers
+     * @param list<string>|null $identifiers
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $identifiers = null)
     {
         parent::__construct();
         $this->operator = $operator;
         $this->identifiers = $identifiers;
-    }
-
-    public function getName(): string
-    {
-        return 'customerTag';
     }
 
     public function match(RuleScope $scope): bool
@@ -76,7 +73,7 @@ class CustomerTagRule extends Rule
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function extractTagIds(CustomerEntity $customer): array
     {

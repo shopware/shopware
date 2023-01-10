@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class BillingZipCodeRule extends ZipCodeRule
 {
+    public const RULE_NAME = 'customerBillingZipCode';
+
     public function match(RuleScope $scope): bool
     {
         if (!$scope instanceof CheckoutRuleScope) {
@@ -27,10 +29,5 @@ class BillingZipCodeRule extends ZipCodeRule
         }
 
         return $this->matchZipCode($address);
-    }
-
-    public function getName(): string
-    {
-        return 'customerBillingZipCode';
     }
 }

@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemCreationDateRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemCreationDate';
+
     protected ?string $lineItemCreationDate;
 
     protected string $operator;
@@ -28,11 +30,6 @@ class LineItemCreationDateRule extends Rule
 
         $this->lineItemCreationDate = $lineItemCreationDate;
         $this->operator = $operator;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemCreationDate';
     }
 
     public function getConstraints(): array

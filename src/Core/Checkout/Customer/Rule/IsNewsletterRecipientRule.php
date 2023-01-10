@@ -15,6 +15,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class IsNewsletterRecipientRule extends Rule
 {
+    public const RULE_NAME = 'customerIsNewsletterRecipient';
+
     protected bool $isNewsletterRecipient;
 
     /**
@@ -48,11 +50,6 @@ class IsNewsletterRecipientRule extends Rule
         return [
             'isNewsletterRecipient' => RuleConstraints::bool(true),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'customerIsNewsletterRecipient';
     }
 
     public function getConfig(): RuleConfig

@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class PromotionsInCartCountRule extends Rule
 {
+    public const RULE_NAME = 'promotionsInCartCount';
+
     protected int $count;
 
     protected string $operator;
@@ -28,11 +30,6 @@ class PromotionsInCartCountRule extends Rule
 
         $this->operator = $operator;
         $this->count = (int) $count;
-    }
-
-    public function getName(): string
-    {
-        return 'promotionsInCartCount';
     }
 
     public function match(RuleScope $scope): bool

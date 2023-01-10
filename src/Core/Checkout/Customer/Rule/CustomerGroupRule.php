@@ -15,20 +15,19 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CustomerGroupRule extends Rule
 {
-    /**
-     * @var array<string>|null
-     */
-    protected $customerGroupIds;
+    public const RULE_NAME = 'customerCustomerGroup';
 
     /**
-     * @var string
+     * @var list<string>|null
      */
-    protected $operator;
+    protected ?array $customerGroupIds;
+
+    protected string $operator;
 
     /**
      * @internal
      *
-     * @param array<string>|null $customerGroupIds
+     * @param list<string>|null $customerGroupIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $customerGroupIds = null)
     {
@@ -52,11 +51,6 @@ class CustomerGroupRule extends Rule
             'customerGroupIds' => RuleConstraints::uuids(),
             'operator' => RuleConstraints::uuidOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'customerCustomerGroup';
     }
 
     public function getConfig(): RuleConfig

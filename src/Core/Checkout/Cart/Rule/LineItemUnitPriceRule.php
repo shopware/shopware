@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemUnitPriceRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemUnitPrice';
+
     protected float $amount;
 
     protected string $operator;
@@ -58,11 +60,6 @@ class LineItemUnitPriceRule extends Rule
             'amount' => RuleConstraints::float(),
             'operator' => RuleConstraints::numericOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemUnitPrice';
     }
 
     public function getConfig(): RuleConfig

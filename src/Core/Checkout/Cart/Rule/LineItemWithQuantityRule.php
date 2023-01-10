@@ -16,6 +16,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class LineItemWithQuantityRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemWithQuantity';
+
     protected ?string $id;
 
     protected ?int $quantity;
@@ -63,11 +65,6 @@ class LineItemWithQuantityRule extends Rule
             'quantity' => RuleConstraints::int(),
             'operator' => RuleConstraints::numericOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemWithQuantity';
     }
 
     private function lineItemMatches(LineItem $lineItem): bool

@@ -155,6 +155,22 @@ class RuleTest extends TestCase
         }
     }
 
+    public function testRuleNameConfigByConstant(): void
+    {
+        /** @var Rule $rule */
+        foreach ($this->getRules() as $rule) {
+            $ruleNameConstant = $rule::RULE_NAME;
+
+            static::assertNotNull($ruleNameConstant, sprintf(
+                'Rule name constant is empty in condition %s',
+                $rule->getName()
+            ));
+        }
+    }
+
+    /**
+     * @return \ArrayIterator<int, Rule>
+     */
     private function getRulesWithEmptyOperator(): \Traversable
     {
         /** @var Rule $rule */
@@ -183,6 +199,9 @@ class RuleTest extends TestCase
         }
     }
 
+    /**
+     * @return \ArrayIterator<int, Rule>
+     */
     private function getRules(): \Traversable
     {
         $ruleNames = $this->conditionRegistry->getNames();

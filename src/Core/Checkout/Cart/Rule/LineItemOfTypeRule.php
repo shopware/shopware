@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemOfTypeRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemOfType';
+
     protected string $lineItemType;
 
     protected string $operator;
@@ -54,11 +56,6 @@ class LineItemOfTypeRule extends Rule
             'lineItemType' => RuleConstraints::string(),
             'operator' => RuleConstraints::stringOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemOfType';
     }
 
     public function getConfig(): RuleConfig

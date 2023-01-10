@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class AffiliateCodeRule extends Rule
 {
+    public const RULE_NAME = 'customerAffiliateCode';
+
     protected string $operator;
 
     protected ?string $affiliateCode = null;
@@ -28,11 +30,6 @@ class AffiliateCodeRule extends Rule
 
         $this->operator = $operator;
         $this->affiliateCode = $affiliateCode;
-    }
-
-    public function getName(): string
-    {
-        return 'customerAffiliateCode';
     }
 
     public function match(RuleScope $scope): bool

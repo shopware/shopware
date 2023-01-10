@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemDimensionWeightRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemDimensionWeight';
+
     protected ?float $amount;
 
     protected string $operator;
@@ -29,11 +31,6 @@ class LineItemDimensionWeightRule extends Rule
 
         $this->operator = $operator;
         $this->amount = $amount;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemDimensionWeight';
     }
 
     public function match(RuleScope $scope): bool

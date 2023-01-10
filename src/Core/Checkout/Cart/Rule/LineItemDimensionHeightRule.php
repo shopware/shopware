@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemDimensionHeightRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemDimensionHeight';
+
     protected ?float $amount;
 
     protected string $operator;
@@ -29,11 +31,6 @@ class LineItemDimensionHeightRule extends Rule
 
         $this->operator = $operator;
         $this->amount = $amount;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemDimensionHeight';
     }
 
     public function match(RuleScope $scope): bool

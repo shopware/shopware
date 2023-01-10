@@ -120,7 +120,7 @@
       "title": "Title"
     },
     "symbol": {
-      "tilde": ".",
+      "tilde": "~",
       "dash": "-",
       "comma": ","
     }

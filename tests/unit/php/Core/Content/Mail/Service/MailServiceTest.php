@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 use Monolog\Logger;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\Service\AbstractMailFactory;
 use Shopware\Core\Content\Mail\Service\AbstractMailSender;
 use Shopware\Core\Content\Mail\Service\MailService;
@@ -58,12 +59,18 @@ class MailServiceTest extends TestCase
      */
     private EntityRepository $salesChannelRepository;
 
+    /**
+     * @var MockObject&LoggerInterface
+     */
+    private LoggerInterface $logger;
+
     protected function setUp(): void
     {
         $this->mailFactory = $this->createMock(AbstractMailFactory::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->templateRenderer = $this->createMock(StringTemplateRenderer::class);
         $this->salesChannelRepository = $this->createMock(EntityRepository::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->mailService = new MailService(
             $this->createMock(DataValidator::class),
@@ -75,7 +82,8 @@ class MailServiceTest extends TestCase
             $this->salesChannelRepository,
             $this->createMock(SystemConfigService::class),
             $this->eventDispatcher,
-            $this->createMock(UrlGeneratorInterface::class)
+            $this->createMock(UrlGeneratorInterface::class),
+            $this->logger,
         );
     }
 
@@ -179,6 +187,7 @@ class MailServiceTest extends TestCase
         $beforeValidateEvent = null;
         $mailErrorEvent = null;
 
+        $this->logger->expects(static::once())->method('error');
         $this->eventDispatcher->expects(static::exactly(2))
             ->method('dispatch')
             ->willReturnCallback(function (Event $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
@@ -240,6 +249,7 @@ class MailServiceTest extends TestCase
             'salesChannelId' => $salesChannelId,
         ];
 
+        $this->logger->expects(static::once())->method('error');
         $this->eventDispatcher->expects(static::exactly(4))->method('dispatch')->willReturnOnConsecutiveCalls(
             static::isInstanceOf(MailBeforeValidateEvent::class),
             static::isInstanceOf(MailErrorEvent::class),

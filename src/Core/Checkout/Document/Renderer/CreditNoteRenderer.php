@@ -69,7 +69,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         foreach ($operations as $operation) {
             try {
                 $orderId = $operation->getOrderId();
-                $invoice = $this->referenceInvoiceLoader->load($orderId, $operation->getReferencedDocumentId());
+                $invoice = $this->referenceInvoiceLoader->load($orderId, $operation->getReferencedDocumentId(), $rendererConfig->deepLinkCode);
 
                 if (empty($invoice)) {
                     throw new DocumentGenerationException('Can not generate credit note document because no invoice document exists. OrderId: ' . $operation->getOrderId());

@@ -239,7 +239,11 @@ class SendMailAction extends FlowAction implements DelayableAction
             );
         }
 
-        $this->send($data, $event->getContext(), $this->getTemplateData($mailEvent), $attachments, $extension, $injectedTranslator);
+        $templateData = array_merge([
+            'eventName' => $mailEvent->getName(),
+        ], $this->getTemplateData($mailEvent));
+
+        $this->send($data, $event->getContext(), $templateData, $attachments, $extension, $injectedTranslator);
     }
 
     /**

@@ -358,6 +358,14 @@ export default {
         },
 
         onEditAction(sequence, target, key) {
+            if (sequence.actionName && sequence.actionName === ACTION.STOP_FLOW) {
+                return;
+            }
+
+            if (!this.$refs.contextButton[key]) {
+                return;
+            }
+
             if (!sequence?.actionName || !target) {
                 return;
             }

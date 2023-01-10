@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
@@ -70,6 +69,9 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         return $pluginConfig;
     }
 
+    /**
+     * @return array<int|string,mixed>
+     */
     private function loadCompileConfig(string $themeId, Context $context): array
     {
         $config = $this->loadRecursiveConfig($themeId, $context);
@@ -86,6 +88,9 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         return json_decode((string) json_encode($config), true);
     }
 
+    /**
+     * @return array<int|string,mixed>
+     */
     private function loadRecursiveConfig(string $themeId, Context $context, bool $withBase = true): array
     {
         $criteria = new Criteria();
@@ -124,6 +129,11 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         return array_replace_recursive($baseThemeConfig, $configuredTheme);
     }
 
+    /**
+     * @param array<string, ThemeEntity> $parentThemes
+     *
+     * @return array<string, ThemeEntity>
+     */
     private function getParentThemeIds(EntitySearchResult $themes, ThemeEntity $mainTheme, array $parentThemes = []): array
     {
         // add configured parent themes
@@ -220,6 +230,9 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             ->getByTechnicalName($this->baseTheme);
     }
 
+    /**
+     * @return array<int|string,mixed>
+     */
     private function mergeStaticConfig(ThemeEntity $theme): array
     {
         $configuredTheme = [];
@@ -304,16 +317,15 @@ class DatabaseConfigLoader extends AbstractConfigLoader
 
             if ($media !== null) {
                 $config['fields'][$key]['value'] = $media->getUrl();
-
-                if (!Feature::isActive('FEATURE_NEXT_19048')) {
-                    $config[$key]['value'] = $media->getUrl();
-                }
             }
         }
 
         $pluginConfig->setThemeConfig($config);
     }
 
+    /**
+     * @return array<int,string>
+     */
     private function getConfigInheritance(ThemeEntity $mainTheme): array
     {
         if (!\is_array($mainTheme->getBaseConfig())) {

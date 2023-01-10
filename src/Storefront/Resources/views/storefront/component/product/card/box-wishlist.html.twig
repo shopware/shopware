@@ -4,8 +4,6 @@
     <div class="card-body card-body-wishlist">
         {{ block('component_product_box_badges') }}
 
-        {{ block('component_product_box_rich_snippets') }}
-
         {{ block('component_product_box_image') }}
 
         {% block component_product_box_wishlist_action %}{% endblock %}
@@ -57,9 +55,6 @@
                         {% sw_include '@Storefront/storefront/component/wishlist/delivery-information.html.twig' %}
                     </div>
                 {% endblock %}
-
-                {# @deprecated tag:v6.5.0 - Will be removed. The "Not available" case is now handled by include template delivery-information.html.twig #}
-                {% block component_product_box_currently_not_available %}{% endblock %}
 
                 {{ block('component_product_box_price') }}
 

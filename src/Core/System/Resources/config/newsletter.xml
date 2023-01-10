@@ -29,10 +29,8 @@
             <helpText lang="de-DE">Nutze das Double Opt-In Verfahren für Newsletter Anmeldungen für registrierte Kunden.</helpText>
         </input-field>
 
-        <!-- @internal (FEATURE_NEXT_16200) remove this comment -->
         <input-field type="text">
             <name>doubleOptInDomain</name>
-            <flag>FEATURE_NEXT_16200</flag>
             <label>Double opt-in Domain</label>
             <label lang="de-DE">Double Opt-In Domain</label>
             <placeholder><![CDATA[https://localhost]]></placeholder>

@@ -72,17 +72,6 @@
         margin: $spacer $order-grid-gutter-width;
     }
 
-    /* ------------------------------------
-     * @deprecated tag:v6.5.0 - Will be removed
-     * ------------------------------------ */
-    &.is-nested,
-    &.is-child {
-        border-left: 3px solid $border-color;
-        border-bottom-color: transparent;
-        margin: 0 $order-grid-gutter-width/-2;
-        padding: 0 $order-grid-gutter-width/2;
-    }
-
     &:last-of-type .order-detail-content-row {
         border-bottom: 0 none;
     }

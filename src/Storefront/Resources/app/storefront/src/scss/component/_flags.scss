@@ -7,10 +7,6 @@ inspired by: https://github.com/dhanishgajjar/css-flags
 
 en-GB: we need to use svg for en-GB, cause it's smaller than the CSS-Version
 */
-
-/**
- * @deprecated tag:v6.5.0 - Will be replaced by solution of NEXT-22712
- */
 .language-flag {
     display: inline-block;
     height: 12px;
@@ -28,9 +24,7 @@ en-GB: we need to use svg for en-GB, cause it's smaller than the CSS-Version
         background-image: linear-gradient(to bottom, #000 33%, #f00 33%, #f00 66%, #fc0 66%);
     }
 
-    // @deprecated tag:v6.5.0 - remove 'language-gb.language-flag'
-    &.country-gb,
-    &.language-gb.language-flag {
+    &.country-gb {
         background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGlkPSJmbGFnLWljb24tY3NzLWdiIiB2aWV3Qm94PSIwIDAgNjQwIDQ4MCI+CiAgPHBhdGggZmlsbD0iIzAxMjE2OSIgZD0iTTAgMGg2NDB2NDgwSDB6Ii8+CiAgPHBhdGggZmlsbD0iI0ZGRiIgZD0iTTc1IDBsMjQ0IDE4MUw1NjIgMGg3OHY2Mkw0MDAgMjQxbDI0MCAxNzh2NjFoLTgwTDMyMCAzMDEgODEgNDgwSDB2LTYwbDIzOS0xNzhMMCA2NFYwaDc1eiIvPgogIDxwYXRoIGZpbGw9IiNDODEwMkUiIGQ9Ik00MjQgMjgxbDIxNiAxNTl2NDBMMzY5IDI4MWg1NXptLTE4NCAyMGw2IDM1TDU0IDQ4MEgwbDI0MC0xNzl6TTY0MCAwdjNMMzkxIDE5MWwyLTQ0TDU5MCAwaDUwek0wIDBsMjM5IDE3NmgtNjBMMCA0MlYweiIvPgogIDxwYXRoIGZpbGw9IiNGRkYiIGQ9Ik0yNDEgMHY0ODBoMTYwVjBIMjQxek0wIDE2MHYxNjBoNjQwVjE2MEgweiIvPgogIDxwYXRoIGZpbGw9IiNDODEwMkUiIGQ9Ik0wIDE5M3Y5Nmg2NDB2LTk2SDB6TTI3MyAwdjQ4MGg5NlYwaC05NnoiLz4KPC9zdmc+Cg==');
     }
 }

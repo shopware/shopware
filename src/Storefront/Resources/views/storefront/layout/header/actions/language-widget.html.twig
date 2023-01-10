@@ -13,9 +13,8 @@
 
                     {% block layout_header_actions_language_widget_content %}
                         {% set isoCode = page.header.activeLanguage.translationCode.code|lower|split('-') %}
-                        {# @deprecated tag:v6.5.0 - Remove else cases, to maintain correct split of isoCode #}
-                        {% set language = feature('v6.5.0.0') ? isoCode[0] : isoCode[1] %}
-                        {% set country = feature('v6.5.0.0') ? isoCode[1] : isoCode[0] %}
+                        {% set language = isoCode[0] %}
+                        {% set country = isoCode[1] %}
 
                         <div class="languages-menu dropdown">
                             <button class="btn dropdown-toggle top-bar-nav-btn"
@@ -36,9 +35,8 @@
 
                                             {% block layout_header_actions_languages_widget_form_items_flag %}
                                                 {% set isoCode = language.translationCode.code|lower|split('-') %}
-                                                {# @deprecated tag:v6.5.0 - Remove else cases, to maintain correct split of isoCode #}
-                                                {% set flagLanguage = feature('v6.5.0.0') ? isoCode[0] : isoCode[1] %}
-                                                {% set flagCountry = feature('v6.5.0.0') ? isoCode[1] : isoCode[0] %}
+                                                {% set flagLanguage = isoCode[0] %}
+                                                {% set flagCountry = isoCode[1] %}
 
                                                 <label class="top-bar-list-label"
                                                        for="{{ position }}-{{ language.id }}">

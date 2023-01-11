@@ -2,53 +2,20 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\CmsAware;
 
-use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\XmlElements\CmsAware;
 use Shopware\Core\System\CustomEntity\Xml\Field\Field;
 use Shopware\Core\System\CustomEntity\Xml\Field\JsonField;
 use Shopware\Core\System\CustomEntity\Xml\Field\ManyToManyField;
 use Shopware\Core\System\CustomEntity\Xml\Field\ManyToOneField;
 use Shopware\Core\System\CustomEntity\Xml\Field\StringField;
 use Shopware\Core\System\CustomEntity\Xml\Field\TextField;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
-use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @package content
  *
  * @internal
  */
-class CmsAwareXmlSchema
+class CmsAwareEnrichment
 {
-    public const FILENAME = 'cms-aware.xml';
-
-    public const XSD_FILEPATH = __DIR__ . '/cms-aware-1.0.xsd';
-
-    private CmsAware $cmsAware;
-
-    public function __construct(CmsAware $config)
-    {
-        $this->cmsAware = $config;
-    }
-
-    public function getCmsAware(): ?CmsAware
-    {
-        return $this->cmsAware;
-    }
-
-    public static function createFromXmlFile(string $xmlFilePath): self
-    {
-        try {
-            $doc = XmlUtils::loadFile($xmlFilePath, self::XSD_FILEPATH);
-        } catch (\Exception $e) {
-            throw new XmlParsingException($xmlFilePath, $e->getMessage());
-        }
-
-        /** @var \DOMElement $domItem */
-        $domItem = $doc->getElementsByTagName('cms-aware')->item(0);
-
-        return new self(CmsAware::fromXml($domItem));
-    }
-
     /**
      * @return Field[]
      */

@@ -22,11 +22,11 @@ class Migration1659425718AddFlagsToCustomEntities extends MigrationStep
         $columns = array_column($connection->fetchAllAssociative('SHOW COLUMNS FROM `custom_entity`'), 'Field');
 
         if (!\in_array('flags', $columns, true)) {
-            $connection->executeStatement('ALTER TABLE `custom_entity` ADD `flags` JSON NULL AFTER `app_id`;');
+            $connection->executeStatement('ALTER TABLE `custom_entity` ADD `flags` JSON NULL;');
         }
 
         if (!\in_array('flag_config', $columns, true)) {
-            $connection->executeStatement('ALTER TABLE `custom_entity` ADD `flag_config` JSON NULL AFTER `flags`;');
+            $connection->executeStatement('ALTER TABLE `custom_entity` ADD `flag_config` JSON NULL;');
         }
     }
 

@@ -16,6 +16,8 @@ class Entity extends XmlElement
 {
     protected string $name;
 
+    protected ?bool $cmsAware = null;
+
     /**
      * @var array<int, Field>
      */
@@ -87,6 +89,11 @@ class Entity extends XmlElement
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function isCmsAware(): ?bool
+    {
+        return $this->cmsAware;
     }
 
     /**

@@ -23,7 +23,7 @@ class Migration1666689977AddPluginIdToCustomEntity extends MigrationStep
 
         if (!\in_array('plugin_id', $columns, true)) {
             $connection->executeStatement('ALTER TABLE `custom_entity`
-                ADD `plugin_id` BINARY(16) NULL AFTER `fields`,
+                ADD `plugin_id` BINARY(16) NULL,
                 ADD CONSTRAINT `fk.custom_entity.plugin_id`
                     FOREIGN KEY (`plugin_id`)
                     REFERENCES `plugin` (`id`)

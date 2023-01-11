@@ -5,8 +5,9 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator;
+use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Column;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity as AdminUiEntity;
-use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareXmlSchema;
+use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tab;
 use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Entities;
@@ -38,8 +39,6 @@ class CustomEntityEnrichmentServiceTest extends TestCase
 
     private CustomEntityXmlSchema $entitySchema;
 
-    private CmsAwareXmlSchema $cmsAwareXmlSchema;
-
     private AdminUiXmlSchema $adminUiXmlSchema;
 
     /**
@@ -55,7 +54,6 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             new AdminUiXmlSchemaValidator()
         );
         $this->entitySchema = $this->getCustomEntities();
-        $this->cmsAwareXmlSchema = $this->getCmsAwareXmlSchema();
         $this->adminUiXmlSchema = $this->getAdminUiXmlSchema();
 
         /** @var Entities $outerEntities */
@@ -72,10 +70,11 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             static::assertCount(0, $entity->getFlags());
         }
 
-        $enrichedEntities = $this->customEntityEnrichmentService->enrichCmsAwareEntities(
-            $this->cmsAwareXmlSchema,
-            $this->entitySchema
+        $enrichedEntities = $this->customEntityEnrichmentService->enrich(
+            $this->entitySchema,
+            null
         );
+        static::assertInstanceOf(CustomEntityXmlSchema::class, $enrichedEntities);
 
         /** @var Entities $outerEnrichedCustomEntities */
         $outerEnrichedCustomEntities = $enrichedEntities->getEntities();
@@ -105,7 +104,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             static::assertCount(1, $enrichedCustomEntity->getFlags());
             static::assertNotNull($enrichedCustomEntity->getFlags()['cms-aware']);
             static::assertContains(
-                $enrichedCustomEntity->getFlags()['cms-aware']->getName(),
+                $enrichedCustomEntity->getFlags()['cms-aware']['name'],
                 self::EXPECTED_CMS_AWARE_ENTITY_NAMES
             );
         }
@@ -120,10 +119,11 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             static::assertCount(0, $entity->getFlags());
         }
 
-        $enrichedEntities = $this->customEntityEnrichmentService->enrichCmsAwareEntities(
-            $this->cmsAwareXmlSchema,
-            $this->entitySchema
+        $enrichedEntities = $this->customEntityEnrichmentService->enrich(
+            $this->entitySchema,
+            null
         );
+        static::assertInstanceOf(CustomEntityXmlSchema::class, $enrichedEntities);
 
         /** @var Entities $outerEnrichedCustomEntities */
         $outerEnrichedCustomEntities = $enrichedEntities->getEntities();
@@ -162,10 +162,11 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             static::assertCount(0, $entity->getFlags());
         }
 
-        $enrichedEntities = $this->customEntityEnrichmentService->enrichAdminUiEntities(
-            $this->adminUiXmlSchema,
-            $this->entitySchema
+        $enrichedEntities = $this->customEntityEnrichmentService->enrich(
+            $this->entitySchema,
+            $this->adminUiXmlSchema
         );
+        static::assertInstanceOf(CustomEntityXmlSchema::class, $enrichedEntities);
 
         /** @var Entities $outerEnrichedCustomEntities */
         $outerEnrichedCustomEntities = $enrichedEntities->getEntities();
@@ -175,9 +176,11 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             if (!\in_array($enrichedCustomEntity->getName(), self::EXPECTED_ADMIN_UI_ENTITY_NAMES, true)) {
                 continue;
             }
-
-            static::assertCount(4, $enrichedCustomEntity->getFields());
-            static::assertCount(1, $enrichedCustomEntity->getFlags());
+            if (\array_key_exists('cms-aware', $enrichedCustomEntity->getFlags())) {
+                static::assertCount(13, $enrichedCustomEntity->getFields());
+            } else {
+                static::assertCount(4, $enrichedCustomEntity->getFields());
+            }
 
             static::assertNotNull($enrichedCustomEntity->getFlags()['admin-ui']);
 
@@ -188,6 +191,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             static::assertEquals('regular-tools-alt', $adminUi->getVars()['icon']);
             static::assertEquals('#f00', $adminUi->getVars()['color']);
 
+            /** @var list<Column> $listingColumns */
             $listingColumns = $adminUi->getListing()->getColumns()->toArray(self::TEST_LOCALE);
             static::assertCount(3, $listingColumns);
 
@@ -195,41 +199,35 @@ class CustomEntityEnrichmentServiceTest extends TestCase
                 return $column->getVars()['ref'];
             }, $listingColumns);
 
+            static::assertIsArray($listingColumns);
+
             // ToDo NEXT-24184 - Remove PHPStan ignore
             static::assertContains('test_string', $listingColumnNames);
-            /** @phpstan-ignore-next-line */
-            static::assertArrayNotHasKey('hidden', $listingColumns[0]->getVars());
+            static::assertObjectNotHasAttribute('hidden', $listingColumns[0]);
             static::assertContains('test_text', $listingColumnNames);
-            /** @phpstan-ignore-next-line */
-            static::assertArrayNotHasKey('hidden', $listingColumns[1]->getVars());
+            static::assertObjectNotHasAttribute('hidden', $listingColumns[1]);
             static::assertContains('test_int', $listingColumnNames);
-            /** @phpstan-ignore-next-line */
-            static::assertArrayHasKey('hidden', $listingColumns[2]->getVars());
-            /** @phpstan-ignore-next-line */
+            static::assertObjectHasAttribute('hidden', $listingColumns[2]);
             static::assertTrue($listingColumns[2]->getVars()['hidden']);
 
-            $detailTabs = $adminUi->getDetail()->getTabs();
-            static::assertCount(2, $detailTabs->toArray(self::TEST_LOCALE));
-            /** @phpstan-ignore-next-line */
-            static::assertCount(2, $detailTabs->toArray(self::TEST_LOCALE)[0]->getCards());
-            /** @phpstan-ignore-next-line */
-            static::assertEquals('firstTab', $detailTabs->toArray(self::TEST_LOCALE)[0]->getVars()['name']);
-            /** @phpstan-ignore-next-line */
-            static::assertCount(2, $detailTabs->toArray(self::TEST_LOCALE)[1]->getCards());
-            /** @phpstan-ignore-next-line */
-            static::assertEquals('secondTab', $detailTabs->toArray(self::TEST_LOCALE)[1]->getVars()['name']);
+            /** @var list<Tab> $detailTabs */
+            $detailTabs = $adminUi->getDetail()->getTabs()->toArray(self::TEST_LOCALE);
+            static::assertCount(2, $detailTabs);
+            static::assertCount(2, $detailTabs[0]->getCards());
+            static::assertEquals('firstTab', $detailTabs[0]->getName());
+            static::assertCount(2, $detailTabs[1]->getCards());
+            static::assertEquals('secondTab', $detailTabs[1]->getName());
 
-            /** @phpstan-ignore-next-line */
-            $exampleCards = $detailTabs->toArray(self::TEST_LOCALE)[1]->getCards();
+            $exampleCards = $detailTabs[1]->getCards();
             static::assertCount(2, $exampleCards);
-            static::assertEquals('testWithAll', $exampleCards[0]->getVars()['name']);
+            static::assertEquals('testWithAll', $exampleCards[0]->getName());
 
             $exampleCardFields = $exampleCards[0]->getFields();
             static::assertCount(4, $exampleCardFields);
-            static::assertEquals('test_string', $exampleCardFields[0]->getVars()['ref']);
-            static::assertEquals('test_text', $exampleCardFields[1]->getVars()['ref']);
-            static::assertEquals('test_int', $exampleCardFields[2]->getVars()['ref']);
-            static::assertEquals('test_float', $exampleCardFields[3]->getVars()['ref']);
+            static::assertEquals('test_string', $exampleCardFields[0]->getRef());
+            static::assertEquals('test_text', $exampleCardFields[1]->getRef());
+            static::assertEquals('test_int', $exampleCardFields[2]->getRef());
+            static::assertEquals('test_float', $exampleCardFields[3]->getRef());
         }
     }
 
@@ -242,10 +240,11 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             static::assertCount(0, $entity->getFlags());
         }
 
-        $enrichedEntities = $this->customEntityEnrichmentService->enrichAdminUiEntities(
-            $this->adminUiXmlSchema,
-            $this->entitySchema
+        $enrichedEntities = $this->customEntityEnrichmentService->enrich(
+            $this->entitySchema,
+            $this->adminUiXmlSchema
         );
+        static::assertInstanceOf(CustomEntityXmlSchema::class, $enrichedEntities);
 
         /** @var Entities $outerEnrichedCustomEntities */
         $outerEnrichedCustomEntities = $enrichedEntities->getEntities();
@@ -255,9 +254,11 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             if (\in_array($enrichedCustomEntity->getName(), self::EXPECTED_ADMIN_UI_ENTITY_NAMES, true)) {
                 continue;
             }
-
-            static::assertCount(4, $enrichedCustomEntity->getFields());
-            static::assertCount(0, $enrichedCustomEntity->getFlags());
+            if (\array_key_exists('cms-aware', $enrichedCustomEntity->getFlags())) {
+                static::assertCount(13, $enrichedCustomEntity->getFields());
+            } else {
+                static::assertCount(4, $enrichedCustomEntity->getFields());
+            }
 
             static::assertArrayNotHasKey('admin-ui', $enrichedCustomEntity->getFlags());
         }
@@ -272,15 +273,11 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             static::assertCount(0, $entity->getFlags());
         }
 
-        // ToDo NEXT-24156 - Replace those 2 method calls with the unified `enrich` method
-        $enrichedEntities = $this->customEntityEnrichmentService->enrichCmsAwareEntities(
-            $this->cmsAwareXmlSchema,
-            $this->entitySchema
+        $enrichedEntities = $this->customEntityEnrichmentService->enrich(
+            $this->entitySchema,
+            $this->adminUiXmlSchema
         );
-        $enrichedEntities = $this->customEntityEnrichmentService->enrichAdminUiEntities(
-            $this->adminUiXmlSchema,
-            $enrichedEntities
-        );
+        static::assertInstanceOf(CustomEntityXmlSchema::class, $enrichedEntities);
 
         /** @var Entities $outerEnrichedCustomEntities */
         $outerEnrichedCustomEntities = $enrichedEntities->getEntities();
@@ -300,7 +297,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             static::assertNotNull($enrichedCustomEntity->getFlags()['admin-ui']);
             static::assertEquals(
                 self::EXPECTED_CMS_AWARE_ENTITY_NAMES['allFlags'],
-                $enrichedCustomEntity->getFlags()['cms-aware']->getName(),
+                $enrichedCustomEntity->getFlags()['cms-aware']['name'],
             );
             static::assertEquals(
                 self::EXPECTED_ADMIN_UI_ENTITY_NAMES['allFlags'],
@@ -336,15 +333,11 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             static::assertCount(0, $entity->getFlags());
         }
 
-        // ToDo NEXT-24156 - Replace those 2 method calls with the unified `enrich` method
-        $enrichedEntities = $this->customEntityEnrichmentService->enrichCmsAwareEntities(
-            $this->cmsAwareXmlSchema,
-            $this->entitySchema
+        $enrichedEntities = $this->customEntityEnrichmentService->enrich(
+            $this->entitySchema,
+            $this->adminUiXmlSchema
         );
-        $enrichedEntities = $this->customEntityEnrichmentService->enrichAdminUiEntities(
-            $this->adminUiXmlSchema,
-            $enrichedEntities
-        );
+        static::assertInstanceOf(CustomEntityXmlSchema::class, $enrichedEntities);
 
         /** @var Entities $outerEnrichedCustomEntities */
         $outerEnrichedCustomEntities = $enrichedEntities->getEntities();
@@ -364,7 +357,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             static::assertArrayNotHasKey('admin-ui', $enrichedCustomEntity->getFlags());
             static::assertEquals(
                 self::EXPECTED_CMS_AWARE_ENTITY_NAMES['cmsAwareOnly'],
-                $enrichedCustomEntity->getFlags()['cms-aware']->getName(),
+                $enrichedCustomEntity->getFlags()['cms-aware']['name'],
             );
         }
     }
@@ -378,15 +371,11 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             static::assertCount(0, $entity->getFlags());
         }
 
-        // ToDo NEXT-24156 - Replace those 2 method calls with the unified `enrich` method
-        $enrichedEntities = $this->customEntityEnrichmentService->enrichCmsAwareEntities(
-            $this->cmsAwareXmlSchema,
-            $this->entitySchema
+        $enrichedEntities = $this->customEntityEnrichmentService->enrich(
+            $this->entitySchema,
+            $this->adminUiXmlSchema
         );
-        $enrichedEntities = $this->customEntityEnrichmentService->enrichAdminUiEntities(
-            $this->adminUiXmlSchema,
-            $enrichedEntities
-        );
+        static::assertInstanceOf(CustomEntityXmlSchema::class, $enrichedEntities);
 
         /** @var Entities $outerEnrichedCustomEntities */
         $outerEnrichedCustomEntities = $enrichedEntities->getEntities();
@@ -438,15 +427,11 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             static::assertCount(0, $entity->getFlags());
         }
 
-        // ToDo NEXT-24156 - Replace those 2 method calls with the unified `enrich` method
-        $enrichedEntities = $this->customEntityEnrichmentService->enrichCmsAwareEntities(
-            $this->cmsAwareXmlSchema,
-            $this->entitySchema
+        $enrichedEntities = $this->customEntityEnrichmentService->enrich(
+            $this->entitySchema,
+            $this->adminUiXmlSchema
         );
-        $enrichedEntities = $this->customEntityEnrichmentService->enrichAdminUiEntities(
-            $this->adminUiXmlSchema,
-            $enrichedEntities
-        );
+        static::assertInstanceOf(CustomEntityXmlSchema::class, $enrichedEntities);
 
         /** @var Entities $outerEnrichedCustomEntities */
         $outerEnrichedCustomEntities = $enrichedEntities->getEntities();
@@ -476,17 +461,6 @@ class CustomEntityEnrichmentServiceTest extends TestCase
         );
 
         return CustomEntityXmlSchema::createFromXmlFile($configPath);
-    }
-
-    private function getCmsAwareXmlSchema(): CmsAwareXmlSchema
-    {
-        $configPath = sprintf(
-            self::FIXTURE_PATH,
-            __DIR__,
-            CmsAwareXmlSchema::FILENAME
-        );
-
-        return CmsAwareXmlSchema::createFromXmlFile($configPath);
     }
 
     private function getAdminUiXmlSchema(): AdminUiXmlSchema

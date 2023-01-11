@@ -22,10 +22,9 @@ use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
-use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService;
-use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTest\SwagTest;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
@@ -361,8 +360,7 @@ class KernelPluginIntegrationTest extends TestCase
             $this->createMock(SystemConfigService::class),
             $this->createMock(CustomEntityPersister::class),
             $this->createMock(CustomEntitySchemaUpdater::class),
-            $this->createMock(CustomEntityXmlSchemaValidator::class),
-            $this->createMock(CustomEntityEnrichmentService::class)
+            $this->createMock(CustomEntityLifecycleService::class),
         );
     }
 

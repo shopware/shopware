@@ -10,10 +10,8 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -21,9 +19,7 @@ use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\TestBootstrapper;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal
@@ -35,19 +31,23 @@ class CmsAwareAndAdminUiTest extends TestCase
     use PluginTestsHelper;
     use KernelTestBehaviour;
 
+    private const CUSTOM_ENTITY_NAME = 'custom_entity_test';
+    private const APP_NAME = 'testCmsAwareAndAdminUi';
+    private const PLUGIN_NAME = 'SwagTestCmsAwareAndAdminUi';
+
     private EntityRepository $appRepository;
 
-    private EntityRepository $pluginRepo;
+    private EntityRepository $pluginRepository;
+
+    private EntityRepository $languageRepository;
 
     private PluginService $pluginService;
 
-    private ContainerInterface $container;
-
     private PluginLifecycleService $pluginLifecycleService;
 
-    private Context $context;
+    private PluginFinder $pluginFinder;
 
-    private SystemConfigService $systemConfigService;
+    private Context $context;
 
     private AppLifecycle $appLifecycle;
 
@@ -57,34 +57,40 @@ class CmsAwareAndAdminUiTest extends TestCase
 
     public function setUp(): void
     {
-        $this->dbSchemaName = $this->getDbSchemaName((new TestBootstrapper())->getDatabaseUrl());
-        $this->container = $this->getContainer();
-        $this->connection = $this->container->get(Connection::class);
         $this->context = Context::createDefaultContext();
+
+        $this->dbSchemaName = $this->getDbSchemaName((new TestBootstrapper())->getDatabaseUrl());
+        $this->connection = $this->getContainer()->get(Connection::class);
+
+        $this->appLifecycle = $this->getContainer()->get(AppLifecycle::class);
+        $this->appRepository = $this->getContainer()->get('app.repository');
+
+        $this->pluginFinder = $this->getContainer()->get(PluginFinder::class);
+        $this->pluginRepository = $this->getContainer()->get('plugin.repository');
+        $this->pluginLifecycleService = $this->getContainer()->get(PluginLifecycleService::class);
+
+        $this->languageRepository = $this->getContainer()->get('language.repository');
     }
 
     public function testCmsAwareAndAdminUiForApp(): void
     {
-        $this->appRepository = $this->getContainer()->get('app.repository');
-        $this->appLifecycle = $this->getContainer()->get(AppLifecycle::class);
-
-        $appEntity = $this->installAndCheckApp();
+        $appEntity = $this->installAndActivateApp();
         $this->assertCmsAwareAndAdminUiIsInstalled($appEntity);
 
-        $this->uninstallApp();
+        $this->uninstallApp($appEntity);
         $this->assertCmsAwareAndAdminUiIsUninstalled();
     }
 
     public function testCmsAwareAndAdminUiForPlugin(): void
     {
-        $pluginEntity = $this->installAndCheckPlugin();
+        $pluginEntity = $this->installPlugin();
         $this->assertCmsAwareAndAdminUiIsInstalled($pluginEntity);
 
         $this->uninstallPlugin($pluginEntity);
         $this->assertCmsAwareAndAdminUiIsUninstalled();
     }
 
-    private function installAndCheckApp(): AppEntity
+    private function installAndActivateApp(): AppEntity
     {
         $this->appLifecycle->install(
             Manifest::createFromXmlFile(__DIR__ . '/_fixtures/apps/cmsAwareAndAdminUiApp/manifest.xml'),
@@ -98,72 +104,57 @@ class CmsAwareAndAdminUiTest extends TestCase
             $this->context
         )->getEntities();
         static::assertCount(1, $apps);
+
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
-        static::assertEquals('testCmsAwareAndAdminUi', $appEntity->getName());
+        static::assertEquals(self::APP_NAME, $appEntity->getName());
 
         return $appEntity;
     }
 
-    private function uninstallApp(): void
+    private function uninstallApp(AppEntity $appEntity): void
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', 'testCmsAwareAndAdminUi'));
-        $result = $this->appRepository->search($criteria, $this->context);
-
-        /** @var AppCollection $appCollection */
-        $appCollection = $result->getEntities();
-
-        /** @var AppEntity $app */
-        $app = $appCollection->first();
-
-        $this->appLifecycle->delete($app->getName(), ['id' => $app->getId()], $this->context);
+        $this->appLifecycle->delete($appEntity->getName(), ['id' => $appEntity->getId()], $this->context);
     }
 
-    private function installAndCheckPlugin(): PluginEntity
+    private function installPlugin(): PluginEntity
     {
-        $this->pluginRepo = $this->container->get('plugin.repository');
         $this->pluginService = $this->createPluginService(
             __DIR__ . '/_fixtures/plugins',
-            $this->container->getParameter('kernel.project_dir'),
-            $this->pluginRepo,
-            $this->container->get('language.repository'),
-            $this->container->get(PluginFinder::class)
+            $this->getContainer()->getParameter('kernel.project_dir'),
+            $this->pluginRepository,
+            $this->languageRepository,
+            $this->pluginFinder
         );
-        $this->systemConfigService = $this->container->get(SystemConfigService::class);
-        $this->pluginLifecycleService = $this->container->get(PluginLifecycleService::class);
 
         $this->addTestPluginToKernel(
-            __DIR__ . '/_fixtures/plugins/SwagTestCmsAwareAndAdminUi',
-            'SwagTestCmsAwareAndAdminUi'
+            __DIR__ . '/_fixtures/plugins/' . self::PLUGIN_NAME,
+            self::PLUGIN_NAME
         );
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
         $this->pluginLifecycleService->installPlugin(
             $this->pluginService->getPluginByName(
-                'SwagTestCmsAwareAndAdminUi',
+                self::PLUGIN_NAME,
                 $this->context
             ),
             $this->context
         );
 
-        $pluginInstalled = $this->pluginService->getPluginByName('SwagTestCmsAwareAndAdminUi', $this->context);
-        static::assertNotNull($pluginInstalled->getInstalledAt());
+        $installedPlugin = $this->pluginService->getPluginByName(self::PLUGIN_NAME, $this->context);
+        static::assertNotNull($installedPlugin->getInstalledAt());
 
-        return $pluginInstalled;
+        return $installedPlugin;
     }
 
     private function uninstallPlugin(PluginEntity $pluginEntity): void
     {
         $this->pluginLifecycleService->uninstallPlugin($pluginEntity, $this->context);
 
-        $pluginUninstalled = $this->pluginService->getPluginByName('SwagTestCmsAwareAndAdminUi', $this->context);
-
-        $pluginUninstalledConfigs = $this->systemConfigService->all();
-        static::assertArrayNotHasKey('SwagTest', $pluginUninstalledConfigs);
-        static::assertNull($pluginUninstalled->getInstalledAt());
-        static::assertFalse($pluginUninstalled->getActive());
+        $uninstalledPlugin = $this->pluginService->getPluginByName(self::PLUGIN_NAME, $this->context);
+        static::assertNull($uninstalledPlugin->getInstalledAt());
+        static::assertFalse($uninstalledPlugin->getActive());
     }
 
     /**
@@ -172,50 +163,62 @@ class CmsAwareAndAdminUiTest extends TestCase
     private function assertCmsAwareAndAdminUiIsInstalled(AppEntity|PluginEntity $entity): void
     {
         static::assertTrue(
-            $this->dbHasTable('custom_entity_test'),
+            $this->dbHasTable(self::CUSTOM_ENTITY_NAME),
             'The custom entity should be created'
         );
 
-        static::assertTrue(
-            $this->dbHasTable('custom_entity_test_sw_categories'),
-            'This table for the many-to-many fields of this custom entity should be created'
+        static::assertEqualsCanonicalizing(
+            [
+                // fields every custom entity will have
+                'id',
+                'created_at',
+                'updated_at',
+
+                // cms aware specific fields
+                'sw_cms_page_id',
+                'sw_cms_page_version_id',
+                'sw_media_id',
+                'sw_slot_config',
+
+                // fields specific for this custom entity
+                'custom_entity_string_field',
+                'custom_entity_int_field',
+            ],
+            $this->getTableColumns(self::CUSTOM_ENTITY_NAME),
+            'Exactly these columns should exist for this cms-aware custom entity '
         );
 
         static::assertTrue(
-            $this->dbHasTable('custom_entity_test_translation'),
+            $this->dbHasTable(self::CUSTOM_ENTITY_NAME . '_translation'),
             'The translation table for this custom entity should be created'
         );
 
         static::assertEqualsCanonicalizing(
             [
-                'id',
-                'sw_cms_page_id',
-                'sw_cms_page_version_id',
-                'sw_media_id',
+                // fields every custom entity will have
                 'created_at',
                 'updated_at',
-                'custom_entity_string_field',
-                'custom_entity_int_field',
-                'sw_slot_config',
-            ],
-            $this->getTableColumns('custom_entity_test'),
-            'Exactly these columns should exist for this cms-aware custom entity '
-        );
 
-        static::assertEqualsCanonicalizing(
-            [
-                'custom_entity_test_id',
+                // field for language identification
                 'language_id',
-                'created_at',
-                'updated_at',
+
+                // fields specific for this custom entity
+                'custom_entity_test_id',
+
+                // cms aware specific fields
                 'sw_title',
                 'sw_content',
                 'sw_seo_meta_title',
                 'sw_seo_meta_description',
                 'sw_seo_keywords',
             ],
-            $this->getTableColumns('custom_entity_test_translation'),
+            $this->getTableColumns(self::CUSTOM_ENTITY_NAME . '_translation'),
             'The fields translation table of this custom entity should have exactly this fields'
+        );
+
+        static::assertTrue(
+            $this->dbHasTable(self::CUSTOM_ENTITY_NAME . '_sw_categories'),
+            'This table for the many-to-many fields of this custom entity should be created'
         );
 
         static::assertEqualsCanonicalizing(
@@ -224,7 +227,7 @@ class CmsAwareAndAdminUiTest extends TestCase
                 'category_id',
                 'category_version_id',
             ],
-            $this->getTableColumns('custom_entity_test_sw_categories'),
+            $this->getTableColumns(self::CUSTOM_ENTITY_NAME . '_sw_categories'),
             'A cms-aware custom entity should be connected to the categories'
         );
 
@@ -265,17 +268,17 @@ class CmsAwareAndAdminUiTest extends TestCase
         );
 
         static::assertFalse(
-            $this->dbHasTable('custom_entity_test'),
+            $this->dbHasTable(self::CUSTOM_ENTITY_NAME),
             'The custom entity should be removed'
         );
 
         static::assertFalse(
-            $this->dbHasTable('custom_entity_test_sw_categories'),
+            $this->dbHasTable(self::CUSTOM_ENTITY_NAME . '_sw_categories'),
             'This table for the many-to-many fields of this custom entity should be removed'
         );
 
         static::assertFalse(
-            $this->dbHasTable('custom_entity_test_translation'),
+            $this->dbHasTable(self::CUSTOM_ENTITY_NAME . '_translation'),
             'The translation table for this custom entity should be removed'
         );
     }

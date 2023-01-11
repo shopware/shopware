@@ -42,13 +42,9 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackExcepti
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
-use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
-use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareXmlSchema;
-use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService;
-use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
-use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -63,8 +59,6 @@ class PluginLifecycleService
 {
     public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
 
-    private ?string $projectDir;
-
     public function __construct(
         private EntityRepository $pluginRepo,
         private EventDispatcherInterface $eventDispatcher,
@@ -77,12 +71,10 @@ class PluginLifecycleService
         private CacheItemPoolInterface $restartSignalCachePool,
         private string $shopwareVersion,
         private SystemConfigService $systemConfigService,
-        private CustomEntityPersister $customEntityPersister,
-        private CustomEntitySchemaUpdater $customEntitySchemaUpdater,
-        private CustomEntityXmlSchemaValidator $customEntityXmlValidator,
-        private CustomEntityEnrichmentService $customEntityEnrichmentService
+        private readonly CustomEntityPersister $customEntityPersister,
+        private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
+        private readonly CustomEntityLifecycleService $customEntityLifecycleService
     ) {
-        $this->projectDir = $this->container->getParameter('kernel.project_dir');
     }
 
     /**
@@ -138,7 +130,7 @@ class PluginLifecycleService
         $this->systemConfigService->savePluginConfiguration($pluginBaseClass, true);
 
         $pluginBaseClass->install($installContext);
-        $this->updateCustomEntities($plugin);
+        $this->customEntityLifecycleService->updatePlugin($plugin->getId(), $plugin->getPath() ?? '');
 
         $this->runMigrations($installContext);
 
@@ -221,7 +213,7 @@ class PluginLifecycleService
         $plugin->setInstalledAt(null);
 
         if (!$uninstallContext->keepUserData()) {
-            $this->removeCustomEntities($pluginId);
+            $this->removeCustomEntities($plugin->getId());
         }
 
         $this->eventDispatcher->dispatch(new PluginPostUninstallEvent($plugin, $uninstallContext));
@@ -291,7 +283,7 @@ class PluginLifecycleService
             $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
         }
 
-        $this->updateCustomEntities($plugin);
+        $this->customEntityLifecycleService->updatePlugin($plugin->getId(), $plugin->getPath() ?? '');
         $this->runMigrations($updateContext);
 
         $updateVersion = $updateContext->getUpdatePluginVersion();
@@ -473,6 +465,12 @@ class PluginLifecycleService
         return $deactivateContext;
     }
 
+    private function removeCustomEntities(string $pluginId): void
+    {
+        $this->customEntityPersister->update([], PluginEntity::class, $pluginId);
+        $this->customEntitySchemaUpdater->update();
+    }
+
     private function getPluginBaseClass(string $pluginBaseClassString): Plugin
     {
         $baseClass = $this->pluginCollection->get($pluginBaseClassString);
@@ -611,73 +609,5 @@ class PluginLifecycleService
             (new Criteria())->addFilter(new EqualsAnyFilter('name', $names)),
             $context
         );
-    }
-
-    private function updateCustomEntities(PluginEntity $plugin): void
-    {
-        $entities = $this->getCustomEntities($plugin);
-
-        if ($entities === null || $entities->getEntities() === null) {
-            return;
-        }
-
-        // ToDo NEXT-24156 - Unify to one `enrich` method (until "SchemaUpdater->update()")
-        $entities = $this->customEntityEnrichmentService->enrichCmsAwareEntities($this->getCmsAwareXmlSchema($plugin), $entities);
-        $entities = $this->customEntityEnrichmentService->enrichAdminUiEntities($this->getAdminUiXmlSchema($plugin), $entities);
-
-        $this->customEntityPersister->update($entities->toStorage(), null, $plugin->getId());
-        $this->customEntitySchemaUpdater->update();
-    }
-
-    private function getCmsAwareXmlSchema(PluginEntity $plugin): ?CmsAwareXmlSchema
-    {
-        $configPath = sprintf(
-            '%s/%s/src/Resources/config/%s',
-            $this->projectDir,
-            $plugin->getPath(),
-            CmsAwareXmlSchema::FILENAME
-        );
-
-        if (!file_exists($configPath)) {
-            return null;
-        }
-
-        return CmsAwareXmlSchema::createFromXmlFile($configPath);
-    }
-
-    private function getAdminUiXmlSchema(PluginEntity $plugin): ?AdminUiXmlSchema
-    {
-        $configPath = sprintf('%s/%s/src/Resources/config/%s', $this->projectDir, $plugin->getPath(), AdminUiXmlSchema::FILENAME);
-
-        if (!file_exists($configPath)) {
-            return null;
-        }
-
-        return AdminUiXmlSchema::createFromXmlFile($configPath);
-    }
-
-    private function removeCustomEntities(string $pluginId): void
-    {
-        $this->customEntityPersister->update([], null, $pluginId);
-        $this->customEntitySchemaUpdater->update();
-    }
-
-    private function getCustomEntities(PluginEntity $plugin): ?CustomEntityXmlSchema
-    {
-        $configPath = sprintf(
-            '%s/%s/src/Resources/%s',
-            $this->projectDir,
-            $plugin->getPath(),
-            CustomEntityXmlSchema::FILENAME
-        );
-
-        if (!file_exists($configPath)) {
-            return null;
-        }
-
-        $entities = CustomEntityXmlSchema::createFromXmlFile($configPath);
-        $this->customEntityXmlValidator->validate($entities);
-
-        return $entities;
     }
 }

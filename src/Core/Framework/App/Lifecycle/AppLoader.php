@@ -7,8 +7,6 @@ use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
-use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
@@ -133,14 +131,18 @@ class AppLoader extends AbstractAppLoader
 
     public function getEntities(AppEntity $app): ?CustomEntityXmlSchema
     {
-        $configPath = sprintf('%s/%s/Resources/entities.xml', $this->projectDir, $app->getPath());
+        $configPath = sprintf(
+            '%s/%s/src/Resources/%s',
+            $this->projectDir,
+            $app->getPath(),
+            CustomEntityXmlSchema::FILENAME
+        );
 
         if (!file_exists($configPath)) {
             return null;
         }
 
         $entities = CustomEntityXmlSchema::createFromXmlFile($configPath);
-
         $this->customEntityXmlValidator->validate($entities);
 
         return $entities;
@@ -196,37 +198,5 @@ class AppLoader extends AbstractAppLoader
         }
 
         return $snippets;
-    }
-
-    public function getCmsAwareXmlSchema(AppEntity $app): ?CmsAwareXmlSchema
-    {
-        $configPath = sprintf(
-            '%s/%s/Resources/config/%s',
-            $this->projectDir,
-            $app->getPath(),
-            CmsAwareXmlSchema::FILENAME
-        );
-
-        if (!file_exists($configPath)) {
-            return null;
-        }
-
-        return CmsAwareXmlSchema::createFromXmlFile($configPath);
-    }
-
-    public function getAdminUiXmlSchema(AppEntity $app): ?AdminUiXmlSchema
-    {
-        $configPath = sprintf(
-            '%s/%s/Resources/config/%s',
-            $this->projectDir,
-            $app->getPath(),
-            AdminUiXmlSchema::FILENAME
-        );
-
-        if (!file_exists($configPath)) {
-            return null;
-        }
-
-        return AdminUiXmlSchema::createFromXmlFile($configPath);
     }
 }

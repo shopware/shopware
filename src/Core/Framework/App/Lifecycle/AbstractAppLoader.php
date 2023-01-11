@@ -6,8 +6,6 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
-use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 
 /**
@@ -47,8 +45,4 @@ abstract class AbstractAppLoader
      * @return array<string, string>
      */
     abstract public function getSnippets(AppEntity $app): array;
-
-    abstract public function getCmsAwareXmlSchema(AppEntity $app): ?CmsAwareXmlSchema;
-
-    abstract public function getAdminUiXmlSchema(AppEntity $app): ?AdminUiXmlSchema;
 }

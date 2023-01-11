@@ -17496,11 +17496,6 @@ parameters:
 			path: src/Core/System/CustomEntity/Schema/SchemaUpdater.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Entities\\:\\:__construct\\(\\) has parameter \\$entities with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Xml/Entities.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Field\\\\Field\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/CustomEntity/Xml/Field/Field.php

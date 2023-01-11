@@ -40,10 +40,9 @@ use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
-use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService;
-use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\DependencyInjection\Container;
@@ -105,16 +104,8 @@ class PluginLifecycleServiceTest extends TestCase
         $this->kernelPluginCollectionMock = $this->createMock(KernelPluginCollection::class);
         $this->containerMock = $this->createMock(Container::class);
         $this->migrationLoaderMock = $this->createMock(MigrationCollectionLoader::class);
-        $assetServiceMock = $this->createMock(AssetService::class);
-        $commandExecutorMock = $this->createMock(CommandExecutor::class);
         $this->requirementsValidatorMock = $this->createMock(RequirementsValidator::class);
         $this->cacheItemPoolInterfaceMock = $this->createMock(CacheItemPoolInterface::class);
-        $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
-        $customEntityPersisterMock = $this->createMock(CustomEntityPersister::class);
-        $customEntitySchemaUpdaterMock = $this->createMock(CustomEntitySchemaUpdater::class);
-        $customEntityXmlSchemaValidatorMock = $this->createMock(CustomEntityXmlSchemaValidator::class);
-        $customEntityEnrichmentServiceMock = $this->createMock(CustomEntityEnrichmentService::class);
-        $shopwareVersionString = Kernel::SHOPWARE_FALLBACK_VERSION;
         $this->pluginMock = $this->createMock(Plugin::class);
 
         $this->pluginMock->method('getNamespace')->willReturn('MockPlugin');
@@ -126,16 +117,15 @@ class PluginLifecycleServiceTest extends TestCase
             $this->kernelPluginCollectionMock,
             $this->containerMock,
             $this->migrationLoaderMock,
-            $assetServiceMock,
-            $commandExecutorMock,
+            $this->createMock(AssetService::class),
+            $this->createMock(CommandExecutor::class),
             $this->requirementsValidatorMock,
             $this->cacheItemPoolInterfaceMock,
-            $shopwareVersionString,
-            $systemConfigServiceMock,
-            $customEntityPersisterMock,
-            $customEntitySchemaUpdaterMock,
-            $customEntityXmlSchemaValidatorMock,
-            $customEntityEnrichmentServiceMock
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->createMock(SystemConfigService::class),
+            $this->createMock(CustomEntityPersister::class),
+            $this->createMock(CustomEntitySchemaUpdater::class),
+            $this->createMock(CustomEntityLifecycleService::class),
         );
     }
 

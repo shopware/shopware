@@ -12,10 +12,13 @@ use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 class Entities extends XmlElement
 {
     /**
-     * @var Entity[]
+     * @var list<Entity>
      */
     protected $entities = [];
 
+    /**
+     * @param list<Entity> $entities
+     */
     public function __construct(array $entities)
     {
         $this->entities = $entities;
@@ -27,7 +30,7 @@ class Entities extends XmlElement
     }
 
     /**
-     * @return Entity[]
+     * @return list<Entity>
      */
     public function getEntities(): array
     {
@@ -35,7 +38,7 @@ class Entities extends XmlElement
     }
 
     /**
-     * @return Entity[]
+     * @return list<Entity>
      */
     private static function parseEntities(\DOMElement $element): array
     {

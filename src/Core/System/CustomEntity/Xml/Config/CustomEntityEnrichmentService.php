@@ -4,7 +4,7 @@ namespace Shopware\Core\System\CustomEntity\Xml\Config;
 
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator;
-use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareXmlSchema;
+use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareEnrichment;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 
 /**
@@ -22,54 +22,50 @@ class CustomEntityEnrichmentService
         $this->adminUiXmlSchemaValidator = $adminUiXmlSchemaValidator;
     }
 
-    public function enrichCmsAwareEntities(?CmsAwareXmlSchema $cmsAwareXmlSchema, CustomEntityXmlSchema $entities): CustomEntityXmlSchema
+    public function enrich(
+        ?CustomEntityXmlSchema $customEntityXmlSchema,
+        ?AdminUiXmlSchema $adminUiXmlSchema
+    ): ?CustomEntityXmlSchema {
+        if ($customEntityXmlSchema === null) {
+            return null;
+        }
+
+        $customEntityXmlSchema = $this->enrichCmsAware($customEntityXmlSchema);
+
+        if ($adminUiXmlSchema !== null) {
+            $customEntityXmlSchema = $this->enrichAdminUi($customEntityXmlSchema, $adminUiXmlSchema);
+        }
+
+        return $customEntityXmlSchema;
+    }
+
+    private function enrichCmsAware(CustomEntityXmlSchema $customEntityXmlSchema): CustomEntityXmlSchema
     {
-        if (!$cmsAwareXmlSchema || $entities->getEntities() === null) {
-            return $entities;
-        }
-
-        if (!($cmsAware = $cmsAwareXmlSchema->getCmsAware())) {
-            return $entities;
-        }
-
-        $cmsAwareEntitiesConfig = $cmsAware->getEntities();
-
-        foreach ($entities->getEntities()->getEntities() as $entity) {
-            if (!\array_key_exists($entity->getName(), $cmsAwareEntitiesConfig)) {
+        foreach ($customEntityXmlSchema->getEntities()?->getEntities() ?? [] as $entity) {
+            if ($entity->isCmsAware() !== true) {
                 continue;
             }
 
             $fields = $entity->getFields();
-            $fields = array_merge($fields, CmsAwareXmlSchema::getCmsAwareFields());
+            $fields = array_merge($fields, CmsAwareEnrichment::getCmsAwareFields());
             $entity->setFields($fields);
 
             $flags = $entity->getFlags();
-            $flags = array_merge($flags, ['cms-aware' => $cmsAwareEntitiesConfig[$entity->getName()]]);
+            $flags = array_merge($flags, ['cms-aware' => ['name' => $entity->getName()]]);
             $entity->setFlags($flags);
-
-            unset($cmsAwareEntitiesConfig[$entity->getName()]);
         }
 
-        if (!empty($cmsAwareEntitiesConfig)) {
-            throw CustomEntityConfigurationException::entityNotGiven(CmsAwareXmlSchema::FILENAME, array_keys($cmsAwareEntitiesConfig));
-        }
-
-        return $entities;
+        return $customEntityXmlSchema;
     }
 
-    public function enrichAdminUiEntities(?AdminUiXmlSchema $adminUiXmlSchema, CustomEntityXmlSchema $customEntityXmlSchema): CustomEntityXmlSchema
+    private function enrichAdminUi(CustomEntityXmlSchema $customEntityXmlSchema, AdminUiXmlSchema $adminUiXmlSchema): CustomEntityXmlSchema
     {
-        if (!$adminUiXmlSchema || $customEntityXmlSchema->getEntities() === null) {
+        $adminUiEntitiesConfig = $adminUiXmlSchema->getAdminUi()?->getEntities();
+        if ($adminUiEntitiesConfig === null) {
             return $customEntityXmlSchema;
         }
 
-        if (!($adminUi = $adminUiXmlSchema->getAdminUi())) {
-            return $customEntityXmlSchema;
-        }
-
-        $adminUiEntitiesConfig = $adminUi->getEntities();
-
-        foreach ($customEntityXmlSchema->getEntities()->getEntities() as $entity) {
+        foreach ($customEntityXmlSchema->getEntities()?->getEntities() ?? [] as $entity) {
             if (!\array_key_exists($entity->getName(), $adminUiEntitiesConfig)) {
                 continue;
             }
@@ -87,7 +83,10 @@ class CustomEntityEnrichmentService
         }
 
         if (!empty($adminUiEntitiesConfig)) {
-            throw CustomEntityConfigurationException::entityNotGiven(AdminUiXmlSchema::FILENAME, array_keys($adminUiEntitiesConfig));
+            throw CustomEntityConfigurationException::entityNotGiven(
+                AdminUiXmlSchema::FILENAME,
+                array_keys($adminUiEntitiesConfig)
+            );
         }
 
         return $customEntityXmlSchema;

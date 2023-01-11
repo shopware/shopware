@@ -30,10 +30,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
-use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService;
-use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTest\Migration\Migration1536761533Test;
 use SwagTest\SwagTest;
@@ -323,8 +322,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->systemConfigService,
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
-            $this->container->get(CustomEntityXmlSchemaValidator::class),
-            $this->container->get(CustomEntityEnrichmentService::class)
+            $this->container->get(CustomEntityLifecycleService::class),
         );
 
         $context = Context::createDefaultContext();
@@ -838,8 +836,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->systemConfigService,
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
-            $this->container->get(CustomEntityXmlSchemaValidator::class),
-            $this->container->get(CustomEntityEnrichmentService::class)
+            $this->container->get(CustomEntityLifecycleService::class),
         );
     }
 

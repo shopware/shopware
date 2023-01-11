@@ -3,60 +3,21 @@
 namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\CmsAware;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareXmlSchema;
-use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\XmlElements\CmsAware;
-use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\XmlElements\Entity;
+use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareEnrichment;
 
 /**
  * @package content
  *
  * @internal
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareXmlSchema
+ * @covers \Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareEnrichment
  */
-class CmsAwareXmlSchemaTest extends TestCase
+class CmsAwareEnrichmentTest extends TestCase
 {
     private const TEST_LOCALE = 'en-GB';
 
-    private const EXPECTED_CMS_AWARE_ENTITY_NAMES = [
-        'cmsAwareOnly' => 'custom_entity_test_entity_cms_aware',
-        'allFlags' => 'custom_entity_test_entity_cms_aware_admin_ui',
-    ];
-
-    public function testPublicConstants(): void
-    {
-        static::assertStringEndsWith(
-            'src/Core/System/CustomEntity/Xml/Config/CmsAware/cms-aware-1.0.xsd',
-            CmsAwareXmlSchema::XSD_FILEPATH
-        );
-        static::assertEquals('cms-aware.xml', CmsAwareXmlSchema::FILENAME);
-    }
-
-    public function testConstructor(): void
-    {
-        $cmsAware = new CmsAware();
-        $cmsAwareXmlSchema = new CmsAwareXmlSchema($cmsAware);
-        static::assertEquals($cmsAware, $cmsAwareXmlSchema->getCmsAware());
-    }
-
-    public function testCreateFromXmlFile(): void
-    {
-        $cmsAwareXmlSchema = CmsAwareXmlSchema::createFromXmlFile(__DIR__ . '/../../../_fixtures/cms-aware.xml');
-        $cmsAware = $cmsAwareXmlSchema->getCmsAware();
-        static::assertInstanceOf(CmsAware::class, $cmsAware);
-
-        $entities = $cmsAware->getEntities();
-        static::assertIsArray($entities);
-        static::assertCount(2, $entities);
-
-        foreach (self::EXPECTED_CMS_AWARE_ENTITY_NAMES as $expectedEntityName) {
-            static::assertInstanceOf(Entity::class, $entities[$expectedEntityName]);
-            static::assertEquals($expectedEntityName, $entities[$expectedEntityName]->getName());
-        }
-    }
-
     public function testGetCmsAwareFields(): void
     {
-        $actualCmsAwareFields = array_reduce(CmsAwareXmlSchema::getCmsAwareFields(), static function ($accumulator, $field) {
+        $actualCmsAwareFields = array_reduce(CmsAwareEnrichment::getCmsAwareFields(), static function ($accumulator, $field) {
             $accumulator[$field->getName()] = $field;
 
             return $accumulator;

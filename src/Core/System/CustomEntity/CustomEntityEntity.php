@@ -14,6 +14,8 @@ class CustomEntityEntity extends Entity
 
     protected string $name;
 
+    protected bool $cmsAware;
+
     protected bool $storeApiAware;
 
     protected ?string $appId;

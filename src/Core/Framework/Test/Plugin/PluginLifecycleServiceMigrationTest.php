@@ -23,10 +23,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
-use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService;
-use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -202,8 +201,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
             $this->container->get(SystemConfigService::class),
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
-            $this->container->get(CustomEntityXmlSchemaValidator::class),
-            $this->container->get(CustomEntityEnrichmentService::class)
+            $this->container->get(CustomEntityLifecycleService::class),
         );
     }
 

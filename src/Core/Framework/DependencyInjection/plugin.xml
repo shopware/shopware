@@ -57,8 +57,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater"/>
-            <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator"/>
-            <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService"/>
+            <argument type="service" id="Shopware\Core\System\CustomEntity\CustomEntityLifecycleService"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Changelog\ChangelogParser"/>

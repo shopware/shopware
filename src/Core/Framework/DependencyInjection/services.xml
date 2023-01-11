@@ -223,6 +223,14 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator"/>
         </service>
 
+        <service id="Shopware\Core\System\CustomEntity\CustomEntityLifecycleService">
+            <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister"/>
+            <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater"/>
+            <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService"/>
+            <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator"/>
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
         <!-- Translation -->
         <service id="Shopware\Core\Framework\Adapter\Translation\Translator"
                  decorates="translator">

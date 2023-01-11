@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../src/Core/System/CustomEntity/Xml/entity-1.0.xsd">
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../../src/Core/System/CustomEntity/Xml/entity-1.0.xsd">
     <entity name="custom_entity_test_entity_no_extras">
         <fields>
             <string name="test_string" store-api-aware="true"/>
@@ -8,7 +8,7 @@
             <float name="test_float" store-api-aware="true"/>
         </fields>
     </entity>
-    <entity name="custom_entity_test_entity_cms_aware">
+    <entity name="custom_entity_test_entity_cms_aware" cms-aware="true">
         <fields>
             <string name="test_string" store-api-aware="true"/>
             <text name="test_text" store-api-aware="true"/>
@@ -24,7 +24,7 @@
             <float name="test_float" store-api-aware="true"/>
         </fields>
     </entity>
-    <entity name="custom_entity_test_entity_cms_aware_admin_ui">
+    <entity name="custom_entity_test_entity_cms_aware_admin_ui" cms-aware="true">
         <fields>
             <string name="test_string" store-api-aware="true"/>
             <text name="test_text" store-api-aware="true"/>

@@ -23,7 +23,7 @@ class Migration1662533751AddCustomEntityTypeIdToCategory extends MigrationStep
 
         if (!\in_array('custom_entity_type_id', $columns, true)) {
             $connection->executeStatement(
-                'ALTER TABLE `category` ADD `custom_entity_type_id` BINARY(16) NULL AFTER `type`,
+                'ALTER TABLE `category` ADD `custom_entity_type_id` BINARY(16) NULL,
                 ADD CONSTRAINT `fk.category.custom_entity_type_id` FOREIGN KEY (`custom_entity_type_id`)
                     REFERENCES `custom_entity` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;'
             );

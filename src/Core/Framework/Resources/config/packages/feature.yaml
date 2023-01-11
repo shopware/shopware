@@ -22,13 +22,3 @@ shopware:
         major: true
         description: "Rules are aware of their assignment"
         # issue: NEXT-18215
-      - name: FEATURE_NEXT_14699
-        default: false
-        major: true
-        description: "Refactoring of Storefront theme assets"
-        # issue: NEXT-14360
-      - name: FEATURE_NEXT_17275
-        default: false
-        major: true
-        description: "StorefrontRenderEvent only gets original view"
-        # issue: NEXT-17275

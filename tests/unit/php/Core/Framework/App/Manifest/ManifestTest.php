@@ -59,24 +59,4 @@ class ManifestTest extends TestCase
             'payment.app',
         ], $manifest->getAllHosts());
     }
-
-    public function testCreateFromXmlFileThrowsExceptionIfAdminModuleHasNoParentSet(): void
-    {
-        $this->expectException(XmlParsingException::class);
-        $this->expectExceptionMessage('Element \'module\': The attribute \'parent\' is required but missing.');
-
-        Manifest::createFromXmlFile(
-            __DIR__ . '/_fixtures/manifest-without-parent-module.xml'
-        );
-    }
-
-    public function testCreateFromXmlFileThrowsExceptionIfActionButtonHasOpenNewTabAttribute(): void
-    {
-        $this->expectException(XmlParsingException::class);
-        $this->expectExceptionMessage('Element \'action-button\', attribute \'openNewTab\': The attribute \'openNewTab\' is not allowed.');
-
-        Manifest::createFromXmlFile(
-            __DIR__ . '/_fixtures/manifest-with-deprecated-open-new-tab.xml'
-        );
-    }
 }

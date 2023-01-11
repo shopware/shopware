@@ -369,31 +369,6 @@ class ProductSearchTermInterpreterTest extends TestCase
         ];
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Testcase can be removed, as php min version will be higher
-     */
-    public function testLevenshteinCharacterLimit(): void
-    {
-        if (\PHP_VERSION_ID >= 80000) {
-            static::markTestSkipped();
-        }
-
-        // 256 characters
-        $word = 'Kk5zWGZaYUnONSFzLplcuNyRUtDJl6DfrgYsFK30zo7iN9aTVdJx91OXa4mbZy7fQkCwvGbeCueNCNcveTg5'
-            . 'Du9Bm2CaZdlOB4ZQG1OTzgZpFjyGaqMb4WRFU9NamzBPMZBN0b0RF32uDCvZXAiFnYJboSn6dwDgbTUE6Ibyyt'
-            . 'OJZqtIF8bWn6GFzczaW5DzBqyjFriqCel3VqVMcLEOx6fWYfcQqn6sG8yAf4svUkeHc1iw8sIajbRjRCyeOF8w';
-
-        $this->connection->insert('product_keyword_dictionary', [
-            'id' => Uuid::randomBytes(),
-            'keyword' => $word,
-            'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
-        ]);
-
-        $pattern = $this->interpreter->interpret($word, Context::createDefaultContext());
-
-        static::assertNotEmpty($pattern->getAllTerms());
-    }
-
     private function setupKeywords(): void
     {
         $keywords = [

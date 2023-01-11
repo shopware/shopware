@@ -89,6 +89,10 @@ EOD
 __EMPTY__
 EOD
     ,
+    'review_form.send' => <<<'EOD'
+Triggers when a product review form is send
+EOD
+    ,
     'state_enter.order.state.cancelled' => <<<'EOD'
 __EMPTY__
 EOD

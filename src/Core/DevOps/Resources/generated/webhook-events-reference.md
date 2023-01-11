@@ -24,6 +24,7 @@
 |`newsletter.register` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient","url":"string"}
 |`newsletter.unsubscribe` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient"}
 |`product_export.log` | __EMPTY__ | - | {"name":"string"}
+|`review_form.send` | Triggers when a product review form is send | `product:read` | {"reviewFormData":"object","entity":"product"}
 |`state_enter.order.state.cancelled` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_enter.order.state.completed` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_enter.order.state.in_progress` | __EMPTY__ | `order:read` | {"entity":"order"}

@@ -4,12 +4,14 @@ namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
+use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityNotExists;
+use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -25,6 +27,7 @@ use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
@@ -33,20 +36,13 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 {
-    /**
-     * @var EntityRepository
-     */
-    private $repository;
+    private EntityRepository $repository;
 
-    /**
-     * @var DataValidator
-     */
-    private $validator;
+    private DataValidator $validator;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $config;
+    private SystemConfigService $config;
+
+    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @internal
@@ -54,11 +50,13 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
     public function __construct(
         EntityRepository $reviewRepository,
         DataValidator $validator,
-        SystemConfigService $config
+        SystemConfigService $config,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->repository = $reviewRepository;
         $this->validator = $validator;
         $this->config = $config;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractProductReviewSaveRoute
@@ -84,6 +82,10 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 
         if (!$data->has('name')) {
             $data->set('name', $customer->getFirstName());
+        }
+
+        if (!$data->has('lastName')) {
+            $data->set('lastName', $customer->getLastName());
         }
 
         if (!$data->has('email')) {
@@ -112,6 +114,22 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         }
 
         $this->repository->upsert([$review], $context->getContext());
+
+        $mail = $this->config->get('core.basicInformation.email', $context->getSalesChannel()->getId());
+        $mail = \is_string($mail) ? $mail : '';
+        $event = new ReviewFormEvent(
+            $context->getContext(),
+            $context->getSalesChannel()->getId(),
+            new MailRecipientStruct([$mail => $mail]),
+            $data,
+            $productId,
+            $customerId
+        );
+
+        $this->eventDispatcher->dispatch(
+            $event,
+            ReviewFormEvent::EVENT_NAME
+        );
 
         return new NoContentResponse();
     }

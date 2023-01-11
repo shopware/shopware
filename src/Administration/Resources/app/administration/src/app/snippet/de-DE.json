@@ -945,6 +945,7 @@
       "checkout_order_placed": "Bestellung ist eingegangen",
       "checkout_order_payment_method_changed": "Zahlungsmethode einer Bestellung wurde geändert",
       "contact_form_send": "Kontaktformular wurde verschickt",
+      "review_form_send": "Produktbewertung wurde verschickt",
       "customer_group_registration_accepted": "Kundengruppen-Registrierung wurde akzeptiert",
       "customer_group_registration_declined": "Kundengruppen-Registrierung wurde abgelehnt",
       "customer_recovery_request": "Kunde fordert neues Passwort an",

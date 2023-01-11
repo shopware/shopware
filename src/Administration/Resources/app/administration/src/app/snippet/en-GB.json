@@ -945,6 +945,7 @@
       "checkout_order_placed": "Order placed",
       "checkout_order_payment_method_changed": "Order payment method changed",
       "contact_form_send": "Contact form sent",
+      "review_form_send": "Review form sent",
       "customer_group_registration_accepted": "Customer group registration request accepted",
       "customer_group_registration_declined": "Customer group registration request declined",
       "customer_recovery_request": "Customer requests new password",

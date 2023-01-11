@@ -285,6 +285,7 @@
       "order": "Order",
       "paymentMethod": "Payment method",
       "contactForm": "Contact form",
+      "reviewForm": "Product review",
       "group": "Group",
       "recovery": "Recovery",
       "registration": "Registration",

@@ -1,0 +1,14 @@
+Eine Produktbewertung wurde soeben {% if reviewFormData.id is defined %}bearbeitet{% else %}abgegeben{% endif %}.
+
+{% if reviewFormData.name is defined %}Name: {{ reviewFormData.name }}{% if reviewFormData.lastName is defined %} {{ reviewFormData.lastName }}{% endif %}{% endif %}
+
+{% if reviewFormData.email is defined %}E-Mail-Adresse: {{ reviewFormData.email }}{% endif %}
+
+{% if product.translated.name is defined %}Produkt: {{ product.translated.name }}{% endif %}
+
+Bewertung: {{ reviewFormData.points }}
+
+Titel: {{ reviewFormData.title }}
+
+Inhalt:
+{{ reviewFormData.content }}

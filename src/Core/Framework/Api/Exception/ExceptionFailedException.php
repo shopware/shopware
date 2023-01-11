@@ -25,7 +25,7 @@ class ExceptionFailedException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return 'FRAMEWORK__API_EXCEPTION_FAILED';
+        return 'FRAMEWORK__API_EXPECTATION_FAILED';
     }
 
     public function getStatusCode(): int

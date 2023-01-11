@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\Country\Event\CountryStateRouteCacheKeyEvent;
 use Shopware\Core\System\Country\Event\CountryStateRouteCacheTagsEvent;
@@ -80,8 +79,7 @@ class CachedCountryStateRoute extends AbstractCountryStateRoute
 
     /**
      * @Since("6.4.14.0")
-     * @Entity("country")
-     * @Route("/store-api/country-state/{countryId}", name="store-api.country.state", methods={"GET", "POST"})
+     * @Route("/store-api/country-state/{countryId}", name="store-api.country.state", methods={"GET", "POST"}, defaults={"_entity"="country"})
      */
     public function load(string $countryId, Request $request, Criteria $criteria, SalesChannelContext $context): CountryStateRouteResponse
     {

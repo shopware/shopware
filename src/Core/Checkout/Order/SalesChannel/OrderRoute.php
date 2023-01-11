@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -52,8 +51,7 @@ class OrderRoute extends AbstractOrderRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Entity("order")
-     * @Route(path="/store-api/order", name="store-api.order", methods={"GET", "POST"})
+     * @Route(path="/store-api/order", name="store-api.order", methods={"GET", "POST"}, defaults={"_entity"="order"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): OrderRouteResponse
     {
@@ -178,9 +176,10 @@ class OrderRoute extends AbstractOrderRoute
 
     private function checkCartRule(RuleEntity $cartRule): bool
     {
+        /** @var Container $payload */
         $payload = $cartRule->getPayload();
         foreach ($payload->getRules() as $rule) {
-            if ($this->checkRuleType($rule) === false) {
+            if ($rule instanceof Container && $this->checkRuleType($rule) === false) {
                 return false;
             }
         }

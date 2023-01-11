@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\Currency\Event\CurrencyRouteCacheKeyEvent;
 use Shopware\Core\System\Currency\Event\CurrencyRouteCacheTagsEvent;
@@ -80,8 +79,7 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Entity("currency")
-     * @Route("/store-api/currency", name="store-api.currency", methods={"GET", "POST"})
+     * @Route("/store-api/currency", name="store-api.currency", methods={"GET", "POST"}, defaults={"_entity"="currency"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): CurrencyRouteResponse
     {

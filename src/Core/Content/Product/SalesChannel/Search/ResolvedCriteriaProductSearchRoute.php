@@ -7,7 +7,6 @@ use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,8 +45,7 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Entity("product")
-     * @Route("/store-api/search", name="store-api.search", methods={"POST"})
+     * @Route("/store-api/search", name="store-api.search", methods={"POST"}, defaults={"_entity"="product"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
     {

@@ -13,7 +13,6 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -342,7 +341,7 @@ class CacheResponseSubscriberTest extends TestCase
         $request->attributes->set('_route', 'api.acl.privileges.get');
         $subscriber->addHttpCacheToCoreRoutes(new RequestEvent($this->createMock(KernelInterface::class), $request, KernelInterface::MAIN_REQUEST));
 
-        static::assertTrue($request->attributes->has('_' . HttpCache::ALIAS));
+        static::assertTrue($request->attributes->has(PlatformRequest::ATTRIBUTE_HTTP_CACHE));
     }
 
     /**
@@ -481,9 +480,9 @@ class CacheResponseSubscriberTest extends TestCase
         );
 
         $request = new Request();
-        $request->attributes->set('_' . HttpCache::ALIAS, [new HttpCache([
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, [
             'states' => ['cart-filled'],
-        ])]);
+        ]);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
         $request->cookies->set(CacheResponseSubscriber::SYSTEM_STATE_COOKIE, 'cart-filled');
 
@@ -517,7 +516,7 @@ class CacheResponseSubscriberTest extends TestCase
         );
 
         $request = new Request();
-        $request->attributes->set('_' . HttpCache::ALIAS, [new HttpCache([])]);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
         $request->cookies->set(CacheResponseSubscriber::SYSTEM_STATE_COOKIE, 'cart-filled');
 

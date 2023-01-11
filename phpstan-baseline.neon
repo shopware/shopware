@@ -1091,11 +1091,6 @@ parameters:
 			path: src/Core/Checkout/Order/OrderEntity.php
 
 		-
-			message: "#^Cannot call method getRules\\(\\) on Shopware\\\\Core\\\\Framework\\\\Rule\\\\Rule\\|string\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/SalesChannel/OrderRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\SalesChannel\\\\OrderRouteResponse\\:\\:addPaymentChangeable\\(\\) has parameter \\$paymentChangeable with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Order/SalesChannel/OrderRouteResponse.php
@@ -2329,41 +2324,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$cmsPage of method Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\:\\:setCmsPage\\(\\) expects Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
 			count: 1
 			path: src/Core/Content/Category/SalesChannel/CategoryRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\NavigationRoute\\:\\:getCategoryMetaInfo\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/NavigationRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\NavigationRoute\\:\\:getMetaInfoById\\(\\) has parameter \\$metaInfo with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/NavigationRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\NavigationRoute\\:\\:getMetaInfoById\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/NavigationRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\NavigationRoute\\:\\:getMissingIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/NavigationRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\NavigationRoute\\:\\:loadCategories\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/NavigationRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\NavigationRoute\\:\\:loadChildren\\(\\) has parameter \\$metaInfo with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/NavigationRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\TreeBuildingNavigationRoute\\:\\:buildTree\\(\\) has parameter \\$categories with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/TreeBuildingNavigationRoute.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Tree\\\\Tree\\:\\:__construct\\(\\) has parameter \\$tree with no value type specified in iterable type array\\.$#"
@@ -4909,16 +4869,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Detail\\\\AvailableCombinationResult\\:\\:\\$optionIds type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Detail/AvailableCombinationResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\FindVariant\\\\FindProductVariantRoute\\:\\:searchForOptions\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/FindVariant/FindProductVariantRoute.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$options has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/FindVariant/FindProductVariantRoute.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\FindVariant\\\\FoundCombination\\:\\:__construct\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
@@ -13844,11 +13794,6 @@ parameters:
 			message: "#^Offset 'Shopware\\\\\\\\Core\\\\\\\\Kernel' on list\\<string\\> in isset\\(\\) does not exist\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Api/ApiAliasTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$headers of class Symfony\\\\Component\\\\BrowserKit\\\\Response constructor expects array, string given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/ApiDefinition/ApiRoute/StoreApiTestRoute.php
 
 		-
 			message: "#^Parameter \\#1 \\$definitions of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:getSchema\\(\\) expects list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\> given\\.$#"

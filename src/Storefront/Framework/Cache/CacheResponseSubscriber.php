@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -93,7 +92,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $route = $request->attributes->get('_route');
 
         if (\in_array($route, self::CORE_HTTP_CACHED_ROUTES, true)) {
-            $request->attributes->set('_' . HttpCache::ALIAS, [new HttpCache([])]);
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
         }
     }
 
@@ -145,25 +144,27 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             $response->headers->clearCookie(self::CONTEXT_CACHE_COOKIE);
         }
 
-        $config = $request->attributes->get('_' . HttpCache::ALIAS);
-        if (empty($config)) {
+        /** @var bool|array{maxAge?: int, states?: list<string>}|null $cache */
+        $cache = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
+        if (!$cache) {
             return;
         }
 
-        /** @var HttpCache $cache */
-        $cache = array_shift($config);
+        if ($cache === true) {
+            $cache = [];
+        }
 
-        if ($this->hasInvalidationState($cache, $states)) {
+        if ($this->hasInvalidationState($cache['states'] ?? [], $states)) {
             return;
         }
 
-        $maxAge = $cache->getMaxAge() ?? $this->defaultTtl;
+        $maxAge = $cache['maxAge'] ?? $this->defaultTtl;
 
         $response->setSharedMaxAge($maxAge);
         $response->headers->addCacheControlDirective('must-revalidate');
         $response->headers->set(
             self::INVALIDATION_STATES_HEADER,
-            implode(',', $cache->getStates())
+            implode(',', $cache['states'] ?? [])
         );
 
         if ($this->staleIfError !== null) {
@@ -201,12 +202,13 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     }
 
     /**
+     * @param list<string> $cacheStates
      * @param list<string> $states
      */
-    private function hasInvalidationState(HttpCache $cache, array $states): bool
+    private function hasInvalidationState(array $cacheStates, array $states): bool
     {
         foreach ($states as $state) {
-            if (\in_array($state, $cache->getStates(), true)) {
+            if (\in_array($state, $cacheStates, true)) {
                 return true;
             }
         }

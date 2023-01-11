@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\PlatformRequest;
-use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -64,7 +63,7 @@ class ResponseHeaderListener implements EventSubscriberInterface
 
     private function addNoStoreHeader(Request $request, Response $response): void
     {
-        if (!$request->attributes->has('_' . NoStore::ALIAS)) {
+        if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_NO_STORE)) {
             return;
         }
 

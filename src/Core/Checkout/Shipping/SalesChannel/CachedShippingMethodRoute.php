@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
@@ -76,8 +75,7 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Entity("shipping_method")
-     * @Route("/store-api/shipping-method", name="store-api.shipping.method", methods={"GET", "POST"})
+     * @Route("/store-api/shipping-method", name="store-api.shipping.method", methods={"GET", "POST"}, defaults={"_entity"="shipping_method"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
     {

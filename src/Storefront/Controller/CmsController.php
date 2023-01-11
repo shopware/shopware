@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\SwitchBuyBoxVariantEvent;
-use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -71,8 +70,7 @@ class CmsController extends StorefrontController
      * @Since("6.0.0.0")
      * Route for cms data (used in XmlHttpRequest)
      *
-     * @HttpCache()
-     * @Route("/widgets/cms/{id}", name="frontend.cms.page", methods={"GET", "POST"}, defaults={"id"=null, "XmlHttpRequest"=true})
+     * @Route("/widgets/cms/{id}", name="frontend.cms.page", methods={"GET", "POST"}, defaults={"id"=null, "XmlHttpRequest"=true, "_httpCache"=true})
      */
     public function page(?string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
@@ -120,11 +118,10 @@ class CmsController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @HttpCache()
      *
      * Route to load the listing filters
      *
-     * @Route("/widgets/cms/navigation/{navigationId}/filter", name="frontend.cms.navigation.filter", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true, "_routeScope"={"storefront"}})
+     * @Route("/widgets/cms/navigation/{navigationId}/filter", name="frontend.cms.navigation.filter", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true, "_routeScope"={"storefront"}, "_httpCache"=true})
      */
     public function filter(string $navigationId, Request $request, SalesChannelContext $context): Response
     {
@@ -152,12 +149,11 @@ class CmsController extends StorefrontController
 
     /**
      * @Since("6.4.0.0")
-     * @HttpCache()
      *
      * Route to load the cms element buy box product config which assigned to the provided product id.
      * Product id is required to load the slot config for the buy box
      *
-     * @Route("/widgets/cms/buybox/{productId}/switch", name="frontend.cms.buybox.switch", methods={"GET"}, defaults={"productId"=null, "XmlHttpRequest"=true, "_routeScope"={"storefront"}})
+     * @Route("/widgets/cms/buybox/{productId}/switch", name="frontend.cms.buybox.switch", methods={"GET"}, defaults={"productId"=null, "XmlHttpRequest"=true, "_routeScope"={"storefront"}, "_httpCache"=true})
      */
     public function switchBuyBoxVariant(string $productId, Request $request, SalesChannelContext $context): Response
     {

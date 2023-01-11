@@ -22,7 +22,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterfac
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
-use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Account\Login\AccountGuestLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
@@ -84,8 +83,7 @@ class AuthController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/account/login", name="frontend.account.login.page", methods={"GET"})
-     * @NoStore
+     * @Route("/account/login", name="frontend.account.login.page", methods={"GET"}, defaults={"_noStore"=true})
      */
     public function loginPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
@@ -117,8 +115,7 @@ class AuthController extends StorefrontController
 
     /**
      * @Since("6.3.4.1")
-     * @Route("/account/guest/login", name="frontend.account.guest.login.page", methods={"GET"})
-     * @NoStore
+     * @Route("/account/guest/login", name="frontend.account.guest.login.page", methods={"GET"}, defaults={"_noStore"=true})
      */
     public function guestLoginPage(Request $request, SalesChannelContext $context): Response
     {

@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedHook;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -43,9 +42,8 @@ class AccountPaymentController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"}, defaults={"_loginRequired"=true})
-     * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"})
-     * @NoStore
+     * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"}, defaults={"_loginRequired"=true, "_noStore"=true})
+     * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"}, defaults={"_noStore"=true})
      */
     public function paymentOverview(Request $request, SalesChannelContext $context): Response
     {

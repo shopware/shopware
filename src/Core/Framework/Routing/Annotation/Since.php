@@ -2,32 +2,17 @@
 
 namespace Shopware\Core\Framework\Routing\Annotation;
 
+use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
+
 /**
  * @Annotation
+ * @NamedArgumentConstructor
  *
  * @package core
  */
-class Since extends BaseAnnotation
+class Since
 {
-    private string $value;
-
-    public function getAliasName(): string
+    public function __construct(public string $version)
     {
-        return 'since';
-    }
-
-    public function allowArray(): bool
-    {
-        return false;
-    }
-
-    public function getValue(): string
-    {
-        return $this->value;
-    }
-
-    public function setValue(string $entity): void
-    {
-        $this->value = $entity;
     }
 }

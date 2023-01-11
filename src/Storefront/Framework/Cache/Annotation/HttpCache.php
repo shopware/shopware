@@ -2,15 +2,16 @@
 
 namespace Shopware\Storefront\Framework\Cache\Annotation;
 
-use Shopware\Core\Framework\Routing\Annotation\BaseAnnotation;
-use Shopware\Core\Framework\Script\Api\ResponseCacheConfiguration;
+use Shopware\Core\Framework\Feature;
 
 /**
  * @package storefront
  *
  * @Annotation
+ *
+ * @deprecated tag:v6.6.0 - Will be removed use `defaults: {"_httpCache"=true}` or `{"_httpCache"={"maxAge": 360, "states": {"logged-in", "cart-filled"}}}` instead
  */
-class HttpCache extends BaseAnnotation
+class HttpCache
 {
     public const ALIAS = 'httpCache';
 
@@ -23,21 +24,41 @@ class HttpCache extends BaseAnnotation
 
     public function getAliasName(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         return self::ALIAS;
     }
 
     public function allowArray(): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         return true;
     }
 
     public function getMaxAge(): ?int
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         return $this->maxAge;
     }
 
     public function setMaxAge(?int $maxAge): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         $this->maxAge = $maxAge;
     }
 
@@ -46,6 +67,11 @@ class HttpCache extends BaseAnnotation
      */
     public function getStates(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         return $this->states ?? [];
     }
 
@@ -54,17 +80,11 @@ class HttpCache extends BaseAnnotation
      */
     public function setStates(?array $states): void
     {
-        $this->states = $states;
-    }
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
 
-    /**
-     * @internal only for use by the app system
-     */
-    public static function fromScriptResponseCacheConfig(ResponseCacheConfiguration $configuration): self
-    {
-        return new self([
-            'states' => $configuration->getInvalidationStates(),
-            'maxAge' => $configuration->getMaxAge(),
-        ]);
+        $this->states = $states;
     }
 }

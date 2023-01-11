@@ -27,7 +27,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\RouteRequest\CancelOrderRouteRequestEvent;
 use Shopware\Storefront\Event\RouteRequest\HandlePaymentMethodRouteRequestEvent;
 use Shopware\Storefront\Event\RouteRequest\SetPaymentOrderRouteRequestEvent;
-use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedHook;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader;
 use Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoadedHook;
@@ -105,9 +104,8 @@ class AccountOrderController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/account/order", name="frontend.account.order.page", options={"seo"="false"}, methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true, "_loginRequired"=true, "_loginRequiredAllowGuest"=true})
-     * @Route("/account/order", name="frontend.account.order.page", options={"seo"="false"}, methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
-     * @NoStore
+     * @Route("/account/order", name="frontend.account.order.page", options={"seo"="false"}, methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true, "_loginRequired"=true, "_loginRequiredAllowGuest"=true, "_noStore"=true})
+     * @Route("/account/order", name="frontend.account.order.page", options={"seo"="false"}, methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true, "_noStore"=true})
      */
     public function orderOverview(Request $request, SalesChannelContext $context): Response
     {
@@ -147,8 +145,7 @@ class AccountOrderController extends StorefrontController
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/account/order/{deepLinkCode}", name="frontend.account.order.single.page", options={"seo"="false"}, methods={"GET", "POST"})
-     * @NoStore
+     * @Route("/account/order/{deepLinkCode}", name="frontend.account.order.single.page", options={"seo"="false"}, methods={"GET", "POST"}, defaults={"_noStore"=true})
      */
     public function orderSingleOverview(Request $request, SalesChannelContext $context): Response
     {
@@ -194,9 +191,8 @@ class AccountOrderController extends StorefrontController
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/account/order/edit/{orderId}", name="frontend.account.edit-order.page", methods={"GET"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
-     * @Route("/account/order/edit/{orderId}", name="frontend.account.edit-order.page", methods={"GET"})
-     * @NoStore
+     * @Route("/account/order/edit/{orderId}", name="frontend.account.edit-order.page", methods={"GET"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true, "_noStore"=true})
+     * @Route("/account/order/edit/{orderId}", name="frontend.account.edit-order.page", methods={"GET"}, defaults={"_noStore"=true})
      */
     public function editOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {

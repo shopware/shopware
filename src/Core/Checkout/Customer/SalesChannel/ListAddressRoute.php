@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
@@ -41,8 +40,7 @@ class ListAddressRoute extends AbstractListAddressRoute
 
     /**
      * @Since("6.3.2.0")
-     * @Entity("customer_address")
-     * @Route(path="/store-api/account/list-address", name="store-api.account.address.list.get", methods={"GET", "POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
+     * @Route(path="/store-api/account/list-address", name="store-api.account.address.list.get", methods={"GET", "POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true, "_entity"="customer_address"})
      */
     public function load(Criteria $criteria, SalesChannelContext $context, CustomerEntity $customer): ListAddressRouteResponse
     {

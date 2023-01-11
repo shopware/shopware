@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Shipping\SalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,8 +32,7 @@ class SortedShippingMethodRoute extends AbstractShippingMethodRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Entity("shipping_method")
-     * @Route("/store-api/shipping-method", name="store-api.shipping.method", methods={"GET", "POST"})
+     * @Route("/store-api/shipping-method", name="store-api.shipping.method", methods={"GET", "POST"}, defaults={"_entity"="shipping_method"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
     {

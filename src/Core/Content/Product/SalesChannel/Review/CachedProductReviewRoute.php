@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -78,8 +77,7 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
 
     /**
      * @Since("6.3.2.0")
-     * @Entity("product_review")
-     * @Route("/store-api/product/{productId}/reviews", name="store-api.product-review.list", methods={"POST"})
+     * @Route("/store-api/product/{productId}/reviews", name="store-api.product-review.list", methods={"POST"}, defaults={"_entity"="product_review"})
      */
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
     {

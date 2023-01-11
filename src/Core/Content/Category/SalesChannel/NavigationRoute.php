@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -26,28 +25,18 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @package content
  * @Route(defaults={"_routeScope"={"store-api"}})
+ *
+ * @phpstan-type CategoryMetaInformation array{id: string, level: int, path: string}
  */
 class NavigationRoute extends AbstractNavigationRoute
 {
     /**
-     * @var SalesChannelRepository
-     */
-    private $categoryRepository;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        SalesChannelRepository $repository
+        private Connection $connection,
+        private SalesChannelRepository $categoryRepository
     ) {
-        $this->categoryRepository = $repository;
-        $this->connection = $connection;
     }
 
     public function getDecorated(): AbstractNavigationRoute
@@ -57,8 +46,7 @@ class NavigationRoute extends AbstractNavigationRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Entity("category")
-     * @Route("/store-api/navigation/{activeId}/{rootId}", name="store-api.navigation", methods={"GET", "POST"})
+     * @Route("/store-api/navigation/{activeId}/{rootId}", name="store-api.navigation", methods={"GET", "POST"}, defaults={"_entity"="category"})
      */
     public function load(
         string $activeId,
@@ -99,6 +87,9 @@ class NavigationRoute extends AbstractNavigationRoute
         return new NavigationRouteResponse($categories);
     }
 
+    /**
+     * @param string[] $ids
+     */
     private function loadCategories(array $ids, SalesChannelContext $context, Criteria $criteria): CategoryCollection
     {
         $criteria->setIds($ids);
@@ -134,6 +125,9 @@ class NavigationRoute extends AbstractNavigationRoute
         return $levels;
     }
 
+    /**
+     * @return array<string, CategoryMetaInformation>
+     */
     private function getCategoryMetaInfo(string $activeId, string $rootId): array
     {
         $result = $this->connection->fetchAllAssociative('
@@ -150,6 +144,11 @@ class NavigationRoute extends AbstractNavigationRoute
         return FetchModeHelper::groupUnique($result);
     }
 
+    /**
+     * @param array<string, CategoryMetaInformation> $metaInfo
+     *
+     * @return CategoryMetaInformation
+     */
     private function getMetaInfoById(string $id, array $metaInfo): array
     {
         if (!\array_key_exists($id, $metaInfo)) {
@@ -159,6 +158,9 @@ class NavigationRoute extends AbstractNavigationRoute
         return $metaInfo[$id];
     }
 
+    /**
+     * @param array<string, CategoryMetaInformation> $metaInfo
+     */
     private function loadChildren(string $activeId, SalesChannelContext $context, string $rootId, array $metaInfo, CategoryCollection $categories, Criteria $criteria): CategoryCollection
     {
         $active = $this->getMetaInfoById($activeId, $metaInfo);
@@ -182,6 +184,8 @@ class NavigationRoute extends AbstractNavigationRoute
 
     /**
      * @param array<string> $childIds
+     *
+     * @return list<string>
      */
     private function getMissingIds(string $activeId, ?string $path, array $childIds, CategoryCollection $alreadyLoaded): array
     {
@@ -191,7 +195,7 @@ class NavigationRoute extends AbstractNavigationRoute
         $included = $alreadyLoaded->getIds();
         $included = array_flip($included);
 
-        return array_diff($haveToBeIncluded, $included);
+        return array_values(array_diff($haveToBeIncluded, $included));
     }
 
     private function validate(string $activeId, ?string $path, SalesChannelContext $context): void

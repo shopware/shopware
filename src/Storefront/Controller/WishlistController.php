@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoadedHook;
 use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoader;
 use Shopware\Storefront\Page\Wishlist\WishlistPageLoadedHook;
@@ -80,8 +79,7 @@ class WishlistController extends StorefrontController
 
     /**
      * @Since("6.3.4.0")
-     * @Route("/wishlist", name="frontend.wishlist.page", options={"seo"="false"}, methods={"GET"})
-     * @NoStore
+     * @Route("/wishlist", name="frontend.wishlist.page", options={"seo"="false"}, methods={"GET"}, defaults={"_noStore"=true})
      */
     public function index(Request $request, SalesChannelContext $context): Response
     {

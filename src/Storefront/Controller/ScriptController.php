@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Script\Api\ScriptResponseEncoder;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Framework\Cache\CacheStore;
 use Shopware\Storefront\Framework\Script\Api\StorefrontHook;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -64,7 +64,7 @@ class ScriptController extends StorefrontController
         );
 
         if ($response->getCache()->isEnabled()) {
-            $request->attributes->set('_' . HttpCache::ALIAS, [HttpCache::fromScriptResponseCacheConfig($response->getCache())]);
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, ['maxAge' => $response->getCache()->getMaxAge(), 'states' => $response->getCache()->getInvalidationStates()]);
             $symfonyResponse->headers->set(CacheStore::TAG_HEADER, \json_encode($response->getCache()->getCacheTags(), \JSON_THROW_ON_ERROR));
         }
 

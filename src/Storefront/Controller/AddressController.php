@@ -23,7 +23,6 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Page\Address\AddressEditorModalStruct;
 use Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoadedHook;
 use Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoader;
@@ -84,8 +83,7 @@ class AddressController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/account/address", name="frontend.account.address.page", options={"seo"="false"}, methods={"GET"}, defaults={"_loginRequired"=true})
-     * @NoStore
+     * @Route("/account/address", name="frontend.account.address.page", options={"seo"="false"}, methods={"GET"}, defaults={"_loginRequired"=true, "_noStore"=true})
      */
     public function accountAddressOverview(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -98,8 +96,7 @@ class AddressController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/account/address/create", name="frontend.account.address.create.page", options={"seo"="false"}, methods={"GET"}, defaults={"_loginRequired"=true})
-     * @NoStore
+     * @Route("/account/address/create", name="frontend.account.address.create.page", options={"seo"="false"}, methods={"GET"}, defaults={"_loginRequired"=true, "_noStore"=true})
      */
     public function accountCreateAddress(Request $request, RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -115,8 +112,7 @@ class AddressController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/account/address/{addressId}", name="frontend.account.address.edit.page", options={"seo"="false"}, methods={"GET"}, defaults={"_loginRequired"=true})
-     * @NoStore
+     * @Route("/account/address/{addressId}", name="frontend.account.address.edit.page", options={"seo"="false"}, methods={"GET"}, defaults={"_loginRequired"=true, "_noStore"=true})
      */
     public function accountEditAddress(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {

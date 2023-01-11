@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Seo\SalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -38,8 +37,7 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Entity("seo_url")
-     * @Route("/store-api/seo-url", name="store-api.seo.url", methods={"GET", "POST"})
+     * @Route("/store-api/seo-url", name="store-api.seo.url", methods={"GET", "POST"}, defaults={"_entity"="seo_url"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SeoUrlRouteResponse
     {

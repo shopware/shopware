@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoadedHook;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoadedHook;
@@ -67,8 +66,7 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/account", name="frontend.account.home.page", methods={"GET"}, defaults={"_loginRequired"=true})
-     * @NoStore
+     * @Route("/account", name="frontend.account.home.page", methods={"GET"}, defaults={"_loginRequired"=true, "_noStore"=true})
      */
     public function index(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -81,8 +79,7 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"}, defaults={"_loginRequired"=true})
-     * @NoStore
+     * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"}, defaults={"_loginRequired"=true, "_noStore"=true})
      */
     public function profileOverview(Request $request, SalesChannelContext $context): Response
     {

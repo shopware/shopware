@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Product\ProductPageLoadedHook;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
@@ -73,8 +72,7 @@ class ProductController extends StorefrontController
 
     /**
      * @Since("6.3.3.0")
-     * @HttpCache()
-     * @Route("/detail/{productId}", name="frontend.detail.page", methods={"GET"})
+     * @Route("/detail/{productId}", name="frontend.detail.page", methods={"GET"}, defaults={"_httpCache"=true})
      */
     public function index(SalesChannelContext $context, Request $request): Response
     {
@@ -89,8 +87,7 @@ class ProductController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @HttpCache()
-     * @Route("/detail/{productId}/switch", name="frontend.detail.switch", methods={"GET"}, defaults={"XmlHttpRequest": true})
+     * @Route("/detail/{productId}/switch", name="frontend.detail.switch", methods={"GET"}, defaults={"XmlHttpRequest": true, "_httpCache"=true})
      */
     public function switch(string $productId, Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {

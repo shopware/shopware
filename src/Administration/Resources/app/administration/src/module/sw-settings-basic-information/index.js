@@ -4,7 +4,6 @@ const { Module } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-basic-information', () => import('./page/sw-settings-basic-information'));
-Shopware.Component.register('sw-settings-captcha-select', () => import('./component/sw-settings-captcha-select'));
 Shopware.Component.register('sw-settings-captcha-select-v2', () => import('./component/sw-settings-captcha-select-v2'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 

@@ -63,6 +63,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
 
     public function testEnrichCmsAwareAffectedEntities(): void
     {
+        static::markTestSkipped('cms-aware will be re-implemented via NEXT-22697');
         static::assertCount(4, $this->customEntities);
 
         foreach ($this->customEntities as $entity) {
@@ -111,6 +112,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
 
     public function testEnrichCmsAwareUnaffectedEntities(): void
     {
+        static::markTestSkipped('cms-aware will be re-implemented via NEXT-22697');
         static::assertCount(4, $this->customEntities);
 
         foreach ($this->customEntities as $entity) {
@@ -265,6 +267,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
 
     public function testFullEnrichCustomEntities(): void
     {
+        static::markTestSkipped('cms-aware will be re-implemented via NEXT-22697');
         static::assertCount(4, $this->customEntities);
 
         foreach ($this->customEntities as $entity) {
@@ -314,7 +317,6 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             $detailTabs = $adminUi->getDetail()->getTabs();
             static::assertCount(2, $detailTabs->toArray(self::TEST_LOCALE));
 
-            /** @phpstan-ignore-next-line */
             $exampleCards = $detailTabs->toArray(self::TEST_LOCALE)[0]->getCards();
             static::assertCount(2, $exampleCards);
 
@@ -325,6 +327,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
 
     public function testFullEnrichAffectedCmsAwareEntities(): void
     {
+        static::markTestSkipped('cms-aware will be re-implemented via NEXT-22697');
         static::assertCount(4, $this->customEntities);
 
         foreach ($this->customEntities as $entity) {

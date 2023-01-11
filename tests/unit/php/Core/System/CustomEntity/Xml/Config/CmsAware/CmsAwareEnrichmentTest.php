@@ -17,6 +17,7 @@ class CmsAwareEnrichmentTest extends TestCase
 
     public function testGetCmsAwareFields(): void
     {
+        static::markTestSkipped('cms-aware will be re-implemented via NEXT-22697');
         $actualCmsAwareFields = array_reduce(CmsAwareEnrichment::getCmsAwareFields(), static function ($accumulator, $field) {
             $accumulator[$field->getName()] = $field;
 

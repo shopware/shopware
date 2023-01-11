@@ -23,7 +23,8 @@
         </xs:choice>
 
         <xs:attribute name="name" type="xs:string" use="required"/>
-        <xs:attribute name="cms-aware" type="xs:boolean"/>
+        <!-- @todo NEXT-22697 - Re-implement, when re-enabling cms-aware -->
+        <!--<xs:attribute name="cms-aware" type="xs:boolean"/>-->
     </xs:complexType>
 
     <xs:complexType name="field-list">

@@ -30,7 +30,8 @@ class CustomEntityEnrichmentService
             return null;
         }
 
-        $customEntityXmlSchema = $this->enrichCmsAware($customEntityXmlSchema);
+        // @todo NEXT-22697 - Re-implement, when re-enabling cms-aware
+        //$customEntityXmlSchema = $this->enrichCmsAware($customEntityXmlSchema);
 
         if ($adminUiXmlSchema !== null) {
             $customEntityXmlSchema = $this->enrichAdminUi($customEntityXmlSchema, $adminUiXmlSchema);

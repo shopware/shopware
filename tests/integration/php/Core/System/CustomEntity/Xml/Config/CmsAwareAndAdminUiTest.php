@@ -57,6 +57,7 @@ class CmsAwareAndAdminUiTest extends TestCase
 
     public function setUp(): void
     {
+        static::markTestSkipped('cms-aware will be re-implemented via NEXT-22697');
         $this->context = Context::createDefaultContext();
 
         $this->dbSchemaName = $this->getDbSchemaName((new TestBootstrapper())->getDatabaseUrl());
@@ -174,7 +175,7 @@ class CmsAwareAndAdminUiTest extends TestCase
                 'created_at',
                 'updated_at',
 
-                // cms aware specific fields
+                // cms-aware specific fields
                 'sw_cms_page_id',
                 'sw_cms_page_version_id',
                 'sw_og_image_id',
@@ -185,7 +186,7 @@ class CmsAwareAndAdminUiTest extends TestCase
                 'custom_entity_int_field',
             ],
             $this->getTableColumns(self::CUSTOM_ENTITY_NAME),
-            'Exactly these columns should exist for this cms-aware custom entity '
+            'Exactly these columns should exist for this cms-aware custom entity'
         );
 
         static::assertTrue(
@@ -205,6 +206,7 @@ class CmsAwareAndAdminUiTest extends TestCase
                 // fields specific for this custom entity
                 'custom_entity_test_id',
 
+                // @todo NEXT-22697 - Re-implement, when re-enabling cms-aware
                 // cms aware specific fields
                 'sw_title',
                 'sw_content',
@@ -215,7 +217,7 @@ class CmsAwareAndAdminUiTest extends TestCase
                 'sw_og_description',
             ],
             $this->getTableColumns(self::CUSTOM_ENTITY_NAME . '_translation'),
-            'The fields translation table of this custom entity should have exactly this fields'
+            'The fields translation table of this custom entity should have exactly these fields'
         );
 
         static::assertTrue(
@@ -249,6 +251,7 @@ class CmsAwareAndAdminUiTest extends TestCase
             ['cms-aware', 'admin-ui'],
             $this->jsonDecode($cmsAwareAndAdminUiSettings['flags'])
         );
+
         static::assertIsString($flagConfigJson = file_get_contents(__DIR__ . '/_fixtures/other/flag_config.json'));
         static::assertEquals(
             $this->jsonDecode($flagConfigJson),

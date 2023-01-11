@@ -5,7 +5,9 @@
             <string name="test_string" store-api-aware="true"/>
         </fields>
     </entity>
-    <entity name="ce_cms_aware" cms-aware="true">
+    <!-- @todo NEXT-22697 - Re-implement, when re-enabling cms-aware -->
+<!--    <entity name="ce_cms_aware" cms-aware="true">-->
+    <entity name="ce_cms_aware">
         <fields>
             <json name="payload" store-api-aware="false" />
             <email name="email"  store-api-aware="false" />

@@ -13,9 +13,9 @@ class ProductSliderStruct extends Struct
     /**
      * @var ProductCollection|null
      */
-    protected $products;
+    protected $products = null;
 
-    protected ?string $streamId;
+    protected ?string $streamId = null;
 
     public function getProducts(): ?ProductCollection
     {

@@ -179,7 +179,7 @@ return (new Config())
             return;
         }
 
-        if (!preg_match('/(?m)^(WIP:\s)?NEXT-\d*\s-\s\w/', $context->platform->pullRequest->title)) {
+        if (!preg_match('/(?m)^((WIP:\s)|^(Draft:\s)|^(DRAFT:\s))?NEXT-\d*\s-\s\w/', $context->platform->pullRequest->title)) {
             $context->failure(sprintf('The title `%s` does not match our requirements. Example: NEXT-00000 - My Title', $context->platform->pullRequest->title));
         }
     })

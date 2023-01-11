@@ -66,6 +66,7 @@
         padding: 12px 12px 0;
         z-index: $z-index-page-header;
         margin-bottom: 48px;
+        border-bottom: 1px solid $color-gray-300;
 
         .sw-meteor-page__smart-bar-navigation {
             margin-bottom: 12px;

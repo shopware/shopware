@@ -48,6 +48,11 @@
         background-color: transparent;
         border: none;
         margin: 42px auto 0;
-        max-width: 996px;
+        max-width: 960px;
+        padding: 0;
+
+        .sw-pagination__per-page {
+            margin-right: 0;
+        }
     }
 }

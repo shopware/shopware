@@ -249,9 +249,9 @@
       "sw-extension-card-base": {
         "subscriptionLabel": "Subscription:",
         "inactiveLabel": "(inactive)",
-        "purchasedLabel": "Purchased on",
-        "installedLabel": "Installed on",
-        "openExtensionLabel": "Open app",
+        "purchasedLabel": "Purchased:",
+        "installedLabel": "Installed:",
+        "openExtensionLabel": "Open",
         "installExtensionLabel": "Install",
         "labelAcceptAndInstall": "Accept and install",
         "allowDisableTooltip": "This app uses its own data structures, that affect your system. Therefore, the app cannot be deactivated.",

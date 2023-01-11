@@ -1,15 +1,15 @@
+@import "~scss/mixins";
 @import "~scss/variables";
-
-$sw-meteor-card-background: rgba(235, 235, 235, 10%);
 
 .sw-meteor-card {
     max-width: 960px;
     margin: 0 auto 40px;
     position: relative;
     color: $color-darkgray-200;
-    border-radius: $border-radius-default;
+    border-radius: $border-radius-lg;
     background: $color-white;
-    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 10%);
+
+    @include drop-shadow-default;
 
     .sw-meteor-card__header {
         .sw-meteor-card__header-grid {
@@ -64,7 +64,6 @@ $sw-meteor-card-background: rgba(235, 235, 235, 10%);
     }
 
     .sw-meteor-card__content {
-        background: $sw-meteor-card-background;
         position: relative;
         line-height: 22px;
         font-size: $font-size-xs;
@@ -156,7 +155,6 @@ $sw-meteor-card-background: rgba(235, 235, 235, 10%);
     .sw-meteor-card__footer {
         border-top: 1px solid $color-gray-300;
         padding: 24px 32px;
-        background: $sw-meteor-card-background;
         position: relative;
         line-height: 22px;
         font-size: $font-size-xs;

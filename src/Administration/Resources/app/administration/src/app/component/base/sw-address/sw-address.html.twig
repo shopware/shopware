@@ -23,7 +23,10 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_address_formatting %}
-    <div class="sw-address__formatting" v-html="displayFormattingAddress"></div>
+    <div
+        class="sw-address__formatting"
+        v-html="displayFormattingAddress"
+    ></div>
     {% endblock %}
 </div>
 {% endblock %}

@@ -59,32 +59,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         });
     });
 
-    it('should show the short description when it exists', async () => {
-        wrapper = await createWrapper({
-            extension: {
-                installedAt: null,
-                shortDescription: 'My short description',
-                description: 'My long description',
-                permissions: []
-            }
-        });
-
-        expect(wrapper.vm.description).toEqual('My short description');
-    });
-
-    it('should show the long description as fallback when short does not exists', async () => {
-        wrapper = await createWrapper({
-            extension: {
-                installedAt: null,
-                shortDescription: '',
-                description: 'My long description',
-                permissions: []
-            }
-        });
-
-        expect(wrapper.vm.description).toEqual('My long description');
-    });
-
     it('should show the correct image (icon)', async () => {
         wrapper = await createWrapper({
             extension: {

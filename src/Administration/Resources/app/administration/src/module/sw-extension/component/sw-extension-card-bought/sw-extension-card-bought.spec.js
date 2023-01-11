@@ -125,7 +125,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
-            shortDescription: 'Sample Extension description',
             languages: [],
             rating: 3,
             numberOfRatings: 10,
@@ -164,7 +163,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
-            shortDescription: 'Sample Extension description',
             languages: [],
             rating: 3,
             numberOfRatings: 10,
@@ -193,13 +191,11 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
 
         expect(wrapper.find('.sw-extension-card-base__info-name')
             .text()).toBe('Sample Extension Label');
-        expect(wrapper.find('.sw-extension-card-base__info-description')
-            .text()).toBe('Sample Extension description');
         expect(wrapper.find('.sw-extension-card-base__icon')
             .attributes().src).toBe('https://example.com');
         expect(wrapper.find('.sw-extension-card-base__meta-info')
             .text().replace(/\s/g, ''))
-            .toBe('sw-extension-store.component.sw-extension-card-base.installedLabel1February2021at02:30');
+            .toBe('sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021');
     });
 
     it('should display a placeholder icon and the rent price', async () => {
@@ -207,7 +203,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
-            shortDescription: 'Sample Extension description',
             languages: [],
             rating: 3,
             numberOfRatings: 10,
@@ -234,13 +229,11 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
 
         expect(wrapper.find('.sw-extension-card-base__info-name')
             .text()).toBe('Sample Extension Label');
-        expect(wrapper.find('.sw-extension-card-base__info-description')
-            .text()).toBe('Sample Extension description');
         expect(wrapper.find('.sw-extension-card-base__icon')
             .attributes().src).toBe('administration/static/img/theme/default_theme_preview.jpg');
         expect(wrapper.find('.sw-extension-card-base__meta-info')
             .text().replace(/\s/g, ''))
-            .toBe('sw-extension-store.component.sw-extension-card-base.installedLabel1February2021at02:30');
+            .toBe('sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021');
     });
 
     it('should link to the detail page', async () => {
@@ -248,7 +241,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
-            shortDescription: 'Sample Extension description',
             languages: [],
             rating: 3,
             numberOfRatings: 10,
@@ -275,7 +267,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
-            shortDescription: 'Sample Extension description',
             languages: [],
             rating: 3,
             numberOfRatings: 10,
@@ -307,7 +298,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
-            shortDescription: 'Sample Extension description',
             languages: [],
             rating: 3,
             numberOfRatings: 10,
@@ -347,7 +337,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
-            shortDescription: 'Sample Extension description',
             languages: [],
             rating: 3,
             numberOfRatings: 10,
@@ -381,7 +370,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
-            shortDescription: 'Sample Extension description',
             languages: [],
             rating: null,
             numberOfRatings: 0,
@@ -442,7 +430,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
-            shortDescription: 'Sample Extension description',
             languages: [],
             rating: null,
             numberOfRatings: 0,
@@ -518,7 +505,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             id: 1,
             name: 'Expired extension',
             label: 'Expired extension Label',
-            shortDescription: 'Expired extension description',
             languages: [],
             rating: null,
             numberOfRatings: 0,
@@ -581,7 +567,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                     expired: true
                 },
                 expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentExpiredAt',
-                expectedIcon: 'regular-exclamation-triangle'
+                expectedIcon: 'solid-exclamation-circle'
             },
             'should display when a test phase will expire': {
                 storeLicense: {
@@ -598,7 +584,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                     expired: true
                 },
                 expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseExpiredAt',
-                expectedIcon: 'regular-exclamation-circle'
+                expectedIcon: 'solid-exclamation-circle'
             }
         };
 
@@ -608,7 +594,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                     id: 555,
                     name: 'Test extension',
                     label: 'Test extension label',
-                    shortDescription: 'Test extension description',
                     languages: [],
                     rating: null,
                     numberOfRatings: 0,

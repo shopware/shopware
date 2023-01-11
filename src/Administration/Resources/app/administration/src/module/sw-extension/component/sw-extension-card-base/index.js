@@ -58,14 +58,6 @@ export default {
             return this.extension.storeLicense;
         },
 
-        description() {
-            if (this.extension.shortDescription) {
-                return this.extension.shortDescription;
-            }
-
-            return this.extension.description;
-        },
-
         image() {
             if (this.extension.icon) {
                 return this.extension.icon;

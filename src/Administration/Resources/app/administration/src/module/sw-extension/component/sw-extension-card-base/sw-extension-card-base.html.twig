@@ -31,6 +31,7 @@
     {% block sw_extension_card_base_icon %}
     <img
         class="sw-extension-card-base__icon"
+        draggable="false"
         :src="image"
         alt=""
     >
@@ -62,16 +63,6 @@
             {% endblock %}
         </section>
         {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_extension_card_base_info_description %}
-        <section
-            class="sw-extension-card-base__info-description"
-            :title="description"
-        >
-            {{ description }}
-        </section>
-        {% endblock %}
         {% endblock %}
     </div>
     {% endblock %}
@@ -80,26 +71,14 @@
     {% block sw_extension_card_base_meta_info %}
     <div class="sw-extension-card-base__meta-info">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_extension_card_base_meta_info_content %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_extension_card_base_meta_date %}
-        <span v-if="isInstalled">
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.installedLabel') }}
-            {{ dateFilter(extension.installedAt.date, { year: 'numeric' }) }}
-        </span>
-
-        <span v-else-if="extension.storeLicense">
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.purchasedLabel') }}
-            {{ dateFilter(extension.storeLicense.creationDate, { year: 'numeric' }) }}
-        </span>
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_meta_info_version %}
         <section>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_card_base_meta_info_version_label %}
-            <span v-if="extension.version">
+            <span
+                v-if="extension.version"
+                class="sw-extension-card-base__meta-info-version"
+            >
                 {{ $tc('sw-extension.my-extensions.listing.version') }}: {{ extension.version }}
             </span>
             {% endblock %}
@@ -117,6 +96,21 @@
             {% endblock %}
         </section>
         {% endblock %}
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_extension_card_base_meta_info_content %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_extension_card_base_meta_date %}
+        <span v-if="isInstalled">
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.installedLabel') }}
+            {{ dateFilter(extension.installedAt.date, { month: 'numeric', year: 'numeric', hour: undefined, minute: undefined }) }}
+        </span>
+
+        <span v-else-if="extension.storeLicense">
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.purchasedLabel') }}
+            {{ dateFilter(extension.storeLicense.creationDate, { month: 'numeric', year: 'numeric', hour: undefined, minute: undefined }) }}
+        </span>
         {% endblock %}
     </div>
     {% endblock %}

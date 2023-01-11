@@ -41,18 +41,11 @@
         :class="subscriptionExpiredTextClasses"
     >
         <sw-icon
-            v-if="isExpiredTestPhase"
-            name="regular-exclamation-circle"
+            v-if="isExpiredTestPhase || isExpiredRent"
+            name="solid-exclamation-circle"
             size="14"
             small
         />
-        <sw-icon
-            v-else-if="isExpiredRent"
-            name="regular-exclamation-triangle"
-            size="14"
-            small
-        />
-
         {{ subscriptionExpiredText }}
     </span>
     {% endblock %}

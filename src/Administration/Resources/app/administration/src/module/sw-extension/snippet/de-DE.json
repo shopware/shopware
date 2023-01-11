@@ -249,10 +249,10 @@
       "sw-extension-card-base": {
         "subscriptionLabel": "Miete:",
         "inactiveLabel": "(inaktiv)",
-        "purchasedLabel": "Gekauft am ",
-        "installedLabel": "Installiert am ",
-        "openExtensionLabel": "App öffnen",
-        "installExtensionLabel": "App installieren",
+        "purchasedLabel": "Gekauft:",
+        "installedLabel": "Installiert:",
+        "openExtensionLabel": "Öffnen",
+        "installExtensionLabel": "Installieren",
         "labelAcceptAndInstall": "Akzeptieren und installieren",
         "allowDisableTooltip": "Diese App verwendet eigene Datenstrukturen, die sich auf Ihr System auswirken. Die App kann daher nicht deaktiviert werden.",
         "contextMenu": {

@@ -157,6 +157,7 @@ class CachedCategoryRoute extends AbstractCategoryRoute
         }
 
         $ids = [];
+        $streamIds = [];
 
         $slots = $page->getElementsOfType('product-slider');
         /** @var CmsSlotEntity $slot */
@@ -165,6 +166,10 @@ class CachedCategoryRoute extends AbstractCategoryRoute
 
             if (!$slider instanceof ProductSliderStruct) {
                 continue;
+            }
+
+            if ($slider->getStreamId() !== null) {
+                $streamIds[] = $slider->getStreamId();
             }
 
             if ($slider->getProducts() === null) {
@@ -196,6 +201,7 @@ class CachedCategoryRoute extends AbstractCategoryRoute
 
         return array_merge(
             array_map([EntityCacheKeyGenerator::class, 'buildProductTag'], $ids),
+            array_map([EntityCacheKeyGenerator::class, 'buildStreamTag'], $streamIds),
             [EntityCacheKeyGenerator::buildCmsTag($page->getId())]
         );
     }

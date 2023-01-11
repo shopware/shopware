@@ -10,7 +10,7 @@ import type { Cart, SalesChannelContext } from '../../order.types';
 const { Component, Mixin } = Shopware;
 
 /**
- * @private since v6.5.0
+ * @private
  */
 export default Component.wrapComponentConfig({
     template,

@@ -231,7 +231,7 @@ export default {
             const adminLocaleLanguage = Shopware.State.getters.adminLocaleLanguage;
 
             // get all available languages in "apexcharts/dist/locales/**.json"
-            const languageFiles = require.context('../../../../../node_modules/apexcharts/dist/locales', false, /.json/);
+            const languageFiles = require.context('apexcharts/dist/locales', false, /.json/);
 
             // change string from "./en.json" to "en"
             const allowedLocales = languageFiles.keys()

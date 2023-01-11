@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Currency;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
@@ -40,21 +39,7 @@ class CurrencyFormatter
         $formatter = $this->getFormatter($locale, \NumberFormatter::CURRENCY);
         $formatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
 
-        if (Feature::isActive('FEATURE_NEXT_15053')) {
-            return (string) $formatter->formatCurrency($price, $currency);
-        }
-
-        /**
-         * @depretacted tag:v6.5.0 - DocumentService::GENERATING_PDF_STATE is removed - block should be removed with FEATURE_NEXT_15053
-         */
-        if (!$context->hasState(/*DocumentService::GENERATING_PDF_STATE*/ 'generating-pdf')) {
-            return (string) $formatter->formatCurrency($price, $currency);
-        }
-
-        $string = htmlentities((string) $formatter->formatCurrency($price, $currency), \ENT_COMPAT, 'utf-8');
-        $content = str_replace('&nbsp;', ' ', $string);
-
-        return html_entity_decode($content);
+        return (string) $formatter->formatCurrency($price, $currency);
     }
 
     private function getFormatter(string $locale, int $format): \NumberFormatter

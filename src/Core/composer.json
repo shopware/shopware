@@ -58,7 +58,7 @@
         "doctrine/annotations": "^1.14",
         "doctrine/dbal": "^3.5",
         "doctrine/inflector": "^2.0",
-        "shopwarelabs/dompdf": "1.0.3",
+        "dompdf/dompdf": "2.0.1",
         "tecnickcom/tcpdf": "6.6.1",
         "setasign/fpdi": "2.3.6",
         "ezyang/htmlpurifier": "~4.16",

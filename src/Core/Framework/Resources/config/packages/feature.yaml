@@ -12,11 +12,6 @@ shopware:
         major: false
         description: "Disables the cart.container function"
         # issue: NEXT-19501
-      - name: FEATURE_NEXT_15053
-        default: false
-        major: false
-        description: "Replace wrong displayed characters in number format"
-        # issue: NEXT-15053
       - name: FEATURE_NEXT_18215
         default: false
         major: true

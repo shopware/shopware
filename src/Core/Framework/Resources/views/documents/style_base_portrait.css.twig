@@ -8,12 +8,12 @@
         }
 
         .letter-header {
-            position: absolute;
-            top: -100px;
+            position: relative;
+            height: 80px;
         }
 
         .letter-body {
-            margin-top: 150px;
+            clear: right;
         }
 
         div.page_break {
@@ -57,8 +57,12 @@
         }
 
         .logo {
-            width: 30%;
+            position: absolute;
+            top: 0;
+            left: 0;
             max-height: 150px;
+            width: auto;
+            clear: right;
         }
 
         /* Document title */
@@ -68,14 +72,16 @@
 
         /* Sender info section (top right) */
         .sender-address-container {
-            top: 0;
-            right: 0;
             position: absolute;
+            right: 0;
+            bottom: 0;
         }
 
         /* Receipt address section */
         .recipient-address-container {
-            margin-top: 100px;
+            position: absolute;
+            left: 0;
+            bottom: 0;
         }
 
         /* Line item section */
@@ -214,6 +220,10 @@
             page-break-inside: avoid;
         }
 
+        .shipping-address-container .bold {
+            margin: 0;
+        }
+
         .page-count {
             width: 100%;
             float: left;
@@ -237,14 +247,11 @@
         /* Footer */
         footer {
             position: fixed;
-            bottom: 50px;
+            bottom: 30px;
             font-size: 8px;
             padding-top: 30px;
             line-height: 9px;
-        }
-
-        footer:after {
-            clear: both;
+            width: 100%;
         }
 
         footer > ul {
@@ -253,7 +260,6 @@
             float: left;
             list-style-type: none;
             margin: 0;
-            height: 100px;
         }
 
         footer > ul:first-child {

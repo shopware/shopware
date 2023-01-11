@@ -15,13 +15,17 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const WebpackCopyAfterBuildPlugin = require('@shopware-ag/webpack-copy-after-build');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const WebpackDynamicPublicPathPlugin = require("webpack-dynamic-public-path");
+const WebpackDynamicPublicPathPlugin = require('webpack-dynamic-public-path');
 const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
 const crypto = require('crypto');
 
-/** HACK: OpenSSL 3 does not support md4 any more,
+if (process.env.IPV4FIRST) {
+    require('dns').setDefaultResultOrder('ipv4first');
+}
+
+/** HACK: OpenSSL 3 does not support md4 anymore,
 * but webpack hardcodes it all over the place: https://github.com/webpack/webpack/issues/13572
 */
 const cryptoOrigCreateHash = crypto.createHash;
@@ -643,7 +647,7 @@ const coreConfig = {
 
 /**
  * We iterate through all activated plugins and create a separate webpack configuration for each plugin. We use the
- * base configuration for this. Additionally we allow plugin developers to extend or modify their webpack configuration
+ * base configuration for this. Additionally, we allow plugin developers to extend or modify their webpack configuration
  * when needed.
  *
  * The entry file and the output will be defined for each plugin so that the generated files are in the correct folders.

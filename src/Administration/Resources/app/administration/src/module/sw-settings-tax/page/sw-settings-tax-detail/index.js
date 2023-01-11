@@ -161,21 +161,6 @@ export default {
             });
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         */
-        saveAndReload() {
-            this.$emit('loading-change', true);
-            return this.taxRepository.save(this.tax, this.apiContext).then(() => {
-                return this.reloadEntityData();
-            }).catch((error) => {
-                this.$emit('error', error);
-            }).finally(() => {
-                this.$emit('loading-change', false);
-                return Promise.resolve();
-            });
-        },
-
         onSave() {
             this.isSaveSuccessful = false;
             this.isLoading = true;

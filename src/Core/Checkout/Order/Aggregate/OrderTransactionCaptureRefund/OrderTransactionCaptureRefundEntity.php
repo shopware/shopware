@@ -26,8 +26,6 @@ class OrderTransactionCaptureRefundEntity extends Entity
 
     protected ?string $reason = null;
 
-    protected float $totalAmount;
-
     protected CalculatedPrice $amount;
 
     protected ?StateMachineStateEntity $stateMachineState = null;
@@ -74,16 +72,6 @@ class OrderTransactionCaptureRefundEntity extends Entity
     public function setReason(?string $reason): void
     {
         $this->reason = $reason;
-    }
-
-    public function getTotalAmount(): float
-    {
-        return $this->totalAmount;
-    }
-
-    public function setTotalAmount(float $totalAmount): void
-    {
-        $this->totalAmount = $totalAmount;
     }
 
     public function getAmount(): CalculatedPrice

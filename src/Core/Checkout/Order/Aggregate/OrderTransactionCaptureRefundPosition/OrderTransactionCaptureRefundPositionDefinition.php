@@ -11,8 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -67,7 +65,6 @@ class OrderTransactionCaptureRefundPositionDefinition extends EntityDefinition
             (new StringField('reason', 'reason'))->addFlags(new ApiAware()),
             (new IntField('quantity', 'quantity'))->addFlags(new ApiAware()),
             (new CalculatedPriceField('amount', 'amount'))->addFlags(new ApiAware(), new Required()),
-            (new FloatField('refundPrice', 'refundPrice'))->addFlags(new ApiAware(), new Runtime()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }

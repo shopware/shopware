@@ -25,8 +25,6 @@ class OrderTransactionCaptureRefundPositionEntity extends Entity
 
     protected int $quantity;
 
-    protected float $refundPrice;
-
     protected ?string $externalReference = null;
 
     protected CalculatedPrice $amount;
@@ -73,16 +71,6 @@ class OrderTransactionCaptureRefundPositionEntity extends Entity
     public function setQuantity(int $quantity): void
     {
         $this->quantity = $quantity;
-    }
-
-    public function getRefundPrice(): float
-    {
-        return $this->refundPrice;
-    }
-
-    public function setRefundPrice(float $refundPrice): void
-    {
-        $this->refundPrice = $refundPrice;
     }
 
     public function getExternalReference(): ?string

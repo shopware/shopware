@@ -24,8 +24,6 @@ class OrderTransactionCaptureEntity extends Entity
 
     protected ?string $externalReference = null;
 
-    protected float $totalAmount;
-
     protected CalculatedPrice $amount;
 
     protected ?OrderTransactionEntity $transaction = null;
@@ -62,16 +60,6 @@ class OrderTransactionCaptureEntity extends Entity
     public function setExternalReference(?string $externalReference): void
     {
         $this->externalReference = $externalReference;
-    }
-
-    public function getTotalAmount(): float
-    {
-        return $this->totalAmount;
-    }
-
-    public function setTotalAmount(float $totalAmount): void
-    {
-        $this->totalAmount = $totalAmount;
     }
 
     public function getAmount(): CalculatedPrice

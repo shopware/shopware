@@ -4,14 +4,10 @@
 module.exports = {
     presets: [
         ['@babel/preset-env', {
-            "targets": "> 1%, IE 11, not dead",
-            'useBuiltIns': 'entry',
-            'corejs': 2,
+            useBuiltIns: 'entry',
+            corejs: '3.27',
+            bugfixes: true,
         }],
         '@babel/preset-typescript',
-    ],
-    plugins: [
-        '@babel/plugin-proposal-class-properties',
-        '@babel/plugin-transform-object-assign',
-    ],
+    ]
 };

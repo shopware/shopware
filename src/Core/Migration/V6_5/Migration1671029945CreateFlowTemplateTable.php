@@ -19,7 +19,7 @@ class Migration1671029945CreateFlowTemplateTable extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `flow_template` (
                 `id`                    BINARY(16)      NOT NULL,
                 `name`                  VARCHAR(255)    COLLATE utf8mb4_unicode_ci  NOT NULL,

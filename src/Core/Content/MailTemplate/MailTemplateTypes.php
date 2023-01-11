@@ -80,4 +80,6 @@ class MailTemplateTypes
     public const MAILTYPE_STATE_ENTER_ORDER_STATE_COMPLETED = 'order.state.completed';
 
     public const MAILTYPE_CONTACT_FORM = 'contact_form';
+
+    public const MAILTYPE_REVIEW_FORM = 'review_form';
 }

@@ -172,6 +172,12 @@
             <tag name="flow.storer"/>
         </service>
 
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ProductStorer">
+            <argument type="service" id="product.repository"/>
+
+            <tag name="flow.storer"/>
+        </service>
+
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer">
             <argument type="service" id="customer.repository"/>
 
@@ -215,6 +221,10 @@
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ContactFormDataStorer">
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ReviewFormDataStorer">
             <tag name="flow.storer"/>
         </service>
 

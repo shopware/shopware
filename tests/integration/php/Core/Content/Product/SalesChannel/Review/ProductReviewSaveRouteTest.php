@@ -1,17 +1,23 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Product\SalesChannel\Review;
+namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Review;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -22,6 +28,7 @@ class ProductReviewSaveRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
+    use EventDispatcherBehaviour;
 
     private KernelBrowser $browser;
 
@@ -48,7 +55,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
         static::assertEquals(403, $response->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertEquals($response['errors'][0]['code'], 'CHECKOUT__CUSTOMER_NOT_LOGGED_IN');
     }
@@ -65,7 +72,7 @@ class ProductReviewSaveRouteTest extends TestCase
         ]);
 
         $response = $this->browser->getResponse();
-        $content = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertEquals(204, $response->getStatusCode(), print_r($content, true));
 
@@ -86,7 +93,7 @@ class ProductReviewSaveRouteTest extends TestCase
         ]);
 
         $response = $this->browser->getResponse();
-        $content = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertEquals(204, $response->getStatusCode(), print_r($content, true));
 
@@ -110,7 +117,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
         static::assertEquals(400, $response->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertEquals($response['errors'][0]['source']['pointer'], '/title');
         static::assertEquals($response['errors'][1]['source']['pointer'], '/content');
@@ -144,9 +151,48 @@ class ProductReviewSaveRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-        $content = json_decode($response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true);
 
         static::assertSame('VIOLATION::ENTITY_DOES_NOT_EXISTS', $content['errors'][0]['code']);
+    }
+
+    public function testMailIsSent(): void
+    {
+        $customerId = $this->createCustomer();
+        $salesChannelContext = $this->createSalesChannelContext([], [
+            SalesChannelContextService::CUSTOMER_ID => $customerId,
+        ]);
+
+        /** @var EventDispatcherInterface $dispatcher */
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $caughtEvent = null;
+        $this->addEventListener(
+            $dispatcher,
+            MailBeforeSentEvent::class,
+            static function (MailBeforeSentEvent $event) use (&$caughtEvent): void {
+                $caughtEvent = $event;
+            }
+        );
+
+        $data = new RequestDataBag([
+            'title' => 'Lorem ipsum dolor sit amet',
+            'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+            'points' => 3,
+        ]);
+        $this->getContainer()->get(ProductReviewSaveRoute::class)->save(
+            $this->ids->get('product'),
+            $data,
+            $salesChannelContext
+        );
+
+        $this->resetEventDispatcher();
+
+        static::assertInstanceOf(MailBeforeSentEvent::class, $caughtEvent);
+        $bodyText = $caughtEvent->getMessage()->getTextBody();
+        $bodyText = \is_string($bodyText) ? $bodyText : '';
+        static::assertStringContainsString($data->get('title'), $bodyText);
+        static::assertStringContainsString($data->get('content'), $bodyText);
+        static::assertStringContainsString($this->ids->get('unique-name'), $bodyText);
     }
 
     private function assertReviewCount(int $expected): void
@@ -164,7 +210,7 @@ class ProductReviewSaveRouteTest extends TestCase
             'id' => $this->ids->create('product'),
             'manufacturer' => ['id' => $this->ids->create('manufacturer-'), 'name' => 'test-'],
             'productNumber' => $this->ids->get('product'),
-            'name' => 'test',
+            'name' => $this->ids->get('unique-name'),
             'stock' => 10,
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
@@ -191,7 +237,7 @@ class ProductReviewSaveRouteTest extends TestCase
             ->update($update, Context::createDefaultContext());
     }
 
-    private function getUrl()
+    private function getUrl(): string
     {
         return '/store-api/product/' . $this->ids->get('product') . '/review';
     }

@@ -284,6 +284,7 @@
       "order": "Bestellung",
       "paymentMethod": "Zahlungsart",
       "contactForm": "Kontaktformular",
+      "reviewForm": "Produktbewertung",
       "group": "Gruppe",
       "recovery": "Wiederherstellung",
       "registration": "Registrierung",

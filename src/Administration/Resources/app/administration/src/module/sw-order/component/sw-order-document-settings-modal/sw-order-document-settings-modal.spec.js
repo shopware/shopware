@@ -121,7 +121,6 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should show file or hide custom document file when toggling Upload custom document', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         const wrapper = await createWrapper();
         const inputUploadCustomDoc = wrapper.find('input[name="sw-field--uploadDocument"]');
 
@@ -132,7 +131,6 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should emit `create` event when click on Create button', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         const wrapper = await createWrapper();
 
         const createButton = wrapper.find('.sw-order-document-settings-modal__create');
@@ -142,7 +140,6 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should emit `document-create` event when click on Create and send button', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         const wrapper = await createWrapper();
 
         const createAndSendButton = wrapper.find('.sw-order-document-settings-modal__send-button');
@@ -153,7 +150,6 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should emit `document-create` event when click on Create and download button', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         const wrapper = await createWrapper();
 
         const createAndSendButton = wrapper.find('.sw-order-document-settings-modal__download-button');
@@ -196,7 +192,6 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should able to show modal title responding to document type', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         const wrapper = await createWrapper();
 
         await wrapper.setProps({

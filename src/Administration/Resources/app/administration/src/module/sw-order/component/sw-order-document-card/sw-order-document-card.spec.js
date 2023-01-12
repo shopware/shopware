@@ -221,7 +221,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     let wrapper;
 
     beforeEach(async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         wrapper = await createWrapper();
     });
 
@@ -445,7 +444,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show attach column when attachView is true', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -467,7 +465,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show card filter when order has document', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         wrapper = await createWrapper();
         expect(wrapper.find('.sw-card-filter').exists()).toBeFalsy();
 
@@ -489,7 +486,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should change sent status when click on "Mark as unsent" context menu', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -513,7 +509,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should change sent status when click on "Mark as sent" context menu', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -540,7 +535,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show Send mail modal when choosing option Create and send in Create document modal ', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         wrapper = await createWrapper([
             'order.editor'
         ]);
@@ -566,7 +560,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should call dowloadDocument method when choosing option Create and download in Create document modal', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         wrapper = await createWrapper([
             'order.editor'
         ]);

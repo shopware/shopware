@@ -146,7 +146,6 @@ describe('sw-order-document-settings-credit-note-modal', () => {
     let wrapper;
 
     beforeEach(async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         wrapper = await createWrapper();
         await flushPromises();
     });

@@ -29,17 +29,10 @@ describe('Customer:  Edit in various ways', () => {
         cy.get('.sw-customer-detail__tab-order').click();
         cy.get('.sw-empty-state .sw-customer-detail-order__add-order-action').click();
 
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-user-card').should('be.visible');
-            cy.get('.sw-order-create-details-header .sw-entity-single-select').contains('Pep Eroni');
-        });
+        cy.get('.sw-order-create-initial-modal').should('be.visible');
+        cy.get('.sw-order-customer-grid').should('be.visible');
 
-        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-create-initial-modal').should('be.visible');
-            cy.get('.sw-order-customer-grid').should('be.visible');
-
-            cy.get('.sw-loader').should('not.exist');
-            cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--firstName').contains('Pep Eroni');
-        });
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--firstName').contains('Pep Eroni');
     });
 });

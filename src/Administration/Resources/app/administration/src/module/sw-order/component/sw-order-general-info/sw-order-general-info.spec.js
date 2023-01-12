@@ -148,7 +148,6 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
     });
 
     beforeEach(async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         global.repositoryFactoryMock.showError = false;
         wrapper = await createWrapper();
         await flushPromises();

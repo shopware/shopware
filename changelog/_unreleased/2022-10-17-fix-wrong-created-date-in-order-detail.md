@@ -1,7 +1,6 @@
 ---
 title: Fix wrong created date in order detail
 issue: NEXT-18605
-flag: FEATURE_NEXT_7530
 ---
 # Administration
 * Changed in `order.types.ts`

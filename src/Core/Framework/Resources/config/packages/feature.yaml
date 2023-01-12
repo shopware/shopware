@@ -118,11 +118,6 @@ shopware:
         major: true
         description: "Remove page_product_detail_not_available and buy_widget_not_available block"
         # issue: NEXT-16992
-      - name: FEATURE_NEXT_7530
-        default: false
-        major: true
-        description: "Improve orders UX in Administration"
-        # issue: NEXT-7530
       - name: FEATURE_NEXT_16824
         default: false
         major: true

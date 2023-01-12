@@ -18,6 +18,8 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_users_permissions_smart_bar_actions %}
     <template #smart-bar-actions>
         <sw-button-process
             variant="primary"
@@ -30,6 +32,7 @@
             {{ $tc('global.default.save') }}
         </sw-button-process>
     </template>
+    {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_users_permissions_content %}

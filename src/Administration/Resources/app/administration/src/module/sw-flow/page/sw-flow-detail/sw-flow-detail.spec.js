@@ -168,6 +168,14 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
                 invalidSequences: []
             }
         });
+
+        Shopware.Service().register('flowBuilderService', () => {
+            return {
+                rearrangeArrayObjects: (sequences) => {
+                    return sequences;
+                }
+            };
+        });
     });
 
     it('should not be able to save a flow', async () => {
@@ -321,14 +329,14 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         await flushPromises();
 
         const sequences = [
-            { id: '900a915617054a5b8acbfda1a35831fa', parentId: 'd2b3a82c22284566b6a56fb47d577bfd' },
             { id: 'd2b3a82c22284566b6a56fb47d577bfd', parentId: null },
+            { id: '900a915617054a5b8acbfda1a35831fa', parentId: 'd2b3a82c22284566b6a56fb47d577bfd' },
             { id: 'f1beccf9c40244e6ace2726d2afc476c', parentId: '900a915617054a5b8acbfda1a35831fa' },
         ];
 
         jest.spyOn(Shopware.Utils, 'createId')
-            .mockReturnValueOnce('900a915617054a5b8acbfda1a35831fa_new')
             .mockReturnValueOnce('d2b3a82c22284566b6a56fb47d577bfd_new')
+            .mockReturnValueOnce('900a915617054a5b8acbfda1a35831fa_new')
             .mockReturnValueOnce('f1beccf9c40244e6ace2726d2afc476c_new');
 
         expect(JSON.stringify(wrapper.vm.buildSequencesFromConfig(sequences))).toEqual(JSON.stringify(getSequencesCollection([

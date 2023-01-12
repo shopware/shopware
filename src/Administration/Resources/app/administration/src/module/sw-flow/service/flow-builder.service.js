@@ -56,6 +56,7 @@ export default function flowBuilderService() {
         convertEntityName,
         mapActionType,
         getAvailableEntities,
+        rearrangeArrayObjects,
     };
 
     function getActionTitle(actionName) {
@@ -169,5 +170,48 @@ export default function flowBuilderService() {
         });
 
         return entities;
+    }
+
+    function flattenNodeList(parent, arrayResult) {
+        arrayResult.push(parent);
+
+        if (parent.children.length === 0) {
+            return;
+        }
+
+        parent.children.forEach(child => {
+            flattenNodeList(child, arrayResult);
+        });
+    }
+
+    function rearrangeArrayObjects(items) {
+        const itemsKeyMapping = items.reduce((map, item) => {
+            map[item.id] = item;
+            map[item.id].children = [];
+
+            return map;
+        }, {});
+
+        const itemsNodeList = [];
+        items.forEach((item) => {
+            if (!item.parentId) {
+                itemsNodeList.push(item);
+            } else {
+                const parentNode = itemsKeyMapping[item.parentId];
+                parentNode.children.push(item);
+            }
+        });
+
+        const arrayResult = [];
+        itemsNodeList.forEach(node => {
+            flattenNodeList(node, arrayResult);
+        });
+
+        arrayResult.forEach(item => {
+            item.children = [];
+            return item;
+        });
+
+        return arrayResult;
     }
 }

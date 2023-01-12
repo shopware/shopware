@@ -3,7 +3,7 @@ import './sw-flow-detail.scss';
 
 import { ACTION } from '../../constant/flow.constant';
 
-const { Component, Mixin, Context, State, Utils } = Shopware;
+const { Component, Mixin, Context, State, Utils, Service } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 const { mapState, mapGetters, mapPropertyErrors } = Component.getComponentHelper();
@@ -554,7 +554,7 @@ Component.register('sw-flow-detail', {
                 }
             }
 
-            sequences = this.rearrangeSequences(sequences);
+            sequences = Service('flowBuilderService').rearrangeArrayObjects(sequences);
 
             return new EntityCollection(
                 this.flowSequenceRepository.source,
@@ -565,6 +565,9 @@ Component.register('sw-flow-detail', {
             );
         },
 
+        /**
+         * @deprecated tag:v6.6.0 will be removed. use rearrangeArrayObjects in flowBuilderService instead
+         */
         rearrangeSequences(sequences) {
             return sequences.reduce((accumulator, currentSequence) => {
                 const parent = accumulator.find(x => x.id === currentSequence.parentId);

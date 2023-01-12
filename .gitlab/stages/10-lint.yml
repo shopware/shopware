@@ -211,8 +211,9 @@ PHP static analysis:
     cache:
       - <<: *phpstan-vendor
         policy: pull
-      - <<: *phpstan-result-cache
-        policy: pull
+      # TODO: NEXT-24909 enable caching again
+      #- <<: *phpstan-result-cache
+      #  policy: pull
     before_script:
         - composer update --no-interaction
         - composer update

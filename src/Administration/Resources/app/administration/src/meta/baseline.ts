@@ -404,7 +404,6 @@ const missingTests = [
     'bulk-edit-customer.handler.js',
     'bulk-edit-order.handler.js',
     'sw-category-entry-point-overwrite-modal/index.js',
-    'sw-category-sales-channel-card/index.js',
     'sw-category-sales-channel-multi-select/index.js',
     'sw-category-view/index.js',
     'sw-landing-page-view/index.js',

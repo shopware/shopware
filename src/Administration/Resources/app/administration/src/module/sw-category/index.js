@@ -11,7 +11,6 @@ Shopware.Component.register('sw-category-tree', () => import('./component/sw-cat
 Shopware.Component.register('sw-landing-page-tree', () => import('./component/sw-landing-page-tree'));
 Shopware.Component.register('sw-landing-page-view', () => import('./component/sw-landing-page-view'));
 Shopware.Component.register('sw-category-view', () => import('./component/sw-category-view'));
-Shopware.Component.register('sw-category-sales-channel-card', () => import('./component/sw-category-sales-channel-card'));
 Shopware.Component.register('sw-category-link-settings', () => import('./component/sw-category-link-settings'));
 Shopware.Component.register('sw-category-layout-card', () => import('./component/sw-category-layout-card'));
 Shopware.Component.register('sw-category-detail-menu', () => import('./component/sw-category-detail-menu'));

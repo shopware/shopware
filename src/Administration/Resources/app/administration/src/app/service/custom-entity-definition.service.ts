@@ -70,7 +70,7 @@ export type CustomEntityProperties = {
     [key: string]: {
         flags: Array<unknown>,
         type: string
-    },
+    } | undefined,
 }
 
 /**

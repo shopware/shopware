@@ -262,6 +262,11 @@ Component.register('sw-search-bar', {
                 type = this.currentSearchType;
             }
 
+            if (type.startsWith('custom_entity_') || type.startsWith('ce_')) {
+                const snippetKey = `${type}.moduleTitle`;
+                return this.$te(snippetKey) ? this.$tc(snippetKey) : type;
+            }
+
             if (!this.$te((`global.entities.${type}`))) {
                 return this.currentSearchType;
             }

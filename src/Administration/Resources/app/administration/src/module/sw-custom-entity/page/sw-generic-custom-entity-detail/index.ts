@@ -69,7 +69,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         titlePropertyName(): string|undefined {
-            return this.detailTabs?.[0]?.cards?.[0].fields?.[0].ref;
+            return this.detailTabs?.[0]?.cards?.[0].fields?.[0]?.ref;
         },
     },
 
@@ -115,13 +115,13 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             if (!this.customEntityDataId) {
-                this.customEntityData = this.customEntityDataRepository.create(Shopware.Context.api);
+                this.customEntityData = this.customEntityDataRepository.create();
                 this.isLoading = false;
 
                 return Promise.resolve();
             }
 
-            return this.customEntityDataRepository.get(this.customEntityDataId, Shopware.Context.api).then((data) => {
+            return this.customEntityDataRepository.get(this.customEntityDataId).then((data) => {
                 this.customEntityData = data;
             }).finally(() => {
                 this.isLoading = false;
@@ -184,7 +184,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getType(field: string): string {
-            return this.customEntityProperties?.[field].type || '';
+            return this.customEntityProperties?.[field]?.type || '';
         },
 
         updateCmsPageId(cmsPageId: string | null): void {

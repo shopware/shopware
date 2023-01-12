@@ -70,8 +70,8 @@
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        @change="onChange">
-    </sw-email-field>-->
+        @change="onChange"
+    />-->
 
     <!-- ToDo NEXT-22874 - Implement json field -->
     <!--<sw-????
@@ -81,8 +81,8 @@
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        @change="onChange">
-    </sw-????>-->
+        @change="onChange"
+    />-->
 
     <!-- ToDo NEXT-22874 - Implement price-field verification to entity_schema  -->
     <!--<sw-price-field
@@ -92,11 +92,15 @@
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        @change="onChange">
-    </sw-price-field>-->
+        @change="onChange"
+    />-->
 
     <!-- ToDo NEXT-22874 - Remove after Debug -->
-    <div v-else>
-        {{ `${type}: ${label} not found` }}
-    </div>
+    <sw-text-field
+        v-else
+        class="sw-custom-entity-input-field__undefined"
+        :label="label"
+        :error="{ code: 'CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE' }"
+        disabled
+    />
 </div>

@@ -1,0 +1,34 @@
+shopware.update:
+    header_title: Installation
+    back: Back
+    navigation:
+        configure_php: PHP Konfigurieren
+        download: Herunterladen
+        finish: Fertig
+    steps:
+        configure_php:
+            title: Configure PHP executable
+            pathInput: PHP Binary
+            submit: Save configuration
+        update:
+            title: Updating Shopware to %latestShopwareVersion%
+            log: Log
+            backupHint: Make sure you have created a Backup before updating
+            submit: Update Shopware
+            foundInstallation: 'Found a Shopware Installation at: %shopwarePath%'
+            currentVersion: 'Current Version: %version%'
+            latestVersion: 'Latest Version: %version%'
+        finish:
+            title: Finish
+            message: |
+                The recovery process has been completed.
+
+                The next step will remove the recovery files from the server and redirect to the Shopware Administration.
+            submit: Open Administration
+        install:
+            title: Install Shopware
+            info: This will install Shopware 6 into the directory named <strong>shopware</strong>.
+            after_install: After installation you should switch your Document Root to the new created <strong>shopware</strong> directory.
+            log: Log
+            installation_failed: Installation failed
+            submit: Install

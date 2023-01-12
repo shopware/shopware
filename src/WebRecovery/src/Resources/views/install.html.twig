@@ -1,29 +1,26 @@
 {% extends "base.html.twig" %}
 
 {% block main %}
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">Install Shopware</h5>
-
-            <p>
-                This will install Shopware 6 into the directory named <strong>shopware</strong>.
-            </p>
-
-            <div class="alert alert-info" role="alert">
-                After installation you should switch your Document Root to the new created <strong>shopware</strong> directory.
-            </div>
-
-            <button class="btn btn-primary" id="install-start">Install</button>
-        </div>
+    <div class="card__title">
+        <h2>{{ 'shopware.update.steps.install.title'|trans }}</h2>
     </div>
 
-    <div class="card mt-4" id="install-log-card" style="display: none">
-        <div class="card-body">
-            <h5 class="card-title">Log</h5>
+    <div class="card__body">
+        <p>
+            {{ 'shopware.update.steps.install.info'|trans|raw }}
+        </p>
 
-            <div class="alert alert-danger" style="display: none" id="install-log-error">Installation failed</div>
-
-            <pre id="install-log-output" class="form-control" style="height: 60vh;"></pre>
+        <div class="alert alert-info" role="alert">
+            {{ 'shopware.update.steps.install.after_install'|trans|raw }}
         </div>
+
+        <div class="alert alert-error" id="log-error" style="display: none">{{ 'shopware.update.steps.install.error'|trans|raw }}</div>
+
+        <pre class="form-control" id="update-log-output" style="height: 60vh; display: none;"></pre>
+    </div>
+
+    <div class="card__footer flex-container">
+        <a class="btn flex-item flex-left" href="{{ url('configure') }}">{{ 'shopware.update.back'|trans }}</a>
+        <button type="submit" class="btn btn-primary flex-item flex-right" id="install-start">{{ 'shopware.update.steps.install.submit'|trans }}</button>
     </div>
 {% endblock %}

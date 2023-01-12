@@ -52,6 +52,9 @@ describe('Minimal auto update', () => {
         cy.wait('@unpack', { responseTimeout: 600000, timeout: 600000 })
             .its('response.statusCode').should('equal', 200);
 
+        cy.get('.welcome-title').contains('Welcome');
+        cy.get('.btn-primary').click();
+
         cy.get('.card__title').contains('Configure PHP executable');
         cy.get('.btn-primary').click();
 

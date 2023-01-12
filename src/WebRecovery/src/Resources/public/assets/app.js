@@ -9,17 +9,21 @@ async function tailLog(response, element) {
 
         const text = decoder.decode(value);
 
-        try {
-            const result = JSON.parse(text.split("\n").pop());
+        let result = null
 
+        try {
+            result = JSON.parse(text.split("\n").pop());
+        } catch (e) {
+            element.innerHTML += text;
+            element.scrollTop = element.scrollHeight;
+        }
+
+        if (result) {
             if (!result.success) {
                 throw new Error('update failed');
             }
 
-            return result;
-        } catch (e) {
-            element.innerHTML += text;
-            element.scrollTop = element.scrollHeight;
+            return result
         }
     }
 
@@ -28,81 +32,115 @@ async function tailLog(response, element) {
 
 const installButton = document.getElementById('install-start');
 const updateButton = document.getElementById('update-start');
+const logCard = document.getElementById('log-card');
+const logOutput = document.getElementById('log-output');
+const logError = document.getElementById('log-error');
 
 if (installButton) {
-    const installLogCard = document.getElementById('install-log-card');
-    const installLogOutput = document.getElementById('install-log-output');
-    const installLogError = document.getElementById('install-log-error');
     installButton.onclick = async function () {
-        installLogCard.style.removeProperty('display');
+        logCard.style.removeProperty('display');
 
         installButton.disabled = true;
 
         const installResponse = await fetch(`${baseUrl}/install/_run`, {method: 'POST'});
 
-        const result = await tailLog(installResponse, installLogOutput);
-        if (result.newLocation) {
-            window.location = result.newLocation;
-        }
-
-        if (!result.success) {
-            installLogError.style.removeProperty('display');
+        try {
+            const result = await tailLog(installResponse, logOutput);
+            if (result.newLocation) {
+                window.location = result.newLocation;
+            }
+        } catch (e) {
+            return showLog();
         }
     }
 }
 
 if (updateButton) {
-    const updateLogCard = document.getElementById('update-log-card');
-    const updateLogOutput = document.getElementById('update-log-output');
-
     updateButton.onclick = async function () {
         updateButton.disabled = true;
-        updateLogCard.style.removeProperty('display');
+        logCard.style.removeProperty('display');
 
         const prepareUpdate = await fetch(`${baseUrl}/update/_prepare`, {method: 'POST'})
         if (prepareUpdate.status !== 200) {
-            updateLogOutput.innerHTML += 'Failed to prepare update' + "\n"
-            return;
+            logOutput.innerHTML += 'Failed to prepare update' + "\n"
+            return showLog();
         } else {
-            await tailLog(prepareUpdate, updateLogOutput);
+            try {
+                await tailLog(prepareUpdate, logOutput);
+            } catch (e) {
+                return showLog();
+            }
         }
 
         if (!isFlexProject) {
-            updateLogOutput.innerHTML += 'Updating to Flex Project' + "\n"
+            logOutput.innerHTML += 'Updating to Flex Project' + "\n"
 
             const migrate = await fetch(`${baseUrl}/update/_migrate-template`, {method: 'POST'})
 
             if (migrate.status !== 204 && migrate.status !== 200) {
-                updateLogOutput.innerHTML += 'Failed to update to Flex Project' + "\n"
-                updateLogCard.innerHTML += await migrate.text();
-                return;
+                logOutput.innerHTML += 'Failed to update to Flex Project' + "\n"
+                logOutput.innerHTML += await migrate.text();
+                return showLog();
             } else {
-                updateLogOutput.innerHTML += 'Updated to Flex Project' + "\n"
+                logOutput.innerHTML += 'Updated to Flex Project' + "\n"
             }
         }
 
         const updateRun = await fetch(`${baseUrl}/update/_run`, {method: 'POST'});
 
-        await tailLog(updateRun, updateLogOutput);
+        try {
+            await tailLog(updateRun, logOutput);
+        } catch (e) {
+            return showLog();
+        }
 
         const resetConfig = await fetch(`${baseUrl}/update/_reset_config`, {method: 'POST'});
 
         if (resetConfig.status !== 200) {
-            updateLogOutput.innerHTML += 'Failed to update config files' + "\n"
-            updateLogOutput.innerHTML += await resetConfig.text();
+            logOutput.innerHTML += 'Failed to update config files' + "\n"
+            logOutput.innerHTML += await resetConfig.text();
         } else {
-            await tailLog(resetConfig, updateLogOutput);
+            try {
+                await tailLog(resetConfig, logOutput);
+            } catch (e) {
+                return showLog();
+            }
         }
 
         const finishUpdate = await fetch(`${baseUrl}/update/_finish`, {method: 'POST'})
         if (finishUpdate.status !== 200) {
-            updateLogOutput.innerHTML += 'Failed to prepare update' + "\n"
-            updateLogOutput.innerHTML += await finishUpdate.text();
+            logOutput.innerHTML += 'Failed to prepare update' + "\n"
+            logOutput.innerHTML += await finishUpdate.text();
         } else {
-            await tailLog(finishUpdate, updateLogOutput);
+            try {
+                await tailLog(finishUpdate, logOutput);
+            } catch (e) {
+                return showLog();
+            }
         }
 
         window.location.href = `${baseUrl}/finish`;
     }
 }
 
+function showLog() {
+    logError.style.removeProperty('display');
+}
+
+const downloadLogButton = document.getElementById('download-log');
+
+if (downloadLogButton) {
+    downloadLogButton.onclick = function () {
+        const text = new Blob([logOutput.innerText], {type: 'text/plain'});
+        const element = document.createElement('a');
+        element.href = URL.createObjectURL(text);
+        element.setAttribute('download', 'log.txt');
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+}

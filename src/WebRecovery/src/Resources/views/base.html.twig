@@ -29,16 +29,20 @@
 
             <nav class="navigation--main">
                 <ul class="navigation--list">
+                    <li class="navigation--entry{% if navigationPosition == '0' %} is--active{% endif %}">
+                        <span class="navigation--link">{{ 'shopware.update.navigation.start'|trans }}</span>
+                    </li>
+
                     <li class="navigation--entry{% if navigationPosition == '1' %} is--active{% endif %}">
-                        <span class="navigation--link">Configure PHP</span>
+                        <span class="navigation--link">{{ 'shopware.update.navigation.configure_php'|trans }}</span>
                     </li>
 
                     <li class="navigation--entry{% if navigationPosition == '2' %} is--active{% endif %}">
-                        <span class="navigation--link">Download</span>
+                        <span class="navigation--link">{{ 'shopware.update.navigation.download'|trans }}</span>
                     </li>
 
                     <li class="navigation--entry{% if navigationPosition == '3' %} is--active{% endif %}">
-                        <span class="navigation--link">Finish</span>
+                        <span class="navigation--link">{{ 'shopware.update.navigation.finish'|trans }}</span>
                     </li>
                 </ul>
             </nav>
@@ -47,7 +51,14 @@
             </section>
         </div>
     </div>
-    <div class="footer-main"></div>
+    <div class="footer-main">
+        <a href="?language=de" class="language-item{% if app.request.locale == "de" %} is--active{% endif %}">
+            DE
+        </a>
+        <a href="?language=en" class="language-item{% if app.request.locale == "en" %} is--active{% endif %}">
+            EN
+        </a>
+    </div>
     <script>
         const baseUrl = '{{ app.request.baseUrl }}';
 

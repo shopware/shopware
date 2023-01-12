@@ -20,7 +20,7 @@ class InstallController extends AbstractController
     ) {
     }
 
-    #[Route('/install', name: 'install')]
+    #[Route('/install', name: 'install', defaults: ['step' => 2])]
     public function index(): Response
     {
         return $this->render('install.html.twig');
@@ -29,10 +29,12 @@ class InstallController extends AbstractController
     #[Route('/install/_run', name: 'install_run', methods: ['POST'])]
     public function run(Request $request): StreamedResponse
     {
-        $finish = function (Process $process) use ($request): void {
+        $folder = $request->query->get('folder', 'shopware');
+
+        $finish = function (Process $process) use ($request, $folder): void {
             echo json_encode([
                 'success' => $process->isSuccessful(),
-                'newLocation' => $request->getBasePath() . '/shopware/public/',
+                'newLocation' => $request->getBasePath() . '/' . $folder . '/public/',
             ]);
         };
 
@@ -45,7 +47,7 @@ class InstallController extends AbstractController
             '--no-interaction',
             '--no-ansi',
             '-v',
-            'shopware',
+            $folder,
         ], $finish);
     }
 }

@@ -1,0 +1,48 @@
+shopware.update:
+    header_title: Installation
+    back: Back
+    language:
+        en: English
+        de: German
+    navigation:
+        start: Start
+        configure_php: Configure PHP
+        download: Download
+        finish: Finish
+    steps:
+        start:
+            title: Shopware Recovery
+            welcomeTitle: Welcome to the Shopware Recovery
+            welcomeMessage: Foooo
+            languageSelection: Recovery wizard language
+            languageSelectionInfo: The language selected here only applies to this recovery wizard. If you like, you can specify another language for your shop later.
+            submit: Continue
+
+        configure_php:
+            title: Configure PHP executable
+            info: We found the PHP Binary automatically on your system. If you want to use another PHP Binary, you can specify it here.
+            pathInput: PHP Binary
+            submit: Save configuration
+        update:
+            title: Updating Shopware to %latestShopwareVersion%
+            log: Log
+            backupHint: Make sure you have created a Backup before updating and not having overridden any configuration files inside "config/packages" folder.
+            submit: Update Shopware
+            currentVersion: 'Current Version: %version%'
+            latestVersion: 'Latest Version: %version%'
+            error: 'Update has been failed. You can download the log file <a href="#" id="download-log">here</a>'
+        finish:
+            title: Finish
+            message: |
+                The recovery process has been completed.
+
+                The next step will remove the recovery files from the server and redirect to the Shopware Administration.
+            submit: Open Administration
+        install:
+            title: Install Shopware
+            info: This will install Shopware 6 into the directory named <strong>shopware</strong>.
+            after_install: After installation you should switch your Document Root to the new created <strong>shopware</strong> directory.
+            log: Log
+            installation_failed: Installation failed
+            submit: Install
+            error: 'Installation has been failed. You can download the log file <a href="#" id="download-log">here</a>'

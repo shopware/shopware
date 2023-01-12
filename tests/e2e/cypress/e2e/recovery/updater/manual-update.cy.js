@@ -18,6 +18,10 @@ describe('Manual update', () => {
 
         // Configure PHP
         cy.visit('/shopware-recovery.phar.php');
+
+        cy.get('.welcome-title').contains('Welcome');
+        cy.get('.btn-primary').click();
+
         cy.get('.card__title').contains('Configure PHP executable');
         cy.get('.btn-primary').click();
 

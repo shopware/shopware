@@ -5,6 +5,7 @@ namespace App\Tests\Controller;
 
 use App\Controller\PhpConfigController;
 use App\Services\PhpBinaryFinder;
+use App\Services\RecoveryManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\Container;
@@ -24,7 +25,7 @@ class PhpConfigControllerTest extends TestCase
 {
     public function testIndex(): void
     {
-        $controller = new PhpConfigController($this->createMock(PhpBinaryFinder::class));
+        $controller = new PhpConfigController($this->createMock(PhpBinaryFinder::class), $this->createMock(RecoveryManager::class));
         $controller->setContainer($this->getContainer());
 
         $request = new Request();
@@ -35,9 +36,9 @@ class PhpConfigControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
-    public function testSetConfig(): void
+    public function testSetConfigOnUpdate(): void
     {
-        $controller = new PhpConfigController($this->createMock(PhpBinaryFinder::class));
+        $controller = new PhpConfigController($this->createMock(PhpBinaryFinder::class), $this->createMock(RecoveryManager::class));
         $controller->setContainer($this->getContainer());
 
         $request = new Request();
@@ -50,7 +51,28 @@ class PhpConfigControllerTest extends TestCase
         static::assertSame('php-test', $request->getSession()->get('phpBinary'));
 
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertSame('index', $response->headers->get('Location'));
+        static::assertSame('update', $response->headers->get('Location'));
+    }
+
+    public function testSetConfigOnInstall(): void
+    {
+        $recoveryManager = $this->createMock(RecoveryManager::class);
+        $recoveryManager->method('getShopwareLocation')->willThrowException(new \RuntimeException('cannot find shopware'));
+
+        $controller = new PhpConfigController($this->createMock(PhpBinaryFinder::class), $recoveryManager);
+        $controller->setContainer($this->getContainer());
+
+        $request = new Request();
+        $request->setMethod(Request::METHOD_POST);
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $request->request->set('phpBinary', 'php-test');
+
+        $response = $controller->index($request);
+
+        static::assertSame('php-test', $request->getSession()->get('phpBinary'));
+
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertSame('install', $response->headers->get('Location'));
     }
 
     private function getContainer(): ContainerInterface

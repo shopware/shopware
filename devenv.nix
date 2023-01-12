@@ -107,10 +107,17 @@
   # General cypress
   env.CYPRESS_baseUrl = lib.mkDefault "http://localhost:8000";
 
-  # Installer testing
+  # Installer/Updater testing
   env.INSTALL_URL = lib.mkDefault "http://localhost:8050";
   env.CYPRESS_dbHost = lib.mkDefault "localhost";
   env.CYPRESS_dbUser = lib.mkDefault "shopware";
   env.CYPRESS_dbPassword = lib.mkDefault "shopware";
   env.CYPRESS_dbName = lib.mkDefault "shopware";
+
+  scripts.build-updater.exec = ''
+      ${pkgs.phpPackages.box}/bin/box compile -d src/WebRecovery
+      mv src/WebRecovery/shopware-recovery.phar.php shop/public/shopware-recovery.phar.php
+  '';
+
+  scripts.watch-updater.exec = "${pkgs.watchexec}/bin/watchexec -i src/WebRecovery/shopware-recovery.phar.php  -eyaml,php,js build-updater";
 }

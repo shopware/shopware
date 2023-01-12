@@ -69,6 +69,7 @@ if ('cli' === \PHP_SAPI || !isset($_SERVER['REQUEST_URI'])) {
             'png' => 'image/png',
             'svg' => 'image/svg+xml',
             'json' => 'application/json',
+            'woff' => 'font/woff',
         ],
         'rewrites',
     );

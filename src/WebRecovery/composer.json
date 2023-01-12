@@ -11,9 +11,10 @@
         "symfony/console": "6.2.*",
         "symfony/dotenv": "6.2.*",
         "symfony/framework-bundle": "6.2.*",
-        "symfony/process": "^6.2",
-        "symfony/twig-bundle": "^6.2",
         "symfony/http-client": "^6.2",
+        "symfony/process": "^6.2",
+        "symfony/translation": "^6.2",
+        "symfony/twig-bundle": "^6.2",
         "symfony/yaml": "6.2.*",
         "twig/twig": "^3.4"
     },
@@ -61,6 +62,10 @@
             "wget -q https://github.com/box-project/box/releases/download/4.2.0/box.phar -O box.phar",
             "@php -d phar.readonly=0 box.phar compile",
             "rm box.phar"
+        ],
+        "build-phar-move": [
+            "@build-phar",
+            "mv shopware-web-recovery.phar shopware-web-recovery"
         ]
     },
     "extra": {

@@ -19,7 +19,7 @@ class PhpConfigForcerListener
     {
         $request = $event->getRequest();
 
-        if ($request->attributes->get('_route') === 'configure' || $request->getSession()->has('phpBinary')) {
+        if (\in_array($request->attributes->get('_route'), ['configure', 'index'], true) || $request->getSession()->has('phpBinary')) {
             return;
         }
 

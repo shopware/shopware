@@ -152,6 +152,7 @@ Component.register('sw-custom-field-set-renderer', {
 
         customFields: {
             handler(customFields) {
+                // eslint-disable-next-line vue/no-mutating-props
                 this.entity.customFields = customFields;
             },
             deep: true,
@@ -394,6 +395,7 @@ Component.register('sw-custom-field-set-renderer', {
                     this.initializeCustomFields();
                     return;
                 }
+                // eslint-disable-next-line vue/no-mutating-props
                 this.entity.customFieldSets = this.entity.customFieldSets.filter(() => {
                     return false;
                 });

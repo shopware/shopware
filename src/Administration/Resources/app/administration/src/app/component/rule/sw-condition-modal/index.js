@@ -76,6 +76,7 @@ Component.register('sw-condition-modal', {
             const childrenToDelete = this.condition[this.childAssociationField].filter((child) => !child.isNew()).getIds();
 
             this.deleteChildren(childrenToDelete, this.condition[this.childAssociationField].context).then(() => {
+                // eslint-disable-next-line vue/no-mutating-props
                 this.condition[this.childAssociationField] = new EntityCollection(
                     this.condition[this.childAssociationField].source,
                     this.condition[this.childAssociationField].entity,
@@ -87,6 +88,7 @@ Component.register('sw-condition-modal', {
 
         saveAndCloseModal() {
             this.deleteChildren(this.deletedIds, this.condition[this.childAssociationField].context).then(() => {
+                // eslint-disable-next-line vue/no-mutating-props
                 this.condition[this.childAssociationField] = this.childConditions;
                 this.closeModal();
             });

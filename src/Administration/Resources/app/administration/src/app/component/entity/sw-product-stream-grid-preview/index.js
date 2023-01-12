@@ -153,8 +153,11 @@ Component.register('sw-product-stream-grid-preview', {
         },
 
         loadProducts() {
+            // eslint-disable-next-line vue/no-mutating-props
             this.criteria.term = this.searchTerm || null;
+            // eslint-disable-next-line vue/no-mutating-props
             this.criteria.filters = [...this.filters];
+            // eslint-disable-next-line vue/no-mutating-props
             this.criteria.limit = this.limit;
             this.criteria.setPage(this.page);
             this.criteria.addAssociation('manufacturer');

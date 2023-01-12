@@ -75,6 +75,7 @@ Component.register('sw-purchase-price-field', {
                 if (priceForCurrency) {
                     priceForCurrency = newPurchasePrice;
                 } else {
+                    // eslint-disable-next-line vue/no-mutating-props
                     this.price.push(newPurchasePrice);
                 }
 

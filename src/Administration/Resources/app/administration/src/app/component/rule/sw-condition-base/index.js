@@ -105,6 +105,7 @@ Component.register('sw-condition-base', {
 
         ensureValueExist() {
             if (typeof this.condition.value === 'undefined' || this.condition.value === null) {
+                // eslint-disable-next-line vue/no-mutating-props
                 this.condition.value = {};
             }
         },

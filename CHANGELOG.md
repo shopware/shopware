@@ -7,6 +7,8 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-24667 - Add twig filter improvements](/changelog/release-6-4-18-1/2022-12-21-add-twig-filter-improvments.md)
 *  [NEXT-24679 - Hide recovery url in log](/changelog/release-6-4-18-1/2022-12-27-hide-recovery-url-in-log.md)
 *  [NEXT-24677 - Implement logout for inactive users](/changelog/release-6-4-18-1/2022-12-29-implement-logout-for-inactive-users.md)
+*  [NEXT-24747 - Add minimum password requirement to admin user](/changelog/release-6-4-18-1/2023-01-03-add-minimum-password-requirement-to-admin-user.md)
+*  [NEXT-24890 - Correct admin behavior when trying to change user passwords](/changelog/release-6-4-18-1/2023-01-11-correct-admin-behavior-when-trying-to-change-user-passwords.md)
 
 ## 6.4.18.0
 *  [NEXT-24238 - Improve extensibility & plugin compatibility for cms list](/changelog/release-6-4-18-0/2022-11-21-improve-extensibility-plugin-compatibility-for-cms-list.md)

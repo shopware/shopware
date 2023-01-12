@@ -90,3 +90,7 @@ Shopware.Component.extend(
     'sw-many-to-many-assignment-card',
     () => import('./sw-cms-product-assignment'),
 );
+/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-cms-visibility-config', () => import('./sw-cms-visibility-config'));
+/* eslint-disable-next-line sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-cms-visibility-toggle', () => import('./sw-cms-visibility-toggle'));

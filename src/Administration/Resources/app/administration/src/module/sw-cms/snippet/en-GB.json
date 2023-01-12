@@ -51,7 +51,13 @@
         "generalSettings": "General",
         "settings": "Settings",
         "layoutSettings": "Layout",
-        "duplicate": "Duplicate"
+        "visibilitySettings": "Visibility",
+        "visibilityMobile": "Mobile",
+        "visibilityTablet": "Tablet",
+        "visibilityDesktop": "Desktop",
+        "visibilityBlockTextButton": "Collapse block | Expand block",
+        "visibilitySectionTextButton": "Collapse section | Expand section",
+        "visibilityLabelCheckboxGroup": "Devices"
       },
       "layoutAssignment": {
         "headline": "Manage where this layout is visible",
@@ -134,7 +140,8 @@
         "headlineEmptyState": "Space for creativity",
         "claimEmptyState": "Create new layouts by choosing a section. Start by choosing a section type, drag & drop blocks into any section and fill in your content.",
         "defaultLayout": "Default layout",
-        "blockFavoriteEmptyState": "Click the heart-shaped symbol next to a block to mark them as favourites and conveniently collect them in one place."
+        "blockFavoriteEmptyState": "Click the heart-shaped symbol next to a block to mark them as favourites and conveniently collect them in one place.",
+        "visibilityParagraph": "Invisible on selected devices"
       },
       "notification": {
         "pageInvalid": "Errors occurred. Please check the error list in the editor.",
@@ -674,7 +681,8 @@
         "form": {
           "label": "Form"
         }
-      }
+      },
+      "blockDisableState": "This block is not visible on any device. You can edit the block but the changes will not be visible in your shop. Edit this layout in shopping experiences module to change the block visibility."
     },
     "components": {
       "setDefaultLayoutModal": {

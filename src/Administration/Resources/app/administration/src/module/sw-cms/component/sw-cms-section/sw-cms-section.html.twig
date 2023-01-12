@@ -17,10 +17,17 @@
         class="sw-cms-section__wrapper"
         :style="sectionStyles"
     >
+        <sw-cms-visibility-toggle
+            v-if="isVisible"
+            :text="toggleButtonText"
+            :is-collapsed="isCollapsed"
+            :class="expandedClass"
+            @toggle="toggleVisibility"
+        />
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_sidebar %}
         <div
-            v-if="isSideBarType"
+            v-if="isSideBarType && (!isCollapsed || !isVisible)"
             class="sw-cms-section__sidebar"
             :class="sectionSidebarClasses"
         >
@@ -108,8 +115,9 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_content %}
         <div
+            v-if="!isCollapsed || !isVisible"
             class="sw-cms-section__content"
-            :class="{ 'is--empty': mainContentEmpty }"
+            :class="sectionContentClasses"
         >
             <template v-if="mainContentEmpty">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

@@ -51,7 +51,13 @@
         "generalSettings": "Allgemein",
         "settings": "Einstellungen",
         "layoutSettings": "Layout",
-        "duplicate": "Duplizieren"
+        "visibilitySettings": "Sichtbarkeit",
+        "visibilityMobile": "Mobil",
+        "visibilityTablet": "Tablet",
+        "visibilityDesktop": "Desktop",
+        "visibilityBlockTextButton": "Block einklappen | Block ausklappen",
+        "visibilitySectionTextButton": "Sektion einklappen | Sektion ausklappen",
+        "visibilityLabelCheckboxGroup": "Anzeigegeräte"
       },
       "layoutAssignment": {
         "headline": "Verwalte wo dieses Layout zu sehen ist",
@@ -134,7 +140,8 @@
         "headlineEmptyState": "Raum für Kreativität",
         "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag & Drop Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit deinem individuellen Inhalt.",
         "defaultLayout": "Standardlayout",
-        "blockFavoriteEmptyState": "Klicke auf das Herz in einem Block, um ihn als Favorit zu markieren und finde ihn hier wieder."
+        "blockFavoriteEmptyState": "Klicke auf das Herz in einem Block, um ihn als Favorit zu markieren und finde ihn hier wieder.",
+        "visibilityParagraph": "Auf ausgewählten Geräten unsichtbar"
       },
       "notification": {
         "pageInvalid": "Einige Fehler sind aufgetreten. Bitte überprüfe die Liste im Editor.",
@@ -674,7 +681,8 @@
         "form": {
           "label": "Formular"
         }
-      }
+      },
+      "blockDisableState": "Dieser Block ist auf keinem Gerät sichtbar. Sie können den Block bearbeiten, aber die Änderungen werden in Ihrem Shop nicht sichtbar sein. Bearbeiten Sie dieses Layout im Modul Einkaufserlebnisse, um die Sichtbarkeit des Blocks zu ändern."
     },
     "components": {
       "setDefaultLayoutModal": {

@@ -53,7 +53,9 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
         namespaced: true,
         state: {
             isSystemDefaultLanguage: true,
-            currentPageType: 'product_list'
+            currentPageType: 'product_list',
+            selectedBlock: {},
+            selectedSection: {}
         }
     });
 
@@ -127,6 +129,7 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
             'sw-checkbox-field': true,
             'sw-collapse': await Shopware.Component.build('sw-collapse'),
             'sw-icon': true,
+            'sw-cms-visibility-config': true
         },
         provide: {
             repositoryFactory: {

@@ -12,21 +12,17 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
  * @package core
  *
  * @internal
- *
- * @psalm-import-type Params from DriverManager
  */
 class MySQLFactory
 {
     public static function create(): Connection
     {
-        /** @var string|false $url */
-        $url = EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'));
-        if ($url === false) {
+        $url = (string) EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'));
+        if ($url === '') {
             $url = 'mysql://root:shopware@127.0.0.1:3306/shopware';
         }
 
-        /** @var string|false $replicaUrl */
-        $replicaUrl = EnvironmentHelper::getVariable('DATABASE_REPLICA_0_URL');
+        $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_0_URL');
 
         $parameters = [
             'url' => $url,

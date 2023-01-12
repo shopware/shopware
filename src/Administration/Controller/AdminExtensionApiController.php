@@ -23,8 +23,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-// TODO: remove this test change
-
 /**
  * @internal Only to be used by the admin-extension-sdk.
  *

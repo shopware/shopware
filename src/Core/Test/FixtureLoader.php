@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\IdsCollection;
-use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -21,8 +20,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class FixtureLoader
 {
-    use BasicTestDataBehaviour;
-
     private ContainerInterface $container;
 
     private EntityWriterInterface $writer;
@@ -53,7 +50,7 @@ class FixtureLoader
 
         $content = $this->replaceIds($ids, $content);
         $this->sync(\json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
-        $this->container->get(EntityIndexerRegistry::class)->index(false);
+        $this->getContainer()->get(EntityIndexerRegistry::class)->index(false);
 
         return $ids;
     }

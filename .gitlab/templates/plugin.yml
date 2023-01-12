@@ -78,6 +78,14 @@ workflow:
             when: never
         -   when: always
 
+.setup_platform_and_plugin_files: &setup_platform_and_plugin_files
+  - tar -czf /tmp/plugin.tar.gz .
+  - rm -Rf .* * || true
+  - echo "Checkout platform branch $PLATFORM_BRANCH"
+  - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
+  - mkdir -p "custom/plugins/${PLUGIN_NAME}" || true
+  - tar -xzf /tmp/plugin.tar.gz --directory="custom/plugins/${PLUGIN_NAME}"
+
 .install_dependencies: &install_dependencies
   - apt-get update && apt-get install -y jq
   - |
@@ -114,19 +122,15 @@ default:
     tags:
       - t3.medium
     services:
-        - name: mysql:5.7
+        - name: "$MYSQL_IMAGE"
           alias: database
           entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
     before_script:
+        - echo 'memory_limit = -1' | tee /usr/local/etc/php/conf.d/99-memory-limit.ini
         - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
         - echo "$PLUGIN_NAME"
-        - zip -rq plugin.zip .
-        - mv plugin.zip /tmp/plugin.zip
-        - rm -Rf .* * || true
-        - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
-        - mkdir -p custom/plugins || true
-        - unzip -q /tmp/plugin.zip -d custom/plugins/$PLUGIN_NAME
-        - composer install --quiet --no-interaction
+        - *setup_platform_and_plugin_files
+        - composer install --no-interaction
         - mkdir -p config/jwt || true
         - bin/console system:generate-jwt || true
         - bin/console system:install --drop-database --basic-setup --force >/dev/null
@@ -147,6 +151,7 @@ default:
         - mkdir -p vendor/shopware
         - ln -s $PROJECT_ROOT/src/Core vendor/shopware/core
         - ln -s $PROJECT_ROOT/src/Storefront vendor/shopware/storefront
+        - rm /usr/local/etc/php/conf.d/99-memory-limit.ini
 
 .build-js: &build-js
     - $CI_PROJECT_DIR/bin/console bundle:dump
@@ -155,52 +160,27 @@ default:
     - '(cd $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront/ && npm ci && npm run production && node copy-to-vendor.js)'
     -  $CI_PROJECT_DIR/bin/console assets:install
 
-build zip:
+build and validate zip:
     stage: build
     image:
-        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.13
-        entrypoint: [""]
+        name: ghcr.io/friendsofshopware/shopware-cli
+        entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
     rules:
         - exists:
               - composer.json
     variables:
-        ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
-        STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
         SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS: 1
+        SHOPWARE_PROJECT_ROOT: "${CI_PROJECT_DIR}"
+        APP_ENV: 'dev'
+    before_script:
+      - *setup_platform_and_plugin_files
     script:
-        - (cd ${PLUGIN_SOURCE_DIR}Resources/app/administration && npm ci) || true
-        - (cd ${PLUGIN_SOURCE_DIR}Resources/app/storefront && npm ci) || true
-        - *build-js
-        - rm -rf "Resources/app/administration/node_modules" || true
-        - rm -rf "Resources/app/storefront/node_modules" || true
-        - rm -rf vendor composer.lock || true
-        - cd $CI_PROJECT_DIR/custom/plugins/$PLUGIN_NAME
-        - composer config --unset 'repositories.platform-packages'
-        - plugin-uploader ext:zip --strategy=plain -- "$PWD"
-        - '[[ -r $PLUGIN_NAME.zip ]] || (echo "failed to create $PLUGIN_NAME.zip. Please run ./bin/init $PLUGIN_NAME" && exit 1)'
-        - mv $PLUGIN_NAME.zip ${CI_PROJECT_DIR}/$PLUGIN_NAME.zip
+        - shopware-cli extension zip "${CI_PROJECT_DIR}/custom/plugins/${PLUGIN_NAME}" --disable-git
+        - shopware-cli extension validate "${PLUGIN_NAME}.zip"
     artifacts:
-        name: '${CI_PROJECT_TITLE}.zip'
+        name: '${PLUGIN_NAME}.zip'
         paths:
-            - '*.zip'
-
-validate zip:
-    stage: test
-    image:
-        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.13
-        entrypoint: [""]
-    variables:
-        GIT_STRATEGY: none
-    needs:
-        - build zip
-    rules:
-        - exists:
-              - composer.json
-          if: '$CI_PROJECT_TITLE != "SwagPluginTemplate"'
-    before_script: []
-    script:
-        - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
-        - plugin-uploader ext:validate $PWD/$PLUGIN_NAME.zip
+            - '${PLUGIN_NAME}.zip'
 
 phpunit:
     stage: test
@@ -446,12 +426,12 @@ upload zip to store:
         name: account.shopware.com
         url: 'https://account.shopware.com'
     image:
-        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.13
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.17
         entrypoint: [""]
     variables:
         GIT_STRATEGY: none
     needs:
-        - build zip
+        - build and validate zip
     rules:
         - exists:
               - composer.json

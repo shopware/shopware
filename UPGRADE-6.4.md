@@ -1,6 +1,64 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.18.0
+## Define country address formatting structure
+From the next major v6.5.0.0, address of a country are no longer fixed, but you can modify it by drag-drop address elements in admin Settings > Countries > detail page > Address tab
+The address elements are stored as a structured json in `country_translation.address_format`, the default structure can be found in `\Shopware\Core\System\Country\CountryDefinition::DEFAULT_ADDRESS_FORMAT`
+## Extension can add custom element to use in address formatting structure
+* Plugins can define their own custom snippets by placed twig files in `<pluginRoot>/src/Resources/views/snippets`, you can refer to the default Core address snippets in `src/Core/Framework/Resources/views/snippets/address`
+* Use the respective mutations instead
+## Deprecated manifest-1.0.xsd
+
+With the upcoming major release we are going to release a new XML-schema for Shopware Apps. In the new schema we remove two deprecations from the existing schema.
+
+1. attribute `parent` for element `module` will be required.
+
+   Please make sure that every of your admin modules has this attribute set like described in [our documentation](https://developer.shopware.com/docs/guides/plugins/apps/administration/add-custom-modules)
+2. attribute `openNewTab` for element `action-button` will be removed.
+
+    Make sure to remove the attribute `openNewTab` from your `action-button` elements in your `manifest.xml` and use ActionButtonResponses as described in our [documentation](https://developer.shopware.com/docs/guides/plugins/apps/administration/add-custom-action-button) instead.
+3. Deprecation of `manifest-1.0.xsd`
+
+    Update the `xsi:noNamespaceSchemaLocation` attribute of your `manifest` root element. to `https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd`
+### MessageQueue Deprecations
+
+For v6.5.0.0 we will remove our wrapper around the symfony messenger component and remove the enqueue integration as well. Therefore, we deprecated several classes for the retry and encryption handling, without replacement, as we  will use the symfony standards for that.
+
+Additionally, we deprecated the `Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler`, you should directly implement the `\Symfony\Component\Messenger\Handler\MessageSubscriberInterface` instead.
+
+Before:
+```php
+class MyMessageHandler extends AbstractMessageHandler
+{
+    public static function getHandledMessages(): iterable
+    {
+        return [MyMessage::class];
+    }
+
+    public function handle(MyMessage $message): void
+    {
+        // do something
+    }
+}
+```
+
+After:
+```php
+class MyMessageHandler implements MessageSubscriberInterface
+{
+    public static function getHandledMessages(): iterable
+    {
+        return [MyMessage::class];
+    }
+
+    public function __invoke(MyMessage $message): void
+    {
+        // do something
+    }
+}
+```
+
 # 6.4.17.0
 * Themes' snippets are now only applied to Storefront sales channels when they or their child themes are assigned to that sales channel
 ## Disabling caching of store-api-routes

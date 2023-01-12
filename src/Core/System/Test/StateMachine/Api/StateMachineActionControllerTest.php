@@ -20,6 +20,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -148,8 +149,16 @@ class StateMachineActionControllerTest extends TestCase
         static::assertEquals($destinationStateTechnicalName, $toStateMachineState->getTechnicalName());
 
         static::assertEquals($this->getContainer()->get(OrderDefinition::class)->getEntityName(), $historyEntry->getEntityName());
-        static::assertEquals($orderId, $historyEntry->getEntityId()['id']);
-        static::assertEquals(Defaults::LIVE_VERSION, $historyEntry->getEntityId()['version_id']);
+
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::assertEquals($orderId, $historyEntry->getEntityId()['id']);
+            static::assertEquals(Defaults::LIVE_VERSION, $historyEntry->getEntityId()['version_id']);
+
+            return;
+        }
+
+        static::assertEquals($orderId, $historyEntry->getReferencedId());
+        static::assertEquals(Defaults::LIVE_VERSION, $historyEntry->getReferencedVersionId());
     }
 
     public function testTransitionToNotAllowedState(): void

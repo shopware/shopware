@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
@@ -149,17 +150,23 @@ class StateMachineRegistry
             return $stateMachineStateCollection;
         }
 
-        $this->stateMachineHistoryRepository->create([
-            [
-                'stateMachineId' => $toPlace->getStateMachineId(),
-                'entityName' => $transition->getEntityName(),
-                'entityId' => ['id' => $transition->getEntityId(), 'version_id' => $context->getVersionId()],
-                'fromStateId' => $fromPlace->getId(),
-                'toStateId' => $toPlace->getId(),
-                'transitionActionName' => $transition->getTransitionName(),
-                'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
-            ],
-        ], $context);
+        $stateMachineHistoryEntity = [
+            'stateMachineId' => $toPlace->getStateMachineId(),
+            'entityName' => $transition->getEntityName(),
+            'fromStateId' => $fromPlace->getId(),
+            'toStateId' => $toPlace->getId(),
+            'transitionActionName' => $transition->getTransitionName(),
+            'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
+        ];
+
+        if (Feature::isActive('v6.6.0.0')) {
+            $stateMachineHistoryEntity['referencedId'] = $transition->getEntityId();
+            $stateMachineHistoryEntity['referencedVersionId'] = $context->getVersionId();
+        } else {
+            $stateMachineHistoryEntity['entityId'] = ['id' => $transition->getEntityId(), 'version_id' => $context->getVersionId()];
+        }
+
+        $this->stateMachineHistoryRepository->create([$stateMachineHistoryEntity], $context);
 
         $data = [['id' => $transition->getEntityId(), $transition->getStateFieldName() => $toPlace->getId()]];
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($repository, $data): void {

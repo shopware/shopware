@@ -17,12 +17,12 @@ class MySQLFactory
 {
     public static function create(): Connection
     {
-        $url = EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'));
-        if ($url === false) {
+        $url = (string) EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'));
+        if ($url === '') {
             $url = 'mysql://root:shopware@127.0.0.1:3306/shopware';
         }
 
-        $replicaUrl = EnvironmentHelper::getVariable('DATABASE_REPLICA_0_URL');
+        $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_0_URL');
 
         $parameters = [
             'url' => $url,
@@ -54,7 +54,7 @@ class MySQLFactory
             $parameters['primary'] = ['url' => $url, 'driverOptions' => $parameters['driverOptions']];
             $parameters['replica'] = [];
 
-            for ($i = 0; $replicaUrl = EnvironmentHelper::getVariable('DATABASE_REPLICA_' . $i . '_URL'); ++$i) {
+            for ($i = 0; $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_' . $i . '_URL'); ++$i) {
                 $parameters['replica'][] = ['url' => $replicaUrl, 'charset' => $parameters['charset'], 'driverOptions' => $parameters['driverOptions']];
             }
         }

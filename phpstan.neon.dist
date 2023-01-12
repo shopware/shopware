@@ -34,6 +34,7 @@ parameters:
 
         # node_modules
         - src/**/node_modules/*
+        - tests/**/node_modules/*
 
         # @deprecated tag:v6.5.0 (replacing production template dev-dependencies is not allowed atm)
         - src/Core/Framework/Demodata/DemodataService.php

@@ -22,12 +22,6 @@
         padding-bottom: 24px;
     }
 
-    .sw-first-run-wizard-store__loading-icon {
-        color: $color-shopware-brand-500;
-        animation: prepare-icon-spin 2s linear infinite;
-        margin-bottom: 16px;
-    }
-
     .sw-first-run-wizard-store__label {
         display: flex;
         justify-content: center;
@@ -37,13 +31,9 @@
         margin-bottom: 24px;
     }
 
-    @keyframes prepare-icon-spin {
-        from {
-            transform: translate(0%, 0%) rotate(0deg);
-        }
-
-        to {
-            transform: translate(0%, 0%) rotate(360deg);
-        }
+    .sw-loader {
+        position: unset;
+        background: unset;
+        margin-bottom: 12px;
     }
 }

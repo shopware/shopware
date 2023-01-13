@@ -116,12 +116,6 @@
           "headingTwo": "right from within your own Shopware shop.",
           "description": "Activate the all new Shopware Store and get access to loads of helpful extensions and modern themes that can be integrated into your Shop seemlessly - without any programming skills."
         },
-        "markets": {
-          "modalTitle": "Shopware Markets",
-          "heading": "Shopware Markets",
-          "description": "Shopware Markets enables you to connect your Shop to the Amazon and eBay marketplaces - while making the transfer of products and orders as convenient as possible.<br>Shopware Markets was designed to even further grow your business with the help of Sales Channels*¹.",
-          "footnote": "*¹ A paid subscription is required to use Shopware Markets added Sales Channels."
-        },
         "defaults": {
             "modalTitle": "Setup default values"
         },
@@ -146,7 +140,6 @@
             "plugins": "Extensions",
             "shopware": "Shopware Account",
             "store": "Shopware Store",
-            "markets": "Shopware Markets",
             "defaults": "Default values"
         }
     },

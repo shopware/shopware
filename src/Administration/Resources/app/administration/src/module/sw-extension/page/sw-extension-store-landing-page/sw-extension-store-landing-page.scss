@@ -62,12 +62,6 @@
         flex-direction: column;
     }
 
-    .sw-extension-store-landing-page__wrapper-loading-icon {
-        color: $color-shopware-brand-500;
-        animation: prepare-icon-spin 2s linear infinite;
-        margin-bottom: 16px;
-    }
-
     .sw-extension-store-landing-page__wrapper-activated {
         display: flex;
         flex-direction: column;

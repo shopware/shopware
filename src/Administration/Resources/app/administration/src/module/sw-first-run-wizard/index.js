@@ -19,7 +19,6 @@ Shopware.Component.register('sw-first-run-wizard-shopware-account', () => import
 Shopware.Component.register('sw-first-run-wizard-shopware-domain', () => import('./view/sw-first-run-wizard-shopware-domain'));
 Shopware.Component.register('sw-first-run-wizard-defaults', () => import('./view/sw-first-run-wizard-defaults'));
 Shopware.Component.register('sw-first-run-wizard-store', () => import('./view/sw-first-run-wizard-store'));
-Shopware.Component.register('sw-first-run-wizard-markets', () => import('./view/sw-first-run-wizard-markets'));
 Shopware.Component.register('sw-first-run-wizard-finish', () => import('./view/sw-first-run-wizard-finish'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
@@ -120,14 +119,6 @@ Module.register('sw-first-run-wizard', {
                                 privilege: 'admin',
                             },
                         },
-                    },
-                },
-                /* @deprecated tag:v6.5.0 - Will be removed without replacement */
-                markets: {
-                    component: 'sw-first-run-wizard-markets',
-                    path: 'markets',
-                    meta: {
-                        privilege: 'admin',
                     },
                 },
                 plugins: {

@@ -53,6 +53,7 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
 
         .sw-block-field__block input {
             text-overflow: ellipsis;
+            padding-right: 28px;
 
             &::placeholder {
                 text-transform: none;
@@ -107,11 +108,13 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
     }
 
     &__dropdown-icon {
+        display: block;
         position: absolute;
-        right: 10px;
-        top: 40px;
-        background: $color-white;
-        cursor: pointer;
+        top: 44px;
+        right: 16px;
+        text-align: center;
+        color: #52667a;
+        pointer-events: none;
     }
 
     // Vue.js transitions

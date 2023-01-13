@@ -675,6 +675,7 @@
         "cartPositionPrice": "Total",
         "goodsCountRule": "Total quantity of distinct products",
         "goodsPriceRule": "Subtotal of all items",
+        "cartTotalPurchasePrice": "Total of all purchase prices",
         "lineItemOfTypeRule": {
           "label": "Item of type",
           "product": "Product",
@@ -827,6 +828,15 @@
             "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",
             "individual": "@:global.sw-condition.condition.promotionCodeOfTypeRule.individual"
           }
+        }
+      },
+      "cartTotalPurchasePrice": {
+        "type": {
+          "options": {
+            "gross": "Gross",
+            "net": "Net"
+          },
+          "placeholder": "Select operator..."
         }
       },
       "units": {

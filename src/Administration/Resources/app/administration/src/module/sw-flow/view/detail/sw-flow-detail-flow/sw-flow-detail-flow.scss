@@ -103,6 +103,10 @@
             border: 1px solid $color-gray-500;
             z-index: 2;
 
+            .sw-icon {
+                @include size(12px);
+            }
+
             &:hover:not([disabled]) {
                 background: $color-shopware-brand-500;
                 color: $color-white;

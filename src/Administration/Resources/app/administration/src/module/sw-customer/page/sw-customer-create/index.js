@@ -32,7 +32,7 @@ export default {
             isLoading: false,
             errorEmailCustomer: null,
             /**
-             * @deprecated tag:v6.6.0 - defaultMinPasswordLength Will be removed due to unused
+             * @deprecated tag:v6.6.0 - defaultMinPasswordLength will be removed due to unused
              * */
             defaultMinPasswordLength: null,
         };
@@ -198,7 +198,7 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.6.0 - getDefaultRegistrationConfig Will be removed due to unused
+         * @deprecated tag:v6.6.0 - getDefaultRegistrationConfig will be removed due to unused
          * */
         getDefaultRegistrationConfig() {
             this.systemConfigApiService.getValues('core.register').then((response) => {

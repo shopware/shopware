@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swProfileIndex from 'src/module/sw-profile/page/sw-profile-index';
 import EntityCollection from 'src/core/data/entity-collection.data';

@@ -2,7 +2,9 @@
  * @package system-settings
  */
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-users-permissions/components/sw-users-permissions-configuration';
+import swUsersPermissionsConfiguration from 'src/module/sw-users-permissions/components/sw-users-permissions-configuration';
+
+Shopware.Component.register('sw-users-permissions-configuration', swUsersPermissionsConfiguration);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-users-permissions-configuration'), {
@@ -17,10 +19,6 @@ describe('module/sw-users-permissions/components/sw-users-permissions-configurat
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', () => {

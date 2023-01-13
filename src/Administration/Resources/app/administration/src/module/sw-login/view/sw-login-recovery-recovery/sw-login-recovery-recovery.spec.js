@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-login/view/sw-login-recovery-recovery';
 

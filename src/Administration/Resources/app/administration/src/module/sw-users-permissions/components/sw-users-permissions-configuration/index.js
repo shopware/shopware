@@ -4,10 +4,8 @@
 import template from './sw-users-permissions-configuration.html.twig';
 import './sw-users-permissions-configuration.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-users-permissions-configuration', {
+export default {
     template,
 
     inject: ['acl'],
@@ -17,4 +15,4 @@ Component.register('sw-users-permissions-configuration', {
             this.$emit('loading-change', loading);
         },
     },
-});
+};

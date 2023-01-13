@@ -30,7 +30,7 @@ Component.register('sw-login-recovery-recovery', {
 
     data() {
         return {
-            // Mock an empty user so we can display error
+            // Mock an empty user so that we can send out the error
             user: {
                 id: this.hash,
                 getEntityName: () => 'user',

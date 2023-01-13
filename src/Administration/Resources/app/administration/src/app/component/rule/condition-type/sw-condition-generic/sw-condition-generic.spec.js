@@ -17,6 +17,9 @@ import 'src/app/component/form/select/entity/sw-entity-multi-id-select';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-selection-list';
+import 'src/app/component/rule/sw-condition-unit-menu';
+import 'src/app/component/form/sw-number-field';
+import 'src/app/component/rule/sw-arrow-field';
 import ruleConditionsConfig from '../_mocks/ruleConditionsConfig.json';
 
 const responses = global.repositoryFactoryMock.responses;
@@ -77,10 +80,12 @@ async function createWrapper(condition = {}) {
             'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
             'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
             'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
+            'sw-condition-unit-menu': await Shopware.Component.build('sw-condition-unit-menu'),
+            'sw-number-field': await Shopware.Component.build('sw-number-field'),
             'sw-context-button': true,
             'sw-context-menu-item': true,
             'sw-field-error': true,
-            'sw-arrow-field': true,
+            'sw-arrow-field': await Shopware.Component.build('sw-arrow-field'),
             'sw-condition-type-select': true,
             'sw-icon': true,
             'sw-loader': true,
@@ -238,5 +243,41 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         await flushPromises();
 
         expect(wrapper.vm.condition.value.operator).toEqual('bar');
+    });
+
+    it('should render unit menu when condition has unit', async () => {
+        const wrapper = await createWrapper(
+            {
+                type: 'cartLineItemDimensionWeight'
+            }
+        );
+        await flushPromises();
+
+        const menu = wrapper.find('.sw-condition-generic__unit-menu');
+        expect(menu.props().type).toEqual('weight');
+        expect(menu.exists()).toBeTruthy();
+    });
+
+    it('should be possible to enter a new value into the input when the base value is not selected', async () => {
+        const wrapper = await createWrapper({
+            type: 'cartLineItemDimensionWeight'
+        });
+
+        // set a base value
+        const unitInput = wrapper.find('#sw-field--amount');
+        await unitInput.setValue('10');
+        await unitInput.trigger('change');
+
+        // change the unit
+        const unitMenu = wrapper.find('.sw-condition-unit-menu');
+        await unitMenu.trigger('click');
+
+        const unitOption = wrapper.findAll('.sw-condition-unit-menu__menu-item').at(2);
+        await unitOption.trigger('click');
+
+        await unitInput.setValue('10000');
+        await unitInput.trigger('change');
+
+        expect(unitInput.element.value).toEqual('10000');
     });
 });

@@ -1,0 +1,61 @@
+<div
+    class="sw-condition-unit-menu__wrapper"
+>
+    <button
+        v-if="defaultUnit"
+        class="sw-condition-unit-menu sw-condition-unit-menu__label"
+        @click="showMenu = !showMenu"
+        @keydown.esc="showMenu = false"
+    >
+        <span>
+            {{ unitSnippet }}
+        </span>
+
+        <sw-icon
+            class="sw-condition-unit-menu__icon"
+            name="solid-chevron-down-s"
+        />
+    </button>
+    <div
+        v-else
+        class="sw-condition-unit-menu__label"
+    >
+        {{ $tc(`global.sw-condition-generic.units.${type}`) }}
+    </div>
+
+    <sw-popover
+        v-if="showMenu && defaultUnit"
+        :z-index="10"
+    >
+        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
+        <div
+            v-click-outside="() => showMenu = false"
+            class="sw-condition-unit-menu__menu"
+            @mouseover="hoveringOverMenu = true"
+            @mouseout="hoveringOverMenu = false"
+        >
+            <template v-for="(item) in unitOptions">
+                <div
+                    :key="item.value"
+                    class="sw-condition-unit-menu__menu-item"
+                    @click="onUnitChange(item.value)"
+                    @keyup.enter="onUnitChange(item.value)"
+                >
+                    <span
+                        v-if="isSelected(item.value)"
+                        class="sw-condition-unit-menu__menu-item__selected-label"
+                    >{{ item.label }}</span>
+                    <span
+                        v-else
+                        class="sw-condition-unit-menu__menu-item__label"
+                    >
+                        {{ item.label }}
+                    </span>
+                    <span class="sw-condition-unit-menu__menu-item__shortcut">
+                        {{ item.shortLabel }}
+                    </span>
+                </div>
+            </template>
+        </div>
+    </sw-popover>
+</div>

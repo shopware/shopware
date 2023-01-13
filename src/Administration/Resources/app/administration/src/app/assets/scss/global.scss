@@ -1,4 +1,14 @@
-@import "~scss/variables";
+@use "sass:meta";
+@use "variables";
+
+:root {
+    /**
+    *  Generate css variables for all scss variables automatically
+    */
+    @each $name, $value in meta.module-variables("variables") {
+        --#{$name}: #{meta.inspect($value)};
+    }
+}
 
 * {
     box-sizing: border-box;

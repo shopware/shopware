@@ -1,10 +1,6 @@
 @import "~scss/variables";
 
 .sw-extension-card-bought {
-    background-color: $color-gray-50;
-    box-shadow: none;
-    border: 1px solid $color-gray-300;
-
     .sw-extension-card-bought__info-price-subscription {
         color: $color-darkgray-200;
         font-weight: $font-weight-semi-bold;

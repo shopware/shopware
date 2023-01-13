@@ -51,6 +51,7 @@ export default {
             return {
                 'is--deactivated': this.isInstalled && !this.extension.active,
                 'deactivate-prevented': this.isActive && !this.allowDisable,
+                'is--not-installed': !this.isInstalled,
             };
         },
 

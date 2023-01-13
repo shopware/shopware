@@ -27,6 +27,12 @@
         }
     }
 
+    &.is--not-installed {
+        background-color: $color-gray-50;
+        box-shadow: none;
+        border: 1px solid $color-gray-300;
+    }
+
     .sw-loader {
         border-radius: 8px;
     }

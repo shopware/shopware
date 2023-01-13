@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\Api\EventListener;
 use Composer\InstalledVersions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\EventListener\ExpectationSubscriber;
-use Shopware\Core\Framework\Api\Exception\ExceptionFailedException;
+use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
@@ -55,7 +55,7 @@ class ExpectationSubscriberTest extends TestCase
             HttpKernelInterface::MASTER_REQUEST
         );
 
-        static::expectException(ExceptionFailedException::class);
+        static::expectException(ExpectationFailedException::class);
 
         $this->expectationSubscriber->checkExpectations($event);
     }
@@ -90,7 +90,7 @@ class ExpectationSubscriberTest extends TestCase
             HttpKernelInterface::MASTER_REQUEST
         );
 
-        static::expectException(ExceptionFailedException::class);
+        static::expectException(ExpectationFailedException::class);
 
         $this->expectationSubscriber->checkExpectations($event);
     }
@@ -129,7 +129,7 @@ class ExpectationSubscriberTest extends TestCase
             HttpKernelInterface::MASTER_REQUEST
         );
 
-        static::expectException(ExceptionFailedException::class);
+        static::expectException(ExpectationFailedException::class);
 
         $this->expectationSubscriber->checkExpectations($event);
     }

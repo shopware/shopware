@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Api\EventListener;
 
 use Composer\InstalledVersions;
 use Composer\Semver\Semver;
-use Shopware\Core\Framework\Api\Exception\ExceptionFailedException;
+use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
@@ -73,7 +73,7 @@ class ExpectationSubscriber implements EventSubscriberInterface
         $expectations = $this->checkPackages($request);
 
         if (\count($expectations)) {
-            throw new ExceptionFailedException($expectations);
+            throw new ExpectationFailedException($expectations);
         }
     }
 

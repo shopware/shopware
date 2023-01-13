@@ -163,6 +163,7 @@ async function createWrapper(privileges = []) {
             'sw-textarea-field': true,
             'sw-switch-field': true,
             'sw-button-group': await Shopware.Component.build('sw-button-group'),
+            'sw-loader': true,
         },
         provide: {
             acl: {

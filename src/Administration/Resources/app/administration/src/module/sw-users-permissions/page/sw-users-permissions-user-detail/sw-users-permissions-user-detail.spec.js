@@ -151,6 +151,7 @@ async function createWrapper(privileges = []) {
             'sw-context-menu-item': true,
             'sw-empty-state': true,
             'sw-skeleton': true,
+            'sw-loader': true,
         }
     });
 

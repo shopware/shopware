@@ -77,7 +77,8 @@ async function createWrapper(privileges = [], resetError = false) {
             'sw-field': true,
             'sw-popover': await Shopware.Component.build('sw-popover'),
             'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
-            'sw-data-grid-skeleton': true
+            'sw-data-grid-skeleton': true,
+            'sw-loader': true,
         }
     });
 }

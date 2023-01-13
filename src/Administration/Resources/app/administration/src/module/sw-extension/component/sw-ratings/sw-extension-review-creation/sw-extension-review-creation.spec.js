@@ -59,7 +59,8 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
                 'sw-gtc-checkbox': await Shopware.Component.build('sw-gtc-checkbox'),
                 'sw-button': await Shopware.Component.build('sw-button'),
                 'sw-button-process': await Shopware.Component.build('sw-button-process'),
-                'sw-external-link': await Shopware.Component.build('sw-external-link')
+                'sw-external-link': await Shopware.Component.build('sw-external-link'),
+                'sw-loader': true,
             }
         });
     }

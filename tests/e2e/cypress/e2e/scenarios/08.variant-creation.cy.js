@@ -6,16 +6,12 @@ const guestCustomer = require('../../fixtures/guest-customer.json');
 
 describe('Create a variant product using default customer and buy it via cash on delivery.', { tags: ['pa-checkout'] }, () => {
     beforeEach(() => {
-        cy.clearCookies().then(() => {
-            return cy.loginViaApi();
-        }).then(() => {
-            return cy.createPropertyFixture({
-                options: [{name: 'Red'}, {name: 'Yellow'}, {name: 'Green'}]
-            });
+        cy.createPropertyFixture({
+            options: [{name: 'Red'}, {name: 'Yellow'}, {name: 'Green'}],
         }).then(() => {
             return cy.createPropertyFixture({
                 name: 'Size',
-                options: [{name: 'S'}, {name: 'M'}]
+                options: [{name: 'S'}, {name: 'M'}],
             });
         }).then(() => {
             cy.createProductFixture({
@@ -24,8 +20,8 @@ describe('Create a variant product using default customer and buy it via cash on
                 price: [{
                     currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
                     linked: true,
-                    gross: 10
-                }]
+                    gross: 10,
+                }],
             });
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
@@ -37,27 +33,27 @@ describe('Create a variant product using default customer and buy it via cash on
     it('@package: should add multidimensional variant to product and set surcharge', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-visibility`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProductVisibility');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-            method: 'POST'
+            method: 'POST',
         }).as('getSalesChannel');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('getCategoryDetail');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/property-group`,
-            method: 'POST'
+            method: 'POST',
         }).as('getPropertyGroup');
 
         cy.intercept({
             url: `**/account/register`,
-            method: 'POST'
+            method: 'POST',
         }).as('registerCustomer');
 
         const page = new ProductPageObject();
@@ -88,7 +84,7 @@ describe('Create a variant product using default customer and buy it via cash on
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-product-detail__tab-variants').click();

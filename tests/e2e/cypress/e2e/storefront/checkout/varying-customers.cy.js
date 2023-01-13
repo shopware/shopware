@@ -6,20 +6,20 @@ const customers = [
         firstName: 'Net',
         lastName: 'Customer',
         email: 'tester@example.com',
-        displayGross: false
+        displayGross: false,
     },
     {
         firstName: 'Gross',
         lastName: 'Customer',
         email: 'tester@example.com',
-        displayGross: true
+        displayGross: true,
     },
     {
         firstName: 'Differing',
         lastName: 'Addresses',
         email: 'tester@example.com',
-        displayGross: true
-    }
+        displayGross: true,
+    },
 ];
 
 let product = {};
@@ -49,8 +49,8 @@ describe('Checkout: Proceed checkout using various customers', () => {
 
                     return cy.setCustomerGroup('RS-1232123', {
                         name: 'Net customergroup',
-                        displayGross: false
-                    })
+                        displayGross: false,
+                    });
                 }).then(() => {
                     cy.visit('/account/login');
                 });
@@ -92,7 +92,7 @@ describe('Checkout: Proceed checkout using various customers', () => {
                     // Set new address as shipping address
                     cy.get('.address-list > :nth-child(2) > :nth-child(2)').within(() => {
                         cy.contains('Set as default shipping').click();
-                    })
+                    });
                     cy.get('.shipping-address').contains('Sherman');
                 }
 

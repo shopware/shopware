@@ -4,17 +4,15 @@ import ProductPageObject from '../../support/pages/module/sw-product.page-object
 
 describe('Administration & Storefront: Country settings tax free for B2C and B2B', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture({
-                name: 'Product name',
-                productNumber: 'TEST-1234',
-                price: [{
-                    currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                    net: 11,
-                    linked: true,
-                    gross: 15
-                }]
-            });
+        cy.createProductFixture({
+            name: 'Product name',
+            productNumber: 'TEST-1234',
+            price: [{
+                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                net: 11,
+                linked: true,
+                gross: 15,
+            }],
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -26,22 +24,22 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
     it('@package: should validate tax free with B2C', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/country`,
-            method: 'POST'
+            method: 'POST',
         }).as('getCountrySettings');
         cy.intercept({
             url: '/account/register',
-            method: 'POST'
+            method: 'POST',
         }).as('registerCustomer');
 
         // Add product to sales channel
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains('h2','Product name').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
@@ -75,7 +73,7 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
         // Registration B2C
         cy.visit('/account/register');
 
-        cy.window().then((win) => {
+        cy.window().then(() => {
             cy.url().should('include', '/account/register');
             cy.get('#personalSalutation').select('Mr.');
             cy.get('#personalFirstName').typeAndCheckStorefront('Test');
@@ -111,37 +109,37 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`
+                    Authorization: `Bearer ${result.access}`,
                 },
                 method: 'POST',
                 url: 'api/_action/system-config/batch',
                 body: {
                     null: {
-                        'core.loginRegistration.showAccountTypeSelection': true
-                    }
-                }
+                        'core.loginRegistration.showAccountTypeSelection': true,
+                    },
+                },
             };
             return cy.request(requestConfig);
         });
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/country`,
-            method: 'POST'
+            method: 'POST',
         }).as('getCountrySettings');
         cy.intercept({
             url: `/account/register`,
-            method: 'POST'
+            method: 'POST',
         }).as('registerCustomer');
 
         // Add product to sales channel
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains('h2','Product name').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()

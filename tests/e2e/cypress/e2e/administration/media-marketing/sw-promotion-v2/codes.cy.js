@@ -7,15 +7,12 @@ const promotionCodeFixedSelector = '#sw-field--promotion-code';
 
 describe('Promotion v2: Test code operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('promotion');
-            }).then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-                cy.get('.sw-data-grid__cell--name > .sw-data-grid__cell-content > a').click();
-            });
+        cy.createDefaultFixture('promotion').then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+            cy.get('.sw-data-grid__cell--name > .sw-data-grid__cell-content > a').click();
+        });
     });
 
     it('@base @marketing: generate and save a fixed promotion code', { tags: ['pa-checkout'] }, () => {
@@ -59,23 +56,23 @@ describe('Promotion v2: Test code operations', () => {
     it('@base @marketing: generate and save individual promotion codes and replace afterwards with a custom pattern', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=pre_%25s%25s%25s%25s%25s_post`,
-            method: 'GET'
+            method: 'GET',
         }).as('previewCode1');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=pre_%25s%25s_post`,
-            method: 'GET'
+            method: 'GET',
         }).as('previewCode2');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=new_%25d%25d%25d_new!`,
-            method: 'GET'
+            method: 'GET',
         }).as('previewCode3');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/promotion/codes/replace-individual`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('generateCodes');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/promotion`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadCodes');
 
         cy.get('#sw-field--selectedCodeType').select('Individual promotion codes');

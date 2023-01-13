@@ -6,29 +6,29 @@ const orderCount = 11;
 describe('Account: Paginated orders', () => {
     beforeEach(() => {
         return cy.createProductFixture().then(() => {
-            return cy.createCustomerFixtureStorefront()
+            return cy.createCustomerFixtureStorefront();
         }).then(() => {
             return cy.searchViaAdminApi({
                 endpoint: 'product',
                 data: {
                     field: 'name',
-                    value: 'Product name'
-                }
+                    value: 'Product name',
+                },
             });
         }).then((result) => {
             for (let i = 1; i <= orderCount; i++) {
                 cy.createOrder(result.id, {
                     username: 'test@example.com',
-                    password: 'shopware'
+                    password: 'shopware',
                 });
             }
-        })
+        });
     });
 
     it('@customer: orders pagination', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: '/account/order',
-            method: 'POST'
+            method: 'POST',
         }).as('loadNextPage');
 
         // Login

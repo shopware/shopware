@@ -11,28 +11,25 @@ const selectors = {
     button: 'button.sw-button',
     valueTable: 'table.sw-data-grid__table tbody',
     valueTableRow: '.sw-data-grid__row',
-    checkbox: 'input[type=checkbox]'
+    checkbox: 'input[type=checkbox]',
 };
 
 describe('Essential characteristics: Test create operation', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/product/feature/sets/create`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/product/feature/sets/create`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@settings: create a feature set', { tags: ['pa-inventory'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-feature-set`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-feature-set/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('addField');
 
         // Create country

@@ -5,22 +5,18 @@
 
 describe('CMS: check validation of product detail page', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCmsFixture();
-            })
-            .then(() => {
-                cy.viewport(1920, 1080);
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createCmsFixture().then(() => {
+            cy.viewport(1920, 1080);
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@content: create product detail page', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Fill in basic data

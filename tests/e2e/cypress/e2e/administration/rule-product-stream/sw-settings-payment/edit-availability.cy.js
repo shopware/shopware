@@ -5,15 +5,11 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 
 describe('Payment: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('payment-method');
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createDefaultFixture('payment-method').then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @rule: edit availability rule', { tags: ['pa-checkout'] }, () => {
@@ -23,7 +19,7 @@ describe('Payment: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/payment-method/**`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.contains('.sw-card', 'CredStick')
@@ -45,7 +41,7 @@ describe('Payment: Test crud operations', () => {
                 type: 'New customer',
                 selector: '.sw-condition',
                 operator: null,
-                value: 'Yes'
+                value: 'Yes',
             });
 
             cy.contains('button.sw-button', 'Save').click();

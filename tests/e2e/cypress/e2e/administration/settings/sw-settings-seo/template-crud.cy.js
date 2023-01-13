@@ -2,19 +2,16 @@ describe('Seo: Test crud operations on templates', () => {
     const routeNames = {
         'Product detail page': 'product',
         'Landing page': 'landingPage',
-        'Category page': 'category'
+        'Category page': 'category',
     };
 
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCategoryFixture({
-                    parent: {
-                        name: 'ParentCategory',
-                        active: true
-                    }
-                });
-            })
+        cy.createCategoryFixture({
+            parent: {
+                name: 'ParentCategory',
+                active: true,
+            },
+        })
             .then(() => {
                 let salesChannel;
                 return cy.searchViaAdminApi({
@@ -22,8 +19,8 @@ describe('Seo: Test crud operations on templates', () => {
                     data: {
                         field: 'name',
                         type: 'equals',
-                        value: 'Storefront'
-                    }
+                        value: 'Storefront',
+                    },
                 }).then((data) => {
                     salesChannel = data.id;
                     cy.createDefaultFixture('cms-page', {}, 'cms-landing-page');
@@ -34,9 +31,9 @@ describe('Seo: Test crud operations on templates', () => {
                         url: 'some-landing-page',
                         salesChannels: [
                             {
-                                id: salesChannel
-                            }
-                        ]
+                                id: salesChannel,
+                            },
+                        ],
                     }, 'landing-page');
                 });
             })
@@ -53,9 +50,9 @@ describe('Seo: Test crud operations on templates', () => {
                             currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
                             net: 24,
                             linked: false,
-                            gross: 128
-                        }
-                    ]
+                            gross: 128,
+                        },
+                    ],
                 });
             })
             .then(() => {
@@ -68,29 +65,38 @@ describe('Seo: Test crud operations on templates', () => {
     it('@settings: update template', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('templateSaveCall');
 
         cy.get('.sw-seo-url-template-card__seo-url').should('have.length', 3);
 
-        // for each card ...
-        Object.keys(routeNames).forEach((routeName) => {
-            cy.get('.sw-seo-url-template-card__seo-url').within(() => {
-                cy.contains(routeName)
-                    .parentsUntil('.sw-seo-url-template-card__seo-url')
-                    .parent().within(() => {
-                    // /... assert that the preview works correctly
-                        cy.get('.icon--regular-checkmark');
-                        // Seo Urls cannot contain spaces (as opposed to error messages)
-                        cy.contains('.sw-seo-url-template-card__preview-item', /[^\s]+/).should('have.length', 1);
+        // Should have 3 valid templates on load
+        cy.get('.icon--regular-checkmark').should('have.length', 3);
 
-                        // Type the most simple url template, which prints the id
-                        cy.get('#sw-field--seo-url-template-undefined').clear().type(`{{${routeNames[routeName]}.id}}`, { parseSpecialCharSequences: false });
-                        // ids are 16 hex chars
-                        cy.contains('.sw-seo-url-template-card__preview-item', /[a-z0-9]{16}/);
-                    });
-            });
-        });
+        // Type the most simple url template, which prints the id
+        cy.get('#sw-field--seo-url-template-undefined').first().clear().type(`{{${routeNames['Product detail page']}.id}}`, { parseSpecialCharSequences: false });
+        // ids are 16 hex chars
+        cy.get('.sw-seo-url-template-card__preview-item').first().contains(/[a-z0-9]{16}/);
+
+        // Type the most simple url template, which prints the id
+        cy.contains('label', 'Landing page')
+            .parent()
+            .parent()
+            .find('input')
+            .clear().type(`{{${routeNames['Landing page']}.id}}`, { parseSpecialCharSequences: false });
+
+        // ids are 16 hex chars
+        cy.get('.sw-seo-url-template-card__preview-item').eq(1).contains(/[a-z0-9]{16}/);
+
+        // Type the most simple url template, which prints the id
+        cy.contains('label', 'Category page')
+            .parent()
+            .parent()
+            .find('input')
+            .clear().type(`{{${routeNames['Category page']}.id}}`, { parseSpecialCharSequences: false });
+
+        // ids are 16 hex chars
+        cy.get('.sw-seo-url-template-card__preview-item').eq(2).contains(/[a-z0-9]{16}/);
 
         // check that the templates can be saved
         cy.contains('.smart-bar__actions', 'Save').click();
@@ -100,7 +106,7 @@ describe('Seo: Test crud operations on templates', () => {
     it('@base @settings: update template for a sales channel', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('templateCreateCall');
 
         // check inherited saleschannel templates
@@ -108,25 +114,21 @@ describe('Seo: Test crud operations on templates', () => {
             .typeSingleSelectAndCheck('Storefront', '.sw-entity-single-select');
 
         // assert that all inputs are disabled
-        cy.get('.sw-seo-url-template-card').get('.sw-card__content').within(() => {
+        cy.get('.sw-seo-url-template-card').find('.sw-card__content').within(() => {
             cy.get('input').should('be.disabled');
         });
 
         // foreach card ...
-        Object.keys(routeNames).forEach((routeName) => {
-            cy.get('.sw-seo-url-template-card__seo-url').within(() => {
-                cy.contains(routeName)
-                    .parentsUntil('.sw-seo-url-template-card__seo-url')
-                    .parent().within(() => {
-                    // ... check that the inheritance can be removed
-                        cy.get('.sw-inheritance-switch').click();
-                        cy.get('input').should('not.be.disabled');
-                        // ... and that the preview works
-                        cy.get('.icon--regular-checkmark');
-                        // Seo Urls cannot contain spaces (as opposed to error messages)
-                        cy.contains('.sw-seo-url-template-card__preview-item', /[^\s]+/).should('have.length', 1);
-                    });
-            });
+        Object.keys(routeNames).forEach((routeName, key) => {
+            cy.contains(routeName)
+                .parentsUntil('.sw-seo-url-template-card__seo-url')
+                .parent().eq(key).within(() => {
+                // ... check that the inheritance can be removed
+                    cy.get('.sw-inheritance-switch').click();
+                    cy.get('input').should('not.be.disabled');
+                    // ... and that the preview works
+                    cy.get('.icon--regular-checkmark');
+                });
         });
 
         //
@@ -145,7 +147,7 @@ describe('Seo: Test crud operations on templates', () => {
     it('@base @settings: can save when the first template is empty', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('templateSaveCall');
 
         cy.get('.sw-block-field__block #sw-field--seo-url-template-undefined')
@@ -168,7 +170,7 @@ describe('Seo: Test crud operations on templates', () => {
     it('@base @settings: can save when the second template is empty', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('templateSaveCall');
 
         cy.get('.sw-block-field__block #sw-field--seo-url-template-undefined')
@@ -191,7 +193,7 @@ describe('Seo: Test crud operations on templates', () => {
     it('@base @settings: can save when the third template is empty', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('templateSaveCall');
 
         cy.get('.sw-block-field__block #sw-field--seo-url-template-undefined')

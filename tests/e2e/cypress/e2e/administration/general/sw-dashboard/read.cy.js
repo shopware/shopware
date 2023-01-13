@@ -5,19 +5,15 @@ let storefrontCustomer;
 
 describe('Dashboard: Test first sight of the Administration', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'product',
-                    data: {
-                        field: 'name',
-                        value: 'Product name'
-                    }
-                });
-            })
+        cy.createProductFixture().then(() => {
+            return cy.searchViaAdminApi({
+                endpoint: 'product',
+                data: {
+                    field: 'name',
+                    value: 'Product name',
+                },
+            });
+        })
             .then((result) => {
                 return cy.createGuestOrder(result.id);
             })

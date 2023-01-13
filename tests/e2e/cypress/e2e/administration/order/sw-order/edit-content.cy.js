@@ -5,38 +5,38 @@ import OrderPageObject from '../../../../support/pages/module/sw-order.page-obje
 function navigateToOrder(page) {
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/_action/version/order/**`,
-        method: 'POST'
+        method: 'POST',
     }).as('orderEditCall');
 
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/_action/version/merge/order/**`,
-        method: 'POST'
+        method: 'POST',
     }).as('orderSaveCall');
 
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/_action/order/**/product/**`,
-        method: 'POST'
+        method: 'POST',
     }).as('orderAddProductCall');
 
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/_action/order/**/recalculate`,
-        method: 'POST'
+        method: 'POST',
     }).as('orderRecalculateCall');
 
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/order-line-item/**`,
-        method: 'DELETE'
+        method: 'DELETE',
     }).as('deleteLineItemCall');
 
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/order`,
-        method: 'POST'
+        method: 'POST',
     }).as('orderSearchCall');
 
     cy.clickContextMenuItem(
         '.sw-order-list__order-view-action',
         page.elements.contextMenuButton,
-        `${page.elements.dataGridRow}--0`
+        `${page.elements.dataGridRow}--0`,
     );
 
     cy.wait('@orderEditCall').its('response.statusCode').should('equal', 200);
@@ -48,15 +48,18 @@ function navigateToOrder(page) {
  * @param {string|RegExp|null} [content=null]
  */
 function assertPriceBreakdownContains(title, content = null) {
-    const table = cy.get('.sw-order-detail__summary');
-
-    const titleElem = table.children('dt').contains(title);
     if (content !== null) {
-        titleElem.then(($elem) => {
+        cy.get('.sw-order-detail__summary').children('dt').contains(title).then(($elem) => {
             if ($elem.prop('tagName') === 'STRONG') {
-                titleElem.parent().next().children('strong').contains(content);
+                cy.get('.sw-order-detail__summary')
+                    .children('dt')
+                    .contains(title)
+                    .parent()
+                    .next()
+                    .children('strong')
+                    .contains(content);
             } else {
-                titleElem.next().contains(content);
+                cy.get('.sw-order-detail__summary').children('dt').contains(title).next().contains(content);
             }
         });
     }
@@ -64,32 +67,28 @@ function assertPriceBreakdownContains(title, content = null) {
 
 describe('Order: Read order', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.createProductFixture({
-                    name: 'Awesome product',
-                    productNumber: 'RS-1337',
-                    description: 'l33t',
-                    price: [
-                        {
-                            currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                            net: 24,
-                            linked: false,
-                            gross: 128
-                        }
-                    ]
-                });
-            })
+        cy.createProductFixture().then(() => {
+            return cy.createProductFixture({
+                name: 'Awesome product',
+                productNumber: 'RS-1337',
+                description: 'l33t',
+                price: [
+                    {
+                        currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                        net: 24,
+                        linked: false,
+                        gross: 128,
+                    },
+                ],
+            });
+        })
             .then(() => {
                 return cy.searchViaAdminApi({
                     endpoint: 'product',
                     data: {
                         field: 'name',
-                        value: 'Product name'
-                    }
+                        value: 'Product name',
+                    },
                 });
             })
             .then((result) => {
@@ -119,9 +118,6 @@ describe('Order: Read order', () => {
         cy.wait('@orderRecalculateCall').its('response.statusCode').should('equal', 204);
         cy.wait('@orderSearchCall').its('response.statusCode').should('equal', 200);
 
-        // saving too fast results in a patch request that fails
-        cy.wait(1000);
-
         cy.get(page.elements.smartBarSave).click();
         cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
 
@@ -148,8 +144,6 @@ describe('Order: Read order', () => {
         cy.wait('@orderRecalculateCall').its('response.statusCode').should('equal', 204);
         cy.wait('@orderSearchCall').its('response.statusCode').should('equal', 200);
 
-        // saving too fast results in a patch request that fails
-        cy.wait(1000);
         cy.get(page.elements.smartBarSave).click();
         cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
 
@@ -174,7 +168,7 @@ describe('Order: Read order', () => {
             '.sw-context-menu-item',
             '.sw-order-line-items-grid__actions-container .sw-button-group .sw-context-button',
             null,
-            'Add custom item'
+            'Add custom item',
         );
 
         cy.get(`${page.elements.dataGridRow}--0 > .sw-data-grid__cell--label`).dblclick().click();
@@ -192,15 +186,13 @@ describe('Order: Read order', () => {
         cy.wait('@orderRecalculateCall').its('response.statusCode').should('equal', 204);
         cy.wait('@orderSearchCall').its('response.statusCode').should('equal', 200);
 
-        // saving too fast results in a patch request that fails
-        cy.wait(1000);
         cy.get(page.elements.smartBarSave).click();
         cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
         cy.wait('@orderSearchCall').its('response.statusCode').should('equal', 200);
 
         // Assert the price breakdown contains both VATs. This also implies that a recalculation has taken place.
-        assertPriceBreakdownContains(/^\s*plus 19\% VAT\s*$/, /^\s*€[0-9]+\.[0-9]{2}\s*$/);
-        assertPriceBreakdownContains(/^\s*plus 10\% VAT\s*$/, /^\s*€1,215\.45\s*$/);
+        assertPriceBreakdownContains(/^\s*plus 19% VAT\s*$/, /^\s*€[0-9]+\.[0-9]{2}\s*$/);
+        assertPriceBreakdownContains(/^\s*plus 10% VAT\s*$/, /^\s*€1,215\.45\s*$/);
     });
 
     it('@base @order: can add custom credit items', { tags: ['pa-customers-orders'] }, () => {
@@ -213,7 +205,7 @@ describe('Order: Read order', () => {
             '.sw-context-menu-item',
             '.sw-order-line-items-grid__actions-container .sw-button-group .sw-context-button',
             null,
-            'Add credit'
+            'Add credit',
         );
 
         cy.get(`${page.elements.dataGridRow}--0 > .sw-data-grid__cell--label`).dblclick().click();
@@ -226,9 +218,6 @@ describe('Order: Read order', () => {
         cy.get(page.elements.dataGridInlineEditSave).click();
         cy.wait('@orderRecalculateCall').its('response.statusCode').should('equal', 204);
         cy.wait('@orderSearchCall').its('response.statusCode').should('equal', 200);
-
-        // saving too fast results in a patch request that fails
-        cy.wait(1000);
 
         cy.get(page.elements.smartBarSave).click();
         cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
@@ -277,7 +266,7 @@ describe('Order: Read order', () => {
             '.sw-context-menu__content',
             page.elements.contextMenuButton,
             page.elements.tabs.general.gridCard,
-            'Remove from order'
+            'Remove from order',
         );
 
         cy.get(`${page.elements.modal} ${page.elements.dangerButton}`).click();

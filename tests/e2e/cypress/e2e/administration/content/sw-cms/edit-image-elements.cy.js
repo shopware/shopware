@@ -7,16 +7,12 @@ import MediaPageObject from '../../../../support/pages/module/sw-media.page-obje
 
 describe('CMS: Check usage and editing of image elements', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCmsFixture();
-            })
-            .then(() => {
-                cy.viewport(1920, 1080);
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createCmsFixture().then(() => {
+            cy.viewport(1920, 1080);
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @content: use simple image block', { tags: ['pa-content-management'] }, () => {
@@ -24,12 +20,12 @@ describe('CMS: Check usage and editing of image elements', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -96,12 +92,12 @@ describe('CMS: Check usage and editing of image elements', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -109,7 +105,7 @@ describe('CMS: Check usage and editing of image elements', () => {
 
         cy.log('Add simple image block');
         cy.get('.sw-cms-section__empty-stage').click();
-        
+
         cy.get('#sw-field--currentBlockCategory').select('Images');
 
         cy.get('.sw-cms-sidebar__block-selection').should('be.visible');
@@ -186,5 +182,5 @@ describe('CMS: Check usage and editing of image elements', () => {
             .should('be.visible')
             .and('have.attr', 'src')
             .and('match', /sw-storefront-en/);
-    });   
+    });
 });

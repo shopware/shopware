@@ -6,13 +6,9 @@ const page = new ProductPageObject();
 
 describe('SDK Tests: Component section', ()=> {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-            })
+        cy.createProductFixture().then(() => {
+            return cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+        })
             .then(() => {
                 cy.log('Open example product');
 
@@ -29,7 +25,7 @@ describe('SDK Tests: Component section', ()=> {
                 cy.clickContextMenuItem(
                     '.sw-entity-listing__context-menu-edit-action',
                     page.elements.contextMenuButton,
-                    `${page.elements.dataGridRow}--0`
+                    `${page.elements.dataGridRow}--0`,
                 );
 
                 cy.contains('.smart-bar__content', 'Product name');
@@ -39,7 +35,7 @@ describe('SDK Tests: Component section', ()=> {
 
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
-            })
+            });
     });
 
     it('@sdk: add a component section', { tags: ['ct-admin'] }, ()=> {
@@ -53,5 +49,5 @@ describe('SDK Tests: Component section', ()=> {
 
         cy.getSDKiFrame('location-index')
             .should('be.visible');
-    })
-})
+    });
+});

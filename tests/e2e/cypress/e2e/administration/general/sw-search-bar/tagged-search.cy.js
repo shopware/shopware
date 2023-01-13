@@ -3,10 +3,6 @@
 import MediaPageObject from '../../../../support/pages/module/sw-media.page-object';
 
 describe('Search bar: Check search functionality with tags', () => {
-    beforeEach(() => {
-        cy.loginViaApi();
-    });
-
     it('@base @searchBar @search: search for a product using tag in dashboard', { tags: ['pa-system-settings'] }, () => {
         cy.createProductFixture()
             .then(() => {
@@ -43,7 +39,7 @@ describe('Search bar: Check search functionality with tags', () => {
 
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('input.sw-search-bar__input').type('#')
+        cy.get('input.sw-search-bar__input').type('#');
         cy.get('.sw-search-bar__types_container--v2').should('be.visible');
         cy.contains('.sw-search-bar__type-item-name', 'Categories').click();
         cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Categories').should('be.visible');
@@ -96,17 +92,17 @@ describe('Search bar: Check search functionality with tags', () => {
                             currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
                             net: 24,
                             linked: false,
-                            gross: 128
-                        }
-                    ]
+                            gross: 128,
+                        },
+                    ],
                 });
             }).then(() => {
                 return cy.searchViaAdminApi({
                     endpoint: 'product',
                     data: {
                         field: 'name',
-                        value: 'Product name'
-                    }
+                        value: 'Product name',
+                    },
                 });
             }).then((result) => {
                 return cy.createGuestOrder(result.id);
@@ -154,7 +150,7 @@ describe('Search bar: Check search functionality with tags', () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`,
             '',
-            true
+            true,
         );
 
         // Upload image in folder
@@ -172,7 +168,7 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
-        cy.get('input.sw-search-bar__input').type('#')
+        cy.get('input.sw-search-bar__input').type('#');
         cy.get('.sw-search-bar__types_container--v2').should('be.visible');
         cy.contains('.sw-search-bar__type-item-name', 'Media').click();
         cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Media').should('be.visible');

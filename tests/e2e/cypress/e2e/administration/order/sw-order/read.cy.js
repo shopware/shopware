@@ -4,19 +4,15 @@ import OrderPageObject from '../../../../support/pages/module/sw-order.page-obje
 
 describe('Order: Read order', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'product',
-                    data: {
-                        field: 'name',
-                        value: 'Product name'
-                    }
-                });
-            })
+        cy.createProductFixture().then(() => {
+            return cy.searchViaAdminApi({
+                endpoint: 'product',
+                data: {
+                    field: 'name',
+                    value: 'Product name',
+                },
+            });
+        })
             .then((result) => {
                 return cy.createGuestOrder(result.id);
             })
@@ -34,7 +30,7 @@ describe('Order: Read order', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get(page.elements.tabs.general.generalInfoCard).should('exist');
@@ -69,7 +65,7 @@ describe('Order: Read order', () => {
             '.sw-context-menu__content',
             page.elements.contextMenuButton,
             '.sw-order-detail-general__line-item-grid-card',
-            'Show product'
+            'Show product',
         );
 
         cy.contains(page.elements.smartBarHeader, 'Product name');

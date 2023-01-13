@@ -4,29 +4,26 @@ import ProductStreamObject from '../../../../support/pages/module/sw-product-str
 
 describe('Product: Check cross selling integration', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('product-stream');
-            })
+        cy.createDefaultFixture('product-stream')
             .then(() => {
                 return cy.createProductFixture({
                     name: 'Original product',
                     productNumber: 'RS-11111',
-                    description: 'Pudding wafer apple pie fruitcake cupcake. Biscuit cotton candy gingerbread liquorice tootsie roll caramels soufflé. Wafer gummies chocolate cake soufflé.'
+                    description: 'Pudding wafer apple pie fruitcake cupcake. Biscuit cotton candy gingerbread liquorice tootsie roll caramels soufflé. Wafer gummies chocolate cake soufflé.',
                 });
             })
             .then(() => {
                 return cy.createProductFixture({
                     name: 'Second product',
                     productNumber: 'RS-22222',
-                    description: 'Jelly beans jelly-o toffee I love jelly pie tart cupcake topping. Cotton candy jelly beans tootsie roll pie tootsie roll chocolate cake brownie. I love pudding brownie I love.'
+                    description: 'Jelly beans jelly-o toffee I love jelly pie tart cupcake topping. Cotton candy jelly beans tootsie roll pie tootsie roll chocolate cake brownie. I love pudding brownie I love.',
                 });
             })
             .then(() => {
                 return cy.createProductFixture({
                     name: 'Third product',
                     productNumber: 'RS-33333',
-                    description: 'Cookie bonbon tootsie roll lemon drops soufflé powder gummies bonbon. Jelly-o lemon drops cheesecake. I love carrot cake I love toffee jelly beans I love jelly.'
+                    description: 'Cookie bonbon tootsie roll lemon drops soufflé powder gummies bonbon. Jelly-o lemon drops cheesecake. I love carrot cake I love toffee jelly beans I love jelly.',
                 });
             })
             .then(() => {
@@ -42,11 +39,11 @@ describe('Product: Check cross selling integration', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-stream`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveStream');
 
         // Open and adjust product stream
@@ -54,7 +51,7 @@ describe('Product: Check cross selling integration', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get(page.elements.loader).should('not.exist');
 
@@ -63,8 +60,8 @@ describe('Product: Check cross selling integration', () => {
             {
                 field: null,
                 operator: 'Is equal to any of',
-                value: ['Second product', 'Third product']
-            }
+                value: ['Second product', 'Third product'],
+            },
         );
 
         cy.get('.sw-button-process').click();
@@ -81,7 +78,7 @@ describe('Product: Check cross selling integration', () => {
 
         cy.contains(
             `.sw-empty-state ${page.elements.ghostButton}`,
-            'Add new Cross Selling'
+            'Add new Cross Selling',
         ).should('be.visible').click();
         cy.get('.product-detail-cross-selling-form').should('be.visible');
 
@@ -90,7 +87,7 @@ describe('Product: Check cross selling integration', () => {
         cy.get('#sw-field--crossSelling-product-group')
             .typeSingleSelectAndCheck(
                 '1st Productstream',
-                '#sw-field--crossSelling-product-group'
+                '#sw-field--crossSelling-product-group',
             );
         cy.get('input[name="sw-field--crossSelling-active"]').click();
 
@@ -124,15 +121,15 @@ describe('Product: Check cross selling integration', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-stream`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveStream');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-cross-selling/**/assigned-products`,
-            method: 'POST'
+            method: 'POST',
         }).as('assignProduct');
 
         // Open product and add cross selling
@@ -146,7 +143,7 @@ describe('Product: Check cross selling integration', () => {
 
         cy.contains(
             `.sw-empty-state ${page.elements.ghostButton}`,
-            'Add new Cross Selling'
+            'Add new Cross Selling',
         ).should('be.visible').click();
         cy.get('.product-detail-cross-selling-form').should('be.visible');
 
@@ -217,17 +214,17 @@ describe('Product: Check cross selling integration', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-stream`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveStream');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-cross-selling/**/assigned-products`,
-            method: 'POST'
+            method: 'POST',
         }).as('assignProduct');
 
         // Open product and add cross selling
@@ -241,7 +238,7 @@ describe('Product: Check cross selling integration', () => {
 
         cy.contains(
             `.sw-empty-state ${page.elements.ghostButton}`,
-            'Add new Cross Selling'
+            'Add new Cross Selling',
         ).should('be.visible').click();
         cy.get('.product-detail-cross-selling-form').should('be.visible');
 

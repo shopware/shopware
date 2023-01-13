@@ -10,33 +10,30 @@ describe('Tag: Test crud operations', () => {
         const tags = [
             {
                 id: tagId,
-                name: 'Example tag'
-            }
+                name: 'Example tag',
+            },
         ];
         const taxId = uuid().replace(/-/g, '');
 
-        cy.loginViaApi()
-            .then(() => {
-                cy.createDefaultFixture('tax', {
-                    id: taxId
-                });
-            })
+        cy.createDefaultFixture('tax', {
+            id: taxId,
+        })
             .then(() => {
                 cy.createDefaultFixture('product', {
                     productNumber: 'RS-11111',
                     taxId,
-                    tags
+                    tags,
                 }).then(() => {
                     cy.createDefaultFixture('product', {
                         productNumber: 'RS-22222',
                         taxId,
-                        tags
+                        tags,
                     });
                 }).then(() => {
                     cy.createDefaultFixture('product', {
                         productNumber: 'RS-33333',
                         taxId,
-                        tags
+                        tags,
                     });
                 });
             })
@@ -66,14 +63,14 @@ describe('Tag: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/tag/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         cy.get('.sw-settings-tag-list__grid').should('be.visible');
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-modal__body').should('be.visible');
@@ -92,14 +89,14 @@ describe('Tag: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/tag/*`,
-            method: 'POST'
+            method: 'POST',
         }).as('cloneData');
 
         cy.get('.sw-settings-tag-list__grid').should('be.visible');
         cy.clickContextMenuItem(
             '.sw-settings-tag-list__duplicate-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-modal__body').should('be.visible');
@@ -124,15 +121,15 @@ describe('Tag: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/tag`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadProducts');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadCategories');
 
         // Create tag
@@ -172,11 +169,11 @@ describe('Tag: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadProducts');
 
         // Edit tag
@@ -184,7 +181,7 @@ describe('Tag: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-settings-tag-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-settings-tag-detail-modal').should('be.visible');
         cy.get('.sw-settings-tag-detail-modal__tag-name input').clear().typeAndCheck('Edited tag');

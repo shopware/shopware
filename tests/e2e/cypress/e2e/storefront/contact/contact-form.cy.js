@@ -14,7 +14,7 @@ const selector = {
     formContactDataProtectionCheckbox: '.privacy-notice input[type="checkbox"]',
     formContactButtonSubmit: 'button[type="submit"]',
     modalButtonDismiss: '.modal-content .close',
-}
+};
 
 describe('Contact form', () => {
     function openContactForm(callback) {
@@ -50,7 +50,7 @@ describe('Contact form', () => {
         });
     }
 
-    function submitContactForm(callback) {
+    function submitContactForm() {
         cy.intercept({
             method: 'POST',
             url: '/form/contact',

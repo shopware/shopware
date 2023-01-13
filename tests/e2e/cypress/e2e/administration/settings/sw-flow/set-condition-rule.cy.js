@@ -3,14 +3,10 @@
 import SettingsPageObject from '../../../../support/pages/module/sw-settings.page-object';
 
 describe('Flow builder: Set rule for condition sequence testing', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi().then(() => {
-                return cy.createProductFixture();
-            }).then(() => {
-                return cy.createCustomerFixture();
-            });
+        cy.createProductFixture().then(() => {
+            return cy.createCustomerFixture();
+        });
     });
 
     it('@settings: create new rule for condition sequence', { tags: ['pa-business-ops'] }, () => {
@@ -22,7 +18,7 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('getRule');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -140,7 +136,7 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
         cy.get('.sw-flow-rule-modal__tab-rule').click();
         cy.contains('.sw-condition-type-select', 'Day of the week');
         cy.contains('.sw-condition-operator-select', 'Is equal to');
-        cy.contains('.sw-condition-tree', 'Sunday');        
+        cy.contains('.sw-condition-tree', 'Sunday');
 
         cy.get('.sw-flow-rule-modal__save-button').click();
         cy.get('.sw-flow-rule-modal').should('not.exist');

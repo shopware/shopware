@@ -4,19 +4,15 @@ import OrderPageObject from '../../../../support/pages/module/sw-order.page-obje
 
 describe('Order: Test order state', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'product',
-                    data: {
-                        field: 'name',
-                        value: 'Product name'
-                    }
-                });
-            })
+        cy.createProductFixture().then(() => {
+            return cy.searchViaAdminApi({
+                endpoint: 'product',
+                data: {
+                    field: 'name',
+                    value: 'Product name',
+                },
+            });
+        })
             .then((result) => {
                 return cy.createGuestOrder(result.id);
             })
@@ -34,7 +30,7 @@ describe('Order: Test order state', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
+            method: 'POST',
         }).as('orderCall');
 
         cy.intercept({
@@ -51,7 +47,7 @@ describe('Order: Test order state', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get(page.elements.loader).should('not.exist');
@@ -64,7 +60,7 @@ describe('Order: Test order state', () => {
             stateTitle: 'Reminded',
             type: 'payment',
             signal: 'warning',
-            call: 'remind'
+            call: 'remind',
         });
 
         cy.get(page.elements.loader).should('not.exist');
@@ -78,7 +74,7 @@ describe('Order: Test order state', () => {
             stateTitle: 'Cancelled',
             type: 'order',
             signal: 'danger',
-            call: 'cancel'
+            call: 'cancel',
         });
 
         cy.get(page.elements.smartBarBack).click();
@@ -87,7 +83,7 @@ describe('Order: Test order state', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get(page.elements.loader).should('not.exist');
@@ -100,7 +96,7 @@ describe('Order: Test order state', () => {
             stateTitle: 'Open',
             type: 'order',
             signal: 'neutral',
-            call: 'reopen'
+            call: 'reopen',
         });
 
         cy.get(page.elements.smartBarBack).click();
@@ -110,7 +106,7 @@ describe('Order: Test order state', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get(page.elements.loader).should('not.exist');
@@ -123,7 +119,7 @@ describe('Order: Test order state', () => {
             stateTitle: 'In Progress',
             type: 'order',
             signal: 'progress',
-            call: 'process'
+            call: 'process',
         });
 
         cy.get(page.elements.loader).should('not.exist');
@@ -137,7 +133,7 @@ describe('Order: Test order state', () => {
             stateTitle: 'Paid',
             type: 'payment',
             signal: 'success',
-            call: 'pay'
+            call: 'pay',
         });
 
         cy.get(page.elements.loader).should('not.exist');
@@ -151,7 +147,7 @@ describe('Order: Test order state', () => {
             stateTitle: 'Done',
             type: 'order',
             signal: 'success',
-            call: 'complete'
+            call: 'complete',
         });
 
         cy.get(page.elements.smartBarBack).click();
@@ -164,7 +160,7 @@ describe('Order: Test order state', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
+            method: 'POST',
         }).as('orderCall');
 
         cy.intercept({
@@ -181,7 +177,7 @@ describe('Order: Test order state', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         page.changeActiveTab('details');
@@ -196,7 +192,7 @@ describe('Order: Test order state', () => {
             stateTitle: 'Reminded',
             type: 'payment',
             signal: 'warning',
-            call: 'remind'
+            call: 'remind',
         });
 
         cy.get(page.elements.loader).should('not.exist');
@@ -209,7 +205,7 @@ describe('Order: Test order state', () => {
             stateTitle: 'Cancelled',
             type: 'order',
             signal: 'danger',
-            call: 'cancel'
+            call: 'cancel',
         });
 
         cy.get(page.elements.loader).should('not.exist');
@@ -228,7 +224,7 @@ describe('Order: Test order state', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
+            method: 'POST',
         }).as('orderCall');
 
         cy.intercept({
@@ -247,7 +243,7 @@ describe('Order: Test order state', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         page.changeActiveTab('details');
@@ -261,14 +257,14 @@ describe('Order: Test order state', () => {
             stateTitle: 'Open',
             type: 'payment',
             signal: 'neutral',
-            call: 'reopen'
+            call: 'reopen',
         });
 
         page.checkOrderHistoryEntry({
             stateTitle: 'Open',
             type: 'order',
             signal: 'neutral',
-            call: 'reopen'
+            call: 'reopen',
         });
 
         // Set order status to \"Cancelled\"': (browser) => {
@@ -276,7 +272,7 @@ describe('Order: Test order state', () => {
             stateTitle: 'Cancelled',
             type: 'order',
             scope: 'history-card',
-            call: 'cancel'
+            call: 'cancel',
         });
 
         page.checkOrderHistoryEntry({
@@ -290,7 +286,7 @@ describe('Order: Test order state', () => {
             stateTitle: 'Reminded',
             type: 'payment',
             scope: 'history-card',
-            call: 'remind'
+            call: 'remind',
         });
 
         page.checkOrderHistoryEntry({
@@ -304,7 +300,7 @@ describe('Order: Test order state', () => {
             stateTitle: 'Open',
             type: 'order',
             scope: 'history-card',
-            call: 'reopen'
+            call: 'reopen',
         });
 
         page.checkOrderHistoryEntry({
@@ -317,7 +313,7 @@ describe('Order: Test order state', () => {
             stateTitle: 'In Progress',
             type: 'order',
             scope: 'history-card',
-            call: 'process'
+            call: 'process',
         });
 
         page.checkOrderHistoryEntry({
@@ -331,7 +327,7 @@ describe('Order: Test order state', () => {
             stateTitle: 'Done',
             type: 'order',
             scope: 'history-card',
-            call: 'complete'
+            call: 'complete',
         });
 
         page.checkOrderHistoryEntry({
@@ -345,7 +341,7 @@ describe('Order: Test order state', () => {
             stateTitle: 'Paid',
             type: 'payment',
             scope: 'history-card',
-            call: 'pay'
+            call: 'pay',
         });
 
         page.checkOrderHistoryEntry({

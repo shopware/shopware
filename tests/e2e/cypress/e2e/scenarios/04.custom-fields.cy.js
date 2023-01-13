@@ -3,10 +3,7 @@ import RuleBuilderPageObject from '../../support/pages/module/sw-rule.page-objec
 
 describe('Creating custom fields and assigning to various models', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.setLocaleToEnGb();
-            })
+        cy.setLocaleToEnGb()
             .then(() => {
                 cy.createProductFixture();
             })
@@ -21,12 +18,12 @@ describe('Creating custom fields and assigning to various models', () => {
     it('@package: create custom text field and verify from categories, product', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('category');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/custom-field-set`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         const typeOfTheCustom = 'Tekstveld';
@@ -86,17 +83,17 @@ describe('Creating custom fields and assigning to various models', () => {
     it('@package: create custom number field and verify with rule builder', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('category');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/category/**`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('updateCategory');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/custom-field-set`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         const page = new RuleBuilderPageObject();
@@ -138,7 +135,7 @@ describe('Creating custom fields and assigning to various models', () => {
 
         // check custom fields from the categories
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.contains('.sw-tree-item__label', 'Home')
+        cy.contains('.sw-tree-item__label', 'Home');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'category/index');

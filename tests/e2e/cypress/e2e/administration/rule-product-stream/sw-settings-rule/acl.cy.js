@@ -4,13 +4,9 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 
 describe('Rule builder: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('rule');
-            })
-            .then(() => {
-                return cy.createDefaultFixture('promotion');
-            })
+        cy.createDefaultFixture('rule').then(() => {
+            return cy.createDefaultFixture('promotion');
+        })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
@@ -20,12 +16,12 @@ describe('Rule builder: Test crud operations', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'flow',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
             cy.get('.sw-rule-list-grid').should('exist');
@@ -60,16 +56,16 @@ describe('Rule builder: Test crud operations', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'flow',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'rule',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
             cy.get('.sw-rule-list-grid').should('exist');
@@ -82,7 +78,7 @@ describe('Rule builder: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
@@ -107,7 +103,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu')
             .should('to.have.prop', 'disabled', false);
 
-        cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu').click()
+        cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu').click();
         cy.get('.sw-settings-rule-detail__save-duplicate-action').should('to.have.class', 'is--disabled', true);
 
         // Verify rule
@@ -133,20 +129,20 @@ describe('Rule builder: Test crud operations', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'flow',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'rule',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'rule',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
             cy.get('.sw-rule-list-grid').should('exist');
@@ -159,7 +155,7 @@ describe('Rule builder: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-skeleton').should('not.exist');
@@ -231,7 +227,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu')
             .should('to.have.prop', 'disabled', false);
 
-        cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu').click()
+        cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu').click();
         cy.get('.sw-settings-rule-detail__save-duplicate-action').should('not.to.have.class', 'is--disabled');
     });
 
@@ -239,16 +235,16 @@ describe('Rule builder: Test crud operations', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'flow',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'rule',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
             cy.get('.sw-rule-list-grid').should('exist');
@@ -261,7 +257,7 @@ describe('Rule builder: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         // Delete rule
@@ -272,7 +268,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-listing__confirm-delete-text')
             .contains('Are you sure you want to delete this item?');

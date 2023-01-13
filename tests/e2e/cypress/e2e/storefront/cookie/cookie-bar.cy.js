@@ -19,15 +19,15 @@ describe('Test if the cookie bar works correctly', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`
+                    Authorization: `Bearer ${result.access}`,
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.basicInformation.acceptAllCookies': true
-                    }
-                }
+                        'core.basicInformation.acceptAllCookies': true,
+                    },
+                },
             };
 
             return cy.request(requestConfig);

@@ -37,7 +37,7 @@ describe('Wishlist: for wishlist page', () => {
     beforeEach(() => {
         cy.setCookie('wishlist-enabled', '1');
 
-        cy.authenticate().then((result) => {
+        cy.getBearerAuth().then((result) => {
             const requestConfig = {
                 headers: {
                     Authorization: `Bearer ${result.access}`,
@@ -65,8 +65,8 @@ describe('Wishlist: for wishlist page', () => {
                 }).then(() => {
                     cy.visit('/wishlist');
                 });
-            })
-        })
+            });
+        });
     });
 
     it('@wishlist @package: does some simple testing of the wishlist', { tags: ['pa-checkout'] }, () => {
@@ -103,10 +103,10 @@ describe('Wishlist: for wishlist page', () => {
 
             cy.wait('@guestPagelet').its('response.statusCode').should('equal', 200)
                 .then(() => {
-                    expect(localStorage.getItem('wishlist-products')).to.equal(null)
+                    expect(localStorage.getItem('wishlist-products')).to.equal(null);
                 });
 
-            cy.get('.cms-listing-row h1').contains('Your wishlist is empty')
+            cy.get('.cms-listing-row h1').contains('Your wishlist is empty');
             cy.get('.cms-listing-row p').contains('Keep an eye on products you like by adding them to your wishlist.');
         });
     });
@@ -163,5 +163,5 @@ describe('Wishlist: for wishlist page', () => {
         cy.get('.product-wishlist-form [type="submit"]').click();
 
         cy.get('.alert-success').contains('You have successfully removed the product from your wishlist.');
-    })
+    });
 });

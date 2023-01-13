@@ -5,16 +5,13 @@
 
 describe('Category: Test drag categories', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.searchViaAdminApi({
-                    endpoint: 'category',
-                    data: {
-                        field: 'name',
-                        value: 'Home'
-                    }
-                });
-            })
+        cy.searchViaAdminApi({
+            endpoint: 'category',
+            data: {
+                field: 'name',
+                value: 'Home',
+            },
+        })
             .then(({ id: categoryId }) => {
                 cy.createCategoryFixture({
                     name: 'Child 1',
@@ -23,16 +20,16 @@ describe('Category: Test drag categories', () => {
                     children: [
                         {
                             name: 'Grandchild',
-                            type: 'page'
-                        }
-                    ]
+                            type: 'page',
+                        },
+                    ],
                 })
                     .then(({ id: childId }) => {
                         cy.createCategoryFixture({
                             name: 'Child 2',
                             type: 'page',
                             parentId: categoryId,
-                            afterCategoryId: childId
+                            afterCategoryId: childId,
                         });
                     });
             })
@@ -46,7 +43,7 @@ describe('Category: Test drag categories', () => {
     it('@base @catalogue: can drag category and expand', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadCategory');
 
         // drag Child 1 to second position

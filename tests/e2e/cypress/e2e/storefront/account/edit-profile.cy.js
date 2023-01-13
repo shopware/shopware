@@ -12,22 +12,22 @@ describe('Account: Edit profile', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`
+                    Authorization: `Bearer ${result.access}`,
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.loginRegistration.showAccountTypeSelection': true
-                    }
-                }
+                        'core.loginRegistration.showAccountTypeSelection': true,
+                    },
+                },
             };
             return cy.request(requestConfig);
         });
 
         cy.visit('/account/login');
 
-        cy.window().then((win) => {
+        cy.window().then(() => {
             const page = new AccountPageObject();
 
             // Login

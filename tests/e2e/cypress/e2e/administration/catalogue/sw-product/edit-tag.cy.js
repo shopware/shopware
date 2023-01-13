@@ -4,13 +4,9 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Product: Tagging product', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.createDefaultFixture('tag');
-            })
+        cy.createProductFixture().then(() => {
+            return cy.createDefaultFixture('tag');
+        })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -24,13 +20,13 @@ describe('Product: Tagging product', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Use existing ones

@@ -4,12 +4,10 @@ import ProductPageObject from '../../support/pages/module/sw-product.page-object
 
 describe('Bulk Edit - Products', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture();
-        }).then(() => {
+        cy.createProductFixture().then(() => {
             return cy.createPropertyFixture({
                 name: 'Size',
-                options: [{name: 'S'}, {name: 'M'}, {name: 'L'}]
+                options: [{name: 'S'}, {name: 'M'}, {name: 'L'}],
             });
         }).then(() => {
             cy.createProductFixture({
@@ -18,8 +16,8 @@ describe('Bulk Edit - Products', () => {
                 price: [{
                     currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
                     linked: true,
-                    gross: 60
-                }]
+                    gross: 60,
+                }],
             });
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
@@ -29,17 +27,17 @@ describe('Bulk Edit - Products', () => {
     it('@package: should modify products with bulk edit functionality', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('getProduct');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/user-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('getUserConfig');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         const page = new ProductPageObject();
@@ -112,7 +110,7 @@ describe('Bulk Edit - Products', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-text-editor__content-editor').should('include.text', 'Bulk edit test');
         cy.get('.sw-product-detail-base__deliverability .sw-card__title').scrollIntoView();
@@ -138,7 +136,7 @@ describe('Bulk Edit - Products', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--1`
+            `${page.elements.dataGridRow}--1`,
         );
         cy.get('.sw-text-editor__content-editor').should('include.text', 'Bulk edit test');
         cy.get('.sw-product-detail-base__deliverability .sw-card__title').scrollIntoView();

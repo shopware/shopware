@@ -4,16 +4,11 @@ import MenuPageObject from '../../../../support/pages/module/sw-admin-menu.page-
 
 describe('Admin menu: Toggle different admin menu appearances, change and assert administration language', () => {
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi()
-            .then(() => {
-                cy.setLocaleToEnGb();
-            })
-            .then(() => {
-                cy.openInitialPage(Cypress.env('admin'));
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.setLocaleToEnGb().then(() => {
+            cy.openInitialPage(Cypress.env('admin'));
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@navigation: toggle different menu appearances', { tags: ['ct-admin'] }, () => {

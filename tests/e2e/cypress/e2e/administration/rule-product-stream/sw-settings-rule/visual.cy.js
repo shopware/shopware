@@ -4,27 +4,23 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 
 describe('Rule builder: Visual tests', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('rule');
-            })
-            .then(() => {
-                cy.openInitialPage(Cypress.env('admin'));
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createDefaultFixture('rule').then(() => {
+            cy.openInitialPage(Cypress.env('admin'));
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@visual: check appearance of basic rule workflow', { tags: ['pa-business-ops'] }, () => {
         const page = new RulePageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
         cy.get('#sw-settings-rule').click();
         cy.wait('@getData')
@@ -53,7 +49,7 @@ describe('Rule builder: Visual tests', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Take snapshot
@@ -73,7 +69,7 @@ describe('Rule builder: Visual tests', () => {
                 selector: '@condition-general',
                 type: 'Item with free shipping',
                 operator: null,
-                value: 'No'
+                value: 'No',
             });
 
             cy.get('button.sw-button').contains('Add AND condition').click();
@@ -85,7 +81,7 @@ describe('Rule builder: Visual tests', () => {
                 type: 'Grand total',
                 operator: 'Is greater than',
                 inputName: 'amount',
-                value: '100'
+                value: '100',
             });
 
             cy.get('@second-condition').within(() => {
@@ -103,7 +99,7 @@ describe('Rule builder: Visual tests', () => {
                 selector: '@second-condition',
                 type: 'Customer group',
                 operator: 'Is none of',
-                value: 'Standard customer group'
+                value: 'Standard customer group',
             });
 
             cy.get('@second-condition').within(() => {
@@ -122,7 +118,7 @@ describe('Rule builder: Visual tests', () => {
                 selector: '@third-condition',
                 type: 'Billing address: Country',
                 operator: 'Is none of',
-                value: 'Australia'
+                value: 'Australia',
             });
         });
 
@@ -139,7 +135,7 @@ describe('Rule builder: Visual tests', () => {
                 selector: '.sw-condition',
                 type: 'New customer',
                 operator: null,
-                value: 'Yes'
+                value: 'Yes',
             });
 
             cy.get('button.sw-button').contains('Add subconditions').click();
@@ -153,7 +149,7 @@ describe('Rule builder: Visual tests', () => {
                 type: 'Total quantity of all products',
                 operator: 'Is equal to',
                 inputName: 'count',
-                value: 100
+                value: 100,
             });
         });
 

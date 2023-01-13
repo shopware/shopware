@@ -4,19 +4,15 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Category: SDK Test', ()=> {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.createProductFixture().then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
 
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
 
-                cy.getSDKiFrame('sw-main-hidden')
-                    .should('exist');
-            });
+            cy.getSDKiFrame('sw-main-hidden')
+                .should('exist');
+        });
     });
     it('@sdk: Check tab existence', { tags: ['ct-admin'] }, ()=> {
         const Page = new ProductPageObject();
@@ -24,7 +20,7 @@ describe('Category: SDK Test', ()=> {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             Page.elements.contextMenuButton,
-            `${Page.elements.dataGridRow}--0`
+            `${Page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-product-detail__tab-general')
@@ -41,5 +37,5 @@ describe('Category: SDK Test', ()=> {
 
         cy.getSDKiFrame('ui-modals')
             .should('exist');
-    })
-})
+    });
+});

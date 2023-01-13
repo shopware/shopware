@@ -5,59 +5,55 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 const resultCases = [
     {
         value: 'Red',
-        length: 3
+        length: 3,
     },
     {
         value: 'Redhouse',
-        length: 2
+        length: 2,
     },
     {
         value: 'Green',
-        length: 1
+        length: 1,
     },
     {
         value: 'Test',
-        length: 2
+        length: 2,
     },
     {
         value: 'Redhouse: Test',
-        length: 2
+        length: 2,
     },
     {
         value: 'Color: green',
-        length: 1
-    }
+        length: 1,
+    },
 ];
 
 describe('Rule builder: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('rule');
-            })
-            .then(() => {
-                return cy.createPropertyFixture({
-                    options: [
-                        {
-                            name: 'Red'
-                        },
-                        {
-                            name: 'Green'
-                        }
-                    ]
-                });
-            })
+        cy.createDefaultFixture('rule').then(() => {
+            return cy.createPropertyFixture({
+                options: [
+                    {
+                        name: 'Red',
+                    },
+                    {
+                        name: 'Green',
+                    },
+                ],
+            });
+        })
             .then(() => {
                 return cy.createPropertyFixture({
                     name: 'Redhouse',
                     options: [
                         {
-                            name: 'Test 1'
+                            name: 'Test 1',
                         },
                         {
-                            name: 'Test 2'
-                        }
-                    ]
+                            name: 'Test 2',
+                        },
+                    ],
                 });
             })
             .then(() => {
@@ -77,7 +73,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-condition-tree .sw-condition-or-container .sw-condition-and-container')
@@ -92,7 +88,7 @@ describe('Rule builder: Test crud operations', () => {
                 selector: '@condition-general',
                 type: 'Item with free shipping',
                 operator: null,
-                value: 'No'
+                value: 'No',
             });
 
             cy.get('button.sw-button').contains('Add AND condition').click();
@@ -104,7 +100,7 @@ describe('Rule builder: Test crud operations', () => {
                 type: 'Grand total',
                 operator: 'Is greater than',
                 inputName: 'amount',
-                value: '100'
+                value: '100',
             });
 
             cy.get('@second-condition').within(() => {
@@ -122,7 +118,7 @@ describe('Rule builder: Test crud operations', () => {
                 selector: '@second-condition',
                 type: 'Customer group',
                 operator: 'Is none of',
-                value: 'Standard customer group'
+                value: 'Standard customer group',
             });
 
             cy.get('@second-condition').within(() => {
@@ -141,7 +137,7 @@ describe('Rule builder: Test crud operations', () => {
                 selector: '@third-condition',
                 type: 'Billing address: Country',
                 operator: 'Is none of',
-                value: 'Australia'
+                value: 'Australia',
             });
         });
 
@@ -158,7 +154,7 @@ describe('Rule builder: Test crud operations', () => {
                 selector: '.sw-condition',
                 type: 'New customer',
                 operator: null,
-                value: 'Yes'
+                value: 'Yes',
             });
 
             cy.get('.sw-condition-and-container__actions--sub').click();
@@ -207,7 +203,7 @@ describe('Rule builder: Test crud operations', () => {
                     cy.clickContextMenuItem(
                         '.sw-entity-listing__context-menu-edit-action',
                         page.elements.contextMenuButton,
-                        `${page.elements.dataGridRow}--0`
+                        `${page.elements.dataGridRow}--0`,
                     );
 
                     cy.get('.sw-condition-tree .sw-condition-or-container .sw-condition-and-container')
@@ -223,12 +219,10 @@ describe('Rule builder: Test crud operations', () => {
                         cy.get('@condition-general').within(() => {
                             cy.get('.sw-select input').last().clearTypeAndCheck(resultCase.value);
 
-                            const selectResultList = cy.window().then(() => {
-                                return cy.wrap(Cypress.$('.sw-select-result-list-popover-wrapper'));
+                            cy.window().then(() => {
+                                cy.wrap(Cypress.$('.sw-select-result-list-popover-wrapper')).should('be.visible');
+                                cy.wrap(Cypress.$('.sw-select-result-list-popover-wrapper')).find('.sw-select-result').should('have.length', resultCase.length);
                             });
-
-                            selectResultList.should('be.visible');
-                            selectResultList.find('.sw-select-result').should('have.length', resultCase.length);
                         });
                     });
                 });

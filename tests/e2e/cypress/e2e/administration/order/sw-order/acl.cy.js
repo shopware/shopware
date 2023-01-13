@@ -4,19 +4,15 @@ import OrderPageObject from '../../../../support/pages/module/sw-order.page-obje
 
 describe('Order: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'product',
-                    data: {
-                        field: 'name',
-                        value: 'Product name'
-                    }
-                });
-            })
+        cy.createProductFixture().then(() => {
+            return cy.searchViaAdminApi({
+                endpoint: 'product',
+                data: {
+                    field: 'name',
+                    value: 'Product name',
+                },
+            });
+        })
             .then((result) => {
                 return cy.createGuestOrder(result.id);
             })
@@ -25,14 +21,14 @@ describe('Order: Test ACL privileges', () => {
             });
     });
 
-    it('@acl: can read order', { tags: ['pa-customers-orders'] }, () => {
+    it.only('@acl: can read order', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         cy.loginAsUserWithPermissions([
             {
                 key: 'order',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -43,7 +39,7 @@ describe('Order: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.contains(page.elements.tabs.general.summaryMainHeader, '- Max Mustermann (max.mustermann@example.com)');
@@ -71,17 +67,17 @@ describe('Order: Test ACL privileges', () => {
     it('@acl: can edit order', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/order/**/product/**`,
-            method: 'POST'
+            method: 'POST',
         }).as('orderAddProductCall');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/version/merge/order/**`,
-            method: 'POST'
+            method: 'POST',
         }).as('orderSaveCall');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/order/**/recalculate`,
-            method: 'POST'
+            method: 'POST',
         }).as('recalculateCall');
 
         const page = new OrderPageObject();
@@ -89,12 +85,12 @@ describe('Order: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'order',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'order',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -105,7 +101,7 @@ describe('Order: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.contains(page.elements.tabs.general.summaryMainHeader,
@@ -139,7 +135,7 @@ describe('Order: Test ACL privileges', () => {
     it('@acl: can delete order', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/order/**`,
-            method: 'delete'
+            method: 'delete',
         }).as('orderDeleteCall');
 
         const page = new OrderPageObject();
@@ -147,16 +143,16 @@ describe('Order: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'order',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'order',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'order',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -167,10 +163,10 @@ describe('Order: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.modal} .sw-order-list__confirm-delete-text`,
-            'Do you really want to delete this order (10000)?'
+            'Do you really want to delete this order (10000)?',
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 

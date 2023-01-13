@@ -4,12 +4,9 @@ import SalesChannelPageObject from '../../../../support/pages/module/sw-sales-ch
 
 describe('Basic Informaion: Edit assignments', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/basic/information/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/basic/information/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@settings: assign 404 error layout and test rollout', { tags: ['pa-system-settings'] }, () => {
@@ -18,7 +15,7 @@ describe('Basic Informaion: Edit assignments', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Assign 404 layout to all sales channels
@@ -31,7 +28,7 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.get('.sw-cms-page-select[name="core.basicInformation.http404Page"]')
             .typeSingleSelectAndCheck(
                 '404 Layout',
-                '.sw-cms-page-select[name="core.basicInformation.http404Page"] .sw-entity-single-select'
+                '.sw-cms-page-select[name="core.basicInformation.http404Page"] .sw-entity-single-select',
             );
 
         cy.get('.smart-bar__content .sw-button--primary').click();
@@ -54,12 +51,12 @@ describe('Basic Informaion: Edit assignments', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveSettings');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/sales-channel/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveSalesChannel');
 
         // Assign Maintenance layout to all sales channels
@@ -72,7 +69,7 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.get('.sw-cms-page-select[name="core.basicInformation.maintenancePage"]')
             .typeSingleSelectAndCheck(
                 'Maintenance',
-                '.sw-cms-page-select[name="core.basicInformation.maintenancePage"] .sw-entity-single-select'
+                '.sw-cms-page-select[name="core.basicInformation.maintenancePage"] .sw-entity-single-select',
             );
 
         cy.get('.smart-bar__content .sw-button--primary').click();
@@ -101,7 +98,7 @@ describe('Basic Informaion: Edit assignments', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/sales-channel/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveSalesChannel');
 
         salesChannelPage.openSalesChannel('Storefront', 1);
@@ -120,7 +117,7 @@ describe('Basic Informaion: Edit assignments', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-card.sw-system-config__card--3').scrollIntoView();

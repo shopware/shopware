@@ -4,9 +4,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     let page = null;
 
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            return cy.createDefaultFixture('import-export-profile');
-        }).then(() => {
+        cy.createDefaultFixture('import-export-profile').then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
@@ -22,7 +20,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it('@settings: Create and read update only profile', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Perform create new profile action
@@ -33,12 +31,12 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-edit-profile-general__object-type-select')
             .typeSingleSelectAndCheck(
                 'Product',
-                '.sw-import-export-edit-profile-general__object-type-select'
+                '.sw-import-export-edit-profile-general__object-type-select',
             );
         cy.get('.sw-import-export-edit-profile-general__type-select')
             .typeSingleSelectAndCheck(
                 'Import and export',
-                '.sw-import-export-edit-profile-general__type-select'
+                '.sw-import-export-edit-profile-general__type-select',
             );
 
         // Set profile to update only
@@ -57,9 +55,9 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('#mappedKey-0').typeAndCheck('description');
         cy.get('.sw-import-export-entity-path-select__selection')
             .first().typeSingleSelectAndCheck(
-            'description',
-            '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
-        );
+                'description',
+                '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)',
+            );
 
         // Save the profile
         cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button').click();
@@ -74,7 +72,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it('@settings @base: Create and read profile with wizard', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Perform create new profile action
@@ -89,13 +87,13 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(page.elements.importExportObjectTypeSelect)
             .typeSingleSelectAndCheck(
                 'Media',
-                page.elements.importExportObjectTypeSelect
+                page.elements.importExportObjectTypeSelect,
             );
 
         cy.get(page.elements.importExportTypeSelect)
             .typeSingleSelectAndCheck(
                 'Import and export',
-                page.elements.importExportTypeSelect
+                page.elements.importExportTypeSelect,
             );
 
         // navigate to next wizard page (CSV upload)
@@ -109,7 +107,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         // Check if required mapping have been filled out directly
         cy.get('#mappedKey-0')
             .should('be.visible')
-            .and('have.value', 'id')
+            .and('have.value', 'id');
 
         cy.contains('.sw-data-grid__row--0 .sw-import-export-entity-path-select__selection-text', 'id')
             .should('be.visible');
@@ -122,7 +120,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-entity-path-select__selection')
             .first().typeSingleSelectAndCheck(
                 'id',
-                '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
+                '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)',
             );
 
         // check that the required id field is system required and the requirement can't be unchecked
@@ -135,7 +133,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-entity-path-select__selection').first()
             .typeSingleSelectAndCheck(
                 'createdAt',
-                '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
+                '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)',
             );
 
         // check that the createdAt field is can be required by the user
@@ -170,12 +168,12 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it('@settings @base: Createprofile with wizard and import mapping via CSV file', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/mapping-from-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('mappingData');
 
         // Perform create new profile action
@@ -190,13 +188,13 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(page.elements.importExportObjectTypeSelect)
             .typeSingleSelectAndCheck(
                 'Media',
-                page.elements.importExportObjectTypeSelect
+                page.elements.importExportObjectTypeSelect,
             );
 
         cy.get(page.elements.importExportTypeSelect)
             .typeSingleSelectAndCheck(
                 'Import and export',
-                page.elements.importExportTypeSelect
+                page.elements.importExportTypeSelect,
             );
 
         // navigate to next wizard page (CSV upload)
@@ -207,7 +205,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-file-input__file-input').attachFile({
             filePath: 'csv/profile-mapping.csv',
             fileName: 'profile-mapping.csv',
-            mimeType: 'text/csv'
+            mimeType: 'text/csv',
         });
         cy.wait('@mappingData').its('response.statusCode').should('equal', 200);
 
@@ -227,25 +225,25 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         // first csv column 'id'
         cy.get('#mappedKey-0').should('have.value', 'some_custom_field');
         cy.get(
-            `${page.elements.dataGridRow}--0 ${page.elements.importExportEntityPathSelect}:nth-of-type(1)`
+            `${page.elements.dataGridRow}--0 ${page.elements.importExportEntityPathSelect}:nth-of-type(1)`,
         ).should('contain', 'Not mapped');
 
         // second csv column 'some_custom_field'
         cy.get('#mappedKey-1').should('have.value', 'id');
         cy.get(
-            `${page.elements.dataGridRow}--1 ${page.elements.importExportEntityPathSelect}:nth-of-type(1)`
+            `${page.elements.dataGridRow}--1 ${page.elements.importExportEntityPathSelect}:nth-of-type(1)`,
         ).should('contain', 'id');
 
         // third csv column 'title'
         cy.get('#mappedKey-2').should('have.value', 'user_email');
         cy.get(
-            `${page.elements.dataGridRow}--2 ${page.elements.importExportEntityPathSelect}:nth-of-type(1)`
+            `${page.elements.dataGridRow}--2 ${page.elements.importExportEntityPathSelect}:nth-of-type(1)`,
         ).should('contain', 'user.email');
 
         // fourth csv column 'user_email'
         cy.get('#mappedKey-3').should('have.value', 'title');
         cy.get(
-            `${page.elements.dataGridRow}--3 ${page.elements.importExportEntityPathSelect}:nth-of-type(1)`
+            `${page.elements.dataGridRow}--3 ${page.elements.importExportEntityPathSelect}:nth-of-type(1)`,
         ).should('contain', 'translations.DEFAULT.title');
 
         // Save / add the profile
@@ -261,7 +259,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it('@settings @base: Duplicate profile', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
@@ -276,7 +274,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-import-export-view-profiles__listing-duplicate-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Wait for detail modal
@@ -294,7 +292,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it('@settings: Update and read profile', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
@@ -303,7 +301,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').should('be.visible');
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').clear();
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').type('E2E', {
-            delay: 400
+            delay: 400,
         });
 
         cy.get('.sw-import-export-view-profiles__search input[type="text"]')
@@ -317,7 +315,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-import-export-view-profiles__listing-open-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Wait for detail modal
@@ -342,11 +340,11 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.onlyOnFeature('FEATURE_NEXT_16271');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-profile`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadData');
 
         // change content language to german
@@ -366,7 +364,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-import-export-view-profiles__listing-open-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Wait for detail modal
@@ -408,7 +406,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it('@settings @base: Create profile disabled in different content language', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-profile`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadData');
 
         // check that the add new profile button is enabled in the system language
@@ -426,12 +424,12 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it('@settings: Delete profile', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-profile`,
-            method: 'POST'
+            method: 'POST',
         }).as('search');
 
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
@@ -450,7 +448,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-import-export-view-profiles__listing-delete-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Wait for delete confirmation modal
@@ -481,7 +479,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it('@settings @base: Create an export profile with wizard', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Perform create new profile action
@@ -496,13 +494,13 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(page.elements.importExportObjectTypeSelect)
             .typeSingleSelectAndCheck(
                 'Media',
-                page.elements.importExportObjectTypeSelect
+                page.elements.importExportObjectTypeSelect,
             );
 
         cy.get(page.elements.importExportTypeSelect)
             .typeSingleSelectAndCheck(
                 'Export',
-                page.elements.importExportTypeSelect
+                page.elements.importExportTypeSelect,
             );
 
         // navigate to next wizard page (CSV upload)
@@ -522,7 +520,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-entity-path-select__selection')
             .first().typeSingleSelectAndCheck(
                 'fileName',
-                '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
+                '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)',
             );
 
         // Save / add the profile

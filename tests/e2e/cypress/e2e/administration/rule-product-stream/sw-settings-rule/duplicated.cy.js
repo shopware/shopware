@@ -4,12 +4,9 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 
 describe('Rule builder: Test duplication of rule', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@rule: Duplication of rules should open duplicated one for editing', { tags: ['pa-business-ops'] }, () => {
@@ -19,18 +16,18 @@ describe('Rule builder: Test duplication of rule', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchData');
 
         // Request for duplicate Rule
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/rule/*`,
-            method: 'POST'
+            method: 'POST',
         }).as('duplicateData');
 
         cy.get('a[href="#/sw/settings/rule/create"]').click();
@@ -78,7 +75,7 @@ describe('Rule builder: Test duplication of rule', () => {
             cy.clickContextMenuItem(
                 '.sw-context-menu-item:nth-child(2)',
                 page.elements.contextMenuButton,
-                `${page.elements.dataGridRow}--0`
+                `${page.elements.dataGridRow}--0`,
             );
 
             // Verify duplicate
@@ -91,7 +88,7 @@ describe('Rule builder: Test duplication of rule', () => {
             // Click save and duplicate
             cy.clickContextMenuItem(
                 '.sw-settings-rule-detail__save-duplicate-action',
-                '.sw-settings-rule-detail__save-button-group .sw-context-button'
+                '.sw-settings-rule-detail__save-button-group .sw-context-button',
             );
 
             cy.get('input[name=sw-field--rule-name]').should('have.value', 'Duplication RuleBuilder Copy Copy');

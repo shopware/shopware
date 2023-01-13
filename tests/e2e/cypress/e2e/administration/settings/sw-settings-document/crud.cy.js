@@ -2,9 +2,7 @@
 
 describe('Documents: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            return cy.createProductFixture();
-        })
+        cy.createProductFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/document/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -30,18 +28,18 @@ describe('Documents: Test crud operations', () => {
                 .click();
 
             // scroll the checkbox for the option "Display header" into view
-            cy.get('.sw-field--checkbox__content:nth(8)').scrollIntoView()
+            cy.get('.sw-field--checkbox__content:nth(8)').scrollIntoView();
 
             // check that the correct element is selected and check the checkbox
-            cy.contains('.sw-field--checkbox__content:nth(8)', 'Display "intra-Community delivery" label')
-            cy.get('.sw-field--checkbox__content:nth(8) input[type=checkbox]').check()
+            cy.contains('.sw-field--checkbox__content:nth(8)', 'Display "intra-Community delivery" label');
+            cy.get('.sw-field--checkbox__content:nth(8) input[type=checkbox]').check();
 
             // scroll the country select into view
             cy.get('.sw-settings-document-detail__field_delivery_countries').scrollIntoView();
 
             // select country
             cy.get('.sw-settings-document-detail__field_delivery_countries').typeMultiSelectAndCheck('Germany', {
-                searchTerm: 'Germany'
+                searchTerm: 'Germany',
             });
 
             // do saving action.

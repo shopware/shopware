@@ -1,18 +1,14 @@
 /// <reference types="Cypress" />
 describe('create role with different permissions', () => {
-    beforeEach(() => {
-        cy.loginViaApi();
-    });
-
     it('@package: create role', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/acl-role`,
-            method: 'POST'
+            method: 'POST',
         }).as('aclRoleSearch');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/acl-role`,
-            method: 'POST'
+            method: 'POST',
         }).as('aclRoleSave');
 
         const permission = '.sw-users-permissions-permissions-grid';
@@ -76,10 +72,10 @@ describe('create role with different permissions', () => {
         //switch to detailed privilleges and check permissions
         cy.get('.sw-tabs__content').contains('Gedetailleerde bevoegdheden').click();
         cy.get(`${detailedPermission}__entry_acl_role > ${detailedPermission}__role_create`)
-            .find('[type="checkbox"]').should('be.disabled')
+            .find('[type="checkbox"]').should('be.disabled');
         cy.get(`${detailedPermission}__entry_cms_section > ${detailedPermission}__role_delete`)
-            .find('[type="checkbox"]').should('be.disabled')
+            .find('[type="checkbox"]').should('be.disabled');
         cy.get(`${detailedPermission}__entry_plugin > ${detailedPermission}__role_create`)
-            .find('[type="checkbox"]').should('be.enabled')
-    })
-})
+            .find('[type="checkbox"]').should('be.enabled');
+    });
+});

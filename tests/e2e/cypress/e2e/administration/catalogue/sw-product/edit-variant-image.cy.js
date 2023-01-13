@@ -21,7 +21,7 @@ function createVariant(page) {
     cy.clickContextMenuItem(
         '.sw-entity-listing__context-menu-edit-action',
         page.elements.contextMenuButton,
-        `${page.elements.dataGridRow}--0`
+        `${page.elements.dataGridRow}--0`,
     );
 
     cy.get('.sw-product-detail__tab-variants').click();
@@ -48,15 +48,11 @@ function createVariant(page) {
 
 describe('Product: Test variants', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createPropertyFixture({
-                    options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]
-                });
-            })
-            .then(() => {
-                return cy.createProductFixture();
-            })
+        cy.createPropertyFixture({
+            options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }],
+        }).then(() => {
+            return cy.createProductFixture();
+        })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -70,17 +66,17 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchVariantGroup');
 
         cy.intercept({
             url: `${Cypress.config('baseUrl')}/detail/**/switch?options=*`,
-            method: 'GET'
+            method: 'GET',
         }).as('changeVariant');
 
         createVariant(page);
@@ -163,17 +159,17 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchVariantGroup');
 
         cy.intercept({
             url: `${Cypress.config('baseUrl')}/detail/**/switch?options=*`,
-            method: 'GET'
+            method: 'GET',
         }).as('changeVariant');
 
         createVariant(page);
@@ -287,12 +283,12 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchVariantGroup');
 
         createVariant(page);

@@ -4,10 +4,7 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Snippet set: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('snippet-set');
-            })
+        cy.createDefaultFixture('snippet-set')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -58,7 +55,7 @@ describe('Snippet set: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.gridRow}--0`
+            `${page.elements.gridRow}--0`,
         );
 
         cy.get('.sw-modal__body').should('be.visible');

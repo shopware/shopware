@@ -24,7 +24,7 @@ describe('Minimal auto update', () => {
                     cy.get('#sw-field--password').clear().type(Cypress.env('pass'));
                     cy.get('.sw-button__content').click();
                 }
-            })
+            });
 
         let tag = Cypress.env('expectedVersion');
         let version = tag[0] === 'v' ? tag.slice(1) : tag;
@@ -73,10 +73,10 @@ describe('Minimal auto update', () => {
         cy.get('.content--main h2').contains('Dateien aufräumen');
 
         // Change display of the element to ensure consistent snapshots
-         cy.changeElementStyling(
-             '[name="cleanupForm"] table',
-             'display: none'
-         );
+        cy.changeElementStyling(
+            '[name="cleanupForm"] table',
+            'display: none',
+        );
 
         // Take snapshot for visual testing
         cy.takeSnapshot('Cleanup');
@@ -101,7 +101,7 @@ describe('Minimal auto update', () => {
                     cy.get('#sw-field--password').clear().type(Cypress.env('pass'));
                     cy.get('.sw-button__content').click();
                 }
-            })
+            });
 
         cy.get('.sw-version__info').should('be.visible');
     });

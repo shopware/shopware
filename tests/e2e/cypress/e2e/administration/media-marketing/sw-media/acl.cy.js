@@ -7,18 +7,15 @@ import MediaPageObject from '../../../../support/pages/module/sw-media.page-obje
 
 describe('Media: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
     });
 
     it('@media: has no access to media module', { tags: ['pa-content-management'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'property',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/media/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -37,8 +34,8 @@ describe('Media: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'media',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/media/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -54,7 +51,7 @@ describe('Media: Test ACL privileges', () => {
             page.elements.contextMenuButton,
             '.sw-media-grid-item__item--0',
             '',
-            true
+            true,
         );
         cy.get('.sw-media-sidebar__quickaction--disabled.quickaction--move').should('be.visible');
     });
@@ -63,7 +60,7 @@ describe('Media: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/media-method/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('savePayment');
 
         const page = new MediaPageObject();
@@ -71,11 +68,11 @@ describe('Media: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'media',
-                role: 'viewer'
+                role: 'viewer',
             }, {
                 key: 'media',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/media/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -90,7 +87,7 @@ describe('Media: Test ACL privileges', () => {
             page.elements.contextMenuButton,
             '.sw-media-grid-item__item--0',
             '',
-            true
+            true,
         );
         cy.get('.sw-media-sidebar__quickaction--disabled.quickaction--move').should('not.exist');
     });
@@ -98,12 +95,12 @@ describe('Media: Test ACL privileges', () => {
     it('@media: can create media', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveDataFileUpload');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw_logo_white`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveDataUrlUpload');
 
         const page = new MediaPageObject();
@@ -111,14 +108,14 @@ describe('Media: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'media',
-                role: 'viewer'
+                role: 'viewer',
             }, {
                 key: 'media',
-                role: 'editor'
+                role: 'editor',
             }, {
                 key: 'media',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/media/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -145,8 +142,8 @@ describe('Media: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'media',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/media/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -162,7 +159,7 @@ describe('Media: Test ACL privileges', () => {
             page.elements.contextMenuButton,
             '.sw-media-grid-item__item--0',
             '',
-            true
+            true,
         );
         cy.get('.sw-media-sidebar__quickaction--disabled.quickaction--move').should('be.visible');
         cy.get('.sw-media-sidebar__quickaction--disabled.quickaction--deleter').should('not.exist');

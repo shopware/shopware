@@ -4,10 +4,7 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Customer groups: Test acl privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('customer-group');
-            })
+        cy.createDefaultFixture('customer-group')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
@@ -19,8 +16,8 @@ describe('Customer groups: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'customer_groups',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -45,12 +42,12 @@ describe('Customer groups: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'customer_groups',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'customer_groups',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -60,7 +57,7 @@ describe('Customer groups: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/customer-group/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('updateCustomerGroup');
 
         cy.setEntitySearchable('customer_group', 'name');
@@ -106,16 +103,16 @@ describe('Customer groups: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'customer_groups',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'customer_groups',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'customer_groups',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -125,7 +122,7 @@ describe('Customer groups: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/customer-group`,
-            method: 'POST'
+            method: 'POST',
         }).as('createCustomerGroup');
 
         cy.setEntitySearchable('customer_group', 'name');
@@ -163,12 +160,12 @@ describe('Customer groups: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'customer_groups',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'customer_groups',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -178,7 +175,7 @@ describe('Customer groups: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/customer-group/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteCustomerGroup');
 
         cy.setEntitySearchable('customer_group', 'name');
@@ -192,7 +189,7 @@ describe('Customer groups: Test acl privileges', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-modal__body').should('be.visible');
         cy.contains('.sw-modal__body', 'Are you sure you want to delete this item?');

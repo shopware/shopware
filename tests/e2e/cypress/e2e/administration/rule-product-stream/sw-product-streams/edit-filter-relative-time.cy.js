@@ -4,32 +4,28 @@ import ProductStreamObject from '../../../../support/pages/module/sw-product-str
 
 describe('Dynamic product group: Test relative time filters', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.createProductFixture({
-                    name: 'First product',
-                    productNumber: 'RS-11111',
-                    active: true,
-                    releaseDate: '2099-12-12'
-                }).then(() => {
-                    cy.createProductFixture({
-                        name: 'Second product',
-                        productNumber: 'RS-22222',
-                        active: true,
-                        releaseDate: '2099-12-12'
-                    });
-                }).then(() => {
-                    cy.createProductFixture({
-                        name: 'Third product',
-                        productNumber: 'RS-33333',
-                        active: true,
-                        releaseDate: '2019-12-12'
-                    });
-                });
-            })
-            .then(() => {
-                return cy.createDefaultFixture('product-stream');
+        cy.createProductFixture({
+            name: 'First product',
+            productNumber: 'RS-11111',
+            active: true,
+            releaseDate: '2099-12-12',
+        }).then(() => {
+            cy.createProductFixture({
+                name: 'Second product',
+                productNumber: 'RS-22222',
+                active: true,
+                releaseDate: '2099-12-12',
             });
+        }).then(() => {
+            cy.createProductFixture({
+                name: 'Third product',
+                productNumber: 'RS-33333',
+                active: true,
+                releaseDate: '2019-12-12',
+            });
+        }).then(() => {
+            return cy.createDefaultFixture('product-stream');
+        });
     });
 
     it('@base @rule: can preview products with relative time filters', { tags: ['pa-business-ops'] }, () => {
@@ -40,7 +36,7 @@ describe('Dynamic product group: Test relative time filters', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             productStreamPage.elements.contextMenuButton,
-            `${productStreamPage.elements.dataGridRow}--0`
+            `${productStreamPage.elements.dataGridRow}--0`,
         );
         cy.contains(productStreamPage.elements.smartBarHeader, '1st Productstream');
 
@@ -50,8 +46,8 @@ describe('Dynamic product group: Test relative time filters', () => {
             {
                 field: 'Release date',
                 operator: 'Time until',
-                value: 'Is greater than'
-            }
+                value: 'Is greater than',
+            },
         );
         cy.get('#sw-field--stringValue').typeAndCheck('5');
 
@@ -80,8 +76,8 @@ describe('Dynamic product group: Test relative time filters', () => {
             {
                 field: 'Release date',
                 operator: 'Time since',
-                value: 'Is greater than'
-            }
+                value: 'Is greater than',
+            },
         );
         cy.get('#sw-field--stringValue').typeAndCheck('5');
 

@@ -4,13 +4,9 @@ import elements from '../../../support/pages/sw-general.page-object';
 
 describe('Filter on startpage', () => {
     beforeEach(() => {
-        // Takes care on API authorization
-        cy.loginViaApi().then(() => {
-            // Creates a product with manufacturer
-            return cy.createProductFixture({
-                name: 'First product',
-                productNumber: 'RS-123',
-            });
+        return cy.createProductFixture({
+            name: 'First product',
+            productNumber: 'RS-123',
         }).then(() => {
             // Creates a product with manufacturer
             return cy.createProductFixture({
@@ -53,7 +49,7 @@ describe('Filter on startpage', () => {
 
         cy.get(elements.productDetailManufacturerLink).should(
             'contain',
-            manufacturer
+            manufacturer,
         );
     });
 });

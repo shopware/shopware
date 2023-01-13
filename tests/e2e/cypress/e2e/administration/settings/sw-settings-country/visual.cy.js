@@ -3,11 +3,7 @@
 describe('Country: Visual testing', () => {
     // eslint-disable-next-line no-undef
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi()
-            .then(() => {
-                cy.setLocaleToEnGb();
-            })
+        cy.setLocaleToEnGb()
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
                 cy.get('.sw-skeleton').should('not.exist');
@@ -18,17 +14,17 @@ describe('Country: Visual testing', () => {
     it('@visual: check appearance of country module', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/country`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/country/**/states`,
-            method: 'POST'
+            method: 'POST',
         }).as('getStates');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
         cy.get('#sw-settings-country').click();
 

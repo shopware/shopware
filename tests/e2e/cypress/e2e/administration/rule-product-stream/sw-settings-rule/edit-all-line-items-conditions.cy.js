@@ -4,21 +4,17 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 
 describe('Rule builder: Test all line items container crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('rule');
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createDefaultFixture('rule').then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@rule: edit all line items container conditions', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         const page = new RulePageObject();
@@ -30,7 +26,7 @@ describe('Rule builder: Test all line items container crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-condition-tree .sw-condition-or-container .sw-condition-and-container')
@@ -47,7 +43,7 @@ describe('Rule builder: Test all line items container crud operations', () => {
                 type: 'Item unit price',
                 operator: 'Is less than',
                 inputName: 'amount',
-                value: '12'
+                value: '12',
             });
 
             // test that any or all select exists
@@ -64,7 +60,7 @@ describe('Rule builder: Test all line items container crud operations', () => {
                 type: 'Item with width',
                 operator: 'Is greater than',
                 inputName: 'amount',
-                value: '100'
+                value: '100',
             });
         });
 

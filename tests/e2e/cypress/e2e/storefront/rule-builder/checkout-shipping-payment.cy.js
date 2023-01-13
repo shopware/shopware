@@ -11,8 +11,8 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
             endpoint: 'payment-method',
             data: {
                 field: 'name',
-                value: 'Invoice'
-            }
+                value: 'Invoice',
+            },
         }).then(({id: paymentMethodId}) => {
             const ruleId = createId().replace(/-/g, '');
             const orContainerId = createId().replace(/-/g, '');
@@ -32,14 +32,14 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
                             ruleId: ruleId,
                             parentId: andContainerId,
                             id: paymentMethodRuleId,
-                            value: {paymentMethodIds: [paymentMethodId]}
-                        }]
-                    }]
-                }]
+                            value: {paymentMethodIds: [paymentMethodId]},
+                        }],
+                    }],
+                }],
             });
         }).then(() => {
             return cy.createProductFixture().then(() => {
-                return cy.createDefaultFixture('category')
+                return cy.createDefaultFixture('category');
             });
         }).then(() => {
             return cy.fixture('product');

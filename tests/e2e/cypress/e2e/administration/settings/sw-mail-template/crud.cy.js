@@ -4,12 +4,9 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Mail templates: Test crud privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@settings: create and read email template', { tags: ['pa-business-ops'] }, () => {
@@ -18,11 +15,11 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to create a mail template
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('createMailTemplate');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchMailTemplate');
 
         // go to mail template module
@@ -76,17 +73,17 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-template/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveMailTemplate');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchMailTemplate');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchMailTemplate');
 
         // go to mail template module
@@ -108,7 +105,7 @@ describe('Mail templates: Test crud privileges', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0`
+            `${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0`,
         );
 
         // wait for data loading
@@ -146,12 +143,12 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-template/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteMailTemplate');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchMailTemplate');
 
         // go to mail template module
@@ -173,7 +170,7 @@ describe('Mail templates: Test crud privileges', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0`
+            `${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-modal__body').should('be.visible');
@@ -195,15 +192,15 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-template/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveMailTemplate');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchMailTemplate');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/mail-template/*`,
-            method: 'POST'
+            method: 'POST',
         }).as('cloneMailTemplate');
 
         // go to mail template module
@@ -218,7 +215,7 @@ describe('Mail templates: Test crud privileges', () => {
         cy.wait('@searchMailTemplate').its('response.statusCode').should('equal', 200); cy.clickContextMenuItem(
             '.sw-mail-template-list-grid__duplicate-action',
             page.elements.contextMenuButton,
-            `${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0`
+            `${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0`,
         );
 
         // wait for data loading
@@ -250,11 +247,11 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to create a mail header footer
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-header-footer`,
-            method: 'POST'
+            method: 'POST',
         }).as('createMailHeaderFooter');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchMailTemplate');
 
         // go to mail template module
@@ -301,15 +298,15 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveMailHeaderFooter');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchMailTemplate');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-header-footer`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchMailHeaderFooterTemplate');
 
         // go to mail template module
@@ -324,7 +321,7 @@ describe('Mail templates: Test crud privileges', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0`
+            `${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0`,
         );
 
         // wait for data loading
@@ -359,11 +356,11 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteMailHeaderFooter');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchMailTemplate');
 
         // go to mail template module
@@ -379,7 +376,7 @@ describe('Mail templates: Test crud privileges', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0`
+            `${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-modal__body').should('be.visible');
@@ -400,15 +397,15 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveMailHeaderFooter');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchMailTemplate');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/mail-header-footer/*`,
-            method: 'POST'
+            method: 'POST',
         }).as('cloneMailTemplate');
 
         // go to mail template module
@@ -425,7 +422,7 @@ describe('Mail templates: Test crud privileges', () => {
         cy.clickContextMenuItem(
             '.sw-mail-header-footer-list-grid__duplicate-action',
             page.elements.contextMenuButton,
-            `${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0`
+            `${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0`,
         );
 
         // wait for data loading

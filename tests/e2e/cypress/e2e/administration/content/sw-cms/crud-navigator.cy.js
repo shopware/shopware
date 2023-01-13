@@ -6,17 +6,14 @@
 const uuid = require('uuid/v4');
 
 describe('CMS: Test crud operations in the cms-sidebar', () => {
-    let pageId, sectionId;
-    let blockSelector;
+    let pageId, sectionId, blockSelector;
 
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            pageId = uuid().replace(/-/g, '');
-            sectionId = uuid().replace(/-/g, '');
-            blockSelector = `#page-${pageId} .sw-text-editor__content-editor`;
+        pageId = uuid().replace(/-/g, '');
+        sectionId = uuid().replace(/-/g, '');
+        blockSelector = `#page-${pageId} .sw-text-editor__content-editor`;
 
-            return cy.fixture('cms-page-full');
-        }).then((data) => {
+        cy.fixture('cms-page-full').then((data) => {
             data.id = pageId;
             data.sections[0].id = sectionId;
 
@@ -31,12 +28,12 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
 
             cy.intercept({
                 url: `${Cypress.env('apiPath')}/cms-page/*`,
-                method: 'PATCH'
+                method: 'PATCH',
             }).as('saveData');
 
             cy.intercept({
                 url: `${Cypress.env('apiPath')}/search/cms-page`,
-                method: 'POST'
+                method: 'POST',
             }).as('searchData');
 
             cy.visit(`${Cypress.env('admin')}#/sw/cms/detail/${pageId}`);
@@ -88,9 +85,9 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.wait('@searchData').its('response.statusCode').should('equal', 200);
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get(blockSelector).eq(0).contains('Section 2 - Block C')
-        cy.get(blockSelector).eq(2).contains('Section 1 - Block A')
-        cy.get(blockSelector).eq(4).contains('Section 3 - Block E')
+        cy.get(blockSelector).eq(0).contains('Section 2 - Block C');
+        cy.get(blockSelector).eq(2).contains('Section 1 - Block A');
+        cy.get(blockSelector).eq(4).contains('Section 3 - Block E');
 
         cy.get(`#sw-cms-sidebar__section-${sectionId} .sw-context-button__button`).click();
         cy.get('.sw-cms-sidebar__navigator-section-move-down').click();
@@ -98,9 +95,9 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.wait('@searchData').its('response.statusCode').should('equal', 200);
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get(blockSelector).eq(0).contains('Section 2 - Block C')
-        cy.get(blockSelector).eq(2).contains('Section 3 - Block E')
-        cy.get(blockSelector).eq(4).contains('Section 1 - Block A')
+        cy.get(blockSelector).eq(0).contains('Section 2 - Block C');
+        cy.get(blockSelector).eq(2).contains('Section 3 - Block E');
+        cy.get(blockSelector).eq(4).contains('Section 1 - Block A');
 
         cy.get(`#sw-cms-sidebar__section-${sectionId} .sw-context-button__button`).click();
         cy.get('.sw-cms-sidebar__navigator-section-move-up').click();
@@ -108,9 +105,9 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.wait('@searchData').its('response.statusCode').should('equal', 200);
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get(blockSelector).eq(0).contains('Section 2 - Block C')
-        cy.get(blockSelector).eq(2).contains('Section 1 - Block A')
-        cy.get(blockSelector).eq(4).contains('Section 3 - Block E')
+        cy.get(blockSelector).eq(0).contains('Section 2 - Block C');
+        cy.get(blockSelector).eq(2).contains('Section 1 - Block A');
+        cy.get(blockSelector).eq(4).contains('Section 3 - Block E');
 
         cy.get(`#sw-cms-sidebar__section-${sectionId} .sw-context-button__button`).click();
         cy.get('.sw-cms-sidebar__navigator-section-move-up').click();

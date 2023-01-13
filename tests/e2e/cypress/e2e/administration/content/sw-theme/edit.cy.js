@@ -6,19 +6,16 @@
 
 describe('Theme: Test common editing of theme', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.viewport(1920, 1080);
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.viewport(1920, 1080);
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@base @media @content: change theme logo image', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
@@ -61,7 +58,7 @@ describe('Theme: Test common editing of theme', () => {
     it('@base @content: saves theme primary color', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
@@ -86,7 +83,7 @@ describe('Theme: Test common editing of theme', () => {
     it('@base @media @content: change theme logo image by sidebar', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')

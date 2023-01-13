@@ -3,10 +3,7 @@
 describe('Snippets: Visual testing', () => {
     // eslint-disable-next-line no-undef
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createSnippetFixture();
-            })
+        cy.createSnippetFixture()
             .then(() => {
                 cy.fixture('snippet').as('testSnippet');
             })
@@ -20,13 +17,13 @@ describe('Snippets: Visual testing', () => {
     it('@visual: check appearance of snippet module', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/snippet-set`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
         cy.get('#sw-settings-snippet').click();
 
@@ -39,7 +36,7 @@ describe('Snippets: Visual testing', () => {
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling(
             '.sw-settings-snippet-set-file__column-changed-at .sw-grid__cell-content div',
-            'color: #fff'
+            'color: #fff',
         );
         cy.get('.sw-settings-snippet-set-file__column-changed-at .sw-grid__cell-content div')
             .should('have.css', 'color', 'rgb(255, 255, 255)');

@@ -2,12 +2,8 @@
 import CustomerPageObject from '../../../../support/pages/module/sw-customer.page-object';
 
 describe('Flow builder: change customer status testing', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi().then(() => {
-                return cy.createCustomerFixture();
-            });
+        cy.createCustomerFixture();
     });
 
     it('@settings: change customer status flow', { tags: ['pa-business-ops'] }, () => {
@@ -17,7 +13,7 @@ describe('Flow builder: change customer status testing', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -66,7 +62,7 @@ describe('Flow builder: change customer status testing', () => {
 
         const page = new CustomerPageObject();
 
-        cy.loginViaApi().then(() => {
+        cy.authenticate().then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
@@ -76,7 +72,7 @@ describe('Flow builder: change customer status testing', () => {
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-loader').should('not.exist');

@@ -6,33 +6,29 @@
 describe('CMS: Visual tests', () => {
     // eslint-disable-next-line no-undef
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCmsFixture();
-            })
-            .then(() => {
-                cy.viewport(1920, 1080);
-                cy.openInitialPage(Cypress.env('admin'));
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createCmsFixture().then(() => {
+            cy.viewport(1920, 1080);
+            cy.openInitialPage(Cypress.env('admin'));
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@visual: check appearance of cms layout workflow', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCategory');
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/cms/index',
             mainMenuId: 'sw-content',
-            subMenuId: 'sw-cms'
+            subMenuId: 'sw-cms',
         });
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

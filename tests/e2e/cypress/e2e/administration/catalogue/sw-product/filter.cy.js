@@ -13,9 +13,9 @@ describe('Product: Testing filter and reset filter', () => {
                 cy.searchViaAdminApi({
                     data: {
                         field: 'username',
-                        value: 'admin'
+                        value: 'admin',
                     },
-                    endpoint: 'user'
+                    endpoint: 'user',
                 });
             })
             .then((user) => {
@@ -23,9 +23,9 @@ describe('Product: Testing filter and reset filter', () => {
                 cy.searchViaAdminApi({
                     data: {
                         field: 'name',
-                        value: 'Standard rate'
+                        value: 'Standard rate',
                     },
-                    endpoint: 'tax'
+                    endpoint: 'tax',
                 });
             })
             .then(tax => {
@@ -34,9 +34,9 @@ describe('Product: Testing filter and reset filter', () => {
                 cy.searchViaAdminApi({
                     data: {
                         field: 'name',
-                        value: 'Euro'
+                        value: 'Euro',
                     },
-                    endpoint: 'currency'
+                    endpoint: 'currency',
                 });
             })
             .then(currency => {
@@ -60,16 +60,16 @@ describe('Product: Testing filter and reset filter', () => {
                                     currencyId: currencyId,
                                     net: 42,
                                     linked: false,
-                                    gross: 64
-                                }
+                                    gross: 64,
+                                },
                             ],
                             cover: {
                                 media: {
                                     url: 'http://shopware.com/image1.jpg',
-                                    alt: 'Lorem Ipsum dolor'
-                                }
-                            }
-                        }
+                                    alt: 'Lorem Ipsum dolor',
+                                },
+                            },
+                        },
                     );
                 }
 
@@ -85,16 +85,16 @@ describe('Product: Testing filter and reset filter', () => {
                                 currencyId: currencyId,
                                 net: 42,
                                 linked: false,
-                                gross: 64
-                            }
+                                gross: 64,
+                            },
                         ],
                         cover: {
                             media: {
                                 url: 'http://shopware.com/image1.jpg',
-                                alt: 'Lorem Ipsum dolor'
-                            }
-                        }
-                    }
+                                alt: 'Lorem Ipsum dolor',
+                            },
+                        },
+                    },
                 );
 
                 products.push(
@@ -109,43 +109,43 @@ describe('Product: Testing filter and reset filter', () => {
                                 currencyId: currencyId,
                                 net: 42,
                                 linked: false,
-                                gross: 64
-                            }
-                        ]
-                    }
+                                gross: 64,
+                            },
+                        ],
+                    },
                 );
 
                 cy.request({
                     headers: {
                         Accept: 'application/vnd.api+json',
                         Authorization: `Bearer ${auth.access}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     method: 'POST',
                     url: `/${Cypress.env('apiPath')}/_action/sync`,
                     qs: {
-                        response: true
+                        response: true,
                     },
                     body: {
                         'write-product': {
                             entity: 'product',
                             action: 'upsert',
-                            payload: products
-                        }
+                            payload: products,
+                        },
 
-                    }
+                    },
                 });
 
                 cy.request({
                     headers: {
                         Accept: 'application/vnd.api+json',
                         Authorization: `Bearer ${auth.access}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     method: 'POST',
                     url: `${Cypress.env('apiPath')}/_action/sync`,
                     qs: {
-                        response: true
+                        response: true,
                     },
                     body: {
                         'write-user-config': {
@@ -161,40 +161,40 @@ describe('Product: Testing filter and reset filter', () => {
                                     value: {
                                         'active-filter': {
                                             value: 'true',
-                                            criteria: [{ type: 'equals', field: 'active', value: true }]
+                                            criteria: [{ type: 'equals', field: 'active', value: true }],
                                         },
                                         'product-without-images-filter': {
                                             value: 'true',
                                             criteria: [{
                                                 type: 'not',
                                                 queries: [{ type: 'equals', field: 'media.id', value: null }],
-                                                operator: 'AND'
-                                            }]
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
+                                                operator: 'AND',
+                                            }],
+                                        },
+                                    },
+                                },
+                            ],
+                        },
+                    },
                 });
             });
     });
 
     // TODO skipped due to flakiness, see NEXT-15697
     it('@catalogue: check filter function and display listing correctly', { tags: ['quarantined', 'pa-inventory'] }, () => {
-        cy.loginViaApi();
+        cy.authenticate();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
 
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('filterProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('getUserConfig');
 
         cy.wait('@filterProduct')
@@ -249,19 +249,19 @@ describe('Product: Testing filter and reset filter', () => {
 
     // TODO skipped due to flakiness, see NEXT-15697
     it('@catalogue: check reset filter', { tags: ['quarantined', 'pa-inventory'] }, () => {
-        cy.loginViaApi();
+        cy.authenticate();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
 
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('filterProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('getUserConfig');
 
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();

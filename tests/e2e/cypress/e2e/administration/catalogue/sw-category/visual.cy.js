@@ -5,10 +5,7 @@
 
 describe('Category: Visual tests', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.createProductFixture();
-            })
+        cy.createProductFixture()
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
                 cy.get('.sw-skeleton').should('not.exist');
@@ -19,13 +16,13 @@ describe('Category: Visual tests', () => {
     it('@visual: check appearance of basic category workflow', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/category/index',
             mainMenuId: 'sw-catalogue',
-            subMenuId: 'sw-category'
+            subMenuId: 'sw-category',
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
@@ -49,7 +46,7 @@ describe('Category: Visual tests', () => {
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling(
             '.sw-category-entry-point-card__navigation-list .sw-category-entry-point-card__navigation-entry',
-            'color: #fff'
+            'color: #fff',
         );
         cy.get('.sw-category-entry-point-card__navigation-list .sw-category-entry-point-card__navigation-entry')
             .should('have.css', 'color', 'rgb(255, 255, 255)');

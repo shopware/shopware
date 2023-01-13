@@ -11,10 +11,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
     const deliveryTimeId = uuid().replace(/-/g, '');
 
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('rule', { id: defaultRuleId, name: 'Default Rule' }, 'rule-simple-condition');
-            })
+        cy.createDefaultFixture('rule', { id: defaultRuleId, name: 'Default Rule' }, 'rule-simple-condition')
             .then(() => {
                 return cy.createDefaultFixture('rule', {
                     id: ruleId,
@@ -23,23 +20,23 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
                         {
                             "type": "orContainer",
                             "parentId": null,
-                            "id": "bb63eedc25144ae095252ceb824b17ca"
+                            "id": "bb63eedc25144ae095252ceb824b17ca",
                         },
                         {
                             "type": "andContainer",
                             "parentId": "bb63eedc25144ae095252ceb824b17ca",
-                            "id": "5182ff99234e4b238033a3d16ade88eb"
+                            "id": "5182ff99234e4b238033a3d16ade88eb",
                         },
                         {
                             "type": "customerBillingStreet",
                             "parentId": "5182ff99234e4b238033a3d16ade88eb",
                             "value": {
                                 "operator":"=",
-                                "streetName":"test"
+                                "streetName":"test",
                             },
-                            "id": "acf32b2197fe40819b2e635193b81c61"
-                        }
-                    ]
+                            "id": "acf32b2197fe40819b2e635193b81c61",
+                        },
+                    ],
                 }, 'rule');
             })
             .then(() => {
@@ -52,19 +49,19 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
                 return cy.createDefaultFixture('promotion', {
                     personaRules: [
                         {
-                            id: ruleId
-                        }
+                            id: ruleId,
+                        },
                     ],
                     cartRules: [
                         {
-                            id: ruleId
-                        }
+                            id: ruleId,
+                        },
                     ],
                     orderRules: [
                         {
-                            id: ruleId
-                        }
-                    ]
+                            id: ruleId,
+                        },
+                    ],
                 });
             })
             .then(() => {
@@ -171,7 +168,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveShippingMethod');
 
         // Switch to assignments tab
@@ -190,7 +187,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.get('.sw-settings-shipping-detail__condition_container').scrollIntoView();
         cy.get('.sw-settings-shipping-detail__top-rule').typeSingleSelectAndCheck(
             'Ruler',
-            '.sw-settings-shipping-detail__top-rule'
+            '.sw-settings-shipping-detail__top-rule',
         );
 
         // Save rule
@@ -208,7 +205,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Switch to assignments tab
@@ -226,7 +223,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/shipping-method`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchData');
 
         // Switch to assignments tab

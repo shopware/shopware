@@ -2,14 +2,10 @@
 import OrderPageObject from '../../../../support/pages/module/sw-order.page-object';
 
 describe('Flow builder: Add remove tag testing', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi().then(() => {
-                return cy.createProductFixture();
-            }).then(() => {
-                return cy.createCustomerFixture();
-            });
+        cy.createProductFixture().then(() => {
+            return cy.createCustomerFixture();
+        });
     });
 
     it('@settings: add and remove tag action flow', { tags: ['pa-business-ops'] }, () => {
@@ -19,7 +15,7 @@ describe('Flow builder: Add remove tag testing', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'post'
+            method: 'post',
         }).as('saveData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -163,7 +159,7 @@ describe('Flow builder: Add remove tag testing', () => {
 
         const page = new OrderPageObject();
 
-        cy.loginViaApi().then(() => {
+        cy.authenticate().then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
@@ -174,7 +170,7 @@ describe('Flow builder: Add remove tag testing', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-loader').should('not.exist');
@@ -188,7 +184,7 @@ describe('Flow builder: Add remove tag testing', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--1`
+            `${page.elements.dataGridRow}--1`,
         );
 
         cy.get('.sw-loader').should('not.exist');

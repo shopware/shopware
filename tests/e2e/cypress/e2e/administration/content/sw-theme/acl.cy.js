@@ -8,19 +8,16 @@ import elements from '../../../../support/pages/sw-general.page-object';
 
 describe('Theme: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.viewport(1920, 1080);
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-            });
+        cy.viewport(1920, 1080);
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
     });
 
     it('@content: has no access to theme module', { tags: ['pa-sales-channels'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -40,8 +37,8 @@ describe('Theme: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'theme',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -80,7 +77,7 @@ describe('Theme: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             `${elements.contextMenu} .sw-theme-list-item__option-edit`,
             elements.contextMenuButton,
-            `${elements.dataGridRow}--0`
+            `${elements.dataGridRow}--0`,
         );
 
         cy.contains('.sw-theme-manager-detail__info-name', 'Shopware default theme');
@@ -95,18 +92,18 @@ describe('Theme: Test ACL privileges', () => {
     it('@content: can edit theme', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveTheme');
 
         cy.loginAsUserWithPermissions([
             {
                 key: 'theme',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'theme',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -133,22 +130,22 @@ describe('Theme: Test ACL privileges', () => {
     it('@content: can create theme via duplicate functionality', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/theme`,
-            method: 'POST'
+            method: 'POST',
         }).as('duplicateTheme');
 
         cy.loginAsUserWithPermissions([
             {
                 key: 'theme',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'theme',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'theme',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -182,27 +179,27 @@ describe('Theme: Test ACL privileges', () => {
     it('@content: can delete theme', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/theme/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteTheme');
 
         cy.createDefaultFixture('theme').then(() => {
             cy.loginAsUserWithPermissions([
                 {
                     key: 'theme',
-                    role: 'viewer'
+                    role: 'viewer',
                 },
                 {
                     key: 'theme',
-                    role: 'editor'
+                    role: 'editor',
                 },
                 {
                     key: 'theme',
-                    role: 'creator'
+                    role: 'creator',
                 },
                 {
                     key: 'theme',
-                    role: 'deleter'
-                }
+                    role: 'deleter',
+                },
             ]);
         }).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);

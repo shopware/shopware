@@ -15,10 +15,6 @@ function setMediaEntitySearchable() {
 }
 
 describe('Search bar: Check main functionality', () => {
-    beforeEach(() => {
-        cy.loginViaApi();
-    });
-
     it('@base @searchBar @search: search for a product', { tags: ['pa-system-settings'] }, () => {
         let taxId; let
             currencyId;
@@ -28,9 +24,9 @@ describe('Search bar: Check main functionality', () => {
                 cy.searchViaAdminApi({
                     data: {
                         field: 'name',
-                        value: 'Standard rate'
+                        value: 'Standard rate',
                     },
-                    endpoint: 'tax'
+                    endpoint: 'tax',
                 });
             }).then(tax => {
                 taxId = tax.id;
@@ -38,9 +34,9 @@ describe('Search bar: Check main functionality', () => {
                 cy.searchViaAdminApi({
                     data: {
                         field: 'name',
-                        value: 'Euro'
+                        value: 'Euro',
                     },
-                    endpoint: 'currency'
+                    endpoint: 'currency',
                 });
             }).then(currency => {
                 currencyId = currency.id;
@@ -61,31 +57,31 @@ describe('Search bar: Check main functionality', () => {
                                     currencyId: currencyId,
                                     net: 42,
                                     linked: false,
-                                    gross: 64
-                                }
-                            ]
-                        }
+                                    gross: 64,
+                                },
+                            ],
+                        },
                     );
                 }
                 return cy.request({
                     headers: {
                         Accept: 'application/vnd.api+json',
                         Authorization: `Bearer ${auth.access}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     method: 'POST',
                     url: '/api/_action/sync',
                     qs: {
-                        response: true
+                        response: true,
                     },
                     body: {
                         'write-product': {
                             entity: 'product',
                             action: 'upsert',
-                            payload: products
-                        }
+                            payload: products,
+                        },
 
-                    }
+                    },
                 });
             })
             .then(() => {
@@ -166,17 +162,17 @@ describe('Search bar: Check main functionality', () => {
                             currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
                             net: 24,
                             linked: false,
-                            gross: 128
-                        }
-                    ]
+                            gross: 128,
+                        },
+                    ],
                 });
             }).then(() => {
                 return cy.searchViaAdminApi({
                     endpoint: 'product',
                     data: {
                         field: 'name',
-                        value: 'Product name'
-                    }
+                        value: 'Product name',
+                    },
                 });
             }).then((result) => {
                 return cy.createGuestOrder(result.id);
@@ -223,7 +219,7 @@ describe('Search bar: Check main functionality', () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`,
             '',
-            true
+            true,
         );
 
         // Upload image in folder

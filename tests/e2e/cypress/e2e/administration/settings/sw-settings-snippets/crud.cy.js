@@ -4,10 +4,7 @@ import SnippetPageObject from '../../../../support/pages/module/sw-snippet.page-
 
 describe('Snippets: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createSnippetFixture();
-            })
+        cy.createSnippetFixture()
             .then(() => {
                 cy.fixture('snippet').as('testSnippet');
             })
@@ -17,16 +14,16 @@ describe('Snippets: Test crud operations', () => {
                         headers: {
                             Accept: 'application/vnd.api+json',
                             Authorization: `Bearer ${auth.access}`,
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
                         },
                         method: 'POST',
                         url: '/api/_info/config-me',
                         qs: {
-                            response: true
+                            response: true,
                         },
                         body: {
                             'grid.filter.setting-snippet-list': null,
-                        }
+                        },
                     });
                 });
             })
@@ -61,7 +58,7 @@ describe('Snippets: Test crud operations', () => {
 
         page.createSnippet('a.Woodech', {
             de: 'Ech',
-            en: 'Blach'
+            en: 'Blach',
         });
 
         // Open all snippet sets
@@ -85,7 +82,7 @@ describe('Snippets: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.modal}__body`, 'Are you sure you want to delete the snippets');
 
@@ -126,7 +123,7 @@ describe('Snippets: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-settings-snippet-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -192,7 +189,7 @@ describe('Snippets: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-settings-snippet-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(page.elements.smartBarHeader, 'account.addressCreateBtn');
         // sometimes vue renders really slow placeholder values and intercepts our typing… so we ensure that vue filled that value before
@@ -226,7 +223,7 @@ describe('Snippets: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get(':nth-child(1) > .sw-grid__cell-content').click();

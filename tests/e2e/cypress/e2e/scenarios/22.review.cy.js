@@ -6,9 +6,7 @@ import ProductPageObject from '../../support/pages/module/sw-product.page-object
 
 describe('Test visibility of reviews', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture();
-        }).then(() => {
+        cy.createProductFixture().then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
@@ -18,15 +16,15 @@ describe('Test visibility of reviews', () => {
     it('@package: should display and then hide the review', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
         cy.intercept({
             url: `/account/register`,
-            method: 'POST'
+            method: 'POST',
         }).as('registerCustomer');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/product-review`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveReview');
 
         const page = new ProductPageObject();
@@ -35,7 +33,7 @@ describe('Test visibility of reviews', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains('h2','Product name').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
@@ -85,7 +83,7 @@ describe('Test visibility of reviews', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             '.sw-context-button__button',
-            `.sw-data-grid__row--0`
+            `.sw-data-grid__row--0`,
         );
         cy.contains('h2', 'Lorem ipsum').should('be.visible');
         cy.get('input[name="sw-field--review-status"]').check();
@@ -106,15 +104,15 @@ describe('Test visibility of reviews', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`
+                    Authorization: `Bearer ${result.access}`,
                 },
                 method: 'post',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.listing.showReview': false
-                    }
-                }
+                        'core.listing.showReview': false,
+                    },
+                },
             };
             return cy.request(requestConfig);
         });

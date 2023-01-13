@@ -94,7 +94,7 @@ export default class ProductStreamPageObject {
         }
 
         if (typeof operator === 'string' && operator !== '') {
-            cy.get('.sw-product-stream-value').within(() => {
+            cy.get(selector).find('.sw-product-stream-value').within(() => {
                 cy.get('.sw-single-select').first().click();
             });
 

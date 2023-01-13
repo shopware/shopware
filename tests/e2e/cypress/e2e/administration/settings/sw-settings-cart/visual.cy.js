@@ -2,11 +2,7 @@
 
 describe('Cart settings: Visual testing', () => {
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi()
-            .then(() => {
-                cy.setLocaleToEnGb();
-            })
+        cy.setLocaleToEnGb()
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
                 cy.get('.sw-skeleton').should('not.exist');
@@ -17,13 +13,13 @@ describe('Cart settings: Visual testing', () => {
     it('@visual: check appearance of cart settings module', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/schema?domain=core.cart`,
-            method: 'GET'
+            method: 'GET',
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
         cy.get('a[href="#/sw/settings/cart/index"]').click();
         cy.wait('@getData')

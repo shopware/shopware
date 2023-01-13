@@ -11,23 +11,21 @@ describe('Order: Visual tests', () => {
                 endpoint: 'product',
                 data: {
                     field: 'name',
-                    value: 'Product name'
-                }
+                    value: 'Product name',
+                },
             });
         })
-        .then((result) => {
-            return cy.createGuestOrder(result.id);
-        }).then(() => {
-            cy.loginViaApi()
-        }).then(() => {
+            .then((result) => {
+                return cy.createGuestOrder(result.id);
+            }).then(() => {
             // freezes the system time to Jan 1, 2018
-            const now = new Date(2018, 1, 1);
-            cy.clock(now, ['Date']);
-        }).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+                const now = new Date(2018, 1, 1);
+                cy.clock(now, ['Date']);
+            }).then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@visual: check appearance of basic order workflow', { tags: ['pa-customers-orders'] }, () => {
@@ -35,7 +33,7 @@ describe('Order: Visual tests', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.get('.sw-data-grid__cell--orderNumber').should('be.visible');
@@ -44,7 +42,7 @@ describe('Order: Visual tests', () => {
         cy.clickMainMenuItem({
             targetPath: '#/sw/order/index',
             mainMenuId: 'sw-order',
-            subMenuId: 'sw-order-index'
+            subMenuId: 'sw-order-index',
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
@@ -83,7 +81,7 @@ describe('Order: Visual tests', () => {
     it('@visual: check appearance of order creation workflow', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.get('.navigation-list-item__type-plugin').should('exist');
@@ -91,7 +89,7 @@ describe('Order: Visual tests', () => {
         cy.clickMainMenuItem({
             targetPath: '#/sw/order/index',
             mainMenuId: 'sw-order',
-            subMenuId: 'sw-order-index'
+            subMenuId: 'sw-order-index',
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);

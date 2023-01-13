@@ -7,17 +7,13 @@ import AccountPageObject from '../../../../support/pages/account.page-object';
 
 describe('CMS: Check usage and editing of product description reviews element', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCmsFixture();
-            })
-            .then(() => {
-                return cy.createProductFixture({
-                    name: 'Product name',
-                    productNumber: 'RS-11111',
-                    description: 'Pudding wafer apple pie fruitcake cupcake'
-                });
-            })
+        cy.createCmsFixture().then(() => {
+            return cy.createProductFixture({
+                name: 'Product name',
+                productNumber: 'RS-11111',
+                description: 'Pudding wafer apple pie fruitcake cupcake',
+            });
+        })
             .then(() => {
                 return cy.createCustomerFixture();
             })
@@ -34,17 +30,17 @@ describe('CMS: Check usage and editing of product description reviews element', 
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCategory');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveProductData');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -124,7 +120,7 @@ describe('CMS: Check usage and editing of product description reviews element', 
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveProductData');
 
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);

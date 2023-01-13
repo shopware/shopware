@@ -5,16 +5,14 @@ import CheckoutPageObject from '../../support/pages/checkout.page-object';
 
 describe('Hide products after clearance & free shipping.', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture({
-                name: 'Test Product',
-                productNumber: 'TEST-1234',
-                price: [{
-                    currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                    linked: true,
-                    gross: 10
-                }]
-            });
+        cy.createProductFixture({
+            name: 'Test Product',
+            productNumber: 'TEST-1234',
+            price: [{
+                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                linked: true,
+                gross: 10,
+            }],
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -25,22 +23,22 @@ describe('Hide products after clearance & free shipping.', () => {
     it('@package: create a clearance product, make an order and verify from the storefront', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-visibility`,
-            method: 'POST'
+            method: 'POST',
         }).as('setProductVisibility');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-            method: 'POST'
+            method: 'POST',
         }).as('getSalesChannel');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchProduct');
 
         cy.intercept({
             url: `**/account/register`,
-            method: 'POST'
+            method: 'POST',
         }).as('registerCustomer');
 
         const page = new ProductPageObject();
@@ -67,7 +65,7 @@ describe('Hide products after clearance & free shipping.', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.url().should('include', 'product/detail');
 
@@ -130,23 +128,21 @@ describe('Hide products after clearance & free shipping.', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`
+                    Authorization: `Bearer ${result.access}`,
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.listing.hideCloseoutProductsWhenOutOfStock': true
-                    }
-                }
+                        'core.listing.hideCloseoutProductsWhenOutOfStock': true,
+                    },
+                },
             };
             return cy.request(requestConfig);
         });
 
-        cy.loginViaApi();
-
         // verify no product is available at the storefront
-        cy.visit('/')
+        cy.visit('/');
         cy.contains('No products found.').should('exist');
     });
 });

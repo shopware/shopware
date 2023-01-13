@@ -2,18 +2,14 @@
 
 describe('Product: Test filter variants', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createPropertyFixture({
-                    name: 'Size',
-                    options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }]
-                });
-            })
-            .then(() => {
-                return cy.createProductFixture({
-                    name: 'Parent Product'
-                });
-            })
+        cy.createPropertyFixture({
+            name: 'Size',
+            options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }],
+        }).then(() => {
+            return cy.createProductFixture({
+                name: 'Parent Product',
+            });
+        })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -44,7 +40,7 @@ describe('Product: Test filter variants', () => {
     it('@catalogue: should filter options by properties', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchVariants');
 
         cy.get('.sw-product-variants-overview__filter-list-button > .sw-button')

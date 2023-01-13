@@ -22,7 +22,7 @@ describe('Account - Login: Visual tests', () => {
         // Take snapshot for visual testing
         cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Account overview after login`,
             '.account-overview',
-            {widths: [375, 1920]}
+            {widths: [375, 1920]},
         );
     });
 });

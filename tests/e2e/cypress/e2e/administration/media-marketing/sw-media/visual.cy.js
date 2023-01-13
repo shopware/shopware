@@ -8,15 +8,11 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Media: Visual tests', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createProductFixture().then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@visual: check appearance of basic media workflow', { tags: ['pa-content-management'] }, () => {
@@ -25,16 +21,16 @@ describe('Media: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveDataFileUpload');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/media`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=plugin-manager--login`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveDataUrlUpload');
 
         cy.setEntitySearchable('media', ['fileName', 'title']);
@@ -45,7 +41,7 @@ describe('Media: Visual tests', () => {
         cy.clickMainMenuItem({
             targetPath: '#/sw/media/index',
             mainMenuId: 'sw-content',
-            subMenuId: 'sw-media'
+            subMenuId: 'sw-media',
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
@@ -70,7 +66,7 @@ describe('Media: Visual tests', () => {
             // Upload medium
             cy.clickContextMenuItem(
                 '.sw-media-upload-v2__button-url-upload',
-                '.sw-media-upload-v2__button-context-menu'
+                '.sw-media-upload-v2__button-context-menu',
             );
             page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/plugin-manager--login.png`);
 
@@ -99,14 +95,14 @@ describe('Media: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
 
         // Open product
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Add first image to product

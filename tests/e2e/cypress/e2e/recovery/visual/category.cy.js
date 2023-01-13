@@ -2,11 +2,7 @@
 
 describe('Category: Visual tests', () => {
     beforeEach(() => {
-        // Clean previous state and prepare Administration
         cy.setLocaleToEnGb()
-            .then(() => {
-                cy.loginViaApi();
-            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -18,7 +14,7 @@ describe('Category: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/search/category',
-            method: 'POST'
+            method: 'POST',
         }).as('dataRequest');
 
         cy.get('.sw-tree-item__label').first().click();
@@ -33,7 +29,7 @@ describe('Category: Visual tests', () => {
         // Change visibility of the element to ensure consistent snapshots
         cy.changeElementStyling(
             '.sw-category-entry-point-card__navigation-list',
-            'visibility: hidden'
+            'visibility: hidden',
         );
         cy.prepareAdminForScreenshot();
 

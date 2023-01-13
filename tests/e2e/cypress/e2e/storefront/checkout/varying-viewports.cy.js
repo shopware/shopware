@@ -23,12 +23,12 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
 
     beforeEach(() => {
         return cy.createProductFixture().then(() => {
-            return cy.createDefaultFixture('category')
+            return cy.createDefaultFixture('category');
         }).then(() => {
             return cy.fixture('product');
         }).then((result) => {
             product = result;
-            return cy.createCustomerFixtureStorefront()
+            return cy.createCustomerFixtureStorefront();
         }).then(() => {
             // Avoid cookie consent banner because it can block UI on small resolutions.
             // It can be operated by the cookie consent UI but we skip it here due to better test performance.
@@ -36,13 +36,13 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
             cy.setCookie('cookie-preference', '1');
 
             cy.visit('/');
-        })
+        });
     });
 
     devices.forEach(device => {
         context(`Checkout on ${device.model} resolution (${device.orientation})`, () => {
             beforeEach(() => {
-                cy.viewport(device.model, device.orientation)
+                cy.viewport(device.model, device.orientation);
             });
 
             it('@base @checkout: Run checkout', { tags: ['pa-checkout'] }, () => {

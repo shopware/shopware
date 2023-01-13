@@ -8,13 +8,10 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Theme: Test loading and saving of theme', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.viewport(1920, 1080);
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.viewport(1920, 1080);
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@base @content: opens and loads theme config', { tags: ['pa-sales-channels'] }, () => {
@@ -34,7 +31,7 @@ describe('Theme: Test loading and saving of theme', () => {
         const page = new ProductPageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
@@ -43,7 +40,7 @@ describe('Theme: Test loading and saving of theme', () => {
 
         cy.clickContextMenuItem(
             '.sw-context-menu-item:nth-of-type(1)',
-            `.sw-theme-manager-detail__info-card ${page.elements.contextMenuButton}`
+            `.sw-theme-manager-detail__info-card ${page.elements.contextMenuButton}`,
         );
 
         cy.get('.sw-modal').should('be.visible');

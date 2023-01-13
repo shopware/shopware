@@ -7,10 +7,7 @@ import CategoryPageObject from '../../../../support/pages/module/sw-category.pag
 
 describe('Category: Edit categories', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
+        cy.createProductFixture()
             .then(() => {
                 return cy.createDefaultFixture('product-stream', {}, 'product-stream-valid');
             })
@@ -62,7 +59,7 @@ describe('Category: Edit categories', () => {
     it('@catalogue: assign dynamic product group', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         // Select a category
@@ -76,7 +73,7 @@ describe('Category: Edit categories', () => {
         // Change product assignment type to dynamic product group
         cy.get('.sw-category-detail-products__product-assignment-type-select').typeSingleSelect(
             'Dynamic product group',
-            '.sw-category-detail-products__product-assignment-type-select'
+            '.sw-category-detail-products__product-assignment-type-select',
         );
 
         // Verify that the preview shows an empty state first
@@ -86,7 +83,7 @@ describe('Category: Edit categories', () => {
         // Select product stream
         cy.get('.sw-category-detail-products__product-stream-select').typeSingleSelect(
             '2nd Product stream',
-            '.sw-category-detail-products__product-stream-select'
+            '.sw-category-detail-products__product-stream-select',
         );
 
         // Save the category
@@ -108,8 +105,8 @@ describe('Category: Edit categories', () => {
         cy.createCategoryFixture({
             parent: {
                 name: 'ParentCategory',
-                active: true
-            }
+                active: true,
+            },
         }).then(() => {
             cy.reload();
 
@@ -140,7 +137,7 @@ describe('Category: Edit categories', () => {
     it('@catalogue: saving the data when changing content language', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         const page = new CategoryPageObject();

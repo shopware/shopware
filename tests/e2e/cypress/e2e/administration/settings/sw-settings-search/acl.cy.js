@@ -3,38 +3,35 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Search: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
     });
 
     it('@settings: read search', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-search-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('getProductSearchConfig');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-search-config-field`,
-            method: 'POST'
+            method: 'POST',
         }).as('getProductSearchConfigField');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/increment/user_activity`,
-            method: 'POST'
+            method: 'POST',
         }).as('getUserActivity');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/sales-channel`,
-            method: 'POST'
+            method: 'POST',
         }).as('getSalesChannel');
 
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -71,28 +68,28 @@ describe('Search: Test ACL privileges', () => {
     it('@settings: edit search', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-search-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('getProductSearchConfig');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-search-config-field`,
-            method: 'POST'
+            method: 'POST',
         }).as('getProductSearchConfigField');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('updateProductSearchConfig');
 
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'product_search_config',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -122,32 +119,32 @@ describe('Search: Test ACL privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-search-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('getProductSearchConfig');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-search-config-field`,
-            method: 'POST'
+            method: 'POST',
         }).as('getProductSearchConfigField');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('updateProductSearchConfig');
 
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'product_search_config',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'product_search_config',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -183,28 +180,28 @@ describe('Search: Test ACL privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-search-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('getProductSearchConfig');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-search-config-field`,
-            method: 'POST'
+            method: 'POST',
         }).as('getProductSearchConfigField');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('updateProductSearchConfig');
 
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'product_search_config',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
             cy.get('.sw-skeleton').should('not.exist');

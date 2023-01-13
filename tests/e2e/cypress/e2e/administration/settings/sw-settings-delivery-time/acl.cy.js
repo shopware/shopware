@@ -4,10 +4,7 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Delivery time: Test acl privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('delivery-time');
-            })
+        cy.createDefaultFixture('delivery-time')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
@@ -19,8 +16,8 @@ describe('Delivery time: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'delivery_times',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -47,12 +44,12 @@ describe('Delivery time: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'delivery_times',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'delivery_times',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -62,7 +59,7 @@ describe('Delivery time: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/delivery-time/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('updateDeliveryTime');
 
         // click on third element in grid
@@ -98,16 +95,16 @@ describe('Delivery time: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'delivery_times',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'delivery_times',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'delivery_times',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -117,7 +114,7 @@ describe('Delivery time: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/delivery-time`,
-            method: 'POST'
+            method: 'POST',
         }).as('createDeliveryTime');
 
         // Create delivery time
@@ -146,12 +143,12 @@ describe('Delivery time: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'delivery_times',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'delivery_times',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -161,7 +158,7 @@ describe('Delivery time: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/delivery-time/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteDeliveryTime');
 
         cy.get('.sw-settings-delivery-time-list-grid').should('be.visible');
@@ -172,7 +169,7 @@ describe('Delivery time: Test acl privileges', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-modal__body').should('be.visible');
         cy.contains('.sw-modal__body', 'Are you sure you want to delete this item?');

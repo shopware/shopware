@@ -6,21 +6,17 @@
 describe('CMS: Test assignment of layouts to categories and shop pages', () => {
     beforeEach(() => {
         let salesChannel;
-        cy.loginViaApi()
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'sales-channel',
-                    data: {
-                        field: 'name',
-                        type: 'equals',
-                        value: 'Storefront'
-                    }
-                });
-            })
-            .then((data) => {
-                salesChannel = data.id;
-                return cy.createCmsFixture();
-            })
+        cy.searchViaAdminApi({
+            endpoint: 'sales-channel',
+            data: {
+                field: 'name',
+                type: 'equals',
+                value: 'Storefront',
+            },
+        }).then((data) => {
+            salesChannel = data.id;
+            return cy.createCmsFixture();
+        })
             .then(() => {
                 return cy.createDefaultFixture('cms-page', {}, 'cms-page-shop-page');
             })
@@ -35,9 +31,9 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
                     cmsPage: page,
                     salesChannels: [
                         {
-                            id: salesChannel
-                        }
-                    ]
+                            id: salesChannel,
+                        },
+                    ],
                 });
             })
             .then(() => {
@@ -51,7 +47,7 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
     it('@base @content: assign layout to landing page from layout editor', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         // Go to detail view
@@ -124,7 +120,7 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
     it('@base @content: assign layout to category from layout editor', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         // Go to detail view
@@ -193,12 +189,12 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
     it('@base @content: assign layout to shop page from layout editor', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveShopPageData');
 
         // Go to detail view

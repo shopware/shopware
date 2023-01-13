@@ -4,21 +4,21 @@
 describe('Account: Edit order', () => {
     beforeEach(() => {
         return cy.createProductFixture().then(() => {
-            return cy.createCustomerFixtureStorefront()
+            return cy.createCustomerFixtureStorefront();
         }).then(() => {
             return cy.searchViaAdminApi({
                 endpoint: 'product',
                 data: {
                     field: 'name',
-                    value: 'Product name'
-                }
+                    value: 'Product name',
+                },
             });
         }).then((result) => {
             return cy.createOrder(result.id, {
                 username: 'test@example.com',
-                password: 'shopware'
+                password: 'shopware',
             });
-        })
+        });
     });
 
     it('@customer: reorder order', { tags: ['pa-customers-orders'] }, () => {
@@ -49,16 +49,14 @@ describe('Account: Edit order', () => {
 
     it('@base @customer: cancel order', { tags: ['pa-customers-orders'] }, () => {
         // Enable refunds
-        cy.loginViaApi().then(() => {
-            cy.visit('/admin#/sw/settings/cart/index');
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-            cy.contains('Enable refunds').click();
-            cy.get('.sw-settings-cart__save-action').click();
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-            cy.get('.icon--regular-checkmark-xs').should('be.visible');
-        });
+        cy.visit('/admin#/sw/settings/cart/index');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.contains('Enable refunds').click();
+        cy.get('.sw-settings-cart__save-action').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.icon--regular-checkmark-xs').should('be.visible');
 
         // Login
         cy.visit('/account/order');

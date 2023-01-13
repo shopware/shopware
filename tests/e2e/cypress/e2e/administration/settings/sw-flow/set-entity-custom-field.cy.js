@@ -1,14 +1,10 @@
 // / <reference types="Cypress" />
 
 describe('Flow builder: set entity custom field testing', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi().then(() => {
-                return cy.createProductFixture();
-            }).then(() => {
-                return cy.createCustomerFixture();
-            })
+        cy.createProductFixture().then(() => {
+            return cy.createCustomerFixture();
+        })
             .then(() => {
                 return cy.createDefaultFixture('custom-field-set', {
                     customFields: [
@@ -22,8 +18,8 @@ describe('Flow builder: set entity custom field testing', () => {
                                 customFieldType: 'text',
                                 type: 'text',
                                 helpText: { 'en-GB': 'help text' },
-                                label: { 'en-GB': 'my_custom_text_field' }
-                            }
+                                label: { 'en-GB': 'my_custom_text_field' },
+                            },
                         },
                         {
                             active: true,
@@ -36,19 +32,19 @@ describe('Flow builder: set entity custom field testing', () => {
                                 label: { 'en-GB': 'my_custom_multiple_field' },
                                 options: [
                                     { label: { 'en-GB': 'Option1' }, value: 'option1' },
-                                    { label: { 'en-GB': 'Option2' }, value: 'option2' }
-                                ]
-                            }
-                        }
+                                    { label: { 'en-GB': 'Option2' }, value: 'option2' },
+                                ],
+                            },
+                        },
                     ],
                     relations: [
                         {
-                            entityName: 'order'
+                            entityName: 'order',
                         },
                         {
-                            entityName: 'customer'
-                        }
-                    ]
+                            entityName: 'customer',
+                        },
+                    ],
                 });
             })
             .then(() => {

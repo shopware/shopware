@@ -4,16 +4,13 @@ import SalesChannelPageObject from '../../../../support/pages/module/sw-sales-ch
 
 describe('Sales Channel: Adding domains to a sales-channel', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(Cypress.env('admin'));
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.openInitialPage(Cypress.env('admin'));
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/sales-channel-domain`,
-            method: 'POST'
+            method: 'POST',
         }).as('verifyDomain');
     });
 

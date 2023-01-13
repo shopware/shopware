@@ -7,9 +7,7 @@ import CategoryPageObject from '../../support/pages/module/sw-category.page-obje
 
 describe('Category: Assign product and set seo url, then check in the storefront', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture();
-        }).then(() => {
+        cy.createProductFixture().then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
@@ -21,20 +19,20 @@ describe('Category: Assign product and set seo url, then check in the storefront
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveCategory');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/category/**`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('editCategory');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-visibility`,
-            method: 'POST'
+            method: 'POST',
         }).as('addProductToSaleschannel');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadSalesChannel');
 
         // Add sub category under home
@@ -42,7 +40,7 @@ describe('Category: Assign product and set seo url, then check in the storefront
         cy.clickContextMenuItem(
             `${page.elements.categoryTreeItem}__sub-action`,
             page.elements.contextMenuButton,
-            `${page.elements.categoryTreeItemInner}:nth-of-type(1)`
+            `${page.elements.categoryTreeItemInner}:nth-of-type(1)`,
         );
         cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('SEO-Category');
         cy.get(`${page.elements.categoryTreeItemInner}__content input`).then(($btn) => {
@@ -65,7 +63,7 @@ describe('Category: Assign product and set seo url, then check in the storefront
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadCategory');
         cy.contains('SEO-Category').click();
 
@@ -89,7 +87,7 @@ describe('Category: Assign product and set seo url, then check in the storefront
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadCategory');
         cy.get('.sw-category-detail__save-action').click();
         cy.wait('@loadCategory').its('response.statusCode').should('equal', 200);

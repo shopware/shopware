@@ -4,10 +4,7 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Currency: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('currency');
-            })
+        cy.createDefaultFixture('currency')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/currency/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -21,7 +18,7 @@ describe('Currency: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/currency`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('a[href="#/sw/settings/currency/create"]').click();
@@ -56,14 +53,14 @@ describe('Currency: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/currency/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');
         cy.clickContextMenuItem(
             '.sw-currency-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--3`
+            `${page.elements.dataGridRow}--3`,
         );
 
         cy.get('input[name=sw-field--currency-name]').clear();
@@ -85,7 +82,7 @@ describe('Currency: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/currency/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         // filter currency via search bar
@@ -97,7 +94,7 @@ describe('Currency: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-modal__body').should('be.visible');
         cy.contains('.sw-modal__body', 'Are you sure you want to delete the currency "ZZ Yen"?');

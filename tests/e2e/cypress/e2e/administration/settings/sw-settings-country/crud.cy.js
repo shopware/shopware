@@ -4,10 +4,7 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Country: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('country');
-            })
+        cy.createDefaultFixture('country')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/country/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -21,14 +18,14 @@ describe('Country: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-settings-country-list-grid').should('be.visible');
         cy.clickContextMenuItem(
             '.sw-country-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('input[name=sw-field--country-name]').should('have.value', '1.Niemandsland');
         cy.get('input[name=sw-field--country-name]').clearTypeAndCheck('1.Niemandsland x2');
@@ -48,13 +45,13 @@ describe('Country: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-modal__body').should('be.visible');
         cy.contains('.sw-modal__body',
@@ -76,18 +73,18 @@ describe('Country: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/currency`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchCurrency');
 
         cy.clickContextMenuItem(
             '.sw-country-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-loader').should('not.exist');
@@ -153,12 +150,12 @@ describe('Country: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/country`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/currency`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchCurrency');
 
         cy.get('a[href="#/sw/settings/country/create"]').click();
@@ -177,9 +174,8 @@ describe('Country: Test crud operations', () => {
         cy.get('.sw-select-option--1').click();
 
         // Check validate vat id for correct format field exists and clicks
-        const vatIdFormat = cy.get('.sw-settings-country-general__field-check-vatid-format .sw-field--switch__input');
-        vatIdFormat.should('be.visible');
-        vatIdFormat.click();
+        cy.get('.sw-settings-country-general__field-check-vatid-format .sw-field--switch__input').should('be.visible');
+        cy.get('.sw-settings-country-general__field-check-vatid-format .sw-field--switch__input').click();
 
         cy.get(page.elements.countrySaveAction).click();
 

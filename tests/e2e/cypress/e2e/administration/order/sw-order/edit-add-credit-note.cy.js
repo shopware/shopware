@@ -4,19 +4,15 @@ import OrderPageObject from '../../../../support/pages/module/sw-order.page-obje
 
 describe('Order: Create credit note', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'product',
-                    data: {
-                        field: 'name',
-                        value: 'Product name'
-                    }
-                });
-            })
+        cy.createProductFixture().then(() => {
+            return cy.searchViaAdminApi({
+                endpoint: 'product',
+                data: {
+                    field: 'name',
+                    value: 'Product name',
+                },
+            });
+        })
             .then((result) => {
                 return cy.createGuestOrder(result.id);
             })
@@ -32,44 +28,44 @@ describe('Order: Create credit note', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/order/**/recalculate`,
-            method: 'POST'
+            method: 'POST',
         }).as('orderRecalculateCall');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/order/document/invoice/create`,
-            method: 'POST'
+            method: 'POST',
         }).as('createInvoice');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/order/document/credit_note/create`,
-            method: 'POST'
+            method: 'POST',
         }).as('createCreditNote');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/order/**/document/invoice/preview*`,
-            method: 'GET'
+            method: 'GET',
         }).as('onPreview');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/document-type`,
-            method: 'POST'
+            method: 'POST',
         }).as('getDocumentTypes');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/version/merge/order/**`,
-            method: 'POST'
+            method: 'POST',
         }).as('orderSaveCall');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
+            method: 'POST',
         }).as('orderSearchCall');
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get(page.elements.tabs.general.gridCard).scrollIntoView();
@@ -78,7 +74,7 @@ describe('Order: Create credit note', () => {
             '.sw-context-menu-item',
             '.sw-order-line-items-grid__actions-container .sw-button-group .sw-context-button',
             null,
-            'Add credit'
+            'Add credit',
         );
 
         cy.get(`${page.elements.dataGridRow}--0 > .sw-data-grid__cell--label`).dblclick();

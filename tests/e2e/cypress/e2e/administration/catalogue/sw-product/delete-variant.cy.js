@@ -4,10 +4,7 @@ import variantProduct from '../../../../fixtures/variant-product';
 
 describe('Product: Test variants', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture(variantProduct);
-            })
+        cy.createProductFixture(variantProduct)
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -24,7 +21,7 @@ describe('Product: Test variants', () => {
     it('@catalogue: delete variants in modal', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             method: 'POST',
-            url: 'api/_action/sync'
+            url: 'api/_action/sync',
         }).as('deleteData');
 
         cy.get('.sw-data-grid__select-all .sw-field__checkbox input').click();

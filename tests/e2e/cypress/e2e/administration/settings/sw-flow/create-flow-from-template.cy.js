@@ -3,13 +3,10 @@
 import SettingsPageObject from '../../../../support/pages/module/sw-settings.page-object';
 
 describe('Flow builder: Create a flow from flow template', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index/templates`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index/templates`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@settings: create a flow from flow template', { tags: ['pa-business-ops'] }, () => {
@@ -26,7 +23,7 @@ describe('Flow builder: Create a flow from flow template', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Verify successful clone

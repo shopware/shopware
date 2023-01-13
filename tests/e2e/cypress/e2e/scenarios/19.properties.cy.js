@@ -3,24 +3,22 @@ import PropertyPageObject from '../../support/pages/module/sw-property.page-obje
 
 describe('Create a new property and select value display type', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture({
-                name: 'Test Product',
-                productNumber: 'TEST-1234',
-                price: [{
-                    currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                    linked: true,
-                    gross: 64
-                }]
-            });
+        cy.createProductFixture({
+            name: 'Test Product',
+            productNumber: 'TEST-1234',
+            price: [{
+                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                linked: true,
+                gross: 64,
+            }],
         }).then(() => {
             return cy.createPropertyFixture({
-                options: [{name: 'Red'}, {name: 'Yellow'}, {name: 'Green'}]
+                options: [{name: 'Red'}, {name: 'Yellow'}, {name: 'Green'}],
             });
         }).then(() => {
             return cy.createPropertyFixture({
                 name: 'Size',
-                options: [{name: 'S'}, {name: 'M'}, {name: 'L'}]
+                options: [{name: 'S'}, {name: 'M'}, {name: 'L'}],
             });
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/property/index`);
@@ -33,22 +31,22 @@ describe('Create a new property and select value display type', () => {
     it('@package: create new property', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/property-group`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchPropertyGroup');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-visibility`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchSalesChannel');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchCategoryDetail');
 
         const page = new PropertyPageObject();

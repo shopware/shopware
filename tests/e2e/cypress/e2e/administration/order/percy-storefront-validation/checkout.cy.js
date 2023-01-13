@@ -25,7 +25,7 @@ describe('Checkout: Visual tests', () => {
 
         cy.intercept({
             url: '/widgets/checkout/info',
-            method: 'GET'
+            method: 'GET',
         }).as('cartInfo');
 
         // Take snapshot for visual testing on desktop
@@ -57,13 +57,13 @@ describe('Checkout: Visual tests', () => {
 
         cy.changeElementStyling(
             '.header-search',
-            'visibility: hidden'
+            'visibility: hidden',
         );
         cy.get('.header-search')
             .should('have.css', 'visibility', 'hidden');
         cy.changeElementStyling(
             '#accountWidget',
-            'visibility: hidden'
+            'visibility: hidden',
         );
         cy.get('#accountWidget')
             .should('have.css', 'visibility', 'hidden');

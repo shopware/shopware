@@ -4,10 +4,7 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Payment: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('payment-method');
-            })
+        cy.createDefaultFixture('payment-method')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
             });
@@ -17,8 +14,8 @@ describe('Payment: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'property',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -35,8 +32,8 @@ describe('Payment: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'payment',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -61,7 +58,7 @@ describe('Payment: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/payment-method/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('savePayment');
 
         const page = new ProductPageObject();
@@ -69,11 +66,11 @@ describe('Payment: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'payment',
-                role: 'viewer'
+                role: 'viewer',
             }, {
                 key: 'payment',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -110,7 +107,7 @@ describe('Payment: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/payment-method`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         const page = new ProductPageObject();
@@ -118,14 +115,14 @@ describe('Payment: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'payment',
-                role: 'viewer'
+                role: 'viewer',
             }, {
                 key: 'payment',
-                role: 'editor'
+                role: 'editor',
             }, {
                 key: 'payment',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/create`);
             cy.get('.sw-skeleton').should('not.exist');

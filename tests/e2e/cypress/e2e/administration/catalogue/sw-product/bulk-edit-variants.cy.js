@@ -5,27 +5,24 @@ import bulkEditVariants from '../../../../fixtures/bulk-edit-variants-list.json'
 
 describe('Product: Bulk edit variants', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.createProductFixture({
-                    name: 'Variant Product',
-                    productNumber: 'Variant-1234',
-                    price: [{
-                        currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                        linked: true,
-                        gross: 60
-                    }]
-                });
-            })
+        cy.createProductFixture({
+            name: 'Variant Product',
+            productNumber: 'Variant-1234',
+            price: [{
+                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                linked: true,
+                gross: 60,
+            }],
+        })
             .then(() => {
                 return cy.createPropertyFixture({
-                    options: [{name: 'Red'}, {name: 'Yellow'}, {name: 'Green'}]
+                    options: [{name: 'Red'}, {name: 'Yellow'}, {name: 'Green'}],
                 });
             })
             .then(() => {
                 return cy.createPropertyFixture({
                     name: 'Size',
-                    options: [{name: 'S'}, {name: 'M'}, {name: 'L'}]
+                    options: [{name: 'S'}, {name: 'M'}, {name: 'L'}],
                 });
             })
             .then(() => {
@@ -36,32 +33,32 @@ describe('Product: Bulk edit variants', () => {
     it('@package @bulk-edit: should modify variant products with the bulk edit functionality', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('getProduct');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-            method: 'POST'
+            method: 'POST',
         }).as('getSalesChannel');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/user-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('getUserConfig');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/custom-field-set`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveCustomField');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveDataFileUpload');
 
         const page = new ProductPageObject();

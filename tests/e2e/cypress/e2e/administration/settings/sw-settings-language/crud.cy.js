@@ -5,10 +5,7 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Language: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createLanguageFixture();
-            })
+        cy.createLanguageFixture()
             .then(() => {
                 return cy.createProductFixture();
             })
@@ -27,7 +24,7 @@ describe('Language: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/language`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-settings-language-list').should('be.visible');
@@ -52,7 +49,7 @@ describe('Language: Test crud operations', () => {
         cy.clickMainMenuItem({
             targetPath: '#/sw/product/index',
             mainMenuId: 'sw-catalogue',
-            subMenuId: 'sw-product'
+            subMenuId: 'sw-product',
         });
         cy.get('.sw-product-list-grid').should('exist');
         cy.get('.sw-skeleton').should('not.exist');
@@ -60,7 +57,7 @@ describe('Language: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         productPage.changeTranslation('Japanese', 2);
@@ -74,14 +71,14 @@ describe('Language: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/language/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-settings-language-list').should('be.visible');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--2`
+            `${page.elements.dataGridRow}--2`,
         );
         cy.get('input[name=sw-field--language-name]').clearTypeAndCheck('Kyoto Japanese');
         cy.get(page.elements.languageSaveAction).click();
@@ -99,14 +96,14 @@ describe('Language: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/language/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         cy.get('.sw-settings-language-list').should('be.visible');
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-modal__body').should('be.visible');

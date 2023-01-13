@@ -13,13 +13,13 @@ describe('Account - Order: Visual tests', () => {
                 endpoint: 'product',
                 data: {
                     field: 'name',
-                    value: 'Product name'
-                }
+                    value: 'Product name',
+                },
             });
         }).then((result) => {
             return cy.createOrder(result.id, {
                 username: 'test@example.com',
-                password: 'shopware'
+                password: 'shopware',
             });
         });
     });

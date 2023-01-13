@@ -5,16 +5,13 @@ import PropertyPageObject from '../../../../support/pages/module/sw-property.pag
 
 describe('Product: Test variants', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createPropertyFixture({
-                    options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]
-                });
-            })
+        cy.createPropertyFixture({
+            options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }],
+        })
             .then(() => {
                 return cy.createPropertyFixture({
                     name: 'Size',
-                    options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }]
+                    options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }],
                 });
             })
             .then(() => {
@@ -34,14 +31,14 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-product-detail__tab-variants').click();
@@ -97,7 +94,7 @@ describe('Product: Test variants', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchUserConfig');
 
         cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
@@ -110,7 +107,7 @@ describe('Product: Test variants', () => {
         cy.clickContextMenuItem(
             '.sw-property-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.contains(page.elements.cardTitle, 'Basic information');
@@ -127,20 +124,17 @@ describe('Product: Test variants', () => {
         // Edit and update property option's name for Deutsch
         cy.get('.sw-property-option-list').scrollIntoView();
 
-        const yellowOption = cy.get('.sw-property-option-list').contains('Yellow').parents('tr');
-        yellowOption.dblclick();
-        yellowOption.get('#sw-field--item-name').typeAndCheck('Gelb');
-        yellowOption.get('.sw-button.sw-data-grid__inline-edit-save').click();
+        cy.get('.sw-property-option-list').contains('Yellow').parents('tr').dblclick();
+        cy.get('#sw-field--item-name').typeAndCheck('Gelb');
+        cy.get('.sw-button.sw-data-grid__inline-edit-save').click();
 
-        const redOption = cy.get('.sw-property-option-list').contains('Red').parents('tr');
-        redOption.dblclick();
-        redOption.get('#sw-field--item-name').typeAndCheck('Rot');
-        redOption.get('.sw-button.sw-data-grid__inline-edit-save').click();
+        cy.get('.sw-property-option-list').contains('Red').parents('tr').dblclick();
+        cy.get('#sw-field--item-name').typeAndCheck('Rot');
+        cy.get('.sw-button.sw-data-grid__inline-edit-save').click();
 
-        const greenOption = cy.get('.sw-property-option-list').contains('Green').parents('tr');
-        greenOption.dblclick();
-        greenOption.get('#sw-field--item-name').typeAndCheck('Grün');
-        greenOption.get('.sw-button.sw-data-grid__inline-edit-save').click();
+        cy.get('.sw-property-option-list').contains('Green').parents('tr').dblclick();
+        cy.get('#sw-field--item-name').typeAndCheck('Grün');
+        cy.get('.sw-button.sw-data-grid__inline-edit-save').click();
 
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
         cy.get('.sw-skeleton').should('not.exist');
@@ -152,7 +146,7 @@ describe('Product: Test variants', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             productPage.elements.contextMenuButton,
-            `${productPage.elements.dataGridRow}--0`
+            `${productPage.elements.dataGridRow}--0`,
         );
         cy.get('.sw-product-detail__tab-variants').click();
 

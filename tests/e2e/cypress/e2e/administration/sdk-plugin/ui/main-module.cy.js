@@ -2,22 +2,19 @@
 
 describe('Category: SDK Test', ()=> {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/extension/my-extensions/listing/`);
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/extension/my-extensions/listing/`);
 
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
-                cy.getSDKiFrame('sw-main-hidden')
-                    .should('exist');
+        cy.getSDKiFrame('sw-main-hidden')
+            .should('exist');
 
-                cy.get('.navigation-list-item__type-plugin')
-                    .should('exist');
+        cy.get('.navigation-list-item__type-plugin')
+            .should('exist');
 
-                cy.get('.navigation-list-item__type-plugin')
-                    .should('have.length.least', 3);
-            });
+        cy.get('.navigation-list-item__type-plugin')
+            .should('have.length.least', 3);
     });
 
     it('@sdk: add main module', { tags: ['ct-admin'] }, ()=> {
@@ -31,9 +28,9 @@ describe('Category: SDK Test', ()=> {
 
         // nesting is wanted to just click the button in the SDK Testplugin
         cy.contains('.sw-meteor-card__content-wrapper', 'SDK Testplugin').within(() => {
-                cy.get('.sw-context-button > .sw-context-button__button')
-                    .click();
-            })
+            cy.get('.sw-context-button > .sw-context-button__button')
+                .click();
+        });
 
         cy.get('.sw-context-menu__content').contains('Open extension')
             .click();

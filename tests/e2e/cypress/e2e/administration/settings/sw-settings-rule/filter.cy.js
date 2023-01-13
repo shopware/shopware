@@ -6,18 +6,16 @@ describe('Rule: Testing filter and reset filter', () => {
     });
 
     it('@settings: check filter function and display listing correctly',  { tags: ['pa-business-ops'] }, () => {
-        cy.loginViaApi();
-
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('filterRule');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('getUserConfig');
 
         cy.wait('@filterRule')

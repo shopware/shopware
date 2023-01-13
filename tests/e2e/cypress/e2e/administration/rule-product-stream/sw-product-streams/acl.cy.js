@@ -2,21 +2,17 @@
 
 describe('Dynamic product group: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('product-stream');
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
-            });
+        cy.createDefaultFixture('product-stream').then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+        });
     });
 
     it('@catalogue: can view product stream ', { tags: ['pa-business-ops'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_stream',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -90,8 +86,8 @@ describe('Dynamic product group: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_stream',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -100,7 +96,7 @@ describe('Dynamic product group: Test ACL privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-stream/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('updateData');
 
         cy.createProductFixture().then(() => {
@@ -149,15 +145,15 @@ describe('Dynamic product group: Test ACL privileges', () => {
     it('@catalogue: can create product streams', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-stream`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.createProductFixture().then(() => {
             cy.loginAsUserWithPermissions([
                 {
                     key: 'product_stream',
-                    role: 'creator'
-                }
+                    role: 'creator',
+                },
             ]).then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -197,13 +193,13 @@ describe('Dynamic product group: Test ACL privileges', () => {
 
     it('@catalogue: can delete product streams', { tags: ['pa-business-ops'] }, () => {
         cy.createDefaultFixture('product-stream', {
-            name: '2nd Productstream'
+            name: '2nd Productstream',
         }).then(() => {
             cy.loginAsUserWithPermissions([
                 {
                     key: 'product_stream',
-                    role: 'deleter'
-                }
+                    role: 'deleter',
+                },
             ]).then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -212,12 +208,12 @@ describe('Dynamic product group: Test ACL privileges', () => {
 
             cy.intercept({
                 url: `${Cypress.env('apiPath')}/product-stream/*`,
-                method: 'delete'
+                method: 'delete',
             }).as('deleteData');
 
             cy.intercept({
                 url: `${Cypress.env('apiPath')}/_action/sync`,
-                method: 'POST'
+                method: 'POST',
             }).as('deleteMultipleData');
 
             // open context menu

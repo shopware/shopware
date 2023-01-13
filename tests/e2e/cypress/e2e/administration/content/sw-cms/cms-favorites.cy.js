@@ -2,20 +2,18 @@
 
 describe('CMS: Check if block favorites open first, when configured', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => cy.createCmsFixture())
-            .then(() => {
-                cy.viewport(1920, 1080);
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createCmsFixture().then(() => {
+            cy.viewport(1920, 1080);
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @content: select block favorites and re-open editor to see effects', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user-config*`,
-            method: 'POST'
+            method: 'POST',
         }).as('createUserConfig');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -27,7 +25,7 @@ describe('CMS: Check if block favorites open first, when configured', () => {
         cy.wait('@createUserConfig').its('response.statusCode').should('equal', 204);
 
         cy.log('reopen');
-        cy.get('.sw-cms-detail__back-btn').click()
+        cy.get('.sw-cms-detail__back-btn').click();
         cy.get('.sw-cms-list-item--0').click();
         cy.get('.sw-cms-section__empty-stage').click();
 
@@ -36,13 +34,13 @@ describe('CMS: Check if block favorites open first, when configured', () => {
         cy.log('unselect');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user-config/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('updateUserConfig');
         cy.get('.sw-cms-sidebar__block-preview-with-actions .sw-button').first().click();
         cy.wait('@updateUserConfig').its('response.statusCode').should('equal', 204);
 
         cy.log('reopen');
-        cy.get('.sw-cms-detail__back-btn').click()
+        cy.get('.sw-cms-detail__back-btn').click();
         cy.get('.sw-cms-list-item--0').click();
         cy.get('.sw-cms-section__empty-stage').click();
 
@@ -54,7 +52,7 @@ describe('CMS: Check if block favorites open first, when configured', () => {
     it('@base @content: select element favorites and re-open editor to see effects', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user-config*`,
-            method: 'POST'
+            method: 'POST',
         }).as('createUserConfig');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -95,10 +93,10 @@ describe('CMS: Check if block favorites open first, when configured', () => {
         cy.log('unfavorite');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user-config/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('updateUserConfig');
         cy.get('.sw-cms-slot__modal-container .sw-collapse').first().scrollIntoView({
-            offset: { top: 0, left: 0 }
+            offset: { top: 0, left: 0 },
         });
         cy.get('.element-selection__overlay-action-favorite').first().invoke('show');
         cy.get('.element-selection__overlay-action-favorite').first().click();

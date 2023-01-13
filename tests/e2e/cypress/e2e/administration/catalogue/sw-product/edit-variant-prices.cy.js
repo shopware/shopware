@@ -4,39 +4,35 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Product: Test variants', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.createProductVariantFixture();
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createProductVariantFixture().then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
-    it('@catalogue: add variant with surcharge to product', { tags: ['pa-inventory'] }, () => {
+    it('@catalogue: add variant with surcharge to product', {tags: ['pa-inventory']}, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
         cy.intercept({
             method: 'PATCH',
-            url: `${Cypress.env('apiPath')}/product/*`
+            url: `${Cypress.env('apiPath')}/product/*`,
         }).as('saveData');
         cy.intercept({
             method: 'GET',
-            url: `${Cypress.config('baseUrl')}/detail/**/switch?options=*`
+            url: `${Cypress.config('baseUrl')}/detail/**/switch?options=*`,
         }).as('changeVariant');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchVariantGroup');
 
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-product-detail__tab-variants').click();
@@ -60,7 +56,7 @@ describe('Product: Test variants', () => {
         // Find variant to set surcharge on
         cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').should('be.visible');
         cy.get('.sw-data-grid__row--0 .sw-price-preview').should('be.visible');
-        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').dblclick({ force: true });
+        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').dblclick({force: true});
         cy.get('.sw-data-grid__row--0 .sw-price-preview').should('not.exist');
 
         // Set surcharge

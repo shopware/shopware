@@ -4,10 +4,7 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Mail templates: Test acl privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
     });
 
     it('@settings: read email template', { tags: ['pa-business-ops'] }, () => {
@@ -16,8 +13,8 @@ describe('Mail templates: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'mail_templates',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/mail/template/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -26,12 +23,12 @@ describe('Mail templates: Test acl privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadMailTemplates');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-header-footer`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadMailHeaderFooter');
 
         cy.get('.sw-mail-templates-list-grid').should('be.visible');
@@ -43,7 +40,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0`
+            `${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-mail-template-detail').should('be.visible');
@@ -64,7 +61,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0`
+            `${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0`,
         );
 
         cy.get('#sw-field--mailHeaderFooter-name').should('have.value', 'Default email footer');
@@ -77,12 +74,12 @@ describe('Mail templates: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'mail_templates',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'mail_templates',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/mail/template/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -93,22 +90,22 @@ describe('Mail templates: Test acl privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-template/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveMailTemplate');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadMailTemplates');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-header-footer`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadMailHeaderFooter');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveMailHeaderFooter');
 
         // go to mail template module
@@ -119,7 +116,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0`
+            `${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0`,
         );
 
         // wait for data loading
@@ -158,7 +155,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0`
+            `${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0`,
         );
 
         // update fields
@@ -184,16 +181,16 @@ describe('Mail templates: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'mail_templates',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'mail_templates',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'mail_templates',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/mail/template/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -204,12 +201,12 @@ describe('Mail templates: Test acl privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('createMailTemplate');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-header-footer`,
-            method: 'POST'
+            method: 'POST',
         }).as('createMailHeaderFooter');
 
         // Create mail template
@@ -261,12 +258,12 @@ describe('Mail templates: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'mail_templates',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'mail_templates',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/mail/template/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -277,23 +274,23 @@ describe('Mail templates: Test acl privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-template/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteMailTemplate');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteMailHeaderFooter');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadMailTemplates');
 
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0`
+            `${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-modal__body').should('be.visible');
@@ -318,7 +315,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0`
+            `${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-modal__body').should('be.visible');
@@ -339,16 +336,16 @@ describe('Mail templates: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'mail_templates',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'mail_templates',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'mail_templates',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/mail/template/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -359,29 +356,29 @@ describe('Mail templates: Test acl privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-template/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveMailTemplate');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveMailHeaderFooter');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadMailTemplates');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-header-footer`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadMailHeaderFooter');
 
         // open email template
         cy.clickContextMenuItem(
             '.sw-mail-template-list-grid__duplicate-action',
             page.elements.contextMenuButton,
-            `${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0`
+            `${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0`,
         );
 
         // wait for data loading
@@ -414,7 +411,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.clickContextMenuItem(
             '.sw-mail-header-footer-list-grid__duplicate-action',
             page.elements.contextMenuButton,
-            `${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0`
+            `${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0`,
         );
 
         // wait for data loading

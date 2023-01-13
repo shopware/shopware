@@ -4,35 +4,32 @@ describe('Import/Export - Check activities in progress can be aborted', () => {
     let page = null;
 
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('import-export-profile', {
-                    id: '534dd6561cea480f95660f2960f441d4'
+        cy.createDefaultFixture('import-export-profile', {
+            id: '534dd6561cea480f95660f2960f441d4',
+        }).then(() => {
+            cy.authenticate().then((auth) => {
+                cy.request({
+                    headers: {
+                        Accept: 'application/vnd.api+json',
+                        Authorization: `Bearer ${auth.access}`,
+                        'Content-Type': 'application/json',
+                    },
+                    method: 'POST',
+                    url: '/api/_action/import-export/prepare',
+                    qs: {
+                        response: true,
+                    },
+                    body: {
+                        'profileId': '534dd6561cea480f95660f2960f441d4',
+                        'expireDate': '2099-01-01',
+                    },
                 });
-            }).then(() => {
-                cy.authenticate().then((auth) => {
-                    cy.request({
-                        headers: {
-                            Accept: 'application/vnd.api+json',
-                            Authorization: `Bearer ${auth.access}`,
-                            'Content-Type': 'application/json'
-                        },
-                        method: 'POST',
-                        url: '/api/_action/import-export/prepare',
-                        qs: {
-                            response: true
-                        },
-                        body: {
-                            'profileId': '534dd6561cea480f95660f2960f441d4',
-                            'expireDate': '2099-01-01'
-                        }
-                    });
-                });
-            }).then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/export`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
             });
+        }).then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/export`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
 
         page = new SettingsPageObject();
     });
@@ -44,12 +41,12 @@ describe('Import/Export - Check activities in progress can be aborted', () => {
     it('@base @settings: Abort export in progress', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
-            method: 'POST'
+            method: 'POST',
         }).as('importExportLog');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/cancel`,
-            method: 'POST'
+            method: 'POST',
         }).as('importExportCancel');
 
         // Intially load the activity logs
@@ -67,7 +64,7 @@ describe('Import/Export - Check activities in progress can be aborted', () => {
         cy.clickContextMenuItem(
             '.sw-import-export-activity__abort-process-action',
             '.sw-context-button__button',
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Wait for activity to be canceled

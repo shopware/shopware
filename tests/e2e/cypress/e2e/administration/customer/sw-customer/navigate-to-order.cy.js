@@ -4,15 +4,11 @@ import CustomerPageObject from '../../../../support/pages/module/sw-customer.pag
 
 describe('Customer:  Edit in various ways', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCustomerFixture();
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createCustomerFixture().then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@customer: navigate to create order page', { tags: ['pa-customers-orders'] }, () => {
@@ -23,7 +19,7 @@ describe('Customer:  Edit in various ways', () => {
         cy.clickContextMenuItem(
             '.sw-customer-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-customer-detail__tab-order').click();

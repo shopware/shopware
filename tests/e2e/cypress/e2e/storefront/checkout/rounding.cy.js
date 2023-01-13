@@ -9,7 +9,7 @@ describe('Checkout: Use rounding', () => {
 
     beforeEach(() => {
         return cy.createProductFixture().then(() => {
-            return cy.createDefaultFixture('category')
+            return cy.createDefaultFixture('category');
         }).then(() => {
             cy.createProductFixture({
                 name: 'Test product',
@@ -18,23 +18,21 @@ describe('Checkout: Use rounding', () => {
                     {
                         currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
                         linked: true,
-                        gross: 10.51
-                    }
-                ]
+                        gross: 10.51,
+                    },
+                ],
             });
         }).then((result) => {
             product = result;
-            return cy.createCustomerFixtureStorefront()
+            return cy.createCustomerFixtureStorefront();
         });
     });
 
     it('@base @checkout: Run checkout with 0.50', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: '/api/currency/**',
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
-
-        cy.loginViaApi();
 
         cy.visit('/admin#/sw/settings/currency/detail/b7d2554b0ce847cd82f3ac9bd1c0dfca');
 

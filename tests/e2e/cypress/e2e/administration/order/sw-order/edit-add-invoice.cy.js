@@ -4,19 +4,15 @@ import OrderPageObject from '../../../../support/pages/module/sw-order.page-obje
 
 describe('Order: Test order state', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'product',
-                    data: {
-                        field: 'name',
-                        value: 'Product name'
-                    }
-                });
-            })
+        cy.createProductFixture().then(() => {
+            return cy.searchViaAdminApi({
+                endpoint: 'product',
+                data: {
+                    field: 'name',
+                    value: 'Product name',
+                },
+            });
+        })
             .then((result) => {
                 return cy.createGuestOrder(result.id);
             })
@@ -34,24 +30,24 @@ describe('Order: Test order state', () => {
         // Request we want to wait for later
         cy.intercept({
             url: createInvoiceUrl,
-            method: 'POST'
+            method: 'POST',
         }).as('createDocumentCall');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/document`,
-            method: 'POST'
+            method: 'POST',
         }).as('findDocumentCall');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
+            method: 'POST',
         }).as('findOrder');
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         page.changeActiveTab('documents');
@@ -88,7 +84,7 @@ describe('Order: Test order state', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         page.changeActiveTab('documents');
@@ -109,26 +105,26 @@ describe('Order: Test order state', () => {
 
         cy.intercept({
             url: createInvoiceUrl,
-            method: 'POST'
+            method: 'POST',
         }).as('createDocumentCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/document`,
-            method: 'POST'
+            method: 'POST',
         }).as('findDocumentCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
+            method: 'POST',
         }).as('findOrder');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/number-range/reserve/document_invoice/*`,
-            method: 'GET'
+            method: 'GET',
         }).as('reserveDocumentNumberRange');
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         page.changeActiveTab('documents');
@@ -213,24 +209,24 @@ describe('Order: Test order state', () => {
         // Request we want to wait for later
         cy.intercept({
             url: createInvoiceUrl,
-            method: 'POST'
+            method: 'POST',
         }).as('createDocumentCall');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/document`,
-            method: 'POST'
+            method: 'POST',
         }).as('findDocumentCall');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
+            method: 'POST',
         }).as('findOrder');
 
         cy.contains(`${page.elements.dataGridRow}--0`,'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         page.changeActiveTab('documents');
@@ -280,7 +276,7 @@ describe('Order: Test order state', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         page.changeActiveTab('documents');

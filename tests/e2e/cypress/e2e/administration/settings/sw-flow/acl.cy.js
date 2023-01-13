@@ -3,11 +3,8 @@
 import SettingsPageObject from '../../../../support/pages/module/sw-settings.page-object';
 
 describe('Flow builder: Test acl privilege', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-        });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
     });
 
     it('@settings: can view flow builder', { tags: ['pa-business-ops'] }, () => {
@@ -16,8 +13,8 @@ describe('Flow builder: Test acl privilege', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'flow',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -41,12 +38,12 @@ describe('Flow builder: Test acl privilege', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'flow',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'flow',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -55,7 +52,7 @@ describe('Flow builder: Test acl privilege', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('updateData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -74,7 +71,7 @@ describe('Flow builder: Test acl privilege', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`,
             'Edit',
-            true
+            true,
         );
 
         cy.get('.sw-skeleton').should('not.exist');
@@ -119,16 +116,16 @@ describe('Flow builder: Test acl privilege', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'flow',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'flow',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'flow',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -137,7 +134,7 @@ describe('Flow builder: Test acl privilege', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -175,12 +172,12 @@ describe('Flow builder: Test acl privilege', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'flow',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'flow',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -189,7 +186,7 @@ describe('Flow builder: Test acl privilege', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow/*`,
-            method: 'DELETE'
+            method: 'DELETE',
         }).as('deleteData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -205,7 +202,7 @@ describe('Flow builder: Test acl privilege', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`,
             'Delete',
-            true
+            true,
         );
 
         cy.contains('.sw-modal__body', 'If you delete this flow, no more actions will be performed for the trigger. Are you sure you want to delete this flow?');

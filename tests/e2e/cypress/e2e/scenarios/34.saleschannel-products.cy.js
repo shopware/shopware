@@ -2,9 +2,7 @@
 
 describe('Add and remove products from saleschannel', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture();
-        });
+        cy.createProductFixture();
     });
 
     afterEach(() => {
@@ -132,7 +130,7 @@ describe('Add and remove products from saleschannel', () => {
 
         cy.contains('.sw-modal__header', 'Producten toevoegen').should('be.visible');
         cy.contains('.sw-button', '0 producten toevoegen').should('be.visible');
-        cy.contains('.sw-data-grid__row--0', 'Product name').should('be.visible')
+        cy.contains('.sw-data-grid__row--0', 'Product name').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
@@ -142,7 +140,7 @@ describe('Add and remove products from saleschannel', () => {
 
         cy.contains('.sw-modal__header', 'Producten toevoegen').should('be.visible');
         cy.contains('.sw-button', '0 producten toevoegen').should('be.visible');
-        cy.contains('.sw-data-grid__row--0', 'Product name').should('be.visible')
+        cy.contains('.sw-data-grid__row--0', 'Product name').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 

@@ -5,18 +5,16 @@ describe('Test allowBuyInListing config setting', () => {
     beforeEach(() => {
         let ruleId;
 
-        return cy.loginViaApi().then(() => {
-            return cy.searchViaAdminApi({
-                data: {
-                    field: 'name',
-                    value: 'Always valid (Default)',
-                },
-                endpoint: 'rule',
-            });
+        return cy.searchViaAdminApi({
+            data: {
+                field: 'name',
+                value: 'Always valid (Default)',
+            },
+            endpoint: 'rule',
         }).then(rule => {
             ruleId = rule.id;
 
-            return cy.fixture('buy-button-products.json')
+            return cy.fixture('buy-button-products.json');
         }).then(products => {
             products[0].prices[0].ruleId = ruleId;
 
@@ -40,17 +38,17 @@ describe('Test allowBuyInListing config setting', () => {
             cy.get('.sw-system-config--field-core-listing-allow-buy-in-listing input').click()
                 .should('not.be.checked');
 
-            cy.get('.sw-button-process__content').click()
-            cy.get('.sw-loader').should('not.exist')
+            cy.get('.sw-button-process__content').click();
+            cy.get('.sw-loader').should('not.exist');
         }
     }
 
     it('Should display buy button', { tags: ['pa-checkout'] }, () => {
         setAllowBuyInListing(true);
 
-        cy.visit('/')
+        cy.visit('/');
 
-        cy.get('.card-body:nth(2)').scrollIntoView()
+        cy.get('.card-body:nth(2)').scrollIntoView();
 
         cy.get('.product-action:nth(0) .btn')
             .should('be.visible')
@@ -71,9 +69,9 @@ describe('Test allowBuyInListing config setting', () => {
     it('Shouldn\'t display buy button, but should display detail button', { tags: ['pa-checkout'] }, () => {
         setAllowBuyInListing(false);
 
-        cy.visit('/')
+        cy.visit('/');
 
-        cy.get('.card-body:nth(2)').scrollIntoView()
+        cy.get('.card-body:nth(2)').scrollIntoView();
 
         cy.get('.product-action:nth(0) .btn')
             .should('be.visible')

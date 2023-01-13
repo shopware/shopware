@@ -7,18 +7,14 @@ let customer = {
     country: 'Germany',
     company: 'Test Company',
     department: 'Test Department',
-    vatId: 'TEST-VAT-ID'
+    vatId: 'TEST-VAT-ID',
 };
 
 describe('Customer: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCustomerFixture();
-            })
-            .then(() => {
-                return cy.fixture('customer');
-            })
+        cy.createCustomerFixture().then(() => {
+            return cy.fixture('customer');
+        })
             .then((result) => {
                 customer = Cypress._.merge(customer, result);
 
@@ -40,7 +36,7 @@ describe('Customer: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Fill in basic data
@@ -110,14 +106,14 @@ describe('Customer: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         // Open customer
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Open and swap default in addresses
@@ -144,16 +140,16 @@ describe('Customer: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.modal} .sw-customer-list__confirm-delete-text`,
-            'Are you sure you want to delete the customer "Pep Eroni"?'
+            'Are you sure you want to delete the customer "Pep Eroni"?',
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 

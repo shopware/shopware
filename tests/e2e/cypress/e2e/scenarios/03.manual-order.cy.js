@@ -5,10 +5,8 @@ import OrderPageObject from '../../support/pages/module/sw-order.page-object';
 
 describe('Create customer via UI, product via API and make a manual order', ()=>{
     beforeEach(() => {
-        cy.loginViaApi()
+        cy.setLocaleToEnGb()
             .then(() => {
-                cy.setLocaleToEnGb();
-            }).then(() => {
                 cy.createProductFixture({
                     name: 'Test Product',
                     productNumber: 'TEST-1234',
@@ -17,9 +15,9 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
                             currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
                             net: 8,
                             linked: true,
-                            gross: 10
-                        }
-                    ]
+                            gross: 10,
+                        },
+                    ],
                 });
             }).then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
@@ -31,27 +29,27 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
     it('@package: should create manual order and use credit', { tags: ['pa-customers-orders'] }, ()=> {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-visibility`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-            method: 'POST'
+            method: 'POST',
         }).as('salesChannel');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/customer`,
-            method: 'POST'
+            method: 'POST',
         }).as('save-customer');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/user-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('user-config');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_proxy-order/**`,
-            method: 'POST'
+            method: 'POST',
         }).as('save-proxy');
 
         const customerPage = new CustomerPageObject();
@@ -73,7 +71,7 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
             cy.get('.sw-customer-base-form__customer-group-select')
                 .typeSingleSelectAndCheck(
                     'Standard customer group',
-                    '.sw-customer-base-form__customer-group-select'
+                    '.sw-customer-base-form__customer-group-select',
                 );
             cy.get('.sw-customer-base-form__sales-channel-select')
                 .typeSingleSelectAndCheck(customer.salesChannel, '.sw-customer-base-form__sales-channel-select');
@@ -165,6 +163,6 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
         cy.get('.sw-order-list__manual-order-label .sw-label__caption')
             .should('include.text', 'Handmatige bestelling');
         cy.get('.sw-data-grid__cell--amountTotal > .sw-data-grid__cell-content').should('be.visible')
-            .and('include.text', '8,00')
+            .and('include.text', '8,00');
     });
 });

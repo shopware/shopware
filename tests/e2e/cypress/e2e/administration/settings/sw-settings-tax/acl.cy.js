@@ -4,10 +4,7 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Tax: Test acl privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('tax');
-            })
+        cy.createDefaultFixture('tax')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
@@ -19,16 +16,16 @@ describe('Tax: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'tax',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'tax',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'tax',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             // visiting settings page to prove that snippets element is visible
             cy.visit(`${Cypress.env('admin')}#/sw/settings/tax/index`);
@@ -39,7 +36,7 @@ describe('Tax: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/tax`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
 
@@ -66,12 +63,12 @@ describe('Tax: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'tax',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'tax',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             // visiting settings page to prove that snippets element is visible
             cy.visit(`${Cypress.env('admin')}#/sw/settings/tax/index`);
@@ -82,7 +79,7 @@ describe('Tax: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/tax/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         // Edit tax
@@ -90,7 +87,7 @@ describe('Tax: Test acl privileges', () => {
         cy.clickContextMenuItem(
             '.sw-tax-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('input[name=sw-field--tax-name]').clearTypeAndCheck('Still high tax');
         cy.get(page.elements.taxSaveAction).click();
@@ -109,12 +106,12 @@ describe('Tax: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'tax',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'tax',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             // visiting settings page to prove that snippets element is visible
             cy.visit(`${Cypress.env('admin')}#/sw/settings/tax/index`);
@@ -125,7 +122,7 @@ describe('Tax: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/tax/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         // Delete tax
@@ -133,7 +130,7 @@ describe('Tax: Test acl privileges', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-modal__body').should('be.visible');

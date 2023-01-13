@@ -14,7 +14,7 @@ export default {
 
 
 interface FilterRegistry extends Map<string, FilterTypes[keyof FilterTypes]> {
-    get: <A extends string>(key: A) => FilterTypes[A];
+    get: <A extends keyof FilterTypes>(key: A) => FilterTypes[A];
 }
 
 /**
@@ -64,9 +64,7 @@ function register<A extends string>(
 
 /**
  * @description Get a filter by its name
- *
- * @deprecated tag:v6.5.0 - return type noopType will be removed
  */
-function getByName<A extends string>(filterName: A): FilterTypes[A] {
+function getByName<A extends keyof FilterTypes>(filterName: A): FilterTypes[A] {
     return filterRegistry.get(filterName);
 }

@@ -7,18 +7,14 @@ let customer = {
     country: 'Germany',
     company: 'Test Company',
     department: 'Test Department',
-    vatId: 'TEST-VAT-ID'
+    vatId: 'TEST-VAT-ID',
 };
 
 describe('Customer: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCustomerFixture();
-            })
-            .then(() => {
-                return cy.fixture('customer');
-            })
+        cy.createCustomerFixture().then(() => {
+            return cy.fixture('customer');
+        })
             .then((result) => {
                 customer = Cypress._.merge(customer, result);
 
@@ -36,8 +32,8 @@ describe('Customer: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -59,8 +55,8 @@ describe('Customer: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'customer',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -79,7 +75,7 @@ describe('Customer: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCustomer');
 
         const page = new CustomerPageObject();
@@ -87,11 +83,11 @@ describe('Customer: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'customer',
-                role: 'viewer'
+                role: 'viewer',
             }, {
                 key: 'customer',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -120,7 +116,7 @@ describe('Customer: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         const page = new CustomerPageObject();
@@ -128,14 +124,14 @@ describe('Customer: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'customer',
-                role: 'viewer'
+                role: 'viewer',
             }, {
                 key: 'customer',
-                role: 'editor'
+                role: 'editor',
             }, {
                 key: 'customer',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/create`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -156,7 +152,7 @@ describe('Customer: Test ACL privileges', () => {
         cy.get('.sw-customer-base-form__customer-group-select')
             .typeSingleSelectAndCheck(
                 'Standard customer group',
-                '.sw-customer-base-form__customer-group-select'
+                '.sw-customer-base-form__customer-group-select',
             );
 
         cy.get('.sw-customer-base-form__sales-channel-select')
@@ -179,7 +175,7 @@ describe('Customer: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         const page = new CustomerPageObject();
@@ -187,11 +183,11 @@ describe('Customer: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'customer',
-                role: 'viewer'
+                role: 'viewer',
             }, {
                 key: 'customer',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -202,7 +198,7 @@ describe('Customer: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.modal} .sw-customer-list__confirm-delete-text`,
             'Are you sure you want to delete the customer "Pep Eroni"?');
@@ -219,7 +215,7 @@ describe('Customer: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_admin/check-customer-email-valid`,
-            method: 'POST'
+            method: 'POST',
         }).as('checkEmailValid');
 
         const page = new CustomerPageObject();
@@ -227,14 +223,14 @@ describe('Customer: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'customer',
-                role: 'viewer'
+                role: 'viewer',
             }, {
                 key: 'customer',
-                role: 'editor'
+                role: 'editor',
             }, {
                 key: 'customer',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/create`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -254,7 +250,7 @@ describe('Customer: Test ACL privileges', () => {
         cy.get('.sw-customer-base-form__customer-group-select')
             .typeSingleSelectAndCheck(
                 'Standard customer group',
-                '.sw-customer-base-form__customer-group-select'
+                '.sw-customer-base-form__customer-group-select',
             );
 
         cy.get('.sw-customer-base-form__sales-channel-select')
@@ -281,14 +277,14 @@ describe('Customer: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'customer',
-                role: 'viewer'
+                role: 'viewer',
             }, {
                 key: 'customer',
-                role: 'editor'
+                role: 'editor',
             }, {
                 key: 'customer',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/create`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -308,7 +304,7 @@ describe('Customer: Test ACL privileges', () => {
         cy.get('.sw-customer-base-form__customer-group-select')
             .typeSingleSelectAndCheck(
                 'Standard customer group',
-                '.sw-customer-base-form__customer-group-select'
+                '.sw-customer-base-form__customer-group-select',
             );
 
         cy.get('.sw-customer-base-form__sales-channel-select')
@@ -326,7 +322,7 @@ describe('Customer: Test ACL privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_admin/check-customer-email-valid`,
-            method: 'POST'
+            method: 'POST',
         }).as('checkEmailValid');
 
         // open customer

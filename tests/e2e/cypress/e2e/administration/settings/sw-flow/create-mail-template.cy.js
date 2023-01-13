@@ -3,14 +3,10 @@
 import SettingsPageObject from '../../../../support/pages/module/sw-settings.page-object';
 
 describe('Flow builder: Create mail template for send mail action testing', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi().then(() => {
-                return cy.createProductFixture();
-            }).then(() => {
-                return cy.createCustomerFixture();
-            });
+        cy.createProductFixture().then(() => {
+            return cy.createCustomerFixture();
+        });
     });
 
     it('@settings: create mail template for send mail action', { tags: ['pa-business-ops'] }, () => {
@@ -21,12 +17,12 @@ describe('Flow builder: Create mail template for send mail action testing', () =
         const page = new SettingsPageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('getMailTemplate');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -94,7 +90,7 @@ describe('Flow builder: Create mail template for send mail action testing', () =
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('getMailTemplateAfterSearch');
 
         cy.get('input.sw-search-bar__input').type('Contact form successful feedback description');

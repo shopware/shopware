@@ -23,19 +23,6 @@ module.exports = (on, config) => {
     // logToOutput.install(on);
 
     // `on` is used to hook into various events Cypress emits
-
-    // register cypress-grep plugin code
-    require('cypress-grep/src/plugin')(config)
-
-    // TODO: Workaround to cypress issue #6540, remove as soon as it's fixed
-    on('before:browser:launch', (browser, launchOptions) => {
-        if (browser.name === 'chrome' && browser.isHeadless) {
-            launchOptions.args.push('--disable-gpu');
-
-            return launchOptions;
-        }
-    });
-
     on('before:browser:launch', () => {
         config.env.projectRoot = config.env.projectRoot || config.env.shopwareRoot;
     });

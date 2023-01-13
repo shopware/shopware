@@ -2,10 +2,7 @@
 
 describe('Listing: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('custom-field-set');
-            })
+        cy.createDefaultFixture('custom-field-set')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/listing/index`);
                 cy.get('.sw-settings-listing-index').should('exist');
@@ -74,7 +71,7 @@ describe('Listing: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-sorting`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // save entity
@@ -98,12 +95,12 @@ describe('Listing: Test crud operations', () => {
     it('@settings: create product sorting with custom field criteria', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: '/api/search/custom-field-set',
-            method: 'POST'
+            method: 'POST',
         }).as('saveCustomFieldSet');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/custom-field-set/**/custom-fields`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveCustomField');
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
@@ -181,11 +178,11 @@ describe('Listing: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-sorting`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-sorting/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('updateData');
 
         cy.get(customFieldSelection).typeSingleSelect('my_custom_field_first', customFieldSelection);
@@ -279,7 +276,7 @@ describe('Listing: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-sorting/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteRequest');
 
         cy.get('.sw-button--danger')

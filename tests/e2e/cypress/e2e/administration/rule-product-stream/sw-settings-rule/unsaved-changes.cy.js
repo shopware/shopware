@@ -8,10 +8,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
     const defaultRuleId = uuid().replace(/-/g, '');
 
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('rule', { id: defaultRuleId, name: 'Default Rule' }, 'rule-simple-condition');
-            })
+        cy.createDefaultFixture('rule', { id: defaultRuleId, name: 'Default Rule' }, 'rule-simple-condition')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/detail/${defaultRuleId}`);
                 // wait for ending loading state
@@ -22,8 +19,6 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
 
     it('@rule: edit rule then switch tab and discard changes', { tags: ['pa-business-ops'] }, () => {
         cy.onlyOnFeature('V6_5_0_0');
-
-        const page = new RulePageObject();
 
         cy.get('.sw-settings-rule-detail-base').should('be.visible');
         cy.get('input#sw-field--rule-name').should('be.visible');
@@ -77,7 +72,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
                 selector: '@condition-general',
                 type: 'Item with free shipping',
                 operator: null,
-                value: 'No'
+                value: 'No',
             });
         });
 
@@ -127,7 +122,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
                 selector: '@condition-general',
                 type: 'Item with free shipping',
                 operator: null,
-                value: 'No'
+                value: 'No',
             });
         });
 

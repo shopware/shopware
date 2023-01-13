@@ -4,13 +4,9 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 
 describe('Rule builder: Use advanced selection for entity selection', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('rule');
-            })
-            .then(() => {
-                return cy.createProductFixture();
-            })
+        cy.createDefaultFixture('rule').then(() => {
+            return cy.createProductFixture();
+        })
             .then(() => {
                 return cy.createProductFixture({
                     name: 'another product',

@@ -6,19 +6,15 @@ let salesChannelId;
 
 describe('Order: Test promotions in existing orders', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'product',
-                    data: {
-                        field: 'name',
-                        value: 'Product name'
-                    }
-                });
-            })
+        cy.createProductFixture().then(() => {
+            return cy.searchViaAdminApi({
+                endpoint: 'product',
+                data: {
+                    field: 'name',
+                    value: 'Product name',
+                },
+            });
+        })
             .then((result) => {
                 return cy.createGuestOrder(result.id);
             })
@@ -27,8 +23,8 @@ describe('Order: Test promotions in existing orders', () => {
                     endpoint: 'sales-channel',
                     data: {
                         field: 'name',
-                        value: 'Storefront'
-                    }
+                        value: 'Storefront',
+                    },
                 });
             })
             .then((data) => {
@@ -50,35 +46,35 @@ describe('Order: Test promotions in existing orders', () => {
             active: true,
             salesChannels: [{
                 salesChannelId: salesChannelId,
-                priority: 1
+                priority: 1,
             }],
             discounts: [{
                 scope: 'cart',
                 type: 'absolute',
                 value: 5.0,
-                considerAdvancedRules: false
-            }]
+                considerAdvancedRules: false,
+            }],
         });
 
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
+            method: 'POST',
         }).as('orderCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/order/**/promotion-item`,
-            method: 'POST'
+            method: 'POST',
         }).as('orderAddPromotionCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/order/**/`,
-            method: 'POST'
+            method: 'POST',
         }).as('orderRemovePromotionCall');
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         page.changeActiveTab('details');
@@ -108,31 +104,31 @@ describe('Order: Test promotions in existing orders', () => {
             active: true,
             salesChannels: [{
                 salesChannelId: salesChannelId,
-                priority: 1
+                priority: 1,
             }],
             discounts: [{
                 scope: 'cart',
                 type: 'absolute',
                 value: 5.0,
-                considerAdvancedRules: false
-            }]
+                considerAdvancedRules: false,
+            }],
         });
 
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
+            method: 'POST',
         }).as('orderCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/order/**/toggleAutomaticPromotions`,
-            method: 'POST'
+            method: 'POST',
         }).as('toggleAutomaticPromotionsCall');
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.wait('@orderCall').its('response.statusCode').should('equal', 200);

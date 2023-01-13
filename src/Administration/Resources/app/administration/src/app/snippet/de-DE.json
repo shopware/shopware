@@ -675,6 +675,7 @@
         "cartPositionPrice": "Summe",
         "goodsCountRule": "Gesamtanzahl unterschiedlicher Produkte",
         "goodsPriceRule": "Zwischensumme aller Positionen",
+        "cartTotalPurchasePrice": "Summe aller Einkaufspreise",
         "lineItemOfTypeRule": {
           "label": "Position vom Typ",
           "product": "Produkt",
@@ -827,6 +828,15 @@
             "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",
             "individual": "@:global.sw-condition.condition.promotionCodeOfTypeRule.individual"
           }
+        }
+      },
+      "cartTotalPurchasePrice": {
+        "type": {
+          "options": {
+            "gross": "Brutto",
+            "net": "Netto"
+          },
+          "placeholder": "Operator auswählen ..."
         }
       },
       "units": {

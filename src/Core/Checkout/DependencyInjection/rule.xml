@@ -124,6 +124,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Rule\CartTotalPurchasePriceRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Rule\IsGuestCustomerRule">
             <tag name="shopware.rule.definition"/>
         </service>

@@ -56,7 +56,6 @@
   services.mysql.enable = lib.mkDefault true;
   services.mysql.initialDatabases = [
     { name = "shopware"; }
-    { name = "shopware_test"; }
   ];
   services.mysql.ensureUsers = [
     {

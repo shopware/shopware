@@ -61,7 +61,7 @@ export default class FormPreserverPlugin extends Plugin {
      * @private
      */
     _prepareElements() {
-        let formElements = this.el.children;
+        let formElements = this.el.elements;
         const outSideFormElements = DomAccess.querySelectorAll(document, `:not(form) > [form="${this.el.id}"]`, this.options.strictMode);
 
         formElements = Array.from(formElements);

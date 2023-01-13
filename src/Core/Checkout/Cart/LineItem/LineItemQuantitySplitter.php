@@ -53,6 +53,10 @@ class LineItemQuantitySplitter
 
         $price = $this->quantityPriceCalculator->calculate($definition, $context);
 
+        $price->assign([
+            'listPrice' => $lineItemPrice->getListPrice() ?? null,
+        ]);
+
         $tmpItem->setPrice($price);
 
         return $tmpItem;

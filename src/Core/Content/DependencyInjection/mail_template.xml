@@ -83,11 +83,6 @@
             <argument type="service" id="document.repository"/>
         </service>
 
-        <service id="mailer.default_transport" class="Symfony\Component\Mailer\Transport\TransportInterface">
-            <argument type="string">%env(MAILER_URL)%</argument>
-            <factory service="Shopware\Core\Content\Mail\Service\MailerTransportLoader" method="fromString"/>
-        </service>
-
         <service id="Shopware\Core\Content\MailTemplate\Service\AttachmentLoader">
             <argument type="service" id="document.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>

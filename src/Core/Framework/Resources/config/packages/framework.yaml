@@ -2,7 +2,7 @@ parameters:
     messenger.default_transport_name: 'v65'
     env(MESSENGER_TRANSPORT_DSN): 'doctrine://default?auto_setup=false'
     env(MESSENGER_TRANSPORT_FAILURE_DSN): 'doctrine://default?queue_name=failed&auto_setup=false'
-    env(MAILER_URL): 'null://null'
+    env(MAILER_DSN): 'null://null'
 
 framework:
     esi: true
@@ -23,7 +23,7 @@ framework:
     http_method_override: true
     mailer:
         message_bus: false
-        dsn: '%env(MAILER_URL)%'
+        dsn: '%env(MAILER_DSN)%'
     php_errors:
         log: true
     cache:

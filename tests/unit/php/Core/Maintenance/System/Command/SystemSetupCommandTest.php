@@ -72,7 +72,7 @@ class SystemSetupCommandTest extends TestCase
             'SHOPWARE_HTTP_DEFAULT_TTL' => '7200',
             'SHOPWARE_CDN_STRATEGY_DEFAULT' => 'id',
             'BLUE_GREEN_DEPLOYMENT' => '1',
-            'MAILER_URL' => 'smtp://localhost:25',
+            'MAILER_DSN' => 'smtp://localhost:25',
             'COMPOSER_HOME' => __DIR__,
         ], $env);
     }

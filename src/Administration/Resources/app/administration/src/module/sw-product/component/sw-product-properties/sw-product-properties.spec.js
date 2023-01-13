@@ -436,63 +436,6 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
 
-    it('should update new properties item correctly', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
-            return Promise.resolve(propertiesMock);
-        });
-
-        await State.commit('swProductDetail/setProduct', productMock);
-        await wrapper.vm.getGroupIds();
-        await wrapper.vm.getProperties();
-
-        wrapper.vm.updateNewProperties();
-        wrapper.vm.updateNewPropertiesItem({
-            index: 0,
-            selected: false
-        });
-
-        expect(wrapper.vm.newProperties[0].selected).toBe(false);
-        wrapper.vm.propertyGroupRepository.search.mockRestore();
-    });
-
-    it('should add new properties item successful', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
-            return Promise.resolve(propertiesMock);
-        });
-
-        await State.commit('swProductDetail/setProduct', productMock);
-        await wrapper.vm.getGroupIds();
-        await wrapper.vm.getProperties();
-
-        wrapper.vm.updateNewProperties();
-        wrapper.vm.addNewPropertiesItem({
-            property: {
-                id: '05',
-                groupId: 'colorId',
-                name: 'blue'
-            },
-            selected: true
-        });
-
-        expect(wrapper.vm.newProperties).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    property: expect.objectContaining({
-                        id: '05',
-                        groupId: 'colorId',
-                        name: 'blue'
-                    }),
-                    selected: true
-                })
-            ])
-        );
-        wrapper.vm.propertyGroupRepository.search.mockRestore();
-    });
-
     it('should call a turning off modal function when canceling properties modal', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

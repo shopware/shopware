@@ -50,8 +50,6 @@ export default {
             filterWindowOpen: false,
             showBulkEditModal: false,
             toBeDeletedVariantIds: [],
-            // @deprecated tag:v6.5.0 - Will be removed
-            toBeDeletedVariantId: null,
         };
     },
 
@@ -597,8 +595,7 @@ export default {
         },
 
         /* eslint-disable no-unused-vars */
-        /* @deprecated tag:v6.5.0 item parameter will no longer required */
-        onConfirmDelete(item) {
+        onConfirmDelete() {
             this.modalLoading = true;
             this.showDeleteModal = false;
             const variantIds = this.toBeDeletedVariantIds.map(variant => variant.id);

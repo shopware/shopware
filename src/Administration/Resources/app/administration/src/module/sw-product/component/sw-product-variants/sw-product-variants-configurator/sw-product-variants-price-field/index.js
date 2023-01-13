@@ -34,13 +34,6 @@ export default {
             required: false,
             default: false,
         },
-
-        // @deprecated tag:v6.5.0 - Will be removed
-        onlyPositive: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
     },
 
     computed: {

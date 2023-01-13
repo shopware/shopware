@@ -166,7 +166,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
     }
 
     let wrapper;
-    const consoleError = console.error;
 
     beforeAll(() => {
         if (typeof Shopware.State.get('cmsPageState') !== 'undefined') {
@@ -183,13 +182,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-        console.error = jest.fn();
     });
 
     afterEach(() => {
         if (wrapper) wrapper.destroy();
         Shopware.State.unregisterModule('swProductDetail');
-        console.error = consoleError;
     });
 
     it('should be a Vue.js component', async () => {

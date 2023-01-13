@@ -15,6 +15,10 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const crypto = require("crypto");
 
+if (process.env.IPV4FIRST) {
+    require('dns').setDefaultResultOrder('ipv4first');
+}
+
 /** HACK: OpenSSL 3 does not support md4 any more,
  * but webpack hardcodes it all over the place: https://github.com/webpack/webpack/issues/13572
  */

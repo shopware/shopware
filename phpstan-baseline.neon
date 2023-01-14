@@ -13081,11 +13081,6 @@ parameters:
 			path: src/Core/Framework/Routing/RouteScopeRegistry.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\Api\\\\RuleConfigController\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/Api/RuleConfigController.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleConstraints\\:\\:bool\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Rule/RuleConstraints.php

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 use Faker\Generator;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
 use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
-use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
+use Shopware\Core\Checkout\Customer\Rule\DaysSinceFirstLoginRule;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -79,7 +79,7 @@ class RuleGenerator implements DemodataGeneratorInterface
 
         $pool = [
             [
-                'rule' => new IsNewCustomerRule(),
+                'rule' => (new DaysSinceFirstLoginRule())->assign(['daysPassed' => 0]),
                 'name' => 'New customer',
             ],
             [

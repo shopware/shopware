@@ -9,9 +9,9 @@ use Shopware\Core\Framework\Rule\RuleScope;
 /**
  * @package business-ops
  */
-class DaysSinceLastLoginRule extends DaysSinceRule
+class DaysSinceFirstLoginRule extends DaysSinceRule
 {
-    public const RULE_NAME = 'customerDaysSinceLastLogin';
+    public const RULE_NAME = 'customerDaysSinceFirstLogin';
 
     protected function getDate(RuleScope $scope): ?\DateTimeInterface
     {
@@ -19,7 +19,7 @@ class DaysSinceLastLoginRule extends DaysSinceRule
             return null;
         }
 
-        return $customer->getLastLogin();
+        return $customer->getFirstLogin();
     }
 
     protected function supportsScope(RuleScope $scope): bool

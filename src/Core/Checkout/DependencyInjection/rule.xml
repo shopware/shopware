@@ -320,6 +320,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Rule\DaysSinceFirstLoginRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Rule\AffiliateCodeRule">
             <tag name="shopware.rule.definition"/>
         </service>

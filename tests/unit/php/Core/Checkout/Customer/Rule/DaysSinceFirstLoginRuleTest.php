@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Rule\DaysSinceLastLoginRule;
+use Shopware\Core\Checkout\Customer\Rule\DaysSinceFirstLoginRule;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -15,21 +15,21 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @internal
  * @group rules
- * @covers \Shopware\Core\Checkout\Customer\Rule\DaysSinceLastLoginRule
+ * @covers \Shopware\Core\Checkout\Customer\Rule\DaysSinceFirstLoginRule
  * @covers \Shopware\Core\Framework\Rule\Container\DaysSinceRule
  */
-class DaysSinceLastLoginRuleTest extends TestCase
+class DaysSinceFirstLoginRuleTest extends TestCase
 {
-    protected DaysSinceLastLoginRule $rule;
+    protected DaysSinceFirstLoginRule $rule;
 
     protected function setUp(): void
     {
-        $this->rule = new DaysSinceLastLoginRule();
+        $this->rule = new DaysSinceFirstLoginRule();
     }
 
     public function testGetName(): void
     {
-        static::assertSame('customerDaysSinceLastLogin', $this->rule->getName());
+        static::assertSame('customerDaysSinceFirstLogin', $this->rule->getName());
     }
 
     public function testInvalidCombinationOfValueAndOperator(): void
@@ -59,7 +59,7 @@ class DaysSinceLastLoginRuleTest extends TestCase
     ): void {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $customer = new CustomerEntity();
-        $customer->setLastLogin($day);
+        $customer->setFirstLogin($day);
 
         if ($noCustomer) {
             $customer = null;

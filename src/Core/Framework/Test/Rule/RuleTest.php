@@ -112,8 +112,12 @@ class RuleTest extends TestCase
     {
         /** @var Rule $rule */
         foreach ($this->getRules() as $rule) {
-            $constraints = $rule->getConstraints();
-            $config = $rule->getConfig();
+            try {
+                $constraints = $rule->getConstraints();
+                $config = $rule->getConfig();
+            } catch (\Throwable $exception) {
+                continue;
+            }
 
             if ($config === null) {
                 continue;
@@ -175,7 +179,11 @@ class RuleTest extends TestCase
     {
         /** @var Rule $rule */
         foreach ($this->getRules() as $rule) {
-            $constraints = $rule->getConstraints();
+            try {
+                $constraints = $rule->getConstraints();
+            } catch (\Throwable $exception) {
+                continue;
+            }
 
             // skip instances of Rule that don't have an operator constraint
             if (empty($constraints['operator'])) {

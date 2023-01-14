@@ -3,12 +3,15 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
+ * @deprecated tag:v6.6.0 - will be removed, use DaysSinceFirstLoginRule instead
+ *
  * @package business-ops
  */
 class IsNewCustomerRule extends Rule
@@ -31,6 +34,11 @@ class IsNewCustomerRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+        );
+
         if (!$scope instanceof CheckoutRuleScope) {
             return false;
         }
@@ -52,6 +60,11 @@ class IsNewCustomerRule extends Rule
 
     public function getConstraints(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+        );
+
         return [
             'isNew' => RuleConstraints::bool(true),
         ];
@@ -59,6 +72,11 @@ class IsNewCustomerRule extends Rule
 
     public function getConfig(): RuleConfig
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+        );
+
         return (new RuleConfig())
             ->booleanField('isNew');
     }

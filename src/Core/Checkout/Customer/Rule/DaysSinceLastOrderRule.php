@@ -3,77 +3,27 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Rule\RuleComparison;
-use Shopware\Core\Framework\Rule\RuleConfig;
-use Shopware\Core\Framework\Rule\RuleConstraints;
+use Shopware\Core\Framework\Rule\Container\DaysSinceRule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
  * @package business-ops
  */
-class DaysSinceLastOrderRule extends Rule
+class DaysSinceLastOrderRule extends DaysSinceRule
 {
     public const RULE_NAME = 'customerDaysSinceLastOrder';
 
-    protected string $operator = Rule::OPERATOR_EQ;
-
-    protected ?int $daysPassed = null;
-
-    public function match(RuleScope $scope): bool
+    protected function getDate(RuleScope $scope): ?\DateTimeInterface
     {
-        if (!$scope instanceof CheckoutRuleScope) {
-            return false;
+        if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
+            return null;
         }
 
-        $currentDate = $scope->getCurrentTime()->setTime(0, 0, 0, 0);
-        $customer = $scope->getSalesChannelContext()->getCustomer();
-
-        if (!$customer) {
-            return RuleComparison::isNegativeOperator($this->operator);
-        }
-
-        $lastOrderDate = $customer->getLastOrderDate();
-
-        if ($lastOrderDate === null) {
-            return RuleComparison::isNegativeOperator($this->operator);
-        }
-
-        if ($this->daysPassed === null) {
-            return false;
-        }
-
-        if (method_exists($lastOrderDate, 'setTime')) {
-            $lastOrderDate = $lastOrderDate->setTime(0, 0, 0, 0);
-        }
-        $interval = $lastOrderDate->diff($currentDate);
-
-        if ($this->operator === self::OPERATOR_EMPTY) {
-            return false;
-        }
-
-        return RuleComparison::numeric((int) $interval->days, $this->daysPassed, $this->operator);
+        return $customer->getLastOrderDate();
     }
 
-    public function getConstraints(): array
+    protected function supportsScope(RuleScope $scope): bool
     {
-        $constraints = [
-            'operator' => RuleConstraints::numericOperators(),
-        ];
-
-        if ($this->operator === self::OPERATOR_EMPTY) {
-            return $constraints;
-        }
-
-        $constraints['daysPassed'] = RuleConstraints::int();
-
-        return $constraints;
-    }
-
-    public function getConfig(): RuleConfig
-    {
-        return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true)
-            ->intField('daysPassed');
+        return $scope instanceof CheckoutRuleScope;
     }
 }

@@ -7,11 +7,14 @@ use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @deprecated tag:v6.6.0 - will be removed, use DaysSinceFirstLoginRuleTest instead
+ *
  * @package business-ops
  *
  * @internal
@@ -45,6 +48,8 @@ class IsNewCustomerRuleTest extends TestCase
 
     public function testIfRuleIsConsistent(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+
         $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],

@@ -19,6 +19,7 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  * @group rules
  * @covers \Shopware\Core\Checkout\Customer\Rule\DaysSinceLastOrderRule
+ * @covers \Shopware\Core\Framework\Rule\Container\DaysSinceRule
  */
 class DaysSinceLastOrderRuleTest extends TestCase
 {

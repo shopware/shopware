@@ -38,7 +38,7 @@ describe('Payment: Test crud operations', () => {
             cy.get('input[name=sw-field--rule-priority]').type('1');
 
             rulePage.createBasicSelectCondition({
-                type: 'New customer',
+                type: 'Commercial customer',
                 selector: '.sw-condition',
                 operator: null,
                 value: 'Yes',

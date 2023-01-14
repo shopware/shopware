@@ -15,6 +15,9 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class RuleConfigController extends AbstractController
 {
+    /**
+     * @var array<string, mixed[]>
+     */
     private array $config = [];
 
     /**
@@ -42,11 +45,17 @@ class RuleConfigController extends AbstractController
     private function hydrateConfig(iterable $taggedRules): void
     {
         foreach ($taggedRules as $rule) {
-            if ($rule->getConfig() === null) {
+            try {
+                $config = $rule->getConfig();
+            } catch (\Throwable $exception) {
                 continue;
             }
 
-            $this->config[$rule->getName()] = $rule->getConfig()->getData();
+            if ($config === null) {
+                continue;
+            }
+
+            $this->config[$rule->getName()] = $config->getData();
         }
     }
 }

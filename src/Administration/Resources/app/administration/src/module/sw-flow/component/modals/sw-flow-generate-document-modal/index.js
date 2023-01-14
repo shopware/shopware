@@ -46,15 +46,6 @@ export default {
     },
 
     watch: {
-        /**
-         * @deprecated tag:v6.5.0 - will be removed
-         */
-        documentType(value) {
-            if (value && this.fieldError) {
-                this.fieldError = null;
-            }
-        },
-
         documentTypesSelected(value) {
             if (value.length > 0 && this.fieldError) {
                 this.fieldError = null;

@@ -27,10 +27,6 @@ export default {
         return {
             products: [],
             selectedSalesChannel: null,
-            /* @deprecated tag:v6.5.0 - property systemCurrency will be removed */
-            systemCurrency: null,
-            /* @deprecated tag:v6.5.0 - property criteria will be removed */
-            criteria: null,
             searchTerm: '',
             page: 1,
             total: false,
@@ -40,16 +36,6 @@ export default {
     },
 
     computed: {
-        /* @deprecated tag:v6.5.0 - computed property productRepository will be removed */
-        productRepository() {
-            return this.repositoryFactory.create('product');
-        },
-
-        /* @deprecated tag:v6.5.0 - computed property currencyRepository will be removed */
-        currencyRepository() {
-            return this.repositoryFactory.create('currency');
-        },
-
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
@@ -146,15 +132,6 @@ export default {
                 this.products = Object.values(result.elements);
                 this.total = result.total;
             });
-        },
-
-        /* @deprecated tag:v6.5.0 - method loadSystemCurrency will be removed */
-        loadSystemCurrency() {
-            return this.currencyRepository
-                .get(Shopware.Context.app.systemCurrencyId, Context.api)
-                .then((systemCurrency) => {
-                    this.systemCurrency = systemCurrency;
-                });
         },
 
         loadSalesChannels() {

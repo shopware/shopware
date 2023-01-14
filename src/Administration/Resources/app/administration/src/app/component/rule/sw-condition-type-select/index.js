@@ -68,19 +68,6 @@ Component.register('sw-condition-type-select', {
             return this.typeSearchTerm.toUpperCase();
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Function is no longer needed,
-         * use translatedLabel property instead
-         */
-        translatedTypes() {
-            return this.availableTypes.map(({ type, label }) => {
-                return {
-                    type,
-                    label: this.$tc(label),
-                };
-            });
-        },
-
         typeOptions() {
             if (!(typeof this.typeSearchTerm === 'string') || this.typeSearchTerm === '') {
                 return this.availableTypes;

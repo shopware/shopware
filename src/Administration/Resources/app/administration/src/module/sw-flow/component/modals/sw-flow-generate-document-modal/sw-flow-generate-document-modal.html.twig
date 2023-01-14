@@ -6,11 +6,6 @@
     :closable="false"
     @modal-close="onClose"
 >
-    {# @deprecated tag:v6.5.0 - The block content will be remove use block `sw_flow_generate_document_modal_document_type_multiple instead` #}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_flow_generate_document_modal_document_type %}
-    {% endblock %}
-
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_generate_document_modal_document_type_multiple %}
     <sw-multi-select

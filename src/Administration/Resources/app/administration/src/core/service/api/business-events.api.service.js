@@ -2,7 +2,6 @@ import ApiService from '../api.service';
 
 /**
  * @package business-ops
- * @deprecated tag:v6.5.0 - Will be removed in v6.5.0. Please use `sw-flow` - Flow builder instead.
  *
  * @class
  * @extends ApiService

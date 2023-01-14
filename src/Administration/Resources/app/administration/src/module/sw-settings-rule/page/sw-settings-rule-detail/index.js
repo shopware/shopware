@@ -22,8 +22,6 @@ export default {
 
     mixins: [
         Mixin.getByName('notification'),
-        /** @deprecated tag:v6.5.0 - the 'discard-detail-page-changes' mixin will be removed */
-        Mixin.getByName('discard-detail-page-changes')('rule'),
     ],
 
     shortcuts: {

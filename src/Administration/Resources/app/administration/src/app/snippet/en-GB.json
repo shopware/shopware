@@ -669,6 +669,7 @@
         "customerLoggedInRule": "Customer logged in",
         "customerAgeRule": "Customer age",
         "customerDaysSinceLastLogin": "Days since last login",
+        "customerDaysSinceFirstLogin": "Days since first login",
         "customerAffiliateCodeRule": "Affiliate code",
         "customerCampaignCodeRule": "Campaign code",
         "cartAmountRule": "Grand total",

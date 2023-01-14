@@ -1,4 +1,4 @@
-const { Application } = Shopware;
+const { Application, Feature } = Shopware;
 
 /**
  * @package business-ops
@@ -100,12 +100,15 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['checkout'],
         group: 'customer',
     });
-    ruleConditionService.addCondition('customerIsNewCustomer', {
-        component: 'sw-condition-generic',
-        label: 'global.sw-condition.condition.isNewCustomerRule',
-        scopes: ['checkout'],
-        group: 'customer',
-    });
+    /** @major-deprecated tag:v6.6.0 - This rule will be removed. Use customerDaysSinceFirstLogin instead. */
+    if (!Feature.isActive('v6.6.0.0')) {
+        ruleConditionService.addCondition('customerIsNewCustomer', {
+            component: 'sw-condition-generic',
+            label: 'global.sw-condition.condition.isNewCustomerRule',
+            scopes: ['checkout'],
+            group: 'customer',
+        });
+    }
     ruleConditionService.addCondition('customerLastName', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.lastNameRule',
@@ -194,6 +197,12 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     ruleConditionService.addCondition('customerDaysSinceLastLogin', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.customerDaysSinceLastLogin',
+        scopes: ['checkout'],
+        group: 'customer',
+    });
+    ruleConditionService.addCondition('customerDaysSinceFirstLogin', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.customerDaysSinceFirstLogin',
         scopes: ['checkout'],
         group: 'customer',
     });

@@ -56,6 +56,7 @@ async function createWrapper(): Promise<Wrapper<Vue>> {
             'sw-order-create-options': true,
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-icon': true,
+            'sw-loader': true,
         },
     });
 }

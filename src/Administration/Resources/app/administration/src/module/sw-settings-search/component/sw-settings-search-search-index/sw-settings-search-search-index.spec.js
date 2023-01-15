@@ -95,7 +95,8 @@ async function createWrapper(privileges = []) {
             'sw-alert': {
                 template: '<div class="sw-alert"><slot></slot></div>'
             },
-            'sw-icon': true
+            'sw-icon': true,
+            'sw-loader': true,
         }
     });
 }

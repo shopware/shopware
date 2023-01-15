@@ -38,7 +38,8 @@ async function createWrapper(additionalPromotionData = {}) {
             'sw-number-field': {
                 template: '<div class="sw-number-field"><slot></slot></div>'
             },
-            'sw-icon': true
+            'sw-icon': true,
+            'sw-loader': true,
         },
         provide: {
             acl: {

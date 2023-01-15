@@ -66,6 +66,7 @@ async function createWrapper(
             'sw-tabs': true,
             'router-view': true,
             'sw-skeleton': true,
+            'sw-loader': true,
         },
         mocks: {
             $route: $route

@@ -59,6 +59,10 @@ $sw-button-transition: all 0.15s ease-out;
         color: $color-gray-800;
     }
 
+    .sw-loader .sw-loader-element div {
+        border-color: $color-gray-800 transparent transparent transparent;
+    }
+
     &.sw-button--primary {
         background: $color-shopware-brand-500;
         color: $color-white;
@@ -67,6 +71,10 @@ $sw-button-transition: all 0.15s ease-out;
 
         .sw-icon {
             color: $color-white;
+        }
+
+        .sw-loader .sw-loader-element div {
+            border-color: $color-white transparent transparent transparent;
         }
 
         &.sw-button--x-small {
@@ -107,6 +115,10 @@ $sw-button-transition: all 0.15s ease-out;
 
         .sw-icon {
             color: $color-darkgray-200;
+        }
+
+        .sw-loader .sw-loader-element div {
+            border-color: $color-darkgray-200 transparent transparent transparent;
         }
 
         &.sw-button--x-small {
@@ -150,6 +162,10 @@ $sw-button-transition: all 0.15s ease-out;
             color: $color-white;
         }
 
+        .sw-loader .sw-loader-element div {
+            border-color: $color-white transparent transparent transparent;
+        }
+
         &.sw-button--x-small {
             line-height: $line-height-sm;
         }
@@ -187,6 +203,10 @@ $sw-button-transition: all 0.15s ease-out;
 
         .sw-icon {
             color: $color-shopware-brand-500;
+        }
+
+        .sw-loader .sw-loader-element div {
+            border-color: $color-shopware-brand-500 transparent transparent transparent;
         }
 
         &:hover {
@@ -241,6 +261,10 @@ $sw-button-transition: all 0.15s ease-out;
 
         .sw-icon {
             color: $color-darkgray-800;
+        }
+
+        .sw-loader .sw-loader-element div {
+            border-color: $color-darkgray-800 transparent transparent transparent;
         }
 
         &:hover {
@@ -301,16 +325,5 @@ $sw-button-transition: all 0.15s ease-out;
         position: absolute;
         left: 50%;
         top: 50%;
-        animation: spin 2s linear infinite;
-    }
-
-    @keyframes spin {
-        from {
-            transform: translate(-50%, -50%) rotate(0deg);
-        }
-
-        to {
-            transform: translate(-50%, -50%) rotate(360deg);
-        }
     }
 }

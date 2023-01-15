@@ -23,7 +23,8 @@ async function createWrapper() {
             'sw-card-view': true,
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-button-process': await Shopware.Component.build('sw-button-process'),
-            'sw-icon': true
+            'sw-icon': true,
+            'sw-loader': true,
         },
         provide: {
             numberRangeService: {},

@@ -58,10 +58,10 @@ This means that the old implementations also don't use the seeding mechanism, so
 ### Performance
 
 The current `seed` has to be saved somewhere where it is fast to retrieve, as the `seed` value will be needed on every storefront request.
-Therefore, we will store the `seed` in the `theme_sales_channel` association table, and for storefront request we will read the value in the `RequestTransformer` and add it as a `RequestAttribute`, because we already need to access the table there and can then later retrieve the value without an additional DB query.
+Therefore, we will store the `seed` in `system_config` table as the system config is already heavily cached and should not be a performance issue. Additionally it already allows saving values per sales channel which we need in this case.
 
-For non-storefront request (mostly Admin-API requests or CLI invocations) we will build a fallback, that reads the value from the DB when the request attribute is not available.
-But for non-storefront requests the theme path should only be needed when recompiling the theme, and this is already a costly/long-running operation, so one (really simple) additional DB query does not have an impact on the performance there.
+We also considered storing the seed in an additional column in the `theme_sales_channel` mapping table and reading it in the `RequestTransformer` and then adding it as a `request attribute` for further usage.
+This idea was discarded, because the DAL does not allow additional columns in mapping definitions, and in fact it will reset values in additional columns on every write as it uses `REPLACE INTO` queries to update the mappings.
 
 ### Caching
 

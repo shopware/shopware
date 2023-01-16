@@ -5,7 +5,6 @@ issue: NEXT-24662
 # Storefront
 * Added `generateNewPath()` and `saveSeed()` methods  in `\Shopware\Storefront\Theme\AbstractThemePathBuilder`, to allow atomic theme compilations.
 * Added `\Shopware\Storefront\Theme\SeedingThemePathBuilder` as new default implementation for `\Shopware\Storefront\Theme\AbstractThemePathBuilder`.
-* Added column `hash` to `theme_sales_channel` table to store the current hash of the theme compilation.
 * Added `\Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage` and `\Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler` to asynchronously delete compiled theme files.
 ___
 # Upgrade Information

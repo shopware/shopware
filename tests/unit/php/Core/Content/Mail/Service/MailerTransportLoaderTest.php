@@ -11,7 +11,7 @@ use Shopware\Core\Content\Mail\Service\MailerTransportLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\ConfigService;
+use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Transport\AbstractTransportFactory;
 use Symfony\Component\Mailer\Transport\SendmailTransport;
@@ -31,7 +31,7 @@ class MailerTransportLoaderTest extends TestCase
 
         $loader = new MailerTransportLoader(
             $transport,
-            new ConfigService([
+            new StaticSystemConfigService([
                 'core.mailerSettings.emailAgent' => '',
             ]),
             $this->createMock(MailAttachmentsBuilder::class),
@@ -52,7 +52,7 @@ class MailerTransportLoaderTest extends TestCase
     {
         $factory = new MailerTransportLoader(
             $this->getTransportFactory(),
-            new ConfigService([
+            new StaticSystemConfigService([
                 'core.mailerSettings.emailAgent' => 'local',
                 'core.mailerSettings.sendMailOptions' => null,
             ]),
@@ -79,7 +79,7 @@ class MailerTransportLoaderTest extends TestCase
 
         $loader = new MailerTransportLoader(
             $transport,
-            new ConfigService([
+            new StaticSystemConfigService([
                 'core.mailerSettings.emailAgent' => 'smtp',
                 'core.mailerSettings.host' => 'localhost',
                 'core.mailerSettings.port' => '225',
@@ -116,7 +116,7 @@ class MailerTransportLoaderTest extends TestCase
     {
         $loader = new MailerTransportLoader(
             $this->getTransportFactory(),
-            new ConfigService([
+            new StaticSystemConfigService([
                 'core.mailerSettings.emailAgent' => 'local',
                 'core.mailerSettings.sendMailOptions' => '-t && echo bla',
             ]),
@@ -135,7 +135,7 @@ class MailerTransportLoaderTest extends TestCase
     {
         $loader = new MailerTransportLoader(
             $this->getTransportFactory(),
-            new ConfigService([
+            new StaticSystemConfigService([
                 'core.mailerSettings.emailAgent' => 'test',
             ]),
             $this->createMock(MailAttachmentsBuilder::class),
@@ -175,7 +175,7 @@ class MailerTransportLoaderTest extends TestCase
     {
         $loader = new MailerTransportLoader(
             $this->getTransportFactory(),
-            new ConfigService([
+            new StaticSystemConfigService([
                 'core.mailerSettings.emailAgent' => 'smtp',
                 'core.mailerSettings.host' => 'localhost',
                 'core.mailerSettings.port' => '225',

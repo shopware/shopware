@@ -15,8 +15,6 @@ final class SalesChannelRequest
     public const ATTRIBUTE_THEME_NAME = 'theme-name';
     public const ATTRIBUTE_THEME_BASE_NAME = 'theme-base-name';
 
-    public const ATTRIBUTE_THEME_HASH = 'theme-hash';
-
     public const ATTRIBUTE_SALES_CHANNEL_MAINTENANCE = 'sw-maintenance';
 
     public const ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST = 'sw-maintenance-ip-whitelist';

@@ -112,8 +112,7 @@
         </service>
 
         <service id="Shopware\Storefront\Theme\SeedingThemePathBuilder">
-            <argument type="service" id="request_stack"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\MD5ThemePathBuilder"/>

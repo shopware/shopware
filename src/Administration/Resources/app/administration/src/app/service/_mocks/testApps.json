@@ -50,7 +50,7 @@
       {
         "name": "structure",
         "label": {
-          "de-DE": "Sruktur Modul",
+          "de-DE": "Struktur Modul",
           "en-GB": "Structure module"
         },
         "parent": "sw.first.top.level",

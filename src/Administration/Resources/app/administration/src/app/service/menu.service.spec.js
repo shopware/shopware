@@ -111,25 +111,25 @@ describe('src/app/service/menu.service', () => {
                     id: 'app-testAppA-standardModule',
                     label: {
                         translated: true,
-                        label: 'test App A deutsch - Standardmodul'
+                        label: 'Standardmodul'
                     }
                 }), expect.objectContaining({
                     id: 'app-testAppA-noPosition',
                     label: {
                         translated: true,
-                        label: 'test App A deutsch - Modul ohne Position'
+                        label: 'Modul ohne Position'
                     }
                 }), expect.objectContaining({
                     id: 'app-testAppB-default',
                     label: {
                         translated: true,
-                        label: 'test App B deutsch - Standard Modul'
+                        label: 'Standard Modul'
                     }
                 }), expect.objectContaining({
                     id: 'app-testAppB-structure',
                     label: {
                         translated: true,
-                        label: 'test App B deutsch - Sruktur Modul'
+                        label: 'Struktur Modul'
                     }
                 })
             ]);
@@ -145,25 +145,25 @@ describe('src/app/service/menu.service', () => {
                     id: 'app-testAppA-standardModule',
                     label: {
                         translated: true,
-                        label: 'test App A english - Standard module'
+                        label: 'Standard module'
                     }
                 }), expect.objectContaining({
                     id: 'app-testAppA-noPosition',
                     label: {
                         translated: true,
-                        label: 'test App A english - Module without position'
+                        label: 'Module without position'
                     }
                 }), expect.objectContaining({
                     id: 'app-testAppB-default',
                     label: {
                         translated: true,
-                        label: 'test App B english - Default module'
+                        label: 'Default module'
                     }
                 }), expect.objectContaining({
                     id: 'app-testAppB-structure',
                     label: {
                         translated: true,
-                        label: 'test App B english - Structure module'
+                        label: 'Structure module'
                     }
                 })
             ]);

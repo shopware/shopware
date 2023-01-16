@@ -96,7 +96,13 @@ class NotFoundSubscriberTest extends TestCase
         );
         $subscriber->onError($event);
 
-        static::assertInstanceOf(Response::class, $event->getResponse());
+        /** @var StorefrontResponse $response */
+        $response = $event->getResponse();
+
+        static::assertInstanceOf(Response::class, $response);
+        static::assertInstanceOf(StorefrontResponse::class, $response);
+        static::assertEmpty($response->getData());
+        static::assertNull($response->getContext());
     }
 
     public function testOtherExceptionsDoesNotGetCached(): void

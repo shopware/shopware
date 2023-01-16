@@ -107,7 +107,7 @@ class CacheStore implements StoreInterface
         }
 
         if ($response instanceof StorefrontResponse) {
-            $response->setData(null);
+            $response->setData([]);
             $response->setContext(null);
         }
 

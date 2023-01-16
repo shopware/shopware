@@ -13,6 +13,10 @@ All blocks of this template are available in the template which renders this tem
     <div class="letter-header">
         <div class="recipient-address-container">
             {% block document_recipient %}
+                {% if config.displayCompanyAddress and config.companyAddress is not empty %}
+                    {{ config.companyAddress }}<br><br>
+                {% endif %}
+
                 {% sw_include '@Framework/snippets/render.html.twig' with {
                     format: billingAddress.country.translated.addressFormat,
                     address: billingAddress

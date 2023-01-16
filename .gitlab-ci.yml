@@ -17,9 +17,12 @@ stages:
     - visual
 
 workflow:
-    rules:
-        # do not run on push, except on protected branches
-        -   if: '$CI_PIPELINE_SOURCE != "push" || ($CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_PROTECTED == "true")'
+  rules:
+    # do not run on merge request events, when workflow::review is not set
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && ($CI_MERGE_REQUEST_LABELS == null || ($CI_MERGE_REQUEST_LABELS !~ /.*workflow::review.*/ && $CI_MERGE_REQUEST_LABELS !~ /.*workflow::development.*/))'
+      when: never
+    # do not run on push, except on protected branches
+    - if: '$CI_PIPELINE_SOURCE != "push" || ($CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_PROTECTED == "true")'
 
 include:
     # include library files

@@ -3092,10 +3092,10 @@ class ProductRepositoryTest extends TestCase
         ];
 
         $this->repository->upsert([$data], Context::createDefaultContext());
-        $critera = new Criteria([$rootId]);
-        $critera->addAssociation('configuratorSettings');
+        $criteria = new Criteria([$rootId]);
+        $criteria->addAssociation('configuratorSettings');
         /** @var ProductEntity $result */
-        $result = $this->repository->search($critera, Context::createDefaultContext())->first();
+        $result = $this->repository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertInstanceOf(ProductConfiguratorSettingCollection::class, $result->getConfiguratorSettings());
         static::assertCount(3, $result->getConfiguratorSettings());

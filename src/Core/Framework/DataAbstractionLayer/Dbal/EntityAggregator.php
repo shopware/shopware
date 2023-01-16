@@ -123,7 +123,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $clone->setTerm(null);
         }
 
-        $scoreCritera = clone $clone;
+        $scoreCriteria = clone $clone;
         $clone->resetQueries();
 
         $query = new QueryBuilder($this->connection);
@@ -144,11 +144,11 @@ class EntityAggregator implements EntityAggregatorInterface
 
         $table = $definition->getEntityName();
 
-        if (\count($scoreCritera->getQueries()) > 0) {
+        if (\count($scoreCriteria->getQueries()) > 0) {
             $escapedTable = EntityDefinitionQueryHelper::escape($table);
             $scoreQuery = new QueryBuilder($this->connection);
 
-            $scoreQuery = $this->criteriaQueryBuilder->build($scoreQuery, $definition, $scoreCritera, $context, $paths);
+            $scoreQuery = $this->criteriaQueryBuilder->build($scoreQuery, $definition, $scoreCriteria, $context, $paths);
             $pks = $definition->getFields()->filterByFlag(PrimaryKey::class)->map(function (StorageAware $f) {
                 return $f->getStorageName();
             });

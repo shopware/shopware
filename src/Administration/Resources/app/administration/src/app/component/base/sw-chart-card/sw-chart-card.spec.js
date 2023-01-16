@@ -20,19 +20,6 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-chart-card', () => {
-    it('validates the provided availableRanges prop', async () => {
-        const wrapper = await createWrapper();
-        const validator = wrapper.vm.$options.props.availableRanges.validator;
-
-        const exactMatch = ['30Days', '14Days', '7Days', '24Hours', 'yesterday'];
-        const invalidValue = ['30Days', '14Days', '5Days', '24Hours', 'yesterday'];
-        const validSubset = ['30Days', '14Days', 'yesterday'];
-
-        expect(validator(exactMatch)).toBeTruthy();
-        expect(validator(invalidValue)).toBeFalsy();
-        expect(validator(validSubset)).toBeTruthy();
-    });
-
     it('properly checks for slot usage', async () => {
         const wrapper = await createWrapper();
 

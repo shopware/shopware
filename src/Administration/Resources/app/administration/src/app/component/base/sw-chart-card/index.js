@@ -24,11 +24,6 @@ Shopware.Component.register('sw-chart-card', {
             default: () => {
                 return defaultRanges;
             },
-            validator(givenValue) {
-                const validRanges = defaultRanges;
-
-                return givenValue.length && givenValue.every((range) => validRanges.includes(range));
-            },
         },
         cardSubtitle: {
             type: String,

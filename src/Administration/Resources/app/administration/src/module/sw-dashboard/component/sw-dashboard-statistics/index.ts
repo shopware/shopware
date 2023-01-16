@@ -1,7 +1,50 @@
+import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
 import template from './sw-dashboard-statistics.html.twig';
 import './sw-dashboard-statistics.scss';
 
 const { Criteria } = Shopware.Data;
+
+type OrderEntity = EntitySchema.order;
+
+type HistoryDateRange = {
+    label: string,
+    range: number,
+    unit: 'minute' | 'hour' | 'day',
+}
+
+type BucketData = {
+    key: string,
+    count: number,
+    totalAmount: {
+        sum: number,
+    },
+}
+
+type HistoryOrderDataCount = {
+    apiAlias: 'order_count_bucket_aggregation',
+    buckets: Array<BucketData>,
+    name: 'order_count_bucket',
+}
+
+type HistoryOrderDataSum = {
+    apiAlias: 'order_sum_bucket_aggregation',
+    buckets: Array<BucketData>,
+    name: 'order_sum_bucket',
+}
+
+type HistoryOrderData = HistoryOrderDataCount | HistoryOrderDataSum | null;
+
+interface ComponentData {
+    historyOrderDataCount: HistoryOrderDataCount | null,
+    historyOrderDataSum: HistoryOrderDataSum | null,
+    todayOrderData: EntityCollection<'order'> | null,
+    todayOrderDataLoaded: boolean
+    todayOrderDataSortBy: 'orderDateTime',
+    todayOrderDataSortDirection: 'DESC' | 'ASC',
+    ordersDateRange: HistoryDateRange,
+    turnoverDateRange: HistoryDateRange,
+    isLoading: boolean,
+}
 
 /**
  * @package merchant-services
@@ -17,34 +60,62 @@ export default Shopware.Component.wrapComponentConfig({
         'acl',
     ],
 
-    data() {
+    data(): ComponentData {
         return {
             historyOrderDataCount: null,
             historyOrderDataSum: null,
-            todayOrderData: [],
+            todayOrderData: null,
             todayOrderDataLoaded: false,
             todayOrderDataSortBy: 'orderDateTime',
             todayOrderDataSortDirection: 'DESC',
-            ordersDateRange: '30Days',
-            turnoverDateRange: '30Days',
+            ordersDateRange: {
+                label: '30Days',
+                range: 30,
+                unit: 'day',
+            },
+            turnoverDateRange: {
+                label: '30Days',
+                range: 30,
+                unit: 'day',
+            },
             isLoading: true,
         };
     },
 
     computed: {
-        rangesValueMap() {
-            return {
-                '30Days': 30,
-                '14Days': 14,
-                '7Days': 7,
-                '24Hours': 24,
-                yesterday: 1,
-            };
+        rangesValueMap(): Array<HistoryDateRange> {
+            return [{
+                label: '30Days',
+                range: 30,
+                unit: 'day',
+            }, {
+                label: '14Days',
+                range: 14,
+                unit: 'day',
+            }, {
+                label: '7Days',
+                range: 7,
+                unit: 'day',
+            }, {
+                label: '24Hours',
+                range: 24,
+                unit: 'hour',
+            }, {
+                label: 'yesterday',
+                range: 24,
+                unit: 'hour',
+            }];
         },
+
+        availableRanges(): string[] {
+            return this.rangesValueMap.map((range) => range.label);
+        },
+
         chartOptionsOrderCount() {
             return {
                 xaxis: {
                     type: 'datetime',
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                     min: this.getDateAgo(this.ordersDateRange).getTime(),
                     labels: {
                         datetimeUTC: false,
@@ -54,7 +125,7 @@ export default Shopware.Component.wrapComponentConfig({
                     min: 0,
                     tickAmount: 3,
                     labels: {
-                        formatter: (value) => { return parseInt(value, 10); },
+                        formatter: (value: string) => { return parseInt(value, 10); },
                     },
                 },
             };
@@ -64,6 +135,7 @@ export default Shopware.Component.wrapComponentConfig({
             return {
                 xaxis: {
                     type: 'datetime',
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                     min: this.getDateAgo(this.turnoverDateRange).getTime(),
                     labels: {
                         datetimeUTC: false,
@@ -74,7 +146,11 @@ export default Shopware.Component.wrapComponentConfig({
                     tickAmount: 5,
                     labels: {
                         // price aggregations do not support currencies yet, see NEXT-5069
-                        formatter: (value) => this.$options.filters.currency(value, null, 2),
+                        formatter: (value: string) => Shopware.Utils.format.currency(
+                            Number.parseFloat(value),
+                            Shopware.Context.app.systemCurrencyISOCode as string,
+                            2,
+                        ),
                     },
                 },
             };
@@ -84,17 +160,13 @@ export default Shopware.Component.wrapComponentConfig({
             return this.repositoryFactory.create('order');
         },
 
-        orderCountMonthSeries() {
-            return this.orderCountSeries;
-        },
-
         orderCountSeries() {
             if (!this.historyOrderDataCount) {
                 return [];
             }
 
             // format data for chart
-            const seriesData = this.historyOrderDataCount.buckets.map((data) => {
+            const seriesData = this.historyOrderDataCount.buckets.map((data: BucketData) => {
                 return { x: this.parseDate(data.key), y: data.count };
             });
 
@@ -143,7 +215,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         hasOrderToday() {
-            return this.todayOrderData.length > 0;
+            return !!this.todayOrderData;
         },
 
         hasOrderInMonth() {
@@ -156,11 +228,11 @@ export default Shopware.Component.wrapComponentConfig({
             return today;
         },
 
-        todayBucketCount() {
+        todayBucketCount(): BucketData | null {
             return this.calculateTodayBucket(this.historyOrderDataCount);
         },
 
-        todayBucketSum() {
+        todayBucketSum(): BucketData | null {
             return this.calculateTodayBucket(this.historyOrderDataSum);
         },
 
@@ -176,16 +248,16 @@ export default Shopware.Component.wrapComponentConfig({
     watch: {
         isSessionLoaded: {
             immediate: true,
-            handler() {
+            async handler() {
                 if (this.isSessionLoaded) {
-                    this.initializeOrderData();
+                    await this.initializeOrderData();
                 }
             },
         },
     },
 
     methods: {
-        calculateTodayBucket(aggregation) {
+        calculateTodayBucket(aggregation: HistoryOrderData): BucketData | null {
             const buckets = aggregation?.buckets;
 
             if (!buckets) {
@@ -231,11 +303,15 @@ export default Shopware.Component.wrapComponentConfig({
             return Promise.all([
                 this.fetchHistoryOrderDataCount().then((response) => {
                     if (response.aggregations) {
+                        // @ts-expect-error
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                         this.historyOrderDataCount = response.aggregations.order_count_bucket;
                     }
                 }),
                 this.fetchHistoryOrderDataSum().then((response) => {
                     if (response.aggregations) {
+                        // @ts-expect-error
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                         this.historyOrderDataSum = response.aggregations.order_sum_bucket;
                     }
                 }),
@@ -249,9 +325,11 @@ export default Shopware.Component.wrapComponentConfig({
                 Criteria.histogram(
                     'order_count_bucket',
                     'orderDateTime',
-                    this.getTimeUnitInterval(this.ordersDateRange),
+                    this.ordersDateRange.unit,
                     null,
                     Criteria.sum('totalAmount', 'amountTotal'),
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
                     Shopware.State.get('session').currentUser?.timeZone ?? 'UTC',
                 ),
             );
@@ -270,9 +348,11 @@ export default Shopware.Component.wrapComponentConfig({
                 Criteria.histogram(
                     'order_sum_bucket',
                     'orderDateTime',
-                    this.getTimeUnitInterval(this.turnoverDateRange),
+                    this.turnoverDateRange.unit,
                     null,
                     Criteria.sum('totalAmount', 'amountTotal'),
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
                     Shopware.State.get('session').currentUser?.timeZone ?? 'UTC',
                 ),
             );
@@ -298,11 +378,11 @@ export default Shopware.Component.wrapComponentConfig({
             return this.orderRepository.search(criteria);
         },
 
-        formatDateToISO(date) {
+        formatDateToISO(date: Date) {
             return Shopware.Utils.format.toISODate(date, false);
         },
 
-        formatChartHeadlineDate(date) {
+        formatChartHeadlineDate(date: Date) {
             const lastKnownLang = Shopware.Application.getContainer('factory').locale.getLastKnownLocale();
 
             return date.toLocaleDateString(lastKnownLang, {
@@ -341,62 +421,79 @@ export default Shopware.Component.wrapComponentConfig({
             }];
         },
 
-        getVariantFromOrderState(order) {
-            return this.stateStyleDataProviderService.getStyle('order.state', order.stateMachineState.technicalName).variant;
+        getVariantFromOrderState(order: OrderEntity): string {
+            /* eslint-disable */
+            return this.stateStyleDataProviderService.getStyle(
+                'order.state',
+                order.stateMachineState?.technicalName,
+            ).variant;
+            /* eslint-enable */
         },
 
-        parseDate(date) {
+        parseDate(date: string): number {
             const parsedDate = new Date(date.replace(/-/g, '/').replace('T', ' ').replace(/\..*|\+.*/, ''));
             return parsedDate.valueOf();
         },
 
-        async onOrdersRangeUpdate(value) {
-            this.ordersDateRange = value;
+        async onOrdersRangeUpdate(range: string): Promise<void> {
+            const ordersDateRange = this.rangesValueMap.find((item: HistoryDateRange) => item.label === range);
+
+            if (!ordersDateRange) {
+                throw Error('Range not found');
+            }
+
+            this.ordersDateRange = ordersDateRange;
 
             const response = await this.fetchHistoryOrderDataCount();
 
             if (response.aggregations) {
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 this.historyOrderDataCount = response.aggregations.order_count_bucket;
             }
         },
 
-        async onTurnoverRangeUpdate(value) {
-            this.turnoverDateRange = value;
+        async onTurnoverRangeUpdate(range: string): Promise<void> {
+            const turnoverDateRange = this.rangesValueMap.find((item: HistoryDateRange) => item.label === range);
+
+            if (!turnoverDateRange) {
+                throw Error('Range not found');
+            }
+
+            this.turnoverDateRange = turnoverDateRange;
 
             const response = await this.fetchHistoryOrderDataSum();
 
             if (response.aggregations) {
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 this.historyOrderDataSum = response.aggregations.order_sum_bucket;
             }
         },
 
-        getTimeUnitInterval(range) {
-            if (range === 'yesterday' || range === '24Hours') {
-                return 'hour';
-            }
-
-            return 'day';
-        },
-
-        getCardSubtitle(range) {
+        getCardSubtitle(range: HistoryDateRange): string {
             return `${this.formatChartHeadlineDate(this.getDateAgo(range))} - ${this.formatChartHeadlineDate(this.today)}`;
         },
 
-        getDateAgo(range) {
+        getDateAgo(range: HistoryDateRange): Date {
             const date = Shopware.Utils.format.dateWithUserTimezone();
-            const dateRange = this.rangesValueMap[range] ?? 0;
 
-            // special case for "24Hours": return directly because we need hours instead of days
-            if (range === '24Hours') {
-                date.setHours(date.getHours() - dateRange);
+            // special case for "unit: hour": return directly because we need hours instead of days
+            if (range.unit === 'hour') {
+                date.setHours(date.getHours() - range.range);
 
                 return date;
             }
 
-            date.setDate(date.getDate() - dateRange);
+            date.setDate(date.getDate() - range.range);
             date.setHours(0, 0, 0, 0);
 
             return date;
         },
     },
 });
+
+/**
+ * @private
+ */
+export type { HistoryDateRange };

@@ -187,23 +187,14 @@ export default function createConditionService() {
         getPlaceholderData,
         getComponentByCondition,
         addEmptyOperatorToOperatorSet,
-        /* @internal (flag:FEATURE_NEXT_18215) */
         addAwarenessConfiguration,
-        /* @internal (flag:FEATURE_NEXT_18215) */
         getAwarenessConfigurationByAssignmentName,
-        /* @internal (flag:FEATURE_NEXT_18215) */
         getRestrictedRules,
-        /* @internal (flag:FEATURE_NEXT_18215) */
         getRestrictedConditions,
-        /* @internal (flag:FEATURE_NEXT_18215) */
         getRestrictedAssociations,
-        /* @internal (flag:FEATURE_NEXT_18215) */
         getRestrictionsByAssociation,
-        /* @internal (flag:FEATURE_NEXT_18215) */
         getTranslatedConditionViolationList,
-        /* @internal (flag:FEATURE_NEXT_18215) */
         getRestrictedRuleTooltipConfig,
-        /* @internal (flag:FEATURE_NEXT_18215) */
         isRuleRestricted,
         getRestrictionsByGroup,
     };
@@ -397,12 +388,10 @@ export default function createConditionService() {
         return conditionType.component;
     }
 
-    /* @internal (flag:FEATURE_NEXT_18215) */
     function addAwarenessConfiguration(assignmentName, configuration) {
         awarenessConfiguration[assignmentName] = configuration;
     }
 
-    /* @internal (flag:FEATURE_NEXT_18215) */
     function getAwarenessConfigurationByAssignmentName(assignmentName) {
         const config = awarenessConfiguration[assignmentName];
 
@@ -410,7 +399,6 @@ export default function createConditionService() {
     }
 
     /**
-     * @internal (flag:FEATURE_NEXT_18215)
      * @param {Entity} rule
      * @returns {Object}
      * {
@@ -471,7 +459,6 @@ export default function createConditionService() {
         return conditions;
     }
 
-    /* @internal (flag:FEATURE_NEXT_18215) */
     function getRestrictedRules(entityName) {
         const configuration = getAwarenessConfigurationByAssignmentName(entityName);
 
@@ -507,7 +494,6 @@ export default function createConditionService() {
     /**
      * Checks the conditions with the current awareness configuration for the assignment name
      * and returns the result.
-     * @internal (flag:FEATURE_NEXT_18215)
      * @param {EntityCollection} conditions
      * @param {String} assignmentName
      * @returns {object}
@@ -566,7 +552,6 @@ export default function createConditionService() {
     /**
      * Checks the conditions with the current awareness configuration and returns the result for
      * every assignment name.
-     * @internal (flag:FEATURE_NEXT_18215)
      * @param {EntityCollection} conditions
      * @returns {object}
      * Example return: {
@@ -602,7 +587,6 @@ export default function createConditionService() {
 
     /**
      * Translates a list of violations and return the translated text
-     * @internal (flag:FEATURE_NEXT_18215)
      * @param {array} violations
      * @param {string} connectionSnippetPath
      * @returns {string}
@@ -623,7 +607,6 @@ export default function createConditionService() {
 
     /**
      *
-     * @internal (flag:FEATURE_NEXT_18215)
      * @param {EntityCollection} ruleConditions
      * @param {string|null} ruleAwareGroupKey
      * @returns {object}
@@ -682,7 +665,6 @@ export default function createConditionService() {
 
     /**
      *
-     * @internal (flag:FEATURE_NEXT_18215)
      * @param {EntityCollection} ruleConditions
      * @param {string|null} ruleAwareGroupKey
      * @returns {boolean}
@@ -700,9 +682,6 @@ export default function createConditionService() {
         return restrictionConfig.isRestricted;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_18215)
-     */
     function getRestrictionsByGroup(...wantedGroups) {
         const entries = Object.entries($store);
 

@@ -30,14 +30,12 @@ export default {
             required: true,
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
         conditions: {
             type: Array,
             required: false,
             default: null,
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
         detailPageLoading: {
             type: Boolean,
             required: false,
@@ -95,20 +93,15 @@ export default {
         },
 
         disableAdd(entity) {
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                const association = entity.associationName ?? null;
-                if (this.ruleConditionDataProviderService.isRuleRestricted(this.conditions, association)) {
-                    return true;
-                }
+            const association = entity.associationName ?? null;
+            if (this.ruleConditionDataProviderService.isRuleRestricted(this.conditions, association)) {
+                return true;
             }
+
             return entity.notAssignedDataTotal === 0;
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
         getTooltipConfig(entity) {
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                return { message: '', disabled: true };
-            }
             const association = entity.associationName ?? null;
 
             return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(this.conditions, association);

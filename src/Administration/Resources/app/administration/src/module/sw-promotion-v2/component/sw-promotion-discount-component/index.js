@@ -52,7 +52,6 @@ export default {
             httpClient: null,
             sorterKeys: [],
             pickerKeys: [],
-            /* @internal (flag: FEATURE_NEXT_18215) */
             restrictedRules: [],
         };
     },
@@ -73,13 +72,6 @@ export default {
         ruleFilter() {
             const criteria = new Criteria(1, 25);
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
-
-
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                criteria.addFilter(
-                    Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
-                );
-            }
 
             return criteria;
         },
@@ -356,10 +348,6 @@ export default {
                 this.pickerKeys = keys;
             });
 
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                return;
-            }
-
             this.loadRestrictedRules();
         },
 
@@ -532,7 +520,6 @@ export default {
             });
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
         loadRestrictedRules() {
             this.ruleConditionDataProviderService.getRestrictedRules('promotionSetGroups')
                 .then((result) => { this.restrictedRules = result; });

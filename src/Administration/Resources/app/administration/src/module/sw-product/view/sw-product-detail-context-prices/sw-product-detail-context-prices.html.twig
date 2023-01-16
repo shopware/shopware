@@ -44,7 +44,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_toolbar_rule_selection %}
                     <sw-select-rule-create
-                        v-if="feature.isActive('FEATURE_NEXT_18215') && rules.entity"
+                        v-if="rules.entity"
                         id="rule"
                         :rule-id="priceGroup.ruleId"
                         :placeholder="$tc('sw-product.advancedPrices.selectRule')"
@@ -56,39 +56,6 @@
                         :restricted-rule-ids-tooltip-label="$tc('sw-product.advancedPrices.ruleAlreadyUsed')"
                         @save-rule="onRuleChange($event, priceGroup.ruleId)"
                     />
-
-                    {# @deprecated tag:v6.5.0 - component `sw-entity-single-select` will be removed, use `sw-select-rule-create` instead #}
-                    <sw-entity-single-select
-                        v-else-if="rules.entity"
-                        id="rule"
-                        class="sw-product-detail-context-prices__toolbar-selection"
-                        size="small"
-                        :value="priceGroup.ruleId"
-                        :placeholder="$tc('sw-product.advancedPrices.selectRule')"
-                        :entity="rules.entity"
-                        :disabled="!acl.can('product.editor')"
-                        show-clearable-button
-                        @change="onRuleChange($event, priceGroup.ruleId)"
-                    >
-                        <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                            <li
-                                is="sw-select-result"
-                                :selected="isSelected(item)"
-                                :disabled="!!priceRuleGroups[item.id]"
-                                v-bind="{ item, index }"
-                                @item-select="setValue"
-                            >
-                                <sw-highlight-text
-                                    v-if="highlightSearchTerm"
-                                    :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                    :search-term="searchTerm"
-                                />
-                                <template v-else>
-                                    {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                </template>
-                            </li>
-                        </template>
-                    </sw-entity-single-select>
                     {% endblock %}
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -448,7 +415,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_prices_price_empty_state_select_rule %}
             <sw-select-rule-create
-                v-if="rules.entity && feature.isActive('FEATURE_NEXT_18215')"
+                v-if="rules.entity"
                 id="rule"
                 class="sw-product-detail-context-prices__empty-state-select-rule"
                 :placeholder="$tc('sw-product.advancedPrices.selectRule')"
@@ -458,38 +425,6 @@
                 :restricted-rule-ids-tooltip-label="$tc('sw-product.advancedPrices.ruleAlreadyUsed')"
                 @save-rule="onAddNewPriceGroup($event)"
             />
-
-            {# @feature-deprecated (flag:FEATURE_NEXT_18215) - tag will be removed use `sw-select-rule-create` instead #}
-            <sw-entity-single-select
-                v-else-if="rules.entity"
-                id="rule"
-                :disabled="isInherited || !acl.can('product.editor')"
-                class="sw-product-detail-context-prices__empty-state-select-rule"
-                value=""
-                :placeholder="$tc('sw-product.advancedPrices.selectRule')"
-                :entity="rules.entity"
-                show-clearable-button
-                @change="onAddNewPriceGroup($event)"
-            >
-                <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                    <li
-                        is="sw-select-result"
-                        :selected="isSelected(item)"
-                        :disabled="!!priceRuleGroups[item.id]"
-                        v-bind="{ item, index }"
-                        @item-select="setValue"
-                    >
-                        <sw-highlight-text
-                            v-if="highlightSearchTerm"
-                            :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                            :search-term="searchTerm"
-                        />
-                        <template v-else>
-                            {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                        </template>
-                    </li>
-                </template>
-            </sw-entity-single-select>
             {% endblock %}
         </div>
         {% endblock %}

@@ -62,6 +62,7 @@ const createWrapper = async () => {
             'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
             'sw-select-base': await Shopware.Component.build('sw-select-base'),
             'sw-skeleton': true,
+            'sw-select-rule-create': true
         },
         provide: {
             repositoryFactory: {

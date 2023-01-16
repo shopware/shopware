@@ -1,10 +1,25 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-type-select';
+import 'src/app/component/form/select/base/sw-grouped-single-select';
+import 'src/app/component/form/select/base/sw-single-select';
+import 'src/app/component/form/select/base/sw-select-base';
+import 'src/app/component/form/field-base/sw-block-field';
+import 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/form/field-base/sw-field-error';
+import 'src/app/component/form/select/base/sw-select-result-list';
+import 'src/app/component/form/select/base/sw-select-result';
+import 'src/app/component/base/sw-highlight-text';
 
 async function createWrapper(customProps = {}, customOptions = {}) {
     return shallowMount(await Shopware.Component.build('sw-condition-type-select'), {
         stubs: {
-            'sw-grouped-single-select': true
+            'sw-grouped-single-select': await Shopware.Component.build('sw-grouped-single-select'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': true,
+            'sw-icon': true,
         },
         provide: {
             removeNodeFromTree: () => {
@@ -37,7 +52,7 @@ describe('src/app/component/rule/sw-condition-type-select', () => {
     it('should have enabled fields', async () => {
         const wrapper = await createWrapper();
 
-        const singleSelect = wrapper.find('sw-grouped-single-select-stub');
+        const singleSelect = wrapper.find('.sw-condition-type-select');
 
         expect(singleSelect.attributes().disabled).toBeUndefined();
     });
@@ -48,9 +63,9 @@ describe('src/app/component/rule/sw-condition-type-select', () => {
             disabled: true
         });
 
-        const singleSelect = wrapper.find('sw-grouped-single-select-stub');
+        const singleSelect = wrapper.find('.sw-condition-type-select');
 
-        expect(singleSelect.attributes().disabled).toBe('true');
+        expect(singleSelect.attributes().disabled).toBe('disabled');
     });
 
     it('should have the right tooltip according to the restriction', async () => {

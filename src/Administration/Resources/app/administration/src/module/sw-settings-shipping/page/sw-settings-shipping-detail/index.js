@@ -131,9 +131,7 @@ export default {
                 ],
             ));
 
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                criteria.addAssociation('conditions');
-            }
+            criteria.addAssociation('conditions');
 
             return criteria;
         },

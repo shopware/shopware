@@ -135,9 +135,9 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_list_listing_list_grid_content %}
                             <div class="sw-cms-list__list-grid-content">
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_cms_list_listing_list_item %}
                                 <template v-if="!isLoading">
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_cms_list_listing_list_item %}
                                     <sw-cms-list-item
                                         v-for="(cmsPage, index) in pages"
                                         :key="cmsPage.id"
@@ -222,8 +222,8 @@
                                             </sw-context-button>
                                         </template>
                                     </sw-cms-list-item>
+                                    {% endblock %}
                                 </template>
-                                {% endblock %}
 
                                 <template v-else>
                                     <sw-skeleton

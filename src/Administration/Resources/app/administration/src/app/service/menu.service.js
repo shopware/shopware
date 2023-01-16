@@ -42,8 +42,6 @@ export default function createMenuService(moduleFactory) {
     }
 
     function getNavigationFromApp(app) {
-        const appLabel = getTranslatedLabel(app.label);
-
         return app.modules.map((appModule) => {
             const moduleLabel = getTranslatedLabel(appModule.label);
 
@@ -51,7 +49,7 @@ export default function createMenuService(moduleFactory) {
                 id: `app-${app.name}-${appModule.name}`,
                 label: {
                     translated: true,
-                    label: `${appLabel} - ${moduleLabel}`,
+                    label: moduleLabel,
                 },
                 position: appModule.position,
                 parent: appModule.parent,

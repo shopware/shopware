@@ -47,6 +47,10 @@ class AdminSearchControllerTest extends TestCase
 
     public function testElasticSearch(): void
     {
+        if (!$this->getContainer()->getParameter('elasticsearch.administration.enabled')) {
+            static::markTestSkipped('No OPENSEARCH configured');
+        }
+
         $this->connection->executeStatement('DELETE FROM promotion');
 
         $id = 'c1a28776116d4431a2208eb2960ec340';
@@ -55,7 +59,7 @@ class AdminSearchControllerTest extends TestCase
             'name' => 'elasticsearch',
         ]);
 
-        $this->indexElasticSearch(['--entities' => ['promotion']]);
+        $this->indexElasticSearch(['--only' => ['promotion']]);
 
         $request = new Request();
         $request->request->set('term', 'elasticsearch');

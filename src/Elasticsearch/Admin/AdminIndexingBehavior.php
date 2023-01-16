@@ -9,15 +9,22 @@ class AdminIndexingBehavior
     /**
      * @var array<int, string|null>
      */
-    protected array $entities = [];
+    protected array $skipEntities = [];
 
     /**
-     * @param array<int, string|null> $entities
+     * @var array<int, string|null>
      */
-    public function __construct(bool $noQueue = false, array $entities = [])
+    private array $onlyEntities;
+
+    /**
+     * @param array<int, string|null> $skipEntities
+     * @param array<int, string|null> $onlyEntities
+     */
+    public function __construct(bool $noQueue = false, array $skipEntities = [], array $onlyEntities = [])
     {
         $this->noQueue = $noQueue;
-        $this->entities = $entities;
+        $this->skipEntities = $skipEntities;
+        $this->onlyEntities = $onlyEntities;
     }
 
     public function getNoQueue(): bool
@@ -28,8 +35,16 @@ class AdminIndexingBehavior
     /**
      * @return array<int, string|null>
      */
-    public function getEntities(): array
+    public function getSkipEntities(): array
     {
-        return $this->entities;
+        return $this->skipEntities;
+    }
+
+    /**
+     * @return array<int, string|null>
+     */
+    public function getOnlyEntities(): array
+    {
+        return $this->onlyEntities;
     }
 }

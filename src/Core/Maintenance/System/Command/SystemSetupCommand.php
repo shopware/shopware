@@ -62,7 +62,7 @@ class SystemSetupCommand extends Command
             ->addOption('es-index-prefix', null, InputOption::VALUE_OPTIONAL, 'Elasticsearch Index prefix', $this->getDefault('SHOPWARE_ES_INDEX_PREFIX', 'sw'))
             ->addOption('admin-es-hosts', null, InputOption::VALUE_OPTIONAL, 'Admin Elasticsearch Hosts', $this->getDefault('ADMIN_OPENSEARCH_URL', 'elasticsearch:9200'))
             ->addOption('admin-es-index-prefix', null, InputOption::VALUE_OPTIONAL, 'Admin Elasticsearch Index prefix', $this->getDefault('SHOPWARE_ADMIN_ES_INDEX_PREFIX', 'sw-admin'))
-            ->addOption('admin-es-enabled', null, InputOption::VALUE_OPTIONAL, 'Admin Elasticsearch Enabled', $this->getDefault('SHOPWARE_ADMIN_ES_INDEXING_ENABLED', '0'))
+            ->addOption('admin-es-enabled', null, InputOption::VALUE_OPTIONAL, 'Admin Elasticsearch Enabled', $this->getDefault('SHOPWARE_ADMIN_ES_ENABLED', '0'))
             ->addOption('admin-es-refresh-indices', null, InputOption::VALUE_OPTIONAL, 'Admin Elasticsearch Refresh Indices', $this->getDefault('SHOPWARE_ADMIN_ES_REFRESH_INDICES', '0'))
             ->addOption('http-cache-enabled', null, InputOption::VALUE_OPTIONAL, 'Http-Cache enabled', $this->getDefault('SHOPWARE_HTTP_CACHE_ENABLED', '1'))
             ->addOption('http-cache-ttl', null, InputOption::VALUE_OPTIONAL, 'Http-Cache TTL', $this->getDefault('SHOPWARE_HTTP_DEFAULT_TTL', '7200'))
@@ -84,7 +84,7 @@ class SystemSetupCommand extends Command
             'SHOPWARE_ES_INDEX_PREFIX' => $input->getOption('es-index-prefix'),
             'ADMIN_OPENSEARCH_URL' => $input->getOption('admin-es-hosts'),
             'SHOPWARE_ADMIN_ES_INDEX_PREFIX' => $input->getOption('admin-es-index-prefix'),
-            'SHOPWARE_ADMIN_ES_INDEXING_ENABLED' => $input->getOption('admin-es-enabled'),
+            'SHOPWARE_ADMIN_ES_ENABLED' => $input->getOption('admin-es-enabled'),
             'SHOPWARE_ADMIN_ES_REFRESH_INDICES' => $input->getOption('admin-es-refresh-indices'),
             'SHOPWARE_HTTP_CACHE_ENABLED' => $input->getOption('http-cache-enabled'),
             'SHOPWARE_HTTP_DEFAULT_TTL' => $input->getOption('http-cache-ttl'),

@@ -7,7 +7,7 @@ elasticsearch:
     throw_exception: "%env(string:SHOPWARE_ES_THROW_EXCEPTION)%"
     administration:
         hosts: "%env(string:ADMIN_OPENSEARCH_URL)%"
-        enabled: "%env(bool:SHOPWARE_ADMIN_ES_INDEXING_ENABLED)%"
+        enabled: "%env(bool:SHOPWARE_ADMIN_ES_ENABLED)%"
         refresh_indices: "%env(bool:SHOPWARE_ADMIN_ES_REFRESH_INDICES)%"
         index_prefix: "%env(string:SHOPWARE_ADMIN_ES_INDEX_PREFIX)%"
         index_settings:
@@ -75,7 +75,6 @@ parameters:
     env(SHOPWARE_ES_THROW_EXCEPTION): ""
     env(SHOPWARE_ADMIN_ES_ENABLED): ""
     env(ADMIN_OPENSEARCH_URL): ""
-    env(SHOPWARE_ADMIN_ES_INDEXING_ENABLED): ""
     env(SHOPWARE_ADMIN_ES_INDEX_PREFIX): "sw-admin"
     env(SHOPWARE_ADMIN_ES_REFRESH_INDICES): ""
     env(SHOPWARE_ES_INDEXING_BATCH_SIZE): 100

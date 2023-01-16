@@ -60,7 +60,15 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
 
         $this->registry->index($input->getOption('use-queue'), $skip, $only);
 
-        $event = new RefreshIndexEvent($input->getOption('use-queue'));
+        $skipEntities = array_map(function ($indexer) {
+            return str_replace('.indexer', '', $indexer);
+        }, $skip);
+
+        $onlyEntities = array_map(function ($indexer) {
+            return str_replace('.indexer', '', $indexer);
+        }, $only);
+
+        $event = new RefreshIndexEvent(!$input->getOption('use-queue'), $skipEntities, $onlyEntities);
         $this->eventDispatcher->dispatch($event);
 
         return self::SUCCESS;

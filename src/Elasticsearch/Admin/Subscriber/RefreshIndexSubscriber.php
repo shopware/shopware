@@ -33,6 +33,12 @@ final class RefreshIndexSubscriber implements EventSubscriberInterface
 
     public function handled(RefreshIndexEvent $event): void
     {
-        $this->registry->iterate(new AdminIndexingBehavior($event->getUseQueue()));
+        $this->registry->iterate(
+            new AdminIndexingBehavior(
+                $event->getNoQueue(),
+                $event->getSkipEntities(),
+                $event->getOnlyEntities()
+            )
+        );
     }
 }

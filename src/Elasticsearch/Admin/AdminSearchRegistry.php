@@ -121,7 +121,14 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
         }
 
         /** @var array<string> $entities */
-        $entities = $indexingBehavior->getEntities() ?: array_keys($this->indexer);
+        $entities = array_keys($this->indexer);
+
+        if ($indexingBehavior->getOnlyEntities()) {
+            $entities = array_intersect($entities, $indexingBehavior->getOnlyEntities());
+        } elseif ($indexingBehavior->getSkipEntities()) {
+            $entities = array_diff($entities, $indexingBehavior->getSkipEntities());
+        }
+
         $indices = $this->createIndices($entities);
 
         foreach ($entities as $entityName) {

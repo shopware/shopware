@@ -22,12 +22,21 @@ class RefreshIndexSubscriberTest extends TestCase
         static::assertArrayHasKey(RefreshIndexEvent::class, RefreshIndexSubscriber::getSubscribedEvents());
     }
 
-    public function testHanded(): void
+    public function testHandedWithSkipOption(): void
     {
         $registry = $this->createMock(AdminSearchRegistry::class);
-        $registry->expects(static::once())->method('iterate')->with(new AdminIndexingBehavior(false));
+        $registry->expects(static::once())->method('iterate')->with(new AdminIndexingBehavior(false, ['product']));
 
         $subscriber = new RefreshIndexSubscriber($registry);
-        $subscriber->handled(new RefreshIndexEvent(false));
+        $subscriber->handled(new RefreshIndexEvent(false, ['product']));
+    }
+
+    public function testHandedWithOnlyOption(): void
+    {
+        $registry = $this->createMock(AdminSearchRegistry::class);
+        $registry->expects(static::once())->method('iterate')->with(new AdminIndexingBehavior(false, [], ['product']));
+
+        $subscriber = new RefreshIndexSubscriber($registry);
+        $subscriber->handled(new RefreshIndexEvent(false, [], ['product']));
     }
 }

@@ -22,7 +22,7 @@ class ErrorResponseFactory
         );
 
         $response->setEncodingOptions($response->getEncodingOptions() | \JSON_INVALID_UTF8_SUBSTITUTE);
-        $response->setData(['errors' => $this->getErrorsFromException($exception, $debug), 'stack' => $debug ? $exception->getTrace() : null]);
+        $response->setData(['errors' => $this->getErrorsFromException($exception, $debug)]);
 
         return $response;
     }
@@ -31,7 +31,7 @@ class ErrorResponseFactory
     {
         if ($exception instanceof ShopwareHttpException) {
             $errors = [];
-            foreach ($exception->getErrors() as $error) {
+            foreach ($exception->getErrors($debug) as $error) {
                 $errors[] = $error;
             }
 

@@ -3,8 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Framework\Api\EventListener;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Util\Annotation\DocBlock;
+use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * @internal
@@ -13,13 +17,16 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 class ErrorResponseFactoryTest extends TestCase
 {
-    public function testStackTraceForExceptionInDebugMode(): void
+    /**
+     * @dataProvider getResponseFromExceptionProvider
+     */
+    public function testStackTraceForExceptionInDebugMode(\Exception $exception): void
     {
-        $message = 'this is an error';
         $factory = new ErrorResponseFactory();
 
         /* @var JsonResponse $response */
-        $response = $factory->getResponseFromException(new \Exception($message), true);
+        $response = $factory->getResponseFromException($exception, true);
+
         $data = null;
         if ($response->getContent()) {
             $data = json_decode($response->getContent(), true);
@@ -27,22 +34,26 @@ class ErrorResponseFactoryTest extends TestCase
 
         $errors = $data['errors'];
         static::assertCount(1, $errors);
-        static::assertSame($message, $errors[0]['detail']);
+        static::assertSame($exception->getMessage(), $errors[0]['detail']);
 
-        $stack = $data['stack'];
+        $stack = $exception instanceof ShopwareHttpException
+            ? $data['errors'][0]['trace']
+            : $data['errors'][0]['meta']['trace'];
+
         static::assertSame(self::class, $stack[0]['class']);
-        static::assertSame('testStackTraceForExceptionInDebugMode', $stack[0]['function']);
+        static::assertSame('getResponseFromExceptionProvider', $stack[0]['function']);
 
-        static::assertSame(TestCase::class, $stack[1]['class']);
-        static::assertSame('runTest', $stack[1]['function']);
+        static::assertSame(DocBlock::class, $stack[1]['class']);
+        static::assertSame('getDataFromDataProviderAnnotation', $stack[1]['function']);
 
-        static::assertSame(TestCase::class, $stack[2]['class']);
-        static::assertSame('runBare', $stack[2]['function']);
-
-        static::assertCount(12, $stack);
+        static::assertSame(DocBlock::class, $stack[2]['class']);
+        static::assertSame('getProvidedData', $stack[2]['function']);
     }
 
-    public function testNoStackTraceForExceptionNotInDebugMode(): void
+    /**
+     * @dataProvider getResponseFromExceptionProvider
+     */
+    public function testNoStackTraceForExceptionNotInDebugMode(\Exception $exception): void
     {
         $factory = new ErrorResponseFactory();
 
@@ -52,6 +63,25 @@ class ErrorResponseFactoryTest extends TestCase
         if ($response->getContent()) {
             $data = json_decode($response->getContent(), true);
         }
-        static::assertNull($data['stack']);
+
+        if ($exception instanceof ShopwareHttpException) {
+            static::assertArrayNotHasKey('trace', $data['errors'][0]);
+
+            return;
+        }
+
+        static::assertArrayNotHasKey('meta', $data['errors'][0]);
+        if (isset($data['errors'][0]['meta']['trace'])) {
+            static::assertArrayNotHasKey('trace', $data['errors'][0]['meta']);
+        }
+    }
+
+    public function getResponseFromExceptionProvider(): \Generator
+    {
+        $message = 'this is an error';
+
+        yield 'exception' => [new \Exception($message)];
+        yield 'http exception' => [new HttpException(500)];
+        yield 'shopware http exception' => [new PageNotFoundException($message)];
     }
 }

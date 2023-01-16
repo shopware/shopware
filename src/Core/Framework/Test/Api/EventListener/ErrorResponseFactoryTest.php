@@ -54,7 +54,6 @@ class ErrorResponseFactoryTest extends TestCase
                     'detail' => $exceptionDetail,
                 ],
             ],
-            'stack' => null,
         ], $responseBody);
     }
 
@@ -77,7 +76,6 @@ class ErrorResponseFactoryTest extends TestCase
                     'detail' => $exceptionDetail,
                 ],
             ],
-            'stack' => null,
         ], $responseBody);
     }
 
@@ -141,7 +139,6 @@ class ErrorResponseFactoryTest extends TestCase
                     ],
                 ],
             ],
-            'stack' => null,
         ], $responseBody);
     }
 
@@ -172,10 +169,10 @@ class ErrorResponseFactoryTest extends TestCase
         $errorResponseFactory = new ErrorResponseFactory();
 
         $shopwareHttpException = new SimpleShopwareHttpException(['paramOne' => 1, 'paramTwo' => 2]);
-        $errorFromwWrite = $errorResponseFactory->getResponseFromException((new WriteException())->add($shopwareHttpException));
+        $errorFromWrite = $errorResponseFactory->getResponseFromException((new WriteException())->add($shopwareHttpException));
         $errorRaw = $errorResponseFactory->getResponseFromException($shopwareHttpException);
 
-        static::assertEquals($errorFromwWrite->getContent(), $errorRaw->getContent());
+        static::assertEquals($errorFromWrite->getContent(), $errorRaw->getContent());
     }
 
     public function testYieldDoesNotOverrideErrors(): void

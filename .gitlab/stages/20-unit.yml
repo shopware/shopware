@@ -306,11 +306,11 @@ PHP Full:
                     - mysql:5.7
                     - mariadb:10.3
                 DEV_IMAGE: shopware/development:8.1-composer-2
-                FEATURE_ALL: [ "false", "major" ]
+                FEATURE_ALL: "false"
             -   MYSQL_IMAGE:
                     - mysql:8.0
                 DEV_IMAGE: [ "shopware/development:8.1-composer-2" ]
-                FEATURE_ALL: [ "false", "major" ]
+                FEATURE_ALL: "false"
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
             -   MYSQL_IMAGE: mariadb:10.4
                 DEV_IMAGE: shopware/development:8.1-composer-2

@@ -328,6 +328,13 @@ export default {
                 path: 'category',
                 scope: this,
             });
+
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-category-detail__cmsPage',
+                path: 'cmsPage',
+                scope: this,
+            });
+
             this.isLoading = true;
             this.checkViewport();
             this.registerListener();

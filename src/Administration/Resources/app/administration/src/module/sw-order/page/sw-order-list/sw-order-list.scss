@@ -10,12 +10,14 @@ $sw-order-list-color-success: $color-emerald-500;
         position: absolute;
     }
 
-    .is--inactive {
-        color: $sw-order-list-color-error;
-    }
+    .sw-data-grid__cell:not(.sw-data-grid__cell--actions) {
+        .is--inactive {
+            color: $sw-order-list-color-error;
+        }
 
-    .is--active {
-        color: $sw-order-list-color-success;
+        .is--active {
+            color: $sw-order-list-color-success;
+        }
     }
 
     .sw-order-list__sidebar .sw-sidebar-item__scrollable-container {

@@ -71,7 +71,7 @@ $sw-context-button-color-disabled: $color-gray-100;
 
     &.--placement-right-outside {
         .sw-context-menu {
-            transform: translate(calc(-100% + 66px), 0);
+            transform: translate(calc(-100% + 69px), 0);
 
             .sw-context-menu__content::before {
                 left: unset;
@@ -82,7 +82,7 @@ $sw-context-button-color-disabled: $color-gray-100;
 
     &.--placement-right-outside.--placement-bottom-outside {
         .sw-context-menu {
-            transform: translate(calc(-100% + 66px), 13px);
+            transform: translate(calc(-100% + 69px), 13px);
         }
     }
 }

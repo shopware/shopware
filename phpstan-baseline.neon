@@ -571,16 +571,6 @@ parameters:
 			path: src/Core/Checkout/Cart/LineItem/LineItemCollection.php
 
 		-
-			message: "#^Cannot call method getTaxRules\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/LineItem/LineItemQuantitySplitter.php
-
-		-
-			message: "#^Cannot call method getUnitPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/LineItem/LineItemQuantitySplitter.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItemFactoryHandler\\\\CreditLineItemFactory\\:\\:create\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/LineItemFactoryHandler/CreditLineItemFactory.php
@@ -1921,39 +1911,9 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Facade/CartTestHook.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\LineItem\\\\Group\\\\LineItemGroupBuilderTest\\:\\:createSetGroup\\(\\) has parameter \\$rules with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/LineItem/Group/LineItemGroupBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\LineItem\\\\Group\\\\LineItemGroupBuilderTest\\:\\:getProductsRule\\(\\) has parameter \\$itemIDs with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/LineItem/Group/LineItemGroupBuilderTest.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$groupCount has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/LineItem/Group/LineItemGroupBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\LineItem\\\\Group\\\\Exception\\\\LineItemGroupDefinitionTest\\:\\:getProductsRule\\(\\) has parameter \\$itemIDs with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/LineItem/Group/LineItemGroupDefinitionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\LineItem\\\\Group\\\\RuleMatcher\\\\AnyRuleLineItemMatcherTest\\:\\:getProductsRule\\(\\) has parameter \\$itemIDs with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/LineItem/Group/RuleMatcher/AnyRuleLineItemMatcherTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\LineItem\\\\Group\\\\RuleMatcher\\\\AnyRuleLineItemMatcherTest\\:\\:lineItemProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/LineItem/Group/RuleMatcher/AnyRuleLineItemMatcherTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\LineItem\\\\Group\\\\RuleMatcher\\\\AnyRuleMatcherTest\\:\\:getProductsRule\\(\\) has parameter \\$itemIDs with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/LineItem/Group/RuleMatcher/AnyRuleMatcherTest.php
 
 		-
 			message: "#^Cannot call method getTotalPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null\\.$#"
@@ -2014,11 +1974,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionFixedPriceCalculationTest\\:\\:getSessionCodes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionFixedPriceCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionMixedCalculationTest\\:\\:createSetGroup\\(\\) has parameter \\$rules with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionMixedCalculationTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionMixedCalculationTest\\:\\:getBuyThreeTshirtsGetFirstOneFreeTestData\\(\\) return type has no value type specified in iterable type array\\.$#"

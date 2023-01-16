@@ -298,7 +298,50 @@ class LineItemGroupBuilderTest extends TestCase
 
         $result = $this->unitTestBuilder->findGroupPackages([$group], $cart, $this->context);
 
-        /** @var array $groupCount */
+        $groupCount = $result->getGroupResult($group);
+
+        static::assertCount(4, $groupCount);
+    }
+
+    /**
+     * @group lineitemgroup
+     */
+    public function testShouldFindGroupsWithListPriceRule(): void
+    {
+        $cart = $this->buildCart(0);
+
+        $item1 = $this->createProductItem(10, 10, 20);
+        $item2 = $this->createProductItem(20, 10, 30);
+        $item3 = $this->createProductItem(50, 10, 100);
+
+        $item1->setReferencedId($item1->getId());
+        $item2->setReferencedId($item2->getId());
+        $item3->setReferencedId($item3->getId());
+
+        $item1->setQuantity(10);
+        $item2->setQuantity(10);
+        $item3->setQuantity(10);
+
+        $cart->addLineItems(new LineItemCollection([$item1, $item2, $item3]));
+
+        $rules = new AndRule(
+            [
+                $this->getLineItemListPriceRule(25),
+            ]
+        );
+
+        $ruleEntity = new RuleEntity();
+        $ruleEntity->setId(Uuid::randomHex());
+        $ruleEntity->setPayload($rules);
+
+        $group = $this->buildGroup(
+            self::KEY_PACKAGER_COUNT,
+            5,
+            self::KEY_SORTER_PRICE_DESC,
+            new RuleCollection([$ruleEntity])
+        );
+
+        $result = $this->unitTestBuilder->findGroupPackages([$group], $cart, $this->context);
         $groupCount = $result->getGroupResult($group);
 
         static::assertCount(4, $groupCount);

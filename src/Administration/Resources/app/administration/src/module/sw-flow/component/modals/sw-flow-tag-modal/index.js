@@ -4,7 +4,6 @@ const { Component, Mixin, Context } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 const { EntityCollection, Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
-const { capitalizeString } = Shopware.Utils.string;
 
 /**
  * @private
@@ -205,16 +204,6 @@ export default {
         onClose() {
             this.tagError = null;
             this.$emit('modal-close');
-        },
-
-        /**
-         * @major-deprecated tag:v6.5.0 - will be removed, use convertEntityName method of flowBuilderService instead
-         */
-        convertEntityName(camelCaseText) {
-            if (!camelCaseText) return '';
-
-            const normalText = camelCaseText.replace(/([A-Z])/g, ' $1');
-            return capitalizeString(normalText);
         },
     },
 };

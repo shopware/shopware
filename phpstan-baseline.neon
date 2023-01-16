@@ -6926,11 +6926,6 @@ parameters:
 			path: src/Core/Content/Test/Category/DataAbstractionLayer/Indexing/BreadcrumbIndexerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Category\\\\SalesChannel\\\\CachedCategoryRouteTest\\:\\:invalidationProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Category/SalesChannel/CachedCategoryRouteTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Category\\\\SalesChannel\\\\CachedNavigationRouteTest\\:\\:invalidationProvider\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Category/SalesChannel/CachedNavigationRouteTest.php
@@ -7014,51 +7009,6 @@ parameters:
 			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
 			count: 2
 			path: src/Core/Content/Test/Cms/CmsEntityTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Cms\\\\LayoutBuilder\\:\\:blockPosition\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Cms/LayoutBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Cms\\\\LayoutBuilder\\:\\:build\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Cms/LayoutBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Cms\\\\LayoutBuilder\\:\\:margin\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Cms/LayoutBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Cms\\\\LayoutBuilder\\:\\:productBox\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Cms/LayoutBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Cms\\\\LayoutBuilder\\:\\:productSlider\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Cms/LayoutBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Cms\\\\LayoutBuilder\\:\\:productThreeColumnBlock\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Cms/LayoutBuilder.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Cms\\\\LayoutBuilder\\:\\:\\$_dynamic type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Cms/LayoutBuilder.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Cms\\\\LayoutBuilder\\:\\:\\$blocks type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Cms/LayoutBuilder.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Cms\\\\LayoutBuilder\\:\\:\\$sections type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Cms/LayoutBuilder.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"

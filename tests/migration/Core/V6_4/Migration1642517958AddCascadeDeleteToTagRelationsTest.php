@@ -67,7 +67,7 @@ class Migration1642517958AddCascadeDeleteToTagRelationsTest extends TestCase
                 continue;
             }
 
-            if ($foreignKey->getForeignTableName() === 'tag' && $foreignKey->getColumns() === ['tag_id']) {
+            if ($foreignKey->getForeignTableName() === 'tag' && $foreignKey->getLocalColumns() === ['tag_id']) {
                 return $foreignKey;
             }
         }

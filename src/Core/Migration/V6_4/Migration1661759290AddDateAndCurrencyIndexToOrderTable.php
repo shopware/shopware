@@ -19,7 +19,7 @@ class Migration1661759290AddDateAndCurrencyIndexToOrderTable extends MigrationSt
 
     public function update(Connection $connection): void
     {
-        if ($this->indexExists($connection)) {
+        if ($this->indexExists($connection, 'order', 'idx.order_date_currency_id')) {
             return;
         }
 
@@ -31,15 +31,5 @@ class Migration1661759290AddDateAndCurrencyIndexToOrderTable extends MigrationSt
     public function updateDestructive(Connection $connection): void
     {
         // implement update destructive
-    }
-
-    private function indexExists(Connection $connection): bool
-    {
-        $index = $connection->executeQuery(
-            'SHOW INDEXES FROM `order` WHERE key_name = :indexName',
-            ['indexName' => 'idx.order_date_currency_id']
-        )->fetchOne();
-
-        return $index !== false;
     }
 }

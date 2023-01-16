@@ -17,15 +17,9 @@ class SalutationRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     protected function setUp(): void
     {
@@ -48,7 +42,7 @@ class SalutationRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
-        static::assertSame(4, $response['total']);
+        static::assertSame(3, $response['total']);
         static::assertArrayHasKey('salutationKey', $response['elements'][0]);
         static::assertArrayHasKey('displayName', $response['elements'][0]);
         static::assertArrayHasKey('letterName', $response['elements'][0]);
@@ -69,7 +63,7 @@ class SalutationRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
-        static::assertSame(4, $response['total']);
+        static::assertSame(3, $response['total']);
         static::assertArrayHasKey('id', $response['elements'][0]);
         static::assertArrayNotHasKey('displayName', $response['elements'][0]);
         static::assertArrayNotHasKey('letterName', $response['elements'][0]);

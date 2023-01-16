@@ -67,8 +67,18 @@ abstract class MigrationStep
     protected function columnExists(Connection $connection, string $table, string $column): bool
     {
         $exists = $connection->fetchOne(
-            'SHOW COLUMNS FROM ' . $table . ' WHERE `Field` LIKE :column',
+            'SHOW COLUMNS FROM `' . $table . '` WHERE `Field` LIKE :column',
             ['column' => $column]
+        );
+
+        return !empty($exists);
+    }
+
+    protected function indexExists(Connection $connection, string $table, string $index): bool
+    {
+        $exists = $connection->fetchOne(
+            'SHOW INDEXES FROM `' . $table . '` WHERE `key_name` LIKE :index',
+            ['index' => $index]
         );
 
         return !empty($exists);

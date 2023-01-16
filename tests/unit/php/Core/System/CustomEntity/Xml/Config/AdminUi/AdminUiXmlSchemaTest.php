@@ -23,8 +23,6 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tabs;
  */
 class AdminUiXmlSchemaTest extends TestCase
 {
-    private const TEST_LOCALE = 'en-GB';
-
     public function testPublicConstants(): void
     {
         static::assertStringEndsWith(
@@ -32,13 +30,6 @@ class AdminUiXmlSchemaTest extends TestCase
             AdminUiXmlSchema::XSD_FILEPATH
         );
         static::assertEquals('admin-ui.xml', AdminUiXmlSchema::FILENAME);
-    }
-
-    public function testConstructor(): void
-    {
-        $adminUi = new AdminUi();
-        $adminUiXmlSchema = new AdminUiXmlSchema($adminUi);
-        static::assertEquals($adminUi, $adminUiXmlSchema->getAdminUi());
     }
 
     public function testCreateFromXmlFileMinSetting(): void
@@ -88,10 +79,10 @@ class AdminUiXmlSchemaTest extends TestCase
         static::assertInstanceOf(Tabs::class, $tabs);
         static::assertCount(
             2,
-            $tabs->toArray(self::TEST_LOCALE)
+            $tabs->getContent()
         );
 
-        $cards = $this->checkTab($tabs->{0}, 'foo');
+        $cards = $this->checkTab($tabs->getContent()[0], 'foo');
         static::assertIsArray($cards);
         static::assertCount(2, $cards);
         $this->checkCard(
@@ -112,7 +103,7 @@ class AdminUiXmlSchemaTest extends TestCase
             ]
         );
 
-        $cards = $this->checkTab($tabs->{1}, 'bar');
+        $cards = $this->checkTab($tabs->getContent()[1], 'bar');
         static::assertIsArray($cards);
         static::assertCount(3, $cards);
         $this->checkCard(
@@ -156,9 +147,9 @@ class AdminUiXmlSchemaTest extends TestCase
 
         $tabs = $detail->getTabs();
         static::assertInstanceOf(Tabs::class, $tabs);
-        static::assertCount(1, $tabs->toArray(self::TEST_LOCALE));
+        static::assertCount(1, $tabs->getContent());
 
-        $cards = $this->checkTab($tabs->{0}, 'main');
+        $cards = $this->checkTab($tabs->getContent()[0], 'main');
         static::assertIsArray($cards);
         static::assertCount(1, $cards);
 
@@ -194,7 +185,7 @@ class AdminUiXmlSchemaTest extends TestCase
     }
 
     /**
-     * @param string[] $refs
+     * @param list<string> $refs
      */
     private function checkListing(Entity $entity, array $refs): void
     {
@@ -203,9 +194,9 @@ class AdminUiXmlSchemaTest extends TestCase
 
         $columns = $listing->getColumns();
         static::assertInstanceOf(Columns::class, $columns);
-        static::assertCount(\count($refs), $columns->toArray(self::TEST_LOCALE));
+        static::assertCount(\count($refs), $columns->getContent());
 
-        foreach ($columns->toArray(self::TEST_LOCALE) as $column) {
+        foreach ($columns->getContent() as $column) {
             static::assertInstanceOf(Column::class, $column);
             static::assertIsString($column->getRef());
             static::assertContains($column->getRef(), $refs);

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
-use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
+use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 
 /**
  * Represents the AdminUi configuration
@@ -10,24 +10,28 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
  * The config is located here Resources/config/admin-ui.xml
  *
  * @package content
+ *
+ * @internal
  */
-class AdminUi extends CustomEntityFlag
+final class AdminUi extends ConfigXmlElement
 {
-    private const MAPPING = [
-        'entity' => Entity::class,
-    ];
-
     /**
-     * @var array<string, Entity>
+     * @param array<string, Entity> $entities
      */
-    protected array $entities;
+    private function __construct(
+        protected readonly array $entities,
+    ) {
+    }
 
     public static function fromXml(\DOMElement $element): self
     {
-        $self = new self();
-        $self->assign($self->parse($element));
+        $entities = [];
+        foreach ($element->getElementsByTagName('entity') as $entity) {
+            $entity = Entity::fromXml($entity);
+            $entities[$entity->getName()] = $entity;
+        }
 
-        return $self;
+        return new self($entities);
     }
 
     /**
@@ -36,30 +40,5 @@ class AdminUi extends CustomEntityFlag
     public function getEntities(): array
     {
         return $this->entities;
-    }
-
-    /**
-     * @param array<string, mixed> $values
-     *
-     * @return array<string, mixed>
-     */
-    protected function parseChild(\DOMElement $child, array $values): array
-    {
-        /** @var Entity|null $class */
-        $class = self::MAPPING[$child->tagName] ?? null;
-
-        if (!$class) {
-            throw new \RuntimeException(\sprintf('Flag type "%s" not found', $child->tagName));
-        }
-
-        if ($child->tagName === 'entity') {
-            /** @var Entity $entity */
-            $entity = $class::fromXml($child);
-            $values['entities'][$entity->getName()] = $entity;
-        } else {
-            $values[$child->tagName] = $class::fromXml($child);
-        }
-
-        return $values;
     }
 }

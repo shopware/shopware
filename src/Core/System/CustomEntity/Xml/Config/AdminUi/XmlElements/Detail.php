@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
-use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
+use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 
 /**
  * Represents the XML detail element
@@ -13,43 +13,20 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
  *
  * @internal
  */
-class Detail extends CustomEntityFlag
+final class Detail extends ConfigXmlElement
 {
-    private const MAPPING = [
-        'tabs' => Tabs::class,
-    ];
+    private function __construct(
+        protected readonly Tabs $tabs
+    ) {
+    }
 
-    protected Tabs $tabs;
-
-    public static function fromXml(\DOMElement $element): CustomEntityFlag
+    public static function fromXml(\DOMElement $element): self
     {
-        $self = new self();
-        $self->assign($self->parse($element));
-
-        return $self;
+        return new self(Tabs::fromXml($element));
     }
 
     public function getTabs(): Tabs
     {
         return $this->tabs;
-    }
-
-    /**
-     * @param array<string, mixed> $values
-     *
-     * @return array<string, mixed>
-     */
-    protected function parseChild(\DOMElement $child, array $values): array
-    {
-        /** @var CustomEntityFlag|null $class */
-        $class = self::MAPPING[$child->tagName] ?? null;
-
-        if (!$class) {
-            throw new \RuntimeException(\sprintf('Flag type "%s" not found', $child->tagName));
-        }
-
-        $values[$child->tagName] = $class::fromXml($child);
-
-        return $values;
     }
 }

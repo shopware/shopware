@@ -2,7 +2,8 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
-use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
+use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
+use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * Represents the XML card element
@@ -13,30 +14,33 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
  *
  * @internal
  */
-class Card extends CustomEntityFlag
+final class Card extends ConfigXmlElement
 {
-    private const MAPPING = [
-        'field' => CardField::class,
-    ];
-
     /**
-     * @var CardField[]
+     * @param list<CardField> $fields
      */
-    protected array $fields;
+    private function __construct(
+        protected readonly array $fields,
+        protected readonly string $name
+    ) {
+    }
 
-    protected string $name;
+    public static function fromXml(\DOMElement $element): self
+    {
+        $fields = [];
+        foreach ($element->getElementsByTagName('field') as $field) {
+            $fields[] = CardField::fromXml($field);
+        }
+
+        return new self(
+            $fields,
+            XmlUtils::phpize($element->getAttribute('name'))
+        );
+    }
 
     public function getName(): string
     {
         return $this->name;
-    }
-
-    public static function fromXml(\DOMElement $element): CustomEntityFlag
-    {
-        $self = new self();
-        $self->assign($self->parse($element));
-
-        return $self;
     }
 
     /**
@@ -45,24 +49,5 @@ class Card extends CustomEntityFlag
     public function getFields(): array
     {
         return $this->fields;
-    }
-
-    /**
-     * @param array<string, mixed> $values
-     *
-     * @return array<string, mixed>
-     */
-    protected function parseChild(\DOMElement $child, array $values): array
-    {
-        /** @var CustomEntityFlag|null $class */
-        $class = self::MAPPING[$child->tagName] ?? null;
-
-        if (!$class) {
-            throw new \RuntimeException(\sprintf('Flag type "%s" not found', $child->tagName));
-        }
-
-        $values['fields'][] = $class::fromXml($child);
-
-        return $values;
     }
 }

@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi;
 
-use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Card;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Detail;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity as AdminUiEntity;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Listing;
-use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tab;
 use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityConfigurationException;
 use Shopware\Core\System\CustomEntity\Xml\Entity;
 
@@ -61,12 +59,10 @@ class AdminUiXmlSchemaValidator
         Detail $detail,
         string $customEntityName
     ): void {
-        $tabs = $detail->getTabs()->toArray('');
+        $tabs = $detail->getTabs()->getContent();
 
-        /** @var Tab $tab */
         foreach ($tabs as $tab) {
             $cards = $tab->getCards();
-            /** @var Card $card */
             foreach ($cards as $card) {
                 $this->checkReferences(
                     $entityFields,

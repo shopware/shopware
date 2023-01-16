@@ -47,10 +47,12 @@
     "listing": {
       "columns": [
         {
-          "ref": "custom_entity_string_field"
+          "ref": "custom_entity_string_field",
+          "hidden": false
         },
         {
-          "ref": "custom_entity_int_field"
+          "ref": "custom_entity_int_field",
+          "hidden": false
         }
       ]
     },

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
-use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
+use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 
 /**
  * Represents the XML tabs element
@@ -13,36 +13,38 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
  *
  * @internal
  */
-class Tabs extends CustomEntityFlag
+final class Tabs extends ConfigXmlElement
 {
-    private const MAPPING = [
-        'tab' => Tab::class,
-    ];
+    /**
+     * @param list<Tab> $content
+     */
+    private function __construct(
+        protected readonly array $content,
+    ) {
+    }
 
-    public static function fromXml(\DOMElement $element): CustomEntityFlag
+    public static function fromXml(\DOMElement $element): self
     {
-        $self = new self();
-        $self->assign($self->parse($element));
+        $tabs = [];
+        foreach ($element->getElementsByTagName('tab') as $tab) {
+            $tabs[] = Tab::fromXml($tab);
+        }
 
-        return $self;
+        return new self($tabs);
     }
 
     /**
-     * @param array<string, mixed> $values
-     *
-     * @return Tabs[]
+     * @return list<Tab>
      */
-    protected function parseChild(\DOMElement $child, array $values): array
+    public function getContent(): array
     {
-        /** @var CustomEntityFlag|null $class */
-        $class = self::MAPPING[$child->tagName] ?? null;
+        return $this->content;
+    }
 
-        if (!$class) {
-            throw new \RuntimeException(\sprintf('Flag type "%s" not found', $child->tagName));
-        }
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
 
-        $values[] = $class::fromXml($child);
-
-        return $values;
+        return $data['content'];
     }
 }

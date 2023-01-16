@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
-use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
+use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
@@ -14,50 +14,22 @@ use Symfony\Component\Config\Util\XmlUtils;
  *
  * @internal
  */
-class CardField extends CustomEntityFlag
+final class CardField extends ConfigXmlElement
 {
-    protected string $ref;
+    private function __construct(
+        protected readonly string $ref
+    ) {
+    }
+
+    public static function fromXml(\DOMElement $element): self
+    {
+        return new self(
+            XmlUtils::phpize($element->getAttribute('ref'))
+        );
+    }
 
     public function getRef(): string
     {
         return $this->ref;
-    }
-
-    public static function fromXml(\DOMElement $element): CustomEntityFlag
-    {
-        $self = new self();
-        $self->assign($self->parse($element));
-
-        return $self;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    protected function parse(\DOMElement $element): array
-    {
-        $values = [];
-
-        if (is_iterable($element->attributes)) {
-            foreach ($element->attributes as $attribute) {
-                $name = self::kebabCaseToCamelCase($attribute->name);
-
-                $values[$name] = XmlUtils::phpize($attribute->value);
-
-                if ($name === 'ref' && !\is_string($values[$name])) {
-                    $values[$name] = (string) $values[$name];
-                }
-            }
-        }
-
-        foreach ($element->childNodes as $child) {
-            if (!$child instanceof \DOMElement) {
-                continue;
-            }
-
-            $values = $this->parseChild($child, $values);
-        }
-
-        return $values;
     }
 }

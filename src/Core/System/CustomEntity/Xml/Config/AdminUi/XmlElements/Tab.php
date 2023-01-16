@@ -2,7 +2,8 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
-use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
+use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
+use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * Represents the XML tab element
@@ -13,56 +14,40 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
  *
  * @internal
  */
-class Tab extends CustomEntityFlag
+final class Tab extends ConfigXmlElement
 {
-    private const MAPPING = [
-        'card' => Card::class,
-    ];
-
-    protected string $name;
-
     /**
-     * @var Card[]
+     * @param list<Card> $cards
      */
-    protected array $cards;
+    private function __construct(
+        protected readonly array $cards,
+        protected readonly string $name
+    ) {
+    }
+
+    public static function fromXml(\DOMElement $element): self
+    {
+        $cards = [];
+        foreach ($element->getElementsByTagName('card') as $card) {
+            $cards[] = Card::fromXml($card);
+        }
+
+        return new self(
+            $cards,
+            XmlUtils::phpize($element->getAttribute('name'))
+        );
+    }
 
     public function getName(): string
     {
         return $this->name;
     }
 
-    public static function fromXml(\DOMElement $element): CustomEntityFlag
-    {
-        $self = new self();
-        $self->assign($self->parse($element));
-
-        return $self;
-    }
-
     /**
-     * @return Card[]
+     * @return list<Card>
      */
     public function getCards(): array
     {
         return $this->cards;
-    }
-
-    /**
-     * @param array<string, mixed> $values
-     *
-     * @return array<string, mixed>
-     */
-    protected function parseChild(\DOMElement $child, array $values): array
-    {
-        /** @var CustomEntityFlag|null $class */
-        $class = self::MAPPING[$child->tagName] ?? null;
-
-        if (!$class) {
-            throw new \RuntimeException(\sprintf('Flag type "%s" not found', $child->tagName));
-        }
-
-        $values['cards'][] = $class::fromXml($child);
-
-        return $values;
     }
 }

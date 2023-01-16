@@ -156,6 +156,11 @@ class CmsAwareAndAdminUiTest extends TestCase
         $uninstalledPlugin = $this->pluginService->getPluginByName(self::PLUGIN_NAME, $this->context);
         static::assertNull($uninstalledPlugin->getInstalledAt());
         static::assertFalse($uninstalledPlugin->getActive());
+
+        $this->connection->executeStatement(
+            'DELETE FROM plugin WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($pluginEntity->getId())]
+        );
     }
 
     /**

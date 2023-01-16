@@ -2,7 +2,8 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
-use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
+use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
+use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * Represents the XML column element
@@ -13,20 +14,29 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
  *
  * @internal
  */
-class Column extends CustomEntityFlag
+final class Column extends ConfigXmlElement
 {
-    protected string $ref;
+    private function __construct(
+        protected readonly string $ref,
+        protected readonly bool $hidden
+    ) {
+    }
+
+    public static function fromXml(\DOMElement $element): self
+    {
+        return new self(
+            XmlUtils::phpize($element->getAttribute('ref')),
+            $element->getAttribute('hidden') === 'true',
+        );
+    }
 
     public function getRef(): string
     {
         return $this->ref;
     }
 
-    public static function fromXml(\DOMElement $element): CustomEntityFlag
+    public function isHidden(): bool
     {
-        $self = new self();
-        $self->assign($self->parse($element));
-
-        return $self;
+        return $this->hidden;
     }
 }

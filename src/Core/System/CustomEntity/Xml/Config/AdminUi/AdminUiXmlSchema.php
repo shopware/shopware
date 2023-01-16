@@ -11,22 +11,15 @@ use Symfony\Component\Config\Util\XmlUtils;
  *
  * @internal
  */
-class AdminUiXmlSchema
+final class AdminUiXmlSchema
 {
     public const FILENAME = 'admin-ui.xml';
 
     public const XSD_FILEPATH = __DIR__ . '/admin-ui-1.0.xsd';
 
-    private AdminUi $adminUi;
-
-    public function __construct(AdminUi $adminUi)
-    {
-        $this->adminUi = $adminUi;
-    }
-
-    public function getAdminUi(): ?AdminUi
-    {
-        return $this->adminUi;
+    private function __construct(
+        private readonly AdminUi $adminUi
+    ) {
     }
 
     public static function createFromXmlFile(string $xmlFilePath): self
@@ -41,5 +34,10 @@ class AdminUiXmlSchema
         $domItem = $doc->getElementsByTagName('admin-ui')->item(0);
 
         return new self(AdminUi::fromXml($domItem));
+    }
+
+    public function getAdminUi(): ?AdminUi
+    {
+        return $this->adminUi;
     }
 }

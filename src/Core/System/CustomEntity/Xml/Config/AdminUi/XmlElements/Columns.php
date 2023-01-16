@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
-use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
+use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 
 /**
  * Represents the XML columns element
@@ -13,36 +13,41 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
  *
  * @internal
  */
-class Columns extends CustomEntityFlag
+final class Columns extends ConfigXmlElement
 {
-    private const MAPPING = [
-        'column' => Column::class,
-    ];
+    /**
+     * @param list<Column> $content
+     */
+    private function __construct(
+        protected readonly array $content
+    ) {
+    }
 
-    public static function fromXml(\DOMElement $element): CustomEntityFlag
+    public static function fromXml(\DOMElement $element): self
     {
-        $self = new self();
-        $self->assign($self->parse($element));
+        $columns = [];
+        foreach ($element->getElementsByTagName('column') as $column) {
+            $columns[] = Column::fromXml($column);
+        }
 
-        return $self;
+        return new self($columns);
     }
 
     /**
-     * @param array<string, mixed> $values
-     *
-     * @return array<int|string, mixed>
+     * @return  list<Column>
      */
-    protected function parseChild(\DOMElement $child, array $values): array
+    public function getContent(): array
     {
-        /** @var CustomEntityFlag|null $class */
-        $class = self::MAPPING[$child->tagName] ?? null;
+        return $this->content;
+    }
 
-        if (!$class) {
-            throw new \RuntimeException(\sprintf('Flag type "%s" not found', $child->tagName));
-        }
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
 
-        $values[] = $class::fromXml($child);
-
-        return $values;
+        return $data['content'];
     }
 }

@@ -19,9 +19,7 @@ class Migration1662533751AddCustomEntityTypeIdToCategory extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $columns = array_column($connection->fetchAllAssociative('SHOW COLUMNS FROM `category`'), 'Field');
-
-        if (!\in_array('custom_entity_type_id', $columns, true)) {
+        if (!$this->columnExists($connection, 'category', 'custom_entity_type_id')) {
             $connection->executeStatement(
                 'ALTER TABLE `category` ADD `custom_entity_type_id` BINARY(16) NULL,
                 ADD CONSTRAINT `fk.category.custom_entity_type_id` FOREIGN KEY (`custom_entity_type_id`)

@@ -716,7 +716,6 @@ const missingTests = [
     'sw-settings-units-detail/index.ts',
     'sw-users-permissions-detailed-additional-permissions/index.js',
     'sw-users-permissions/index.js',
-    'sw-custom-entity/index.ts',
     'sw-category-detail-custom-entity/index.ts',
 ];
 

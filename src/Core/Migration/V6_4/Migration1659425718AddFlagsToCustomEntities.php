@@ -19,13 +19,11 @@ class Migration1659425718AddFlagsToCustomEntities extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $columns = array_column($connection->fetchAllAssociative('SHOW COLUMNS FROM `custom_entity`'), 'Field');
-
-        if (!\in_array('flags', $columns, true)) {
+        if (!$this->columnExists($connection, 'custom_entity', 'flags')) {
             $connection->executeStatement('ALTER TABLE `custom_entity` ADD `flags` JSON NULL;');
         }
 
-        if (!\in_array('flag_config', $columns, true)) {
+        if (!$this->columnExists($connection, 'custom_entity', 'flag_config')) {
             $connection->executeStatement('ALTER TABLE `custom_entity` ADD `flag_config` JSON NULL;');
         }
     }

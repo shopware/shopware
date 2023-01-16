@@ -56,8 +56,8 @@ class CustomEntityDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new JsonField('fields', 'fields'))->addFlags(new Required()),
-            (new JsonField('flags', 'flags'))->addFlags(new ApiAware()),
-            (new JsonField('flag_config', 'flagsConfig'))->addFlags(new ApiAware()),
+            (new JsonField('flags', 'flags'))->addFlags(new ApiAware(), new Required()),
+            (new JsonField('flag_config', 'flagsConfig'))->addFlags(new ApiAware(), new Required()),
             new FkField('app_id', 'appId', AppDefinition::class),
         ]);
     }

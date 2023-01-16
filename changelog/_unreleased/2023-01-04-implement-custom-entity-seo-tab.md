@@ -11,4 +11,3 @@ author_github: NiklasLimberg
     * `sw-generic-social-media-card`
 * Changed `sw-generic-custom-entity-detail` to use the aforementioned card
 * Added SEO properties to `generic_custom_entity` in `generic_custom_entities.d.ts`
-* Added SEO properties to the `CmsAwareXmlSchema.php`

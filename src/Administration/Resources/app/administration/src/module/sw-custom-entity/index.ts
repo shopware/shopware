@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 /**
  * @private
  * @package content

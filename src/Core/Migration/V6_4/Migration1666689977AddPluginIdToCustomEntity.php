@@ -19,9 +19,7 @@ class Migration1666689977AddPluginIdToCustomEntity extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $columns = array_column($connection->fetchAllAssociative('SHOW COLUMNS FROM `custom_entity`'), 'Field');
-
-        if (!\in_array('plugin_id', $columns, true)) {
+        if (!$this->columnExists($connection, 'custom_entity', 'plugin_id')) {
             $connection->executeStatement('ALTER TABLE `custom_entity`
                 ADD `plugin_id` BINARY(16) NULL,
                 ADD CONSTRAINT `fk.custom_entity.plugin_id`

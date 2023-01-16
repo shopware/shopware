@@ -71,7 +71,6 @@ export default Shopware.Component.wrapComponentConfig({
         void this.fetchCustomEntityName();
     },
 
-
     methods: {
         onAssignmentChange(customEntityAssignments: EntityCollection<'custom_entity'>): void {
             const categoryExtensions = this.category?.extensions;

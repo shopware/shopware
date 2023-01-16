@@ -2,6 +2,8 @@
 
 namespace Shopware\Storefront\Theme\Aggregate;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\MappingEntityClassesException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -15,7 +17,7 @@ use Shopware\Storefront\Theme\ThemeDefinition;
 /**
  * @package storefront
  */
-class ThemeSalesChannelDefinition extends MappingEntityDefinition
+class ThemeSalesChannelDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'theme_sales_channel';
 
@@ -27,6 +29,26 @@ class ThemeSalesChannelDefinition extends MappingEntityDefinition
     public function since(): ?string
     {
         return '6.0.0.0';
+    }
+
+    public function getCollectionClass(): string
+    {
+        throw new MappingEntityClassesException();
+    }
+
+    public function getEntityClass(): string
+    {
+        throw new MappingEntityClassesException();
+    }
+
+    protected function getBaseFields(): array
+    {
+        return [];
+    }
+
+    protected function defaultFields(): array
+    {
+        return [];
     }
 
     protected function defineFields(): FieldCollection

@@ -20,7 +20,7 @@ export default class OffCanvasCartPlugin extends Plugin {
         removeProductTriggerSelector: '.js-offcanvas-cart-remove-product',
         changeProductQuantityTriggerSelector: '.js-offcanvas-cart-change-quantity',
         changeProductQuantityTriggerNumberSelector: '.js-offcanvas-cart-change-quantity-number',
-        changeQuantityInputDelay: 350,
+        changeQuantityInputDelay: 800,
         addPromotionTriggerSelector: '.js-offcanvas-cart-add-promotion',
         cartItemSelector: '.js-cart-item',
         cartPromotionSelector: '.js-offcanvas-cart-promotion',

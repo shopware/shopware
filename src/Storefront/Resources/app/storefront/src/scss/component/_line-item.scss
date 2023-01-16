@@ -43,7 +43,7 @@
 
 .line-item-quantity-label {
     @include make-col-ready();
-    @include make-col(8);
+    @include make-col(6);
     @include media-breakpoint-up(sm) {
         @include make-col(12);
     }
@@ -51,11 +51,12 @@
 
 .line-item-quantity-select-wrapper {
     @include make-col-ready();
-    @include make-col(4);
+    @include make-col(6);
     @include media-breakpoint-up(sm) {
         @include make-col(12);
     }
 }
+
 
 .line-item-unit-price {
     // Equals: .col-12 .col-sm-4 .col-md-2;
@@ -114,11 +115,11 @@
     }
 
     .line-item-quantity-label {
-        @include make-col(8);
+        @include make-col(7);
     }
 
     .line-item-quantity-select-wrapper {
-        @include make-col(4);
+        @include make-col(5);
     }
 
     .line-item-unit-price {
@@ -359,7 +360,6 @@
 .is-order {
     @include media-breakpoint-up(sm) {
         .line-item-quantity-container {
-            width: 70px;
             margin-left: auto;
         }
 

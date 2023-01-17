@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 
-use AsyncAws\S3\S3Client;
+use AsyncAws\SimpleS3\SimpleS3Client;
 use League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter;
 use League\Flysystem\AsyncAwsS3\PortableVisibilityConverter;
 use League\Flysystem\FilesystemAdapter;
@@ -39,7 +39,7 @@ class AwsS3v3Factory implements AdapterFactoryInterface
             $s3Opts['accessKeySecret'] = $options['credentials']['secret'];
         }
 
-        $client = new S3Client($s3Opts);
+        $client = new SimpleS3Client($s3Opts);
 
         return new DecoratedAsyncS3Adapter(
             new AsyncAwsS3Adapter($client, $options['bucket'], $options['root'], new PortableVisibilityConverter()),

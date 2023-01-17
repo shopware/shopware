@@ -58,7 +58,7 @@ describe('Product: Test variants', () => {
             .should('be.visible');
     });
 
-    it.only('@base @catalogue: test multidimensional variant with restrictions', { tags: ['pa-inventory'] }, () => {
+    it('@base @catalogue: test multidimensional variant with restrictions', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
         const optionsIndicator = '' +
             '.sw-property-search__tree-selection__column-items-selected.sw-grid-column--right span';

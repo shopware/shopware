@@ -186,7 +186,7 @@ describe('Dynamic product group: Test various filters', () => {
         });
     });
 
-    it.only('@base @rule: Should be able to filter with Manufacturer', { tags: ['pa-business-ops'] }, () => {
+    it('@base @rule: Should be able to filter with Manufacturer', { tags: ['pa-business-ops'] }, () => {
         const page = new ProductStreamObject();
 
         // Verify product stream details

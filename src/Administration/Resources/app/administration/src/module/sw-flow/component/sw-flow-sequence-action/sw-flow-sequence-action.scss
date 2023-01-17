@@ -268,12 +268,6 @@
                 color: $color-gray-900;
                 text-transform: none;
                 padding: 0 !important;
-
-                // @deprecated tag:v6.5.0 - rule can be removed
-                &.icon--regular-file-signature {
-                    width: 15px !important;
-                    height: 12px !important;
-                }
             }
 
             img {

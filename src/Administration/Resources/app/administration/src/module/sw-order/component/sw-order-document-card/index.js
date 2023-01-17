@@ -410,9 +410,9 @@ Component.register('sw-order-document-card', {
                     link.remove();
                 }
 
-                this.isLoadingPreview = false;
-
                 return response;
+            }).finally(() => {
+                this.isLoadingPreview = false;
             });
         },
 

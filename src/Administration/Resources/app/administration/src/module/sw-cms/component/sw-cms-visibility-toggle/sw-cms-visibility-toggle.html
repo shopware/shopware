@@ -1,0 +1,19 @@
+<div  class="sw-cms-visibility-toggle-wrapper">
+    <div class="sw-cms-visibility-toggle">
+        <sw-icon
+            name="regular-eye-slash"
+            size="24"
+        />
+        <span class="sw-cms-visibility-toggle__text">{{ $tc('sw-cms.detail.label.visibilityParagraph') }}</span>
+        <button
+            class="sw-cms-visibility-toggle__button"
+            @click="$emit('toggle')"
+        >
+            <span>{{ text }}</span>
+            <sw-icon
+                :name="isCollapsed ? 'regular-chevron-down-xs' : 'regular-chevron-up-xs'"
+                size="10"
+            />
+        </button>
+    </div>
+</div>

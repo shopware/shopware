@@ -6,65 +6,71 @@
         class="buy-widget"
         data-add-to-cart="true">
 
+        {% set DOWNLOAD_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_DOWNLOAD') %}
+        {% set showQuantitySelect = not product.states is defined or DOWNLOAD_STATE not in product.states or (DOWNLOAD_STATE in product.states and product.maxPurchase !== 1) %}
         {% set buyable = product.available and product.childCount <= 0 and product.calculatedMaxPurchase > 0 %}
+
         {% block buy_widget_buy_container %}
             {% if buyable %}
                 <div class="row g-2 buy-widget-container">
                     {% block buy_widget_buy_quantity_container %}
-                        <div class="col-4">
-                            {% set selectQuantityThreshold = 100 %}
-                            {% block buy_widget_buy_quantity %}
-                                {# @deprecated tag:v6.5.0 - Numeric quantity input with additional plus/minus controls will be the default. #}
-                                {% if (product.calculatedMaxPurchase - product.minPurchase) / product.purchaseSteps > selectQuantityThreshold %}
-                                    {% block buy_widget_buy_quantity_input_group %}
-                                        <div class="input-group">
-                                            {% block buy_widget_buy_quantity_input %}
-                                                <input
-                                                    type="number"
-                                                    name="lineItems[{{ product.id }}][quantity]"
-                                                    class="form-control product-detail-quantity-input"
-                                                    min="{{ product.minPurchase }}"
-                                                    max="{{ product.calculatedMaxPurchase }}"
-                                                    step="{{ product.purchaseSteps }}"
-                                                    value="{{ product.minPurchase }}"
-                                                />
-                                            {% endblock %}
-                                            {% block buy_widget_buy_quantity_input_unit %}
-                                                {% if product.translated.packUnit %}
-                                                    <span class="input-group-text">
-                                                        {% if product.minPurchase > 1 and product.translated.packUnitPlural %}
-                                                            {{ product.translated.packUnitPlural }}
-                                                        {% elseif product.translated.packUnit %}
-                                                            {{ product.translated.packUnit }}
-                                                        {% endif %}
-                                                    </span>
-                                                {% endif %}
-                                            {% endblock %}
-                                        </div>
-                                    {% endblock %}
-                                {% else %}
-                                    {% block buy_widget_buy_quantity_select %}
-                                        <select name="lineItems[{{ product.id }}][quantity]"
-                                                class="form-select product-detail-quantity-select">
-                                            {% for quantity in range(product.minPurchase, product.calculatedMaxPurchase, product.purchaseSteps) %}
-                                                <option value="{{ quantity }}">
-                                                    {{ quantity }}
-                                                    {% if quantity == 1 %}
-                                                        {% if product.translated.packUnit %} {{ product.translated.packUnit }}{% endif %}
-                                                    {% else %}
-                                                        {% if product.translated.packUnitPlural %}
-                                                            {{ product.translated.packUnitPlural }}
-                                                        {% elseif product.translated.packUnit %}
-                                                            {{ product.translated.packUnit }}
-                                                        {% endif %}
+                        {% if showQuantitySelect %}
+                            <div class="col-4">
+                                {% set selectQuantityThreshold = 100 %}
+                                {% block buy_widget_buy_quantity %}
+                                    {# @deprecated tag:v6.5.0 - Numeric quantity input with additional plus/minus controls will be the default. #}
+                                    {% if (product.calculatedMaxPurchase - product.minPurchase) / product.purchaseSteps > selectQuantityThreshold %}
+                                        {% block buy_widget_buy_quantity_input_group %}
+                                            <div class="input-group">
+                                                {% block buy_widget_buy_quantity_input %}
+                                                    <input
+                                                        type="number"
+                                                        name="lineItems[{{ product.id }}][quantity]"
+                                                        class="form-control product-detail-quantity-input"
+                                                        min="{{ product.minPurchase }}"
+                                                        max="{{ product.calculatedMaxPurchase }}"
+                                                        step="{{ product.purchaseSteps }}"
+                                                        value="{{ product.minPurchase }}"
+                                                    />
+                                                {% endblock %}
+
+                                                {% block buy_widget_buy_quantity_input_unit %}
+                                                    {% if product.translated.packUnit %}
+                                                        <span class="input-group-text">
+                                                            {% if product.minPurchase > 1 and product.translated.packUnitPlural %}
+                                                                {{ product.translated.packUnitPlural }}
+                                                            {% elseif product.translated.packUnit %}
+                                                                {{ product.translated.packUnit }}
+                                                            {% endif %}
+                                                        </span>
                                                     {% endif %}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
-                                    {% endblock %}
-                                {% endif %}
-                            {% endblock %}
-                        </div>
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+                                    {% else %}
+                                        {% block buy_widget_buy_quantity_select %}
+                                            <select name="lineItems[{{ product.id }}][quantity]"
+                                                class="form-select product-detail-quantity-select">
+                                                    {% for quantity in range(product.minPurchase, product.calculatedMaxPurchase, product.purchaseSteps) %}
+                                                        <option value="{{ quantity }}">
+                                                            {{ quantity }}
+                                                            {% if quantity == 1 %}
+                                                                {% if product.translated.packUnit %} {{ product.translated.packUnit }}{% endif %}
+                                                            {% else %}
+                                                                {% if product.translated.packUnitPlural %}
+                                                                    {{ product.translated.packUnitPlural }}
+                                                                {% elseif product.translated.packUnit %}
+                                                                    {{ product.translated.packUnit }}
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            {% endblock %}
+                                    {% endif %}
+                                {% endblock %}
+                            </div>
+                        {% endif %}
                     {% endblock %}
 
                     {% block buy_widget_buy_redirect_input %}
@@ -107,7 +113,7 @@
                     {% endblock %}
 
                     {% block buy_widget_buy_button_container %}
-                        <div class="col-8">
+                        <div class="{% if showQuantitySelect %}col-8{% else %}col-12{% endif %}">
                             {% block buy_widget_buy_button %}
                                 <div class="d-grid">
                                     <button class="btn btn-primary btn-buy"

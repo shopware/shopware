@@ -45,6 +45,8 @@ class MailTemplateTypes
 
     public const MAILTYPE_CUSTOMER_REGISTER_DOUBLE_OPT_IN = 'customer_register.double_opt_in';
 
+    public const MAILTYPE_DOWNLOADS_DELIVERY = 'downloads_delivery';
+
     public const MAILTYPE_SEPA_CONFIRMATION = 'sepa_confirmation';
 
     public const MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED_PARTIALLY = 'order_delivery.state.shipped_partially';

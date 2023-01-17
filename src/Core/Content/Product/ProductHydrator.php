@@ -83,6 +83,9 @@ class ProductHydrator extends EntityHydrator
         if (isset($row[$root . '.displayGroup'])) {
             $entity->displayGroup = $row[$root . '.displayGroup'];
         }
+        if (isset($row[$root . '.states'])) {
+            $entity->states = $definition->decode('states', self::value($row, $root, 'states'));
+        }
         if (\array_key_exists($root . '.configuratorGroupConfig', $row)) {
             $entity->configuratorGroupConfig = $definition->decode('configuratorGroupConfig', self::value($row, $root, 'configuratorGroupConfig'));
         }

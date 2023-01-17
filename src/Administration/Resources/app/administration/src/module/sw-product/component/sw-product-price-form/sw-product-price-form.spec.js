@@ -90,7 +90,8 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                                             label: 'sw-product.general.textAdvancedMode'
                                         }
                                     }
-                                }
+                                },
+                                creationStates: 'is-physical'
                             },
                             getters: {
                                 ...productStore.getters,

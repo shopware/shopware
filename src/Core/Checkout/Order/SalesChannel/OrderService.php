@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -24,6 +25,7 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @package customer-order
@@ -79,9 +81,9 @@ class OrderService
      */
     public function createOrder(DataBag $data, SalesChannelContext $context): string
     {
-        $this->validateOrderData($data, $context);
-
         $cart = $this->cartService->getCart($context->getToken(), $context);
+
+        $this->validateOrderData($data, $context, $cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD));
 
         $this->validateCart($cart, $context->getContext());
 
@@ -226,9 +228,12 @@ class OrderService
     /**
      * @throws ConstraintViolationException
      */
-    private function validateOrderData(ParameterBag $data, SalesChannelContext $context): void
-    {
-        $definition = $this->getOrderCreateValidationDefinition(new DataBag($data->all()), $context);
+    private function validateOrderData(
+        ParameterBag $data,
+        SalesChannelContext $context,
+        bool $hasVirtualGoods
+    ): void {
+        $definition = $this->getOrderCreateValidationDefinition(new DataBag($data->all()), $context, $hasVirtualGoods);
         $violations = $this->dataValidator->getViolations($data->all(), $definition);
 
         if ($violations->count() > 0) {
@@ -236,9 +241,16 @@ class OrderService
         }
     }
 
-    private function getOrderCreateValidationDefinition(DataBag $data, SalesChannelContext $context): DataValidationDefinition
-    {
+    private function getOrderCreateValidationDefinition(
+        DataBag $data,
+        SalesChannelContext $context,
+        bool $hasVirtualGoods
+    ): DataValidationDefinition {
         $validation = $this->orderValidationFactory->create($context);
+
+        if ($hasVirtualGoods) {
+            $validation->add('revocation', new NotBlank());
+        }
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());

@@ -9,6 +9,8 @@ import 'src/app/component/utils/sw-loader';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-empty-state';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
+import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
+import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
 
 const { Component } = Shopware;
 
@@ -82,16 +84,22 @@ async function createWrapper(privileges = []) {
             'sw-modal': true,
             'sw-skeleton': true,
             'sw-product-variants-overview': true,
+            'sw-tabs': true
         }
     });
 }
 
-describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
+describe('src/module/sw-product/view/sw-product-detail-variants', () => {
     beforeAll(() => {
+        Shopware.Service().register('shopwareDiscountCampaignService', () => {
+            return new ShopwareDiscountCampaignService();
+        });
+
         Shopware.State.registerModule('swProductDetail', {
             ...productStore,
             state: {
                 ...productStore.state,
+                variants: [],
                 parentProduct: {
                     media: [],
                     reviews: [{
@@ -103,6 +111,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
                     }]
                 },
                 product: {
+                    isNew: () => false,
                     getEntityName: () => 'product',
                     media: [],
                     reviews: [{
@@ -178,7 +187,8 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
                             label: 'sw-product.general.textAdvancedMode'
                         }
                     }
-                }
+                },
+                creationStates: 'is-physical'
             }
         });
     });
@@ -199,13 +209,58 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
 
         await wrapper.setData({
             groups: [{}],
+            propertiesAvailable: false,
             isLoading: false,
         });
+
+        await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
         expect(wrapper.find('.sw-empty-state__title')
             .text()).toBe('sw-product.variations.emptyStatePropertyTitle');
         expect(wrapper.find('.sw-empty-state__description-content').text())
             .toBe('sw-product.variations.emptyStatePropertyDescription');
+    });
+
+    it('should split the product states string into an array', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            activeTab: 'is-foo,is-bar'
+        });
+        await flushPromises();
+
+
+        expect(wrapper.vm.currentProductStates).toEqual(['is-foo', 'is-bar']);
+    });
+
+    it('should return an empty array if product has no configurator settings', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            productEntity: {
+                configuratorSettings: null
+            }
+        });
+
+        expect(wrapper.vm.selectedGroups).toEqual([]);
+    });
+
+    it('should return an array of group ids if the product has configurator settings', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            groups: [{
+                id: 'second-group'
+            }],
+            productEntity: {
+                configuratorSettings: [
+                    { option: { groupId: 'first-group' } },
+                    { option: { groupId: 'second-group' } },
+                    { option: { groupId: 'second-group' } }
+                ]
+            }
+        });
+
+        expect(wrapper.vm.selectedGroups).toEqual([{
+            id: 'second-group'
+        }]);
     });
 });

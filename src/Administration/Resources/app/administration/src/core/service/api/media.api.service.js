@@ -207,6 +207,10 @@ class MediaApiService extends ApiService {
     }
 
     uploadMediaById(id, mimeType, data, extension, fileName = id) {
+        if (mimeType === 'application/json') {
+            mimeType = 'text/plain';
+        }
+
         const apiRoute = `/_action/${this.getApiBasePath(id)}/upload`;
         const headers = this.getBasicHeaders({ 'Content-Type': mimeType });
         const params = {

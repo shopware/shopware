@@ -16,8 +16,7 @@ describe('Flow builder: Create a flow from flow template', () => {
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
-        // click on first element in grid
-        cy.get(`${page.elements.dataGridRow}--0`)
+        cy.contains(page.elements.dataGridRow, 'Order placed')
             .find('.sw-flow-list-my-flows__content__create-flow-link')
             .click();
 

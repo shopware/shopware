@@ -9,7 +9,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_option_list_toolbar_container %}
         <sw-container
-            columns="1fr minmax(50px, max-content) minmax(100px, 180px) minmax(100px, 220px)"
+            columns="1fr minmax(min-content, max-content) minmax(min-content, 180px) minmax(min-content, 180px)"
             gap="0 10px"
         >
 
@@ -171,6 +171,13 @@
                     </span>
                 </router-link>
             </template>
+
+            <sw-label
+                v-if="variantIsDigital(item)"
+                class="sw-product-variants-overview__digital-indicator"
+            >
+                {{ $tc('sw-product.variations.generatedListColumnContentProductState.is-download') }}
+            </sw-label>
         </template>
         {% endblock %}
 
@@ -320,6 +327,30 @@
             {% endblock %}
         </template>
         {% endblock %}
+
+        <template #column-downloads="{item, isInlineEdit, compact}">
+            <sw-upload-listener
+                :upload-tag="item.productNumber"
+                auto-upload
+                @media-upload-finish="(event) => successfulUpload(event, item)"
+            />
+
+            <sw-media-compact-upload-v2
+                :upload-tag="item.productNumber"
+                :disabled="!isInlineEdit"
+                private-filesystem
+                allow-multi-select
+                add-files-on-multiselect
+                :disable-deletion-for-last-item="{
+                    value: true,
+                    helpText: $tc('sw-product.list.columnDownloadsTooltip')
+                }"
+                :source-multiselect="getDownloadsSource(item)"
+                default-folder="product_download"
+                file-accept="*/*"
+                @delete-item="(file) => removeFile(`${file.fileName}.${file.fileExtension}`, item)"
+            />
+        </template>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_data_grid_column_active %}
@@ -514,6 +545,30 @@
                     />
                 </template>
                 {% endblock %}
+
+                <template #column-downloads="{item, isInlineEdit, compact}">
+                    <sw-upload-listener
+                        :upload-tag="item.productNumber"
+                        auto-upload
+                        @media-upload-finish="(event) => successfulUpload(event, item)"
+                    />
+
+                    <sw-media-compact-upload-v2
+                        :upload-tag="item.productNumber"
+                        :disabled="!isInlineEdit"
+                        private-filesystem
+                        allow-multi-select
+                        :disable-deletion-for-last-item="{
+                            value: true,
+                            helpText: $tc('sw-product.list.columnDownloadsTooltip')
+                        }"
+                        :add-files-on-multiselect="true"
+                        :source-multiselect="getDownloadsSource(item)"
+                        default-folder="product_download"
+                        file-accept="*/*"
+                        @delete-item="(file) => removeFile(`${file.fileName}.${file.fileExtension}`, item)"
+                    />
+                </template>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_bulk_edit_modal_column_active %}

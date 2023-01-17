@@ -75,6 +75,11 @@ class LineItem extends Struct
     protected ?string $dataContextHash = null;
 
     /**
+     * @var array<int, string>
+     */
+    protected array $states = [];
+
+    /**
      * @throws CartException
      */
     public function __construct(string $id, string $type, ?string $referencedId = null, int $quantity = 1)
@@ -466,6 +471,29 @@ class LineItem extends Struct
     public function setDataContextHash(?string $dataContextHash): void
     {
         $this->dataContextHash = $dataContextHash;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function getStates(): array
+    {
+        return $this->states;
+    }
+
+    /**
+     * @param array<int, string> $states
+     */
+    public function setStates(array $states): LineItem
+    {
+        $this->states = $states;
+
+        return $this;
+    }
+
+    public function hasState(string $state): bool
+    {
+        return \in_array($state, $this->states, true);
     }
 
     /**

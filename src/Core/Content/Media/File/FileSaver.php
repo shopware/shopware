@@ -59,12 +59,18 @@ class FileSaver
      */
     private array $allowedExtensions;
 
+    /**
+     * @var list<string>
+     */
+    private array $privateAllowedExtensions;
+
     private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @internal
      *
      * @param list<string> $allowedExtensions
+     * @param list<string> $privateAllowedExtensions
      */
     public function __construct(
         EntityRepository $mediaRepository,
@@ -76,7 +82,8 @@ class FileSaver
         TypeDetector $typeDetector,
         MessageBusInterface $messageBus,
         EventDispatcherInterface $eventDispatcher,
-        array $allowedExtensions
+        array $allowedExtensions,
+        array $privateAllowedExtensions
     ) {
         $this->mediaRepository = $mediaRepository;
         $this->filesystemPublic = $filesystemPublic;
@@ -89,6 +96,7 @@ class FileSaver
         $this->messageBus = $messageBus;
         $this->eventDispatcher = $eventDispatcher;
         $this->allowedExtensions = $allowedExtensions;
+        $this->privateAllowedExtensions = $privateAllowedExtensions;
     }
 
     /**
@@ -113,7 +121,8 @@ class FileSaver
             $context
         );
 
-        $this->validateFileExtension($mediaFile, $mediaId);
+        $this->validateFileExtension($mediaFile, $mediaId, $currentMedia->isPrivate());
+
         $this->removeOldMediaData($currentMedia, $context);
 
         $mediaType = $this->typeDetector->detect($mediaFile);
@@ -141,8 +150,9 @@ class FileSaver
     {
         $destination = $this->validateFileName($destination);
         $currentMedia = $this->findMediaById($mediaId, $context);
+        $fileExtension = $currentMedia->getFileExtension();
 
-        if (!$currentMedia->hasFile() || !$currentMedia->getFileExtension()) {
+        if (!$currentMedia->hasFile() || !$fileExtension) {
             throw new MissingFileException($mediaId);
         }
 
@@ -153,7 +163,7 @@ class FileSaver
         $this->ensureFileNameIsUnique(
             $currentMedia,
             $destination,
-            $currentMedia->getFileExtension(),
+            $fileExtension,
             $context
         );
 
@@ -249,7 +259,9 @@ class FileSaver
         $path = $this->urlGenerator->getRelativeMediaUrl($media);
 
         try {
-            $this->getFileSystem($media)->writeStream($path, $stream);
+            if (\is_resource($stream)) {
+                $this->getFileSystem($media)->writeStream($path, $stream);
+            }
         } finally {
             // The Google Cloud Storage filesystem closes the stream even though it should not. To prevent a fatal
             // error, we therefore need to check whether the stream has been closed yet.
@@ -360,9 +372,9 @@ class FileSaver
     /**
      * @throws FileExtensionNotSupportedException
      */
-    private function validateFileExtension(MediaFile $mediaFile, string $mediaId): void
+    private function validateFileExtension(MediaFile $mediaFile, string $mediaId, bool $isPrivate = false): void
     {
-        $event = new MediaFileExtensionWhitelistEvent($this->allowedExtensions);
+        $event = new MediaFileExtensionWhitelistEvent($isPrivate ? $this->privateAllowedExtensions : $this->allowedExtensions);
         $this->eventDispatcher->dispatch($event);
 
         $fileExtension = mb_strtolower($mediaFile->getFileExtension());
@@ -393,12 +405,18 @@ class FileSaver
         );
 
         foreach ($mediaWithRelatedFileName as $media) {
-            if ($media->hasFile() && $destination === $media->getFileName()) {
-                throw new DuplicatedMediaFileNameException(
-                    $destination,
-                    $fileExtension
-                );
+            if (
+                !$media->hasFile()
+                || $destination !== $media->getFileName()
+                || $media->isPrivate() !== $currentMedia->isPrivate()
+            ) {
+                continue;
             }
+
+            throw new DuplicatedMediaFileNameException(
+                $destination,
+                $fileExtension
+            );
         }
     }
 

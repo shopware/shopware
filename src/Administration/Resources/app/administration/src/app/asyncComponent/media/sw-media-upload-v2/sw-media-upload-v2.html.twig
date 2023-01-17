@@ -18,7 +18,7 @@
                 variant="primary"
                 @click="onClickUpload"
             >
-                {{ $tc('global.sw-media-upload-v2.buttonFileUpload') }}
+                {{ buttonFileUploadLabel }}
             </sw-button>
             {% endblock %}
 
@@ -80,6 +80,7 @@
             <label
                 v-if="label"
                 class="sw-media-upload-v2__label"
+                :class="swFieldLabelClasses"
             >
                 {{ label }}
             </label>
@@ -109,7 +110,7 @@
                     class="sw-media-upload-v2__button-file-upload"
                     @click="useFileUpload"
                 >
-                    {{ $t('global.sw-media-upload-v2.buttonFileUpload') }}
+                    {{ buttonFileUploadLabel }}
                 </sw-context-menu-item>
                 {% endblock %}
 
@@ -139,7 +140,7 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_upload_v2_preview %}
-            <template v-if="showPreview && variant === 'regular'">
+            <template v-if="variant === 'regular'">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_upload_v2_regular_preview_file %}
                 <sw-media-preview-v2
@@ -162,7 +163,7 @@
                 {% endblock %}
             </template>
 
-            <template v-if="!showPreview && variant === 'regular'">
+            <template v-if="variant === 'regular'">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_upload_v2_regular_caption %}
                 <div class="sw-media-upload-v2__upload-caption">
@@ -242,7 +243,7 @@
                             :disabled="disabled"
                             @click="onClickUpload"
                         >
-                            {{ $tc('global.sw-media-upload-v2.buttonFileUpload') }}
+                            {{ buttonFileUploadLabel }}
                         </sw-button>
                         {% endblock %}
                     </template>

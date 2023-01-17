@@ -113,7 +113,7 @@ describe('Product: Test variants', () => {
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
-        cy.contains('.sw-button--ghost', 'Generate variants').click();
+        cy.contains('.sw-button--ghost', 'Generate variants').should('be.visible').click();
 
         // Add another group to create a multidimensional variant
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
@@ -175,7 +175,7 @@ describe('Product: Test variants', () => {
         cy.get('.sw-product-modal-variant-generation').should('not.exist');
 
         // Create and verify multi-dimensional variant
-        cy.contains('.sw-button', 'Generate variants').click();
+        cy.contains('.sw-button', 'Generate variants').should('be.visible').click();
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
         cy.get('.sw-variant-modal__restriction-configuration').click();
         cy.contains('.sw-button', 'Exclude values').click();
@@ -221,7 +221,7 @@ describe('Product: Test variants', () => {
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
-        cy.contains('.sw-button--ghost', 'Generate variants').click();
+        cy.contains('.sw-button--ghost', 'Generate variants').should('be.visible').click();
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
 
         page.generateVariants(

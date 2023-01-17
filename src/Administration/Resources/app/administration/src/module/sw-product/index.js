@@ -10,6 +10,7 @@ const { Module } = Shopware;
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-product-basic-form', () => import('./component/sw-product-basic-form'));
 Shopware.Component.register('sw-product-deliverability-form', () => import('./component/sw-product-deliverability-form'));
+Shopware.Component.register('sw-product-deliverability-downloadable-form', () => import('./component/sw-product-deliverability-downloadable-form'));
 Shopware.Component.register('sw-product-feature-set-form', () => import('./component/sw-product-feature-set-form'));
 Shopware.Component.register('sw-product-category-form', () => import('./component/sw-product-category-form'));
 Shopware.Component.register('sw-product-clone-modal', () => import('./component/sw-product-clone-modal'));
@@ -21,6 +22,7 @@ Shopware.Component.register('sw-product-packaging-form', () => import('./compone
 Shopware.Component.register('sw-product-seo-form', () => import('./component/sw-product-seo-form'));
 Shopware.Component.extend('sw-product-visibility-select', 'sw-entity-multi-select', () => import('./component/sw-product-visibility-select'));
 Shopware.Component.register('sw-product-media-form', () => import('./component/sw-product-media-form'));
+Shopware.Component.register('sw-product-download-form', () => import('./component/sw-product-download-form'));
 Shopware.Component.register('sw-product-visibility-detail', () => import('./component/sw-product-visibility-detail'));
 Shopware.Component.register('sw-product-restriction-selection', () => import('./component/sw-product-variants/sw-product-variants-configurator/sw-product-restriction-selection'));
 Shopware.Component.extend('sw-product-variants-configurator-selection', 'sw-property-search', () => import('./component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection'));
@@ -81,6 +83,9 @@ Module.register('sw-product', {
         create: {
             component: 'sw-product-detail',
             path: 'create',
+            props: {
+                default: (route) => ({ creationStates: route.query.creationStates ?? ['is-physical'] }),
+            },
             redirect: {
                 name: 'sw.product.create.base',
             },

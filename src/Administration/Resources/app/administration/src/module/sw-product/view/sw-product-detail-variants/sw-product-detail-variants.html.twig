@@ -11,110 +11,134 @@
         :title="$tc('sw-product.variations.generatedVariationCardTitle')"
         large
     >
-        <template v-if="isLoading">
-            <sw-skeleton />
+        <template
+            v-if="!isLoading && propertiesAvailable"
+            #tabs
+        >
+            <sw-tabs
+                position-identifier="sw-variant-card-tabs"
+                :small="false"
+                :default-item="defaultTab"
+                @new-item-active="setActiveTab($event.name)"
+            >
+                <sw-tabs-item
+                    name="all"
+                    :active-tab="activeTab"
+                >
+                    {{ $tc('sw-product.variations.variationCard.tabs.allProducts') }}
+                </sw-tabs-item>
+
+                <sw-tabs-item
+                    name="is-physical"
+                    :active-tab="activeTab"
+                >
+                    {{ $tc('sw-product.variations.variationCard.tabs.physicalProducts') }}
+                </sw-tabs-item>
+
+                <sw-tabs-item
+                    name="is-download"
+                    :active-tab="activeTab"
+                >
+                    {{ $tc('sw-product.variations.variationCard.tabs.digitalProducts') }}
+                </sw-tabs-item>
+            </sw-tabs>
         </template>
+
+        <sw-skeleton v-if="isLoading" />
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_detail_variants_sw_card_empty_state %}
+        <sw-empty-state
+            v-else-if="!propertiesAvailable"
+            class="sw-product-detail-variants__generated-variants-empty-state"
+            :absolute="false"
+            :title="$tc('sw-product.variations.emptyStatePropertyTitle')"
+            :subline="$tc('sw-product.variations.emptyStatePropertyDescription')"
+        >
+
+            <template #icon>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_properties_empty_state_image %}
+                <img
+                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                    :alt="$tc('sw-product.properties.titleEmptyState')"
+                >
+                {% endblock %}
+            </template>
+
+            <template #actions>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_properties_empty_state_button_property %}
+                <sw-button
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('product.editor'),
+                        showOnDisabledElements: true
+                    }"
+                    variant="ghost"
+                    :disabled="!acl.can('product.editor')"
+                    @click="openAddPropertiesModal"
+                >
+                    {{ $tc('sw-product.properties.buttonAddProperties') }}
+                </sw-button>
+                {% endblock %}
+            </template>
+        </sw-empty-state>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_detail_variants_sw_card_empty_state_variant %}
+        <sw-empty-state
+            v-if="!isLoading && propertiesAvailable && variants.length === 0"
+            class="sw-product-detail-variants__generated-variants-empty-state"
+            :absolute="false"
+            :title="$tc('sw-product.variations.emptyStateTitle')"
+            :subline="$tc('sw-product.variations.emptyStateDescription')"
+        >
+
+            <template #icon>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_properties_empty_state_image %}
+                <img
+                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                    :alt="$tc('sw-product.properties.titleEmptyState')"
+                >
+                {% endblock %}
+            </template>
+
+            <template #actions>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_properties_empty_state_button %}
+                <sw-button
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('product.creator'),
+                        showOnDisabledElements: true
+                    }"
+                    variant="ghost"
+                    :disabled="!acl.can('product.creator')"
+                    @click="openModal('variantGeneration')"
+                >
+                    {{ $tc('sw-product.variations.emptyStateButton') }}
+                </sw-button>
+                {% endblock %}
+            </template>
+        </sw-empty-state>
+        {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_variants_sw_card_generated_variants_overview %}
         <sw-product-variants-overview
-            v-if="productEntityLoaded"
+            v-if="product.id"
             v-show="variantListHasContent && !isLoading"
             ref="generatedVariants"
+            :product-states="currentProductStates"
             :groups="groups"
             :selected-groups="selectedGroups"
             @variants-finish-update="updateVariantListHasContent"
             @generator-open="openModal('variantGeneration')"
             @delivery-open="openModal('deliveryModal')"
         />
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_detail_variants_sw_card_empty_state %}
-        <template v-if="!variantListHasContent && !isLoading">
-            <div class="sw-product-detail-variants__generated-variants-empty-state">
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_detail_variants_sw_card_empty_state_variant %}
-                <sw-empty-state
-                    v-if="propertiesAvailable && product.properties"
-                    class="sw-product-detail-variants__generated-variants-empty-state"
-                    :absolute="false"
-                    :title="$tc('sw-product.variations.emptyStateTitle')"
-                    :subline="$tc('sw-product.variations.emptyStateDescription')"
-                >
-
-                    <template #icon>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_product_properties_empty_state_image %}
-                        <img
-                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
-                            :alt="$tc('sw-product.properties.titleEmptyState')"
-                        >
-                        {% endblock %}
-                    </template>
-
-                    <template #actions>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_product_properties_empty_state_button %}
-                        <sw-button
-                            v-tooltip="{
-                                message: $tc('sw-privileges.tooltip.warning'),
-                                disabled: acl.can('product.creator'),
-                                showOnDisabledElements: true
-                            }"
-                            variant="ghost"
-                            :disabled="!acl.can('product.creator')"
-                            @click="openModal('variantGeneration')"
-                        >
-                            {{ $tc('sw-product.variations.emptyStateButton') }}
-                        </sw-button>
-                        {% endblock %}
-                    </template>
-                </sw-empty-state>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_detail_variants_sw_card_empty_state_property %}
-                <sw-empty-state
-                    v-else
-                    class="sw-product-detail-variants__generated-variants-empty-state"
-                    :absolute="false"
-                    :title="$tc('sw-product.variations.emptyStatePropertyTitle')"
-                    :subline="$tc('sw-product.variations.emptyStatePropertyDescription')"
-                >
-
-                    <template #icon>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_product_properties_empty_state_image %}
-                        <img
-                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
-                            :alt="$tc('sw-product.properties.titleEmptyState')"
-                        >
-                        {% endblock %}
-                    </template>
-
-                    <template #actions>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_product_properties_empty_state_button_property %}
-                        <sw-button
-                            v-tooltip="{
-                                message: $tc('sw-privileges.tooltip.warning'),
-                                disabled: acl.can('product.editor'),
-                                showOnDisabledElements: true
-                            }"
-                            variant="ghost"
-                            :disabled="!acl.can('product.editor')"
-                            @click="openAddPropertiesModal"
-                        >
-                            {{ $tc('sw-product.properties.buttonAddProperties') }}
-                        </sw-button>
-                        {% endblock %}
-                    </template>
-                </sw-empty-state>
-                {% endblock %}
-            </div>
-        </template>
         {% endblock %}
 
         {# @deprecated tag:v6.5.0 - The block will be removed the module now uses skeleton loading #}
@@ -131,6 +155,7 @@
         v-if="activeModal === 'variantGeneration'"
         :product="productEntity"
         :groups="groups"
+        :actual-status="activeTab"
         :selected-groups="selectedGroups"
         @modal-close="activeModal = ''"
         @variations-finish-generate="updateVariations"

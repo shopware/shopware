@@ -530,6 +530,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'customer',
     });
 
+    ruleConditionService.addCondition('cartLineItemProductStates', {
+        component: 'sw-condition-generic-line-item',
+        label: 'global.sw-condition.condition.lineItemProductStates',
+        scopes: ['lineItem'],
+        group: 'item',
+    });
+
     ruleConditionService.addCondition('orderTag', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderTagRule',

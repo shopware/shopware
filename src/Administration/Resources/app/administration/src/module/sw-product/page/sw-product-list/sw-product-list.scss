@@ -37,4 +37,17 @@ $sw-product-list-color-success: $color-emerald-500;
         padding-bottom: 4px;
         margin-right: 12px;
     }
+
+    .sw-product-list__digital-indicator {
+        height: 24px;
+        padding: 4px 8px;
+        margin: 0 0 0 8px;
+        min-width: auto;
+        vertical-align: middle;
+    }
+
+    .sw-button-group a.sw-product-list__add-physical-button {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
 }

@@ -14,6 +14,11 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
         display: none;
     }
 
+    .sw-media-upload-v2__label.is--required::after {
+        content: "*";
+        color: $color-shopware-brand-500;
+    }
+
     .sw-media-upload-v2__header {
         display: flex;
         margin-bottom: 8px;
@@ -113,11 +118,14 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
         justify-content: center;
         position: relative;
         flex-shrink: 0;
-        margin-right: 16px;
         width: 96px;
         height: 96px;
         border: 2px solid $sw-media-upload-v2-border-color;
         border-radius: $sw-media-upload-v2-border-radius;
+
+        &:not(.is--fallback) {
+            background-color: $color-white;
+        }
 
         &.is--fallback {
             border: 2px dashed $sw-media-upload-v2-border-color;
@@ -139,9 +147,10 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
     }
 
     .sw-media-preview-v2 {
-        border: none;
+        border: 1px solid $color-gray-300;
 
         .sw-media-preview-v2__item {
+            padding: 3px;
             max-height: 100%;
             max-width: 100%;
         }

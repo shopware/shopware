@@ -402,6 +402,10 @@ export default {
             return childCount !== null && childCount > 0;
         },
 
+        productIsDigital(productEntity) {
+            return productEntity.states && productEntity.states.includes('is-download');
+        },
+
         openVariantModal(item) {
             this.productEntityVariantModal = item;
         },

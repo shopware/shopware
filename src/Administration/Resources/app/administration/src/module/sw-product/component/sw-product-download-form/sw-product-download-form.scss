@@ -1,0 +1,80 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-product-download-form {
+    height: 100%;
+
+    .sw-product-download-form__row {
+        border-radius: $border-radius-default;
+        border: 1px solid $color-gray-300;
+        padding: 8px 12px 8px 16px;
+        margin-top: 16px;
+        height: auto;
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        grid-column-gap: 12px;
+        grid-template-columns: auto 1fr min-content;
+    }
+
+    .sw-product-download-form-row__name {
+        @include truncate;
+
+        flex-shrink: 1;
+        flex-basis: min-content;
+    }
+
+    .sw-product-download-form-row__info {
+        display: inline-flex;
+        justify-self: end;
+        align-items: center;
+        color: $color-gray-500;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semi-bold;
+        white-space: nowrap;
+
+        span:not(:last-of-type) {
+            position: relative;
+            padding-right: 24px;
+        }
+
+        span:not(:last-of-type)::after {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            display: block;
+            content: "";
+            width: 4px;
+            height: 4px;
+            background-color: $color-gray-500;
+            border-radius: 50%;
+        }
+    }
+
+    .sw-product-download-form__file-input {
+        display: none;
+    }
+
+    .sw-product-download-form__upload-button {
+        display: block;
+        margin: 0 auto 20px;
+    }
+
+    &.is--disabled::after {
+        content: "";
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: #f0f2f5;
+        border-radius: 4px;
+        mix-blend-mode: multiply;
+    }
+
+    .sw-media-upload-v2.has--error .sw-media-upload-v2__dropzone {
+        border-color: $color-crimson-500;
+    }
+}

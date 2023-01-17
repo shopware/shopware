@@ -1,6 +1,7 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_modal_variant_generation %}
 <sw-modal
+    v-if="!showUploadModal"
     :title="$tc('sw-product.variations.configuratorModal.title')"
     class="sw-product-modal-variant-generation"
     @modal-close="$emit('modal-close')"
@@ -121,81 +122,6 @@
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_product_modal_variant_generation_notification_modal %}
-    <sw-modal
-        v-if="notificationModal"
-        class="sw-product-modal-variant-generation__notification-modal"
-        :title="$tc('sw-product.variations.generationNotificationTitle')"
-        variant="small"
-        @modal-close="onCloseNotificationModal"
-    >
-
-        <p>{{ $tc('sw-product.variations.generationNotificationMessage') }}</p>
-        <p>{{ $tc('sw-product.variations.generationNotificationCountAdding', notificationInfos.numberOfCreation) }}</p>
-        <p>{{ $tc('sw-product.variations.generationNotificationCountDeletion', notificationInfos.numberOfDeletions) }}</p>
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_modal_variant_generation_notification_modal_footer %}
-        <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_modal_variant_generation_notification_modal_footer_cancel %}
-            <sw-button
-                size="small"
-                @click="onCloseNotificationModal"
-            >
-                {{ $tc('sw-product.variations.generationNotificationButtonCancel') }}
-            </sw-button>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_modal_variant_generation_notification_modal_footer_continue %}
-            <sw-button
-                variant="primary"
-                size="small"
-                @click="onConfirmNotificationModal"
-            >
-                {{ $tc('sw-product.variations.generationNotificationButtonContinue') }}
-            </sw-button>
-            {% endblock %}
-        </template>
-        {% endblock %}
-    </sw-modal>
-    {% endblock %}
-
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_product_modal_variant_generation_modal_loader %}
-    <template #modal-loader>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_modal_variant_generation_modal_loader_transition %}
-        <transition name="generate-variant-progress-bar-transition">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_modal_variant_generation_modal_loader_progress_bar_wrapper %}
-            <div
-                v-if="isLoading"
-                class="generate-variant-progress-bar__wrapper"
-            >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_modal_variant_generation_modal_loader_progress_bar %}
-                <sw-progress-bar
-                    class="generate-variant-progress-bar"
-                    :value="progressInPercentage"
-                />
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_modal_variant_generation_modal_loader_progress_bar_description %}
-                <span class="generate-variant-progress-bar__description">
-                    {{ actualProgress }} {{ $tc('sw-product.variations.progressTypeOf') }} {{ maxProgress }} {{ $tc('sw-product.variations.progressTypeVariation') }} {{ progressMessage }}
-                </span>
-                {% endblock %}
-            </div>
-            {% endblock %}
-        </transition>
-        {% endblock %}
-    </template>
-    {% endblock %}
-
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_modal_variant_generation_footer %}
     <template #modal-footer>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -210,21 +136,183 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_footer_generate %}
         <sw-button
-            class="sw-product-variant-generation__generate-action"
-            :variant="buttonVariant"
+            class="sw-product-variant-generation__next-action"
+            variant="primary"
             size="small"
-            @click="generateVariants(false)"
+            @click="showNextStep"
         >
-            <template v-if="variantsNumber <= 0">
-                {{ $tc('sw-product.variations.deleteVariationsButton') }}
-            </template>
-            <template v-else>
-                {{ $tc('sw-product.variations.generateVariationsButton') }}
-            </template>
+            {{ $tc('sw-product.variations.nextModalButton') }}
         </sw-button>
         {% endblock %}
     </template>
     {% endblock %}
 
+</sw-modal>
+
+<sw-modal
+    v-else
+    :title="$tc('sw-product.variations.configuratorModal.title')"
+    class="sw-product-modal-variant-generation sw-product-modal-variant-generation__upload_files"
+    @modal-close="$emit('modal-close')"
+>
+    <div class="sw-product-modal-variant-generation__infoBox">
+        {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxHeader') }}
+        <div class="sw-product-modal-variant-generation__infoBoxContent">
+            <span class="sw-product-modal-variant-generation__variant-amount">
+                {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxCount', variantGenerationQueue.createQueue.length, { count: variantGenerationQueue.createQueue.length }) }}
+            </span>
+            {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxCreateLabel', variantGenerationQueue.createQueue.length, { count: variantGenerationQueue.createQueue.length }) }}
+
+            <span class="sw-product-modal-variant-generation__variant-amount">
+                {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxCount', variantGenerationQueue.deleteQueue.length, { count: variantGenerationQueue.deleteQueue.length }) }}
+            </span>
+            {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxDeleteLabel', variantGenerationQueue.deleteQueue.length, { count: variantGenerationQueue.deleteQueue.length }) }}
+        </div>
+    </div>
+
+    <template v-if="variantGenerationQueue.createQueue.length > 0">
+        <div class="sw-product-modal-variant-generation__upload-card">
+            <div class="sw-product-modal-variant-generation__card-title">
+                {{ $tc('sw-product.variations.configuratorModal.uploadCardDescription') }}
+            </div>
+
+            <div class="sw-product-modal-variant-generation__upload-all-container">
+                <sw-switch-field
+                    :label="$tc('sw-product.variations.configuratorModal.digitalVariantSwitch')"
+                    @change="onChangeAllVariantValues"
+                />
+                <div class="sw-product-modal-variant-generation__upload-all">
+                    <sw-upload-listener
+                        upload-tag="upload_all"
+                        auto-upload
+                        @media-upload-finish="successfulUpload"
+                    />
+                    <sw-media-compact-upload-v2
+                        :button-label="$tc('sw-product.variations.configuratorModal.uploadAllButton')"
+                        :remove-button-label="$tc('sw-product.variations.configuratorModal.removeAllButton')"
+                        upload-tag="upload_all"
+                        private-filesystem
+                        :source-multiselect="downloadFilesForAllVariants.length > 0 ? downloadFilesForAllVariants : null"
+                        allow-multi-select
+                        add-files-on-multiselect
+                        default-folder="product_download"
+                        file-accept="*/*"
+                        @delete-item="(file) => removeFileForAllVariants(file)"
+                    />
+                </div>
+            </div>
+
+            <div class="sw-product-modal-variant-generation__toolbar">
+                <sw-card-filter
+                    :placeholder="$tc('sw-product.variations.configuratorModal.uploadCardSearchPlaceholder')"
+                    @sw-card-filter-term-change="onTermChange"
+                />
+            </div>
+
+            <sw-data-grid
+                class="sw-product-modal-variant-generation__grid"
+                :data-source="paginatedVariantArray"
+                :show-selection="false"
+                :show-header="false"
+                :show-actions="false"
+                :compact-mode="false"
+                :plain-appearance="true"
+                :columns="[
+                    { property: 'options', label: 'Optionen' },
+                ]"
+            >
+                <template #column-options="{ item }">
+                    <div>
+                        <template
+                            v-for="(option, index) in item.options"
+                        >
+                            <span
+                                v-if="option.entity"
+                                :key="index"
+                            >
+                                {{ option.entity.group.translated?.name || option.entity.group.name }}:
+                                {{ option.entity.translated?.name || option.entity.name }}
+                                <template v-if="index != Object.keys(item.options).length - 1">|</template>
+                            </span>
+                        </template>
+                    </div>
+
+                    <div
+                        :key="item.id"
+                        class="sw-data-grid__item"
+                    >
+                        <sw-switch-field
+                            label="Digital"
+                            :value="item.productStates.includes('is-download')"
+                            @change="(event) => onChangeVariantValue(event, item)"
+                        />
+                        <sw-upload-listener
+                            :upload-tag="item.productNumber"
+                            auto-upload
+                            @media-upload-finish="(event) => successfulUpload(event, item)"
+                        />
+                        <sw-media-compact-upload-v2
+                            :upload-tag="item.productNumber"
+                            :disabled="item.productStates.length === 0"
+                            private-filesystem
+                            allow-multi-select
+                            add-files-on-multiselect
+                            :source-multiselect="item.downloads.length > 0 ? item.downloads : null"
+                            default-folder="product_download"
+                            file-accept="*/*"
+                            @delete-item="(file) => removeFile(`${file.fileName}.${file.fileExtension}`, item)"
+                        />
+                    </div>
+                </template>
+
+                <template #pagination>
+                    <sw-pagination
+                        :page="page"
+                        :limit="limit"
+                        :total="total"
+                        :total-visible="7"
+                        @page-change="handlePageChange"
+                    />
+                </template>
+            </sw-data-grid>
+        </div>
+    </template>
+
+    <template #modal-footer>
+        <sw-button
+            size="small"
+            @click="showUploadModal = false"
+        >
+            {{ $tc('sw-product.variations.backVariationsButton') }}
+        </sw-button>
+
+        <sw-button
+            :disabled="isGenerateButtonDisabled"
+            class="sw-product-variant-generation__generate-action"
+            :variant="buttonVariant"
+            size="small"
+            @click="generateVariants()"
+        >
+            {{ buttonLabel }}
+        </sw-button>
+    </template>
+
+    <template #modal-loader>
+        <transition name="generate-variant-progress-bar-transition">
+            <div
+                v-if="isLoading"
+                class="generate-variant-progress-bar__wrapper"
+            >
+                <sw-progress-bar
+                    class="generate-variant-progress-bar"
+                    :value="progressInPercentage"
+                />
+
+                <span class="generate-variant-progress-bar__description">
+                    {{ actualProgress }} {{ $tc('sw-product.variations.progressTypeOf') }} {{ maxProgress }} {{ $tc('sw-product.variations.progressTypeVariation') }} {{ progressMessage }}
+                </span>
+            </div>
+        </transition>
+    </template>
 </sw-modal>
 {% endblock %}

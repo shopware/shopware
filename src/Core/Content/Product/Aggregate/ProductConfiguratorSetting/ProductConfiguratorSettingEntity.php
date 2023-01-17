@@ -8,6 +8,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 
 /**
  * @package inventory
@@ -38,7 +39,7 @@ class ProductConfiguratorSettingEntity extends Entity
     protected $position;
 
     /**
-     * @var array|null
+     * @var array<Price>|null
      */
     protected $price;
 
@@ -82,11 +83,17 @@ class ProductConfiguratorSettingEntity extends Entity
         $this->optionId = $optionId;
     }
 
+    /**
+     * @return array<Price>|null
+     */
     public function getPrice(): ?array
     {
         return $this->price;
     }
 
+    /**
+     * @param array<Price> $price
+     */
     public function setPrice(array $price): void
     {
         $this->price = $price;

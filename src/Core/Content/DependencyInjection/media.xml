@@ -96,6 +96,7 @@
             <argument type="service" id="messenger.bus.shopware" />
             <argument type="service" id="event_dispatcher" />
             <argument>%shopware.filesystem.allowed_extensions%</argument>
+            <argument>%shopware.filesystem.private_allowed_extensions%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Media\File\FileLoader">
@@ -110,6 +111,13 @@
             <argument type="service" id="media.repository"/>
         </service>
 
+        <service id="Shopware\Core\Content\Media\File\DownloadResponseGenerator">
+            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
+            <argument>%shopware.filesystem.private_local_download_strategy%</argument>
+        </service>
 
         <!-- Commands -->
         <service id="Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand">

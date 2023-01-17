@@ -43,7 +43,7 @@ describe('Sales Channel: Test product comparison', () => {
 
         // Upload product image
         cy.get('input[name=sw-field--product-name]').should('be.visible');
-        cy.get('#files')
+        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
             .attachFile('img/sw-login-background.png');
         cy.get('.sw-product-image__image img')
             .should('have.attr', 'src')

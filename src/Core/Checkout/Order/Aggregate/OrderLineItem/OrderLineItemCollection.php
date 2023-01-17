@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 class OrderLineItemCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getOrderIds(): array
     {
@@ -54,12 +54,9 @@ class OrderLineItemCollection extends EntityCollection
     public function getPayloadsProperty(string $property): array
     {
         return $this->fmap(function (OrderLineItemEntity $lineItem) use ($property) {
-            if ($lineItem->getPayload() === null) {
-                return null;
-            }
-
-            if (\array_key_exists($property, $lineItem->getPayload())) {
-                return $lineItem->getPayload()[$property];
+            $payload = $lineItem->getPayload() ?? [];
+            if (\array_key_exists($property, $payload)) {
+                return $payload[$property];
             }
 
             return null;
@@ -71,6 +68,34 @@ class OrderLineItemCollection extends EntityCollection
         return $this->filter(function (OrderLineItemEntity $lineItem) use ($type) {
             return $lineItem->getType() === $type;
         });
+    }
+
+    /**
+     * @return OrderLineItemEntity[]
+     */
+    public function filterGoodsFlat(): array
+    {
+        $lineItems = $this->buildFlat($this);
+
+        $filtered = [];
+        foreach ($lineItems as $lineItem) {
+            if ($lineItem->getGood()) {
+                $filtered[] = $lineItem;
+            }
+        }
+
+        return $filtered;
+    }
+
+    public function hasLineItemWithState(string $state): bool
+    {
+        foreach ($this->buildFlat($this) as $lineItem) {
+            if (\in_array($state, $lineItem->getStates(), true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function getApiAlias(): string
@@ -90,5 +115,26 @@ class OrderLineItemCollection extends EntityCollection
     protected function getExpectedClass(): string
     {
         return OrderLineItemEntity::class;
+    }
+
+    /**
+     * @return OrderLineItemEntity[]
+     */
+    private function buildFlat(?OrderLineItemCollection $lineItems): array
+    {
+        $flat = [];
+        if (!$lineItems) {
+            return $flat;
+        }
+
+        foreach ($lineItems as $lineItem) {
+            $flat[] = $lineItem;
+
+            foreach ($this->buildFlat($lineItem->getChildren()) as $nest) {
+                $flat[] = $nest;
+            }
+        }
+
+        return $flat;
     }
 }

@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\CartConvertedEvent;
+use Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -30,6 +31,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPo
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
@@ -37,6 +40,8 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadEntity;
+use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -44,6 +49,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
@@ -448,6 +455,48 @@ class OrderConverterTest extends TestCase
         $orderConverter->convertToOrder($this->getCart(), $this->getSalesChannelContext(true), new OrderConversionContext());
     }
 
+    public function testConvertionWithDownloads(): void
+    {
+        $cart = $this->orderConverter->convertToCart($this->getOrder('order-add-line-item-download'), Context::createDefaultContext());
+        $lineItem = $cart->getLineItems()->first();
+
+        static::assertNotNull($lineItem);
+        $collection = $lineItem->getExtensionOfType(OrderConverter::ORIGINAL_DOWNLOADS, OrderLineItemDownloadCollection::class);
+        static::assertInstanceOf(OrderLineItemDownloadCollection::class, $collection);
+        static::assertEquals(1, $collection->count());
+
+        $cart = $this->getCart();
+        $cart->getLineItems()->clear();
+        $lineItemA = (new LineItem('line-item-label-1', 'line-item-label-1', Uuid::randomHex()))
+            ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
+            ->setLabel('line-item-label-1')
+            ->setStates([State::IS_DOWNLOAD]);
+        $lineItemA->addExtension(OrderConverter::ORIGINAL_DOWNLOADS, $collection);
+        $lineItemB = (new LineItem('line-item-label-2', 'line-item-label-2', Uuid::randomHex()))
+            ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
+            ->setLabel('line-item-label-2')
+            ->setStates([State::IS_DOWNLOAD]);
+        $cart->add($lineItemA);
+        $cart->add($lineItemB);
+
+        $order = $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), new OrderConversionContext());
+
+        static::assertIsArray($order);
+        static::assertIsArray($order['lineItems']);
+        static::assertCount(2, $order['lineItems']);
+
+        $lineItemA = \is_array($order['lineItems'][0]) ? $order['lineItems'][0] : [];
+        $lineItemB = \is_array($order['lineItems'][1]) ? $order['lineItems'][1] : [];
+
+        static::assertIsArray($lineItemA['downloads']);
+        static::assertArrayHasKey('id', $lineItemA['downloads'][0]);
+        static::assertArrayNotHasKey('mediaId', $lineItemA['downloads'][0]);
+        static::assertIsArray($lineItemB['downloads']);
+        static::assertArrayNotHasKey('id', $lineItemB['downloads'][0]);
+        static::assertArrayHasKey('mediaId', $lineItemB['downloads'][0]);
+        static::assertArrayHasKey('position', $lineItemB['downloads'][0]);
+    }
+
     /**
      * @return MockObject|SalesChannelContext
      */
@@ -495,6 +544,16 @@ class OrderConverterTest extends TestCase
         $orderLineItem->setGood(true);
         $orderLineItem->setRemovable(false);
         $orderLineItem->setStackable(true);
+
+        if ($toManipulate === 'order-add-line-item-download') {
+            $orderLineItemDownload = new OrderLineItemDownloadEntity();
+            $orderLineItemDownload->setId(Uuid::randomHex());
+            $orderLineItemDownload->setMediaId(Uuid::randomHex());
+
+            $orderLineItemDownloadCollection = new OrderLineItemDownloadCollection();
+            $orderLineItemDownloadCollection->add($orderLineItemDownload);
+            $orderLineItem->setDownloads($orderLineItemDownloadCollection);
+        }
 
         $orderLineItemCollection = new OrderLineItemCollection();
         $orderLineItemCollection->add($orderLineItem);
@@ -619,6 +678,30 @@ class OrderConverterTest extends TestCase
             );
         }
 
+        $productDownload = new ProductDownloadEntity();
+        $productDownload->setId(Uuid::randomHex());
+        $productDownload->setMediaId(Uuid::randomHex());
+        $productDownload->setPosition(0);
+        $productDownloadRepository = $this->createMock(EntityRepository::class);
+        $productDownloadRepository->method('search')->willReturnCallback(function (Criteria $criteria) use ($productDownload): EntitySearchResult {
+            $filters = $criteria->getFilters();
+            if (isset($filters[0]) && $filters[0] instanceof EqualsAnyFilter) {
+                $value = ReflectionHelper::getPropertyValue($filters[0], 'value');
+                $productDownload->setProductId($value[0] ?? null);
+            }
+
+            return new EntitySearchResult(
+                'productDownload',
+                1,
+                new EntityCollection([$productDownload]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            );
+        });
+
+        $lineItemDownloadLoader = new LineItemDownloadLoader($productDownloadRepository);
+
         return new OrderConverter(
             $customerRepository,
             $salesChannelContextFactory,
@@ -626,7 +709,8 @@ class OrderConverterTest extends TestCase
             $numberRangeValueGenerator,
             $orderDefinition,
             $orderAddressRepository,
-            $initialStateIdLoader
+            $initialStateIdLoader,
+            $lineItemDownloadLoader
         );
     }
 
@@ -782,6 +866,7 @@ class OrderConverterTest extends TestCase
                     'dataTimestamp' => null,
                     'dataContextHash' => null,
                     'extensions' => [],
+                    'states' => [],
                 ],
             ],
             'errors' => [],
@@ -816,6 +901,7 @@ class OrderConverterTest extends TestCase
                                         'extensions' => [],
                                     ],
                                 ],
+                                'states' => [],
                             ],
                             'quantity' => 1,
                             'price' => [
@@ -986,6 +1072,7 @@ class OrderConverterTest extends TestCase
                     'good' => true,
                     'removable' => false,
                     'stackable' => false,
+                    'states' => [],
                     'position' => 1,
                     'price' => [
                         'unitPrice' => 1,
@@ -1008,6 +1095,7 @@ class OrderConverterTest extends TestCase
                     'good' => true,
                     'removable' => false,
                     'stackable' => false,
+                    'states' => [],
                     'position' => 2,
                     'price' => [
                         'unitPrice' => 1,

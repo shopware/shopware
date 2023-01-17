@@ -156,16 +156,23 @@
       "linkMaintainCurrencyPrices": "Währungsabhängige Preise",
       "cardTitleReviews": "Bewertungen",
       "cardTitleMedia": "Medien",
+      "cardSubtitleMedia": "Füge Dateien zur Mediengalerie des Produkts hinzu.",
       "labelContextMenuAddToProduct": "Zu Produkt hinzufügen",
       "cardTitleSeo": "SEO",
-      "cardTitleVisibilityStructure": "Sichtbarkeitsstruktur"
+      "cardTitleVisibilityStructure": "Sichtbarkeitsstruktur",
+      "cardTitleDownloads": "Dateien",
+      "cardSubtitleDownloads": "Füge Dateien zu Deinem digitalen Produkt hinzu.",
+      "downloadsLabel": "Datei-Upload",
+      "manageStockLabel": "Lagerbestand verwalten",
+      "manageStockTooltip": "Wenn der Lagerbestand nicht verwaltet wird, ist das digitale Produkt für eine unendliche Anzahl von Transaktionen verfügbar."
     },
     "specifications": {
       "cardTitleMeasuresPackaging": "Maße & Verpackung",
       "cardTitleEssentialCharacteristics": "Wesentliche Merkmale",
       "cardTitleCustomFields": "Zusatzfelder",
       "cardTitleProperties": "Eigenschaften",
-      "cardTitleCustomProduct": "Custom Products"
+      "cardTitleCustomProduct": "Custom Products",
+      "cardTitleDownloads": "Dateien"
     },
     "seo": {
       "cardTitleSeo": "SEO"
@@ -211,8 +218,8 @@
     },
     "list": {
       "textProductOverview": "Produkte",
-      "textTotalProducts": "Keine Produkte | Ein Produkt | {count} Produkte",
-      "buttonAddProduct": "Produkt anlegen",
+      "buttonAddProduct": "Physisches Produkt anlegen",
+      "buttonAddDownloadableProduct": "Digitales Produkt anlegen",
       "buttonCancel": "Abbrechen",
       "buttonDuplicate": "Duplizieren",
       "buttonDelete": "Löschen",
@@ -231,6 +238,7 @@
       "columnTags": "Tags",
       "columnActions": "Aktion(en)",
       "columnMedia": "Medien",
+      "columnDownloadsTooltip": "Digitale Produkte müssen über mindestens eine Datei verfügen.",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "contextMenuDuplicate": "Duplizieren",
@@ -323,28 +331,32 @@
       }
     },
     "variations": {
+      "generatedListColumnDownload": "Datein",
       "emptyStateTitle": "Dieses Produkt hat noch keine Varianten",
       "emptyStateDescription": "Verwaltung der Varianten von Produkten.",
       "emptyStatePropertyTitle": "Es wurden noch keine Eigenschaften angelegt",
       "emptyStatePropertyButton": "Eigenschaften erstellen",
       "emptyStatePropertyDescription": "Bitte erstelle zunächst Eigenschaften, um diese für die Variantengenerierung verwenden zu können.",
-      "emptyStateButton": "Varianten-Generator starten",
-      "generateVariationsButton": "Varianten generieren",
-      "deleteVariationsButton": "Alle Produktvarianten löschen",
+      "emptyStateButton": "Varianten generieren",
+      "generateVariationsButton": "Varianten speichern",
+      "nextModalButton": "Weiter",
+      "deleteVariationsButton": "Alle Varianten löschen",
       "cancelVariationsButton": "Abbrechen",
+      "backVariationsButton": "Zurück",
       "configuratorCardTitle": "Varianten generieren",
-      "generatedVariationCardTitle": "Verfügbare Varianten",
+      "generatedVariationCardTitle": "Varianten",
+      "variationCard": {
+        "tabs": {
+          "allProducts": "Alle Varianten",
+          "physicalProducts": "Physische Varianten",
+          "digitalProducts": "Digitale Varianten"
+        }
+      },
       "progressTypeOf": "von",
       "progressTypeDeleted": "gelöscht",
       "progressTypeGenerated": "generiert",
       "progressTypeCalculated": "berechnet",
       "progressTypeVariation": "Varianten",
-      "generationNotificationTitle": "Hinweis",
-      "generationNotificationMessage": "Mit der ausgewählten Konfiguration werden folgende Aktionen ausgeführt:",
-      "generationNotificationCountAdding": "1 Variante wird hinzugefügt | {count} Varianten werden hinzugefügt",
-      "generationNotificationCountDeletion": "1 Variante wird gelöscht | {count} Varianten werden gelöscht",
-      "generationNotificationButtonCancel": "Abbrechen",
-      "generationNotificationButtonContinue": "Generieren",
       "generatedFilterList": "Liste filtern",
       "generatedListColumnVariation": "Variante",
       "generatedListColumnPrice": "Preis (Brutto / Netto)",
@@ -352,6 +364,9 @@
       "generatedListColumnMedia": "Medien",
       "generatedListColumnActive": "Aktiv",
       "generatedListColumnStock": "Lagerbestand",
+      "generatedListColumnContentProductState": {
+        "is-download": "digital"
+      },
       "generatedListContextMenuEdit": "Bearbeiten",
       "generatedListContextMenuDelete": "Löschen",
       "generatedListDeleteModalMessage": "Möchtest Du die Variante löschen?",
@@ -370,6 +385,13 @@
       },
       "configuratorModal": {
         "title": "Varianten generieren",
+        "uploadAllButton": "Lade Dateien für alle digitalen Varianten hoch",
+        "uploadCardDescription": "Alle digitalen Varianten benötigen mindestens eine Datei, um gespeichert zu werden.",
+        "uploadCardSearchPlaceholder": "Varianten durchsuchen ...",
+        "uploadInfoBoxHeader": "Diese Aktionen werden entsprechend der aktuellen Konfiguration ausgeführt:",
+        "uploadInfoBoxCount": "{count} Varianten | {count} Variante | {count} Varianten",
+        "uploadInfoBoxCreateLabel": "werden erstellt, | wird erstellt, | werden erstellt,",
+        "uploadInfoBoxDeleteLabel": "werden gelöscht. | wird gelöscht. | werden gelöscht.",
         "selectOptions": "Ausprägungsauswahl",
         "selectOptionsExplanation": "Wähle Eigenschaftsausprägungen, aus denen die Varianten generiert werden sollen.",
         "selectRestrictionsExplanation": "Wähle Eigenschaftsausprägungen, die von der Varianten-Generierung ausgeschlossen werden sollen.",
@@ -390,7 +412,9 @@
         "save": "Speichern",
         "searchPlaceholder": "Durchsuche Ausprägungen ...",
         "singleRestrictionAddTitle": "Ausprägungen ausschließen",
-        "surchargeNotice": "Änderungen an den Auf-/Abschlägen haben keine Auswirkungen auf bereits generierte Varianten. Bitte nutze die Varianten-Detailseite um Änderungen an den Preisen vorzunehmen."
+        "surchargeNotice": "Änderungen an den Auf-/Abschlägen haben keine Auswirkungen auf bereits generierte Varianten. Bitte nutze die Varianten-Detailseite um Änderungen an den Preisen vorzunehmen.",
+        "digitalVariantSwitch": "Alle zu digitalen Varianten machen",
+        "removeAllButton": "Von allen Varianten entfernen"
       },
       "deliveryModal": {
         "modalHeadline": "Varianten-Ausspielung in der Storefront",

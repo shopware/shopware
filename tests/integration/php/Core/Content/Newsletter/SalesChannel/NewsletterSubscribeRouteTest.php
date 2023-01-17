@@ -21,6 +21,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  * @group store-api
+ * @covers \Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute
  */
 class NewsletterSubscribeRouteTest extends TestCase
 {
@@ -33,6 +34,8 @@ class NewsletterSubscribeRouteTest extends TestCase
 
     private string $salesChannelId;
 
+    private SystemConfigService $systemConfig;
+
     protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
@@ -42,6 +45,10 @@ class NewsletterSubscribeRouteTest extends TestCase
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
+
+        $this->systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        static::assertNotNull($this->systemConfig);
+        $this->systemConfig->set('core.newsletter.doubleOptIn', false);
     }
 
     public function testSubscribeWithoutFields(): void
@@ -90,6 +97,8 @@ class NewsletterSubscribeRouteTest extends TestCase
 
     public function testResubscribeAfterUnsubscribe(): void
     {
+        $this->systemConfig->set('core.newsletter.doubleOptIn', true);
+
         $connection = $this->getContainer()->get(Connection::class);
         $newsletterRecipientRepository = $this->getContainer()->get('newsletter_recipient.repository');
 
@@ -205,11 +214,10 @@ class NewsletterSubscribeRouteTest extends TestCase
 
     public function testSubscribeChangedConfirmUrl(): void
     {
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $this->systemConfig->set('core.newsletter.doubleOptIn', true);
 
         try {
-            $systemConfig->set('core.newsletter.doubleOptIn', true);
-            $systemConfig->set('core.newsletter.subscribeUrl', '/custom-newsletter/confirm/%%HASHEDEMAIL%%/%%SUBSCRIBEHASH%%');
+            $this->systemConfig->set('core.newsletter.subscribeUrl', '/custom-newsletter/confirm/%%HASHEDEMAIL%%/%%SUBSCRIBEHASH%%');
 
             /** @var EventDispatcherInterface $dispatcher */
             $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -248,19 +256,17 @@ class NewsletterSubscribeRouteTest extends TestCase
             static::assertStringStartsWith('http://localhost/custom-newsletter/confirm/', $caughtEvent->getUrl());
             static::assertStringEndsWith('?specialParam=false', $caughtEvent->getUrl());
         } finally {
-            $systemConfig->set('core.newsletter.doubleOptIn', false);
-            $systemConfig->set('core.newsletter.subscribeUrl', null);
+            $this->systemConfig->set('core.newsletter.subscribeUrl', null);
         }
     }
 
     public function testSubscribeChangedConfirmDomain(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_16200', $this);
-
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $this->systemConfig->set('core.newsletter.doubleOptIn', true);
 
         try {
-            $systemConfig->set('core.newsletter.doubleOptInDomain', 'http://test.test');
+            $this->systemConfig->set('core.newsletter.doubleOptInDomain', 'http://test.test');
 
             /** @var EventDispatcherInterface $dispatcher */
             $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -289,7 +295,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             static::assertInstanceOf(NewsletterRegisterEvent::class, $caughtEvent);
             static::assertStringStartsWith('http://test.test/newsletter-subscribe?em=', $caughtEvent->getUrl());
         } finally {
-            $systemConfig->set('core.newsletter.doubleOptInDomain', null, $this->salesChannelId);
+            $this->systemConfig->set('core.newsletter.doubleOptInDomain', null, $this->salesChannelId);
         }
     }
 

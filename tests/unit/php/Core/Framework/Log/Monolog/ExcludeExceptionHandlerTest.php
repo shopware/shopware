@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Log\Monolog;
+namespace Shopware\Tests\Unit\Core\Framework\Log\Monolog;
 
 use Monolog\Handler\FingersCrossedHandler;
 use PHPUnit\Framework\TestCase;
@@ -8,10 +8,15 @@ use Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler
  */
 class ExcludeExceptionHandlerTest extends TestCase
 {
     /**
+     * @param array{message: string, context: array<mixed>, level: 100|200|250|300|400|500|550|600, level_name: 'ALERT'|'CRITICAL'|'DEBUG'|'EMERGENCY'|'ERROR'|'INFO'|'NOTICE'|'WARNING', channel: string, datetime: \DateTimeImmutable, extra: array<mixed>} $record
+     * @param array<int, string> $excludeList
+     *
      * @dataProvider cases
      */
     public function testHandler(array $record, array $excludeList, bool $shouldBePassed): void
@@ -27,6 +32,9 @@ class ExcludeExceptionHandlerTest extends TestCase
         $handler->handle($record);
     }
 
+    /**
+     * @return iterable<string, array<int, bool|array<mixed>>>
+     */
     public function cases(): iterable
     {
         // record, exclude list, should be passed

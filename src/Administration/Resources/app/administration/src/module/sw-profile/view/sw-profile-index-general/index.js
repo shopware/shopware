@@ -4,6 +4,7 @@
 import template from './sw-profile-index-general.html.twig';
 
 const { Component } = Shopware;
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-profile-index-general', {
@@ -59,6 +60,10 @@ Component.register('sw-profile-index-general', {
     },
 
     computed: {
+        ...mapPropertyErrors('user', [
+            'password',
+        ]),
+
         computedNewPassword: {
             get() {
                 return this.newPassword;

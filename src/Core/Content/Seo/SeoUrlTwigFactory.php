@@ -5,15 +5,20 @@ namespace Shopware\Core\Content\Seo;
 use Cocur\Slugify\Bridge\Twig\SlugifyExtension;
 use Cocur\Slugify\SlugifyInterface;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
+use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Environment;
 use Twig\Extension\EscaperExtension;
+use Twig\Extension\ExtensionInterface;
 use Twig\Loader\ArrayLoader;
 
 #[Package('sales-channel')]
 class SeoUrlTwigFactory
 {
+    /**
+     * @param ExtensionInterface[] $twigExtensions
+     */
     public function createTwigEnvironment(SlugifyInterface $slugify, iterable $twigExtensions = []): Environment
     {
         $twig = new TwigEnvironment(new ArrayLoader());
@@ -21,6 +26,7 @@ class SeoUrlTwigFactory
         $twig->enableStrictVariables();
         $twig->addExtension(new SlugifyExtension($slugify));
         $twig->addExtension(new PhpSyntaxExtension());
+        $twig->addExtension(new SecurityExtension([]));
 
         /** @var EscaperExtension $coreExtension */
         $coreExtension = $twig->getExtension(EscaperExtension::class);

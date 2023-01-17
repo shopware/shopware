@@ -470,6 +470,7 @@
     "subscriptionPersistedInfo": "Sollten Sie keine Mail erhalten haben, wiederholen Sie den Vorgang oder wenden Sie sich an den Support.",
     "subscriptionRevokeSuccess": "Sie haben sich erfolgreich vom Newsletter abgemeldet.",
     "subscriptionConfirmationSuccess": "Ihr Newsletter-Abonnement wurde erfolgreich registriert.",
+    "subscriptionConfirmationNeeded": "Wir haben Ihnen eine Bestätigungsmail geschickt. Bitte prüfen Sie Ihr E-Mail-Postfach und klicken Sie auf den enthaltenen Link, um ihr Newsletter-Abonnement abzuschließen.",
     "subscriptionConfirmationFailed": "Bei Ihrer Newsletter-Anmeldung ist etwas schief gelaufen. Bitte wenden Sie sich an den Support.",
     "subscriptionCompleted": "Vielen Dank. Wir haben Ihre E-Mail-Adresse eingetragen.",
     "labelActionSelect": "Aktion",

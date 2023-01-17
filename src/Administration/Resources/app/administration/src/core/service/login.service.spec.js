@@ -45,6 +45,7 @@ describe('core/service/login.service.js', () => {
     });
 
     beforeEach(() => {
+        Shopware.Context.app.lastActivity = Math.round(+new Date() / 1000);
         window.localStorage.removeItem('redirectFromLogin');
         document.cookie = '';
     });
@@ -335,6 +336,7 @@ describe('core/service/login.service.js', () => {
 
     it('should start auto refresh the token after login', async () => {
         jest.useFakeTimers();
+        Shopware.Context.app.lastActivity = Math.round(+new Date() / 1000);
 
         const { loginService, clientMock } = loginServiceFactory();
 
@@ -392,5 +394,31 @@ describe('core/service/login.service.js', () => {
 
         const storage = loginService.getStorage();
         expect(storage instanceof CookieStorage).toBe(true);
+    });
+
+    it('should logout inactive user', async () => {
+        // Current time in Seconds - 1501 to be one 1-second over the threshold
+        Shopware.Context.app.lastActivity = Math.round(+new Date() / 1000) - 1501;
+
+        const { loginService, clientMock } = loginServiceFactory();
+        const logoutListener = jest.fn();
+        loginService.addOnLogoutListener(logoutListener);
+
+        clientMock.onPost('/oauth/token')
+            .reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn_first',
+                refresh_token: 'rEfReSh_ToKeN_first'
+            });
+
+        await loginService.loginByUsername('admin', 'shopware');
+
+        expect(clientMock.history.post[0]).toBeDefined();
+        expect(clientMock.history.post[1]).toBeUndefined();
+        expect(JSON.parse(clientMock.history.post[0].data).grant_type).toEqual('password');
+
+        expect(clientMock.history.post[1]).toBeUndefined();
+        expect(logoutListener).toHaveBeenCalledTimes(1);
     });
 });

@@ -92,7 +92,11 @@ class OrderServiceTest extends TestCase
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
-        $orderDeliveryId = $order->getDeliveries()->first()->getId();
+        $deliveries = $order->getDeliveries();
+        static::assertNotNull($deliveries);
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        $orderDeliveryId = $delivery->getId();
 
         $this->orderService->orderDeliveryStateTransition(
             $orderDeliveryId,
@@ -103,7 +107,11 @@ class OrderServiceTest extends TestCase
 
         /** @var OrderEntity $updatedOrder */
         $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
-        $updatedDeliveryState = $updatedOrder->getDeliveries()->first()->getStateMachineState()->getTechnicalName();
+        $deliveries = $updatedOrder->getDeliveries();
+        static::assertNotNull($deliveries);
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        $updatedDeliveryState = $delivery->getStateMachineState()->getTechnicalName();
 
         static::assertSame('shipped', $updatedDeliveryState);
     }
@@ -123,7 +131,11 @@ class OrderServiceTest extends TestCase
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
-        $orderDeliveryId = $order->getDeliveries()->first()->getId();
+        $deliveries = $order->getDeliveries();
+        static::assertNotNull($deliveries);
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        $orderDeliveryId = $delivery->getId();
 
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
@@ -171,7 +183,9 @@ class OrderServiceTest extends TestCase
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
-        $orderDeliveryId = $order->getDeliveries()->first()->getId();
+        static::assertNotNull($deliveries = $order->getDeliveries());
+        static::assertNotNull($delivery = $deliveries->first());
+        $orderDeliveryId = $delivery->getId();
 
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
@@ -233,7 +247,9 @@ class OrderServiceTest extends TestCase
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
-        $orderDeliveryId = $order->getDeliveries()->first()->getId();
+        static::assertNotNull($deliveries = $order->getDeliveries());
+        static::assertNotNull($delivery = $deliveries->first());
+        $orderDeliveryId = $delivery->getId();
 
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, $this->getDeDeLanguageId());
@@ -281,7 +297,9 @@ class OrderServiceTest extends TestCase
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
-        $orderTransactionId = $order->getTransactions()->first()->getId();
+        static::assertNotNull($transactions = $order->getTransactions());
+        static::assertNotNull($transaction = $transactions->first());
+        $orderTransactionId = $transaction->getId();
 
         $this->orderService->orderTransactionStateTransition(
             $orderTransactionId,
@@ -292,7 +310,9 @@ class OrderServiceTest extends TestCase
 
         /** @var OrderEntity $updatedOrder */
         $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
-        $updatedTransactionState = $updatedOrder->getTransactions()->first()->getStateMachineState()->getTechnicalName();
+        static::assertNotNull($transactions = $updatedOrder->getTransactions());
+        static::assertNotNull($transaction = $transactions->first());
+        $updatedTransactionState = $transaction->getStateMachineState()->getTechnicalName();
 
         static::assertSame('reminded', $updatedTransactionState);
     }
@@ -312,7 +332,9 @@ class OrderServiceTest extends TestCase
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
-        $orderTransactionId = $order->getTransactions()->first()->getId();
+        static::assertNotNull($transactions = $order->getTransactions());
+        static::assertNotNull($transaction = $transactions->first());
+        $orderTransactionId = $transaction->getId();
 
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
@@ -360,7 +382,9 @@ class OrderServiceTest extends TestCase
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
-        $orderTransactionId = $order->getTransactions()->first()->getId();
+        static::assertNotNull($transactions = $order->getTransactions());
+        static::assertNotNull($transaction = $transactions->first());
+        $orderTransactionId = $transaction->getId();
 
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
@@ -443,7 +467,9 @@ class OrderServiceTest extends TestCase
 
         static::assertInstanceOf(OrderEntity::class, $newlyCreatedOrder);
         static::assertSame($orderId, $newlyCreatedOrder->getId());
-        static::assertSame($vatIds, $newlyCreatedOrder->getOrderCustomer()->getVatIds());
+        $orderCustomer = $newlyCreatedOrder->getOrderCustomer();
+        static::assertNotNull($orderCustomer);
+        static::assertSame($vatIds, $orderCustomer->getVatIds());
     }
 
     public function testCreateOrderSendsMail(): void
@@ -487,8 +513,10 @@ class OrderServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         /** @var OrderEntity $cancelledOrder */
         $cancelledOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $state = $cancelledOrder->getStateMachineState();
 
-        static::assertSame('cancelled', $cancelledOrder->getStateMachineState()->getTechnicalName());
+        static::assertNotNull($state);
+        static::assertSame('cancelled', $state->getTechnicalName());
     }
 
     public function testOrderStateTransitionSendsMail(): void
@@ -558,7 +586,7 @@ class OrderServiceTest extends TestCase
         );
 
         $languageId = $languageRepository->searchIds($criteria, $this->salesChannelContext->getContext())->firstId();
-
+        static::assertNotNull($languageId);
         $secondDomain = 'http://shopware.second-domain';
         $this->setDomainForSalesChannel($secondDomain, $languageId);
 
@@ -627,6 +655,9 @@ class OrderServiceTest extends TestCase
         return $this->orderService->createOrder($data, $this->salesChannelContext);
     }
 
+    /**
+     * @param array<string, mixed> $options
+     */
     private function createCustomer(string $firstName, string $lastName, array $options = []): string
     {
         $customerId = Uuid::randomHex();
@@ -650,7 +681,7 @@ class OrderServiceTest extends TestCase
             'defaultPaymentMethodId' => $paymentMethodId,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
-            'password' => 'not',
+            'password' => 'not12345',
             'firstName' => $firstName,
             'lastName' => $lastName,
             'salutationId' => $salutationId,

@@ -25,7 +25,12 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summ
             stubs: {
                 'sw-extension-rating-stars': true,
                 'sw-progress-bar': await Shopware.Component.build('sw-progress-bar')
-            }
+            },
+            provide: {
+                userActivityService: {
+                    updateLastUserActivity: () => {},
+                },
+            },
         });
     }
 

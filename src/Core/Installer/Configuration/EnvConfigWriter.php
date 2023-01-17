@@ -61,10 +61,23 @@ class EnvConfigWriter
         $newEnv[] = 'APP_SECRET=' . $secret;
         $newEnv[] = 'APP_URL=' . $shop['schema'] . '://' . $shop['host'] . $shop['basePath'];
         $newEnv[] = 'DATABASE_URL=' . $info->asDsn();
-        $newEnv[] = 'DATABASE_SSL_CA=' . $info->getSslCaPath();
-        $newEnv[] = 'DATABASE_SSL_CERT=' . $info->getSslCertPath();
-        $newEnv[] = 'DATABASE_SSL_KEY=' . $info->getSslCertKeyPath();
-        $newEnv[] = 'DATABASE_SSL_DONT_VERIFY_SERVER_CERT=' . ($info->getSslDontVerifyServerCert() ? '1' : '');
+
+        if (!empty($info->getSslCaPath())) {
+            $newEnv[] = 'DATABASE_SSL_CA=' . $info->getSslCaPath();
+        }
+
+        if (!empty($info->getSslCertPath())) {
+            $newEnv[] = 'DATABASE_SSL_CERT=' . $info->getSslCertPath();
+        }
+
+        if (!empty($info->getSslCertKeyPath())) {
+            $newEnv[] = 'DATABASE_SSL_KEY=' . $info->getSslCertKeyPath();
+        }
+
+        if ($info->getSslDontVerifyServerCert() !== null) {
+            $newEnv[] = 'DATABASE_SSL_DONT_VERIFY_SERVER_CERT=' . ($info->getSslDontVerifyServerCert() ? '1' : '');
+        }
+
         $newEnv[] = 'COMPOSER_HOME=' . $this->projectDir . '/var/cache/composer';
         $newEnv[] = 'INSTANCE_ID=' . $this->idGenerator->getUniqueId();
         $newEnv[] = 'BLUE_GREEN_DEPLOYMENT=' . (int) $shop['blueGreenDeployment'];

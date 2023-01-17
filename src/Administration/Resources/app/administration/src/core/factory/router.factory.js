@@ -85,6 +85,8 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         const assetPath = getAssetPath();
 
         router.beforeEach((to, from, next) => {
+            Shopware.Context.app.lastActivity = Math.round(+new Date() / 1000);
+
             setModuleFavicon(to, assetPath);
             const loggedIn = LoginService.isLoggedIn();
             const tokenHandler = new Shopware.Helper.RefreshTokenHelper();

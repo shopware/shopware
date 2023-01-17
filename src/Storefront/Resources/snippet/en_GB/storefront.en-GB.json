@@ -470,6 +470,7 @@
     "subscriptionPersistedInfo": "If you did not received an email, please repeat the process or contact our support team.",
     "subscriptionRevokeSuccess": "You have unsubscribed from the newsletter.",
     "subscriptionConfirmationSuccess": "You have subscribed to the newsletter.",
+    "subscriptionConfirmationNeeded": "We have sent a confirmation email containing an activation link. Please check your inbox and click the link to complete your newsletter subscription.",
     "subscriptionConfirmationFailed": "Newsletter subscription did not work properly, please contact our support team.",
     "subscriptionCompleted": "Thank you! We have registered your address.",
     "labelActionSelect": "Action",

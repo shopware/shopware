@@ -190,7 +190,7 @@ class AddressControllerTest extends TestCase
                 'defaultPaymentMethodId' => $paymentMethodId,
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
-                'password' => 'not',
+                'password' => 'not12345',
                 'lastName' => 'not',
                 'firstName' => 'First name',
                 'salutationId' => $salutationId,
@@ -258,7 +258,7 @@ class AddressControllerTest extends TestCase
                 'defaultPaymentMethodId' => $paymentMethodId,
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
-                'password' => 'not',
+                'password' => 'not12345',
                 'lastName' => 'not',
                 'firstName' => 'First name',
                 'salutationId' => $salutationId,
@@ -394,7 +394,7 @@ class AddressControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $customer->getEmail(),
-                'password' => 'test',
+                'password' => 'test12345',
             ])
         );
         $response = $browser->getResponse();
@@ -432,7 +432,7 @@ class AddressControllerTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@example.com',
-                'password' => 'test',
+                'password' => 'test12345',
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),
@@ -476,7 +476,7 @@ class AddressControllerTest extends TestCase
                 'defaultPaymentMethodId' => $paymentMethodId,
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
-                'password' => 'not',
+                'password' => 'not12345',
                 'lastName' => 'not',
                 'firstName' => 'First name',
                 'salutationId' => $salutationId,
@@ -499,7 +499,7 @@ class AddressControllerTest extends TestCase
                 'defaultPaymentMethodId' => $paymentMethodId,
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
-                'password' => 'not',
+                'password' => 'not12345',
                 'lastName' => 'not',
                 'firstName' => 'First name',
                 'salutationId' => $salutationId,

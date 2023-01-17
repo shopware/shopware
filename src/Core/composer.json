@@ -82,6 +82,7 @@
         "symfony/asset": "~6.2.0",
         "symfony/cache": "~6.2.0",
         "symfony/cache-contracts": "~3.1.0",
+        "symfony/clock": "~6.2.0",
         "symfony/config": "~6.2.0",
         "symfony/console": "~6.2.0",
         "symfony/debug-bundle": "~6.2.0",
@@ -131,7 +132,7 @@
     "require-dev": {
         "ext-tokenizer": "*",
         "ext-xmlwriter": "*",
-        "bheller/images-generator": "~1.0.1",
+        "maltyxx/images-generator": "~1.0.0",
         "dms/phpunit-arraysubset-asserts": "^0.4.0",
         "fakerphp/faker": "^1.20",
         "jdorn/sql-formatter": "~1.2.17",
@@ -153,6 +154,9 @@
         "preferred-install": {
             "*": "dist"
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "symfony/runtime": true
+        }
     }
 }

@@ -31,7 +31,7 @@ class ErrorResponseFactory
     {
         if ($exception instanceof ShopwareHttpException) {
             $errors = [];
-            foreach ($exception->getErrors() as $error) {
+            foreach ($exception->getErrors($debug) as $error) {
                 $errors[] = $error;
             }
 

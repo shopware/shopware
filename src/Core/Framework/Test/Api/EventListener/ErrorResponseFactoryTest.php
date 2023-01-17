@@ -105,15 +105,13 @@ class ErrorResponseFactoryTest extends TestCase
         unset($responseBody['errors'][0]['meta']);
         static::assertEquals(418, $response->getStatusCode());
         static::assertEquals([
-            'errors' => [
-                [
-                    'code' => '0',
-                    'status' => '418',
-                    'title' => Response::$statusTexts[418],
-                    'detail' => $exceptionDetail,
-                ],
+            [
+                'code' => '0',
+                'status' => '418',
+                'title' => Response::$statusTexts[418],
+                'detail' => $exceptionDetail,
             ],
-        ], $responseBody);
+        ], $responseBody['errors']);
     }
 
     public function testItUnwindsShopwareHttpException(): void
@@ -171,10 +169,10 @@ class ErrorResponseFactoryTest extends TestCase
         $errorResponseFactory = new ErrorResponseFactory();
 
         $shopwareHttpException = new SimpleShopwareHttpException(['paramOne' => 1, 'paramTwo' => 2]);
-        $errorFromwWrite = $errorResponseFactory->getResponseFromException((new WriteException())->add($shopwareHttpException));
+        $errorFromWrite = $errorResponseFactory->getResponseFromException((new WriteException())->add($shopwareHttpException));
         $errorRaw = $errorResponseFactory->getResponseFromException($shopwareHttpException);
 
-        static::assertEquals($errorFromwWrite->getContent(), $errorRaw->getContent());
+        static::assertEquals($errorFromWrite->getContent(), $errorRaw->getContent());
     }
 
     public function testYieldDoesNotOverrideErrors(): void
@@ -183,12 +181,12 @@ class ErrorResponseFactoryTest extends TestCase
         $writeException = (new WriteException())
             ->add(
                 (new WriteException())
-                ->add($simpleShopwareHttpException)
-                ->add($simpleShopwareHttpException)
+                    ->add($simpleShopwareHttpException)
+                    ->add($simpleShopwareHttpException)
             )->add(
                 (new WriteException())
-                ->add($simpleShopwareHttpException)
-                ->add($simpleShopwareHttpException)
+                    ->add($simpleShopwareHttpException)
+                    ->add($simpleShopwareHttpException)
             );
 
         $errorResponseFactory = new ErrorResponseFactory();

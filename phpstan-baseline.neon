@@ -5171,21 +5171,6 @@ parameters:
 			path: src/Core/Content/MailTemplate/Exception/MailTransportFailedException.php
 
 		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getId\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Content/MailTemplate/Service/AttachmentLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Service\\\\AttachmentLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/MailTemplate/Service/AttachmentLoader.php
-
-		-
-			message: "#^Parameter \\#1 \\$document of method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentService\\:\\:getDocument\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/Content/MailTemplate/Service/AttachmentLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Subscriber\\\\MailSendSubscriber\\:\\:buildAttachments\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/MailTemplate/Subscriber/MailSendSubscriber.php
@@ -7999,66 +7984,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 3
 			path: src/Core/Content/Test/LandingPage/SalesChannel/LandingPageRouteTest.php
-
-		-
-			message: "#^Cannot call method disable\\(\\) on object\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Cannot call method getAddress\\(\\) on Symfony\\\\Component\\\\Mime\\\\Address\\|false\\.$#"
-			count: 2
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Cannot call method getCollector\\(\\) on Symfony\\\\Component\\\\HttpKernel\\\\Profiler\\\\Profile\\|false\\|null\\.$#"
-			count: 5
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Symfony\\\\Component\\\\Mime\\\\Address\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Api\\\\MailActionControllerTest\\:\\:getTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Api\\\\MailActionControllerTest\\:\\:getTestDataWithAttachments\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Api\\\\MailActionControllerTest\\:\\:getTestDataWithHeaderAndFooter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Api\\\\MailActionControllerTest\\:\\:getTestDataWithMailTemplateType\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$contents of method League\\\\Flysystem\\\\Filesystem\\:\\:put\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$str2 of function strcmp expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Api\\\\MailActionControllerTest\\:\\:\\$stateMachineRegistry is unused\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"

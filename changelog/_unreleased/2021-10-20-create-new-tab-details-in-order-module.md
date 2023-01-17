@@ -1,7 +1,6 @@
 ---
 title: Create the new tab "Details" in the order module
 issue: NEXT-16682
-flag: FEATURE_NEXT_7530
 author: Max Stegmeyer
 author_email: m.stegmeyer@shopware.com 
 ---

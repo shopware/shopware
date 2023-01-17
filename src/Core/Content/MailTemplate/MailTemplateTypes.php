@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 class MailTemplateTypes
 {
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_7530) Will be removed with 6.5 use \Shopware\Core\Content\MailTemplate\MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE instead.
+     * @deprecated tag:v6.5.0 Will be removed with 6.5 use \Shopware\Core\Content\MailTemplate\MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE instead.
      */
     public const MAILTYPE_DOCUMENT_STORNO = 'storno_mail';
 

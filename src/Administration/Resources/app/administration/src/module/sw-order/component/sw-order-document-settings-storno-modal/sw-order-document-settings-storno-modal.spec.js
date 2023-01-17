@@ -119,10 +119,6 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-order/component/sw-order-document-settings-storno-modal', () => {
-    beforeEach(() => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
-    });
-
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();

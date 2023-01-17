@@ -81,7 +81,8 @@ async function createWrapper(privileges = []) {
             'router-link': true,
             'sw-checkbox-field': true,
             'sw-data-grid-skeleton': true,
-            'sw-time-ago': true
+            'sw-time-ago': true,
+            'sw-color-badge': true
         },
         provide: {
             acl: {

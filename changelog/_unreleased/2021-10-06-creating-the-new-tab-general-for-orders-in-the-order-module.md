@@ -1,7 +1,6 @@
 ---
 title: Creating the new tab "General" for orders in the order module
 issue: NEXT-16673
-flag: FEATURE_NEXT_7530
 author: Lennart Tinkloh
 author_email: l.tinkloh@shopware.com 
 author_github: @lernhart

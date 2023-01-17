@@ -79,10 +79,5 @@ describe('Dashboard: Test first sight of the Administration', () => {
         cy.get('.sw-data-grid__row--0 .sw-data-grid__actions-menu').click();
         cy.get('.sw-context-menu-item.sw-order-list__order-view-action').should('be.visible');
         cy.get('.sw-context-menu-item.sw-order-list__order-view-action').click();
-
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-user-card__metadata-user-name').should('be.visible');
-            cy.contains('.sw-order-user-card__metadata-user-name', `${storefrontCustomer.firstName} ${storefrontCustomer.lastName}`);
-        });
     });
 });

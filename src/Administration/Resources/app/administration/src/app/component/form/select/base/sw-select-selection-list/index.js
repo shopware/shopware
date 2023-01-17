@@ -89,13 +89,9 @@ Component.register('sw-select-selection-list', {
 
     computed: {
         showPlaceholder() {
-            if (this.feature.isActive('FEATURE_NEXT_7530')) {
-                return (this.alwaysShowPlaceholder || (this.selections.length === 0 && this.hideLabels))
-                    ? this.placeholder
-                    : '';
-            }
-
-            return (this.selections.length > 0 && !this.hideLabels) ? '' : this.placeholder;
+            return (this.alwaysShowPlaceholder || this.selections.length === 0 || this.hideLabels)
+                ? this.placeholder
+                : '';
         },
     },
 

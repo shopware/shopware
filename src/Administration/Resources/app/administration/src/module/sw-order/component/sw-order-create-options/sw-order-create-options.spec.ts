@@ -85,7 +85,7 @@ const context = {
 };
 
 const cart = {
-    token: '',
+    token: 'is-exactly-32-chars-as-required-',
     deliveries: [],
     lineItems: [],
 };

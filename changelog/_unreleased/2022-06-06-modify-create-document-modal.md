@@ -1,7 +1,6 @@
 ---
 title: Modify create document modal
 issue: NEXT-16680
-flag: FEATURE_NEXT_7530
 ---
 # Administration
 * Changed in component `sw–media-upload-v2`

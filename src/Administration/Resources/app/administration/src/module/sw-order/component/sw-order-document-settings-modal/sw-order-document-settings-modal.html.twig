@@ -35,15 +35,7 @@
     {% block sw_order_document_settings_modal_form_file_upload %}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_file_upload_toggle %}
-    <sw-checkbox-field
-        v-if="!feature.isActive('FEATURE_NEXT_7530')"
-        v-model="uploadDocument"
-        class="sw-order-document-settings-modal__file-toggle"
-        :label="$tc('sw-order.documentModal.fileInputLabel')"
-    />
-
     <sw-switch-field
-        v-if="feature.isActive('FEATURE_NEXT_7530')"
         v-model="uploadDocument"
         class="sw-order-document-settings-modal__file-toggle"
         :label="$tc('sw-order.documentModal.fileInputLabel')"
@@ -52,22 +44,14 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_file_upload_input %}
-    <sw-file-input
-        v-if="uploadDocument && !feature.isActive('FEATURE_NEXT_7530')"
-        v-model="selectedDocumentFile"
-        class="sw-order-document-settings-modal__file-input"
-        :allowed-mime-types="features.fileTypes"
-        :max-file-size="features.uploadFileSizeLimit"
-    />
-
     <sw-upload-listener
-        v-if="uploadDocument && feature.isActive('FEATURE_NEXT_7530')"
+        v-if="uploadDocument"
         auto-upload
         :upload-tag="order.id"
         @media-upload-finish="successfulUploadFromUrl"
     />
     <sw-media-upload-v2
-        v-if="uploadDocument && feature.isActive('FEATURE_NEXT_7530')"
+        v-if="uploadDocument"
         ref="fileInput"
         variant="small"
         class="sw-order-document-settings-modal__file-input"
@@ -101,15 +85,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_document_comment %}
-    <sw-text-field
-        v-if="!feature.isActive('FEATURE_NEXT_7530')"
-        v-model="documentConfig.documentComment"
-        class="sw-order-document-settings-modal__comment"
-        :label="$tc('sw-order.documentModal.labelDocumentComment')"
-    />
-
     <sw-textarea-field
-        v-if="feature.isActive('FEATURE_NEXT_7530')"
         v-model="documentConfig.documentComment"
         class="sw-order-document-settings-modal__comment"
         :label="$tc('sw-order.documentModal.labelDocumentComment')"
@@ -163,7 +139,6 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_settings_modal_form_document_footer_split_button_context %}
                 <sw-context-button
-                    v-if="feature.isActive('FEATURE_NEXT_7530')"
                     :disabled="!documentPreconditionsFulfilled"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

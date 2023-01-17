@@ -1,7 +1,6 @@
 ---
 title: Adjust Admin Order Line Items
 issue: NEXT-16674
-flag: FEATURE_NEXT_7530
 author: Max Stegmeyer
 author_email: m.stegmeyer@shopware.com
 ---

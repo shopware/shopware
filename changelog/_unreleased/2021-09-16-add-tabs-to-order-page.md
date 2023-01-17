@@ -1,7 +1,6 @@
 ---
 title: add-tabs-to-order-page
 issue: NEXT-16671
-flag: FEATURE_NEXT_7530
 author: Markus Velt
 author_email: m.velt@shopware.com 
 author_github: @raknison

@@ -113,15 +113,19 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
         cy.url().should('include', 'order/index');
 
         cy.get('.sw-button.sw-button--primary.sw-order-list__add-order').click();
-        cy.get('.sw-container > .sw-field .sw-entity-single-select__selection-text').type('Martin Maxwell');
-        cy.contains('Martin Maxwell').click();
+
+        cy.get('.sw-data-grid__cell--select > .sw-data-grid__cell-content').click();
+        cy.get('.sw-order-create-initial-modal__tab-product').click();
+
         cy.contains('Product toevoegen').click();
         cy.get(`${orderPage.elements.dataGridRow}--0 ${orderPage.elements.dataGridColumn}--label`).dblclick();
+
         cy.get('.sw-order-product-select__single-select')
             .typeSingleSelectAndCheck('Test Product', '.sw-order-product-select__single-select');
         cy.get(`${orderPage.elements.dataGridColumn}--quantity input`).clearTypeAndCheck('1');
         cy.get(`${orderPage.elements.dataGridInlineEditSave}`).click();
-        cy.get('.sw-description-list > :nth-child(2)').should('include.text', '10,00');
+        cy.get('.sw-data-grid__cell--totalPrice > .sw-data-grid__cell-content').should('include.text', '10,00');
+
         cy.wait('@user-config').its('response.statusCode').should('equal', 200);
 
         // add credit
@@ -130,21 +134,22 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
         cy.get(`${orderPage.elements.dataGridRow}--0 ${orderPage.elements.dataGridColumn}--label`)
             .dblclick().type('credit');
         cy.get('[placeholder="0"]').click().type('2');
-        cy.get('button[title="Opslaan"]').click();
-        cy.contains('.sw-description-list > :nth-child(2)', '8');
-        cy.contains('Bestelling opslaan').click();
+        cy.get(`${orderPage.elements.dataGridInlineEditSave}`).click();
 
-        // deny payment reminder
+        // show preview
+        cy.get('.sw-order-create-initial-modal__button-preview > .sw-button__content').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
+
+        // save order
+        cy.get('.sw-button-process__content').click();
         cy.wait('@save-proxy').its('response.statusCode').should('equal', 200);
-        cy.get('.sw-order-create__remind-payment-modal-decline').click();
 
         // confirmation
-        cy.url().should('include', 'order/detail');
-        cy.get('.sw-order-user-card__metadata')
+        cy.url().should('include', 'order/create/general');
+        cy.get('.sw-order-create-general-info__summary-main-header')
             .should('be.visible')
-            .and('contain', 'Martin Maxwell - Test Company');
+            .and('contain', 'Martin Maxwell (martin@maxwell.com)');
 
         // verify the new customer's order from the products page
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);

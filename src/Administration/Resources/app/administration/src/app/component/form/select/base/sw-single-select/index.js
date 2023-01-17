@@ -140,11 +140,7 @@ Component.register('sw-single-select', {
          * @returns {Array}
          */
         visibleResults() {
-            if (this.feature.isActive('FEATURE_NEXT_7530')) {
-                return this.results.filter(result => !result.hidden);
-            }
-
-            return this.results;
+            return this.results.filter(result => !result.hidden);
         },
     },
 

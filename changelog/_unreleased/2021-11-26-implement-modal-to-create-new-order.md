@@ -1,7 +1,6 @@
 ---
 title: Implement modal to create new order
 issue: NEXT-16683
-flag: FEATURE_NEXT_7530
 ---
 # Administration
 * Changed in `src/app/component/base/sw-modal/index.js`

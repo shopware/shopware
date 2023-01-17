@@ -273,26 +273,6 @@ export default {
             this.shippingMethod.prices.push(newShippingPrice);
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - will be removed without replacement
-         */
-        countDecimalPlaces(value) {
-            const split = value.toString().split('.');
-
-            return split[1] ? split[1].length : 0;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - will be removed without replacement
-         */
-        increaseWithDecimalPlaces(value) {
-            let decimalPlaces = this.countDecimalPlaces(value);
-            decimalPlaces = decimalPlaces === 0 ? 1 : decimalPlaces;
-
-            const increase = Number(`0.${'0'.repeat(decimalPlaces - 1)}1`);
-            return Number((value + increase).toFixed(decimalPlaces));
-        },
-
         onSaveMainRule(ruleId) {
             // RuleId can not set to null if there is already an unrestricted rule
             if (!ruleId && this.unrestrictedPriceMatrixExists && this.priceGroup.ruleId !== ruleId) {

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi;
 
+use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\CardField;
+use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Column;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Detail;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity as AdminUiEntity;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Listing;
@@ -45,7 +47,7 @@ class AdminUiXmlSchemaValidator
     ): void {
         $this->checkReferences(
             $entityFields,
-            array_column($listing->getColumns()->toArray(''), 'ref'),
+            $this->getRefsAsList($listing->getColumns()->getContent()),
             $customEntityName,
             '<listing>'
         );
@@ -66,7 +68,7 @@ class AdminUiXmlSchemaValidator
             foreach ($cards as $card) {
                 $this->checkReferences(
                     $entityFields,
-                    array_column($card->getFields(), 'ref'),
+                    $this->getRefsAsList($card->getFields()),
                     $customEntityName,
                     '<detail>'
                 );
@@ -112,5 +114,18 @@ class AdminUiXmlSchemaValidator
     private function getDuplicates(array $entries): array
     {
         return array_unique(array_diff_assoc($entries, array_unique($entries)));
+    }
+
+    /**
+     * @param list<Column|CardField> $listOfObjectsWithRefProperty
+     *
+     * @return list<string>
+     */
+    private function getRefsAsList(array $listOfObjectsWithRefProperty): array
+    {
+        return \array_map(
+            fn ($object) => $object->getRef(),
+            $listOfObjectsWithRefProperty
+        );
     }
 }

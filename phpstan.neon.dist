@@ -51,7 +51,6 @@ parameters:
 
         # @todo NEXT-22697 - Remove when re-enabling cms-aware
         - src/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentService.php
-        - tests/unit/php/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareEnrichmentTest.php
         - tests/integration/php/Core/System/CustomEntity/Xml/Config/CmsAwareAndAdminUiTest.php
 
     ignoreErrors:

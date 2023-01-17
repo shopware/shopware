@@ -1,4 +1,4 @@
-import type { CustomEntityDefinition } from 'src/app/service/custom-entity-definition.service';
+import type { AdminUiDefinition, CustomEntityDefinition } from 'src/app/service/custom-entity-definition.service';
 import type EntityCollection from 'src/core/data/entity-collection.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
@@ -55,10 +55,6 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
-            customEntityName: '',
-            entityAccentColor: '',
-            customEntityDefinition: null as CustomEntityDefinition|null,
-            customEntityRepository: null as Repository<'generic_custom_entity'>|null,
             customEntityInstances: null as EntityCollection<'generic_custom_entity'>|null,
             page: 1,
             limit: 25,
@@ -76,6 +72,39 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        customEntityName(): string {
+            const entityName = this.$route.params.entityName;
+
+            const customEntityDefinition = this.customEntityDefinitionService.getDefinitionByName(entityName) ?? null;
+
+            if (!customEntityDefinition) {
+                return '';
+            }
+
+            return customEntityDefinition.entity;
+        },
+
+        customEntityDefinition(): Readonly<CustomEntityDefinition | null> {
+            return this.customEntityDefinitionService.getDefinitionByName(this.customEntityName) ?? null;
+        },
+
+        customEntityRepository(): Repository<'generic_custom_entity'> | null {
+            if (this.customEntityDefinition === null) {
+                return null;
+            }
+
+            return this.repositoryFactory
+                .create(this.customEntityDefinition.entity as 'generic_custom_entity');
+        },
+
+        adminConfig(): AdminUiDefinition | undefined {
+            return this.customEntityDefinition?.flags['admin-ui'];
+        },
+
+        entityAccentColor(): string | undefined {
+            return this.adminConfig?.color;
+        },
+
         columnConfig(): EntityListingColumnConfig[] | [] {
             if (!this.customEntityDefinition) {
                 return [];
@@ -83,9 +112,10 @@ export default Shopware.Component.wrapComponentConfig({
 
             const columns = this.customEntityDefinition.flags['admin-ui'].listing.columns;
 
-            return columns.map(column => {
+            return columns.map((column) => {
+                const snippetKey = `${this.customEntityName}.list.${column.ref}`;
                 return {
-                    label: this.$tc(`${this.customEntityName}.list.${column.ref}`),
+                    label: this.$tc(snippetKey),
                     property: column.ref,
                     routerLink: 'sw.custom.entity.detail',
                     visible: !column.hidden,
@@ -106,6 +136,20 @@ export default Shopware.Component.wrapComponentConfig({
 
             return criteria;
         },
+
+        emptyStateTitle(): string {
+            const dynamicSnippetKey = `${this.customEntityName}.list.emptyState`;
+            const fallbackSnippetKey = 'sw-custom-entity.general.emptyState';
+
+            return this.$te(dynamicSnippetKey) ? this.$tc(dynamicSnippetKey) : this.$tc(fallbackSnippetKey);
+        },
+
+        emptyStateSubline(): string {
+            const dynamicSnippetKey = `${this.customEntityName}.list.emptyStateSubline`;
+            const fallbackSnippetKey = 'sw-custom-entity.general.emptyStateSubline';
+
+            return this.$te(dynamicSnippetKey) ? this.$tc(dynamicSnippetKey) : this.$tc(fallbackSnippetKey);
+        },
     },
 
     watch: {
@@ -122,25 +166,12 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         createdComponent(): void {
-            const entityName = this.$route.params.entityName;
-
-            const customEntityDefinition = this.customEntityDefinitionService.getDefinitionByName(entityName) ?? null;
-
-            if (!customEntityDefinition) {
-                return;
+            if (this.adminConfig !== null) {
+                this.sortBy = this.adminConfig?.listing?.columns?.[0]?.ref ?? '';
+                // eslint-disable-next-line max-len
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-non-null-assertion
+                this.$route.meta!.$module.icon = this.adminConfig?.icon;
             }
-
-            this.customEntityName = customEntityDefinition.entity;
-
-            const adminConfig = customEntityDefinition.flags['admin-ui'];
-            this.entityAccentColor = adminConfig.color;
-            this.sortBy = adminConfig.listing.columns[0].ref;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-non-null-assertion
-            this.$route.meta!.$module.icon = adminConfig.icon;
-
-            this.customEntityRepository = this.repositoryFactory
-                .create(customEntityDefinition.entity as 'generic_custom_entity');
-            this.customEntityDefinition = customEntityDefinition;
 
             this.parseRoute();
             void this.getList();

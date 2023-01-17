@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -19,7 +20,6 @@ use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\TestBootstrapper;
 
 /**
  * @internal
@@ -53,14 +53,11 @@ class CmsAwareAndAdminUiTest extends TestCase
 
     private Connection $connection;
 
-    private string $dbSchemaName;
-
     public function setUp(): void
     {
         static::markTestSkipped('cms-aware will be re-implemented via NEXT-22697');
         $this->context = Context::createDefaultContext();
 
-        $this->dbSchemaName = $this->getDbSchemaName((new TestBootstrapper())->getDatabaseUrl());
         $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->appLifecycle = $this->getContainer()->get(AppLifecycle::class);
@@ -246,21 +243,17 @@ class CmsAwareAndAdminUiTest extends TestCase
             default => throw new \Exception('Wrong Entity!')
         };
         $cmsAwareAndAdminUiSettings = $this->connection->executeQuery(
-            "SELECT flags, flag_config FROM custom_entity WHERE $idColumn = :id",
+            "SELECT flags FROM custom_entity WHERE $idColumn = :id",
             ['id' => Uuid::fromHexToBytes($entity->getId())]
         )->fetchAssociative();
 
         static::assertNotFalse($cmsAwareAndAdminUiSettings);
         static::assertCount(2, $cmsAwareAndAdminUiSettings);
-        static::assertEquals(
-            ['cms-aware', 'admin-ui'],
-            $this->jsonDecode($cmsAwareAndAdminUiSettings['flags'])
-        );
 
-        static::assertIsString($flagConfigJson = file_get_contents(__DIR__ . '/_fixtures/other/flag_config.json'));
+        static::assertIsString($flagsJson = file_get_contents(__DIR__ . '/_fixtures/other/flags.json'));
         static::assertEquals(
-            $this->jsonDecode($flagConfigJson),
-            $this->jsonDecode($cmsAwareAndAdminUiSettings['flag_config'])
+            $this->jsonDecode($flagsJson),
+            $this->jsonDecode($cmsAwareAndAdminUiSettings['flags'])
         );
     }
 
@@ -295,14 +288,7 @@ class CmsAwareAndAdminUiTest extends TestCase
 
     private function dbHasTable(string $tableName): bool
     {
-        return ((int) ($this->connection->executeQuery(
-            'SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
-                WHERE TABLE_NAME = :tableName AND TABLE_SCHEMA = :dbSchema',
-            [
-                'tableName' => $tableName,
-                'dbSchema' => $this->dbSchemaName,
-            ]
-        )->fetchFirstColumn()[0])) === 1;
+        return EntityDefinitionQueryHelper::tableExists($this->connection, $tableName);
     }
 
     /**
@@ -311,20 +297,10 @@ class CmsAwareAndAdminUiTest extends TestCase
     private function getTableColumns(string $tableName): array
     {
         return \array_keys(
-            $this->connection->executeQuery(
-                'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-                   WHERE TABLE_NAME = :tableName AND TABLE_SCHEMA = :dbSchema',
-                [
-                    'tableName' => $tableName,
-                    'dbSchema' => $this->dbSchemaName,
-                ]
-            )->fetchAllAssociativeIndexed()
+            $this->connection->fetchAllAssociativeIndexed(
+                "SHOW COLUMNS FROM $tableName"
+            )
         );
-    }
-
-    private function getDbSchemaName(string $dbUrl): string
-    {
-        return substr($dbUrl, strrpos($dbUrl, '/') + 1);
     }
 
     /**

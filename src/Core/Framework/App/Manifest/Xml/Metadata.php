@@ -27,12 +27,12 @@ class Metadata extends XmlElement
     ];
 
     /**
-     * @var string[]
+     * @var array<string, string>
      */
     protected $label = [];
 
     /**
-     * @var string[]
+     * @var array<string, string>
      */
     protected $description = [];
 
@@ -127,7 +127,7 @@ class Metadata extends XmlElement
     }
 
     /**
-     * @return string[]
+     * @return array<string, string>
      */
     public function getLabel(): array
     {
@@ -135,7 +135,7 @@ class Metadata extends XmlElement
     }
 
     /**
-     * @return string[]
+     * @return array<string, string>
      */
     public function getDescription(): array
     {

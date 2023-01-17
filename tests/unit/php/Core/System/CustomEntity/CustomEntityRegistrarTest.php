@@ -71,8 +71,8 @@ class CustomEntityRegistrarTest extends TestCase
 
         /** @var DynamicEntityDefinition[] $definitions */
         $definitions = [
-            DynamicEntityDefinition::create('ce_test_one', [], $container),
-            DynamicEntityDefinition::create('ce_test_two', [], $container),
+            DynamicEntityDefinition::create('ce_test_one', [], [], $container),
+            DynamicEntityDefinition::create('ce_test_two', [], [], $container),
         ];
 
         $connection = $this->createMock(Connection::class);
@@ -84,12 +84,12 @@ class CustomEntityRegistrarTest extends TestCase
                 [
                     'name' => 'ce_test_one',
                     'fields' => json_encode([]),
-                    'flag_config' => json_encode([]),
+                    'flags' => json_encode([]),
                 ],
                 [
                     'name' => 'ce_test_two',
                     'fields' => json_encode([]),
-                    'flag_config' => json_encode([]),
+                    'flags' => json_encode([]),
                 ],
             ]);
 

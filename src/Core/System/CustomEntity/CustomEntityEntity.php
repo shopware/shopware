@@ -20,20 +20,17 @@ class CustomEntityEntity extends Entity
 
     protected ?string $appId;
 
+    protected ?string $pluginId;
+
     /**
      * @var array<mixed>
      */
     protected array $fields;
 
     /**
-     * @var array<int, string>
+     * @var array<string, array<mixed>>|null
      */
-    protected array $flags;
-
-    /**
-     * @var array<string, array<mixed>>
-     */
-    protected array $flagsConfig;
+    protected ?array $flags;
 
     public function getName(): string
     {
@@ -65,6 +62,16 @@ class CustomEntityEntity extends Entity
         $this->appId = $appId;
     }
 
+    public function getPluginId(): ?string
+    {
+        return $this->pluginId;
+    }
+
+    public function setPluginId(?string $pluginId): void
+    {
+        $this->pluginId = $pluginId;
+    }
+
     /**
      * @return array<mixed>
      */
@@ -82,34 +89,18 @@ class CustomEntityEntity extends Entity
     }
 
     /**
-     * @return array<int, string>
+     * @return array<string, array<mixed>>|null
      */
-    public function getFlags(): array
+    public function getFlags(): ?array
     {
         return $this->flags;
     }
 
     /**
-     * @param array<int, string> $flags
+     * @param array<string, array<mixed>>|null $flags
      */
-    public function setFlags(array $flags): void
+    public function setFlags(?array $flags): void
     {
         $this->flags = $flags;
-    }
-
-    /**
-     * @return array<string, array<mixed>>
-     */
-    public function getFlagsConfig(): array
-    {
-        return $this->flagsConfig;
-    }
-
-    /**
-     * @param array<string, array<mixed>> $flagsConfig
-     */
-    public function setFlagsConfig(array $flagsConfig): void
-    {
-        $this->flagsConfig = $flagsConfig;
     }
 }

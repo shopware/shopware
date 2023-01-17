@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\V6_4;
+namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -21,10 +21,6 @@ class Migration1659425718AddFlagsToCustomEntities extends MigrationStep
     {
         if (!$this->columnExists($connection, 'custom_entity', 'flags')) {
             $connection->executeStatement('ALTER TABLE `custom_entity` ADD `flags` JSON NULL;');
-        }
-
-        if (!$this->columnExists($connection, 'custom_entity', 'flag_config')) {
-            $connection->executeStatement('ALTER TABLE `custom_entity` ADD `flag_config` JSON NULL;');
         }
     }
 

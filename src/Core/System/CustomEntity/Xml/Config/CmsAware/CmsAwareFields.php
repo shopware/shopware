@@ -14,7 +14,7 @@ use Shopware\Core\System\CustomEntity\Xml\Field\TextField;
  *
  * @internal
  */
-class CmsAwareEnrichment
+class CmsAwareFields
 {
     /**
      * @return Field[]
@@ -26,7 +26,7 @@ class CmsAwareEnrichment
             new TextField(['name' => 'sw_content', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),
             new ManyToOneField(['name' => 'sw_cms_page', 'reference' => 'cms_page', 'storeApiAware' => true, 'required' => false, 'onDelete' => 'set-null']),
             new JsonField(['name' => 'sw_slot_config', 'storeApiAware' => true, 'required' => false]),
-            new ManyToManyField(['name' => 'sw_categories', 'reference' => 'category', 'storeApiAware' => true, 'required' => false, 'onDelete' => 'set-null']),
+            new ManyToManyField(['name' => 'sw_categories', 'reference' => 'category', 'storeApiAware' => true, 'required' => false, 'onDelete' => 'cascade']),
 
             // SEO fields
             new StringField(['name' => 'sw_seo_meta_title', 'storeApiAware' => true, 'required' => false, 'translatable' => true]),

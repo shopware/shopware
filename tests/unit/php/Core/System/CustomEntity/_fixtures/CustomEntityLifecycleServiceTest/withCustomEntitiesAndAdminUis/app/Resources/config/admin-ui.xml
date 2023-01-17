@@ -6,14 +6,14 @@
     <entity name="ce_super_simple" navigation-parent="sw-content" position="50" icon="regular-tools-alt" color="#f00">
         <listing>
             <columns>
-                <column ref="custom_entity_field"/>
+                <column ref="test_string"/>
             </columns>
         </listing>
         <detail>
             <tabs>
                 <tab name="main">
                     <card name="general">
-                        <field ref="custom_entity_field"/>
+                        <field ref="test_string"/>
                     </card>
                 </tab>
             </tabs>
@@ -22,42 +22,38 @@
     <entity name="ce_cms_aware" navigation-parent="sw-content" position="50" icon="regular-tools-alt" color="#f00">
         <listing>
             <columns>
-                <column ref="custom_entity_field1"/>
-                <column ref="custom_entity_field2"/>
-                <column ref="custom_entity_field3"/>
-                <column ref="custom_entity_field4"/>
-                <column ref="custom_entity_field5"/>
-                <column ref="custom_entity_field6"/>
+                <column ref="payload"/>
+                <column ref="email"/>
+                <column ref="price"/>
+                <column ref="my_date"/>
             </columns>
         </listing>
         <detail>
             <tabs>
                 <tab name="foo">
                     <card name="water">
-                        <field ref="custom_entity_field1"/>
-                        <field ref="custom_entity_field2"/>
-                        <field ref="custom_entity_field3"/>
+                        <field ref="payload"/>
+                        <field ref="email"/>
+                        <field ref="price"/>
                     </card>
                     <card name="fire">
-                        <field ref="custom_entity_field4"/>
-                        <field ref="custom_entity_field5"/>
+                        <field ref="my_date"/>
+                        <field ref="price"/>
                     </card>
                 </tab>
                 <tab name="bar">
                     <card name="stone">
-                        <field ref="custom_entity_field6"/>
+                        <field ref="price"/>
                     </card>
                     <card name="ice">
-                        <field ref="custom_entity_field1"/>
-                        <field ref="custom_entity_field2"/>
-                        <field ref="custom_entity_field3"/>
-                        <field ref="custom_entity_field4"/>
-                        <field ref="custom_entity_field5"/>
-                        <field ref="custom_entity_field6"/>
+                        <field ref="my_date"/>
+                        <field ref="price"/>
+                        <field ref="email"/>
+                        <field ref="payload"/>
                     </card>
                     <card name="air">
-                        <field ref="custom_entity_field2"/>
-                        <field ref="custom_entity_field5"/>
+                        <field ref="email"/>
+                        <field ref="price"/>
                     </card>
                 </tab>
             </tabs>

@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\V6_4;
+namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_4\Migration1662533751AddCustomEntityTypeIdToCategory;
+use Shopware\Core\Migration\V6_5\Migration1662533751AddCustomEntityTypeIdToCategory;
 
 /**
  * @package content
  *
  * @internal
  *
- * @covers \Shopware\Core\Migration\V6_4\Migration1662533751AddCustomEntityTypeIdToCategory
+ * @covers \Shopware\Core\Migration\V6_5\Migration1662533751AddCustomEntityTypeIdToCategory
  */
 class Migration1662533751AddCustomEntityTypeIdToCategoryTest extends TestCase
 {

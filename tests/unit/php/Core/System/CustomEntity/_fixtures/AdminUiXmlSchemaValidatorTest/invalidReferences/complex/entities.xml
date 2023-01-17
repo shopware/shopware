@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../../../../../src/Core/System/CustomEntity/Xml/entity-1.0.xsd">
+    <entity name="ce_invalid_ref_complex">
+        <fields>
+            <string name="test_string" store-api-aware="true"/>
+            <text name="test_text" store-api-aware="true"/>
+            <int name="test_int" store-api-aware="true"/>
+            <float name="test_float" store-api-aware="true"/>
+        </fields>
+    </entity>
+</entities>

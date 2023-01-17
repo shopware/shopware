@@ -6,20 +6,23 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity as AdminUiEntity;
+use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityConfigurationException;
 use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Entities;
 use Shopware\Core\System\CustomEntity\Xml\Entity;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @package content
  *
  * @internal
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService
+ * @covers \Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityConfigurationException
  */
 class CustomEntityEnrichmentServiceTest extends TestCase
 {
-    private const FIXTURE_PATH = '%s/../../_fixtures/%s';
+    private const FIXTURE_PATH = '%s/../../_fixtures/CustomEntityEnrichmentServiceTest/%s';
 
     private const EXPECTED_CMS_AWARE_ENTITY_NAMES = [
         'cmsAwareOnly' => 'custom_entity_test_entity_cms_aware',
@@ -443,6 +446,25 @@ class CustomEntityEnrichmentServiceTest extends TestCase
         }
     }
 
+    public function testThatEntityNotGivenInAdminUiIsThrown(): void
+    {
+        try {
+            $this->customEntityEnrichmentService->enrich(
+                $this->entitySchema,
+                $this->getAdminUiXmlSchema('admin-ui.entity_not_given_exception.xml')
+            );
+            static::fail('no Exception was thrown');
+        } catch (CustomEntityConfigurationException $exception) {
+            static::assertInstanceOf(CustomEntityConfigurationException::class, $exception);
+            static::assertEquals(
+                'The entities ce_not_defined0, ce_not_defined1 are not given in the entities.xml but are configured in admin-ui.xml',
+                $exception->getMessage()
+            );
+            static::assertEquals(CustomEntityConfigurationException::ENTITY_NOT_GIVEN_CODE, $exception->getErrorCode());
+            static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        }
+    }
+
     private function getCustomEntities(): CustomEntityXmlSchema
     {
         $configPath = sprintf(
@@ -454,12 +476,12 @@ class CustomEntityEnrichmentServiceTest extends TestCase
         return CustomEntityXmlSchema::createFromXmlFile($configPath);
     }
 
-    private function getAdminUiXmlSchema(): AdminUiXmlSchema
+    private function getAdminUiXmlSchema(string $fileName = AdminUiXmlSchema::FILENAME): AdminUiXmlSchema
     {
         $configPath = sprintf(
             self::FIXTURE_PATH,
             __DIR__,
-            AdminUiXmlSchema::FILENAME
+            $fileName
         );
 
         return AdminUiXmlSchema::createFromXmlFile($configPath);

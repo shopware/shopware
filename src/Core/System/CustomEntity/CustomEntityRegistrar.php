@@ -36,7 +36,7 @@ class CustomEntityRegistrar
 
         try {
             $entities = $this->container->get(Connection::class)->fetchAllAssociative('
-                SELECT custom_entity.name, custom_entity.fields, custom_entity.flag_config
+                SELECT custom_entity.name, custom_entity.fields, custom_entity.flags
                 FROM custom_entity
                     LEFT JOIN app ON app.id = custom_entity.app_id
                 WHERE custom_entity.app_id IS NULL OR app.active = 1
@@ -51,9 +51,9 @@ class CustomEntityRegistrar
 
         foreach ($entities as $entity) {
             $fields = json_decode($entity['fields'], true, 512, \JSON_THROW_ON_ERROR);
-            $flagConfig = json_decode($entity['flag_config'], true, 512, \JSON_THROW_ON_ERROR) ?? [];
+            $flags = json_decode($entity['flags'], true, 512, \JSON_THROW_ON_ERROR) ?? [];
 
-            $definition = DynamicEntityDefinition::create($entity['name'], $fields, $flagConfig, $this->container);
+            $definition = DynamicEntityDefinition::create($entity['name'], $fields, $flags, $this->container);
 
             $definitions[] = $definition;
 

@@ -14,19 +14,31 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Listing;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tab;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tabs;
+use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @package content
  *
  * @internal
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema
+ * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\AdminUi
+ * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Card
+ * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\CardField
+ * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Column
+ * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Columns
+ * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Detail
+ * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity
+ * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Listing
+ * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tab
+ * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tabs
  */
 class AdminUiXmlSchemaTest extends TestCase
 {
     public function testPublicConstants(): void
     {
         static::assertStringEndsWith(
-            'src/Core/System/CustomEntity/Xml/Config/AdminUi/admin-ui-1.0.xsd',
+            'System/CustomEntity/Xml/Config/AdminUi/admin-ui-1.0.xsd',
             AdminUiXmlSchema::XSD_FILEPATH
         );
         static::assertEquals('admin-ui.xml', AdminUiXmlSchema::FILENAME);
@@ -35,7 +47,7 @@ class AdminUiXmlSchemaTest extends TestCase
     public function testCreateFromXmlFileMinSetting(): void
     {
         $entities = $this->getEntities(
-            AdminUiXmlSchema::createFromXmlFile(__DIR__ . '/../../../_fixtures/admin-ui.min-setting.xml')
+            AdminUiXmlSchema::createFromXmlFile(__DIR__ . '/../../../_fixtures/AdminUiXmlSchemaTest/admin-ui.min-setting.xml')
         );
 
         static::assertIsArray($entities);
@@ -49,7 +61,7 @@ class AdminUiXmlSchemaTest extends TestCase
     public function testCreateFromXmlFileComplex(): void
     {
         $entities = $this->getEntities(
-            AdminUiXmlSchema::createFromXmlFile(__DIR__ . '/../../../_fixtures/admin-ui.max-setting.xml')
+            AdminUiXmlSchema::createFromXmlFile(__DIR__ . '/../../../_fixtures/AdminUiXmlSchemaTest/admin-ui.max-setting.xml')
         );
 
         static::assertIsArray($entities);
@@ -133,6 +145,40 @@ class AdminUiXmlSchemaTest extends TestCase
                 'custom_entity_field5',
             ]
         );
+    }
+
+    public function testThrowsExceptionWithInvalidPath(): void
+    {
+        try {
+            AdminUiXmlSchema::createFromXmlFile('invalid_path');
+            static::fail('no Exception was thrown');
+        } catch (XmlParsingException $exception) {
+            static::assertInstanceOf(XmlParsingException::class, $exception);
+            // Exception is thrown in listing first
+            static::assertEquals(
+                'Unable to parse file "invalid_path". Message: Resource "invalid_path" is not a file.',
+                $exception->getMessage()
+            );
+            static::assertEquals('SYSTEM__XML_PARSE_ERROR', $exception->getErrorCode());
+            static::assertEquals(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        }
+    }
+
+    public function testThrowsExceptionWithXmlFile(): void
+    {
+        try {
+            AdminUiXmlSchema::createFromXmlFile(__DIR__ . '/../../../_fixtures/AdminUiXmlSchemaTest/admin-ui.invalid.xml');
+            static::fail('no Exception was thrown');
+        } catch (XmlParsingException $exception) {
+            static::assertInstanceOf(XmlParsingException::class, $exception);
+            // Exception is thrown in listing first
+            static::assertStringContainsString(
+                'System/CustomEntity/Xml/Config/AdminUi/../../../_fixtures/AdminUiXmlSchemaTest/admin-ui.invalid.xml". Message: [ERROR 1871] Element \'ERROR\': This element is not expected. Expected is ( field ).',
+                $exception->getMessage()
+            );
+            static::assertEquals('SYSTEM__XML_PARSE_ERROR', $exception->getErrorCode());
+            static::assertEquals(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        }
     }
 
     private function minSettingsTest(Entity $customEntityTest): void

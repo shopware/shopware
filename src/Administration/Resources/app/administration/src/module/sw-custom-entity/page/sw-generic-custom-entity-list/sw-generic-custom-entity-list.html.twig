@@ -4,6 +4,7 @@
 >
     <template #search-bar>
         <sw-search-bar
+            :key="customEntityName"
             :initial-search-type="customEntityName"
             :initial-search="term"
             :entity-search-color="entityAccentColor"
@@ -38,7 +39,8 @@
     <template #content>
         <div class="sw-generic-custom-entity-list__content">
             <sw-entity-listing
-                v-if="customEntityDefinition"
+                v-if="!isLoading && customEntityDefinition && customEntityInstances.length > 0"
+                class="sw-generic-custom-entity-list__content-list"
                 :repository="customEntityRepository"
                 :items="customEntityInstances"
                 :allow-inline-edit="false"
@@ -54,18 +56,20 @@
                 @page-change="onPageChange"
                 @update-records="onUpdateRecords"
             />
-        </div>
 
-        <sw-empty-state
-            v-if="!isLoading && !customEntityInstances"
-            :title="$tc(`${customEntityName}.list.messageEmpty`)"
-        >
-            <template #icon>
-                <img
-                    :src="'/administration/static/img/empty-states/custom-entity-empty-state.svg' | asset"
-                    :alt="$tc(`${customEntityName}.list.messageEmpty`)"
-                >
-            </template>
-        </sw-empty-state>
+            <sw-empty-state
+                v-else
+                class="sw-generic-custom-entity-list__content-empty-state"
+                :title="emptyStateTitle"
+                :subline="emptyStateSubline"
+            >
+                <template #icon>
+                    <img
+                        :src="'/administration/static/img/empty-states/custom-entity-empty-state.svg' | asset"
+                        :alt="emptyStateTitle"
+                    >
+                </template>
+            </sw-empty-state>
+        </div>
     </template>
 </sw-page>

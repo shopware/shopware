@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+/** istanbul ignore file */
 
 /**
  * @private
@@ -20,7 +20,6 @@ Shopware.Component.register('sw-custom-entity-input-field', () => import('./comp
  * @package content
  */
 Shopware.Component.register('sw-generic-cms-page-assignment', () => import('./component/sw-generic-cms-page-assignment'));
-
 
 /**
  * @private

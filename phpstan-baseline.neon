@@ -10030,10 +10030,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/CriteriaQueryBuilder.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityDefinitionQueryHelper\\:\\:getFieldsOfAccessor\\(\\) should return list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\> but returns array\\<int\\<0, max\\>, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\>\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityDefinitionQueryHelper.php
+
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityForeignKeyResolver\\:\\:fetch\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
@@ -13329,11 +13326,6 @@ parameters:
 			message: "#^Offset 'Shopware\\\\\\\\Core\\\\\\\\Kernel' on list\\<string\\> in isset\\(\\) does not exist\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Api/ApiAliasTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$definitions of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:getSchema\\(\\) expects list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\> given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Api/ApiDefinition/Generator/EntitySchemaGeneratorTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"

@@ -55,6 +55,18 @@ class EntityDefinitionQueryHelper
         return !empty($exists);
     }
 
+    public static function tableExists(Connection $connection, string $table): bool
+    {
+        return !empty(
+            $connection->fetchOne(
+                'SHOW TABLES LIKE :table',
+                [
+                    'table' => $table,
+                ]
+            )
+        );
+    }
+
     /**
      * @return list<Field>
      */
@@ -109,7 +121,7 @@ class EntityDefinitionQueryHelper
             }
         }
 
-        return array_filter($accessorFields);
+        return \array_values(\array_filter($accessorFields));
     }
 
     /**

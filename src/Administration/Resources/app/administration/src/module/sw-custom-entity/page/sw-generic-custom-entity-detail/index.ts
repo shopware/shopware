@@ -3,6 +3,7 @@ import type {
     AdminTabsDefinition,
     CustomEntityDefinition,
     CustomEntityProperties,
+    AdminUiDefinition,
 } from 'src/app/service/custom-entity-definition.service';
 import type EntityCollection from 'src/core/data/entity-collection.data';
 import type Repository from 'src/core/data/repository.data';
@@ -15,12 +16,7 @@ const { Mixin } = Shopware;
 type GenericCustomEntityDetailData = {
     isLoading: boolean,
     isSaveSuccessful: boolean,
-    customEntityName: string,
-    entityAccentColor: string,
     customEntityData: Entity<'generic_custom_entity'>|null,
-    customEntityDataDefinition?: CustomEntityDefinition,
-    customEntityProperties?: CustomEntityProperties,
-    customEntityDataRepository?: Repository<'generic_custom_entity'>,
     customEntityDataInstances?: EntityCollection<'generic_custom_entity'>,
 };
 
@@ -39,18 +35,14 @@ export default Shopware.Component.wrapComponentConfig({
 
     mixins: [
         Mixin.getByName('placeholder'),
+        Mixin.getByName('notification'),
     ],
 
     data(): GenericCustomEntityDetailData {
         return {
             isLoading: true,
             isSaveSuccessful: false,
-            customEntityName: '',
-            entityAccentColor: '',
             customEntityData: null,
-            customEntityDataDefinition: undefined,
-            customEntityProperties: undefined,
-            customEntityDataRepository: undefined,
             customEntityDataInstances: undefined,
         };
     },
@@ -58,6 +50,39 @@ export default Shopware.Component.wrapComponentConfig({
     computed: {
         customEntityDataId(): string|null {
             return this.$route.params?.id;
+        },
+
+        customEntityName(): string {
+            return this.$route.params.entityName || '';
+        },
+
+        customEntityDataDefinition(): Readonly<CustomEntityDefinition | null> {
+            if (!this.customEntityName) {
+                return null;
+            }
+
+            return this.customEntityDefinitionService.getDefinitionByName(this.customEntityName) ?? null;
+        },
+
+        customEntityDataRepository(): Repository<'generic_custom_entity'> | null {
+            if (this.customEntityDataDefinition === null) {
+                return null;
+            }
+
+            return this.repositoryFactory
+                .create(this.customEntityDataDefinition.entity as 'generic_custom_entity');
+        },
+
+        customEntityProperties(): CustomEntityProperties | undefined {
+            return this.customEntityDataDefinition?.properties;
+        },
+
+        adminConfig(): AdminUiDefinition | undefined {
+            return this.customEntityDataDefinition?.flags['admin-ui'];
+        },
+
+        entityAccentColor(): string | undefined {
+            return this.adminConfig?.color;
         },
 
         detailTabs(): AdminTabsDefinition[] {
@@ -83,49 +108,45 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         initializeCustomEntity(): void {
-            const entityName = this.$route.params.entityName;
-
-            const customEntityDataDefinition = this.customEntityDefinitionService.getDefinitionByName(entityName) ?? null;
-            if (!customEntityDataDefinition) {
-                return;
+            if (this.adminConfig !== null) {
+                // eslint-disable-next-line max-len
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-non-null-assertion
+                this.$route.meta!.$module.icon = this.adminConfig?.icon;
             }
 
-            this.customEntityName = customEntityDataDefinition.entity;
-            this.customEntityProperties = customEntityDataDefinition.properties;
-
-            const adminConfig = customEntityDataDefinition.flags['admin-ui'];
-            this.entityAccentColor = adminConfig.color;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-non-null-assertion
-            this.$route.meta!.$module.icon = adminConfig.icon;
-
             // ToDo NEXT-22874 - Favicon handling
-
-            this.customEntityDataRepository = this.repositoryFactory.create(
-                customEntityDataDefinition.entity as 'generic_custom_entity',
-            );
-            this.customEntityDataDefinition = customEntityDataDefinition;
-
             void this.loadData();
         },
 
-        loadData(): Promise<void> {
+        async loadData(): Promise<void> {
             this.isLoading = true;
-            if (!this.customEntityDataRepository) {
-                return Promise.reject();
-            }
 
-            if (!this.customEntityDataId) {
-                this.customEntityData = this.customEntityDataRepository.create();
+            try {
+                if (!this.customEntityDataRepository) {
+                    throw new Error(`Custom entity repository for "${this.customEntityName}" not found`);
+                }
+
+                if (!this.customEntityDataId) {
+                    this.customEntityData = this.customEntityDataRepository.create();
+                    this.isLoading = false;
+
+                    return;
+                }
+
+                this.customEntityData = await this.customEntityDataRepository.get(this.customEntityDataId);
+            } catch (e) {
+                console.error(e);
+
+                // Methods from mixins are not recognized
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                this.createNotificationError({
+                    message: this.$tc(
+                        'global.notification.notificationLoadingDataErrorMessage',
+                    ),
+                });
+            } finally {
                 this.isLoading = false;
-
-                return Promise.resolve();
             }
-
-            return this.customEntityDataRepository.get(this.customEntityDataId).then((data) => {
-                this.customEntityData = data;
-            }).finally(() => {
-                this.isLoading = false;
-            });
         },
 
         async onSave(): Promise<void> {
@@ -135,11 +156,11 @@ export default Shopware.Component.wrapComponentConfig({
                 return Promise.reject();
             }
 
-            return this.customEntityDataRepository?.save(this.customEntityData).then(() => {
+            return this.customEntityDataRepository?.save(this.customEntityData).then(async () => {
                 this.isSaveSuccessful = true;
 
                 if (!this.customEntityDataId && this.customEntityData?.id) {
-                    void this.$router.push({
+                    await this.$router.push({
                         name: 'sw.custom.entity.detail',
                         params: {
                             id: this.customEntityData.id,

@@ -1,7 +1,9 @@
 {
     "sw-custom-entity": {
         "general": {
-            "mainMenuItemGeneral": "Custom Entity"
+            "mainMenuItemGeneral": "Custom Entity",
+            "emptyState": "No Custom Entities yet",
+            "emptyStateSubline": "Manage Custom Entities here."
         },
         "detail": {
             "tabs": {

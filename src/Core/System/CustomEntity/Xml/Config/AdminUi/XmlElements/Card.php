@@ -44,7 +44,7 @@ final class Card extends ConfigXmlElement
     }
 
     /**
-     * @return CardField[]
+     * @return list<CardField>
      */
     public function getFields(): array
     {

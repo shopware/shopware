@@ -171,7 +171,8 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
                 template: '<div class="sw-generic-social-media-card"></div>',
                 props: ['og-title', 'og-description', 'og-image-id'],
             },
-        }
+        },
+        mixins: [{ createNotificationError: jest.fn() }],
     });
 }
 
@@ -376,7 +377,6 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
         });
     });
 
-
     it('should render the sw-generic-social-media-card and react to changes', async () => {
         const wrapper = await createWrapper({
             activeTab: 'cms-aware-tab-seo',
@@ -416,6 +416,9 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
     });
 
     it('should not break if an event is received before data is loaded', async () => {
+        const entityName = 'some-entity-that-does-not-exist';
+        console.error = jest.fn();
+
         const wrapper = await createWrapper({
             entityName: 'some-entity-that-does-not-exist',
         });
@@ -436,5 +439,6 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
         });
 
         expect(wrapper.vm.customEntityData).toBe(null);
+        expect(console.error).toBeCalledWith(new Error(`Custom entity repository for "${entityName}" not found`));
     });
 });

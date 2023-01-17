@@ -3,22 +3,21 @@
 namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\CmsAware;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareEnrichment;
+use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareFields;
 
 /**
  * @package content
  *
  * @internal
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareEnrichment
+ * @covers \Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareFields
  */
-class CmsAwareEnrichmentTest extends TestCase
+class CmsAwareFieldsTest extends TestCase
 {
     private const TEST_LOCALE = 'en-GB';
 
     public function testGetCmsAwareFields(): void
     {
-        static::markTestSkipped('cms-aware will be re-implemented via NEXT-22697');
-        $actualCmsAwareFields = array_reduce(CmsAwareEnrichment::getCmsAwareFields(), static function ($accumulator, $field) {
+        $actualCmsAwareFields = array_reduce(CmsAwareFields::getCmsAwareFields(), static function ($accumulator, $field) {
             $accumulator[$field->getName()] = $field;
 
             return $accumulator;
@@ -59,7 +58,7 @@ class CmsAwareEnrichmentTest extends TestCase
         static::assertFalse($swCategories['required']);
         static::assertEquals('category', $swCategories['reference']);
         static::assertFalse($swCategories['inherited']);
-        static::assertEquals('set-null', $swCategories['onDelete']);
+        static::assertEquals('cascade', $swCategories['onDelete']);
 
         $swMedia = $actualCmsAwareFields['sw_og_image']->toArray(self::TEST_LOCALE);
         static::assertEquals('many-to-one', $swMedia['type']);

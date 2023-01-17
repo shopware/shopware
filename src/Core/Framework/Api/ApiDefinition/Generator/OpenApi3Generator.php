@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
 /**
  * @internal
@@ -57,7 +57,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinition>  $definitions
+     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface>  $definitions
      *
      * @return OpenApiSpec
      */
@@ -120,7 +120,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinition> $definitions
+     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
      *
      * @return array<string, array{name: string, translatable: array<int|string, mixed>, properties: array<string, mixed>}>
      */
@@ -234,12 +234,12 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinition> $definitions
+     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
      */
     private function containsSalesChannelDefinition(array $definitions): bool
     {
         foreach ($definitions as $definition) {
-            if (is_subclass_of($definition, SalesChannelDefinition::class)) {
+            if (is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
                 return true;
             }
         }
@@ -267,7 +267,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             return true;
         }
 
-        if ($forSalesChannel && !is_subclass_of($definition, SalesChannelDefinition::class)) {
+        if ($forSalesChannel && !is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
             return true;
         }
 

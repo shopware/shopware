@@ -56,15 +56,18 @@ class CustomEntityLifecycleService
 
     private function update(string $pathToCustomEntityFile, string $extensionEntityType, string $extensionId): ?CustomEntityXmlSchema
     {
+        $customEntityXmlSchema = $this->getXmlSchema($pathToCustomEntityFile);
+        if ($customEntityXmlSchema === null) {
+            return null;
+        }
+
         $customEntityXmlSchema = $this->customEntityEnrichmentService->enrich(
-            $this->getXmlSchema($pathToCustomEntityFile),
+            $customEntityXmlSchema,
             $this->getAdminUiXmlSchema($pathToCustomEntityFile),
         );
 
-        if ($customEntityXmlSchema !== null) {
-            $this->customEntityPersister->update($customEntityXmlSchema->toStorage(), $extensionEntityType, $extensionId);
-            $this->customEntitySchemaUpdater->update();
-        }
+        $this->customEntityPersister->update($customEntityXmlSchema->toStorage(), $extensionEntityType, $extensionId);
+        $this->customEntitySchemaUpdater->update();
 
         return $customEntityXmlSchema;
     }

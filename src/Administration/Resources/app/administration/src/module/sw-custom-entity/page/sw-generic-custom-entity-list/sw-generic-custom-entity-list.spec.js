@@ -125,7 +125,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
 
     it('should display the empty state when 0 entities are found', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-empty-state').exists()).toBe(false);
 
@@ -135,20 +135,20 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
 
         expect(wrapper.vm.customEntityInstances).toBe(false);
 
-        expect(wrapper.get('.sw-empty-state').props('title')).toBe('custom_test_entity.list.messageEmpty');
+        expect(wrapper.get('.sw-empty-state').props('title')).toBe('custom_test_entity.list.emptyState');
 
         const imageElement = wrapper.get('.sw-empty-state img');
 
         expect(imageElement.attributes()).toStrictEqual({
             src: 'administration/static/img/empty-states/custom-entity-empty-state.svg',
-            alt: 'custom_test_entity.list.messageEmpty'
+            alt: 'custom_test_entity.list.emptyState'
         });
     });
 
     it('gets the custom entity definition and renders the columns', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const trimmedTitleText = wrapper.get('.sw-generic-custom-entity-list__title').text().replace(/\s/g, '');
         expect(trimmedTitleText).toContain('custom_test_entity.moduleTitle(1)');
@@ -214,7 +214,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     it('changes to content language with the language switch', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const testLanguageId = 'some-language-id';
 
@@ -236,15 +236,14 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
             naturalSorting: 'false',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.$options.watch.$route.call(wrapper.vm);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const searchMock = wrapper.vm.customEntityRepository.search;
         expect(searchMock).toHaveBeenCalledTimes(2);
-
 
         const entityListingProps = wrapper.get('.sw-entity-listing').props();
         expect(entityListingProps.repository.entityName).toBe('custom_test_entity');
@@ -284,7 +283,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     it('changes the route when searching', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const searchBar = wrapper.get('.sw-search-bar');
 
@@ -308,7 +307,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     it('changes the route when sorting', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.get('.sw-entity-listing');
 
@@ -344,10 +343,9 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     it('changes the route when changing the page and limit', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.get('.sw-entity-listing');
-
         entityListing.vm.$emit('page-change', { page: 2, limit: 10 });
 
         expect(wrapper.vm.$router.replace).toHaveBeenCalledTimes(1);
@@ -366,7 +364,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     it('reacts to route changes and fetches data with new criteria', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.$route.query = {
             term: 'some-search-term',
@@ -379,11 +377,10 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
 
         wrapper.vm.$options.watch.$route.call(wrapper.vm);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const searchMock = wrapper.vm.customEntityRepository.search;
         expect(searchMock).toHaveBeenCalledTimes(2);
-
 
         const entityListingProps = wrapper.get('.sw-entity-listing').props();
         expect(entityListingProps.repository.entityName).toBe('custom_test_entity');

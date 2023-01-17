@@ -8576,16 +8576,6 @@ parameters:
 			path: src/Core/Framework/Api/EventListener/ErrorResponseFactory.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Exception\\\\ExceptionFailedException\\:\\:__construct\\(\\) has parameter \\$failedExpectations with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Exception/ExceptionFailedException.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Api\\\\Exception\\\\ExceptionFailedException\\:\\:\\$fails type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Exception/ExceptionFailedException.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Exception\\\\IncompletePrimaryKeyException\\:\\:__construct\\(\\) has parameter \\$primaryKeyFields with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Exception/IncompletePrimaryKeyException.php

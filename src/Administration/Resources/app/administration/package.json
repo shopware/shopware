@@ -15,6 +15,7 @@
     }
   ],
   "scripts": {
+    "preinstall": "node src/scripts/validate-package-json/index.mjs",
     "postinstall": "patch-package",
     "dev": "mode=development webpack-dev-server",
     "build": "mode=production webpack",

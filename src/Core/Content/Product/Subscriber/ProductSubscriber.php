@@ -16,6 +16,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\PartialEntityLoadedEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Entity\PartialSalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -149,7 +150,7 @@ class ProductSubscriber implements EventSubscriberInterface
      */
     private function setDefaultLayout(Entity $product, ?string $salesChannelId = null): void
     {
-        if (!$product->has('cmsPageId')) {
+        if (!Feature::isActive('v6.6.0.0') || !$product->has('cmsPageId')) {
             return;
         }
 

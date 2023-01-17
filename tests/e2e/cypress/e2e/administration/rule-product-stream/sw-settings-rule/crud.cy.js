@@ -105,7 +105,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.get(page.elements.modal).should('not.exist');
     });
 
-    it.only('@base @rule: should show the condition select upwards', { tags: ['pa-business-ops'] }, () => {
+    it('@base @rule: should show the condition select upwards', { tags: ['pa-business-ops'] }, () => {
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('a[href="#/sw/settings/rule/create"]').click();
         cy.get('.sw-skeleton').should('not.exist');

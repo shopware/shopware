@@ -11,7 +11,7 @@ describe('Product: Test variants', () => {
         });
     });
 
-    it.only('@base @catalogue: variants display corresponding name based on specific language', { tags: ['pa-inventory'] }, () => {
+    it('@base @catalogue: variants display corresponding name based on specific language', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         cy.intercept({

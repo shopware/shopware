@@ -36,7 +36,7 @@ describe('Customer: Edit customer\'s addresses', () => {
             });
     });
 
-    it('@base @customer: add new billing address', { tags: ['pa-customers-orders'] }, () => {
+    it('@base @customer: add new billing address', {tags: ['pa-customers-orders']}, () => {
         const page = new CustomerPageObject();
 
         // Open customer
@@ -63,7 +63,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.contains(`Mr. ${customer.firstName} ${customer.lastName}`);
     });
 
-    it('@base @customer: remove address', { tags: ['pa-customers-orders'] }, () => {
+    it('@base @customer: remove address', {tags: ['pa-customers-orders']}, () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later
@@ -83,6 +83,8 @@ describe('Customer: Edit customer\'s addresses', () => {
 
         // Remove address
         cy.get('.sw-customer-detail__tab-addresses').click();
+        cy.get('.sw-customer-detail-addresses').should('be.visible');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
 
         cy.get('.sw-data-grid__cell--2').click();
@@ -105,7 +107,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
     });
 
-    it('@base @customer: go to edit mode, save and edit again and then remove address', { tags: ['pa-customers-orders'] }, () => {
+    it('@base @customer: go to edit mode, save and edit again and then remove address', {tags: ['pa-customers-orders']}, () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later
@@ -125,6 +127,8 @@ describe('Customer: Edit customer\'s addresses', () => {
 
         // Go to addresses tab
         cy.get('.sw-customer-detail__tab-addresses').click();
+        cy.get('.sw-customer-detail-addresses').should('be.visible');
+        cy.get('.sw-skeleton').should('not.exist');
 
         // Activate edit mode
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
@@ -158,7 +162,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
     });
 
-    it('@customer: swap default billing and shipping address', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
+    it('@customer: swap default billing and shipping address', {tags: ['pa-customers-orders', 'quarantined']}, () => {
         const page = new CustomerPageObject();
 
         cy.get('.sw-customer-list__content').should('be.visible');
@@ -172,6 +176,8 @@ describe('Customer: Edit customer\'s addresses', () => {
 
         // Open and swap default in addresses
         cy.get('.sw-customer-detail__tab-addresses').click();
+        cy.get('.sw-customer-detail-addresses').should('be.visible');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
 
         cy.get('.sw-data-grid__cell--2').click();
@@ -189,7 +195,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get(`${page.elements.dataGridRow}--1 #defaultBillingAddress-0:checked`);
     });
 
-    it('@base @customer: duplicate address', { tags: ['pa-customers-orders'] }, () => {
+    it('@base @customer: duplicate address', {tags: ['pa-customers-orders']}, () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later
@@ -238,7 +244,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get(`${page.elements.dataGridRow}--2`).should('be.visible');
     });
 
-    it('@base @customer: search addresses', { tags: ['pa-customers-orders'] }, () => {
+    it('@base @customer: search addresses', {tags: ['pa-customers-orders']}, () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later
@@ -258,6 +264,8 @@ describe('Customer: Edit customer\'s addresses', () => {
 
         // Go to addresses tab
         cy.get('.sw-customer-detail__tab-addresses').click();
+        cy.get('.sw-customer-detail-addresses').should('be.visible');
+        cy.get('.sw-skeleton').should('not.exist');
 
         cy.get('.sw-simple-search-field input').type('Lemon');
 

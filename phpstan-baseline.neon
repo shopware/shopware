@@ -15601,56 +15601,6 @@ parameters:
 			path: src/Core/Migration/V6_4/Migration1646397836UpdateRolePrivilegesOfOrderCreator.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Doctrine\\\\ConnectionProfiler\\:\\:getQueries\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Profiling/Doctrine/ConnectionProfiler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Doctrine\\\\ConnectionProfiler\\:\\:getQueryCount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Profiling/Doctrine/ConnectionProfiler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Doctrine\\\\ConnectionProfiler\\:\\:getTime\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Profiling/Doctrine/ConnectionProfiler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Doctrine\\\\ConnectionProfiler\\:\\:sanitizeParam\\(\\) has parameter \\$var with no type specified\\.$#"
-			count: 1
-			path: src/Core/Profiling/Doctrine/ConnectionProfiler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Doctrine\\\\ConnectionProfiler\\:\\:sanitizeParam\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Profiling/Doctrine/ConnectionProfiler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Doctrine\\\\ConnectionProfiler\\:\\:sanitizeQueries\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Profiling/Doctrine/ConnectionProfiler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Doctrine\\\\ConnectionProfiler\\:\\:sanitizeQueries\\(\\) has parameter \\$queries with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Profiling/Doctrine/ConnectionProfiler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Doctrine\\\\ConnectionProfiler\\:\\:sanitizeQuery\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Profiling/Doctrine/ConnectionProfiler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Doctrine\\\\ConnectionProfiler\\:\\:sanitizeQuery\\(\\) has parameter \\$query with no type specified\\.$#"
-			count: 1
-			path: src/Core/Profiling/Doctrine/ConnectionProfiler.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Profiling\\\\Doctrine\\\\ConnectionProfiler\\:\\:\\$data type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Profiling/Doctrine/ConnectionProfiler.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Integration\\\\Datadog\\:\\:start\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Profiling/Integration/Datadog.php
@@ -15694,61 +15644,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Profiler\\:\\:trace\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Profiling/Profiler.php
-
-		-
-			message: "#^Cannot cast object to string\\.$#"
-			count: 1
-			path: src/Core/Profiling/Twig/DoctrineExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Twig\\\\DoctrineExtension\\:\\:composeMiniQuery\\(\\) has parameter \\$keywords with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Profiling/Twig/DoctrineExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Twig\\\\DoctrineExtension\\:\\:escapeFunction\\(\\) has parameter \\$parameter with no type specified\\.$#"
-			count: 1
-			path: src/Core/Profiling/Twig/DoctrineExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Twig\\\\DoctrineExtension\\:\\:formatQuery\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Core/Profiling/Twig/DoctrineExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Twig\\\\DoctrineExtension\\:\\:getPossibleCombinations\\(\\) has parameter \\$elements with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Profiling/Twig/DoctrineExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Twig\\\\DoctrineExtension\\:\\:getPossibleCombinations\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Profiling/Twig/DoctrineExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Twig\\\\DoctrineExtension\\:\\:replaceQueryParameters\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Profiling/Twig/DoctrineExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Twig\\\\DoctrineExtension\\:\\:replaceQueryParameters\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\|Symfony\\\\Component\\\\VarDumper\\\\Cloner\\\\Data\\.$#"
-			count: 1
-			path: src/Core/Profiling/Twig/DoctrineExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Twig\\\\DoctrineExtension\\:\\:replaceQueryParameters\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Core/Profiling/Twig/DoctrineExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Twig\\\\DoctrineExtension\\:\\:shrinkParameters\\(\\) has parameter \\$combination with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Profiling/Twig/DoctrineExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Twig\\\\DoctrineExtension\\:\\:shrinkParameters\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Profiling/Twig/DoctrineExtension.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Annotation\\\\Concept\\\\DeprecationPattern\\\\RenameService\\:\\:__construct\\(\\) has parameter \\$info with no value type specified in iterable type array\\.$#"

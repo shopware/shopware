@@ -67,6 +67,7 @@ base-uri 'self';
         <!-- Database / Doctrine -->
         <service id="Doctrine\DBAL\Connection" public="true">
             <factory class="Shopware\Core\Kernel" method="getConnection"/>
+
         </service>
 
         <service id="Shopware\Core\Framework\Routing\QueryDataBagResolver">

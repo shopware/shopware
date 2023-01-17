@@ -5,6 +5,7 @@ namespace Shopware\Core;
 use Composer\Autoload\ClassLoader;
 use Composer\InstalledVersions;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Routing\CanonicalRedirectService;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Profiling\Doctrine\DebugStack;
+use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
 use Shopware\Storefront\Framework\Cache\CacheStore;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -89,13 +91,16 @@ class HttpKernel
         $this->pluginLoader = $pluginLoader;
     }
 
-    public static function getConnection(): Connection
+    /**
+     * @param array<Middleware> $middlewares
+     */
+    public static function getConnection(array $middlewares = []): Connection
     {
         if (self::$connection) {
             return self::$connection;
         }
 
-        self::$connection = MySQLFactory::create();
+        self::$connection = MySQLFactory::create($middlewares);
 
         return self::$connection;
     }
@@ -163,7 +168,9 @@ class HttpKernel
                 . '@' . InstalledVersions::getReference('shopware/core');
         }
 
-        $connection = self::getConnection();
+        $middlewares = $this->environment === 'prod' ? [] : [new ProfilingMiddleware()];
+
+        $connection = self::getConnection($middlewares);
 
         if ($this->environment !== 'prod') {
             $connection->getConfiguration()->setSQLLogger(new DebugStack());

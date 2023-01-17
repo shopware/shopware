@@ -145,6 +145,7 @@
                 <array>
                     <!-- set this option to 0 to disable the DebugClassLoader integration -->
                     <element key="debug-class-loader"><integer>0</integer></element>
+                    <element key="time-sensitive"><string>Symfony\Bridge\Doctrine\Middleware\Debug</string></element>
                 </array>
             </arguments>
         </listener>

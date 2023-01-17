@@ -89,6 +89,7 @@ export default {
             'isLoading',
             'showModeSetting',
             'showProductCard',
+            'productStates',
         ]),
 
         /**
@@ -179,7 +180,6 @@ export default {
         },
     },
 
-
     watch: {
         product() {
             /**
@@ -255,6 +255,14 @@ export default {
 
         onCloseMediaModal() {
             this.showMediaModal = false;
+        },
+
+        onOpenDownloadMediaModal() {
+            this.showDownloadMediaModal = true;
+        },
+
+        onCloseDownloadMediaModal() {
+            this.showDownloadMediaModal = false;
         },
 
         onAddMedia(media) {

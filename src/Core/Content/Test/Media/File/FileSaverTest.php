@@ -513,6 +513,11 @@ class FileSaverTest extends TestCase
             ->method('update')
             ->willThrowException(new \Exception());
 
+        /** @var list<string> $allowed */
+        $allowed = $this->getContainer()->getParameter('shopware.filesystem.allowed_extensions');
+        /** @var list<string> $allowedPrivate */
+        $allowedPrivate = $this->getContainer()->getParameter('shopware.filesystem.private_allowed_extensions');
+
         $fileSaverWithFailingRepository = new FileSaver(
             $repositoryMock,
             $this->getContainer()->get('shopware.filesystem.public'),
@@ -523,7 +528,8 @@ class FileSaverTest extends TestCase
             $this->getContainer()->get(TypeDetector::class),
             $this->getContainer()->get('messenger.bus.shopware'),
             $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->getParameter('shopware.filesystem.allowed_extensions')
+            $allowed,
+            $allowedPrivate
         );
 
         $mediaPath = $this->urlGenerator->getRelativeMediaUrl($png);

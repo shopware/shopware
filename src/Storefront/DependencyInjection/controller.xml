@@ -341,6 +341,17 @@
             </call>
         </service>
 
+        <service id="Shopware\Storefront\Controller\DownloadController" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <call method="setTwig">
+                <argument type="service" id="twig"/>
+            </call>
+        </service>
+
         <service id="Shopware\Storefront\Controller\WellKnownController" public="true">
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

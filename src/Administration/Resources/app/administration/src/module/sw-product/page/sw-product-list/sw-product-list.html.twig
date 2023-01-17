@@ -41,21 +41,68 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_list_smart_bar_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_list_smart_bar_actions_add %}
-        <sw-button
-            v-tooltip="{
+        <sw-button-group
+            v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('product.creator'),
                 showOnDisabledElements: true
             }"
-            :router-link="{ name: 'sw.product.create' }"
-            variant="primary"
-            :disabled="!acl.can('product.creator')"
+            class="sw-product-list__add-button-group"
+            split-button
         >
-            {{ $tc('sw-product.list.buttonAddProduct') }}
-        </sw-button>
-        {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_list_smart_bar_actions_add %}
+            <sw-button
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('product.creator'),
+                    showOnDisabledElements: true
+                }"
+                class="sw-product-list__add-physical-button"
+                :router-link="{ name: 'sw.product.create', query: { creationStates: ['is-physical'] } }"
+                variant="primary"
+                :disabled="!acl.can('product.creator')"
+            >
+                {{ $tc('sw-product.list.buttonAddProduct') }}
+            </sw-button>
+            {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_list_smart_bar_actions_add_download %}
+            <sw-context-button class="sw-product-list__add-other-context-button">
+                <template #button>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_product_list_smart_bar_actions_add_download_button %}
+                    <sw-button
+                        class="sw-product-list__button-context-menu"
+                        square
+                        variant="primary"
+                        :disabled="!acl.can('product.editor')"
+                    >
+                        <sw-icon
+                            name="regular-chevron-down-xs"
+                            size="16"
+                        />
+                    </sw-button>
+                    {% endblock %}
+                </template>
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_list_smart_bar_actions_add_download_context_menu_item_downloadable_product %}
+                <sw-context-menu-item
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('product.creator'),
+                        showOnDisabledElements: true
+                    }"
+                    :router-link="{ name: 'sw.product.create', query: { creationStates: ['is-download'] } }"
+                    :disabled="!acl.can('product.creator')"
+                >
+                    {{ $tc('sw-product.list.buttonAddDownloadableProduct') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </sw-context-button>
+            {% endblock %}
+        </sw-button-group>
     </template>
     {% endblock %}
 
@@ -146,6 +193,13 @@
                             {{ item.translated ? item.translated.name : item.name }}
                         </router-link>
                         {% endblock %}
+
+                        <sw-label
+                            v-if="productIsDigital(item)"
+                            class="sw-product-list__digital-indicator"
+                        >
+                            {{ $tc('sw-product.variations.generatedListColumnContentProductState.is-download') }}
+                        </sw-label>
                     </div>
                     {% endblock %}
                 </template>

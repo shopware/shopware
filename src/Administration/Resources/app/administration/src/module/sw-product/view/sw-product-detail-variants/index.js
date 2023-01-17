@@ -27,12 +27,15 @@ export default {
             productEntityLoaded: false,
             propertiesAvailable: true,
             showAddPropertiesModal: false,
+            defaultTab: 'all',
+            activeTab: 'all',
         };
     },
 
     computed: {
         ...mapState('swProductDetail', [
             'product',
+            'variants',
         ]),
 
         ...mapState('context', {
@@ -62,6 +65,10 @@ export default {
         },
 
         selectedGroups() {
+            if (!this.productEntity.configuratorSettings) {
+                return [];
+            }
+
             // get groups for selected options
             const groupIds = this.productEntity.configuratorSettings.reduce((result, element) => {
                 if (result.indexOf(element.option.groupId) < 0) {
@@ -74,6 +81,10 @@ export default {
             return this.groups.filter((group) => {
                 return groupIds.indexOf(group.id) >= 0;
             });
+        },
+
+        currentProductStates() {
+            return this.activeTab.split(',');
         },
     },
 
@@ -110,6 +121,10 @@ export default {
             this.loadData();
         },
 
+        setActiveTab(tabName) {
+            this.activeTab = tabName;
+        },
+
         loadData() {
             if (!this.isStoreLoading) {
                 this.loadOptions()
@@ -129,6 +144,7 @@ export default {
                 this.productRepository.get(this.product.id, Shopware.Context.api, criteria).then((product) => {
                     this.productEntity = product;
                     this.productEntityLoaded = true;
+
                     resolve();
                 });
             });
@@ -240,6 +256,5 @@ export default {
 
             this.productProperties.splice(0, this.productProperties.length, ...newProperties);
         },
-
     },
 };

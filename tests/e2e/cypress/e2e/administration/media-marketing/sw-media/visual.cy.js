@@ -107,7 +107,7 @@ describe('Media: Visual tests', () => {
 
         // Add first image to product
         cy.get('.sw-product-media-form__previews').scrollIntoView();
-        cy.get('#files')
+        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
             .attachFile('img/sw-login-background.png');
         cy.get('.sw-product-image__image img')
             .should('have.attr', 'src')

@@ -52,7 +52,7 @@ describe('Sales Channel: Test product assignment operations', () => {
         cy.get('.smart-bar__header h2').should('be.visible');
         cy.get(productPage.elements.loader).should('not.exist');
         cy.get('.sw-skeleton').should('not.exist');
-        cy.get('a[href="#/sw/product/create"]').click();
+        cy.get('a[href="#/sw/product/create?creationStates=is-physical"]').click();
         cy.contains('.smart-bar__header h2', 'New product');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -137,7 +137,7 @@ describe('Sales Channel: Test product assignment operations', () => {
         cy.get(productPage.elements.loader).should('not.exist');
         cy.get('.sw-skeleton').should('not.exist');
 
-        cy.get('a[href="#/sw/product/create"]').click();
+        cy.get('a[href="#/sw/product/create?creationStates=is-physical"]').click();
         cy.contains('.smart-bar__header h2', 'New product');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

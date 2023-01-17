@@ -25,6 +25,7 @@ abstract class BenchCase
 
         $this->context = clone Fixtures::context();
 
+        $this->getContainer()->get(Connection::class)->setNestTransactionsWithSavepoints(true);
         $this->getContainer()->get(Connection::class)->beginTransaction();
     }
 

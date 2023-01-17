@@ -1,7 +1,83 @@
 @import "~scss/variables";
 
 /* stylelint-disable */
+.sw-product-modal-variant-generation__variant-amount {
+    font-weight: $font-weight-bold;
+}
+
+.sw-modal.sw-modal--default.sw-product-modal-variant-generation.sw-product-modal-variant-generation__upload_files {
+    .sw-product-modal-variant-generation__toolbar {
+        flex-basis: 100%;
+        padding: 30px;
+        background-color: $color-gray-100;
+        border-bottom: 1px solid $color-gray-300;
+    }
+
+    .sw-media-upload-v2__content {
+        width: 370px;
+    }
+
+    .sw-modal__dialog .sw-modal__body {
+        flex-direction: column;
+        height: auto;
+        min-height: 80vh;
+        padding-bottom: 16px;
+    }
+
+    .sw-product-modal-variant-generation__upload-card {
+        max-width: unset;
+        margin-left: 24px;
+        margin-right: 24px;
+        border: 1px solid $color-gray-300;
+        border-radius: $border-radius-default;
+        filter: none;
+
+        .sw-product-modal-variant-generation__card-title {
+            padding: 22px 24px;
+            border-bottom: 1px solid $color-gray-300;
+        }
+
+        .sw-field--switch.sw-field--default {
+            margin: 0;
+        }
+
+        .sw-product-modal-variant-generation__upload-all-container {
+            border-bottom: 1px solid $color-gray-300;
+            padding: 8px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sw-data-grid.sw-product-modal-variant-generation__grid .sw-data-grid__item .sw-field--switch.sw-field--default {
+            margin: 0 16px 0;
+        }
+    }
+}
+
 .sw-modal.sw-modal--default.sw-product-modal-variant-generation {
+
+    .sw-product-modal-variant-generation__grid {
+        width: 100%;
+        height: 100%;
+
+        .sw-data-grid__item {
+            display: flex;
+            align-items: center;
+
+            .sw-field--switch {
+                margin: 0 80px 0 80px;
+            }
+        }
+    }
+
+    .sw-data-grid__cell-content {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        padding-right: 24px;
+    }
 
     .sw-modal__dialog {
         max-width: 1440px;
@@ -9,8 +85,13 @@
         .sw-modal__body {
             display: flex;
             padding: 0;
-            height: 520px;
-            overflow: hidden;
+            max-height: 1024px;
+            height: 80vh;
+
+            .sw-alert {
+                width: auto;
+                margin: 24px;
+            }
 
             .sw-tabs .sw-tabs__custom-content {
                 padding: 10px 0;
@@ -74,5 +155,13 @@ p.sw-product-variants-configurator-selection__modal--delete-text {
     p:first-child {
         margin-bottom: 20px;
     }
+}
+
+.sw-product-modal-variant-generation__infoBox {
+    margin: 20px 0 20px 24px;
+}
+
+.sw-product-modal-variant-generation__infoBoxContent {
+    padding-top: 8px;
 }
 /* stylelint-enable */

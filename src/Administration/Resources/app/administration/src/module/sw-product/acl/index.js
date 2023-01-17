@@ -11,6 +11,7 @@ Shopware.Service('privileges')
             viewer: {
                 privileges: [
                     'product:read',
+                    'product_download:read',
                     'product_media:read',
                     'product_manufacturer:read',
                     'currency:read',
@@ -59,6 +60,9 @@ Shopware.Service('privileges')
             },
             editor: {
                 privileges: [
+                    'product_download:create',
+                    'product_download:update',
+                    'product_download:delete',
                     'product_media:create',
                     'product_media:delete',
                     'product_manufacturer:create',

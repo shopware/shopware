@@ -38,6 +38,7 @@ class ProductIndexer extends EntityIndexer
     public const RATING_AVERAGE_UPDATER = 'product.rating-average';
     public const STREAM_UPDATER = 'product.stream';
     public const SEARCH_KEYWORD_UPDATER = 'product.search-keyword';
+    public const STATES_UPDATER = 'product.states';
 
     private IteratorFactory $iteratorFactory;
 
@@ -67,6 +68,8 @@ class ProductIndexer extends EntityIndexer
 
     private ProductStreamUpdater $streamUpdater;
 
+    private StatesUpdater $statesUpdater;
+
     private MessageBusInterface $messageBus;
 
     /**
@@ -87,6 +90,7 @@ class ProductIndexer extends EntityIndexer
         EventDispatcherInterface $eventDispatcher,
         CheapestPriceUpdater $cheapestPriceUpdater,
         ProductStreamUpdater $streamUpdater,
+        StatesUpdater $statesUpdater,
         MessageBusInterface $messageBus
     ) {
         $this->iteratorFactory = $iteratorFactory;
@@ -103,6 +107,7 @@ class ProductIndexer extends EntityIndexer
         $this->eventDispatcher = $eventDispatcher;
         $this->cheapestPriceUpdater = $cheapestPriceUpdater;
         $this->streamUpdater = $streamUpdater;
+        $this->statesUpdater = $statesUpdater;
         $this->messageBus = $messageBus;
     }
 
@@ -111,6 +116,9 @@ class ProductIndexer extends EntityIndexer
         return 'product.indexer';
     }
 
+    /**
+     * @param array<string, string>|null $offset
+     */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {
         $iterator = $this->getIterator($offset);
@@ -138,7 +146,7 @@ class ProductIndexer extends EntityIndexer
 
         $stocks = $event->getPrimaryKeysWithPropertyChange(ProductDefinition::ENTITY_NAME, ['stock', 'isCloseout', 'minPurchase']);
         Profiler::trace('product:indexer:stock', function () use ($stocks, $event): void {
-            $this->stockUpdater->update($stocks, $event->getContext());
+            $this->stockUpdater->update(array_values($stocks), $event->getContext());
         });
 
         $message = new ProductIndexingMessage(array_values($updates), null, $event->getContext());
@@ -176,7 +184,7 @@ class ProductIndexer extends EntityIndexer
 
     public function handle(EntityIndexingMessage $message): void
     {
-        $ids = array_unique(array_filter($message->getData()));
+        $ids = array_values(array_unique(array_filter($message->getData())));
 
         if (empty($ids)) {
             return;
@@ -246,6 +254,12 @@ class ProductIndexer extends EntityIndexer
             });
         }
 
+        if ($message->allow(self::STATES_UPDATER)) {
+            Profiler::trace('product:indexer:states', function () use ($ids, $context): void {
+                $this->statesUpdater->update($ids, $context);
+            });
+        }
+
         RetryableQuery::retryable($this->connection, function () use ($ids): void {
             $this->connection->executeStatement(
                 'UPDATE product SET updated_at = :now WHERE id IN (:ids)',
@@ -280,6 +294,11 @@ class ProductIndexer extends EntityIndexer
         ];
     }
 
+    /**
+     * @param array<string> $ids
+     *
+     * @return array<string>
+     */
     private function getChildrenIds(array $ids): array
     {
         $childrenIds = $this->connection->fetchAllAssociative(
@@ -292,6 +311,8 @@ class ProductIndexer extends EntityIndexer
     }
 
     /**
+     * @param array<string> $ids
+     *
      * @return array|mixed[]
      */
     private function getParentIds(array $ids): array
@@ -306,6 +327,8 @@ class ProductIndexer extends EntityIndexer
     }
 
     /**
+     * @param array<string> $ids
+     *
      * @return array|mixed[]
      */
     private function filterVariants(array $ids): array
@@ -320,6 +343,9 @@ class ProductIndexer extends EntityIndexer
         );
     }
 
+    /**
+     * @param array<string, string>|null $offset
+     */
     private function getIterator(?array $offset): IterableQuery
     {
         return $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);

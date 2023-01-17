@@ -36,6 +36,7 @@ import type { PaymentOverviewCardState } from './module/sw-settings-payment/stat
 import type { SwOrderState } from './module/sw-order/state/order.store';
 import type AclService from './app/service/acl.service';
 import type { ShopwareAppsState } from './app/state/shopware-apps.store';
+import type EntityValidationService from './app/service/entity-validation.service';
 import type { SdkLocationState } from './app/state/sdk-location.store';
 import type StoreContextService from './core/service/api/store-context.api.service';
 import type OrderStateMachineApiService from './core/service/api/order-state-machine.api.service';
@@ -114,6 +115,7 @@ declare global {
         acl: AclService,
         jsonApiParserService: $TSFixMe,
         validationService: $TSFixMe,
+        entityValidationService: EntityValidationService,
         timezoneService: $TSFixMe,
         ruleConditionDataProviderService: $TSFixMe,
         productStreamConditionService: $TSFixMe,

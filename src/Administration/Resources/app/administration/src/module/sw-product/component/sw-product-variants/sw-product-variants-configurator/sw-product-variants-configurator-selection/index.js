@@ -34,6 +34,10 @@ export default {
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
         /**
          * Important: options = configurators

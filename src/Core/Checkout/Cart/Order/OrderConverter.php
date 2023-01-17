@@ -56,6 +56,8 @@ class OrderConverter
 
     public const ORIGINAL_ORDER_NUMBER = 'originalOrderNumber';
 
+    public const ORIGINAL_DOWNLOADS = 'originalDownloads';
+
     public const ADMIN_EDIT_ORDER_PERMISSIONS = [
         ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
         ProductCartProcessor::SKIP_PRODUCT_RECALCULATION => true,
@@ -80,6 +82,8 @@ class OrderConverter
 
     private InitialStateIdLoader $initialStateIdLoader;
 
+    private LineItemDownloadLoader $downloadLoader;
+
     /**
      * @internal
      */
@@ -90,7 +94,8 @@ class OrderConverter
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         OrderDefinition $orderDefinition,
         EntityRepository $orderAddressRepository,
-        InitialStateIdLoader $initialStateIdLoader
+        InitialStateIdLoader $initialStateIdLoader,
+        LineItemDownloadLoader $downloadLoader
     ) {
         $this->customerRepository = $customerRepository;
         $this->salesChannelContextFactory = $salesChannelContextFactory;
@@ -99,6 +104,7 @@ class OrderConverter
         $this->orderDefinition = $orderDefinition;
         $this->orderAddressRepository = $orderAddressRepository;
         $this->initialStateIdLoader = $initialStateIdLoader;
+        $this->downloadLoader = $downloadLoader;
     }
 
     /**
@@ -178,6 +184,14 @@ class OrderConverter
         }
 
         $data['lineItems'] = array_values($convertedLineItems);
+
+        foreach ($this->downloadLoader->load($data['lineItems'], $context->getContext()) as $key => $downloads) {
+            if (!\array_key_exists($key, $data['lineItems'])) {
+                continue;
+            }
+
+            $data['lineItems'][$key]['downloads'] = $downloads;
+        }
 
         /** @var IdStruct|null $idStruct */
         $idStruct = $cart->getExtensionOfType(self::ORIGINAL_ID, IdStruct::class);

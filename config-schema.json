@@ -452,6 +452,20 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "private_allowed_extensions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "private_local_download_strategy": {
+                    "enum": [
+                        "php",
+                        "x-sendfile",
+                        "x-accel"
+                    ],
+                    "type": "string"
                 }
             },
             "title": "Filesystem"

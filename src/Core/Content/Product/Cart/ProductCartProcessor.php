@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
@@ -310,18 +311,22 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $weight = $product->getWeight();
 
-        $lineItem->setDeliveryInformation(
-            new DeliveryInformation(
-                (int) $product->getAvailableStock(),
-                $weight,
-                $product->getShippingFree() === true,
-                $product->getRestockTime(),
-                $deliveryTime,
-                $product->getHeight(),
-                $product->getWidth(),
-                $product->getLength()
-            )
-        );
+        $lineItem->setStates($product->getStates());
+
+        if ($lineItem->hasState(State::IS_PHYSICAL)) {
+            $lineItem->setDeliveryInformation(
+                new DeliveryInformation(
+                    (int) $product->getAvailableStock(),
+                    $weight,
+                    $product->getShippingFree() === true,
+                    $product->getRestockTime(),
+                    $deliveryTime,
+                    $product->getHeight(),
+                    $product->getWidth(),
+                    $product->getLength()
+                )
+            );
+        }
 
         //Check if the price has to be updated
         if ($this->shouldPriceBeRecalculated($lineItem, $behavior)) {

@@ -58,6 +58,7 @@ class OrderStorer extends FlowStorer
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('orderCustomer');
         $criteria->addAssociation('lineItems');
+        $criteria->addAssociation('lineItems.downloads.media');
         $criteria->addAssociation('deliveries.shippingMethod');
         $criteria->addAssociation('deliveries.shippingOrderAddress.country');
         $criteria->addAssociation('deliveries.shippingOrderAddress.countryState');

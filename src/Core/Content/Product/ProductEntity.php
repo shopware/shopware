@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
@@ -504,6 +505,13 @@ class ProductEntity extends Entity
      * @var ProductStreamCollection|null
      */
     protected $streams;
+
+    protected ?ProductDownloadCollection $downloads = null;
+
+    /**
+     * @var array<int, string>
+     */
+    protected array $states = [];
 
     public function __construct()
     {
@@ -1567,5 +1575,31 @@ class ProductEntity extends Entity
     public function setCategoryIds(?array $categoryIds): void
     {
         $this->categoryIds = $categoryIds;
+    }
+
+    public function getDownloads(): ?ProductDownloadCollection
+    {
+        return $this->downloads;
+    }
+
+    public function setDownloads(ProductDownloadCollection $downloads): void
+    {
+        $this->downloads = $downloads;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function getStates(): array
+    {
+        return $this->states;
+    }
+
+    /**
+     * @param array<int, string> $states
+     */
+    public function setStates(array $states): void
+    {
+        $this->states = $states;
     }
 }

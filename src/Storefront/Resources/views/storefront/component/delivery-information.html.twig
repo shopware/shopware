@@ -1,4 +1,6 @@
 {% block component_delivery_information %}
+    {% set downloadFlag = constant('Shopware\\Core\\Content\\Product\\State::IS_DOWNLOAD') %}
+
     {# @var product \Shopware\Core\Content\Product\ProductEntity #}
     {% if page is defined and page.product is defined %}
         {% set product = page.product %}
@@ -32,7 +34,7 @@
                     {{ "general.deliveryShipping"|trans|sw_sanitize }} {{ product.releaseDate|format_date('long', locale=app.request.locale) }}
                 </p>
             {% endblock %}
-        {% elseif product.availableStock >= product.minPurchase and product.deliveryTime %}
+        {% elseif (product.availableStock >= product.minPurchase or (downloadFlag in product.states and not product.isCloseout)) and product.deliveryTime %}
             {% block component_delivery_information_available %}
                 <link itemprop="availability" href="http://schema.org/InStock"/>
                 <p class="delivery-information delivery-available">

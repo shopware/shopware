@@ -2,15 +2,27 @@
  * @package inventory
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swProductVariantsOverview from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
+import 'src/app/component/data-grid/sw-data-grid';
+import SwMediaUploadV2 from 'src/app/asyncComponent/media/sw-media-upload-v2';
+import swMediaCompactUploadV2 from 'src/app/asyncComponent/media/sw-media-compact-upload-v2';
+import 'src/app/component/form/sw-checkbox-field';
+import Vuex from 'vuex';
 
+Shopware.Component.register('sw-media-upload-v2', SwMediaUploadV2);
+Shopware.Component.extend('sw-media-compact-upload-v2', 'sw-media-upload-v2', () => swMediaCompactUploadV2);
 Shopware.Component.register('sw-product-variants-overview', swProductVariantsOverview);
 
-async function createWrapper() {
+async function createWrapper(propsOverrides = {}, repositoryFactoryOverride = {}) {
+    const localVue = createLocalVue();
+    localVue.use(Vuex);
     return shallowMount(await Shopware.Component.build('sw-product-variants-overview'), {
+        localVue,
         propsData: {
-            selectedGroups: []
+            selectedGroups: [],
+            uploadTag: 'uploadTag',
+            ...propsOverrides
         },
         mocks: {
             $route: {
@@ -18,8 +30,35 @@ async function createWrapper() {
             },
         },
         provide: {
-            repositoryFactory: {},
-            searchRankingService: {}
+            repositoryFactory: {
+                create: () => ({
+                    search: () => Promise.resolve(),
+                    save: () => Promise.resolve([]),
+                    get: () => Promise.resolve({}),
+                }),
+                ...repositoryFactoryOverride
+            },
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) {
+                        return true;
+                    }
+                    return global.activeAclRoles.includes(identifier);
+                }
+            },
+            searchRankingService: {},
+            configService: {
+                getConfig: () => Promise.resolve({
+                    settings: {
+                        enableUrlFeature: false
+                    },
+                })
+            },
+            mediaService: {
+                addListener: () => {},
+                removeByTag: () => {},
+                removeListener: () => {},
+            }
         },
         stubs: {
             'sw-container': {
@@ -32,31 +71,7 @@ async function createWrapper() {
             'sw-icon': true,
             'sw-context-menu': true,
             'sw-tree': true,
-            'sw-data-grid': {
-                props: ['dataSource', 'columns'],
-                data() {
-                    return {
-                        selection: []
-                    };
-                },
-                template: `
-                    <div class="sw-data-grid">
-                        <slot name="bulk"></slot>
-                        <input class="sw-data-grid__select-all" @change="selectAll" />
-                        <template v-for="item in dataSource">
-                            <slot name="actions" v-bind="{ item }"></slot>
-                        </template>
-                    </div>
-                `,
-                methods: {
-                    selectAll() {
-                        this.selection = {};
-                        this.dataSource.forEach(item => {
-                            this.selection[item.id] = item;
-                        });
-                    }
-                }
-            },
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-context-menu-item': {
                 template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>'
             },
@@ -64,7 +79,19 @@ async function createWrapper() {
             'sw-modal': {
                 template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
             },
-        }
+            'sw-data-grid-settings': true,
+            'sw-context-button': true,
+            'sw-product-variants-media-upload': true,
+            'sw-inheritance-switch': true,
+            'router-link': true,
+            'sw-media-compact-upload-v2': await Shopware.Component.build('sw-media-compact-upload-v2'),
+            'sw-upload-listener': true,
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+            'sw-field-error': true,
+            'sw-base-field': true,
+            'sw-context-menu-divider': true,
+            'sw-media-preview-v2': true,
+        },
     });
 }
 
@@ -90,6 +117,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                     variants: [
                         {
                             id: 1,
+                            productNumber: '1',
                             name: null,
                             options: [
                                 {
@@ -104,6 +132,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                         },
                         {
                             id: 2,
+                            productNumber: '2',
                             name: null,
                             options: [
                                 {
@@ -127,6 +156,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                 setVariants(state, variants) {
                     state.variants = variants;
                 },
+                setLoading() {}
             },
         });
     });
@@ -154,16 +184,15 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
     it('should allow inline editing', async () => {
         global.activeAclRoles = ['product.editor'];
-
         const wrapper = await createWrapper();
         const dataGrid = wrapper.find('.sw-product-variants-overview__data-grid');
-        expect(dataGrid.attributes()['allow-inline-edit']).toBeTruthy();
+        expect(dataGrid.props('allowInlineEdit')).toBe(true);
     });
 
     it('should disallow inline editing', async () => {
         const wrapper = await createWrapper();
         const dataGrid = wrapper.find('.sw-product-variants-overview__data-grid');
-        expect(dataGrid.attributes()['allow-inline-edit']).toBeFalsy();
+        expect(dataGrid.props('allowInlineEdit')).toBe(false);
     });
 
     it('should enable selection deleting of list variants', async () => {
@@ -171,7 +200,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         const wrapper = await createWrapper();
         const dataGrid = wrapper.find('.sw-product-variants-overview__data-grid');
-        expect(dataGrid.attributes()['show-selection']).toBeTruthy();
+        expect(dataGrid.props('showSelection')).toBe(true);
     });
 
     it('should be able to turn on delete confirmation modal', async () => {
@@ -205,8 +234,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         const wrapper = await createWrapper();
 
-        const selectAllInput = wrapper.find('.sw-data-grid__select-all');
-        await selectAllInput.trigger('change');
+        const selectAllInput = wrapper.find('.sw-data-grid__select-all input[type="checkbox"]');
+        await selectAllInput.setChecked();
 
         const deleteVariantsButton = wrapper.find('.sw-product-variants-overview__bulk-delete-action');
         expect(deleteVariantsButton.exists()).toBeTruthy();
@@ -227,5 +256,125 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         const deleteVariantsButton = wrapper.find('.sw-product-variants-overview__bulk-delete-action');
         expect(deleteVariantsButton.exists()).toBeFalsy();
+    });
+
+    it('should get list will return a list of products', async () => {
+        const wrapper = await createWrapper({}, {
+            create: () => ({
+                search: () => Promise.resolve([
+                    {
+                        id: '1',
+                        name: 'Example product'
+                    }
+                ])
+            })
+        });
+
+        await wrapper.vm.getList();
+
+        expect(wrapper.vm.variants).toEqual([{ id: '1', name: 'Example product' }]);
+    });
+
+    it('should add the downloads column when the product state is equal "is-download"', async () => {
+        const wrapper = await createWrapper({
+            productStates: ['is-download']
+        }, {
+            create: (entity) => {
+                if (entity === 'media_default_folder') {
+                    return { search: () => Promise.resolve([
+                        {
+                            id: 'defaultMediaFolderId',
+                            entity: 'product_download'
+                        }
+                    ]) };
+                }
+                return { search: () => Promise.resolve() };
+            }
+        });
+
+        expect(wrapper.find('.sw-data-grid__cell--downloads').exists()).toBeTruthy();
+    });
+
+    it('should remove file from digital variant item', async () => {
+        const item =
+            {
+                id: '1',
+                productNumber: '1',
+                name: 'Example product',
+                downloads: [
+                    {
+                        media: {
+                            fileName: 'example',
+                            fileExtension: 'png',
+                        }
+                    },
+                    {
+                        media: {
+                            fileName: 'test',
+                            fileExtension: 'gif',
+                        }
+                    }
+                ]
+            };
+
+        const wrapper = await createWrapper({ productStates: ['is-download'] }, {
+            create: () => ({
+                search: () => Promise.resolve([item]),
+                save: () => Promise.resolve()
+            })
+        });
+        await wrapper.vm.getList();
+
+        // should be deleted
+        await wrapper.vm.removeFile('example.png', wrapper.vm.variants.at(0));
+        // should not be deleted (because it's the last one)
+        await wrapper.vm.removeFile('test.gif', wrapper.vm.variants.at(0));
+
+        const previewItems = wrapper.find('.sw-data-grid__cell--downloads').findAll('.sw-media-compact-upload-v2__preview-item');
+        expect(previewItems).toHaveLength(1);
+        expect(previewItems.at(0).find('.sw-context-menu-item').text()).toEqual('test.gif');
+    });
+
+    it('should save successful uploaded files', async () => {
+        const item =
+            {
+                id: '1',
+                productNumber: '1',
+                name: 'Example product',
+                downloads: [
+                    {
+                        media: {
+                            id: 'lel',
+                            fileName: 'test',
+                            fileExtension: 'png',
+                        }
+                    },
+                ]
+            };
+
+        const file = {
+            id: 'test-id',
+            fileName: 'example',
+            fileExtension: 'png',
+        };
+
+        const wrapper = await createWrapper({ productStates: ['is-download'] }, {
+            create: () => ({
+                search: () => Promise.resolve([item]),
+                save: () => Promise.resolve(),
+                create: () => Promise.resolve(),
+                get: () => Promise.resolve(file)
+            })
+        });
+        await wrapper.vm.getList();
+
+        // not existing
+        await wrapper.vm.successfulUpload({ targetId: 'test-id', downloads: [] }, item);
+        // existing
+        await wrapper.vm.successfulUpload({ targetId: 'test-id', downloads: [] }, item);
+
+        const previewItems = wrapper.find('.sw-data-grid__cell--downloads').findAll('.sw-media-compact-upload-v2__preview-item');
+        expect(previewItems).toHaveLength(2);
+        expect(previewItems.at(1).find('.sw-context-menu-item').text()).toEqual('example.png');
     });
 });

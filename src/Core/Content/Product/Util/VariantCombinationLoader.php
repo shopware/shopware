@@ -22,10 +22,13 @@ class VariantCombinationLoader
         $this->connection = $connection;
     }
 
+    /**
+     * @return array<array<string>>
+     */
     public function load(string $productId, Context $context): array
     {
         $query = $this->connection->createQueryBuilder();
-        $query->select('LOWER(HEX(product.id))', 'product.option_ids as options', 'product.product_number as productNumber');
+        $query->select('LOWER(HEX(product.id))', 'product.option_ids as options', 'product.product_number as productNumber', 'product.states as productStates');
         $query->from('product');
         $query->where('product.parent_id = :id');
         $query->andWhere('product.version_id = :versionId');

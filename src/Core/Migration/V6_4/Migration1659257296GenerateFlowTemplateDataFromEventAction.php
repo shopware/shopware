@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\V6_5;
+namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Aggregate\FlowTemplate\FlowTemplateDefinition;
@@ -14,11 +14,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @internal
  */
-class Migration1671030271GenerateFlowTemplateDataFromEventAction extends MigrationStep
+class Migration1659257296GenerateFlowTemplateDataFromEventAction extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1671030271;
+        return 1659257296;
     }
 
     public function update(Connection $connection): void

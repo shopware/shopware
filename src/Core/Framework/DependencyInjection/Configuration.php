@@ -104,6 +104,13 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('allowed_extensions')
                     ->prototype('scalar')->end()
                 ->end()
+                ->arrayNode('private_allowed_extensions')
+                    ->prototype('scalar')->end()
+                ->end()
+                ->enumNode('private_local_download_strategy')
+                    ->defaultValue('php')
+                    ->values(['php', 'x-sendfile', 'x-accel'])
+                ->end()
             ->end();
 
         return $rootNode;

@@ -248,6 +248,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $criteria->addAssociation('language.locale');
         $criteria->addAssociation('transactions.paymentMethod');
         $criteria->addAssociation('lineItems');
+        $criteria->addAssociation('lineItems.downloads.media');
         $criteria->addAssociation('currency');
         $criteria->addAssociation('addresses.country');
         $criteria->addAssociation('addresses.countryState');

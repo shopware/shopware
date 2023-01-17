@@ -156,16 +156,23 @@
       "linkMaintainCurrencyPrices": "Currency dependent pricing",
       "cardTitleReviews": "Reviews",
       "cardTitleMedia": "Media",
+      "cardSubtitleMedia": "Add files to the product's media gallery.",
       "labelContextMenuAddToProduct": "Add to product",
       "cardTitleSeo": "SEO",
-      "cardTitleVisibilityStructure": "Visibility Structure"
+      "cardTitleVisibilityStructure": "Visibility Structure",
+      "cardTitleDownloads": "Files",
+      "cardSubtitleDownloads": "Add files to your digital product.",
+      "downloadsLabel": "File upload",
+      "manageStockLabel": "Manage stock",
+      "manageStockTooltip": "If the stock is not managed, the digital product is available for an infinite amount of transactions."
     },
     "specifications": {
       "cardTitleMeasuresPackaging": "Measures & packaging",
       "cardTitleEssentialCharacteristics": "Essential Characteristics",
       "cardTitleCustomFields": "Custom fields",
       "cardTitleProperties": "Properties",
-      "cardTitleCustomProduct": "Custom Products"
+      "cardTitleCustomProduct": "Custom Products",
+      "cardTitleDownloads": "Files"
     },
     "seo": {
       "cardTitleSeo": "SEO"
@@ -211,8 +218,8 @@
     },
     "list": {
       "textProductOverview": "Products",
-      "textTotalProducts": "No products | One product | {count} products",
-      "buttonAddProduct": "Add product",
+      "buttonAddProduct": "Add physical product",
+      "buttonAddDownloadableProduct": "Add digital product",
       "buttonCancel": "Cancel",
       "buttonDuplicate": "Duplicate",
       "buttonDelete": "Delete",
@@ -231,6 +238,7 @@
       "columnTags": "Tags",
       "columnActions": "Action(s)",
       "columnMedia": "Media",
+      "columnDownloadsTooltip": "Digital products must have at least one file attached.",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "contextMenuDuplicate": "Duplicate",
@@ -323,28 +331,32 @@
       }
     },
     "variations": {
+      "generatedListColumnDownload": "Files",
       "emptyStateTitle": "This product has no variants yet.",
       "emptyStateDescription": "Manage product variants here.",
       "emptyStatePropertyTitle": "No properties have been created yet",
       "emptyStatePropertyDescription": "Please create properties first to be able to use them for variant generation.",
-      "emptyStateButton": "Start variant generator",
+      "emptyStateButton": "Generate variants",
       "emptyStatePropertyButton": "Create properties",
-      "generateVariationsButton": "Generate variants",
-      "deleteVariationsButton": "Delete all product variants",
+      "generateVariationsButton": "Save variants",
+      "nextModalButton": "Next",
+      "deleteVariationsButton": "Delete all variants",
       "cancelVariationsButton": "Cancel",
+      "backVariationsButton": "Back",
       "configuratorCardTitle": "Variant generator",
-      "generatedVariationCardTitle": "Available variants",
+      "generatedVariationCardTitle": "Variants",
+      "variationCard": {
+        "tabs": {
+          "allProducts": "All variants",
+          "physicalProducts": "Physical variants",
+          "digitalProducts": "Digital variants"
+        }
+      },
       "progressTypeOf": "of",
       "progressTypeDeleted": "deleted",
       "progressTypeGenerated": "generated",
       "progressTypeCalculated": "calculated",
       "progressTypeVariation": "variations",
-      "generationNotificationTitle": "Notification",
-      "generationNotificationMessage": "Actions performed according to current configuration:",
-      "generationNotificationCountAdding": "One variant will be added | {count} variants will be added",
-      "generationNotificationCountDeletion": "One variant will be deleted | {count} variants will be deleted",
-      "generationNotificationButtonCancel": "Cancel",
-      "generationNotificationButtonContinue": "Generate",
       "generatedFilterList": "Filter list",
       "generatedListColumnVariation": "Name",
       "generatedListColumnPrice": "Price (gross / net)",
@@ -352,6 +364,9 @@
       "generatedListColumnMedia": "Media",
       "generatedListColumnActive": "Active",
       "generatedListColumnStock": "Stock",
+      "generatedListColumnContentProductState": {
+        "is-download": "digital"
+      },
       "generatedListContextMenuEdit": "Edit",
       "generatedListContextMenuDelete": "Delete",
       "generatedListDeleteModalMessage": "Do you really want to delete this variant?",
@@ -370,6 +385,13 @@
       },
       "configuratorModal": {
         "title": "Generate variants",
+        "uploadAllButton": "Upload file to all digital variants",
+        "uploadCardDescription": "All digital variants must have at least one file in order to be saved.",
+        "uploadCardSearchPlaceholder": "Search variants...",
+        "uploadInfoBoxHeader": "Actions performed according to current configuration:",
+        "uploadInfoBoxCount": "{count} variants | {count} variant | {count} variants",
+        "uploadInfoBoxCreateLabel": "will be added,",
+        "uploadInfoBoxDeleteLabel": "will be deleted.",
         "selectOptions": "Value selection",
         "selectOptionsExplanation": "Select property values to generate variants from.",
         "selectRestrictionsExplanation": "Select property values to exclude from variant generation.",
@@ -390,7 +412,9 @@
         "save": "Save",
         "searchPlaceholder": "Search values...",
         "singleRestrictionAddTitle": "Exclude values",
-        "surchargeNotice": "Changes to the surcharges / discounts won't have an effect on already generated variants. Please go to the variant's detail page and change prices of already generated variants there."
+        "surchargeNotice": "Changes to the surcharges / discounts won't have an effect on already generated variants. Please go to the variant's detail page and change prices of already generated variants there.",
+        "digitalVariantSwitch": "Make all variants digital",
+        "removeAllButton": "Remove file from all variants"
       },
       "deliveryModal": {
         "modalHeadline": "Storefront presentation",

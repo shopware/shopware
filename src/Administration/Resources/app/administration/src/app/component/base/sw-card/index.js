@@ -80,6 +80,7 @@ Component.register('sw-card', {
                 'has--title': !!this.title || !!this.$slots.title || !!this.$scopedSlots.title,
                 'has--subtitle': !!this.subtitle || !!this.$slots.subtitle || !!this.$scopedSlots.subtitle,
                 'has--toolbar': !!this.toolbar || !!this.$slots.toolbar || !!this.$scopedSlots.toolbar,
+                'has--tabs': !!this.$slots.tabs || !!this.$scopedSlots.tabs,
             };
 
             if (!this.$refs.swIgnoreClass) {

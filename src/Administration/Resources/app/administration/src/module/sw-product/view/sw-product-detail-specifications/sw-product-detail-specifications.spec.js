@@ -69,7 +69,9 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             ...productStore,
             state: {
                 ...productStore.state,
-                product: {},
+                product: {
+                    isNew: () => false,
+                },
                 parentProduct: {},
                 customFieldSets: [],
                 modeSettings: [
@@ -111,7 +113,8 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                             label: 'sw-product.general.textAdvancedMode'
                         }
                     }
-                }
+                },
+                creationStates: 'is-physical'
             },
             getters: {
                 ...productStore.getters,
@@ -341,6 +344,42 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         expect(customFieldsLength).toBe(0);
 
         const cardElement = wrapper.find('.sw-product-detail-specification__custom-fields');
+        const cardStyles = cardElement.attributes('style');
+
+        expect(cardStyles).toBe('display: none;');
+    });
+
+    it('should show measures and packaging card when product states not includes is-download', async () => {
+        const wrapper = await createWrapper();
+
+        await Shopware.State.commit('swProductDetail/setProduct', {
+            isNew: () => false,
+            states: [
+                'is-physical'
+            ],
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const cardElement = wrapper.find('.sw-product-detail-specification__measures-packaging');
+        const cardStyles = cardElement.attributes('style');
+
+        expect(cardStyles).toBe('display: none;');
+    });
+
+    it('should not show measures and packaging card when product states includes is-download', async () => {
+        const wrapper = await createWrapper();
+
+        await Shopware.State.commit('swProductDetail/setProduct', {
+            isNew: () => false,
+            states: [
+                'is-download'
+            ],
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const cardElement = wrapper.find('.sw-product-detail-specification__measures-packaging');
         const cardStyles = cardElement.attributes('style');
 
         expect(cardStyles).toBe('display: none;');

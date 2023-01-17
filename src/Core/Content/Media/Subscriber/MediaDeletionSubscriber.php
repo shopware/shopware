@@ -75,26 +75,31 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         }
 
         if ($event->getDefinition()->getEntityName() === MediaDefinition::ENTITY_NAME) {
-            $event->getCriteria()->addFilter(new EqualsFilter('private', false));
-
-            return;
+            $event->getCriteria()->addFilter(
+                new MultiFilter('OR', [
+                    new EqualsFilter('private', false),
+                    new MultiFilter('AND', [
+                        new EqualsFilter('private', true),
+                        new EqualsFilter('mediaFolder.defaultFolder.entity', 'product_download'),
+                    ]),
+                ])
+            );
         }
     }
 
     public function beforeDelete(BeforeDeleteEvent $event): void
     {
-        $affected = $event->getIds(MediaThumbnailDefinition::ENTITY_NAME);
-
+        $affected = array_values($event->getIds(MediaThumbnailDefinition::ENTITY_NAME));
         if (!empty($affected)) {
             $this->handleThumbnailDeletion($event, $affected, $event->getContext());
         }
 
-        $affected = $event->getIds(MediaFolderDefinition::ENTITY_NAME);
+        $affected = array_values($event->getIds(MediaFolderDefinition::ENTITY_NAME));
         if (!empty($affected)) {
             $this->handleFolderDeletion($affected, $event->getContext());
         }
 
-        $affected = $event->getIds(MediaDefinition::ENTITY_NAME);
+        $affected = array_values($event->getIds(MediaDefinition::ENTITY_NAME));
         if (!empty($affected)) {
             $this->handleMediaDeletion($affected, $event->getContext());
         }

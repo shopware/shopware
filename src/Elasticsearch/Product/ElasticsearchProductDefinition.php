@@ -181,6 +181,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'width' => self::FLOAT_FIELD,
                 'customFields' => $this->getCustomFieldsMapping($context),
                 'customSearchKeywords' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
+                'states' => self::KEYWORD_FIELD,
             ],
             'dynamic_templates' => [
                 [
@@ -250,6 +251,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             $propertyIds = json_decode($item['propertyIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
             $tagIds = json_decode($item['tagIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
             $categoriesRo = json_decode($item['categoryIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
+            $states = json_decode($item['states'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
 
             $translations = $this->filterToOne(json_decode($item['translation'], true, 512, \JSON_THROW_ON_ERROR));
             $parentTranslations = $this->filterToOne(json_decode($item['translation_parent'], true, 512, \JSON_THROW_ON_ERROR));
@@ -317,6 +319,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'parentId' => $item['parentId'],
                 'coverId' => $item['coverId'],
                 'childCount' => (int) $item['childCount'],
+                'states' => $states,
             ];
 
             if ($item['cheapest_price_accessor']) {
@@ -453,7 +456,8 @@ SELECT
     p.display_group as displayGroup,
     IFNULL(p.cheapest_price_accessor, pp.cheapest_price_accessor) as cheapest_price_accessor,
     LOWER(HEX(p.parent_id)) as parentId,
-    p.child_count as childCount
+    p.child_count as childCount,
+    p.states
 
 FROM product p
     LEFT JOIN product pp ON(p.parent_id = pp.id AND pp.version_id = :liveVersionId)

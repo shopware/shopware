@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Struct\Collection;
  */
 class LineItemCollection extends Collection
 {
+    /**
+     * @param LineItem[] $elements
+     */
     public function __construct(iterable $elements = [])
     {
         parent::__construct();
@@ -101,6 +104,17 @@ class LineItemCollection extends Collection
                 return $lineItem->getType() === $type;
             }
         );
+    }
+
+    public function hasLineItemWithState(string $state): bool
+    {
+        foreach ($this->buildFlat($this) as $lineItem) {
+            if (\in_array($state, $lineItem->getStates(), true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

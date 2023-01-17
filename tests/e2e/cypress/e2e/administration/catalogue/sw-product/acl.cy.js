@@ -149,7 +149,7 @@ describe('Product: Test ACL privileges', () => {
         cy.get('.sw-skeleton').should('not.exist');
 
         // create new product
-        cy.get('a[href="#/sw/product/create"]').click();
+        cy.get('a[href="#/sw/product/create?creationStates=is-physical"]').click();
         cy.contains('.smart-bar__header h2', 'New product');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

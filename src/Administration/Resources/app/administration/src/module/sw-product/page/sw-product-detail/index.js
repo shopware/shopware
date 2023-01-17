@@ -2,6 +2,7 @@
  * @package inventory
  */
 
+import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-product-detail.html.twig';
 import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
@@ -24,6 +25,7 @@ export default {
         'seoUrlService',
         'acl',
         'systemConfigApiService',
+        'entityValidationService',
     ],
 
     mixins: [
@@ -44,6 +46,12 @@ export default {
     props: {
         productId: {
             type: String,
+            required: false,
+            default: null,
+        },
+        /* Product "types" provided by the split button for creating a new product through a router parameter */
+        creationStates: {
+            type: Array,
             required: false,
             default: null,
         },
@@ -81,6 +89,7 @@ export default {
             'defaultFeatureSet',
             'showModeSetting',
             'advanceModeEnabled',
+            'productStates',
         ]),
 
         ...mapPageErrors(errorConfiguration),
@@ -205,7 +214,8 @@ export default {
                 .addAssociation('customFieldSets')
                 .addAssociation('featureSet')
                 .addAssociation('cmsPage')
-                .addAssociation('featureSet');
+                .addAssociation('featureSet')
+                .addAssociation('downloads.media');
 
             criteria.getAssociation('manufacturer')
                 .addAssociation('media');
@@ -538,6 +548,9 @@ export default {
 
             Shopware.State.commit('swProductDetail/setLoading', ['product', true]);
 
+            // set product "type"
+            Shopware.State.commit('swProductDetail/setCreationStates', this.creationStates);
+
             // create empty product
             Shopware.State.commit('swProductDetail/setProduct', this.productRepository.create());
             Shopware.State.commit('swProductDetail/setProductId', this.product.id);
@@ -549,6 +562,10 @@ export default {
             this.product.metaTitle = '';
             this.product.additionalText = '';
             this.product.variantListingConfig = {};
+
+            if (this.creationStates) {
+                this.adjustProductAccordingToType();
+            }
 
             return Promise.all([
                 this.loadCurrencies(),
@@ -605,6 +622,12 @@ export default {
 
                 Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
             });
+        },
+
+        adjustProductAccordingToType() {
+            if (this.creationStates.includes('is-download')) {
+                this.product.maxPurchase = 1;
+            }
         },
 
         loadProduct() {
@@ -801,7 +824,31 @@ export default {
                 this.product.slotConfig = cloneDeep(pageOverrides);
             }
 
+            if (!this.entityValidationService.validate(this.product, this.customValidate)) {
+                const titleSaveError = this.$tc('global.default.error');
+                const messageSaveError = this.$tc(
+                    'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+                );
+
+                this.createNotificationError({
+                    title: titleSaveError,
+                    message: messageSaveError,
+                });
+                return Promise.resolve();
+            }
+
             return this.saveProduct().then(this.onSaveFinished);
+        },
+
+        customValidate(errors, product) {
+            if (this.productStates.includes('is-download')) {
+                // custom download product validation
+                if (product.downloads === undefined || product.downloads.length < 1) {
+                    errors.push(EntityValidationService.createRequiredError('/0/downloads'));
+                }
+            }
+
+            return errors;
         },
 
         /**

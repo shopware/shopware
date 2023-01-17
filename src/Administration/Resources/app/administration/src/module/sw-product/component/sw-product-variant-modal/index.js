@@ -682,5 +682,9 @@ export default {
                 },
             });
         },
+
+        variantIsDigital(variant) {
+            return variant.states && variant.states.includes('is-download');
+        },
     },
 };

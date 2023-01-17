@@ -7,6 +7,7 @@ use Monolog\Logger;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @covers \Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler
@@ -14,9 +15,8 @@ use Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler;
  * @internal
  *
  * @phpstan-import-type Record from \Monolog\Logger
- *
- * @package core
  */
+#[Package('core')]
 class DoctrineSQLHandlerTest extends TestCase
 {
     /**

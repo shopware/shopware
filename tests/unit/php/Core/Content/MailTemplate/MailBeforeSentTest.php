@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
@@ -13,9 +14,8 @@ use Symfony\Component\Mime\Email;
 /**
  * @internal
  * @covers \Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MailBeforeSentTest extends TestCase
 {
     public function testInstantiate(): void

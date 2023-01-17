@@ -7,13 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  * @covers \Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MailErrorEventTest extends TestCase
 {
     public function testInstantiate(): void

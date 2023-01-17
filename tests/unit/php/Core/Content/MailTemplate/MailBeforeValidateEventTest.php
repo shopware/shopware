@@ -6,14 +6,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  * @covers \Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MailBeforeValidateEventTest extends TestCase
 {
     public function testInstantiate(): void

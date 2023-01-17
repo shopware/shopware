@@ -5,15 +5,15 @@ namespace Shopware\Tests\Migration\Core\V6_4;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_4\Migration1672164687FixTypoInUserRecoveryPasswordResetMail;
 
 /**
  * @internal
  * @covers \Shopware\Core\Migration\V6_4\Migration1672164687FixTypoInUserRecoveryPasswordResetMail
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class Migration1672164687FixTypoInUserRecoveryPasswordResetMailTest extends TestCase
 {
     public function testEnUserRecoveryRequestTemplateIsUpdated(): void

@@ -89,7 +89,6 @@ namespace #domain#;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @package core
  * @method void                add(#entityClass# \$entity)
  * @method void                set(string \$key, #entityClass# \$entity)
  * @method #entityClass#[]    getIterator()
@@ -98,6 +97,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  * @method #entityClass#|null first()
  * @method #entityClass#|null last()
  */
+ #[Package('core')]
 class #entity#Collection extends EntityCollection
 {
     protected function getExpectedClass(): string

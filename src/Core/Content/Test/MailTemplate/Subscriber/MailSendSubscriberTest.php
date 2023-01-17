@@ -35,7 +35,6 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Mime\Email;
 
 /**
  * @internal

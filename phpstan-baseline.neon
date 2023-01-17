@@ -7778,69 +7778,9 @@ parameters:
 			path: src/Core/Content/Test/LandingPage/SalesChannel/LandingPageRouteTest.php
 
 		-
-			message: "#^Cannot call method disable\\(\\) on object\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Cannot call method getAddress\\(\\) on Symfony\\\\Component\\\\Mime\\\\Address\\|false\\.$#"
-			count: 2
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Cannot call method getCollector\\(\\) on Symfony\\\\Component\\\\HttpKernel\\\\Profiler\\\\Profile\\|false\\|null\\.$#"
-			count: 5
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Symfony\\\\Component\\\\Mime\\\\Address\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Api\\\\MailActionControllerTest\\:\\:getTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Api\\\\MailActionControllerTest\\:\\:getTestDataWithAttachments\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Api\\\\MailActionControllerTest\\:\\:getTestDataWithHeaderAndFooter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Api\\\\MailActionControllerTest\\:\\:getTestDataWithMailTemplateType\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$contents of method League\\\\Flysystem\\\\Filesystem\\:\\:put\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$str2 of function strcmp expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Api\\\\MailActionControllerTest\\:\\:\\$stateMachineRegistry is unused\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 4
-			path: src/Core/Content/Test/MailTemplate/Api/MailHeaderFooterApiTest.php
 
 		-
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
@@ -7856,26 +7796,6 @@ parameters:
 			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
 			count: 2
 			path: src/Core/Content/Test/MailTemplate/Api/MailHeaderFooterApiTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Subscriber\\\\MailSendSubscriberTest\\:\\:sendMailProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Subscriber/MailSendSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Subscriber\\\\MailSendSubscriberTest\\:\\:testEmailSend\\(\\) has parameter \\$contactFormRecipients with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Subscriber/MailSendSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Subscriber\\\\MailSendSubscriberTest\\:\\:testEmailSend\\(\\) has parameter \\$recipients with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Subscriber/MailSendSubscriberTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Subscriber\\\\TestEmailService\\:\\:\\$data type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Subscriber/MailSendSubscriberTest.php
 
 		-
 			message: "#^Cannot call method getMediaFolders\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"

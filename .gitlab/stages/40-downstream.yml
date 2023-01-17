@@ -81,7 +81,6 @@ rufus trunk:
     project: shopware/6/product/rufus
     branch: trunk
     strategy: depend
-  allow_failure: true # TODO: Remove this line as soon as rufus is compatible with the new trunk branch
 
 rufus matching branch:
   extends: rufus trunk

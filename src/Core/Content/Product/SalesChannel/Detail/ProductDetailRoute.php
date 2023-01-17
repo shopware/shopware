@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -76,8 +75,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
     /**
      * @Since("6.3.2.0")
-     * @Entity("product")
-     * @Route("/store-api/product/{productId}", name="store-api.product.detail", methods={"POST"})
+     * @Route("/store-api/product/{productId}", name="store-api.product.detail", methods={"POST"}, defaults={"_entity"="product"})
      */
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse
     {

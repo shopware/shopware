@@ -6,7 +6,6 @@ use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -38,15 +37,14 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
 
     /**
      * @Since("6.4.14.0")
-     * @Entity("product")
-     * @Route("/store-api/product/{productId}/find-variant", name="store-api.product.find-variant", methods={"POST"})
+     * @Route("/store-api/product/{productId}/find-variant", name="store-api.product.find-variant", methods={"POST"}, defaults={"_entity"="product"})
      */
     public function load(string $productId, Request $request, SalesChannelContext $context): FindProductVariantRouteResponse
     {
         /** @var string|null $switchedGroup */
         $switchedGroup = $request->get('switchedGroup');
 
-        /** @var array $options */
+        /** @var array<string, string> $options */
         $options = $request->get('options') ? $request->get('options', []) : [];
 
         $variantId = $this->searchForOptions($productId, $context, $options);
@@ -74,6 +72,9 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
         throw new VariantNotFoundException($productId, $options);
     }
 
+    /**
+     * @param array<string, string> $options
+     */
     private function searchForOptions(
         string $productId,
         SalesChannelContext $salesChannelContext,

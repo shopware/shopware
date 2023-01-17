@@ -29,12 +29,13 @@ class CriteriaValueResolver implements ValueResolverInterface
             return;
         }
 
-        $annotation = $request->attributes->get('_entity');
+        /** @var string|null $entity */
+        $entity = $request->attributes->get(PlatformRequest::ATTRIBUTE_ENTITY);
 
-        if (!$annotation instanceof Entity) {
+        if (!$entity) {
             $route = $request->attributes->get('_route');
 
-            throw new \RuntimeException('Missing @Entity annotation for route: ' . $route);
+            throw new \RuntimeException('Missing _entity route default for route: ' . $route);
         }
 
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
@@ -44,13 +45,11 @@ class CriteriaValueResolver implements ValueResolverInterface
             throw new \RuntimeException('Missing context for route ' . $route);
         }
 
-        $criteria = $this->criteriaBuilder->handleRequest(
+        yield $this->criteriaBuilder->handleRequest(
             $request,
             new Criteria(),
-            $this->registry->getByEntityName($annotation->getValue()),
+            $this->registry->getByEntityName($entity),
             $context
         );
-
-        yield $criteria;
     }
 }

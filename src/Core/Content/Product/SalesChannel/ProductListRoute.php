@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -37,8 +36,7 @@ class ProductListRoute extends AbstractProductListRoute
 
     /**
      * @Since("6.3.2.0")
-     * @Entity("product")
-     * @Route("/store-api/product", name="store-api.product.search", methods={"GET", "POST"})
+     * @Route("/store-api/product", name="store-api.product.search", methods={"GET", "POST"}, defaults={"_entity"="product"})
      */
     public function load(Criteria $criteria, SalesChannelContext $context): ProductListResponse
     {

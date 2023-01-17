@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -73,8 +72,7 @@ class CachedProductListingRoute extends AbstractProductListingRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Entity("product")
-     * @Route("/store-api/product-listing/{categoryId}", name="store-api.product.listing", methods={"POST"})
+     * @Route("/store-api/product-listing/{categoryId}", name="store-api.product.listing", methods={"POST"}, defaults={"_entity"="product"})
      */
     public function load(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse
     {

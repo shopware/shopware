@@ -22,7 +22,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
-use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedHook;
@@ -94,8 +93,7 @@ class CheckoutController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @NoStore
-     * @Route("/checkout/cart", name="frontend.checkout.cart.page", options={"seo"="false"}, methods={"GET"})
+     * @Route("/checkout/cart", name="frontend.checkout.cart.page", options={"seo"="false"}, methods={"GET"}, defaults={"_noStore"=true})
      */
     public function cartPage(Request $request, SalesChannelContext $context): Response
     {
@@ -126,8 +124,7 @@ class CheckoutController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @NoStore
-     * @Route("/checkout/confirm", name="frontend.checkout.confirm.page", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
+     * @Route("/checkout/confirm", name="frontend.checkout.confirm.page", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true, "_noStore"=true})
      */
     public function confirmPage(Request $request, SalesChannelContext $context): Response
     {
@@ -165,8 +162,7 @@ class CheckoutController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/checkout/finish", name="frontend.checkout.finish.page", options={"seo"="false"}, methods={"GET"})
-     * @NoStore
+     * @Route("/checkout/finish", name="frontend.checkout.finish.page", options={"seo"="false"}, methods={"GET"}, defaults={"_noStore"=true})
      */
     public function finishPage(Request $request, SalesChannelContext $context, RequestDataBag $dataBag): Response
     {

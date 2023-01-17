@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
@@ -75,8 +74,7 @@ class CachedProductSuggestRoute extends AbstractProductSuggestRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Entity("product")
-     * @Route("/store-api/search-suggest", name="store-api.search.suggest", methods={"POST"})
+     * @Route("/store-api/search-suggest", name="store-api.search.suggest", methods={"POST"}, defaults={"_entity"="product"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSuggestRouteResponse
     {

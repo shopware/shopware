@@ -8,7 +8,6 @@ use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 use phpDocumentor\Reflection\DocBlockFactory;
 use Roave\BackwardCompatibility\Change;
 use Roave\BackwardCompatibility\Changes;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Component\Routing\Annotation\Route;
 use function dirname;
@@ -29,14 +28,6 @@ class AnnotationDiff
                 'name' => 'string',
                 'path' => 'string',
                 'methods' => 'array'
-            ]
-        ],
-        'Entity' => [
-            'class' => Entity::class,
-            'index' => 'unknown',
-            'numeric' => ['value'],
-            'check' => [
-                'value' => 'string',
             ]
         ],
         'Since' => [
@@ -201,9 +192,6 @@ class AnnotationDiff
         }
 
         require_once dirname(__DIR__, 4) . '/vendor/symfony/routing/Annotation/Route.php';
-        require_once dirname(__DIR__, 4) . '/vendor/sensio/framework-extra-bundle/src/Configuration/ConfigurationInterface.php';
-        require_once dirname(__DIR__, 4) . '/vendor/sensio/framework-extra-bundle/src/Configuration/ConfigurationAnnotation.php';
-        require_once dirname(__DIR__, 4) . '/src/Core/Framework/Routing/Annotation/Entity.php';
         require_once dirname(__DIR__, 4) . '/src/Core/Framework/Routing/Annotation/Since.php';
 
         self::$docParser = new DocParser();

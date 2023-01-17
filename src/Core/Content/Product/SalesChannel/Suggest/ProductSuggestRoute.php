@@ -12,7 +12,6 @@ use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -61,8 +60,7 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Entity("product")
-     * @Route("/store-api/search-suggest", name="store-api.search.suggest", methods={"POST"})
+     * @Route("/store-api/search-suggest", name="store-api.search.suggest", methods={"POST"}, defaults={"_entity"="product"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSuggestRouteResponse
     {

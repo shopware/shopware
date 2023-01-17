@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -66,8 +65,7 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
 
     /**
     * @Since("6.3.4.0")
-    * @Entity("product")
-     * @Route("/store-api/customer/wishlist", name="store-api.customer.wishlist.load", methods={"GET", "POST"}, defaults={"_loginRequired"=true})
+     * @Route("/store-api/customer/wishlist", name="store-api.customer.wishlist.load", methods={"GET", "POST"}, defaults={"_loginRequired"=true, "_entity"="product"})
     */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): LoadWishlistRouteResponse
     {

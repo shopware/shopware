@@ -84,7 +84,6 @@
         "psr/http-message": "~1.0.1",
         "psr/log": "~3.0.0",
         "scssphp/scssphp": "v1.11.0",
-        "sensio/framework-extra-bundle": "~6.2.1",
         "setasign/fpdi": "2.3.6",
         "shopware/conflicts": "*",
         "shyim/opensearch-php-dsl": "~1.0.1",

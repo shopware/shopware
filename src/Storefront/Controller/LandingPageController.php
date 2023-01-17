@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoadedHook;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,8 +35,7 @@ class LandingPageController extends StorefrontController
 
     /**
      * @Since("6.4.0.0")
-     * @HttpCache()
-     * @Route("/landingPage/{landingPageId}", name="frontend.landing.page", methods={"GET"})
+     * @Route("/landingPage/{landingPageId}", name="frontend.landing.page", methods={"GET"}, defaults={"_httpCache"=true})
      */
     public function index(SalesChannelContext $context, Request $request): Response
     {

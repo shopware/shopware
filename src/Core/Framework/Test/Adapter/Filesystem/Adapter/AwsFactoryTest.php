@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Test\Adapter\Filesystem\Adapter;
 
-use League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AwsS3v3Factory;
+use Shopware\Core\Framework\Adapter\Filesystem\Adapter\DecoratedAsyncS3Adapter;
 
 /**
  * @internal
@@ -27,6 +27,6 @@ class AwsFactoryTest extends TestCase
             ],
         ]);
 
-        static::assertInstanceOf(AsyncAwsS3Adapter::class, $adapter);
+        static::assertInstanceOf(DecoratedAsyncS3Adapter::class, $adapter);
     }
 }

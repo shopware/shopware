@@ -89,4 +89,5 @@
   env.CYPRESS_baseUrl = lib.mkDefault "http://localhost:8000";
   env.DATABASE_URL = lib.mkDefault "mysql://root@localhost:3306/shopware";
   env.MAILER_URL = lib.mkDefault "smtp://localhost:1025";
+  env.NODE_OPTIONS = lib.mkDefault "--openssl-legacy-provider";
 }

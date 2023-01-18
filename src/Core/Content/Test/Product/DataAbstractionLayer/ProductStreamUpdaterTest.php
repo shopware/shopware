@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamMappingIndexingMessage;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
+use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexingMessage;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -40,25 +41,26 @@ class ProductStreamUpdaterTest extends TestCase
         $this->productStreamUpdater = $this->getContainer()->get(ProductStreamUpdater::class);
     }
 
-    public function testIndexingDoesUpdateMappingsAndManyToManyIdField(): void
+    /**
+     * @param array<int, array<string, array<string, int>|string>> $filters
+     *
+     * @dataProvider filterProvider
+     */
+    public function testIndexingDoesUpdateMappingsAndManyToManyIdField(array $filters): void
     {
         $streamId = Uuid::randomHex();
         $stream = [
             'id' => $streamId,
             'name' => 'test',
-            'filters' => [[
-                'type' => 'equals',
-                'field' => 'active',
-                'value' => '1',
-            ]],
+            'filters' => $filters,
         ];
 
         $writtenEvent = $this->productStreamRepository->create([$stream], Context::createDefaultContext());
 
         $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
-        $productStreamIndexer->handle(
-            $productStreamIndexer->update($writtenEvent)
-        );
+        $message = $productStreamIndexer->update($writtenEvent);
+        static::assertInstanceOf(ProductStreamIndexingMessage::class, $message);
+        $productStreamIndexer->handle($message);
 
         $productId = Uuid::randomHex();
         $this->createProduct($productId);
@@ -75,6 +77,60 @@ class ProductStreamUpdaterTest extends TestCase
         static::assertContains($streamId, $product->getStreamIds());
     }
 
+    /**
+     * @return iterable<string, array<int, array<int, array<string, array<string, int>|string>>>>
+     */
+    public function filterProvider(): iterable
+    {
+        yield 'Active filter' => [
+            [[
+                'type' => 'equals',
+                'field' => 'active',
+                'value' => '1',
+            ]],
+        ];
+
+        yield 'Price filter / default price' => [
+            [[
+                'type' => 'range',
+                'field' => 'cheapestPrice',
+                'parameters' => [
+                    'gte' => 100,
+                ],
+            ]],
+        ];
+
+        yield 'Price filter / advanced price' => [
+            [[
+                'type' => 'range',
+                'field' => 'cheapestPrice',
+                'parameters' => [
+                    'lte' => 50,
+                ],
+            ]],
+        ];
+
+        yield 'Price filter / default list price percentage' => [
+            [[
+                'type' => 'range',
+                'field' => 'cheapestPrice.percentage',
+                'parameters' => [
+                    'gte' => 50,
+                ],
+            ]],
+        ];
+
+        yield 'Price filter / advanced list price percentage' => [
+            [[
+                'type' => 'range',
+                'field' => 'cheapestPrice.percentage',
+                'parameters' => [
+                    'lt' => 50,
+                ],
+            ]],
+        ];
+    }
+
     public function testIndexingDoesNotBreakOnInvalidProductStreamFilters(): void
     {
         $stream = [
@@ -89,9 +145,9 @@ class ProductStreamUpdaterTest extends TestCase
         $writtenEvent = $this->productStreamRepository->create([$stream], Context::createDefaultContext());
 
         $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
-        $productStreamIndexer->handle(
-            $productStreamIndexer->update($writtenEvent)
-        );
+        $message = $productStreamIndexer->update($writtenEvent);
+        static::assertInstanceOf(ProductStreamIndexingMessage::class, $message);
+        $productStreamIndexer->handle($message);
 
         $productId = Uuid::randomHex();
         $this->createProduct($productId);
@@ -115,6 +171,24 @@ class ProductStreamUpdaterTest extends TestCase
                             'currencyId' => Defaults::CURRENCY,
                             'gross' => 100,
                             'net' => 9, 'linked' => false,
+                            'listPrice' => ['gross' => 200, 'net' => 200, 'linked' => false],
+                        ],
+                    ],
+                    'prices' => [
+                        [
+                            'quantityStart' => 1,
+                            'rule' => [
+                                'name' => 'Test rule',
+                                'priority' => 1,
+                            ],
+                            'price' => [
+                                [
+                                    'currencyId' => Defaults::CURRENCY,
+                                    'gross' => 50,
+                                    'net' => 9, 'linked' => false,
+                                    'listPrice' => ['gross' => 60, 'net' => 60, 'linked' => false],
+                                ],
+                            ],
                         ],
                     ],
                     'manufacturer' => ['name' => 'test'],

@@ -4516,21 +4516,6 @@ parameters:
 			path: src/Core/Content/Product/DataAbstractionLayer/CheapestPriceUpdater.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductStreamUpdater\\:\\:getCriteria\\(\\) has parameter \\$filters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductStreamUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductStreamUpdater\\:\\:getCriteria\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductStreamUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductStreamUpdater\\:\\:updateProducts\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductStreamUpdater.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\RatingAverageUpdater\\:\\:update\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/DataAbstractionLayer/RatingAverageUpdater.php
@@ -6964,11 +6949,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\DataAbstractionLayer\\\\Indexing\\\\VariantListingIndexerTest\\:\\:\\$variantIds has no type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/DataAbstractionLayer/Indexing/VariantListingIndexerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$message of method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\DataAbstractionLayer\\\\ProductStreamIndexer\\:\\:handle\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexingMessage, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexingMessage\\|null given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/ProductStreamUpdaterTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\DataAbstractionLayer\\\\SearchKeywordUpdaterTest\\:\\:assertDictionary\\(\\) has parameter \\$expectedKeywords with no value type specified in iterable type array\\.$#"

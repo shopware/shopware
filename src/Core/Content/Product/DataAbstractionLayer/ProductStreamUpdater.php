@@ -108,6 +108,11 @@ class ProductStreamUpdater extends EntityIndexer
 
         $binary = Uuid::fromHexToBytes($id);
 
+        $ids = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(product_id)) FROM product_stream_mapping WHERE product_stream_id = :id',
+            ['id' => $binary],
+        );
+
         RetryableTransaction::retryable($this->connection, function () use ($binary): void {
             $this->connection->executeStatement(
                 'DELETE FROM product_stream_mapping WHERE product_stream_id = :id',
@@ -115,7 +120,6 @@ class ProductStreamUpdater extends EntityIndexer
             );
         });
 
-        $ids = [];
         while ($matches = $iterator->fetchIds()) {
             foreach ($matches as $id) {
                 if (!\is_string($id)) {
@@ -159,6 +163,9 @@ class ProductStreamUpdater extends EntityIndexer
         return null;
     }
 
+    /**
+     * @param string[] $ids
+     */
     public function updateProducts(array $ids, Context $context): void
     {
         $streams = $this->connection->fetchAllAssociative('SELECT id, api_filter FROM product_stream WHERE invalid = 0 AND api_filter IS NOT NULL');
@@ -219,10 +226,15 @@ class ProductStreamUpdater extends EntityIndexer
         throw new DecorationPatternException(static::class);
     }
 
+    /**
+     * @param array<int, array<string, mixed>> $filters
+     * @param string[]|null $ids
+     */
     private function getCriteria(array $filters, ?array $ids = null): ?Criteria
     {
         $exception = new SearchRequestException();
 
+        $filters = $this->replaceCheapestPriceFilters($filters);
         $parsed = [];
         foreach ($filters as $filter) {
             $parsed[] = QueryStringParser::fromArray($this->productDefinition, $filter, $exception, '');
@@ -240,5 +252,63 @@ class ProductStreamUpdater extends EntityIndexer
         }
 
         return $criteria;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $filters
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function replaceCheapestPriceFilters(array $filters): array
+    {
+        foreach ($filters as $key => $filter) {
+            if (!empty($filter['queries'])) {
+                $filters[$key]['queries'] = $this->replaceCheapestPriceFilters($filter['queries']);
+            }
+
+            if (!$priceQueries = $this->getPriceQueries($filter)) {
+                continue;
+            }
+
+            $filters[$key] = [
+                'type' => 'multi',
+                'operator' => 'OR',
+                'queries' => $priceQueries,
+            ];
+        }
+
+        return $filters;
+    }
+
+    /**
+     * @param array<string, mixed> $filter
+     *
+     * @return array<int, array<string, mixed>>|null
+     */
+    private function getPriceQueries(array $filter): ?array
+    {
+        if (!\array_key_exists('field', $filter)) {
+            return null;
+        }
+
+        $fieldName = $filter['field'];
+
+        $prefix = $this->productDefinition->getEntityName() . '.';
+        if (str_starts_with($fieldName, $prefix)) {
+            $fieldName = substr($fieldName, \strlen($prefix));
+        }
+
+        $accessors = explode('.', $fieldName);
+        if (($accessors[0] ?? '') !== 'cheapestPrice') {
+            return null;
+        }
+
+        $accessors[0] = '';
+        $accessors = implode('.', $accessors);
+
+        return [
+            array_merge($filter, ['field' => $prefix . 'price' . $accessors]),
+            array_merge($filter, ['field' => $prefix . 'prices.price' . $accessors]),
+        ];
     }
 }

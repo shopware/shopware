@@ -109,7 +109,12 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
 
         .sw-icon {
             position: relative;
-            top: -2px;
+            top: -1px;
+
+            &.icon--regular-chevron-right-xs {
+                width: 10px;
+                height: 10px;
+            }
         }
     }
 

@@ -3,7 +3,9 @@
 $sw-settings-tax-list-color-success: $color-emerald-500;
 
 .sw-settings-tax-list {
-    .is--active {
-        color: $sw-settings-tax-list-color-success;
+    .sw-data-grid__cell:not(.sw-data-grid__cell--actions) {
+        .is--active {
+            color: $sw-settings-tax-list-color-success;
+        }
     }
 }

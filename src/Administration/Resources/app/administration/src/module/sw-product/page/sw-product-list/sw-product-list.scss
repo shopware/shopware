@@ -10,25 +10,27 @@ $sw-product-list-color-success: $color-emerald-500;
         position: absolute;
     }
 
-    .sw-data-grid__cell-content {
-        .is--inactive {
-            width: 16px;
-            height: 16px;
-            color: $sw-product-list-color-error;
-            padding-top: 3px;
-            padding-right: 3px;
-            padding-bottom: 3px;
-            padding-left: 3px;
-        }
+    .sw-data-grid__cell:not(.sw-data-grid__cell--actions) {
+        .sw-data-grid__cell-content {
+            .is--inactive {
+                width: 16px;
+                height: 16px;
+                color: $sw-product-list-color-error;
+                padding-top: 3px;
+                padding-right: 3px;
+                padding-bottom: 3px;
+                padding-left: 3px;
+            }
 
-        .is--active {
-            width: 16px;
-            height: 16px;
-            color: $sw-product-list-color-success;
-            padding-top: 4px;
-            padding-right: 2px;
-            padding-bottom: 3px;
-            padding-left: 2px;
+            .is--active {
+                width: 16px;
+                height: 16px;
+                color: $sw-product-list-color-success;
+                padding-top: 4px;
+                padding-right: 2px;
+                padding-bottom: 3px;
+                padding-left: 2px;
+            }
         }
     }
 

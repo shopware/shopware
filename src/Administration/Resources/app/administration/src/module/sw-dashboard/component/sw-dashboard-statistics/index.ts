@@ -9,7 +9,7 @@ type OrderEntity = EntitySchema.order;
 type HistoryDateRange = {
     label: string,
     range: number,
-    unit: 'minute' | 'hour' | 'day',
+    interval: 'minute' | 'hour' | 'day',
 }
 
 type BucketData = {
@@ -71,12 +71,12 @@ export default Shopware.Component.wrapComponentConfig({
             ordersDateRange: {
                 label: '30Days',
                 range: 30,
-                unit: 'day',
+                interval: 'day',
             },
             turnoverDateRange: {
                 label: '30Days',
                 range: 30,
-                unit: 'day',
+                interval: 'day',
             },
             isLoading: true,
         };
@@ -87,23 +87,23 @@ export default Shopware.Component.wrapComponentConfig({
             return [{
                 label: '30Days',
                 range: 30,
-                unit: 'day',
+                interval: 'day',
             }, {
                 label: '14Days',
                 range: 14,
-                unit: 'day',
+                interval: 'day',
             }, {
                 label: '7Days',
                 range: 7,
-                unit: 'day',
+                interval: 'day',
             }, {
                 label: '24Hours',
                 range: 24,
-                unit: 'hour',
+                interval: 'hour',
             }, {
                 label: 'yesterday',
                 range: 24,
-                unit: 'hour',
+                interval: 'hour',
             }];
         },
 
@@ -325,7 +325,7 @@ export default Shopware.Component.wrapComponentConfig({
                 Criteria.histogram(
                     'order_count_bucket',
                     'orderDateTime',
-                    this.ordersDateRange.unit,
+                    this.ordersDateRange.interval,
                     null,
                     Criteria.sum('totalAmount', 'amountTotal'),
                     // eslint-disable-next-line max-len
@@ -348,7 +348,7 @@ export default Shopware.Component.wrapComponentConfig({
                 Criteria.histogram(
                     'order_sum_bucket',
                     'orderDateTime',
-                    this.turnoverDateRange.unit,
+                    this.turnoverDateRange.interval,
                     null,
                     Criteria.sum('totalAmount', 'amountTotal'),
                     // eslint-disable-next-line max-len
@@ -479,7 +479,7 @@ export default Shopware.Component.wrapComponentConfig({
             const date = Shopware.Utils.format.dateWithUserTimezone();
 
             // special case for "unit: hour": return directly because we need hours instead of days
-            if (range.unit === 'hour') {
+            if (range.interval === 'hour') {
                 date.setHours(date.getHours() - range.range);
 
                 return date;

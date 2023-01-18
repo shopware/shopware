@@ -203,6 +203,10 @@
             <argument type="tagged" tag="shopware.cart.validator"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Cart\ProductLineItemValidator">
+            <tag name="shopware.cart.validator"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Processor">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Validator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>

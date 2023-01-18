@@ -878,6 +878,33 @@
                         }
                     }
                 },
+                "administration": {
+                    "title": "Admin elasticsearch",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "hosts": {
+                            "type": "string",
+                            "description": "Admin Elasticsearch Hosts",
+                            "default": "localhost:9200"
+                        },
+                        "enabled": {
+                            "type": "boolean",
+                            "description": "Admin Elasticsearch Enabled",
+                            "default": false
+                        },
+                        "refresh_indices": {
+                            "type": "boolean",
+                            "description": "Admin Elasticsearch Refresh Indices",
+                            "default": false
+                        },
+                        "index_prefix": {
+                            "type": "string",
+                            "description": "Admin Elasticsearch Index Prefix",
+                            "default": "sw-admin"
+                        }
+                    }
+                },
                 "ssl": {
                     "type": "object",
                     "additionalProperties": false,

@@ -32,7 +32,7 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\System\SystemConfig\SystemConfigService" public="true">
+        <service id="Shopware\Core\System\SystemConfig\SystemConfigService" public="true" lazy="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="system_config.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader" />

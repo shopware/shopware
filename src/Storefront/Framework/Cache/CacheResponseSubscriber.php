@@ -106,13 +106,13 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        if (!$this->maintenanceResolver->shouldBeCached($request)) {
-            return;
-        }
-
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
         if (!$context instanceof SalesChannelContext) {
+            return;
+        }
+
+        if (!$this->maintenanceResolver->shouldBeCached($request)) {
             return;
         }
 

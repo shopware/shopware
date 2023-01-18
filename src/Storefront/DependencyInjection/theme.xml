@@ -67,7 +67,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Storefront\Theme\ResolvedConfigLoader">
+        <service id="Shopware\Storefront\Theme\ResolvedConfigLoader" lazy="true">
             <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
         </service>
@@ -111,7 +111,7 @@
             <argument type="service" id="media.repository"/>
         </service>
 
-        <service id="Shopware\Storefront\Theme\SeedingThemePathBuilder">
+        <service id="Shopware\Storefront\Theme\SeedingThemePathBuilder" lazy="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
@@ -139,7 +139,7 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="shopware.asset.theme" class="Shopware\Storefront\Theme\ThemeAssetPackage">
+        <service id="shopware.asset.theme" class="Shopware\Storefront\Theme\ThemeAssetPackage" lazy="true">
             <argument type="collection">
                 <argument>%shopware.filesystem.theme.url%</argument>
             </argument>

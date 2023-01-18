@@ -121,6 +121,7 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\TwigDateRequestListener">
+            <argument type="service" id="service_container"/>
             <tag name="kernel.event_listener" event="kernel.request"/>
         </service>
 
@@ -163,7 +164,6 @@
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

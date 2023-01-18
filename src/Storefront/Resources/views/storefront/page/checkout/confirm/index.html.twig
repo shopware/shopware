@@ -74,8 +74,7 @@
                         {% endblock %}
 
                         {% block page_checkout_confirm_revocation_control %}
-                            {% set DOWNLOAD_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_DOWNLOAD') %}
-                            {% if page.cart.lineItems.hasLineItemWithState(DOWNLOAD_STATE) %}
+                            {% if page.showRevocation() %}
                                 <div class="{{ formCheckboxWrapperClass }}">
                                     {% block page_checkout_confirm_revocation_control_checkbox %}
                                         <input type="checkbox"

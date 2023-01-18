@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
@@ -70,6 +71,7 @@ class CheckoutConfirmPageLoader
     public function load(Request $request, SalesChannelContext $context): CheckoutConfirmPage
     {
         $page = $this->genericPageLoader->load($request, $context);
+        /** @var CheckoutConfirmPage $page */
         $page = CheckoutConfirmPage::createFrom($page);
 
         if ($page->getMetaInformation()) {
@@ -82,6 +84,9 @@ class CheckoutConfirmPageLoader
         $cart = $this->cartService->get($context->getToken(), $context);
         $this->validateCustomerAddresses($cart, $context);
         $page->setCart($cart);
+
+        $page->setShowRevocation($cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD));
+        $page->setHideShippingAddress(!$cart->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL));
 
         $this->eventDispatcher->dispatch(
             new CheckoutConfirmPageLoadedEvent($page, $context, $request)

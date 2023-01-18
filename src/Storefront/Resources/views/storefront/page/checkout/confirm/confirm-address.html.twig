@@ -1,4 +1,5 @@
 {% block page_checkout_confirm_address_inner %}
+    {# @var page \Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage #}
     {% if page.order %}
         {% set order = page.order %}
         {% set deliveries = order.deliveries.elements %}
@@ -23,8 +24,7 @@
                 {% if page.order is defined %}
                     {% set lineItems = page.order.lineItems %}
                 {% endif %}
-                {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_PHYSICAL') %}
-                {% if lineItems is defined and lineItems.hasLineItemWithState(PHYSICAL_STATE) %}
+                {% if not page.isHideShippingAddress() %}
                     <div class="col-sm-6 card-col confirm-shipping-address">
                         <div class="card checkout-card">
                             <div class="card-body">

@@ -19,8 +19,9 @@
         {% block sw_order_detail_details_payment_billing_address %}
         <sw-order-address-selection
             class="sw-order-detail-details__billing-address"
+            type="billing"
             :address="billingAddress"
-            :address-id="billingAddress.id"
+            :address-id="selectedBillingAddressId"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.createBase.detailsBody.labelBillingAddress')"
             @change-address="onChangeOrderAddress"
@@ -62,8 +63,9 @@
         {% block sw_order_detail_details_shipping_address %}
         <sw-order-address-selection
             class="sw-order-detail-details__shipping-address"
-            :address="delivery.shippingOrderAddress"
-            :address-id="delivery.shippingOrderAddress.id"
+            type="shipping"
+            :address="shippingAddress"
+            :address-id="selectedShippingAddressId"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.createBase.detailsBody.labelShippingAddress')"
             @change-address="onChangeOrderAddress"

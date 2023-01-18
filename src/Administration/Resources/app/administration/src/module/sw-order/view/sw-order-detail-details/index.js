@@ -54,6 +54,7 @@ export default {
         ...mapState('swOrderDetail', [
             'order',
             'versionContext',
+            'orderAddressIds',
         ]),
 
         delivery() {
@@ -193,6 +194,20 @@ export default {
             return this.order.addresses.find((address) => {
                 return address.id === this.order.billingAddressId;
             });
+        },
+
+        shippingAddress() {
+            return this.delivery.shippingOrderAddress;
+        },
+
+        selectedBillingAddressId() {
+            const currentAddress = this.orderAddressIds.find(item => item.type === 'billing');
+            return currentAddress?.customerAddressId || this.billingAddress.id;
+        },
+
+        selectedShippingAddressId() {
+            const currentAddress = this.orderAddressIds.find(item => item.type === 'shipping');
+            return currentAddress?.customerAddressId || this.shippingAddress.id;
         },
     },
 

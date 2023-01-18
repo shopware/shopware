@@ -1,7 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 import HttpClient from 'src/service/http-client.service';
-import Feature from 'src/helper/feature.helper';
 
 /**
  * @package content
@@ -90,11 +89,7 @@ export default class CountryStateSelectPlugin extends Plugin {
             payload,
             (response) => {
                 let responseData = JSON.parse(response);
-                if (Feature.isActive('v6.5.0.0')) {
-                    responseData = {...responseData, ...{
-                        stateRequired: stateRequired,
-                    }};
-                }
+                responseData = {...responseData, ...{ stateRequired }};
 
                 updateStateSelect(responseData, countryStateId, this.el, CountryStateSelectPlugin.options)
             }

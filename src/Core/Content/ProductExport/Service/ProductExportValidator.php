@@ -7,7 +7,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Validator\ValidatorInterface;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class ProductExportValidator implements ProductExportValidatorInterface
 {

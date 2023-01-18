@@ -191,7 +191,7 @@ class SalesChannelContextPersister
                 ->setParameter('preserveTokens', $preserveTokens, Connection::PARAM_STR_ARRAY);
         }
 
-        $qb->execute();
+        $qb->executeStatement();
     }
 
     /**

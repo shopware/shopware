@@ -7,7 +7,7 @@ use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 interface ProductExportGeneratorInterface
 {

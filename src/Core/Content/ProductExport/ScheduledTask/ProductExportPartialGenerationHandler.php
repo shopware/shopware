@@ -28,7 +28,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  *
- * @package inventory
+ * @package sales-channel
  */
 #[AsMessageHandler]
 final class ProductExportPartialGenerationHandler

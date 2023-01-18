@@ -21,7 +21,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class ProductExportDefinition extends EntityDefinition
 {

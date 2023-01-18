@@ -6,7 +6,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class ExportNotFoundException extends ShopwareHttpException
 {

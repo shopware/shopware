@@ -95,7 +95,7 @@ class SalesChannelEntity extends Entity
     protected $navigationCategoryDepth;
 
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
     protected $homeSlotConfig;
 
@@ -185,7 +185,7 @@ class SalesChannelEntity extends Entity
     protected $languages;
 
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
     protected $configuration;
 
@@ -200,7 +200,7 @@ class SalesChannelEntity extends Entity
     protected $maintenance;
 
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
     protected $maintenanceIpWhitelist;
 
@@ -534,11 +534,17 @@ class SalesChannelEntity extends Entity
         $this->languages = $languages;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function getConfiguration(): ?array
     {
         return $this->configuration;
     }
 
+    /**
+     * @param array<mixed> $configuration
+     */
     public function setConfiguration(array $configuration): void
     {
         $this->configuration = $configuration;
@@ -564,11 +570,17 @@ class SalesChannelEntity extends Entity
         $this->maintenance = $maintenance;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function getMaintenanceIpWhitelist(): ?array
     {
         return $this->maintenanceIpWhitelist;
     }
 
+    /**
+     * @param array<mixed>|null $maintenanceIpWhitelist
+     */
     public function setMaintenanceIpWhitelist(?array $maintenanceIpWhitelist): void
     {
         $this->maintenanceIpWhitelist = $maintenanceIpWhitelist;
@@ -744,11 +756,17 @@ class SalesChannelEntity extends Entity
         $this->navigationCategory = $navigationCategory;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function getHomeSlotConfig(): ?array
     {
         return $this->homeSlotConfig;
     }
 
+    /**
+     * @param array<mixed>|null $homeSlotConfig
+     */
     public function setHomeSlotConfig(?array $homeSlotConfig): void
     {
         $this->homeSlotConfig = $homeSlotConfig;

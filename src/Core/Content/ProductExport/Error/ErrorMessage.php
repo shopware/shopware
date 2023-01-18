@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ProductExport\Error;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class ErrorMessage extends Struct
 {

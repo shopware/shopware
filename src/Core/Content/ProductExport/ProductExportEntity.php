@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class ProductExportEntity extends Entity
 {

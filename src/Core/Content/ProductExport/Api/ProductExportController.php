@@ -27,7 +27,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route(defaults={"_routeScope"={"api"}})
  *
- * @package inventory
+ * @package sales-channel
  */
 class ProductExportController extends AbstractController
 {

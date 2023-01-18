@@ -180,7 +180,7 @@
             :variant="disabledCountryVariant"
             :title="$tc('global.default.' + disabledCountryVariant)"
         >
-            <span v-html="buildDisabledAlert('sw-sales-channel.detail.warningDisabledCountries', disabledCountries)"></span>
+            <span v-html="buildDisabledPaymentAlert('sw-sales-channel.detail.warningDisabledCountries', disabledCountries)"></span>
         </sw-alert>
         {% endblock %}
 

@@ -18321,11 +18321,6 @@ parameters:
 			path: src/Core/System/SalesChannel/Event/SalesChannelIndexerEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannel\\\\ContextSwitchRoute\\:\\:checkNewDomain\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannel/ContextSwitchRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelCollection\\:\\:getCountryIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/SalesChannelCollection.php
@@ -18354,51 +18349,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelCollection\\:\\:getTypeIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/SalesChannelCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:getConfiguration\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:getHomeSlotConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:getMaintenanceIpWhitelist\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:setConfiguration\\(\\) has parameter \\$configuration with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:setHomeSlotConfig\\(\\) has parameter \\$homeSlotConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:setMaintenanceIpWhitelist\\(\\) has parameter \\$maintenanceIpWhitelist with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:\\$configuration type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:\\$homeSlotConfig type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:\\$maintenanceIpWhitelist type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelEntity.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\StoreApiCustomFieldMapper\\:\\:map\\(\\) return type has no value type specified in iterable type array\\.$#"

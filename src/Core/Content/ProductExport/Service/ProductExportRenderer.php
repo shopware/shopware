@@ -18,7 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class ProductExportRenderer implements ProductExportRendererInterface
 {

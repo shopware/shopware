@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ProductExport\Service;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 interface ProductExportValidatorInterface
 {

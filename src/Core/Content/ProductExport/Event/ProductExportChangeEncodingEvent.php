@@ -6,7 +6,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class ProductExportChangeEncodingEvent extends Event
 {

@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\LogAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class ProductExportLoggingEvent extends Event implements LogAware, MailAware, NameAware
 {

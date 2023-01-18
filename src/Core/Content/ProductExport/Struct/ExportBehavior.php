@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\Struct;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class ExportBehavior
 {

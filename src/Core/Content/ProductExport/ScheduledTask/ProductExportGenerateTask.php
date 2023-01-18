@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class ProductExportGenerateTask extends ScheduledTask
 {

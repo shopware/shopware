@@ -663,13 +663,6 @@ export default {
             this.salesChannel.serviceCategoryId = null;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Use `buildDisabledPaymentAlert` or `buildDisabledShippingAlert` instead
-         */
-        buildDisabledAlert(snippet, collection, property = 'name') {
-            return this.buildDisabledPaymentAlert(snippet, collection, property);
-        },
-
         buildDisabledPaymentAlert(snippet, collection, property = 'name') {
             const route = { name: 'sw.settings.payment.overview' };
             const routeData = this.$router.resolve(route);

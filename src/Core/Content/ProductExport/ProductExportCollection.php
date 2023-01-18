@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 /**
  * @extends EntityCollection<ProductExportEntity>
  *
- * @package inventory
+ * @package sales-channel
  */
 class ProductExportCollection extends EntityCollection
 {

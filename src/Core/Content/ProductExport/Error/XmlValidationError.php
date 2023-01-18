@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\Error;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class XmlValidationError extends Error
 {

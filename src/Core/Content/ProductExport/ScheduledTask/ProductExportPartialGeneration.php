@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class ProductExportPartialGeneration implements AsyncMessageInterface
 {

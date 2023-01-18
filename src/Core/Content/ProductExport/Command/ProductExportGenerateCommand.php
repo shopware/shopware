@@ -16,7 +16,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 #[AsCommand(
     name: 'product-export:generate',

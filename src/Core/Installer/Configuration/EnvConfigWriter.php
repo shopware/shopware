@@ -49,6 +49,10 @@ SHOPWARE_ES_ENABLED=0
 SHOPWARE_ES_INDEXING_ENABLED=0
 SHOPWARE_ES_INDEX_PREFIX=sw
 SHOPWARE_ES_THROW_EXCEPTION=1
+ADMIN_OPENSEARCH_URL=http://localhost:9200
+SHOPWARE_ADMIN_ES_INDEX_PREFIX=sw-admin
+SHOPWARE_ADMIN_ES_ENABLED=0
+SHOPWARE_ADMIN_ES_REFRESH_INDICES=0
 ###< shopware/elasticsearch ###
 
 ###> shopware/storefront ###
@@ -118,6 +122,7 @@ EOT;
         $newEnv[] = 'INSTANCE_ID=' . $uniqueId;
         $newEnv[] = 'BLUE_GREEN_DEPLOYMENT=' . (int) $shop['blueGreenDeployment'];
         $newEnv[] = 'OPENSEARCH_URL=http://localhost:9200';
+        $newEnv[] = 'ADMIN_OPENSEARCH_URL=http://localhost:9200';
 
         file_put_contents($this->projectDir . '/.env.local', implode("\n", $newEnv));
 

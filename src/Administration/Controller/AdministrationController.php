@@ -36,6 +36,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use function version_compare;
 
 /**
  * @Route(defaults={"_routeScope"={"administration"}})
@@ -71,6 +72,8 @@ class AdministrationController extends AbstractController
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
+    private bool $esAdministrationEnabled;
+
     /**
      * @internal
      *
@@ -88,7 +91,8 @@ class AdministrationController extends AbstractController
         EntityRepository $customerRepo,
         EntityRepository $currencyRepository,
         HtmlSanitizer $htmlSanitizer,
-        DefinitionInstanceRegistry $definitionInstanceRegistry
+        DefinitionInstanceRegistry $definitionInstanceRegistry,
+        bool $esAdministrationEnabled
     ) {
         $this->finder = $finder;
         $this->firstRunWizardService = $firstRunWizardService;
@@ -102,6 +106,7 @@ class AdministrationController extends AbstractController
         $this->currencyRepository = $currencyRepository;
         $this->htmlSanitizer = $htmlSanitizer;
         $this->definitionInstanceRegistry = $definitionInstanceRegistry;
+        $this->esAdministrationEnabled = $esAdministrationEnabled;
     }
 
     /**
@@ -126,6 +131,7 @@ class AdministrationController extends AbstractController
             'firstRunWizard' => $this->firstRunWizardService->frwShouldRun(),
             'apiVersion' => $this->getLatestApiVersion(),
             'cspNonce' => $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE),
+            'adminEsEnable' => $this->esAdministrationEnabled,
         ]);
     }
 
@@ -313,7 +319,10 @@ class AdministrationController extends AbstractController
     private function getLatestApiVersion(): ?int
     {
         $sortedSupportedApiVersions = array_values($this->supportedApiVersions);
-        usort($sortedSupportedApiVersions, fn (mixed $a, mixed $b) => (int) version_compare((string) $a, (string) $b));
+
+        usort($sortedSupportedApiVersions, function (int $version1, int $version2) {
+            return version_compare((string) $version1, (string) $version2);
+        });
 
         return array_pop($sortedSupportedApiVersions);
     }

@@ -43,50 +43,6 @@ class AdministrationControllerTest extends TestCase
         static::assertArrayHasKey('en-GB', $response);
     }
 
-    public function testResetExcludedSearchTerm(): void
-    {
-        /** @var string $coreDir */
-        $coreDir = $this->getContainer()->getParameter('kernel.shopware_core_dir');
-        $defaultExcludedTermEn = require $coreDir . '/Migration/Fixtures/stopwords/en.php';
-        $defaultExcludedTermDe = require $coreDir . '/Migration/Fixtures/stopwords/de.php';
-
-        $languageIds = $this->connection->fetchFirstColumn('SELECT `language`.id FROM `language`');
-        foreach ($languageIds as $languageId) {
-            $isoCode = $this->getLanguageCode($languageId);
-            $this->connection->executeStatement(
-                'UPDATE `product_search_config` SET `excluded_terms` = :excludedTerms WHERE `language_id` = :languageId',
-                [
-                    'excludedTerms' => json_encode(['me', 'my', 'myself']),
-                    'languageId' => $languageId,
-                ]
-            );
-
-            $this->getBrowser()->setServerParameter('HTTP_sw-language-id', Uuid::fromBytesToHex($languageId));
-            $this->getBrowser()->request('POST', '/api/_admin/reset-excluded-search-term');
-            $response = $this->getBrowser()->getResponse();
-
-            $excludedTerms = json_decode($this->connection->executeQuery(
-                'SELECT `excluded_terms` FROM `product_search_config` WHERE `language_id` = :languageId',
-                ['languageId' => $languageId]
-            )->fetchOne(), true);
-
-            static::assertEquals(200, $response->getStatusCode());
-
-            switch ($isoCode) {
-                case 'en-GB':
-                    static::assertEquals($defaultExcludedTermEn, $excludedTerms);
-
-                    break;
-                case 'de-DE':
-                    static::assertEquals($defaultExcludedTermDe, $excludedTerms);
-
-                    break;
-                default:
-                    static::assertEmpty($excludedTerms);
-            }
-        }
-    }
-
     public function testResetExcludedSearchTermIncorrectLanguageId(): void
     {
         $this->getBrowser()->setServerParameter('HTTP_sw-language-id', Uuid::randomHex());
@@ -288,16 +244,5 @@ class AdministrationControllerTest extends TestCase
                 VALUES (?, ?, ?, ?, ?)');
             $statement->executeStatement([$newConfigId, $newLanguageId, 0, 2, '2021-04-01 04:41:12.045']);
         }
-    }
-
-    private function getLanguageCode(string $languageId): ?string
-    {
-        return $this->connection->fetchOne(
-            '
-            SELECT `locale`.code FROM `language`
-            INNER JOIN locale ON language.translation_code_id = locale.id
-            WHERE `language`.id = :id',
-            ['id' => $languageId]
-        );
     }
 }

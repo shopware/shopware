@@ -1,3 +1,19 @@
+.sw-card-elasticsearch-enabled {
+    &.sw-card {
+        filter: none;
+        background: transparent;
+    }
+
+    &.sw-card .sw-card__content {
+        padding: 0;
+        background: transparent;
+    }
+
+    &__alert {
+        margin: 0;
+    }
+}
+
 .sw-profile-index-search-preferences-searchable-elements {
     $this: &;
 

@@ -12,8 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -68,7 +66,6 @@ class OrderTransactionCaptureDefinition extends EntityDefinition
             (new OneToManyAssociationField('refunds', OrderTransactionCaptureRefundDefinition::class, 'capture_id'))->addFlags(new ApiAware(), new CascadeDelete()),
 
             (new StringField('external_reference', 'externalReference'))->addFlags(new ApiAware()),
-            (new FloatField('totalAmount', 'totalAmount'))->addFlags(new ApiAware(), new Runtime()),
             (new CalculatedPriceField('amount', 'amount'))->addFlags(new ApiAware(), new Required()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);

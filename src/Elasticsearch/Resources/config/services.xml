@@ -264,6 +264,7 @@
             <argument>%elasticsearch.enabled%</argument>
             <argument>%elasticsearch.administration.enabled%</argument>
             <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="admin.openSearch.client"/>
             <tag name="data_collector" template="@Elasticsearch/Collector/elasticsearch.html.twig" id="elasticsearch"></tag>
         </service>
 
@@ -314,7 +315,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="OpenSearch\Client"/>
+            <argument type="service" id="admin.openSearch.client"/>
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminElasticsearchHelper"/>
             <argument>%elasticsearch.administration.index.config%</argument>
             <argument>%elasticsearch.administration.index.mapping%</argument>

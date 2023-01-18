@@ -4,7 +4,7 @@ namespace Shopware\Elasticsearch\Admin;
 
 use OpenSearch\Client;
 use OpenSearchDSL\Query\Compound\BoolQuery;
-use OpenSearchDSL\Query\FullText\QueryStringQuery;
+use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
 use OpenSearchDSL\Search;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
@@ -41,6 +41,10 @@ class AdminSearcher
     public function search(string $term, array $entities, Context $context, int $limit = 5): array
     {
         $index = [];
+        $term = (string) mb_eregi_replace('\s(or)\s', '|', $term);
+        $term = (string) mb_eregi_replace('\s(and)\s', ' + ', $term);
+        $term = (string) mb_eregi_replace('\s(not)\s', ' -', $term);
+
         foreach ($entities as $entityName) {
             if (!$context->isAllowed($entityName . ':' . AclRoleDefinition::PRIVILEGE_READ)) {
                 continue;
@@ -95,27 +99,20 @@ class AdminSearcher
 
     private function buildSearch(string $term, int $limit): Search
     {
-        $term = mb_ereg_replace(' or ', ' OR ', $term);
-        $term = mb_ereg_replace(' and ', ' AND ', (string) $term);
-        $term = (string) $term;
-
         $search = new Search();
-        $queries = [
-            new QueryStringQuery($term, ['fields' => ['text'], 'boost' => 5]), // support simple query string syntax
-        ];
-
         $splitTerms = explode(' ', $term);
-        $lastPart = array_pop($splitTerms);
+        $lastPart = end($splitTerms);
 
-        // If the end of the search term is a word, apply the prefix search query
+        // If the end of the search term is not a symbol, apply the prefix search query
         if (preg_match('/^[a-zA-Z0-9]+$/', $lastPart)) {
-            $queries[] = new QueryStringQuery($term . '*', ['fields' => ['text']]);
+            $term = $term . '*';
         }
 
-        foreach ($queries as $query) {
-            $search->addQuery($query, BoolQuery::SHOULD);
-        }
+        $query = new SimpleQueryStringQuery($term, [
+            'fields' => ['text'],
+        ]);
 
+        $search->addQuery($query, BoolQuery::SHOULD);
         $search->setSize($limit);
 
         return $search;

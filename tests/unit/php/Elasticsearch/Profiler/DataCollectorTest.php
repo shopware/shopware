@@ -49,6 +49,7 @@ class DataCollectorTest extends TestCase
         $collector = new DataCollector(
             true,
             true,
+            $client,
             $client
         );
 
@@ -80,6 +81,7 @@ class DataCollectorTest extends TestCase
         $collector = new DataCollector(
             true,
             true,
+            $client,
             $client
         );
 
@@ -105,6 +107,7 @@ class DataCollectorTest extends TestCase
         $collector = new DataCollector(
             false,
             false,
+            $client,
             $client
         );
 

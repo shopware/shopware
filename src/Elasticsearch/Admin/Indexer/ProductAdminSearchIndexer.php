@@ -4,7 +4,7 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
 use OpenSearchDSL\Query\Compound\BoolQuery;
-use OpenSearchDSL\Query\FullText\QueryStringQuery;
+use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
 use OpenSearchDSL\Search;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -84,21 +84,20 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 
     public function globalCriteria(string $term, Search $criteria): Search
     {
-        $queries = [
-            new QueryStringQuery($term, ['fields' => ['textBoosted'], 'boost' => 10]), // support simple query string syntax
-        ];
-
         $splitTerms = explode(' ', $term);
-        $lastPart = array_pop($splitTerms);
+        $lastPart = end($splitTerms);
 
-        // If the end of the search term is a word, apply the prefix search query
+        // If the end of the search term is not a symbol, apply the prefix search query
         if (preg_match('/^[a-zA-Z0-9]+$/', $lastPart)) {
-            $queries[] = new QueryStringQuery($term . '*', ['fields' => ['textBoosted'], 'boost' => 3]);
+            $term = $term . '*';
         }
 
-        foreach ($queries as $query) {
-            $criteria->addQuery($query, BoolQuery::SHOULD);
-        }
+        $query = new SimpleQueryStringQuery($term, [
+            'fields' => ['textBoosted'],
+            'boost' => 10,
+        ]);
+
+        $criteria->addQuery($query, BoolQuery::SHOULD);
 
         return $criteria;
     }

@@ -3,6 +3,9 @@
 namespace Shopware\Elasticsearch\Profiler;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector as BaseDataCollector;
@@ -15,35 +18,50 @@ class DataCollector extends BaseDataCollector
 {
     private bool $enabled;
 
+    private bool $adminEnabled;
+
     private ClientProfiler $client;
+
+    private ClientProfiler $adminClient;
 
     /**
      * @internal
      */
-    public function __construct(bool $enabled, bool $adminEnabled, ClientProfiler $client)
+    public function __construct(bool $enabled, bool $adminEnabled, ClientProfiler $client, ClientProfiler $adminClient)
     {
         $this->client = $client;
-        $this->enabled = $enabled || $adminEnabled;
+        $this->adminClient = $adminClient;
+        $this->enabled = $enabled;
+        $this->adminEnabled = $adminEnabled;
     }
 
     public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        $enabled = $this->enabled;
+        $client = $this->client;
+
+        if ($context instanceof Context && $context->getSource() instanceof AdminApiSource) {
+            $enabled = $this->adminEnabled;
+            $client = $this->adminClient;
+        }
+
         $this->data = [
-            'enabled' => $this->enabled,
-            'requests' => $this->client->getCalledRequests(),
+            'enabled' => $enabled,
+            'requests' => $client->getCalledRequests(),
             'time' => 0,
         ];
 
-        foreach ($this->client->getCalledRequests() as $calledRequest) {
-            $this->data['time'] += $calledRequest['time'];
-        }
-
-        if (!$this->enabled) {
+        if (!$enabled) {
             return;
         }
 
-        $this->data['clusterInfo'] = $this->client->cluster()->health();
-        $this->data['indices'] = $this->client->cat()->indices();
+        foreach ($client->getCalledRequests() as $calledRequest) {
+            $this->data['time'] += $calledRequest['time'];
+        }
+
+        $this->data['clusterInfo'] = $client->cluster()->health();
+        $this->data['indices'] = $client->cat()->indices();
     }
 
     public function getName(): string
@@ -55,6 +73,7 @@ class DataCollector extends BaseDataCollector
     {
         $this->data = [];
         $this->client->resetRequests();
+        $this->adminClient->resetRequests();
     }
 
     public function getTime(): float

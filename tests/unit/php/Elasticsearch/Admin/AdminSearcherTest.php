@@ -61,30 +61,16 @@ class AdminSearcherTest extends TestCase
                             'bool' => [
                                 'should' => [
                                     [
-                                        'query_string' => [
-                                            'query' => 'elasticsearch',
-                                            'fields' => ['text'],
-                                            'boost' => 5,
-                                        ],
-                                    ],
-                                    [
-                                        'query_string' => [
+                                        'simple_query_string' => [
                                             'query' => 'elasticsearch*',
                                             'fields' => ['text'],
                                         ],
                                     ],
                                     [
-                                        'query_string' => [
-                                            'query' => 'elasticsearch',
+                                        'simple_query_string' => [
+                                            'query' => 'elasticsearch*',
                                             'fields' => ['textBoosted'],
                                             'boost' => 10,
-                                        ],
-                                    ],
-                                    [
-                                        'query_string' => [
-                                            'query' => 'elasticsearch*',
-                                            'fields' => ['textBoosted'],
-                                            'boost' => 3,
                                         ],
                                     ],
                                 ],

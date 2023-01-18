@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
 /**
  * @internal
  */
+#[Package('system-settings')]
 class SecurityExtension extends AbstractExtension
 {
     /**

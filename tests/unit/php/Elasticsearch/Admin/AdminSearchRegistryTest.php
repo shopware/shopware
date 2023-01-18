@@ -3,8 +3,8 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
-use OpenSearch\Client;
-use OpenSearch\Namespaces\IndicesNamespace;
+use Elasticsearch\Client;
+use Elasticsearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -28,8 +28,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package system-settings
- *
  * @internal
  *
  * @covers \Shopware\Elasticsearch\Admin\AdminSearchRegistry

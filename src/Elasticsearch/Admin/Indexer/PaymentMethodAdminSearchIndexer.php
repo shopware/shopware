@@ -9,30 +9,30 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package system-settings
- *
  * @internal
  */
+#[Package('system-settings')]
 final class PaymentMethodAdminSearchIndexer extends AbstractAdminIndexer
 {
     private Connection $connection;
 
     private IteratorFactory $factory;
 
-    private EntityRepository $repository;
+    private EntityRepositoryInterface $repository;
 
     private int $indexingBatchSize;
 
     public function __construct(
         Connection $connection,
         IteratorFactory $factory,
-        EntityRepository $repository,
+        EntityRepositoryInterface $repository,
         int $indexingBatchSize
     ) {
         $this->connection = $connection;

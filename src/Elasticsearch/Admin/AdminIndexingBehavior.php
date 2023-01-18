@@ -2,6 +2,9 @@
 
 namespace Shopware\Elasticsearch\Admin;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('system-settings')]
 class AdminIndexingBehavior
 {
     protected bool $noQueue = false;

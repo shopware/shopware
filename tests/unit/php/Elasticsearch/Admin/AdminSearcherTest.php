@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
-use OpenSearch\Client;
+use Elasticsearch\Client;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -15,8 +15,6 @@ use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer;
 
 /**
- * @package system-settings
- *
  * @internal
  *
  * @covers \Shopware\Elasticsearch\Admin\AdminSearcher

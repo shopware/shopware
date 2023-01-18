@@ -423,10 +423,6 @@ Component.register('sw-search-bar', {
             }
         },
 
-        _isEmptyObject(value) {
-            return !(typeof value === 'object' && Object.keys(value).length > 0);
-        },
-
         doListSearch: utils.debounce(function debouncedSearch() {
             const searchTerm = this.searchTerm.trim();
             this.$emit('search', searchTerm);
@@ -481,7 +477,7 @@ Component.register('sw-search-bar', {
             if (this.adminEsEnable) {
                 const names = [];
                 Object.keys(this.userSearchPreference).forEach((key) => {
-                    if (this._isEmptyObject(this.userSearchPreference[key])) {
+                    if (utils.types.isEmpty(this.userSearchPreference[key])) {
                         return;
                     }
                     names.push(key);

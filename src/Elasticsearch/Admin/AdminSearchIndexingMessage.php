@@ -2,11 +2,12 @@
 
 namespace Shopware\Elasticsearch\Admin;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package system-settings
- *
  * @internal
  */
+#[Package('system-settings')]
 final class AdminSearchIndexingMessage
 {
     private string $entity;

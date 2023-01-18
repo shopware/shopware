@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @package system-settings
- *
  * @internal
  */
+#[Package('system-settings')]
 class RefreshIndexEvent extends Event
 {
     private bool $noQueue;

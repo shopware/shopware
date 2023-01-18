@@ -3,11 +3,12 @@
 namespace Shopware\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
-use OpenSearch\Client;
+use Elasticsearch\Client;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
@@ -17,12 +18,11 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package system-settings
- *
  * @internal
  *
  * @final
  */
+#[Package('system-settings')]
 class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInterface
 {
     /**

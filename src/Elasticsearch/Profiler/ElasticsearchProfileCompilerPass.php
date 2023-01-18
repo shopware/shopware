@@ -30,10 +30,6 @@ class ElasticsearchProfileCompilerPass implements CompilerPassInterface
 
         $container->setDefinition('shopware.es.profiled.client', $clientDecorator);
 
-        $def = new Definition(Client::class);
-        $def->setPublic(true);
-        $container->setDefinition('admin.openSearch.client', $def);
-
         $adminClientDecorator = new Definition(ClientProfiler::class);
         $adminClientDecorator->setArguments([
             new Reference('shopware.es.profiled.adminClient.inner'),

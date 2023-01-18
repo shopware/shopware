@@ -6,8 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 
 /**
- * @package system-settings
- *
  * @internal
  *
  * @covers \Shopware\Elasticsearch\Admin\AdminElasticsearchHelper

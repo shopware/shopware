@@ -46,6 +46,10 @@ class ElasticsearchProfileCompilerPassTest extends TestCase
         $def->setPublic(true);
         $container->setDefinition(Client::class, $def);
 
+        $def = new Definition(Client::class);
+        $def->setPublic(true);
+        $container->setDefinition('admin.openSearch.client', $def);
+
         $container->setParameter('kernel.debug', true);
 
         $compilerPass = new ElasticsearchProfileCompilerPass();
@@ -54,6 +58,8 @@ class ElasticsearchProfileCompilerPassTest extends TestCase
         $container->compile();
 
         static::assertTrue($container->hasDefinition(Client::class));
+        static::assertTrue($container->hasDefinition('admin.openSearch.client'));
         static::assertSame(ClientProfiler::class, $container->getDefinition(Client::class)->getClass());
+        static::assertSame(ClientProfiler::class, $container->getDefinition('admin.openSearch.client')->getClass());
     }
 }

@@ -3,7 +3,7 @@
 namespace Shopware\Elasticsearch\Test;
 
 use Doctrine\DBAL\Connection;
-use OpenSearch\Client;
+use Elasticsearch\Client;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminIndexingCommand;
@@ -12,9 +12,6 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-/**
- * @package system-settings
- */
 trait AdminElasticsearchTestBehaviour
 {
     /**
@@ -64,7 +61,7 @@ trait AdminElasticsearchTestBehaviour
     {
         $this->getDiContainer()
             ->get(ElasticsearchAdminIndexingCommand::class)
-            ->run(new ArrayInput([...$input, '--no-queue' => true]), new NullOutput());
+            ->run(new ArrayInput(array_merge($input, ['--no-queue' => true])), new NullOutput());
 
         $this->runWorker();
 

@@ -17,8 +17,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\OrderAdminSearchIndexer;
 
 /**
- * @package system-settings
- *
  * @internal
  *
  * @covers \Shopware\Elasticsearch\Admin\Indexer\OrderAdminSearchIndexer

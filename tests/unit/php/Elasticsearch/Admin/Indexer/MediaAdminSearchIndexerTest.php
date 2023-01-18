@@ -9,7 +9,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -17,8 +17,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\MediaAdminSearchIndexer;
 
 /**
- * @package system-settings
- *
  * @internal
  *
  * @covers \Shopware\Elasticsearch\Admin\Indexer\MediaAdminSearchIndexer
@@ -32,7 +30,7 @@ class MediaAdminSearchIndexerTest extends TestCase
         $this->searchIndexer = new MediaAdminSearchIndexer(
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepositoryInterface::class),
             100
         );
     }
@@ -56,7 +54,7 @@ class MediaAdminSearchIndexerTest extends TestCase
     public function testGlobalData(): void
     {
         $context = Context::createDefaultContext();
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = $this->createMock(EntityRepositoryInterface::class);
         $media = new MediaEntity();
         $media->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
@@ -96,7 +94,7 @@ class MediaAdminSearchIndexerTest extends TestCase
         $indexer = new MediaAdminSearchIndexer(
             $connection,
             $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepositoryInterface::class),
             100
         );
 

@@ -2,17 +2,17 @@
 
 namespace Shopware\Elasticsearch\Admin\Indexer;
 
-use OpenSearchDSL\Search;
+use ONGR\ElasticsearchDSL\Search;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package system-settings
- *
  * @internal
  */
+#[Package('system-settings')]
 abstract class AbstractAdminIndexer
 {
     abstract public function getDecorated(): self;

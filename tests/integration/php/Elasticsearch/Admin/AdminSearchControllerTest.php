@@ -16,8 +16,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package system-settings
- *
  * @internal
  * @group skip-paratest
  */

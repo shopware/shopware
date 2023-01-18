@@ -3,15 +3,15 @@
 namespace Shopware\Elasticsearch\Admin\Subscriber;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Event\RefreshIndexEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Admin\AdminIndexingBehavior;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package system-settings
- *
  * @internal
  */
+#[Package('system-settings')]
 final class RefreshIndexSubscriber implements EventSubscriberInterface
 {
     private AdminSearchRegistry $registry;

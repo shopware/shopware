@@ -2,13 +2,14 @@
 
 namespace Shopware\Elasticsearch\Admin;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package system-settings
- *
  * @internal
  *
  * @final
  */
+#[Package('system-settings')]
 class AdminElasticsearchHelper
 {
     private bool $adminEsEnabled;

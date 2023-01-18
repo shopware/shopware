@@ -55,7 +55,7 @@
             <argument>%elasticsearch.ssl%</argument>
         </service>
 
-        <service id="admin.openSearch.client" class="OpenSearch\Client" public="true" lazy="true">
+        <service id="admin.openSearch.client" class="Elasticsearch\Client" public="true" lazy="true">
             <factory class="Shopware\Elasticsearch\Framework\ClientFactory" method="createClient" />
             <argument>%elasticsearch.administration.hosts%</argument>
             <argument type="service" id="shopware.elasticsearch.logger" />
@@ -216,7 +216,7 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminResetCommand">
-            <argument type="service" id="OpenSearch\Client"/>
+            <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="shopware.increment.gateway.registry"/>
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminElasticsearchHelper"/>

@@ -11,16 +11,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package system-settings
- *
  * @internal
  *
  * @final
  */
+#[Package('system-settings')]
 class PromotionAdminSearchIndexer extends AbstractAdminIndexer
 {
     private Connection $connection;

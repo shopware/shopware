@@ -2,22 +2,22 @@
 
 namespace Shopware\Elasticsearch\Admin;
 
-use OpenSearch\Client;
-use OpenSearchDSL\Query\Compound\BoolQuery;
-use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
-use OpenSearchDSL\Search;
+use Elasticsearch\Client;
+use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
+use ONGR\ElasticsearchDSL\Query\FullText\SimpleQueryStringQuery;
+use ONGR\ElasticsearchDSL\Search;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package system-settings
- *
  * @internal
  *
  * @final
  */
+#[Package('system-settings')]
 class AdminSearcher
 {
     private Client $client;

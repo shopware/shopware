@@ -3,8 +3,8 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Command;
 
 use Doctrine\DBAL\Connection;
-use OpenSearch\Client;
-use OpenSearch\Namespaces\IndicesNamespace;
+use Elasticsearch\Client;
+use Elasticsearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
@@ -13,8 +13,6 @@ use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminResetCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * @package system-settings
- *
  * @internal
  * @covers \Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminResetCommand
  */

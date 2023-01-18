@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Elasticsearch\Framework\Commands;
 
 use Doctrine\DBAL\Connection;
-use OpenSearch\Client;
+use Elasticsearch\Client;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -14,8 +14,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * @package system-settings
- *
  * @internal
  */
 class ElasticsearchAdminResetCommandTest extends TestCase

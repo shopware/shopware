@@ -100,7 +100,7 @@ module.exports = {
                 ...baseRules,
                 'vue/require-prop-types': 'error',
                 'vue/require-default-prop': 'error',
-                'vue/no-mutating-props': ['off'],
+                'vue/no-mutating-props': 'error',
                 'vue/component-definition-name-casing': ['error', 'kebab-case'],
                 'vue/no-boolean-default': ['error', 'default-false'],
                 'vue/order-in-components': ['error', {

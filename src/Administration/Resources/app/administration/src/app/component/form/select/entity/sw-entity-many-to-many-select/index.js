@@ -197,6 +197,7 @@ Component.register('sw-entity-many-to-many-select', {
 
             collection.forEach((item) => {
                 if (!this.entityCollection.has(item.id)) {
+                    // eslint-disable-next-line vue/no-mutating-props
                     this.entityCollection.push(item);
                 }
             });

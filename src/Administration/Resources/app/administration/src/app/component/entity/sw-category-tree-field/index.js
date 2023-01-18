@@ -636,6 +636,7 @@ Component.register('sw-category-tree-field', {
 
             this.categoriesCollection.forEach((category, index) => {
                 if (category.id !== keepId) {
+                    // eslint-disable-next-line vue/no-mutating-props
                     this.categoriesCollection.splice(index, 1);
                     index -= 1;
                 }

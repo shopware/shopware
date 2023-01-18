@@ -79,6 +79,7 @@ async function createWrapper(privileges = [], orderSumToday = null) {
     };
 
     if (orderSumToday !== null) {
+        options.computed.hasOrderToday = () => true;
         options.computed.orderSumToday = () => orderSumToday;
     }
 
@@ -139,7 +140,7 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
         const statisticsCount = wrapper.find('.sw-dashboard-statistics__statistics-count');
         const statisticsSum = wrapper.find('.sw-dashboard-statistics__statistics-sum');
 
-        expect(orderToday.exists()).toBeTruthy();
+        expect(orderToday.exists()).toBeFalsy();
         expect(statisticsCount.exists()).toBeTruthy();
         expect(statisticsSum.exists()).toBeTruthy();
     });
@@ -161,12 +162,12 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
                         {
                             label: '72Hours',
                             range: 72,
-                            unit: 'hour',
+                            interval: 'hour',
                         },
                         {
                             label: '90Days',
                             range: 90,
-                            unit: 'day',
+                            interval: 'day',
                         },
                     ];
                 }

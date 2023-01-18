@@ -215,7 +215,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         hasOrderToday() {
-            return !!this.todayOrderData;
+            return this.todayOrderData && this.todayOrderData.length > 0;
         },
 
         hasOrderInMonth() {

@@ -3,8 +3,8 @@
 describe('Manual update', () => {
     it('@update: en-GB and EUR', { tags: ['pa-system-settings'] }, () => {
         cy.clearCookies();
-        cy.clearCookie('bearerAuth')
-        cy.clearCookie('refreshBearerAuth')
+        cy.clearCookie('bearerAuth');
+        cy.clearCookie('refreshBearerAuth');
 
         // Check if the Installation is running
         cy.visit('/admin');
@@ -36,7 +36,7 @@ describe('Manual update', () => {
         cy.wait('@updateFinish', {timeout: 120000});
 
         // Shows finish page
-        cy.url().should('contain', '/finish')
+        cy.url().should('contain', '/finish');
         cy.get('.card__title', {timeout: 60000}).contains('Finish');
 
         cy.get('.btn-primary').click();

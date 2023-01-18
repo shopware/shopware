@@ -42,7 +42,9 @@ if (installButton) {
 
         installButton.disabled = true;
 
-        const installResponse = await fetch(`${baseUrl}/install/_run`, {method: 'POST'});
+        const folder = document.getElementById('folder');
+
+        const installResponse = await fetch(`${baseUrl}/install/_run?folder=` + folder.value, {method: 'POST'});
 
         try {
             const result = await tailLog(installResponse, logOutput);
@@ -50,6 +52,7 @@ if (installButton) {
                 window.location = result.newLocation;
             }
         } catch (e) {
+            console.log(e);
             return showLog();
         }
     }

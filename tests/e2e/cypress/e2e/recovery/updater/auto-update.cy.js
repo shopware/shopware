@@ -13,8 +13,8 @@ describe('Minimal auto update', () => {
         cy.intercept({ url: '*unpack*', method: 'get' }).as('unpack');
 
         cy.clearCookies();
-        cy.clearCookie('bearerAuth')
-        cy.clearCookie('refreshBearerAuth')
+        cy.clearCookie('bearerAuth');
+        cy.clearCookie('refreshBearerAuth');
 
         cy.visit('/admin');
 
@@ -69,7 +69,7 @@ describe('Minimal auto update', () => {
         cy.wait('@updateFinish', {timeout: 120000});
 
         // Shows finish page
-        cy.url().should('contain', '/finish')
+        cy.url().should('contain', '/finish');
         cy.get('.card__title', {timeout: 60000}).contains('Finish');
 
         cy.get('.btn-primary').click();

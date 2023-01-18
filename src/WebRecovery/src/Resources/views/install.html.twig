@@ -10,13 +10,21 @@
             {{ 'shopware.update.steps.install.info'|trans|raw }}
         </p>
 
+        <p>
+            <label for="folder">{{ "shopware.update.steps.install.folderInput"|trans }}</label>
+            <input type="text" value="shopware" name="folder" id="folder" required="required" />
+        </p>
+
         <div class="alert alert-info" role="alert">
             {{ 'shopware.update.steps.install.after_install'|trans|raw }}
         </div>
 
         <div class="alert alert-error" id="log-error" style="display: none">{{ 'shopware.update.steps.install.error'|trans|raw }}</div>
 
-        <pre class="form-control" id="update-log-output" style="height: 60vh; display: none;"></pre>
+        <div id="log-card" style="display: none;">
+            <pre class="form-control" id="log-output" style="height: 60vh;"></pre>
+        </div>
+
     </div>
 
     <div class="card__footer flex-container">

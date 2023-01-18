@@ -40,8 +40,9 @@ shopware.update:
             submit: Open Administration
         install:
             title: Install Shopware
-            info: This will install Shopware 6 into the directory named <strong>shopware</strong>.
-            after_install: After installation you should switch your Document Root to the new created <strong>shopware</strong> directory.
+            info: Choose a directory to install Shopware 6 into it
+            folderInput: 'Installation folder:'
+            after_install: After installation you should switch your Document Root to the new created directories <strong>public</strong> folder.
             log: Log
             installation_failed: Installation failed
             submit: Install

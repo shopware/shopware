@@ -44,6 +44,7 @@ Component.register('sw-order-detail', {
             isDisplayingLeavePageWarning: false,
             nextRoute: null,
             hasNewVersionId: false,
+            hasOrderDeepEdit: false,
         };
     },
 
@@ -58,6 +59,7 @@ Component.register('sw-order-detail', {
             'order',
             'versionContext',
             'orderAddressIds',
+            'editing',
         ]),
 
         orderIdentifier() {
@@ -65,11 +67,23 @@ Component.register('sw-order-detail', {
         },
 
         orderChanges() {
+            if (!this.order) {
+                return false;
+            }
+
             return this.orderRepository.hasChanges(this.order);
         },
 
         showTabs() {
             return this.$route.meta.$module.routes.detail.children.length > 1;
+        },
+
+        showWarningTabStyle() {
+            return this.isOrderEditing && this.$route.name === 'sw.order.detail.documents';
+        },
+
+        isOrderEditing() {
+            return this.orderChanges || this.hasOrderDeepEdit || this.orderAddressIds?.length > 0;
         },
 
         orderRepository() {
@@ -119,6 +133,10 @@ Component.register('sw-order-detail', {
         orderId() {
             this.createdComponent();
         },
+
+        isOrderEditing(value) {
+            this.updateEditing(value);
+        },
     },
 
     beforeCreate() {
@@ -132,7 +150,7 @@ Component.register('sw-order-detail', {
     },
 
     beforeRouteLeave(to, from, next) {
-        if (this.orderChanges) {
+        if (this.isOrderEditing) {
             this.nextRoute = next;
             this.isDisplayingLeavePageWarning = true;
         } else {
@@ -207,13 +225,14 @@ Component.register('sw-order-detail', {
 
             this.orderRepository.save(this.order, this.versionContext)
                 .then(() => {
+                    this.hasOrderDeepEdit = false;
                     return this.orderRepository.mergeVersion(this.versionContext.versionId, this.versionContext);
                 }).catch((error) => {
                     this.onError('error', error);
                 }).finally(() => {
                     State.commit('swOrderDetail/setVersionContext', Shopware.Context.api);
 
-                    this.createNewVersionId().then(() => {
+                    return this.createNewVersionId().then(() => {
                         State.commit('swOrderDetail/setLoading', ['order', false]);
                         State.commit('swOrderDetail/setSavedSuccessful', true);
                         this.isLoading = false;
@@ -226,11 +245,14 @@ Component.register('sw-order-detail', {
         onCancelEditing() {
             State.commit('swOrderDetail/setLoading', ['order', true]);
 
-            this.orderRepository.deleteVersion(
+            return this.orderRepository.deleteVersion(
                 this.orderId,
                 this.versionContext.versionId,
                 this.versionContext,
-            ).catch((error) => {
+            ).then(() => {
+                this.hasOrderDeepEdit = false;
+                State.commit('swOrderDetail/setOrderAddressIds', false);
+            }).catch((error) => {
                 this.onError('error', error);
             }).finally(() => {
                 this.missingProductLineItems = [];
@@ -238,7 +260,7 @@ Component.register('sw-order-detail', {
 
                 State.commit('swOrderDetail/setVersionContext', Shopware.Context.api); // ?? do we need that anymore?
 
-                this.createNewVersionId().then(() => {
+                return this.createNewVersionId().then(() => {
                     State.commit('swOrderDetail/setLoading', ['order', false]);
                 });
             });
@@ -329,9 +351,12 @@ Component.register('sw-order-detail', {
             State.commit('swOrderDetail/setLoading', ['order', true]);
 
             return this.orderRepository.get(this.orderId, this.versionContext, this.orderCriteria).then((response) => {
+                if (this.$route.name !== 'sw.order.detail.documents') {
+                    this.hasOrderDeepEdit = true;
+                }
+
                 State.commit('swOrderDetail/setOrder', response);
                 State.commit('swOrderDetail/setLoading', ['order', false]);
-
                 this.isLoading = false;
 
                 return Promise.resolve();
@@ -371,6 +396,10 @@ Component.register('sw-order-detail', {
                 {},
                 ApiService.getVersionHeader(this.order.versionId),
             );
+        },
+
+        updateEditing(value) {
+            State.commit('swOrderDetail/setEditing', value);
         },
     },
 });

@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-document-card';
 import 'src/module/sw-order/component/sw-order-select-document-type-modal';
 import 'src/module/sw-order/component/sw-order-document-settings-modal';
@@ -6,6 +6,8 @@ import 'src/module/sw-order/component/sw-order-document-settings-invoice-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-group';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
 
 /**
  * @package customer-order
@@ -86,7 +88,21 @@ const documentTypeFixture = [
 ];
 
 async function createWrapper(privileges = []) {
+    const localVue = createLocalVue();
+    localVue.directive('tooltip', {
+        bind(el, binding) {
+            el.setAttribute('tooltip-message', binding.value.message);
+        },
+        inserted(el, binding) {
+            el.setAttribute('tooltip-message', binding.value.message);
+        },
+        update(el, binding) {
+            el.setAttribute('tooltip-message', binding.value.message);
+        }
+    });
+
     return shallowMount(await Shopware.Component.build('sw-order-document-card'), {
+        localVue,
         stubs: {
             'sw-card': {
                 template: '<div class="sw-card"><slot></slot><slot name="grid"></slot></div>'
@@ -219,6 +235,12 @@ async function createWrapper(privileges = []) {
 
 describe('src/module/sw-order/component/sw-order-document-card', () => {
     let wrapper;
+
+    beforeAll(() => {
+        Shopware.State.registerModule('swOrderDetail', {
+            ...orderDetailStore,
+        });
+    });
 
     beforeEach(async () => {
         wrapper = await createWrapper();
@@ -585,5 +607,26 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         expect(wrapper.vm.downloadDocument).toHaveBeenCalled();
         wrapper.vm.downloadDocument.mockRestore();
+    });
+
+    it('should show permission tooltip message on Create document button correctly', async () => {
+        wrapper = await createWrapper();
+
+        const buttonCreate = wrapper.find('.sw-order-document-grid-button');
+        expect(buttonCreate.attributes('tooltip-message')).toEqual('sw-privileges.tooltip.warning');
+        expect(buttonCreate.attributes('disabled')).toBeTruthy();
+    });
+
+    it('should show order unsaved tooltip message on Create document button correctly', async () => {
+        wrapper = await createWrapper([
+            'order.editor'
+        ]);
+
+        Shopware.State.commit('swOrderDetail/setEditing', true);
+        await wrapper.vm.$nextTick();
+
+        const buttonCreate = wrapper.find('.sw-order-document-grid-button');
+        expect(buttonCreate.attributes()['tooltip-message']).toEqual('sw-order.documentTab.tooltipSaveBeforeCreateDocument');
+        expect(buttonCreate.attributes('disabled')).toBeTruthy();
     });
 });

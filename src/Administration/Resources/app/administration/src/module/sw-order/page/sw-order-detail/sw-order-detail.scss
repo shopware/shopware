@@ -5,6 +5,19 @@
         margin-right: 0;
     }
 
+    .sw-order-detail__unsaved-warning {
+        max-width: $content-width;
+        margin-bottom: 34px;
+
+        @media screen and (max-width: 1360px) {
+            max-width: 770px;
+        }
+
+        &__quantity {
+            font-weight: bold;
+        }
+    }
+
     .sw-order-detail__summary {
         float: right;
         padding-right: 38px;
@@ -45,5 +58,29 @@
     .sw-order-detail__manual-order-label {
         margin-left: 10px;
         text-align: center;
+    }
+
+    .sw-order-detail__tab-warning-badge {
+        color: $color-pumpkin-spice-500;
+        transform: translateY(-9%);
+        margin-left: 4px;
+    }
+
+    .sw-order-detail__tabs {
+        &.has-warning {
+            .sw-tabs__slider {
+                background-color: $color-pumpkin-spice-500;
+            }
+        }
+    }
+
+    .sw-order-detail__tabs-tab-documents {
+        &.has-warning {
+            color: $color-pumpkin-spice-500;
+
+            &.sw-tabs-item--active {
+                color: $color-pumpkin-spice-500;
+            }
+        }
     }
 }

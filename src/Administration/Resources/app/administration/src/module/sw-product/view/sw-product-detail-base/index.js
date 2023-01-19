@@ -32,48 +32,6 @@ export default {
         return {
             showMediaModal: false,
             mediaDefaultFolderId: null,
-
-            /**
-             * @deprecated tag:v6.5.0 - The variable "showReviewDeleteModal" will be removed because
-             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-             */
-            showReviewDeleteModal: false,
-
-            /**
-             * @deprecated tag:v6.5.0 - The variable "toDeleteReviewId" will be removed because
-             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-             */
-            toDeleteReviewId: null,
-
-            /**
-             * @deprecated tag:v6.5.0 - The variable "reviewItemData" will be removed because
-             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-             */
-            reviewItemData: [],
-
-            /**
-             * @deprecated tag:v6.5.0 - The variable "page" will be removed because
-             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-             */
-            page: 1,
-
-            /**
-             * @deprecated tag:v6.5.0 - The variable "limit" will be removed because
-             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-             */
-            limit: 10,
-
-            /**
-             * @deprecated tag:v6.5.0 - The variable "total" will be removed because
-             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-             */
-            total: 0,
-
-            /**
-             * @deprecated tag:v6.5.0 - The variable "showLayoutModal" will be removed because
-             * the modal was moved from this component to `sw-product-detail-layout` component.
-             */
-            showLayoutModal: false,
         };
     },
 
@@ -92,17 +50,7 @@ export default {
             'productStates',
         ]),
 
-        /**
-         * @deprecated tag:v6.5.0 - The property "customFieldSetsArray" will be removed because
-         * its relevant view was moved from this component to `sw-product-detail-specifications` component.
-         */
         ...mapState('swProductDetail', {
-            customFieldSetsArray: state => {
-                if (!state.customFieldSets) {
-                    return [];
-                }
-                return state.customFieldSets;
-            },
         }),
 
         mediaFormVisible() {
@@ -110,40 +58,6 @@ export default {
                    !this.loading.parentProduct &&
                    !this.loading.customFieldSets &&
                    !this.loading.media;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The property "reviewRepository" will be removed because
-         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-         */
-        reviewRepository() {
-            return this.repositoryFactory.create('product_review');
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The property "reviewColumns" will be removed because
-         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-         */
-        reviewColumns() {
-            return [{
-                property: 'points',
-                dataIndex: 'points',
-                label: this.$tc('sw-product.reviewForm.labelPoints'),
-            }, {
-                property: 'status',
-                dataIndex: 'status',
-                label: this.$tc('sw-product.reviewForm.labelStatus'),
-                align: 'center',
-            }, {
-                property: 'createdAt',
-                dataIndex: 'createdAt',
-                label: this.$tc('sw-product.reviewForm.labelCreatedAt'),
-            }, {
-                property: 'title',
-                dataIndex: 'title',
-                routerLink: 'sw.review.detail',
-                label: this.$tc('sw-product.reviewForm.labelTitle'),
-            }];
         },
 
         productMediaRepository() {
@@ -162,31 +76,10 @@ export default {
 
             return criteria;
         },
-
-        /**
-         * @deprecated tag:v6.5.0 - The property "cmsPageRepository" will be removed because
-         * the modal was moved from this component to `sw-product-detail-layout` component.
-         */
-        cmsPageRepository() {
-            return this.repositoryFactory.create('cms_page');
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The property "cmsPage" will be removed because
-         * the modal was moved from this component to `sw-product-detail-layout` component.
-         */
-        cmsPage() {
-            return Shopware.State.get('cmsPageState').currentPage;
-        },
     },
 
     watch: {
         product() {
-            /**
-             * @deprecated tag:v6.5.0 - The logic `reloadReviews` will be removed because
-             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-             */
-            this.reloadReviews();
         },
     },
 
@@ -199,14 +92,6 @@ export default {
             this.getMediaDefaultFolderId().then((mediaDefaultFolderId) => {
                 this.mediaDefaultFolderId = mediaDefaultFolderId;
             });
-
-            /**
-             * @deprecated tag:v6.5.0 - The logic `reloadReviews` will be removed because
-             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-             */
-            if (this.product) {
-                this.reloadReviews();
-            }
         },
 
         getMediaDefaultFolderId() {
@@ -309,154 +194,6 @@ export default {
         setMediaAsCover(media) {
             media.position = 0;
             this.product.coverId = media.id;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "onStartReviewDelete" will be removed because
-         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-         */
-        onStartReviewDelete(review) {
-            this.toDeleteReviewId = review.id;
-            this.onShowReviewDeleteModal();
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "onConfirmReviewDelete" will be removed because
-         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-         */
-        onConfirmReviewDelete() {
-            this.onCloseReviewDeleteModal();
-
-            this.reviewRepository.delete(this.toDeleteReviewId).then(() => {
-                this.toDeleteReviewId = null;
-                this.reloadReviews();
-            });
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "onCancelReviewDelete" will be removed because
-         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-         */
-        onCancelReviewDelete() {
-            this.toDeleteReviewId = null;
-            this.onCloseReviewDeleteModal();
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "onShowReviewDeleteModal" will be removed because
-         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-         */
-        onShowReviewDeleteModal() {
-            this.showReviewDeleteModal = true;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "onCloseReviewDeleteModal" will be removed because
-         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-         */
-        onCloseReviewDeleteModal() {
-            this.showReviewDeleteModal = false;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "reloadReviews" will be removed because
-         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-         */
-        reloadReviews() {
-            if (!this.product || !this.product.id) {
-                return;
-            }
-            const criteria = new Criteria(this.page, this.limit);
-            criteria.addFilter(Criteria.equals('productId', this.product.id));
-            criteria.setTotalCountMode(1);
-
-            // load all our individual codes of our promotion
-            // into our local promotion object.
-            this.reviewRepository.search(criteria).then((reviewCollection) => {
-                // assign our ui data
-                this.total = reviewCollection.total;
-                this.reviewItemData = reviewCollection;
-
-                // if we have no data on the current page
-                // but still a total count, then this means
-                // that we are on a page that has been removed due to
-                // deleting some codes.
-                // so just try to reduce the page and refresh again
-                if (this.total > 0 && this.reviewItemData.length <= 0) {
-                    // decrease, but stick with minimum of 1
-                    this.page = (this.page === 1) ? 1 : this.page -= 1;
-                    this.reloadReviews();
-                }
-            });
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "onChangePage" will be removed because
-         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
-         */
-        onChangePage(data) {
-            this.page = data.page;
-            this.limit = data.limit;
-
-            this.reloadReviews();
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "onMainCategoryAdded" will be removed because
-         * its relevant view was moved from this component to `sw-product-detail-seo` component.
-         */
-        onMainCategoryAdded(mainCategory) {
-            this.product.mainCategories.push(mainCategory);
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "openLayoutModal" will be removed because
-         * the modal was moved from this component to `sw-product-detail-layout` component.
-         */
-        openLayoutModal() {
-            this.showLayoutModal = true;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "closeLayoutModal" will be removed because
-         * the modal was moved from this component to `sw-product-detail-layout` component.
-         */
-        closeLayoutModal() {
-            this.showLayoutModal = false;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "onLayoutSelect" will be removed because
-         * the modal was moved from this component to `sw-product-detail-layout` component.
-         */
-        onLayoutSelect(selectedLayout) {
-            this.product.cmsPageId = selectedLayout;
-
-            Shopware.State.commit('swProductDetail/setProduct', this.product);
-
-            this.cmsPageRepository.get(selectedLayout).then((cmsPage) => {
-                Shopware.State.commit('cmsPageState/setCurrentPage', cmsPage);
-            });
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "openInPageBuilder" will be removed because
-         * the modal was moved from this component to `sw-product-detail-layout` component.
-         */
-        openInPageBuilder() {
-            if (!this.cmsPage) {
-                this.$router.push({ name: 'sw.cms.create' });
-            } else {
-                this.$router.push({ name: 'sw.cms.detail', params: { id: this.product.cmsPageId } });
-            }
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "onLayoutReset" will be removed because
-         * the modal was moved from this component to `sw-product-detail-layout` component.
-         */
-        onLayoutReset() {
-            this.onLayoutSelect(null);
         },
     },
 };

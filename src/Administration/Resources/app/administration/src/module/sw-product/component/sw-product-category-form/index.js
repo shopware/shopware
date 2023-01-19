@@ -7,7 +7,6 @@ import './sw-product-category-form.scss';
 
 const { Context, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
-const { isEmpty } = Shopware.Utils.types;
 const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -113,66 +112,6 @@ export default {
             this.$refs.productVisibilitiesInheritance.forceInheritanceRemove = true;
 
             return this.product.visibilities;
-        },
-
-
-        // @deprecated tag:v6.5.0 - Will be removed
-        fetchSalesChannelSystemConfig() {
-            if (typeof this.product.isNew !== 'function' || !this.product.isNew()) {
-                return Promise.resolve();
-            }
-
-            return this.systemConfigApiService.getValues('core.defaultSalesChannel').then(async (configData) => {
-                if (isEmpty(configData)) {
-                    return;
-                }
-
-                const defaultSalesChannelIds = configData?.['core.defaultSalesChannel.salesChannel'];
-                const defaultVisibilities = configData?.['core.defaultSalesChannel.visibility'];
-                this.product.active = !!configData?.['core.defaultSalesChannel.active'];
-
-                if (!defaultSalesChannelIds || defaultSalesChannelIds.length <= 0) {
-                    return;
-                }
-
-                const salesChannels = await this.fetchSalesChannelByIds(defaultSalesChannelIds);
-
-                if (!salesChannels.length) {
-                    return;
-                }
-
-                salesChannels.forEach((salesChannel) => {
-                    const visibilities = this.createProductVisibilityEntity(defaultVisibilities, salesChannel);
-                    this.product.visibilities.push(visibilities);
-                });
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-product.visibility.errorMessage'),
-                });
-            });
-        },
-
-        // @deprecated tag:v6.5.0 - Will be removed
-        fetchSalesChannelByIds(ids) {
-            const criteria = new Criteria(1, 25);
-
-            criteria.addFilter(Criteria.equalsAny('id', ids));
-
-            return this.salesChannelRepository.search(criteria);
-        },
-
-        // @deprecated tag:v6.5.0 - Will be removed
-        createProductVisibilityEntity(visibility, salesChannel) {
-            const visibilities = this.productVisibilityRepository.create(Context.api);
-
-            Object.assign(visibilities, {
-                visibility: visibility[salesChannel.id] || this.defaultVisibility,
-                productId: this.product.id,
-                salesChannelId: salesChannel.id,
-                salesChannel: salesChannel,
-            });
-
-            return visibilities;
         },
     },
 };

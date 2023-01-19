@@ -109,14 +109,6 @@ export default {
     },
 
     methods: {
-        /**
-         * @deprecated tag:v6.5.0 - The method "onMediaUploadButtonOpenSidebar" will be removed because
-         * its relevant view was removed
-         */
-        onMediaUploadButtonOpenSidebar() {
-            this.$root.$emit('sidebar-toggle-open');
-        },
-
         onOpenMedia() {
             this.$emit('media-open');
         },

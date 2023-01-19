@@ -235,20 +235,6 @@ export default {
             );
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-         */
-        updateNewPropertiesItem({ index, selected }) {
-            this.newProperties[index].selected = selected;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-         */
-        addNewPropertiesItem({ property, selected }) {
-            this.newProperties.push({ property, selected });
-        },
-
         onCancelAddPropertiesModal() {
             this.turnOffAddPropertiesModal();
         },

@@ -195,23 +195,6 @@
                 </sw-tabs-item>
                 {% endblock %}
 
-                {# @deprecated tag:v6.5.0 - The tab content will be moved to "sw-product-detail-specifications" component, like following:
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_detail_specifications %}
-                <div>
-                    ...
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_detail_specifications_properties %}
-                    <sw-product-detail-properties />
-                    {% endblock %}
-                    ...
-                </div>
-                {% endblock %}
-                #}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_detail_content_tabs_advanced_properties %}
-                {% endblock %}
-
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_content_tabs_advanced_variants %}
                 <sw-tabs-item
@@ -283,7 +266,6 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_content_view %}
             <router-view
-                @media-drop="onAddItemToProduct"
                 @cover-change="onCoverChange"
             />
             {% endblock %}

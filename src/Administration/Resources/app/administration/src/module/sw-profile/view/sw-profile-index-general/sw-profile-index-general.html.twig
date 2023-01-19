@@ -133,6 +133,7 @@
             :label="$tc('sw-profile.index.labelNewPassword')"
             :disabled="!acl.can('user.update_profile')"
             :placeholder="$tc('sw-profile.index.placeholderNewPassword')"
+            :error="userPasswordError"
         />
         {% endblock %}
 

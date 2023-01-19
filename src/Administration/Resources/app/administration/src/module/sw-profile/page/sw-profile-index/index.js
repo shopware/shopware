@@ -327,6 +327,16 @@ Component.register('sw-profile-index', {
                     this.isSaveSuccessful = true;
 
                     Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                }).catch((error) => {
+                    State.dispatch('error/addApiError', {
+                        expression: `user.${this.user?.id}.password`,
+                        error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
+                    });
+                    this.createNotificationError({
+                        message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
+                    });
+                    this.isLoading = false;
+                    this.isSaveSuccessful = false;
                 });
 
                 return;
@@ -363,6 +373,8 @@ Component.register('sw-profile-index', {
                 this.newPasswordConfirm = '';
             }).catch(() => {
                 this.handleUserSaveError();
+                this.isLoading = false;
+                this.isSaveSuccessful = false;
             });
         },
 
@@ -439,9 +451,11 @@ Component.register('sw-profile-index', {
         },
 
         handleUserSaveError() {
-            this.createNotificationError({
-                message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
-            });
+            if (this.$route.name.includes('sw.profile.index')) {
+                this.createNotificationError({
+                    message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
+                });
+            }
             this.isLoading = false;
         },
 

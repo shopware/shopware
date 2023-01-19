@@ -42,7 +42,7 @@ describe('Storefront profile settings', () => {
         });
         cy.get('label[for="newsletterRegister"]').click();
         cy.wait('@checkNewsletter').its('response.statusCode').should('equal', 200);
-        cy.contains('You have subscribed to the newsletter.').should('exist');
+        cy.contains('We have sent a confirmation email containing an activation link. Please check your inbox and click the link to complete your newsletter subscription.').should('exist');
 
         // Verify the subscription from the newsletter recipients
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);

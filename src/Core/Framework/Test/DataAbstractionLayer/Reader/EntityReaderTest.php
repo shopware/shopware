@@ -1008,7 +1008,7 @@ class EntityReaderTest extends TestCase
                 'lastName' => 'Test',
                 'customerNumber' => 'A',
                 'salutationId' => $this->getValidSalutationId(),
-                'password' => 'A',
+                'password' => 'shopware',
                 'email' => 'test@test.com' . $id,
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
@@ -1057,7 +1057,7 @@ class EntityReaderTest extends TestCase
                 'lastName' => 'Test',
                 'customerNumber' => 'A',
                 'salutationId' => $this->getValidSalutationId(),
-                'password' => 'A',
+                'password' => 'shopware',
                 'email' => 'test@test.com' . $id,
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
@@ -1110,7 +1110,7 @@ class EntityReaderTest extends TestCase
             'lastName' => 'Test',
             'customerNumber' => 'A',
             'salutationId' => $this->getValidSalutationId(),
-            'password' => 'A',
+            'password' => 'shopware',
             'email' => 'test@example.com',
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
@@ -1209,7 +1209,7 @@ class EntityReaderTest extends TestCase
             'firstName' => 'Test',
             'lastName' => 'Test',
             'customerNumber' => 'A',
-            'password' => 'A',
+            'password' => 'shopware',
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'group' => ['name' => 'test'],
@@ -1334,7 +1334,7 @@ class EntityReaderTest extends TestCase
                 'lastName' => 'Test',
                 'customerNumber' => 'A',
                 'salutationId' => $this->getValidSalutationId(),
-                'password' => 'A',
+                'password' => 'shopware',
                 'email' => 'test@test.com' . Uuid::randomHex(),
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
@@ -1406,7 +1406,7 @@ class EntityReaderTest extends TestCase
                 'lastName' => 'Test',
                 'customerNumber' => 'A',
                 'salutationId' => $this->getValidSalutationId(),
-                'password' => 'A',
+                'password' => 'shopware',
                 'email' => 'test@test.com' . Uuid::randomHex(),
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
@@ -1434,6 +1434,7 @@ class EntityReaderTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->getAssociation('addresses')->setLimit(3);
         $customer = $repository->search($criteria, $context)->get($id);
+        static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
     }
@@ -2262,6 +2263,9 @@ class EntityReaderTest extends TestCase
 
     /**
      * @dataProvider casesToManyPaginated
+     *
+     * @param array<int, array<string, mixed>> $data
+     * @param array<int, string> $expected
      */
     public function testLoadToManyPaginated(array $data, callable $modifier, array $expected): void
     {
@@ -2319,6 +2323,9 @@ class EntityReaderTest extends TestCase
         static::assertCount(0, $productMediaCollection);
     }
 
+    /**
+     * @return iterable<string, array<int, mixed>>
+     */
     public function casesToManyPaginated(): iterable
     {
         yield 'Multi sort' => [
@@ -2431,6 +2438,9 @@ class EntityReaderTest extends TestCase
 
     /**
      * @dataProvider casesToManyReadPaginatedInherited
+     *
+     * @param array<string, mixed> $criteriaConfig
+     * @param array<int, string> $expectedMedia
      */
     public function testOneToManyReadingInherited(array $criteriaConfig, array $expectedMedia, string $type): void
     {
@@ -2485,6 +2495,9 @@ class EntityReaderTest extends TestCase
         })));
     }
 
+    /**
+     * @return iterable<string, array<int, string|array<mixed>>>
+     */
     public function casesToManyReadPaginatedInherited(): iterable
     {
         yield 'parent-data: with limit at 2 with 3 elements' => [

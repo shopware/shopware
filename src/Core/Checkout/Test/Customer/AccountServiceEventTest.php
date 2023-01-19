@@ -150,6 +150,7 @@ class AccountServiceEventTest extends TestCase
             $eventDidRun = false;
 
             $this->accountService->login('info@example.com', $this->salesChannelContext);
+            /** @phpstan-ignore-next-line - $eventDidRun updated value on listener */
             static::assertTrue($eventDidRun, 'Event "' . $eventClass . '" did not run');
 
             $dispatcher->removeListener($eventClass, $listenerClosure);
@@ -174,7 +175,8 @@ class AccountServiceEventTest extends TestCase
 
         $this->salesChannelContext->assign(['customer' => $customer]);
 
-        static::assertSame($email, $this->salesChannelContext->getCustomer()->getEmail());
+        static::assertNotNull($customer = $this->salesChannelContext->getCustomer());
+        static::assertSame($email, $customer->getEmail());
 
         $this->logoutRoute->logout($this->salesChannelContext, new RequestDataBag());
 
@@ -202,7 +204,8 @@ class AccountServiceEventTest extends TestCase
 
         $this->salesChannelContext->assign(['customer' => $customer]);
 
-        static::assertSame($email, $this->salesChannelContext->getCustomer()->getEmail());
+        static::assertNotNull($customer = $this->salesChannelContext->getCustomer());
+        static::assertSame($email, $customer->getEmail());
 
         $this->changePaymentMethodRoute->change(
             $customer->getDefaultPaymentMethodId(),
@@ -215,7 +218,7 @@ class AccountServiceEventTest extends TestCase
         $dispatcher->removeListener(CustomerChangedPaymentMethodEvent::class, $listenerClosure);
     }
 
-    private function getEmailListenerClosure(bool &$eventDidRun, self $phpunit)
+    private function getEmailListenerClosure(bool &$eventDidRun, self $phpunit): callable
     {
         return function ($event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;
@@ -223,7 +226,7 @@ class AccountServiceEventTest extends TestCase
         };
     }
 
-    private function getCustomerListenerClosure(bool &$eventDidRun, self $phpunit)
+    private function getCustomerListenerClosure(bool &$eventDidRun, self $phpunit): callable
     {
         return function ($event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;

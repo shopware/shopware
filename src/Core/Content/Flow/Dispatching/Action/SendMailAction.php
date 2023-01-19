@@ -210,7 +210,11 @@ class SendMailAction extends FlowAction implements DelayableAction
             );
         }
 
-        $this->send($data, $event->getContext(), $this->getTemplateData($mailEvent), $extension, $injectedTranslator);
+        $templateData = array_merge([
+            'eventName' => $mailEvent->getName(),
+        ], $this->getTemplateData($mailEvent));
+
+        $this->send($data, $event->getContext(), $templateData, $extension, $injectedTranslator);
     }
 
     /**
@@ -294,7 +298,11 @@ class SendMailAction extends FlowAction implements DelayableAction
             );
         }
 
-        $this->send($data, $flow->getContext(), $flow->data(), $extension, $injectedTranslator);
+        $templateData = array_merge([
+            'eventName' => $flow->getName(),
+        ], $flow->data());
+
+        $this->send($data, $flow->getContext(), $templateData, $extension, $injectedTranslator);
     }
 
     /**

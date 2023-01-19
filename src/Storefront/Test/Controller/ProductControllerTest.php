@@ -94,7 +94,7 @@ class ProductControllerTest extends TestCase
             ])
         );
 
-        $responseContent = $response->getContent();
+        $responseContent = (string) $response->getContent();
         $content = (array) json_decode($responseContent);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -238,7 +238,7 @@ class ProductControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $crawler = new Crawler();
-        $crawler->addHtmlContent($response->getContent());
+        $crawler->addHtmlContent((string) $response->getContent());
 
         $blueFound = false;
         $greenFound = false;
@@ -287,6 +287,9 @@ class ProductControllerTest extends TestCase
         static::assertFalse($mFound, 'Option m was found.');
     }
 
+    /**
+     * @return iterable<string, array<int, string|bool>>
+     */
     public function variantProvider(): iterable
     {
         yield 'test color: red - size: xl' => ['a.1', true, false, true, true, true]; // a.1 all options should be normal
@@ -364,7 +367,7 @@ class ProductControllerTest extends TestCase
         return $request;
     }
 
-    private function createProduct(array $config = []): string
+    private function createProduct(): string
     {
         $id = Uuid::randomHex();
 
@@ -384,8 +387,6 @@ class ProductControllerTest extends TestCase
                 return ['salesChannelId' => $id, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL];
             }, $ids),
         ];
-
-        $product = array_replace_recursive($product, $config);
 
         $repository = $this->getContainer()->get('product.repository');
 
@@ -417,7 +418,7 @@ class ProductControllerTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'testuser@example.com',
-                'password' => 'test',
+                'password' => 'test12345',
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),
@@ -442,16 +443,17 @@ class ProductControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $customer->getEmail(),
-                'password' => 'test',
+                'password' => 'test12345',
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         $browser->request('GET', '/');
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
-        static::assertNotNull($response->getContext()->getCustomer());
+        static::assertNotNull($context = $response->getContext());
+        static::assertNotNull($context->getCustomer());
 
         return $browser;
     }

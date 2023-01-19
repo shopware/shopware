@@ -3,13 +3,24 @@
  */
 import template from './sw-users-permissions.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-users-permissions', {
     template,
 
-    inject: ['feature'],
+    inject: ['feature', 'acl'],
+
+    mixins: [
+        Mixin.getByName('notification'),
+    ],
+
+    data() {
+        return {
+            isLoading: true,
+            isSaveSuccessful: false,
+        };
+    },
 
     metaInfo() {
         return {
@@ -26,6 +37,30 @@ Component.register('sw-users-permissions', {
             if (this.$refs.roleListing) {
                 this.$refs.roleListing.getList();
             }
+        },
+
+        onChangeLoading(loading) {
+            this.isLoading = loading;
+        },
+
+        async onSave() {
+            this.isLoading = true;
+            this.isSaveSuccessful = false;
+
+            try {
+                await this.$refs.configuration.$refs.systemConfig.saveAll();
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
+            } catch (error) {
+                this.isLoading = false;
+                this.createNotificationError({
+                    message: error.message,
+                });
+            }
+        },
+
+        onSaveFinish() {
+            this.isSaveSuccessful = false;
         },
     },
 });

@@ -187,7 +187,10 @@ class SendMailActionTest extends TestCase
 
         $this->flow->expects(static::exactly(2))
             ->method('data')
-            ->willReturn(['mailStruct' => $templateData]);
+            ->willReturn([
+                'mailStruct' => $templateData,
+                'eventName' => $this->flow->getName(),
+            ]);
 
         $this->flow->expects(static::once())
             ->method('getConfig')
@@ -215,7 +218,14 @@ class SendMailActionTest extends TestCase
 
         $this->mailService->expects(static::once())
             ->method('send')
-            ->with($expected['data'], $expected['context'], ['mailStruct' => $templateData]);
+            ->with(
+                $expected['data'],
+                $expected['context'],
+                [
+                    'mailStruct' => $templateData,
+                    'eventName' => $this->flow->getName(),
+                ],
+            );
 
         $this->action->handleFlow($this->flow);
     }

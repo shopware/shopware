@@ -59,6 +59,7 @@ class CustomerRecoveryStorer extends FlowStorer
     {
         list($id, $context) = $args;
         $criteria = new Criteria([$id]);
+        $criteria->addAssociation('customer.salutation');
 
         $customerRecovery = $this->customerRecoveryRepository->search($criteria, $context)->get($id);
 

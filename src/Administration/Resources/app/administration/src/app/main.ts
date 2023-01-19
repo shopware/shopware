@@ -42,6 +42,7 @@ import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.s
 import SearchRankingService from 'src/app/service/search-ranking.service';
 import SearchPreferencesService from 'src/app/service/search-preferences.service';
 import RecentlySearchService from 'src/app/service/recently-search.service';
+import UserActivityService from 'src/app/service/user-activity.service';
 
 /** Import Feature */
 import Feature from 'src/core/feature';
@@ -190,4 +191,7 @@ Application
         return new SearchPreferencesService({
             userConfigRepository: Shopware.Service('repositoryFactory').create('user_config'),
         });
+    })
+    .addServiceProvider('userActivityService', () => {
+        return new UserActivityService();
     });

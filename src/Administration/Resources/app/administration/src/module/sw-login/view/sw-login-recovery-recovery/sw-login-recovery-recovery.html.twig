@@ -27,6 +27,7 @@
                 ref="swLoginRecoveryRecoveryNewPasswordField"
                 v-model="newPassword"
                 :label="$tc('sw-login.recovery.recovery.newPasswordField.label')"
+                :error="userPasswordError"
             />
             {% endblock %}
 

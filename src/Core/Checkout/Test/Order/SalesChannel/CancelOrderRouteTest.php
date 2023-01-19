@@ -50,7 +50,7 @@ class CancelOrderRouteTest extends TestCase
         $customerId = $this->createCustomer('shopware', $email);
 
         $this->ids->set('order-1', $this->createOrder($this->ids, $customerId));
-        $this->ids->set('order-2', $this->createOrder($this->ids, $this->createCustomer('test', 'test-other@test.de')));
+        $this->ids->set('order-2', $this->createOrder($this->ids, $this->createCustomer('test12345', 'test-other@test.de')));
 
         $this->browser
             ->request(

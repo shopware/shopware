@@ -23,15 +23,9 @@ class CustomerRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
     protected function setUp(): void
     {
@@ -60,8 +54,7 @@ class CustomerRepositoryTest extends TestCase
         $this->getContainer()->get('customer.repository')
             ->update([$update], Context::createDefaultContext());
 
-        $count = $this->getContainer()->get(Connection::class)
-            ->fetchOne('SELECT COUNT(*) FROM customer_tag WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+        $count = $this->connection->fetchOne('SELECT COUNT(*) FROM customer_tag WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
 
         static::assertEquals(3, $count);
     }
@@ -95,7 +88,7 @@ class CustomerRepositoryTest extends TestCase
                 'defaultPaymentMethodId' => $paymentMethod,
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
-                'password' => 'not',
+                'password' => 'not12345',
                 'lastName' => 'not',
                 'firstName' => $matchTerm,
                 'salutationId' => $salutation,
@@ -108,7 +101,7 @@ class CustomerRepositoryTest extends TestCase
                 'defaultPaymentMethodId' => $paymentMethod,
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
-                'password' => 'not',
+                'password' => 'not12345',
                 'lastName' => $matchTerm,
                 'firstName' => 'not',
                 'salutationId' => $salutation,
@@ -121,7 +114,7 @@ class CustomerRepositoryTest extends TestCase
                 'defaultPaymentMethodId' => $paymentMethod,
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
-                'password' => 'not',
+                'password' => 'not12345',
                 'lastName' => 'not',
                 'firstName' => 'not',
                 'salutationId' => $salutation,
@@ -134,7 +127,7 @@ class CustomerRepositoryTest extends TestCase
                 'defaultPaymentMethodId' => $paymentMethod,
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $matchTerm . '@example.com',
-                'password' => 'not',
+                'password' => 'not12345',
                 'lastName' => 'not',
                 'firstName' => 'not',
                 'salutationId' => $salutation,
@@ -193,7 +186,7 @@ class CustomerRepositoryTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@example.com',
-                'password' => 'not',
+                'password' => 'not12345',
                 'lastName' => 'not',
                 'firstName' => 'test',
                 'salutationId' => $salutation,
@@ -228,7 +221,7 @@ class CustomerRepositoryTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'foo@bar.de',
-                'password' => 'password',
+                'password' => 'password12345',
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

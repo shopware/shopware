@@ -38,6 +38,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createCacheSection())
                 ->append($this->createHtmlSanitizerSection())
                 ->append($this->createIncrementSection())
+                ->append($this->createTwigSection())
             ->end();
 
         return $treeBuilder;
@@ -325,6 +326,9 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('exclude_exception')
                     ->prototype('scalar')->end()
                 ->end()
+                ->arrayNode('exclude_events')
+                    ->prototype('scalar')->end()
+                ->end()
             ->end();
 
         return $rootNode;
@@ -589,6 +593,22 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->arrayNode('integrations')
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createTwigSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('twig');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('allowed_php_functions')
                     ->performNoDeepMerging()
                     ->scalarPrototype()
                 ->end()

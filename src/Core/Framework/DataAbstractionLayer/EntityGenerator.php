@@ -89,7 +89,6 @@ namespace #domain#;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @package core
  * @method void                add(#entityClass# \$entity)
  * @method void                set(string \$key, #entityClass# \$entity)
  * @method #entityClass#[]    getIterator()
@@ -98,6 +97,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  * @method #entityClass#|null first()
  * @method #entityClass#|null last()
  */
+ #[Package('core')]
 class #entity#Collection extends EntityCollection
 {
     protected function getExpectedClass(): string
@@ -107,6 +107,9 @@ class #entity#Collection extends EntityCollection
 }
 EOF;
 
+    /**
+     * @return array<string, string>|null
+     */
     public function generate(EntityDefinition $definition): ?array
     {
         if ($definition instanceof MappingEntityDefinition) {
@@ -127,7 +130,7 @@ EOF;
         ];
     }
 
-    private function generateEntity(EntityDefinition $definition)
+    private function generateEntity(EntityDefinition $definition): string
     {
         $properties = [];
 
@@ -171,6 +174,9 @@ EOF;
         );
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     private function generateProperty(EntityDefinition $definition, Field $field): ?array
     {
         $nullable = '|null';
@@ -297,7 +303,7 @@ EOF;
         ];
     }
 
-    private function generateCollection(EntityDefinition $definition)
+    private function generateCollection(EntityDefinition $definition): string
     {
         $entityClass = $definition->getEntityClass();
         $entityClass = explode('\\', $entityClass);
@@ -325,12 +331,12 @@ EOF;
         );
     }
 
-    private function getUsage(string $class)
+    private function getUsage(string $class): string
     {
         return 'use ' . $class;
     }
 
-    private function getClassTypeHint(string $class)
+    private function getClassTypeHint(string $class): string
     {
         $parts = explode('\\', $class);
 

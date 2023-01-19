@@ -27,18 +27,24 @@ class CopyBatch implements PluginInterface
     public function handle(CopyBatchInput ...$files): void
     {
         foreach ($files as $batchInput) {
-            if (\is_resource($batchInput->getSourceFile())) {
-                $handle = $batchInput->getSourceFile();
-            } else {
-                $handle = fopen($batchInput->getSourceFile(), 'rb');
-            }
+            $resource = $handle = $batchInput->getSourceFile();
 
             foreach ($batchInput->getTargetFiles() as $targetFile) {
-                $this->filesystem->putStream($targetFile, $handle);
+                if (!\is_resource($handle)) {
+                    $resource = fopen($handle, 'rb');
+
+                    if ($resource === false) {
+                        throw new \RuntimeException(sprintf('Could not open file "%s"', $handle));
+                    }
+                } else {
+                    $resource = $handle;
+                }
+
+                $this->filesystem->putStream($targetFile, $resource);
             }
 
-            if (\is_resource($handle)) {
-                fclose($handle);
+            if (\is_resource($resource)) {
+                fclose($resource);
             }
         }
     }

@@ -9,6 +9,8 @@ use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
+use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -26,7 +28,7 @@ trait AppSystemTestBehaviour
         );
     }
 
-    protected function loadAppsFromDir(string $appDir, bool $activateApps = true): void
+    protected function loadAppsFromDir(string $appDir, bool $activateApps = true, bool $reloadAppSnippets = false): void
     {
         $appService = new AppService(
             new AppLifecycleIterator(
@@ -42,6 +44,9 @@ trait AppSystemTestBehaviour
             $errors = \array_map(fn (array $fail) => $fail['exception']->getMessage(), $fails);
 
             static::fail('App synchronisation failed: ' . \print_r($errors, true));
+        } elseif ($activateApps && $reloadAppSnippets) {
+            $collection = $this->getContainer()->get(SnippetFileCollection::class);
+            $this->getContainer()->get(SnippetFileLoader::class)->loadSnippetFilesIntoCollection($collection);
         }
     }
 

@@ -21,8 +21,11 @@ use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -32,6 +35,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Storefront\Theme\SalesChannelThemeLoader;
+use Shopware\Storefront\Theme\ThemeService;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
  * @internal
@@ -39,6 +45,7 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('customer-order')]
 class InvoiceRendererTest extends TestCase
 {
+    use AppSystemTestBehaviour;
     use DocumentTrait;
 
     private SalesChannelContext $salesChannelContext;
@@ -491,6 +498,60 @@ class InvoiceRendererTest extends TestCase
 
         static::assertNotEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
         static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
+    }
+
+    public function testRenderWithThemeSnippet(): void
+    {
+        if (!$this->getContainer()->has(ThemeService::class) || !$this->getContainer()->has('theme.repository')) {
+            static::markTestSkipped('This test needs storefront to be installed.');
+        }
+
+        $this->getContainer()->get(Translator::class)->resetInMemoryCache();
+        $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
+
+        $themeService = $this->getContainer()->get(ThemeService::class);
+        $themeRepo = $this->getContainer()->get('theme.repository');
+
+        $this->loadAppsFromDir(__DIR__ . '/../fixtures/theme', true, true);
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
+        $themeId = $themeRepo->searchIds($criteria, $this->context)->firstId();
+
+        static::assertNotNull($themeId);
+
+        $cart = $this->generateDemoCart([7]);
+        $orderId = $this->persistCart($cart);
+
+        $operationInvoice = new DocumentGenerateOperation($orderId);
+
+        static::assertEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
+
+        $result = $this->invoiceRenderer->render(
+            [$orderId => $operationInvoice],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        static::assertNotEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
+        static::assertNotEmpty($success = $result->getSuccess()[$orderId]);
+        static::assertIsString($content = $success->getHtml());
+        static::assertStringNotContainsString('Swag Theme serviceDateNotice EN', $content);
+
+        $this->getContainer()->get(Translator::class)->resetInMemoryCache();
+        $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
+        $themeService->assignTheme($themeId, $this->salesChannelContext->getSalesChannelId(), $this->context, true);
+
+        $result = $this->invoiceRenderer->render(
+            [$orderId => $operationInvoice],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        static::assertNotEmpty($success = $result->getSuccess()[$orderId]);
+        static::assertIsString($content = $success->getHtml());
+        static::assertStringContainsString('Swag Theme serviceDateNotice EN', $content);
     }
 
     private function initServices(): void

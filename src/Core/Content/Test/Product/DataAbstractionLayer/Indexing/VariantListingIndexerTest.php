@@ -32,14 +32,18 @@ class VariantListingIndexerTest extends TestCase
     private $productId;
 
     /**
-     * @var string
+     * @var array<string, string>
      */
-    private $salesChannelId;
-
     private $optionIds = [];
 
+    /**
+     * @var array<string, string>
+     */
     private $groupIds = [];
 
+    /**
+     * @var array<string, string>
+     */
     private $variantIds = [];
 
     /**
@@ -106,7 +110,7 @@ class VariantListingIndexerTest extends TestCase
     }
 
     /**
-     * @param array<string> $listingProperties
+     * @param string[] $listingProperties
      */
     private function createProduct(array $listingProperties): void
     {
@@ -150,7 +154,11 @@ class VariantListingIndexerTest extends TestCase
         $data = [
             [
                 'id' => $this->productId,
-                'configuratorGroupConfig' => $config,
+                'variantListingConfig' => [
+                    'displayParent' => null,
+                    'mainVariantId' => null,
+                    'configuratorGroupConfig' => $config,
+                ],
                 'productNumber' => 'a.0',
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 19, 'name' => 'test'],
@@ -343,6 +351,7 @@ class VariantListingIndexerTest extends TestCase
             ['parentId' => Uuid::fromHexToBytes($this->productId)]
         );
 
+        /** @var array<array<string>> $optionIds */
         $optionIds = array_map(function ($item) {
             return json_decode((string) $item['option_ids'], true);
         }, $listing);
@@ -361,21 +370,10 @@ class VariantListingIndexerTest extends TestCase
 class Listing
 {
     /**
-     * @var array
+     * @param string[] $ids
+     * @param string[] $optionIds
      */
-    public $ids;
-
-    /**
-     * @var array
-     */
-    public $optionIds;
-
-    /**
-     * @param array<string> $optionIds
-     */
-    public function __construct(array $ids, array $optionIds)
+    public function __construct(public array $ids, public array $optionIds)
     {
-        $this->ids = $ids;
-        $this->optionIds = $optionIds;
     }
 }

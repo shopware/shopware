@@ -86,15 +86,6 @@ class ProductHydrator extends EntityHydrator
         if (isset($row[$root . '.states'])) {
             $entity->states = $definition->decode('states', self::value($row, $root, 'states'));
         }
-        if (\array_key_exists($root . '.configuratorGroupConfig', $row)) {
-            $entity->configuratorGroupConfig = $definition->decode('configuratorGroupConfig', self::value($row, $root, 'configuratorGroupConfig'));
-        }
-        if (isset($row[$root . '.mainVariantId'])) {
-            $entity->mainVariantId = Uuid::fromBytesToHex($row[$root . '.mainVariantId']);
-        }
-        if (isset($row[$root . '.displayParent'])) {
-            $entity->displayParent = (bool) $row[$root . '.displayParent'];
-        }
         if (isset($row[$root . '.variantListingConfig'])) {
             $entity->variantListingConfig = $definition->decode('variantListingConfig', self::value($row, $root, 'variantListingConfig'));
         }

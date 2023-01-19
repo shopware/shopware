@@ -25,6 +25,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package core
+ * @phpstan-import-type Offset from IterableQuery
  */
 class ProductIndexer extends EntityIndexer
 {
@@ -117,7 +118,7 @@ class ProductIndexer extends EntityIndexer
     }
 
     /**
-     * @param array<string, string>|null $offset
+     * @param array{offset: int|null}|null $offset
      */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {
@@ -151,10 +152,6 @@ class ProductIndexer extends EntityIndexer
 
         $message = new ProductIndexingMessage(array_values($updates), null, $event->getContext());
         $message->addSkip(self::INHERITANCE_UPDATER, self::STOCK_UPDATER);
-
-        // @deprecated tag:v6.5.0 - remove this function call and simply use the `$updates` property instead
-        // @deprecated tag:v6.5.0 - with next major, we will only dispatch an update event of the updated variant and not for the parent too. This would cause an indexing process of all variants
-        $updates = $event->getPrimaryKeysWithPayload(ProductDefinition::ENTITY_NAME);
 
         $delayed = \array_unique(\array_filter(\array_merge(
             $this->getParentIds($updates),
@@ -268,16 +265,14 @@ class ProductIndexer extends EntityIndexer
             );
         });
 
-        // @deprecated tag:v6.5.0 - parentIds and childrenIds will be removed - event methods will be removed too
-        $parentIds = $this->getParentIds($ids);
-
-        $childrenIds = $this->getChildrenIds($ids);
-
-        Profiler::trace('product:indexer:event', function () use ($ids, $childrenIds, $parentIds, $context, $message): void {
-            $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $childrenIds, $parentIds, $context, $message->getSkip()));
+        Profiler::trace('product:indexer:event', function () use ($ids, $context, $message): void {
+            $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $context, $message->getSkip()));
         });
     }
 
+    /**
+     * @return string[]
+     */
     public function getOptions(): array
     {
         return [
@@ -301,19 +296,19 @@ class ProductIndexer extends EntityIndexer
      */
     private function getChildrenIds(array $ids): array
     {
-        $childrenIds = $this->connection->fetchAllAssociative(
+        $childrenIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(id)) as id FROM product WHERE parent_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        return array_unique(array_filter(array_column($childrenIds, 'id')));
+        return array_unique(array_filter($childrenIds));
     }
 
     /**
      * @param array<string> $ids
      *
-     * @return array|mixed[]
+     * @return string[]
      */
     private function getParentIds(array $ids): array
     {
@@ -344,7 +339,7 @@ class ProductIndexer extends EntityIndexer
     }
 
     /**
-     * @param array<string, string>|null $offset
+     * @param Offset|null $offset
      */
     private function getIterator(?array $offset): IterableQuery
     {

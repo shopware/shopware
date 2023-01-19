@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Content\Test\Product\SalesChannel\Fixture\ListingTestData;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -229,6 +230,7 @@ class ProductListingTest extends TestCase
         $propertyGroups = $result->getEntities();
         $propertyGroupIds = [];
 
+        /** @var PropertyGroupEntity $propertyGroup */
         foreach ($propertyGroups as $propertyGroup) {
             $propertyGroupIds[] = $propertyGroup->getId();
         }
@@ -241,6 +243,8 @@ class ProductListingTest extends TestCase
 
     /**
      * Small helper function which asserts the one of the provided pool ids are in the result set but the remaining ids are excluded.
+     *
+     * @param array<string> $pool
      */
     private static function assertVariationsInListing(EntitySearchResult $result, array $pool): void
     {
@@ -304,6 +308,10 @@ class ProductListingTest extends TestCase
         );
     }
 
+    /**
+     * @param array<array<string>> $options
+     * @param array<string> $listingGroups
+     */
     private function createProduct(string $key, array $options, array $listingGroups): void
     {
         $config = [];
@@ -326,7 +334,9 @@ class ProductListingTest extends TestCase
         $data = [
             [
                 'id' => $id,
-                'configuratorGroupConfig' => $config,
+                'variantListingConfig' => [
+                    'configuratorGroupConfig' => $config,
+                ],
                 'productNumber' => $id,
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 19, 'name' => 'test'],
@@ -372,7 +382,16 @@ class ProductListingTest extends TestCase
         $repo->create($data, Context::createDefaultContext());
     }
 
-    private function combos(array $data, &$all = [], $group = [], $val = null, $i = 0): array
+    /**
+     * Rec. Function to find all possible combinations of $data input
+     *
+     * @param array<array<string>> $data
+     * @param array<array<string>>$all
+     * @param array<string> $group
+     *
+     * @return array<array<string>>
+     */
+    private function combos(array $data, &$all = [], $group = [], ?string $val = null, int $i = 0): array
     {
         if (isset($val)) {
             $group[] = $val;
@@ -471,6 +490,9 @@ class ProductListingTest extends TestCase
             ->create([['id' => $categoryStreamId, 'productStreamId' => $streamId, 'name' => 'test', 'parentId' => null, 'productAssignmentType' => 'product_stream']], Context::createDefaultContext());
     }
 
+    /**
+     * @return array<array{id: string, productNumber: string, width: string, stock: int, name: string}>
+     */
     private function createProducts(): array
     {
         $ids = new TestDataCollection();

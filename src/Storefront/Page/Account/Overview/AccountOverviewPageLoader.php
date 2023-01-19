@@ -73,7 +73,6 @@ class AccountOverviewPageLoader
     {
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
-        /** @var AccountOverviewPage $page */
         $page = AccountOverviewPage::createFrom($page);
         $page->setCustomer($this->loadCustomer($salesChannelContext, $customer));
 

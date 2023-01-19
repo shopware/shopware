@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class ProductConfiguratorSettingCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getProductIds(): array
     {
@@ -32,7 +32,7 @@ class ProductConfiguratorSettingCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getOptionIds(): array
     {
@@ -62,21 +62,23 @@ class ProductConfiguratorSettingCollection extends EntityCollection
         $groups = new PropertyGroupCollection();
 
         foreach ($this->getIterator() as $element) {
+            if (!$element->getOption()) {
+                continue;
+            }
+
             if ($groups->has($element->getOption()->getGroupId())) {
                 $group = $groups->get($element->getOption()->getGroupId());
             } else {
-                $group = PropertyGroupEntity::createFrom(
-                    $element->getOption()->getGroup()
-                );
+                $group = PropertyGroupEntity::createFrom($element->getOption()->getGroup() ?? new PropertyGroupEntity());
 
                 $groups->add($group);
 
-                $group->setOptions(
-                    new PropertyGroupOptionCollection()
-                );
+                $group->setOptions(new PropertyGroupOptionCollection());
             }
 
-            $group->getOptions()->add($element->getOption());
+            if ($group->getOptions()) {
+                $group->getOptions()->add($element->getOption());
+            }
         }
 
         return $groups;

@@ -96,7 +96,6 @@ class ProductPageLoader
         }
 
         $page = $this->genericLoader->load($request, $context);
-        /** @var ProductPage $page */
         $page = ProductPage::createFrom($page);
 
         $page->setProduct($product);

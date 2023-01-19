@@ -81,7 +81,6 @@ class AccountEditOrderPageLoader
 
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
-        /** @var AccountEditOrderPage $page */
         $page = AccountEditOrderPage::createFrom($page);
 
         if ($page->getMetaInformation()) {

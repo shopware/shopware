@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Maintenance;
 
+use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -52,7 +53,8 @@ class MaintenancePageLoader
             $page = $this->genericLoader->load($request, $context);
             $page = MaintenancePage::createFrom($page);
 
-            $pages = $this->cmsPageLoader->load($request, new Criteria([$cmsErrorLayoutId]), $context);
+            /** @var CmsPageCollection $pages */
+            $pages = $this->cmsPageLoader->load($request, new Criteria([$cmsErrorLayoutId]), $context)->getEntities();
 
             if (!$pages->has($cmsErrorLayoutId)) {
                 throw new PageNotFoundException($cmsErrorLayoutId);

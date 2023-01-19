@@ -71,7 +71,6 @@ class CheckoutConfirmPageLoader
     public function load(Request $request, SalesChannelContext $context): CheckoutConfirmPage
     {
         $page = $this->genericPageLoader->load($request, $context);
-        /** @var CheckoutConfirmPage $page */
         $page = CheckoutConfirmPage::createFrom($page);
 
         if ($page->getMetaInformation()) {

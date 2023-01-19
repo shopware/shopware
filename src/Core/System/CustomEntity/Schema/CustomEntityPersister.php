@@ -4,10 +4,12 @@ namespace Shopware\Core\System\CustomEntity\Schema;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 /**
  * @internal
@@ -16,11 +18,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class CustomEntityPersister
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private Connection $connection, private AdapterInterface $cache)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -75,5 +74,7 @@ class CustomEntityPersister
         }
 
         $inserts->execute();
+
+        $this->cache->deleteItem(CachedEntitySchemaGenerator::CACHE_KEY);
     }
 }

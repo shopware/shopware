@@ -11,6 +11,7 @@
 
         <service id="Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="cache.object"/>
         </service>
 
         <service id="Shopware\Core\System\CustomEntity\CustomEntityDefinition">

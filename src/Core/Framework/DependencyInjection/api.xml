@@ -153,6 +153,11 @@
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator">
         </service>
 
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator" decorates="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator">
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator.inner"/>
+            <argument type="service" id="cache.object"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Api\Controller\InfoController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
             <argument type="service" id="parameter_bag"/>

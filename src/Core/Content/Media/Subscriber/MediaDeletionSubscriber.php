@@ -96,9 +96,15 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         }
 
         if ($event->getDefinition()->getEntityName() === MediaDefinition::ENTITY_NAME) {
-            $event->getCriteria()->addFilter(new EqualsFilter('private', false));
-
-            return;
+            $event->getCriteria()->addFilter(
+                new MultiFilter('OR', [
+                    new EqualsFilter('private', false),
+                    new MultiFilter('AND', [
+                        new EqualsFilter('private', true),
+                        new EqualsFilter('mediaFolder.defaultFolder.entity', 'product_download'),
+                    ]),
+                ])
+            );
         }
     }
 

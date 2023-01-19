@@ -22,6 +22,77 @@ export default class VariantsGenerator extends EventEmitter {
         this.languageId = null;
     }
 
+    /*
+     * Saves the variants to the database via sync api.
+     */
+    saveVariants(queues) {
+        return new Promise((resolveDelete) => {
+            // notify view to refresh progress
+            this.emit('progress-max', { type: 'delete', progress: queues.deleteQueue.length });
+
+            // create mapping for api call
+            const mapped = queues.deleteQueue.map((id) => {
+                return { id };
+            });
+
+            // send api calls for delete
+            this.processQueue('delete', mapped, 0, 10, resolveDelete);
+        }).then(() => {
+            // notify view to refresh progress
+            this.emit('progress-max', { type: 'upsert', progress: queues.createQueue.length });
+
+            return new Promise((resolve) => {
+                // send api calls for create
+                this.processQueue('upsert', queues.createQueue, 0, 10, resolve);
+            });
+        });
+    }
+
+    generateVariants(
+        currencies,
+        product,
+    ) {
+        this.product = product;
+        const configuratorSettings = this.product.configuratorSettings;
+
+        // This check is done to set a default value for completely new generated variants
+        // without changing existing configuration
+        if (!this.product.variantListingConfig
+            || (!this.product.variantListingConfig.displayParent
+                && !this.product.variantListingConfig.configuratorGroupConfig
+                && !this.product.variantListingConfig.mainVariantId)) {
+            this.product.variantListingConfig = {};
+            this.product.variantListingConfig.displayParent = true;
+        }
+
+        return new Promise(() => {
+            const grouped = this.groupTheOptions(configuratorSettings);
+
+            // When nothing is selected
+            if (grouped.length <= 0) {
+                this.loadExisting(this.product.id).then((variantsOnServer) => {
+                    const deleteArray = Object.keys(variantsOnServer).map((id) => { return id; });
+                    this.emit('queues', { createQueue: [], deleteQueue: deleteArray });
+                });
+                return;
+            }
+
+            // create permutations of variants
+            const permutations = this.buildCombinations(grouped);
+
+            this.loadExisting(this.product.id).then((variantsOnServer) => {
+                // filter deletable and creatable variations
+                return this.filterVariations(permutations, variantsOnServer, currencies);
+            }).then((queues) => {
+                this.emit('queues', queues);
+            });
+        });
+    }
+
+    /**
+     * Generates the permutations of variants.
+     * @deprecated tag:v6.5.0 - Will be removed, use `generateVariants` in combination with `saveVariants` instead
+     */
     createNewVariants(forceGenerating, currencies, product) {
         this.product = product;
 
@@ -86,7 +157,13 @@ export default class VariantsGenerator extends EventEmitter {
         });
     }
 
-    filterVariations(newVariations, variationOnServer, currencies) {
+    filterVariations(
+        newVariations,
+        variationOnServer,
+        currencies,
+    ) {
+        const configuratorSettings = this.product.configuratorSettings;
+
         return new Promise((resolve) => {
             const createQueue = [];
 
@@ -112,11 +189,10 @@ export default class VariantsGenerator extends EventEmitter {
 
             // Copy the hashed list with the sorted variations on the server.
             let deleteQueue = deepCopyObject(hashed);
-
             const newVariationsSorted = newVariations.map((variation) => variation.sort());
 
             // Get price changes for all option ids
-            const priceChanges = this.product.configuratorSettings.reduce((result, element) => {
+            const priceChanges = configuratorSettings.reduce((result, element) => {
                 result.push({
                     id: element.option.id,
                     price: element.price,

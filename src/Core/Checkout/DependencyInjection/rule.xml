@@ -308,6 +308,10 @@
             <tag name="shopware.rule.definition" />
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemProductStatesRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Rule\CustomerAgeRule">
             <tag name="shopware.rule.definition"/>
         </service>

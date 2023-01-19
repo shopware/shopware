@@ -32,9 +32,9 @@ describe('Product: Test variants', () => {
 
                 cy.get('.sw-property-search__tree-selection__option_grid .sw-grid__row--0 > :nth-child(2)').click();
 
-                cy.get('.sw-product-variant-generation__generate-action').click();
+                cy.get('.sw-product-variant-generation__next-action').click();
 
-                cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary').click();
+                cy.get('.sw-product-modal-variant-generation__upload_files .sw-button--primary').click()
 
                 cy.get('.sw-modal').should('not.exist');
 
@@ -43,7 +43,7 @@ describe('Product: Test variants', () => {
                 cy.get('.sw-loader').should('not.exist');
 
                 // open variant modal
-                cy.get(':nth-child(2) > .sw-button')
+                cy.get('.sw-data-grid :nth-child(2) > .sw-button')
                     .should('be.visible')
                     .click();
 

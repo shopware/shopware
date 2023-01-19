@@ -144,17 +144,20 @@
                             {% endblock %}
 
                             {% block page_checkout_cart_shipping_costs_trigger %}
-                                <a class="btn btn-link cart-shipping-costs-btn"
-                                   {{ dataBsToggleAttr }}="collapse"
-                                   href="#collapseShippingCost"
-                                   role="button"
-                                   aria-expanded="false"
-                                   aria-controls="collapseExample">
-                                    {{ "checkout.shippingCosts"|trans|sw_sanitize }}
-                                    {% block page_checkout_cart_shipping_costs_trigger_icon %}
-                                        {% sw_icon 'arrow-medium-right' style { 'pack':'solid', 'size': 'sm' } %}
-                                    {% endblock %}
-                                </a>
+                                {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_PHYSICAL') %}
+                                {% if page.cart.lineItems.hasLineItemWithState(PHYSICAL_STATE) %}
+                                    <a class="btn btn-link cart-shipping-costs-btn"
+                                       {{ dataBsToggleAttr }}="collapse"
+                                       href="#collapseShippingCost"
+                                       role="button"
+                                       aria-expanded="false"
+                                       aria-controls="collapseExample">
+                                        {{ "checkout.shippingCosts"|trans|sw_sanitize }}
+                                        {% block page_checkout_cart_shipping_costs_trigger_icon %}
+                                            {% sw_icon 'arrow-medium-right' style { 'pack':'solid', 'size': 'sm' } %}
+                                        {% endblock %}
+                                    </a>
+                                {% endif %}
                             {% endblock %}
 
                             {% block page_checkout_cart_shipping_costs_form_group %}

@@ -18,6 +18,9 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('checkout')]
 class LineItemCollection extends Collection
 {
+    /**
+     * @param LineItem[] $elements
+     */
     public function __construct(iterable $elements = [])
     {
         parent::__construct();
@@ -113,6 +116,20 @@ class LineItemCollection extends Collection
         );
     }
 
+    public function hasLineItemWithState(string $state): bool
+    {
+        foreach ($this->buildFlat($this) as $lineItem) {
+            if (\in_array($state, $lineItem->getStates(), true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return mixed[]
+     */
     public function getPayload(): array
     {
         return $this->map(function (LineItem $lineItem) {
@@ -187,6 +204,9 @@ class LineItemCollection extends Collection
         return $filtered;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getTypes(): array
     {
         return $this->fmap(
@@ -196,6 +216,9 @@ class LineItemCollection extends Collection
         );
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getReferenceIds(): array
     {
         return $this->fmap(
@@ -227,6 +250,9 @@ class LineItemCollection extends Collection
         return LineItem::class;
     }
 
+    /**
+     * @return LineItem[]
+     */
     private function buildFlat(LineItemCollection $lineItems): array
     {
         $flat = [];

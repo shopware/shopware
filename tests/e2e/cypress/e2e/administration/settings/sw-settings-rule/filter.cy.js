@@ -53,6 +53,6 @@ describe('Rule: Testing filter and reset filter', () => {
         cy.wait('@filterRule').its('response.statusCode').should('equal', 200);
         cy.get('.sw-rule-list-grid').should('be.visible');
         cy.get('.sw-skeleton__listing').should('not.exist');
-        cy.contains('.sw-page__smart-bar-amount', '7');
+        cy.contains('.sw-page__smart-bar-amount', '8');
     });
 });

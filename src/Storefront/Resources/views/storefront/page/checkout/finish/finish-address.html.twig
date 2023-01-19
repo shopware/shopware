@@ -32,23 +32,25 @@
 
         {# @deprecated tag:v6.5.0 - Shipping address will be displayed before the billing address. #}
         {% block page_checkout_finish_address_shipping %}
-            <div class="col-sm-6">
-                <div class="card checkout-card">
-                    <div class="card-body">
-                        {% block page_checkout_finish_address_shipping_title %}
-                            <div class="card-title">
-                                {{ "checkout.shippingAddressHeader"|trans|sw_sanitize }}
-                            </div>
-                        {% endblock %}
+            {% if deliveries|length > 0 %}
+                <div class="col-sm-6">
+                    <div class="card checkout-card">
+                        <div class="card-body">
+                            {% block page_checkout_finish_address_shipping_title %}
+                                <div class="card-title">
+                                    {{ "checkout.shippingAddressHeader"|trans|sw_sanitize }}
+                                </div>
+                            {% endblock %}
 
-                        {% block page_checkout_finish_address_shipping_data %}
-                            <div class="finish-address-shipping">
-                                {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {'address': shippingAddress} %}
-                            </div>
-                        {% endblock %}
+                            {% block page_checkout_finish_address_shipping_data %}
+                                <div class="finish-address-shipping">
+                                    {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {'address': shippingAddress} %}
+                                </div>
+                            {% endblock %}
+                        </div>
                     </div>
                 </div>
-            </div>
+            {% endif %}
         {% endblock %}
     </div>
 {% endblock %}

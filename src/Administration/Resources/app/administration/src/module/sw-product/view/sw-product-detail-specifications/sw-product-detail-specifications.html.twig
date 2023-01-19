@@ -9,7 +9,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_specifications_measures_packaging %}
     <sw-card
-        v-show="showProductCard('measures_packaging')"
+        v-show="showProductCard('measures_packaging') && !productStates.includes('is-download')"
         class="sw-product-detail-specification__measures-packaging"
         position-identifier="sw-product-detail-specifications-measures-packaging"
         :title="$tc('sw-product.specifications.cardTitleMeasuresPackaging')"

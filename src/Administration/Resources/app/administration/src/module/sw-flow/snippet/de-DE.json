@@ -92,6 +92,7 @@
       "generateDocument": "Dokumente erzeugen",
       "removeTag": "Tag entfernen",
       "mailSend": "E-Mail verschicken",
+      "grantDownloadAccess": "Download-Recht setzen",
       "setOrderState": "Status zuweisen",
       "stopFlow": "Flow anhalten",
       "changeCustomerGroup": "Kundengruppe zuweisen",
@@ -179,6 +180,15 @@
         "titleCreateDocument": "Dokumente erzeugen",
         "labelDocumentType": "Dokumente",
         "placeholderDocumentType": "Dokumente auswählen ..."
+      },
+      "downloadAccess": {
+        "titleSetDownloadAccess": "Download-Recht setzen",
+        "labelValueField": "Recht",
+        "placeholderValueField": "Anwendung auswählen ...",
+        "options": {
+          "grant": "Erteilen",
+          "revoke": "Entziehen"
+        }
       },
       "customerGroup": {
         "titleChangeCustomerGroup": "Kundengruppe zuweisen",

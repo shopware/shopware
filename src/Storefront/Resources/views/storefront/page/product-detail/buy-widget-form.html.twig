@@ -16,18 +16,23 @@
             {{ sw_csrf('frontend.checkout.line-item.add') }}
         {% endblock %}
 
+        {% set DOWNLOAD_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_DOWNLOAD') %}
+        {% set showQuantitySelect = not product.states is defined or DOWNLOAD_STATE not in product.states or (DOWNLOAD_STATE in product.states and product.maxPurchase !== 1) %}
+
         {% set buyable = product.available and product.childCount <= 0 and product.calculatedMaxPurchase > 0 %}
+
         {% block page_product_detail_buy_container %}
             {% if buyable %}
                 <div class="{{ formRowClass }} buy-widget-container">
                     {% block page_product_detail_buy_quantity_container %}
-                        <div class="col-4">
-                            {% set selectQuantityThreshold = 100 %}
-                            {% block page_product_detail_buy_quantity %}
-                                {# @deprecated tag:v6.5.0 - Numeric quantity input with additional plus/minus controls will be the default. #}
-                                {% if (product.calculatedMaxPurchase - product.minPurchase) / product.purchaseSteps > selectQuantityThreshold %}
-                                    {% block page_product_detail_buy_quantity_input_group %}
-                                        <div class="input-group">
+                        {% if showQuantitySelect %}
+                            <div class="col-4">
+                                {% set selectQuantityThreshold = 100 %}
+                                {% block page_product_detail_buy_quantity %}
+                                    {# @deprecated tag:v6.5.0 - Numeric quantity input with additional plus/minus controls will be the default. #}
+                                    {% if (product.calculatedMaxPurchase - product.minPurchase) / product.purchaseSteps > selectQuantityThreshold %}
+                                        {% block page_product_detail_buy_quantity_input_group %}
+                                            <div class="input-group">
                                             {% block page_product_detail_buy_quantity_input %}
                                                 <input
                                                     type="number"
@@ -38,49 +43,51 @@
                                                     step="{{ product.purchaseSteps }}"
                                                     value="{{ product.minPurchase }}"
                                                 />
-                                            {% endblock %}
-                                            {% block page_product_detail_buy_quantity_input_unit %}
-                                                {% if product.translated.packUnit %}
-                                                    {% if not feature('v6.5.0.0') %}
-                                                        <div class="input-group-append">
-                                                    {% endif %}
-                                                        <span class="input-group-text">
-                                                            {% if product.minPurchase > 1 and product.translated.packUnitPlural %}
-                                                                {{ product.translated.packUnitPlural }}
-                                                            {% elseif product.translated.packUnit %}
-                                                                {{ product.translated.packUnit }}
-                                                            {% endif %}
-                                                        </span>
-                                                    {% if not feature('v6.5.0.0') %}
+                                                    {% endblock %}
+                                                        {% block page_product_detail_buy_quantity_input_unit %}
+                                                            {% if product.translated.packUnit %}
+                                                                {% if not feature('v6.5.0.0') %}
+                                                                    <div class="input-group-append">
+                                                                {% endif %}
+
+                                                                <span class="input-group-text">
+                                                                    {% if product.minPurchase > 1 and product.translated.packUnitPlural %}
+                                                                        {{ product.translated.packUnitPlural }}
+                                                                    {% elseif product.translated.packUnit %}
+                                                                        {{ product.translated.packUnit }}
+                                                                    {% endif %}
+                                                                </span>
+                                                            {% if not feature('v6.5.0.0') %}
                                                         </div>
                                                     {% endif %}
                                                 {% endif %}
                                             {% endblock %}
                                         </div>
                                     {% endblock %}
-                                {% else %}
-                                    {% block page_product_detail_buy_quantity_select %}
-                                        <select name="lineItems[{{ product.id }}][quantity]"
+                                    {% else %}
+                                        {% block page_product_detail_buy_quantity_select %}
+                                            <select name="lineItems[{{ product.id }}][quantity]"
                                                 class="{{ formSelectClass }} product-detail-quantity-select">
-                                            {% for quantity in range(product.minPurchase, product.calculatedMaxPurchase, product.purchaseSteps) %}
-                                                <option value="{{ quantity }}">
-                                                    {{ quantity }}
-                                                    {% if quantity == 1 %}
-                                                        {% if product.translated.packUnit %} {{ product.translated.packUnit }}{% endif %}
-                                                    {% else %}
-                                                        {% if product.translated.packUnitPlural %}
-                                                            {{ product.translated.packUnitPlural }}
-                                                        {% elseif product.translated.packUnit %}
-                                                            {{ product.translated.packUnit }}
+                                                    {% for quantity in range(product.minPurchase, product.calculatedMaxPurchase, product.purchaseSteps) %}
+                                                        <option value="{{ quantity }}">
+                                                            {{ quantity }}
+                                                        {% if quantity == 1 %}
+                                                            {% if product.translated.packUnit %} {{ product.translated.packUnit }}{% endif %}
+                                                        {% else %}
+                                                            {% if product.translated.packUnitPlural %}
+                                                                {{ product.translated.packUnitPlural }}
+                                                            {% elseif product.translated.packUnit %}
+                                                                {{ product.translated.packUnit }}
+                                                            {% endif %}
                                                         {% endif %}
-                                                    {% endif %}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
-                                    {% endblock %}
-                                {% endif %}
-                            {% endblock %}
-                        </div>
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        {% endblock %}
+                                    {% endif %}
+                                {% endblock %}
+                            </div>
+                        {% endif %}
                     {% endblock %}
 
                     {% block page_product_detail_buy_redirect_input %}
@@ -123,7 +130,7 @@
                     {% endblock %}
 
                     {% block page_product_detail_buy_button_container %}
-                        <div class="col-8">
+                        <div class="{% if showQuantitySelect %}col-8{% else %}col-12{% endif %}">
                             {% block page_product_detail_buy_button %}
                                 {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `btn-block` class, use `d-grid` wrapper instead #}
                                 {% if feature('v6.5.0.0') %}

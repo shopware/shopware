@@ -38,6 +38,7 @@ class ProductIndexer extends EntityIndexer
     public const RATING_AVERAGE_UPDATER = 'product.rating-average';
     public const STREAM_UPDATER = 'product.stream';
     public const SEARCH_KEYWORD_UPDATER = 'product.search-keyword';
+    public const STATES_UPDATER = 'product.states';
 
     private IteratorFactory $iteratorFactory;
 
@@ -67,6 +68,8 @@ class ProductIndexer extends EntityIndexer
 
     private ProductStreamUpdater $streamUpdater;
 
+    private StatesUpdater $statesUpdater;
+
     private MessageBusInterface $messageBus;
 
     /**
@@ -87,6 +90,7 @@ class ProductIndexer extends EntityIndexer
         EventDispatcherInterface $eventDispatcher,
         CheapestPriceUpdater $cheapestPriceUpdater,
         ProductStreamUpdater $streamUpdater,
+        StatesUpdater $statesUpdater,
         MessageBusInterface $messageBus
     ) {
         $this->iteratorFactory = $iteratorFactory;
@@ -103,6 +107,7 @@ class ProductIndexer extends EntityIndexer
         $this->eventDispatcher = $eventDispatcher;
         $this->cheapestPriceUpdater = $cheapestPriceUpdater;
         $this->streamUpdater = $streamUpdater;
+        $this->statesUpdater = $statesUpdater;
         $this->messageBus = $messageBus;
     }
 
@@ -112,7 +117,7 @@ class ProductIndexer extends EntityIndexer
     }
 
     /**
-     * @param array|null $offset
+     * @param array<string, string>|null $offset
      *
      * @deprecated tag:v6.5.0 The parameter $offset will be natively typed
      */
@@ -258,6 +263,12 @@ class ProductIndexer extends EntityIndexer
             });
         }
 
+        if ($message->allow(self::STATES_UPDATER)) {
+            Profiler::trace('product:indexer:states', function () use ($ids, $context): void {
+                $this->statesUpdater->update($ids, $context);
+            });
+        }
+
         RetryableQuery::retryable($this->connection, function () use ($ids): void {
             $this->connection->executeStatement(
                 'UPDATE product SET updated_at = :now WHERE id IN (:ids)',
@@ -292,6 +303,11 @@ class ProductIndexer extends EntityIndexer
         ];
     }
 
+    /**
+     * @param string[] $ids
+     *
+     * @return string[]
+     */
     private function getChildrenIds(array $ids): array
     {
         $childrenIds = $this->connection->fetchAllAssociative(
@@ -304,6 +320,8 @@ class ProductIndexer extends EntityIndexer
     }
 
     /**
+     * @param string[] $ids
+     *
      * @return array|mixed[]
      */
     private function getParentIds(array $ids): array
@@ -318,6 +336,8 @@ class ProductIndexer extends EntityIndexer
     }
 
     /**
+     * @param string[] $ids
+     *
      * @return array|mixed[]
      */
     private function filterVariants(array $ids): array
@@ -332,6 +352,9 @@ class ProductIndexer extends EntityIndexer
         );
     }
 
+    /**
+     * @param array<string, string>|null $offset
+     */
     private function getIterator(?array $offset): IterableQuery
     {
         return $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);

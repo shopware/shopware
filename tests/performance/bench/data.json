@@ -40,14 +40,6 @@
   ],
   "payment_method": [
     {
-      "id": "{payment-method}",
-      "name": "Default payment method",
-      "active": true,
-      "afterOrderEnabled": true,
-      "position": 1,
-      "handlerIdentifier": "Shopware\\Core\\Checkout\\Payment\\Cart\\PaymentHandler\\InvoicePayment"
-    },
-    {
       "id": "{default-payment-method}",
       "name": "Name",
       "position": 1,
@@ -62,7 +54,19 @@
       "position": 1,
       "availabilityRuleId": "{always-valid}",
       "deliveryTimeId": "{delivery-time}",
-      "taxType": "auto"
+      "taxType": "auto",
+      "prices": [
+        {
+          "currencyPrice": [
+            {
+              "currencyId": "{currency}",
+              "gross": "1",
+              "net": "0.81",
+              "linked": true
+            }
+          ]
+        }
+      ]
     }
   ],
   "cms_page": [
@@ -1235,6 +1239,7 @@
         "firstName": "Max",
         "lastName": "Mustermann",
         "city": "Bielefeld",
+        "salutationId": "{salutation}",
         "street": "Buchenweg 5",
         "zipcode": "33062",
         "countryId": "{country}",
@@ -1262,7 +1267,7 @@
       "id": "{sales-channel}",
       "name": "My sales channel (storefront)",
       "navigationCategoryId": "{navigation}",
-      "paymentMethodId": "{payment-method}",
+      "paymentMethodId": "{default-payment-method}",
       "shippingMethodId": "{shipping-method}",
       "typeId": "{storefront-type}",
       "customerGroupId": "{customer-group}",
@@ -1287,7 +1292,27 @@
           "id": "{language}"
         }
       ],
-      "accessKey": "{access-key}"
+      "accessKey": "{access-key}",
+      "countries": [
+        {
+          "id": "{country}"
+        }
+      ],
+      "paymentMethods": [
+        {
+          "id": "{default-payment-method}"
+        }
+      ],
+      "shippingMethods": [
+        {
+          "id": "{shipping-method}"
+        }
+      ],
+      "currencies": [
+        {
+          "id": "{currency}"
+        }
+      ]
     }
   ],
   "product_manufacturer": [

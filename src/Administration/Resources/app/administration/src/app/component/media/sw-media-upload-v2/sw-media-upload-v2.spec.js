@@ -18,18 +18,20 @@ async function createWrapper(customOptions = {}) {
             'sw-context-button': true,
             'sw-button-group': true,
             'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
-            'sw-media-url-form': true
+            'sw-media-url-form': true,
+            'sw-media-preview-v2': true
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
-                    saveAll: () => {}
+                    create: () => ({}),
+                    saveAll: () => Promise.resolve({})
                 })
             },
             mediaService: {
                 addListener: () => {},
-                addUploads: () => null,
-                removeByTag: () => null,
+                addUploads: () => Promise.resolve(),
+                removeByTag: () => {},
                 removeListener: () => null,
             },
             configService: {
@@ -41,7 +43,8 @@ async function createWrapper(customOptions = {}) {
             },
         },
         propsData: {
-            uploadTag: 'my-upload'
+            uploadTag: 'my-upload',
+            addFilesOnMultiselect: true,
         },
         ...customOptions
     });
@@ -375,6 +378,52 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         await removeFileButton.trigger('click');
 
         expect(wrapper.emitted('media-upload-remove-image')).toBeTruthy();
+    });
+
+    it('should show an indicator when the component requires files', async () => {
+        await wrapper.setProps({
+            label: 'some label',
+            required: true
+        });
+
+        expect(wrapper.find('.sw-media-upload-v2__label').classes()).toContain('is--required');
+    });
+
+    it('should handle file upload in single file mode', async () => {
+        wrapper = await createWrapper({
+            propsData: {
+                allowMultiSelect: false,
+                addFilesOnMultiselect: false,
+                uploadTag: 'my-upload'
+            }
+        });
+        wrapper.vm.mediaRepository.saveAll = jest.fn();
+
+        await wrapper.vm.handleUpload([new File([''], 'foo.jpg'), new File([''], 'bar.gif')]);
+
+        expect(wrapper.vm.mediaRepository.saveAll).toHaveBeenCalled();
+    });
+
+    it('should show a single preview in single mode', async () => {
+        wrapper = await createWrapper({
+            propsData: {
+                uploadTag: 'my-upload',
+                allowMultiSelect: false,
+                addFilesOnMultiselect: false,
+            }
+        });
+
+        await wrapper.vm.handleUpload([new File([''], 'foo.jpg')]);
+
+        expect(Array.isArray(wrapper.vm.preview)).toBe(false);
+    });
+
+    it('should show multiple preview in multi mode', async () => {
+        wrapper = await createWrapper();
+
+        await wrapper.vm.handleUpload([new File([''], 'foo.jpg'), new File([''], 'bar.gif')]);
+
+        expect(Array.isArray(wrapper.vm.preview)).toBe(true);
     });
 
     it('should check file type correct no matter in which sequence the accept types were set', async () => {

@@ -128,6 +128,7 @@ class AccountOrderPageLoader
             ->addAssociation('orderCustomer.customer')
             ->addAssociation('lineItems')
             ->addAssociation('lineItems.cover')
+            ->addAssociation('lineItems.downloads.media')
             ->addAssociation('addresses')
             ->addAssociation('currency')
             ->addAssociation('documents.documentType')

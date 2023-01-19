@@ -62,11 +62,23 @@ Component.register('sw-media-upload-v2', {
             default: true,
         },
 
+        addFilesOnMultiselect: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         // eslint-disable-next-line vue/require-default-prop
         label: {
             type: String,
             required: false,
             default: null,
+        },
+
+        buttonLabel: {
+            type: String,
+            required: false,
+            default: '',
         },
 
         defaultFolder: {
@@ -114,7 +126,19 @@ Component.register('sw-media-upload-v2', {
             default: false,
         },
 
+        privateFilesystem: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         useFileData: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        required: {
             type: Boolean,
             required: false,
             default: false,
@@ -138,25 +162,13 @@ Component.register('sw-media-upload-v2', {
         },
 
         mediaRepository() {
-            return this.repositoryFactory.create('media');
-        },
-
-        showPreview() {
-            return !this.multiSelect;
-        },
-
-        hasPreviewFile() {
-            return this.preview !== null;
+            return this.repositoryFactory.create('media', '', {
+                keepApiErrors: true,
+            });
         },
 
         hasOpenMediaButtonListener() {
             return Object.keys(this.$listeners).includes('media-upload-sidebar-open');
-        },
-
-        previewClass() {
-            return {
-                'has--preview': this.showPreview,
-            };
         },
 
         isDragActiveClass() {
@@ -181,6 +193,20 @@ Component.register('sw-media-upload-v2', {
 
         uploadUrlFeatureEnabled() {
             return this.isUploadUrlFeatureEnabled;
+        },
+
+        swFieldLabelClasses() {
+            return {
+                'is--required': this.required,
+            };
+        },
+
+        buttonFileUploadLabel() {
+            if (this.buttonLabel === '') {
+                return this.$tc('global.sw-media-upload-v2.buttonFileUpload');
+            }
+
+            return this.buttonLabel;
         },
     },
 
@@ -384,6 +410,16 @@ Component.register('sw-media-upload-v2', {
                 this.mediaService.removeByTag(this.uploadTag);
                 newMediaFiles = [newMediaFiles.pop()];
                 this.preview = newMediaFiles[0];
+            } else {
+                if (!this.preview) {
+                    this.preview = [];
+                }
+
+                if (this.addFilesOnMultiselect) {
+                    this.preview = [...this.preview, ...newMediaFiles];
+                } else {
+                    this.preview = newMediaFiles;
+                }
             }
 
             const syncEntities = [];
@@ -403,6 +439,7 @@ Component.register('sw-media-upload-v2', {
         getMediaEntityForUpload() {
             const mediaItem = this.mediaRepository.create();
             mediaItem.mediaFolderId = this.mediaFolderId;
+            mediaItem.private = this.privateFilesystem;
 
             return mediaItem;
         },

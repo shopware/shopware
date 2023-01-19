@@ -15,6 +15,7 @@ import './component/modals/sw-flow-rule-modal';
 import './component/modals/sw-flow-tag-modal';
 import './component/modals/sw-flow-set-order-state-modal';
 import './component/modals/sw-flow-generate-document-modal';
+import './component/modals/sw-flow-grant-download-access-modal';
 import './component/modals/sw-flow-mail-send-modal';
 import './component/modals/sw-flow-create-mail-template-modal';
 import './component/modals/sw-flow-event-change-confirm-modal';

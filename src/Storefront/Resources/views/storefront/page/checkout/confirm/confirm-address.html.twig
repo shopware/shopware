@@ -1,4 +1,5 @@
 {% block page_checkout_confirm_address_inner %}
+    {# @var page \Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage #}
     {% if page.order %}
         {% set order = page.order %}
         {% set deliveries = order.deliveries.elements %}
@@ -62,32 +63,39 @@
 
             {# @deprecated tag:v6.5.0 - Shipping address will be displayed before the billing address. #}
             {% block page_checkout_confirm_address_shipping %}
-                <div class="col-sm-6 card-col confirm-shipping-address">
-                    <div class="card checkout-card">
-                        <div class="card-body">
-                            {% block page_checkout_confirm_address_shipping_title %}
-                                <div class="card-title">
-                                    {{ "checkout.shippingAddressHeader"|trans|sw_sanitize }}
-                                </div>
-                            {% endblock %}
+                {% if page.cart is defined %}
+                    {% set lineItems = page.cart.lineItems %}
+                {% endif %}
+                {% if page.order is defined %}
+                    {% set lineItems = page.order.lineItems %}
+                {% endif %}
+                {% if not page.isHideShippingAddress() %}
+                    <div class="col-sm-6 card-col confirm-shipping-address">
+                        <div class="card checkout-card">
+                            <div class="card-body">
+                                {% block page_checkout_confirm_address_shipping_title %}
+                                    <div class="card-title">
+                                        {{ "checkout.shippingAddressHeader"|trans|sw_sanitize }}
+                                    </div>
+                                {% endblock %}
 
-                            {% block page_checkout_confirm_address_shipping_data %}
-                                <div class="confirm-address-shipping">
-                                    {# @deprecated tag:v6.5.0 - "Address equals"-logic will be moved into billing address cart. #}
-                                    {% if billingAddress.id is same as(shippingAddress.id) %}
-                                        {# @deprecated tag:v6.5.0 - Block will be moved into billing address cart and renamed to `page_checkout_confirm_address_billing_data_equal` #}
-                                        {% block page_checkout_confirm_address_shipping_data_equal %}
-                                            <p>
-                                                {{ "checkout.addressEqualText"|trans|sw_sanitize }}
-                                            </p>
-                                        {% endblock %}
-                                    {% else %}
-                                        {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
-                                            'address': shippingAddress
-                                        } %}
-                                    {% endif %}
-                                </div>
-                            {% endblock %}
+                                {% block page_checkout_confirm_address_shipping_data %}
+                                    <div class="confirm-address-shipping">
+                                        {# @deprecated tag:v6.5.0 - "Address equals"-logic will be moved into billing address cart. #}
+                                        {% if billingAddress.id is same as(shippingAddress.id) %}
+                                            {# @deprecated tag:v6.5.0 - Block will be moved into billing address cart and renamed to `page_checkout_confirm_address_billing_data_equal` #}
+                                            {% block page_checkout_confirm_address_shipping_data_equal %}
+                                                <p>
+                                                    {{ "checkout.addressEqualText"|trans|sw_sanitize }}
+                                                </p>
+                                            {% endblock %}
+                                        {% else %}
+                                            {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
+                                                'address': shippingAddress
+                                            } %}
+                                        {% endif %}
+                                    </div>
+                                {% endblock %}
 
                             {% block page_checkout_confirm_address_shipping_actions %}
                                 <div class="card-actions">
@@ -98,20 +106,21 @@
                                         csrfToken: sw_csrf("frontend.account.addressbook", {"mode": "token"})
                                     } %}
 
-                                    {% block  page_checkout_confirm_address_shipping_actions_link %}
-                                        <a href="{{ path('frontend.account.address.edit.page', {'addressId': shippingAddress.id}) }}"
-                                           title="{{ "account.overviewChangeShipping"|trans|striptags }}"
-                                           class="btn btn-light"
-                                           data-address-editor="true"
-                                           data-address-editor-options='{{ addressEditorOptions|json_encode }}'>
-                                            {{ "account.overviewChangeShipping"|trans|sw_sanitize }}
-                                        </a>
-                                    {% endblock %}
-                                </div>
-                            {% endblock %}
+                                        {% block  page_checkout_confirm_address_shipping_actions_link %}
+                                            <a href="{{ path('frontend.account.address.edit.page', {'addressId': shippingAddress.id}) }}"
+                                               title="{{ "account.overviewChangeShipping"|trans|striptags }}"
+                                               class="btn btn-light"
+                                               data-address-editor="true"
+                                               data-address-editor-options='{{ addressEditorOptions|json_encode }}'>
+                                                {{ "account.overviewChangeShipping"|trans|sw_sanitize }}
+                                            </a>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </div>
                         </div>
                     </div>
-                </div>
+                {% endif %}
             {% endblock %}
         </div>
     {% endblock %}

@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressSalutationMissingEr
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -39,20 +40,22 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
     {
         $country = $context->getShippingLocation()->getCountry();
         $customer = $context->getCustomer();
+        $validateShipping = $cart->getLineItems()->count() === 0
+            || $cart->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL);
 
-        if (!$country->getActive()) {
+        if (!$country->getActive() && $validateShipping) {
             $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name')));
 
             return;
         }
 
-        if (!$country->getShippingAvailable()) {
+        if (!$country->getShippingAvailable() && $validateShipping) {
             $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name')));
 
             return;
         }
 
-        if (!$this->isSalesChannelCountry($country->getId(), $context)) {
+        if (!$this->isSalesChannelCountry($country->getId(), $context) && $validateShipping) {
             $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name')));
 
             return;
@@ -79,7 +82,7 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
             return;
         }
 
-        if (!$this->isValidSalutationId($customer->getActiveShippingAddress()->getSalutationId())) {
+        if (!$this->isValidSalutationId($customer->getActiveShippingAddress()->getSalutationId()) && $validateShipping) {
             $errors->add(new ShippingAddressSalutationMissingError($customer->getActiveShippingAddress()));
         }
     }

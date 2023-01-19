@@ -89,6 +89,7 @@ Component.register('sw-product-detail-base', {
             'isLoading',
             'showModeSetting',
             'showProductCard',
+            'productStates',
         ]),
 
         /**
@@ -179,7 +180,6 @@ Component.register('sw-product-detail-base', {
         },
     },
 
-
     watch: {
         product() {
             /**
@@ -255,6 +255,14 @@ Component.register('sw-product-detail-base', {
 
         onCloseMediaModal() {
             this.showMediaModal = false;
+        },
+
+        onOpenDownloadMediaModal() {
+            this.showDownloadMediaModal = true;
+        },
+
+        onCloseDownloadMediaModal() {
+            this.showDownloadMediaModal = false;
         },
 
         onAddMedia(media) {

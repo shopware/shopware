@@ -110,6 +110,16 @@ describe('module/sw-product/page/sw-product-detail', () => {
                         'core.tax.defaultTaxRate': ''
                     }),
                     getValues: () => Promise.resolve(defaultSalesChannelData)
+                },
+                entityValidationService: {
+                    validate: (entity, customValidator) => {
+                        let errors = [];
+                        if (customValidator) {
+                            errors = customValidator(errors, entity);
+                        }
+
+                        return errors.length < 1;
+                    },
                 }
             },
             stubs: {
@@ -310,6 +320,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
     it('should validate and clear listPrices/regulationPrices on save', async () => {
         wrapper.vm.getCmsPageOverrides = jest.fn(() => { return null; });
+        wrapper.vm.product.isNew = jest.fn(() => { return false; });
         wrapper.vm.product.prices = [];
         wrapper.vm.product.price = [{
             currencyId: undefined,
@@ -357,5 +368,41 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         await flushPromises();
         expect(wrapper.vm.product.visibilities.length).toBe(1);
+    });
+
+    it('should run custom validation service and handle errors', async () => {
+        wrapper.vm.getCmsPageOverrides = jest.fn(() => { return null; });
+        await Shopware.State.commit('swProductDetail/setProduct', {
+            isNew: jest.fn(() => true),
+            prices: [],
+            price: [{
+                currencyId: undefined,
+                linked: true,
+                gross: 100,
+                net: 84.034,
+                listPrice: {
+                    currencyId: undefined,
+                    linked: true,
+                    gross: 0,
+                    net: 0,
+                },
+                regulationPrice: {
+                    currencyId: undefined,
+                    linked: true,
+                    gross: 0,
+                    net: 0,
+                }
+            }],
+        });
+
+        // make it a download product which requires downloads
+        Shopware.State.commit('swProductDetail/setCreationStates', 'is-download');
+
+        wrapper.vm.saveProduct = jest.fn(() => { return Promise.resolve(); });
+        wrapper.vm.onSave();
+
+        // save shouldn't finish successfully (nothing should be sent to the server - no saveProduct call)
+        expect(wrapper.vm.saveProduct.mock.calls.length).toEqual(0);
+        await flushPromises();
     });
 });

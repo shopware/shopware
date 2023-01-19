@@ -35,6 +35,8 @@ async function createWrapper() {
             },
             'sw-product-category-form': true,
             'sw-product-deliverability-form': true,
+            'sw-product-deliverability-downloadable-form': true,
+            'sw-product-download-form': true,
             'sw-product-price-form': true,
             'sw-product-basic-form': await Shopware.Component.build('sw-product-basic-form'),
             'sw-product-feature-set-form': true,
@@ -109,6 +111,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                 },
                 product: {
                     getEntityName: () => 'product',
+                    isNew: () => false,
                     media: [],
                     reviews: [{
                         id: '1a2b3c',
@@ -181,7 +184,8 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                             label: 'sw-product.general.textAdvancedMode'
                         }
                     }
-                }
+                },
+                creationStates: 'is-physical'
             }
         });
     });
@@ -189,6 +193,66 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
+    });
+
+    it('should not show files card when product states not includes is-download', async () => {
+        const wrapper = await createWrapper();
+
+        await Shopware.State.commit('swProductDetail/setProduct', {
+            ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.product'),
+            states: [
+                'is-physical'
+            ],
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const cardElement = wrapper.find('.sw-product-detail-base__downloads');
+        const cardStyles = cardElement.attributes('style');
+
+        expect(cardStyles).toBe('display: none;');
+    });
+
+    it('should show files card when product states includes is-download', async () => {
+        const wrapper = await createWrapper();
+
+        await Shopware.State.commit('swProductDetail/setProduct', {
+            ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.product'),
+            states: [
+                'is-download'
+            ],
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const cardElement = wrapper.find('.sw-product-detail-base__downloads');
+        expect(cardElement).toBeTruthy();
+    });
+
+    it('should show correct deliverability card when product states includes is-download', async () => {
+        const wrapper = await createWrapper();
+
+        await Shopware.State.commit('swProductDetail/setProduct', {
+            ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.product'),
+            states: [
+                'is-download'
+            ],
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const physicalCardElement = wrapper.find('.sw-product-detail-base__deliverability');
+        expect(physicalCardElement.exists()).toBeFalsy();
+
+        const cardElement = wrapper.find('.sw-product-detail-base__deliverability-downloadable');
+        expect(cardElement).toBeTruthy();
+
+        await Shopware.State.commit('swProductDetail/setProduct', {
+            ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.product'),
+            states: [
+                'is-physical'
+            ],
+        });
     });
 
     it('should get media default folder id when component got created', async () => {

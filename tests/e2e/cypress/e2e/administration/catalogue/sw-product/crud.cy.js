@@ -30,7 +30,7 @@ describe('Product: Test crud operations', () => {
         }).as('calculatePrice');
 
         // Add basic data to product
-        cy.get('a[href="#/sw/product/create"]').click();
+        cy.get('a[href="#/sw/product/create?creationStates=is-physical"]').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
@@ -40,7 +40,7 @@ describe('Product: Test crud operations', () => {
 
         if (Cypress.isBrowser({ family: 'chromium' })) {
             // Add image to product
-            cy.get('#files')
+            cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
                 .attachFile('img/sw-login-background.png');
 
             cy.get('.sw-product-image__image img')
@@ -210,7 +210,7 @@ describe('Product: Test crud operations', () => {
         }).as('calculatePrice');
 
         // Add basic data to product
-        cy.get('a[href="#/sw/product/create"]').click();
+        cy.get('a[href="#/sw/product/create?creationStates=is-physical"]').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 

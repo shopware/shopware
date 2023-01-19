@@ -354,5 +354,10 @@
 
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute" public="true">
+            <argument type="service" id="order_line_item_download.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Media\File\DownloadResponseGenerator"/>
+        </service>
     </services>
 </container>

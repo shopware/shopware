@@ -24,6 +24,7 @@
       "columnUnit_week": "Week",
       "columnUnit_month": "Month",
       "columnUnit_year": "Year",
+      "columnUnit_hour": "Hour",
       "errorLoad": "Unable to load the delivery times list."
     },
     "detail": {

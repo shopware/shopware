@@ -112,7 +112,8 @@
                                         {% block component_offcanvas_product_quantity %}
                                             <div class="cart-item-quantity">
                                                 {% block component_offcanvas_product_quantity_form %}
-                                                    {% if lineItem.quantityInformation and lineItem.stackable %}
+                                                    {% set showQuantitySelect = (not lineItem.states is defined or 'is-download' not in lineItem.states or ('is-download' in lineItem.states and lineItem.quantityInformation.maxPurchase !== 1)) %}
+                                                    {% if lineItem.quantityInformation and lineItem.stackable and showQuantitySelect %}
                                                         <form action="{{ path('frontend.checkout.line-item.change-quantity', {'id': id}) }}"
                                                               class="cart-item-quantity-container"
                                                               method="post">

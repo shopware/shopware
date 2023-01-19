@@ -201,8 +201,9 @@
                                 <div class="col-4 col-sm-12">
 
                                     {% block page_checkout_item_quantity_form %}
+                                        {% set showQuantitySelect = (not lineItem.states is defined or 'is-download' not in lineItem.states or ('is-download' in lineItem.states and lineItem.quantityInformation.maxPurchase !== 1)) %}
                                         {# @deprecated tag:v6.5.0 - 'isChild' will be removed with no replacement #}
-                                        {% if lineItem.quantityInformation and lineItem.stackable and not isChild %}
+                                        {% if lineItem.quantityInformation and lineItem.stackable and not isChild and showQuantitySelect %}
                                             <form action="{{ path('frontend.checkout.line-item.change-quantity', {'id': lineItem.id}) }}"
                                                   class="cart-item-quantity-container"
                                                   method="post"

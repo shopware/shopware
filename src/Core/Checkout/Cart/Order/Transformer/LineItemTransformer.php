@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,6 +17,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('checkout')]
 class LineItemTransformer
 {
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     public static function transformCollection(LineItemCollection $lineItems, ?string $parentId = null): array
     {
         $output = [];
@@ -27,6 +32,9 @@ class LineItemTransformer
         return $output;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     public static function transform(LineItem $lineItem, ?string $parentId = null, int $position = 1): array
     {
         $output = [];
@@ -69,7 +77,15 @@ class LineItemTransformer
             'parentId' => $parentId,
             'coverId' => $lineItem->getCover() ? $lineItem->getCover()->getId() : null,
             'payload' => $lineItem->getPayload(),
+            'states' => $lineItem->getStates(),
         ];
+
+        $downloads = $lineItem->getExtensionOfType(OrderConverter::ORIGINAL_DOWNLOADS, OrderLineItemDownloadCollection::class);
+        if ($downloads instanceof OrderLineItemDownloadCollection) {
+            $data['downloads'] = array_values($downloads->map(function (OrderLineItemDownloadEntity $download): array {
+                return ['id' => $download->getId()];
+            }));
+        }
 
         $output[$lineItem->getId()] = array_filter($data, function ($value) {
             return $value !== null;
@@ -128,6 +144,7 @@ class LineItemTransformer
             ->setGood($entity->getGood())
             ->setRemovable($entity->getRemovable())
             ->setStackable($entity->getStackable())
+            ->setStates($entity->getStates())
             ->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct($id));
 
         if ($entity->getPayload() !== null) {
@@ -141,13 +158,17 @@ class LineItemTransformer
         if ($entity->getPriceDefinition() !== null) {
             $lineItem->setPriceDefinition($entity->getPriceDefinition());
         }
+
+        if ($entity->getDownloads() !== null) {
+            $lineItem->addExtension(OrderConverter::ORIGINAL_DOWNLOADS, $entity->getDownloads());
+        }
     }
 
     private static function createLineItem(OrderLineItemEntity $entity): LineItem
     {
         return new LineItem(
             $entity->getIdentifier(),
-            $entity->getType(),
+            $entity->getType() ?? '',
             $entity->getReferencedId(),
             $entity->getQuantity()
         );

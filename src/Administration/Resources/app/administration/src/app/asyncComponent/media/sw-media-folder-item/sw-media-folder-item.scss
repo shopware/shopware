@@ -19,6 +19,10 @@ $sw-media-folder-item-border-color-highlighted-preview: $color-shopware-brand-50
             max-width: 20px;
             transform: translate(-50%, -30%);
         }
+
+        &.icon--solid-chevron-left {
+            color: $color-shopware-brand-500;
+        }
     }
 
     &.is--list {

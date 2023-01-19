@@ -138,8 +138,12 @@ export default {
                 });
         },
 
-        installExtensionStore() {
-            return this.extensionHelperService.downloadAndActivateExtension('SwagExtensionStore');
+        async installExtensionStore() {
+            const response = await this.extensionHelperService.downloadAndActivateExtension('SwagExtensionStore');
+
+            this.$emit('extension-activated');
+
+            return response;
         },
 
         updateButtons() {

@@ -32,6 +32,7 @@
             :plugin="languagePlugin"
             @onPluginInstalled="onPluginInstalled"
             @onPluginRemoved="onPluginRemoved"
+            @extension-activated="$emit('extension-activated', $event)"
         />
     </sw-container>
 

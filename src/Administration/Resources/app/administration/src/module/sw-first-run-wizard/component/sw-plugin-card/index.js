@@ -54,6 +54,7 @@ export default {
             return this.extensionHelperService.downloadAndActivateExtension(pluginName)
                 .then(() => {
                     this.pluginIsSaveSuccessful = true;
+                    this.$emit('extension-activated');
                 })
                 .catch(error => {
                     this.showExtensionErrors(error);

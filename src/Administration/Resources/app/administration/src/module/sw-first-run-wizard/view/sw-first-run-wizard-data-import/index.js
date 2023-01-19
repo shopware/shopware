@@ -103,6 +103,7 @@ export default {
                     return this.extensionStoreActionService.activateExtension(plugin.name, 'plugin');
                 })
                 .then(() => {
+                    this.$emit('extension-activated');
                     this.isInstallingPlugin = false;
                     this.plugins[pluginKey].isInstalled = true;
 

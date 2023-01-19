@@ -40,6 +40,10 @@
     },
     "tabSearchPreferences": {
       "title": "Search preferences",
+      "alert_elasticsearch": {
+        "title": "Elasticsearch is now enabled",
+        "text": "You have enabled the elasticsearch for the admin search, these fields are searchable and you can't turn it off, however you can turn off which entities are searchable"
+      },
       "cardSearchableElements": {
         "title": "Searchable elements",
         "description": "Set the searchable content for each module and entry.",

@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,6 +38,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use function version_compare;
 
 /**
  * @Route(defaults={"_routeScope"={"administration"}})
@@ -50,6 +52,9 @@ class AdministrationController extends AbstractController
 
     private SnippetFinderInterface $snippetFinder;
 
+    /**
+     * @var list<int>
+     */
     private array $supportedApiVersions;
 
     private KnownIpsCollectorInterface $knownIpsCollector;
@@ -68,8 +73,12 @@ class AdministrationController extends AbstractController
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
+    private bool $esAdministrationEnabled;
+
     /**
      * @internal
+     *
+     * @param list<int> $supportedApiVersions
      */
     public function __construct(
         TemplateFinder $finder,
@@ -83,7 +92,8 @@ class AdministrationController extends AbstractController
         EntityRepositoryInterface $customerRepo,
         EntityRepositoryInterface $currencyRepository,
         HtmlSanitizer $htmlSanitizer,
-        DefinitionInstanceRegistry $definitionInstanceRegistry
+        DefinitionInstanceRegistry $definitionInstanceRegistry,
+        ParameterBagInterface $params
     ) {
         $this->finder = $finder;
         $this->firstRunWizardClient = $firstRunWizardClient;
@@ -97,6 +107,11 @@ class AdministrationController extends AbstractController
         $this->currencyRepository = $currencyRepository;
         $this->htmlSanitizer = $htmlSanitizer;
         $this->definitionInstanceRegistry = $definitionInstanceRegistry;
+
+        // param is only available if the elasticsearch bundle is enabled
+        $this->esAdministrationEnabled = $params->has('elasticsearch.administration.enabled')
+            ? $params->get('elasticsearch.administration.enabled')
+            : false;
     }
 
     /**
@@ -121,6 +136,7 @@ class AdministrationController extends AbstractController
             'firstRunWizard' => $this->firstRunWizardClient->frwShouldRun(),
             'apiVersion' => $this->getLatestApiVersion(),
             'cspNonce' => $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE),
+            'adminEsEnable' => $this->esAdministrationEnabled,
         ]);
     }
 
@@ -159,7 +175,7 @@ class AdministrationController extends AbstractController
     }
 
     /**
-     * @deprecated tag:v6.5.0 - native return type JsonResponse will be added
+     * @deprecated tag:v6.5.0 - reason:return-type-change - native return type JsonResponse will be added
      *
      * @Since("6.4.0.1")
      * @Route("/api/_admin/reset-excluded-search-term", name="api.admin.reset-excluded-search-term", methods={"POST"}, defaults={"_acl"={"system_config:update", "system_config:create", "system_config:delete"}})
@@ -309,10 +325,13 @@ class AdministrationController extends AbstractController
         return $languageId === false ? null : Uuid::fromBytesToHex($languageId);
     }
 
-    private function getLatestApiVersion(): int
+    private function getLatestApiVersion(): ?int
     {
         $sortedSupportedApiVersions = array_values($this->supportedApiVersions);
-        usort($sortedSupportedApiVersions, 'version_compare');
+
+        usort($sortedSupportedApiVersions, function (int $version1, int $version2) {
+            return version_compare((string) $version1, (string) $version2);
+        });
 
         return array_pop($sortedSupportedApiVersions);
     }

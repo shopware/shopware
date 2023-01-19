@@ -46,6 +46,17 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->arrayNode('administration')
+                    ->children()
+                        ->scalarNode('hosts')->end()
+                        ->booleanNode('enabled')->end()
+                        ->booleanNode('refresh_indices')->end()
+                        ->scalarNode('index_prefix')->end()
+                        ->arrayNode('index_settings')->variablePrototype()->end()->end()
+                        ->arrayNode('analysis')->performNoDeepMerging()->variablePrototype()->end()->end()
+                        ->arrayNode('dynamic_templates')->performNoDeepMerging()->variablePrototype()->end()->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $treeBuilder;

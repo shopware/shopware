@@ -252,6 +252,10 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
                     padding: 0 4px;
                     margin: 0 3px;
                 }
+
+                a {
+                    font-size: 12px;
+                }
             }
 
             .sw-search-bar__results-column-header {

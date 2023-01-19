@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
  * @extends ApiService
  */
 class SearchApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = '_admin/search') {
+    constructor(httpClient, loginService, apiEndpoint = '_admin') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'searchService';
     }
@@ -43,6 +43,16 @@ class SearchApiService extends ApiService {
     }
     /* eslint-enable no-unused-vars */
 
+    elastic(term, entities, limit, additionalHeaders = {}) {
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient
+            .post(`${this.getApiBasePath()}/es-search`, { term, limit, entities }, { headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
     /**
      *
      * @param {object} queries
@@ -58,7 +68,7 @@ class SearchApiService extends ApiService {
         });
 
         return this.httpClient
-            .post(this.getApiBasePath(), queries, { headers })
+            .post(`${this.getApiBasePath()}/search`, queries, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

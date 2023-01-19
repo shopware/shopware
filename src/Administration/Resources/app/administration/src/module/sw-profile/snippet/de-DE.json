@@ -43,6 +43,10 @@
     },
     "tabSearchPreferences": {
       "title": "Such-Einstellungen",
+      "alert_elasticsearch": {
+        "title": "Elasticsearch ist nun aktiviert",
+        "text": "Sie haben die elasticsearch für den Admin-Bereich aktiviert, diese Felder sind durchsuchbar und können nicht deaktiviert werden. Sie können aber die Entitäten, die durchsuchbar sind, deaktivieren"
+      },
       "cardSearchableElements": {
         "title": "Durchsuchbare Elemente",
         "description": "Lege die durchsuchbaren Inhalte für Module und Einträge fest.",

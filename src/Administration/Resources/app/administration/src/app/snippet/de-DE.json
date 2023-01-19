@@ -563,6 +563,7 @@
       "placeholderTypeSearchField": "Alle {entity} durchsuchen ...",
       "placeholderShortcutInfo": "Tipp: Über die \"f\"-Taste, kannst Du die Suche schneller öffnen.",
       "placeholderSearchShortcutInfo": "<strong>Tipp:</strong> Drücke <span>f</span> um die Suche von überall zu öffnen.",
+      "placeholderESSearchShortcutInfo": "<strong>Tipp:</strong> Um genauere Ergebnisse zu erhalten können Sie die <a href=\"https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html#simple-query-string-syntax\" target=\"_blank\">Elasticsearch Abfragen</a> verwenden.",
       "moduleFiltersHeadline": "Modulfilter",
       "placeholderFilterShortcutInfo": "Tippe <span>#produkte</span> in die Suche ein, um den Modulfilter zu setzen.",
       "searchTypeAll": "Alle",

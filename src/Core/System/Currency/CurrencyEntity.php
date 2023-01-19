@@ -298,11 +298,6 @@ class CurrencyEntity extends Entity
         $this->totalRounding = $totalRounding;
     }
 
-    public function getDecimalPrecision(): int
-    {
-        return $this->itemRounding->getDecimals() ?: $this->totalRounding->getDecimals();
-    }
-
     public function getTaxFreeFrom(): ?float
     {
         return $this->taxFreeFrom;

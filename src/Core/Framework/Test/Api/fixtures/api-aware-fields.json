@@ -574,7 +574,6 @@
     "product.available",
     "product.isCloseout",
     "product.displayGroup",
-    "product.mainVariantId",
     "product.manufacturerNumber",
     "product.ean",
     "product.purchaseSteps",

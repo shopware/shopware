@@ -42,9 +42,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- *
  * @package inventory
+ *
+ * @internal
  */
 class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 {
@@ -216,7 +216,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return list<Aggregation>
+     * @return array<Aggregation>
      */
     private function getAggregations(Request $request, FilterCollection $filters): array
     {
@@ -334,7 +334,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return list<string>
+     * @return array<int, non-falsy-string>
      */
     private function collectOptionIds(ProductListingResultEvent $event): array
     {

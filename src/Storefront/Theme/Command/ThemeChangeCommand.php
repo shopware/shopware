@@ -124,7 +124,9 @@ class ThemeChangeCommand extends Command
 
         /** @var SalesChannelEntity $salesChannel */
         foreach ($selectedSalesChannel as $salesChannel) {
-            $this->io->writeln(sprintf('Set and compiling theme "%s" (%s) as new theme for sales channel "%s"', $themeName, $theme->getId(), $salesChannel->getName()));
+            $this->io->writeln(
+                sprintf('Set and compiling theme "%s" (%s) as new theme for sales channel "%s"', $themeName, $theme->getId(), $salesChannel->getName())
+            );
 
             $this->themeService->assignTheme(
                 $theme->getId(),
@@ -137,6 +139,9 @@ class ThemeChangeCommand extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * @return array<string>
+     */
     protected function getSalesChannelChoices(SalesChannelCollection $salesChannels): array
     {
         $choices = [];
@@ -148,6 +153,9 @@ class ThemeChangeCommand extends Command
         return $choices;
     }
 
+    /**
+     * @return array<string>
+     */
     protected function getThemeChoices(): array
     {
         $choices = [];

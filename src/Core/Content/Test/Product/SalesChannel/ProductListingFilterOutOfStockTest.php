@@ -173,6 +173,10 @@ class ProductListingFilterOutOfStockTest extends TestCase
         );
     }
 
+    /**
+     * @param array<array{combination: array<string>, stock: int}> $options
+     * @param array<string> $listingGroups
+     */
     private function createProduct(string $key, array $options, array $listingGroups): void
     {
         $config = [];
@@ -195,7 +199,9 @@ class ProductListingFilterOutOfStockTest extends TestCase
         $data = [
             [
                 'id' => $id,
-                'configuratorGroupConfig' => $config,
+                'variantListingConfig' => [
+                    'configuratorGroupConfig' => $config,
+                ],
                 'productNumber' => $id,
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 19, 'name' => 'test'],

@@ -30,7 +30,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Tag\TagCollection;
@@ -269,27 +268,6 @@ class ProductEntity extends Entity
      * @var array<string>|null
      */
     protected $variantRestrictions;
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     *
-     * @var array<string>|null
-     */
-    protected $configuratorGroupConfig;
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     *
-     * @var string|null
-     */
-    protected $mainVariantId;
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     *
-     * @var bool|null
-     */
-    protected $displayParent;
 
     /**
      * @var VariantListingConfig|null
@@ -1251,72 +1229,6 @@ class ProductEntity extends Entity
     public function setVariantRestrictions(?array $variantRestrictions): void
     {
         $this->variantRestrictions = $variantRestrictions;
-    }
-
-    /**
-     * @return array<string>|null
-     */
-    public function getConfiguratorGroupConfig(): ?array
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return $this->configuratorGroupConfig;
-    }
-
-    /**
-     * @param array<string>|null $configuratorGroupConfig
-     */
-    public function setConfiguratorGroupConfig(?array $configuratorGroupConfig): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $this->configuratorGroupConfig = $configuratorGroupConfig;
-    }
-
-    public function getMainVariantId(): ?string
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return $this->mainVariantId;
-    }
-
-    public function setMainVariantId(?string $mainVariantId): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $this->mainVariantId = $mainVariantId;
-    }
-
-    public function getDisplayParent(): ?bool
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return $this->displayParent;
-    }
-
-    public function setDisplayParent(?bool $displayParent): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $this->displayParent = $displayParent;
     }
 
     public function getVariantListingConfig(): ?VariantListingConfig

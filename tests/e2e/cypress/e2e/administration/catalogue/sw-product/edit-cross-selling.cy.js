@@ -101,7 +101,7 @@ describe('Product: Check cross selling integration', () => {
         // Verify in storefront
         cy.visit('/');
         cy.contains('Original product').click();
-        cy.get('.cms-page').should('be.visible');
+        cy.get('.product-detail').should('be.visible');
 
         cy.get('.product-detail-name').contains('Original product');
 
@@ -196,7 +196,7 @@ describe('Product: Check cross selling integration', () => {
         cy.visit('/');
         cy.contains('Original product').click();
 
-        cy.get('.cms-page').should('be.visible');
+        cy.get('.product-detail').should('be.visible');
 
         cy.get('.product-detail-name').contains('Original product');
 

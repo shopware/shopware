@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\PartialEntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Entity\PartialSalesChannelEntityLoadedEvent;
@@ -43,6 +44,8 @@ class ProductSubscriberTest extends TestCase
      */
     public function testProductLoadedEvent(ProductEntity $productEntity, SystemConfigService $systemConfigService, ?string $cmsPageIdBeforeEvent, ?string $cmsPageIdAfterEvent): void
     {
+        Feature::skipTestIfInActive('v6.6.0.0', $this);
+
         $productSubscriber = $this->getSubscriber($systemConfigService);
 
         $event = new EntityLoadedEvent(new ProductDefinition(), [$productEntity], Context::createDefaultContext());
@@ -57,6 +60,8 @@ class ProductSubscriberTest extends TestCase
      */
     public function testPartialEntityLoadedEvent(PartialEntity $productEntity, SystemConfigService $systemConfigService, ?string $cmsPageIdBeforeEvent, ?string $cmsPageIdAfterEvent, bool $hasCmsPageIdProperty): void
     {
+        Feature::skipTestIfInActive('v6.6.0.0', $this);
+
         $productSubscriber = $this->getSubscriber($systemConfigService);
 
         $event = new PartialEntityLoadedEvent(new ProductDefinition(), [$productEntity], Context::createDefaultContext());
@@ -81,6 +86,8 @@ class ProductSubscriberTest extends TestCase
      */
     public function testSalesChannelProductLoadedEvent(ProductEntity $productEntity, SystemConfigService $systemConfigService, SalesChannelContext $salesChannelContext, ?string $cmsPageIdBeforeEvent, ?string $cmsPageIdAfterEvent): void
     {
+        Feature::skipTestIfInActive('v6.6.0.0', $this);
+
         $productSubscriber = $this->getSubscriber($systemConfigService);
 
         $event = new SalesChannelEntityLoadedEvent(new ProductDefinition(), [$productEntity], $salesChannelContext);
@@ -95,6 +102,8 @@ class ProductSubscriberTest extends TestCase
      */
     public function testPartialSalesChannelProductLoadedEvent(PartialEntity $productEntity, SystemConfigService $systemConfigService, SalesChannelContext $salesChannelContext, ?string $cmsPageIdBeforeEvent, ?string $cmsPageIdAfterEvent, bool $hasCmsPageIdProperty): void
     {
+        Feature::skipTestIfInActive('v6.6.0.0', $this);
+
         $productSubscriber = $this->getSubscriber($systemConfigService);
 
         $event = new PartialSalesChannelEntityLoadedEvent(new ProductDefinition(), [$productEntity], $salesChannelContext);

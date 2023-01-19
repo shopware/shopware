@@ -50,6 +50,8 @@ trait PluginIntegrationTestBehaviour
     protected function insertPlugin(PluginEntity $plugin): void
     {
         $installedAt = $plugin->getInstalledAt();
+        /** @var \DateTimeInterface $createdAt */
+        $createdAt = $plugin->getCreatedAt();
 
         $data = [
             'id' => Uuid::fromHexToBytes($plugin->getId()),
@@ -60,7 +62,7 @@ trait PluginIntegrationTestBehaviour
             'base_class' => $plugin->getBaseClass(),
             'path' => $plugin->getPath(),
             'autoload' => json_encode($plugin->getAutoload()),
-            'created_at' => $plugin->getCreatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => $createdAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'installed_at' => $installedAt ? $installedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
         ];
 

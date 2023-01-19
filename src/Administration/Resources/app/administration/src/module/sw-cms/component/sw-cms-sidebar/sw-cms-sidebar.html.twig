@@ -53,26 +53,19 @@
                     <sw-select-field
                         v-tooltip.bottom="tooltipDisabled"
                         :value="page.type"
-                        :label="$tc('sw-cms.detail.label.pageType')"
+                        :label="$tc('sw-cms.detail.label.pageTypeSelection')"
                         :disabled="!isSystemDefaultLanguage || page.type === 'product_detail'"
                         @change="onPageTypeChange"
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_sidebar_page_settings_type_field_options %}
-                        <option value="page">
-                            {{ $tc('sw-cms.detail.label.pageTypeShopPage') }}
-                        </option>
-                        <option value="landingpage">
-                            {{ $tc('sw-cms.detail.label.pageTypeLandingpage') }}
-                        </option>
-                        <option value="product_list">
-                            {{ $tc('sw-cms.detail.label.pageTypeCategory') }}
-                        </option>
                         <option
-                            value="product_detail"
-                            :disabled="page.type !== 'product_detail'"
+                            v-for="pageType in pageTypes"
+                            :key="pageType.name"
+                            :value="pageType.name"
+                            :disabled="isDisabledPageType(pageType)"
                         >
-                            {{ $tc('sw-cms.detail.label.pageTypeProduct') }}
+                            {{ $tc(pageType.title) }}
                         </option>
                         {% endblock %}
                     </sw-select-field>

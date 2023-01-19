@@ -221,6 +221,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         $bundles = iterator_to_array($loader->getBundles());
+
         static::assertCount(1, $bundles);
         static::assertSame($loader, $bundles[0]);
     }

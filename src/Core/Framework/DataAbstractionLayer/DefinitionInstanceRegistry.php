@@ -20,26 +20,26 @@ class DefinitionInstanceRegistry
     protected $container;
 
     /**
-     * @var array
+     * @var array<string, string>
      */
     protected $repositoryMap;
 
     /**
-     * @var array
+     * @var array<string, string>
      */
     protected $definitions;
 
     /**
-     * @var array
+     * @var array<class-string<Entity>, EntityDefinition>
      */
     protected $entityClassMapping;
 
     /**
      * @internal
      *
-     * @param array $definitionMap array of $entityName => $definitionServiceId,
+     * @param array<string, string> $definitionMap array of $entityName => $definitionServiceId,
      *                             eg. 'product' => '\Shopware\Core\Content\Product\ProductDefinition'
-     * @param array $repositoryMap array of $entityName => $repositoryServiceId, eg. 'product' => 'product.repository'
+     * @param array<string, string> $repositoryMap array of $entityName => $repositoryServiceId, eg. 'product' => 'product.repository'
      */
     public function __construct(ContainerInterface $container, array $definitionMap, array $repositoryMap)
     {
@@ -105,7 +105,7 @@ class DefinitionInstanceRegistry
     }
 
     /**
-     * @return EntityDefinition[]
+     * @return array<string, EntityDefinition>
      */
     public function getDefinitions(): array
     {
@@ -171,6 +171,9 @@ class DefinitionInstanceRegistry
         $definition->compile($this);
     }
 
+    /**
+     * @return array<class-string<Entity>, EntityDefinition>
+     */
     private function loadClassMapping(): array
     {
         if ($this->entityClassMapping !== null) {
@@ -180,6 +183,7 @@ class DefinitionInstanceRegistry
         $this->entityClassMapping = [];
 
         foreach ($this->definitions as $element) {
+            /** @var EntityDefinition $definition */
             $definition = $this->container->get($element);
 
             if (!$definition) {

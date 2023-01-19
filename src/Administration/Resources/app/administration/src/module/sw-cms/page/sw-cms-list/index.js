@@ -8,7 +8,13 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature', 'systemConfigApiService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature',
+        'systemConfigApiService',
+        'cmsPageTypeService',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -79,26 +85,20 @@ export default {
         },
 
         sortPageTypes() {
-            const sortPageTypes = [
-                { value: '', name: this.$tc('sw-cms.sorting.labelSortByAllPages'), active: true },
-                { value: 'page', name: this.$tc('sw-cms.sorting.labelSortByShopPages') },
-                { value: 'landingpage', name: this.$tc('sw-cms.sorting.labelSortByLandingPages') },
-                { value: 'product_list', name: this.$tc('sw-cms.sorting.labelSortByCategoryPages') },
-                { value: 'product_detail', name: this.$tc('sw-cms.sorting.labelSortByProductPages') },
-            ];
-
-            return sortPageTypes;
-        },
-
-        pageTypes() {
-            const pageTypes = {
-                page: this.$tc('sw-cms.sorting.labelSortByShopPages'),
-                landingpage: this.$tc('sw-cms.sorting.labelSortByLandingPages'),
-                product_list: this.$tc('sw-cms.sorting.labelSortByCategoryPages'),
-                product_detail: this.$tc('sw-cms.sorting.labelSortByProductPages'),
+            const sortByAllPagesOption = {
+                value: '',
+                name: this.$tc('sw-cms.sorting.labelSortByAllPages'),
+                active: true,
             };
 
-            return pageTypes;
+            return this.cmsPageTypeService.getTypes().reduce((accumulator, pageType) => {
+                accumulator.push({
+                    value: pageType.name,
+                    name: this.$tc(pageType.title),
+                });
+
+                return accumulator;
+            }, [sortByAllPagesOption]);
         },
 
         listCriteria() {
@@ -527,7 +527,9 @@ export default {
         getPageType(page) {
             const isDefault = [this.defaultProductId, this.defaultCategoryId].includes(page.id);
             const defaultText = this.$tc('sw-cms.components.cmsListItem.defaultLayout');
-            return isDefault ? `${defaultText} - ${this.pageTypes[page.type]}` : this.pageTypes[page.type];
+            const typeLabel = this.$tc(this.cmsPageTypeService.getType(page.type)?.title);
+
+            return isDefault ? `${defaultText} - ${typeLabel}` : typeLabel;
         },
 
         getPageCategoryCount(page) {

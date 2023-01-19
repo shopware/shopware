@@ -1,0 +1,34 @@
+<admin-ui>
+    <entity name="ce_not_defined0" navigation-parent="sw-content" position="50" icon="regular-tools-alt" color="#f00">
+        <listing>
+            <columns>
+                <column ref="test_string"/>
+            </columns>
+        </listing>
+        <detail>
+            <tabs>
+                <tab name="firstTab">
+                    <card name="testWithString">
+                        <field ref="test_string"/>
+                    </card>
+                </tab>
+            </tabs>
+        </detail>
+    </entity>
+    <entity name="ce_not_defined1" navigation-parent="sw-content" position="50" icon="regular-tools-alt" color="#f00">
+        <listing>
+            <columns>
+                <column ref="test_string"/>
+            </columns>
+        </listing>
+        <detail>
+            <tabs>
+                <tab name="firstTab">
+                    <card name="testWithString">
+                        <field ref="test_string"/>
+                    </card>
+                </tab>
+            </tabs>
+        </detail>
+    </entity>
+</admin-ui>

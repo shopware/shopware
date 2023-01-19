@@ -39,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\System\CustomEntity\CustomEntityDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
@@ -156,6 +157,9 @@ class CategoryDefinition extends EntityDefinition
             (new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false))->addFlags(new ApiAware()),
             new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
+
+            // custom entity specific fields
+            (new FkField('custom_entity_type_id', 'customEntityTypeId', CustomEntityDefinition::class, 'id'))->addFlags(new ApiAware()),
 
             // Reverse Associations not available in store-api
             (new OneToManyAssociationField('navigationSalesChannels', SalesChannelDefinition::class, 'navigation_category_id')),

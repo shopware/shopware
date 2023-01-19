@@ -47,6 +47,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\System\CustomEntity\Schema\DynamicEntityDefinition;
 
 /**
  * @internal
@@ -62,14 +63,23 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT;
     }
 
-    /**
-     * @return never
-     */
-    public function generate(array $definitions, string $api, string $apiType = 'jsonapi'): array
+    public function generate(array $definitions, string $api, string $apiType = 'jsonapi'): never
     {
         throw new \RuntimeException();
     }
 
+    /**
+     * @return array<
+     *     string,
+     *     array{
+     *          entity: string,
+     *          properties: array<string, array{type: string, flags: array<string, mixed>}>,
+     *          write-protected: bool,
+     *          read-protected: bool,
+     *          flags?: list<Flag>
+     *      }
+     * >
+     */
     public function getSchema(array $definitions): array
     {
         $schema = [];
@@ -92,7 +102,13 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @return array{entity: string, properties: array<string, mixed>, write-protected: bool, read-protected: bool}
+     * @return array{
+     *     entity: string,
+     *     properties: array<string, array{type: string, flags: array<string, mixed>}>,
+     *     write-protected: bool,
+     *     read-protected: bool,
+     *     flags?: list<Flag>
+     *  }
      */
     private function getEntitySchema(EntityDefinition $definition): array
     {
@@ -103,19 +119,26 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             $properties[$field->getPropertyName()] = $this->parseField($definition, $field);
         }
 
-        return [
+        $result = [
             'entity' => $definition->getEntityName(),
             'properties' => $properties,
             'write-protected' => $definition->getProtections()->get(WriteProtection::class) !== null,
             'read-protected' => $definition->getProtections()->get(ReadProtection::class) !== null,
         ];
+
+        if ($definition instanceof DynamicEntityDefinition) {
+            $result['flags'] = $definition->getFlags();
+        }
+
+        return $result;
     }
 
     /**
-     * @return array{type: string, flags: list<Flag>}
+     * @return array{type: string, flags: array<string, mixed>}
      */
     private function parseField(EntityDefinition $definition, Field $field): array
     {
+        /** @var array<string, mixed> $flags */
         $flags = [];
         foreach ($field->getFlags() as $flag) {
             $flags = array_replace_recursive($flags, iterator_to_array($flag->parse()));
@@ -289,9 +312,14 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param Flag[] $flags
+     * @param array<string, mixed> $flags
      *
-     * @return array{type: string, properties: array<string, mixed>, flags: list<Flag> }
+     * @return array{
+     *     type: string,
+     *     properties: array<string,
+     *     array{type: string, flags: array<string, mixed>}>,
+     *     flags: array<string, mixed>
+     * }
      */
     private function createJsonObjectType(EntityDefinition $definition, Field $field, array $flags): array
     {

@@ -19,7 +19,7 @@ interface ApiDefinitionGeneratorInterface
     public function supports(string $format, string $api): bool;
 
     /**
-     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
+     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
      * @phpstan-param  Api $api
      * @phpstan-param ApiType $apiType
      *
@@ -28,7 +28,7 @@ interface ApiDefinitionGeneratorInterface
     public function generate(array $definitions, string $api, string $apiType): array;
 
     /**
-     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
+     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
      *
      * @return ApiSchema
      */

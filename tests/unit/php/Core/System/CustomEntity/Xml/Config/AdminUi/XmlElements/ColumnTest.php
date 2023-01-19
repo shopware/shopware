@@ -1,0 +1,42 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
+
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Column;
+
+/**
+ * @package content
+ *
+ * @internal
+ * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Column
+ */
+class ColumnTest extends TestCase
+{
+    /**
+     * @dataProvider provider
+     */
+    public function testFromXml(?string $hidden, bool $result): void
+    {
+        $dom = new \DOMDocument();
+        $columnElement = $dom->createElement('column');
+
+        $columnElement->setAttribute('ref', 'column ref');
+        if ($hidden !== null) {
+            $columnElement->setAttribute('hidden', $hidden);
+        }
+
+        $column = Column::fromXml($columnElement);
+
+        static::assertInstanceOf(Column::class, $column);
+        static::assertEquals($result, $column->isHidden());
+        static::assertEquals('column ref', $column->getRef());
+    }
+
+    public function provider(): \Generator
+    {
+        yield 'is hidden' => ['hidden' => 'true', 'result' => true];
+        yield 'is visible' => ['hidden' => 'false', 'result' => false];
+        yield 'is undefined' => ['hidden' => null, 'result' => false];
+    }
+}

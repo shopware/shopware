@@ -61,10 +61,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT && $api === DefinitionService::STORE_API;
     }
 
-    /**
-     * @param Api $api
-     * {@inheritdoc}
-     */
     public function generate(array $definitions, string $api, string $apiType): array
     {
         $openApi = new OpenApi([]);
@@ -75,6 +71,10 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         ksort($definitions);
 
         foreach ($definitions as $definition) {
+            if (!$definition instanceof EntityDefinition) {
+                continue;
+            }
+
             if (!$this->shouldDefinitionBeIncluded($definition)) {
                 continue;
             }
@@ -105,6 +105,8 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
      *
      * @return never
      */

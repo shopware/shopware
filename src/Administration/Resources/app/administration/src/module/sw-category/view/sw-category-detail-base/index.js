@@ -52,6 +52,11 @@ export default {
                     value: 'folder',
                     label: this.$tc('sw-category.base.general.types.folder'),
                 },
+                // @todo NEXT-22697 - Re-implement, when re-enabling cms-aware
+                // {
+                //     value: 'custom_entity',
+                //     label: this.$tc('sw-category.base.general.types.customEntity'),
+                // },
                 {
                     value: 'link',
                     label: this.typeLinkLabel,

@@ -23,6 +23,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -89,13 +92,17 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $this->context = Context::createDefaultContext();
 
         $this->pluginService = $this->createPluginService(
+            __DIR__ . '/_fixture/plugins',
+            $this->container->getParameter('kernel.project_dir'),
             $this->pluginRepo,
             $this->container->get('language.repository'),
-            $this->container->getParameter('kernel.project_dir'),
             $this->container->get(PluginFinder::class)
         );
 
-        $this->addTestPluginToKernel('SwagManualMigrationTest');
+        $this->addTestPluginToKernel(
+            __DIR__ . '/_fixture/plugins/SwagManualMigrationTest',
+            'SwagManualMigrationTest'
+        );
         $this->requireMigrationFiles();
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());
@@ -191,11 +198,14 @@ class PluginLifecycleServiceMigrationTest extends TestCase
             $this->container->get(RequirementsValidator::class),
             $this->container->get('cache.messenger.restart_workers_signal'),
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            $this->container->get(SystemConfigService::class)
+            $this->container->get(SystemConfigService::class),
+            $this->container->get(CustomEntityPersister::class),
+            $this->container->get(CustomEntitySchemaUpdater::class),
+            $this->container->get(CustomEntityLifecycleService::class),
         );
     }
 
-    private function getMigrationTestPlugin(): ?PluginEntity
+    private function getMigrationTestPlugin(): PluginEntity
     {
         return $this->pluginService
             ->getPluginByName('SwagManualMigrationTest', $this->context);

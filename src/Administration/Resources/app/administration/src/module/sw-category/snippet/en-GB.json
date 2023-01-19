@@ -27,6 +27,7 @@
       "general": "General",
       "cms": "Layout",
       "products": "Products",
+      "customEntity": "Custom Entities",
       "seo": "SEO",
       "columnInfoHeader": "Footer element",
       "columnInfo": "This category sets up a designated column in the footer. The category name will be displayed as a headline for the column. All categories on the first level below this category are displayed as rows below the column headline."
@@ -43,6 +44,7 @@
           "title": "Category type",
           "page": "Page / List",
           "folder": "Structuring element / Entry point",
+          "customEntity": "Custom Entity",
           "link": "Link",
           "linkUnavailable": "Link (not selectable if category is defined as entry point)",
           "help": "A structure category is not callable by itself, but is only used for outlining purposes.",
@@ -101,7 +103,21 @@
         "imageLabel": "Display image",
         "descriptionLabel": "Description",
                 "descriptionPlaceholder": "Enter description..."
-
+      },
+      "customEntity": {
+        "cardTitle": "Assigned articles",
+        "assignment": {
+          "label": "Entry type",
+          "helpText": "Select the post type to be displayed in this category."
+        },
+        "instanceAssignment": {
+          "title": "Title",
+          "label": "Entries",
+          "placeholder": "Search and assign entries...",
+          "emptyState": {
+            "title": "No entries assigned"
+          }
+        }
       },
       "cms": {
         "title": "Layout assignment",
@@ -190,16 +206,25 @@
       },
       "seo": {
         "title": "SEO",
+        "titleGeneralInformation": "General information",
+        "titleSocialMedia": "Social Media",
         "labelSalesChannel": "Sales Channels",
         "labelMetaTitle": "Meta title",
+        "labelSocialMediaTitle": "Title",
         "labelMetaDescription": "Meta description",
+        "labelSocialMediaDescription": "Description",
         "labelKeywords": "SEO keywords",
         "labelUrl": "SEO URL",
+        "labelPreviewImage": "Preview image",
         "placeholderSalesChannel": "Choose a Sales Channel...",
         "placeholderMetaTitle": "Enter meta title...",
+        "placeholderSocialMediaTitle": "Enter social media title...",
         "placeholderMetaDescription": "Enter a meta description...",
+        "placeholderSocialMediaDescription": "Enter description...",
         "placeholderKeywords": "Enter one or more keywords...",
         "placeholderUrl": "Enter URL...",
+        "socialMediaPreview": "Social media preview",
+        "searchResultPreview": "Search result preview",
         "helpTextMetaTitle": "Meta titles should not be longer than 70 characters. Excess text will be truncated by Google and the title will not be fully displayed in the SERP snippet.",
         "helpTextMetaDescription": "The possible length for meta descriptions on Google is about 175 characters and is trimmed according to pixel width. However, it is recommended to aim for a length of about 150 characters so that the description is not cut off in the SERP snippet. Shopware allows a maximum length of 255 characters."
       },

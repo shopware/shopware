@@ -815,7 +815,6 @@ export default {
                 }
             }
 
-
             this.isSaveSuccessful = false;
 
             const pageOverrides = this.getCmsPageOverrides();

@@ -39,5 +39,6 @@
         </service>
 
         <service id="Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator"/>
+        <service id="Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator"/>
     </services>
 </container>

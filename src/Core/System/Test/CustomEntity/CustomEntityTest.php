@@ -166,7 +166,7 @@ class CustomEntityTest extends TestCase
 
         $this->getContainer()
             ->get(CustomEntityPersister::class)
-            ->update($entities->toStorage(), null);
+            ->update($entities->toStorage());
 
         $this->getContainer()
             ->get(CustomEntitySchemaUpdater::class)
@@ -181,7 +181,7 @@ class CustomEntityTest extends TestCase
         $entities = CustomEntityXmlSchema::createFromXmlFile(__DIR__ . '/_fixtures/custom-entity-test/Resources/update.xml');
         $this->getContainer()
             ->get(CustomEntityPersister::class)
-            ->update($entities->toStorage(), null);
+            ->update($entities->toStorage());
 
         $this->getContainer()
             ->get(CustomEntitySchemaUpdater::class)
@@ -663,7 +663,7 @@ class CustomEntityTest extends TestCase
 
         $this->getContainer()
             ->get(CustomEntityPersister::class)
-            ->update($entities->toStorage(), null);
+            ->update($entities->toStorage());
 
         $storage = $this->getContainer()->get(Connection::class)
             ->fetchAllAssociative('SELECT * FROM custom_entity ORDER BY name');

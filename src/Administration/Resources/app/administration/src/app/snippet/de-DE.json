@@ -12,7 +12,8 @@
       "INVALID_MAIL": "Bitte gib eine gültige E-Mail-Adresse ein.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warten Sie {seconds} Sekunden, bevor Sie es erneut versuchen.",
       "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain.",
-      "CONTENT__MEDIA_EMPTY_FILE": "Gib einen gültigen Dateinamen an."
+      "CONTENT__MEDIA_EMPTY_FILE": "Gib einen gültigen Dateinamen an.",
+      "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Datentyp kann nicht gerendert werden. Bitte kontaktiere Deinen Administrator."
     },
     "default": {
       "add": "Hinzufügen",

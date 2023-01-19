@@ -34,7 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
+use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -109,6 +109,7 @@ class AppLifecycleTest extends TestCase
             [
                 [
                     'id' => Uuid::randomHex(),
+                    'path' => '',
                 ],
             ],
             [
@@ -163,6 +164,7 @@ class AppLifecycleTest extends TestCase
             [
                 [
                     'id' => $appId,
+                    'path' => '',
                 ],
             ],
             [
@@ -244,11 +246,11 @@ class AppLifecycleTest extends TestCase
             $this->createMock(AssetService::class),
             $this->createMock(ScriptExecutor::class),
             __DIR__,
-            $this->createMock(CustomEntityPersister::class),
-            $this->createMock(CustomEntitySchemaUpdater::class),
             $this->createMock(Connection::class),
             $this->createMock(FlowActionPersister::class),
             $appAdministrationSnippetPersisterMock,
+            $this->createMock(CustomEntitySchemaUpdater::class),
+            $this->createMock(CustomEntityLifecycleService::class),
         );
     }
 

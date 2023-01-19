@@ -4,6 +4,7 @@ namespace Shopware\Core\System\CustomEntity\Schema;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -19,19 +20,33 @@ class DynamicEntityDefinition extends EntityDefinition
 {
     protected string $name;
 
+    /**
+     * @var list<array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}>
+     */
     protected array $fieldDefinitions;
+
+    /**
+     * @var list<Flag>
+     */
+    protected array $flags;
 
     protected ContainerInterface $container;
 
+    /**
+     * @param list<array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}> $fields
+     * @param list<Flag> $flags
+     */
     public static function create(
         string $name,
         array $fields,
+        array $flags,
         ContainerInterface $container
     ): DynamicEntityDefinition {
         $self = new self();
         $self->name = $name;
         $self->fieldDefinitions = $fields;
         $self->container = $container;
+        $self->flags = $flags;
 
         return $self;
     }
@@ -39,6 +54,14 @@ class DynamicEntityDefinition extends EntityDefinition
     public function getEntityName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * @return list<Flag>
+     */
+    public function getFlags(): array
+    {
+        return $this->flags;
     }
 
     protected function defineFields(): FieldCollection

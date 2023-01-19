@@ -16,8 +16,21 @@ class Entity extends XmlElement
 {
     protected string $name;
 
+    protected ?bool $cmsAware = null;
+
+    /**
+     * @var array<int, Field>
+     */
     protected array $fields = [];
 
+    /**
+     * @var array<string, mixed>
+     */
+    protected array $flags = [];
+
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(array $data)
     {
         foreach ($data as $property => $value) {
@@ -30,6 +43,9 @@ class Entity extends XmlElement
         return new self(self::parse($element));
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         $data = parent::jsonSerialize();
@@ -38,9 +54,36 @@ class Entity extends XmlElement
         return $data;
     }
 
+    /**
+     * @return array<int, Field>
+     */
     public function getFields(): array
     {
         return $this->fields;
+    }
+
+    /**
+     * @param array<int, Field> $fields
+     */
+    public function setFields(array $fields): void
+    {
+        $this->fields = $fields;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getFlags(): array
+    {
+        return $this->flags;
+    }
+
+    /**
+     * @param array<string, mixed> $flags
+     */
+    public function setFlags(array $flags): void
+    {
+        $this->flags = $flags;
     }
 
     public function getName(): string
@@ -48,6 +91,14 @@ class Entity extends XmlElement
         return $this->name;
     }
 
+    public function isCmsAware(): ?bool
+    {
+        return $this->cmsAware;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     private static function parse(\DOMElement $element): array
     {
         $values = [];
@@ -71,6 +122,11 @@ class Entity extends XmlElement
         return $values;
     }
 
+    /**
+     * @param array<string, mixed> $values
+     *
+     * @return array<string, mixed>
+     */
     private static function parseChild(\DOMElement $child, array $values): array
     {
         if ($child->tagName === 'fields') {

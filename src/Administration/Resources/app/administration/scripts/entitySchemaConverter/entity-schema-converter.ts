@@ -39,6 +39,12 @@ export class EntitySchemaConverter {
                     };
                 });
 
+            properties.push({
+                name: 'extensions',
+                type: 'Record<string, unknown>',
+                hasQuestionToken: true,
+            });
+
             return {
                 name: entityName,
                 properties: properties,
@@ -59,7 +65,7 @@ export class EntitySchemaConverter {
             text: () => 'string',
             // eslint-disable-next-line @typescript-eslint/naming-convention
             json_list: () => 'Array<unknown>',
-            association: () => this.hydrateAssocation(property),
+            association: () => this.hydrateAssociation(property),
             blob: () => 'string',
             // eslint-disable-next-line @typescript-eslint/naming-convention
             json_object: () => 'unknown',
@@ -87,7 +93,7 @@ export class EntitySchemaConverter {
         return mappingMatrix[property.type]?.() ?? 'unknown';
     }
 
-    hydrateAssocation(property: EntitySchemaTypes.IProperty): string {
+    hydrateAssociation(property: EntitySchemaTypes.IProperty): string {
         // Handle notification separately because there is no entity for it
         if (property.entity === 'notification') {
             return 'unknown';

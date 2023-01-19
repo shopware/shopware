@@ -61,7 +61,6 @@ async function createWrapper(): Promise<Wrapper<Vue>> {
     });
 }
 
-
 const tabs = [
     '.sw-order-create-initial-modal__tab-product',
     '.sw-order-create-initial-modal__tab-options',

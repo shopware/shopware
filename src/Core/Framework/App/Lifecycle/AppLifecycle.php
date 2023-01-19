@@ -43,7 +43,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
+use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomEntity\Xml\Field\AssociationField;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -100,11 +100,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private AssetService $assetService;
 
-    private CustomEntityPersister $customEntityPersister;
-
     private ScriptExecutor $scriptExecutor;
-
-    private CustomEntitySchemaUpdater $customEntitySchemaUpdater;
 
     private Connection $connection;
 
@@ -135,11 +131,11 @@ class AppLifecycle extends AbstractAppLifecycle
         AssetService $assetService,
         ScriptExecutor $scriptExecutor,
         string $projectDir,
-        CustomEntityPersister $customEntityPersister,
-        CustomEntitySchemaUpdater $customEntitySchemaUpdater,
         Connection $connection,
         FlowActionPersister $flowBuilderActionPersister,
-        ?AppAdministrationSnippetPersister $appAdministrationSnippetPersister
+        ?AppAdministrationSnippetPersister $appAdministrationSnippetPersister,
+        private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
+        private readonly CustomEntityLifecycleService $customEntityLifecycleService,
     ) {
         $this->appRepository = $appRepository;
         $this->permissionPersister = $permissionPersister;
@@ -162,9 +158,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->integrationRepository = $integrationRepository;
         $this->aclRoleRepository = $aclRoleRepository;
         $this->assetService = $assetService;
-        $this->customEntityPersister = $customEntityPersister;
         $this->scriptExecutor = $scriptExecutor;
-        $this->customEntitySchemaUpdater = $customEntitySchemaUpdater;
         $this->connection = $connection;
         $this->flowBuilderActionPersister = $flowBuilderActionPersister;
         $this->appAdministrationSnippetPersister = $appAdministrationSnippetPersister;
@@ -260,7 +254,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $app = $this->loadApp($id, $context);
 
-        $this->updateCustomEntities($app, $id, $manifest);
+        $this->updateCustomEntities($app->getId(), $app->getPath(), $manifest);
 
         $this->permissionPersister->updatePrivileges($manifest->getPermissions(), $roleId);
 
@@ -517,16 +511,11 @@ class AppLifecycle extends AbstractAppLifecycle
         }
     }
 
-    private function updateCustomEntities(AppEntity $app, string $id, Manifest $manifest): void
+    private function updateCustomEntities(string $appId, string $appPath, Manifest $manifest): void
     {
-        $entities = $this->appLoader->getEntities($app);
-        if ($entities === null || $entities->getEntities() === null) {
-            return;
-        }
-        $this->customEntityPersister->update($entities->toStorage(), $id);
-        $this->customEntitySchemaUpdater->update();
+        $entities = $this->customEntityLifecycleService->updateApp($appId, $appPath)?->getEntities()?->getEntities();
 
-        foreach ($entities->getEntities()->getEntities() as $entity) {
+        foreach ($entities ?? [] as $entity) {
             $manifest->addPermissions([
                 $entity->getName() => [
                     AclRoleDefinition::PRIVILEGE_READ,

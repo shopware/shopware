@@ -18,11 +18,13 @@
     </xs:simpleType>
 
     <xs:complexType name="entity">
-        <xs:choice>
+        <xs:choice maxOccurs="unbounded">
             <xs:element name="fields" maxOccurs="unbounded" type="field-list" minOccurs="1"/>
         </xs:choice>
 
         <xs:attribute name="name" type="xs:string" use="required"/>
+        <!-- @todo NEXT-22697 - Re-implement, when re-enabling cms-aware -->
+        <!--<xs:attribute name="cms-aware" type="xs:boolean"/>-->
     </xs:complexType>
 
     <xs:complexType name="field-list">

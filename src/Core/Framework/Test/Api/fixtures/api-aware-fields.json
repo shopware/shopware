@@ -488,6 +488,7 @@
     "category.createdAt",
     "category.updatedAt",
     "category.translated",
+    "category.customEntityTypeId",
     "category_translation.name",
     "category_translation.breadcrumb",
     "category_translation.linkType",

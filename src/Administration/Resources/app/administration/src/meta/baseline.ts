@@ -454,7 +454,6 @@ const missingTests = [
     'youtube-video/index.js',
     'sw-cms-block-config/index.js',
     'sw-cms-block-layout-config/index.js',
-    'sw-cms-create-wizard/index.js',
     'sw-cms-mapping-field/index.js',
     'sw-cms-page-select/index.js',
     'sw-cms-product-box-preview/index.js',

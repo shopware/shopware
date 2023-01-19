@@ -14,11 +14,23 @@ class CustomEntityEntity extends Entity
 
     protected string $name;
 
+    protected bool $cmsAware;
+
     protected bool $storeApiAware;
 
     protected ?string $appId;
 
+    protected ?string $pluginId;
+
+    /**
+     * @var array<mixed>
+     */
     protected array $fields;
+
+    /**
+     * @var array<string, array<mixed>>|null
+     */
+    protected ?array $flags;
 
     public function getName(): string
     {
@@ -50,13 +62,45 @@ class CustomEntityEntity extends Entity
         $this->appId = $appId;
     }
 
+    public function getPluginId(): ?string
+    {
+        return $this->pluginId;
+    }
+
+    public function setPluginId(?string $pluginId): void
+    {
+        $this->pluginId = $pluginId;
+    }
+
+    /**
+     * @return array<mixed>
+     */
     public function getFields(): array
     {
         return $this->fields;
     }
 
+    /**
+     * @param array<mixed> $fields
+     */
     public function setFields(array $fields): void
     {
         $this->fields = $fields;
+    }
+
+    /**
+     * @return array<string, array<mixed>>|null
+     */
+    public function getFlags(): ?array
+    {
+        return $this->flags;
+    }
+
+    /**
+     * @param array<string, array<mixed>>|null $flags
+     */
+    public function setFlags(?array $flags): void
+    {
+        $this->flags = $flags;
     }
 }

@@ -131,14 +131,18 @@ class AppLoader extends AbstractAppLoader
 
     public function getEntities(AppEntity $app): ?CustomEntityXmlSchema
     {
-        $configPath = sprintf('%s/%s/Resources/entities.xml', $this->projectDir, $app->getPath());
+        $configPath = sprintf(
+            '%s/%s/src/Resources/%s',
+            $this->projectDir,
+            $app->getPath(),
+            CustomEntityXmlSchema::FILENAME
+        );
 
         if (!file_exists($configPath)) {
             return null;
         }
 
         $entities = CustomEntityXmlSchema::createFromXmlFile($configPath);
-
         $this->customEntityXmlValidator->validate($entities);
 
         return $entities;

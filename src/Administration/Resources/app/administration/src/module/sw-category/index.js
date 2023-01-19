@@ -22,6 +22,7 @@ Shopware.Component.extend('sw-category-sales-channel-multi-select', 'sw-entity-m
 Shopware.Component.register('sw-category-detail', () => import('./page/sw-category-detail'));
 Shopware.Component.register('sw-category-detail-base', () => import('./view/sw-category-detail-base'));
 Shopware.Component.register('sw-category-detail-cms', () => import('./view/sw-category-detail-cms'));
+Shopware.Component.register('sw-category-detail-custom-entity', () => import('./view/sw-category-detail-custom-entity'));
 Shopware.Component.register('sw-landing-page-detail-base', () => import('./view/sw-landing-page-detail-base'));
 Shopware.Component.register('sw-landing-page-detail-cms', () => import('./view/sw-landing-page-detail-cms'));
 Shopware.Component.register('sw-category-detail-products', () => import('./view/sw-category-detail-products'));
@@ -110,6 +111,14 @@ Module.register('sw-category', {
                 products: {
                     component: 'sw-category-detail-products',
                     path: 'products',
+                    meta: {
+                        parentPath: 'sw.category.index',
+                        privilege: 'category.viewer',
+                    },
+                },
+                customEntity: {
+                    component: 'sw-category-detail-custom-entity',
+                    path: 'customEntity',
                     meta: {
                         parentPath: 'sw.category.index',
                         privilege: 'category.viewer',

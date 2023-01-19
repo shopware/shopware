@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
+    <meta>
+        <name>testCmsAwareAndAdminUi</name>
+        <label>tests basic functionality of cms-aware and admin-ui</label>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+    </meta>
+</manifest>

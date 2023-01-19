@@ -63,14 +63,7 @@ export default {
                 return Promise.reject();
             }
 
-            const { type, id } = this.$route.params;
-            if (type === 'category') {
-                const category = await this.categoryRepository.get(id);
-
-                if (category) {
-                    this.page.categories.add(category);
-                }
-            }
+            this.page = await this.assignToEntity(this.page);
 
             this.deleteEntityAndRequiredConfigKey(this.page.sections);
 
@@ -90,6 +83,39 @@ export default {
 
                 return Promise.reject(exception);
             });
+        },
+
+        async assignToEntity(page) {
+            const { type, id } = this.$route.params;
+
+            if (!id || !type) {
+                return page;
+            }
+
+            try {
+                if (type === 'category') {
+                    const category = await this.categoryRepository.get(id);
+
+                    if (category) {
+                        page.categories.push(category);
+                    }
+                }
+
+                if (type.startsWith('ce_') || type.startsWith('custom_entity_')) {
+                    const customEntityRepository = this.repositoryFactory.create(type);
+                    const entity = await customEntityRepository.get(id);
+
+                    if (entity) {
+                        page.extensions[`${utils.string.camelCase(type)}SwCmsPage`].push(entity);
+                    }
+                }
+            } catch (e) {
+                this.createNotificationError({
+                    message: this.$tc('sw-cms.create.notification.assignToEntityError'),
+                });
+            }
+
+            return page;
         },
 
         onWizardComplete() {

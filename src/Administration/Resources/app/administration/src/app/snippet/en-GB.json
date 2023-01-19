@@ -12,7 +12,8 @@
       "INVALID_MAIL": "Please enter a valid email address.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Too many requests. Please wait {seconds} seconds before trying again.",
       "DUPLICATED_URL": "This URL is already in use. Please choose another URL.",
-      "CONTENT__MEDIA_EMPTY_FILE": "A valid filename must be provided."
+      "CONTENT__MEDIA_EMPTY_FILE": "A valid filename must be provided.",
+      "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Field type cannot be rendered. Please contact your administrator."
     },
     "default": {
       "add": "Add",

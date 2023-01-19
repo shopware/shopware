@@ -51,6 +51,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         expect(switchField.attributes().disabled).toBeUndefined();
     });
+
     it('should disable the visibility switch field when the acl privilege is missing', async () => {
         const wrapper = await createWrapper();
 
@@ -58,6 +59,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         expect(switchField.attributes().disabled).toBe('true');
     });
+
     it('should enable the media upload', async () => {
         global.activeAclRoles = ['category.editor'];
 
@@ -67,6 +69,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         expect(mediaUpload.attributes().disabled).toBeUndefined();
     });
+
     it('should disable the media upload', async () => {
         const wrapper = await createWrapper();
 
@@ -74,6 +77,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         expect(mediaUpload.attributes().disabled).toBe('true');
     });
+
     it('should enable the text editor for the description', async () => {
         global.activeAclRoles = ['category.editor'];
 
@@ -83,6 +87,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         expect(textEditor.attributes().disabled).toBeUndefined();
     });
+
     it('should disable the text editor for the description', async () => {
         const wrapper = await createWrapper();
 

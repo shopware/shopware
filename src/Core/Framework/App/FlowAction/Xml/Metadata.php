@@ -154,7 +154,7 @@ class Metadata extends XmlElement
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<mixed>
      */
     private static function parse(\DOMElement $element): array
     {

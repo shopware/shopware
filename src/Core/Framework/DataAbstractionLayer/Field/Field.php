@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Struct\Struct;
 abstract class Field extends Struct
 {
     /**
-     * @var Flag[]
+     * @var array<string, Flag>
      */
     protected $flags = [];
 
@@ -108,7 +108,7 @@ abstract class Field extends Struct
     }
 
     /**
-     * @return Flag[]
+     * @return list<Flag>
      */
     public function getFlags(): array
     {

@@ -2146,11 +2146,6 @@ parameters:
 			path: src/Core/Checkout/Test/Shipping/ShippingMethodRepositoryTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 6
-			path: src/Core/Checkout/Test/Shipping/ShippingMethodRouteTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Shipping\\\\Validator\\\\ShippingMethodValidatorTest\\:\\:shippingMethodTaxProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Shipping/Validator/ShippingMethodValidatorTest.php

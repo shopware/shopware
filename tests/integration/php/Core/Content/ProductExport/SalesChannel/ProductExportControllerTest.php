@@ -1,26 +1,34 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ProductExport\SalesChannel;
+namespace Shopware\Tests\Integration\Core\Content\ProductExport\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Storefront\Theme\SalesChannelThemeLoader;
+use Shopware\Storefront\Theme\ThemeService;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('sales-channel')]
 class ProductExportControllerTest extends TestCase
 {
+    use AppSystemTestBehaviour;
     use SalesChannelFunctionalTestBehaviour;
 
     private EntityRepository $repository;
@@ -70,6 +78,95 @@ class ProductExportControllerTest extends TestCase
 
         static::assertCount(4, $csvRows);
         static::assertEquals(ProductExportEntity::ENCODING_UTF8, $client->getResponse()->getCharset());
+    }
+
+    public function testUtf8CsvExportWithTheme(): void
+    {
+        if (!$this->getContainer()->has(ThemeService::class) || !$this->getContainer()->has('theme.repository')) {
+            static::markTestSkipped('This test needs storefront to be installed.');
+        }
+
+        $themeService = $this->getContainer()->get(ThemeService::class);
+        $themeRepo = $this->getContainer()->get('theme.repository');
+
+        $salesChannelId = Uuid::randomHex();
+        $salesChannelDomainId = Uuid::randomHex();
+
+        $this->getContainer()->get(Translator::class)->resetInMemoryCache();
+        $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
+
+        $client = $this->createSalesChannelBrowser(null, false, [
+            'id' => $salesChannelId,
+            'domains' => [
+                [
+                    'id' => $salesChannelDomainId,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://example.com',
+                ],
+            ],
+        ]);
+
+        $productExport = $this->createCsvExport(
+            ProductExportEntity::ENCODING_UTF8,
+            $salesChannelId,
+            $salesChannelDomainId
+        );
+
+        $context = Context::createDefaultContext();
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/theme', true, true);
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
+        $themeId = $themeRepo->searchIds($criteria, $context)->firstId();
+        static::assertNotNull($themeId);
+
+        $this->getContainer()->get(Translator::class)->resetInMemoryCache();
+        $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
+
+        $themeService->assignTheme($themeId, $salesChannelId, $context, true);
+
+        $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
+
+        $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
+
+        static::assertCount(4, $csvRows);
+        static::assertEquals('SwagTheme EN Test', $csvRows[1]);
+        static::assertEquals(ProductExportEntity::ENCODING_UTF8, $client->getResponse()->getCharset());
+
+        // Switch to DE
+        $deSalesChannelId = Uuid::randomHex();
+        $deSalesChannelDomainId = Uuid::randomHex();
+
+        $client = $this->createSalesChannelBrowser(null, false, [
+            'id' => $deSalesChannelId,
+            'domains' => [
+                [
+                    'id' => $deSalesChannelDomainId,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
+                    'url' => 'http://example.com/de',
+                ],
+            ],
+        ]);
+
+        $this->getContainer()->get(Translator::class)->resetInMemoryCache();
+        $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
+
+        $themeService->assignTheme($themeId, $deSalesChannelId, $context);
+        $productExportDe = $this->createCsvExport(
+            ProductExportEntity::ENCODING_UTF8,
+            $deSalesChannelId,
+            $deSalesChannelDomainId
+        );
+
+        $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExportDe->getAccessKey(), $productExportDe->getFileName()));
+
+        $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
+
+        static::assertCount(4, $csvRows);
+        static::assertEquals('SwagTheme DE Test', $csvRows[1]);
     }
 
     public function testIsoCsvExport(): void
@@ -129,9 +226,9 @@ class ProductExportControllerTest extends TestCase
 
         $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
-        static::assertEquals(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertEquals(200, $client->getResponse()->getStatusCode(), (string) $client->getResponse()->getContent());
 
-        $xml = simplexml_load_string($client->getResponse()->getContent());
+        $xml = simplexml_load_string((string) $client->getResponse()->getContent());
 
         static::assertEquals(ProductExportEntity::ENCODING_UTF8, $client->getResponse()->getCharset());
         static::assertInstanceOf(\SimpleXMLElement::class, $xml);
@@ -164,9 +261,9 @@ class ProductExportControllerTest extends TestCase
         $client->request('GET', sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
         $response = $client->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
-        $xml = simplexml_load_string($response->getContent());
+        $xml = simplexml_load_string((string) $response->getContent());
 
         static::assertEquals(ProductExportEntity::ENCODING_ISO88591, $response->getCharset());
         static::assertInstanceOf(\SimpleXMLElement::class, $xml);
@@ -178,7 +275,11 @@ class ProductExportControllerTest extends TestCase
         /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
-        return $repository->search(new Criteria(), $this->context)->first();
+        /** @var SalesChannelDomainEntity $salesChannelDomain */
+        $salesChannelDomain = $repository->search(new Criteria(), $this->context)->first();
+        static::assertNotNull($salesChannelDomain);
+
+        return $salesChannelDomain;
     }
 
     private function createCsvExport(string $encoding, string $salesChannelId, string $salesChannelDomainId): ProductExportEntity
@@ -196,7 +297,7 @@ class ProductExportControllerTest extends TestCase
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
                 'interval' => 0,
                 'headerTemplate' => 'name,url',
-                'bodyTemplate' => '{{ product.name }}',
+                'bodyTemplate' => '{{ "title"|trans }} {{ product.name }}',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
                 'storefrontSalesChannelId' => $salesChannelId,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -206,7 +307,11 @@ class ProductExportControllerTest extends TestCase
             ],
         ], $this->context);
 
-        return $this->repository->search(new Criteria([$productExportId]), $this->context)->get($productExportId);
+        /** @var ProductExportEntity $productExport */
+        $productExport = $this->repository->search(new Criteria([$productExportId]), $this->context)->get($productExportId);
+        static::assertNotNull($productExport);
+
+        return $productExport;
     }
 
     private function createXmlExport(string $encoding, string $salesChannelId, string $salesChannelDomainId): ProductExportEntity
@@ -235,7 +340,11 @@ class ProductExportControllerTest extends TestCase
             ],
         ], $this->context);
 
-        return $this->repository->search(new Criteria([$productExportId]), $this->context)->get($productExportId);
+        /** @var ProductExportEntity $productExport */
+        $productExport = $this->repository->search(new Criteria([$productExportId]), $this->context)->get($productExportId);
+        static::assertNotNull($productExport);
+
+        return $productExport;
     }
 
     private function createProductStream(string $salesChannelId): void
@@ -265,6 +374,9 @@ class ProductExportControllerTest extends TestCase
         ");
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function createProducts(string $salesChannelId): array
     {
         $productRepository = $this->getContainer()->get('product.repository');

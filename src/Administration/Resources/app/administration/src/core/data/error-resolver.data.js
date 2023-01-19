@@ -15,7 +15,7 @@ export default class ErrorResolver {
     }
 
     /**
-     * @deprecated tag:v6.6.0.0 - Default param errors will be last
+     * @deprecated tag:v6.6.0 - Default param errors will be last
      * @param errors
      * @param changeset
      */

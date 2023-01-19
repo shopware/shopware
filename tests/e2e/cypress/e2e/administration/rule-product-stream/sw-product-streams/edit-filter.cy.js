@@ -207,7 +207,8 @@ describe('Dynamic product group: Test various filters', () => {
                 field: 'Manufacturer',
                 operator: 'Is equal to any of',
                 value: ['Test Product Manufacturer']
-            }
+            },
+            true
         );
 
         cy.get('.sw-product-stream-filter').should(($productStreamFilter) => {

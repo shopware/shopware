@@ -741,6 +741,7 @@
         "lineItemListPriceRatioRule": "Position mit prozentualen Preis/Streichpreis Verhältnis",
         "lineItemActualStockRule": "Position mit Lagerbestand",
         "lineItemStockRule": "Position mit verfügbarem Bestand",
+        "lineItemProductStates": "Position mit Produktzustand",
         "paymentMethodRule": "Verwendete Zahlungsart",
         "shippingMethodRule": "Verwendete Versandart",
         "lineItemGoodsTotalRule": "Gesamtanzahl aller Produkte",
@@ -824,6 +825,14 @@
             "global": "@:global.sw-condition.condition.promotionCodeOfTypeRule.global",
             "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",
             "individual": "@:global.sw-condition.condition.promotionCodeOfTypeRule.individual"
+          }
+        }
+      },
+      "cartLineItemProductStates": {
+        "productState": {
+          "options": {
+            "is-physical": "Physisch",
+            "is-download": "Download"
           }
         }
       },

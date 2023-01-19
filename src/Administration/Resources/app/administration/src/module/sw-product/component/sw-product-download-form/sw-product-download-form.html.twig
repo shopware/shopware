@@ -1,0 +1,75 @@
+<div
+    class="sw-product-download-form"
+    :class="{ 'is--disabled': disabled }"
+>
+    <sw-upload-listener
+        v-if="!isLoading"
+        :upload-tag="`downloads-${product.id}`"
+        auto-upload
+        @media-upload-finish="successfulUpload"
+        @media-upload-fail="onUploadFailed"
+    />
+
+    <sw-media-upload-v2
+        v-if="!isLoading && acl.can('product.editor')"
+        :class="swFieldClasses"
+        variant="regular"
+        :upload-tag="`downloads-${product.id}`"
+        :scroll-target="$parent.$el"
+        :private-filesystem="true"
+        :file-accept="fileAccept"
+        default-folder="product_download"
+        v-bind="$attrs"
+    />
+
+    <sw-field-error :error="error" />
+
+    <div
+        v-if="!isLoading"
+        class="sw-product-download-form__previews sw-product-download-form__grid"
+    >
+        <div
+            v-for="download in productDownloads"
+            :key="download.id"
+            class="sw-product-download-form__row"
+        >
+            <span
+                v-tooltip="{
+                    message: getFileName(download),
+                    disabled: false,
+                    width: 'auto'
+                }"
+                class="sw-product-download-form-row__name"
+            >
+                {{ getFileName(download) }}
+            </span>
+
+            <div class="sw-product-download-form-row__info">
+                <span class="sw-product-download-form-row__mime">
+                    {{ download.media.mimeType }}
+                </span>
+
+                <span class="sw-product-download-form-row__size">
+                    {{ getFileSize(download) }}
+                </span>
+
+                <span class="sw-product-download-form-row__changed-date">
+                    {{ createdAt(download) }}
+                </span>
+            </div>
+
+            <sw-context-button class="sw-product-download-form-row__context">
+                <sw-context-menu-item
+                    class="sw-product-download-form-row__context-remove"
+                    variant="danger"
+                    :disabled="isLoading || !acl.can('product.editor')"
+                    @click="onRemoveDownload(download)"
+                >
+                    {{ $tc('global.default.remove') }}
+                </sw-context-menu-item>
+            </sw-context-button>
+
+        </div>
+    </div>
+    <sw-loader v-else />
+</div>

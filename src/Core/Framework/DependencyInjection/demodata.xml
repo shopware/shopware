@@ -81,6 +81,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater"/>
             <tag name="shopware.demodata_generator" option-name="products" option-default="1000"/>
         </service>
 

@@ -26,6 +26,10 @@ class CheckoutConfirmPage extends Page
      */
     protected $shippingMethods;
 
+    protected bool $showRevocation = false;
+
+    protected bool $hideShippingAddress = false;
+
     public function getCart(): Cart
     {
         return $this->cart;
@@ -54,5 +58,25 @@ class CheckoutConfirmPage extends Page
     public function setShippingMethods(ShippingMethodCollection $shippingMethods): void
     {
         $this->shippingMethods = $shippingMethods;
+    }
+
+    public function isShowRevocation(): bool
+    {
+        return $this->showRevocation;
+    }
+
+    public function setShowRevocation(bool $showRevocation): void
+    {
+        $this->showRevocation = $showRevocation;
+    }
+
+    public function isHideShippingAddress(): bool
+    {
+        return $this->hideShippingAddress;
+    }
+
+    public function setHideShippingAddress(bool $hideShippingAddress): void
+    {
+        $this->hideShippingAddress = $hideShippingAddress;
     }
 }

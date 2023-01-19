@@ -551,26 +551,6 @@ parameters:
 			path: src/Core/Checkout/Cart/LineItem/Group/RulesMatcher/AnyRuleLineItemMatcher.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\:\\:buildFlat\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/LineItem/LineItemCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\:\\:getPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/LineItem/LineItemCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\:\\:getReferenceIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/LineItem/LineItemCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\:\\:getTypes\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/LineItem/LineItemCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItemFactoryHandler\\\\CreditLineItemFactory\\:\\:create\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/LineItemFactoryHandler/CreditLineItemFactory.php
@@ -709,21 +689,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\Transformer\\\\DeliveryTransformer\\:\\:transformCollection\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Order/Transformer/DeliveryTransformer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\Transformer\\\\LineItemTransformer\\:\\:transform\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Order/Transformer/LineItemTransformer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\Transformer\\\\LineItemTransformer\\:\\:transformCollection\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Order/Transformer/LineItemTransformer.php
-
-		-
-			message: "#^Parameter \\#2 \\$type of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Order/Transformer/LineItemTransformer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\Transformer\\\\TransactionTransformer\\:\\:transform\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -1274,21 +1239,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerEntity\\:\\:\\$vatIds type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Order/Aggregate/OrderCustomer/OrderCustomerEntity.php
-
-		-
-			message: "#^Parameter \\#2 \\$search of function array_key_exists expects array, array\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/Aggregate/OrderLineItem/OrderLineItemCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemEntity\\:\\:getPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/Aggregate/OrderLineItem/OrderLineItemEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemEntity\\:\\:setPayload\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/Aggregate/OrderLineItem/OrderLineItemEntity.php
 
 		-
 			message: "#^Cannot call method getTechnicalName\\(\\) on Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateEntity\\|null\\.$#"
@@ -5346,21 +5296,6 @@ parameters:
 			path: src/Core/Content/Media/File/FileLoader.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\:\\:getMetaData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\:\\:setMetaData\\(\\) has parameter \\$metaData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\:\\:\\$metaData type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaEntity.php
-
-		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getId\\(\\)\\.$#"
 			count: 2
 			path: src/Core/Content/Media/MediaFolderService.php
@@ -5576,21 +5511,6 @@ parameters:
 			path: src/Core/Content/Product/Aggregate/ProductConfiguratorSetting/ProductConfiguratorSettingCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductConfiguratorSetting\\\\ProductConfiguratorSettingEntity\\:\\:getPrice\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductConfiguratorSetting/ProductConfiguratorSettingEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductConfiguratorSetting\\\\ProductConfiguratorSettingEntity\\:\\:setPrice\\(\\) has parameter \\$price with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductConfiguratorSetting/ProductConfiguratorSettingEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductConfiguratorSetting\\\\ProductConfiguratorSettingEntity\\:\\:\\$price type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductConfiguratorSetting/ProductConfiguratorSettingEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductFeatureSet\\\\ProductFeatureSetEntity\\:\\:getFeatures\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Aggregate/ProductFeatureSet/ProductFeatureSetEntity.php
@@ -5719,36 +5639,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductLineItemFactory\\:\\:createList\\(\\) has parameter \\$products with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Cart/ProductLineItemFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductIndexer\\:\\:filterVariants\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductIndexer\\:\\:getChildrenIds\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductIndexer\\:\\:getChildrenIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductIndexer\\:\\:getIterator\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductIndexer\\:\\:getParentIds\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductIndexer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductStreamUpdater\\:\\:getCriteria\\(\\) has parameter \\$filters with no value type specified in iterable type array\\.$#"
@@ -6089,11 +5979,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Sorting\\\\ProductSortingEntity\\:\\:\\$fields type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Sorting/ProductSortingEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Util\\\\VariantCombinationLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Util/VariantCombinationLoader.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Error\\\\Error\\:\\:createFrom\\(\\) has no return type specified\\.$#"
@@ -16089,63 +15974,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleConfig\\:\\:\\$operators type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Rule/RuleConfig.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleConstraints\\:\\:bool\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/RuleConstraints.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleConstraints\\:\\:datetime\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/RuleConstraints.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleConstraints\\:\\:datetimeOperators\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/RuleConstraints.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleConstraints\\:\\:float\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/RuleConstraints.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleConstraints\\:\\:int\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/RuleConstraints.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleConstraints\\:\\:numericOperators\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/RuleConstraints.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleConstraints\\:\\:string\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/RuleConstraints.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleConstraints\\:\\:stringArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/RuleConstraints.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleConstraints\\:\\:stringOperators\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/RuleConstraints.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleConstraints\\:\\:uuidOperators\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/RuleConstraints.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleConstraints\\:\\:uuids\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/RuleConstraints.php
-
-
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\ApiHook\\:\\:__construct\\(\\) has parameter \\$request with no value type specified in iterable type array\\.$#"

@@ -1,7 +1,4 @@
-/*
- * @package inventory
- */
-
+import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-product-detail.html.twig';
 import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
@@ -13,7 +10,10 @@ const { hasOwnProperty, cloneDeep } = Shopware.Utils.object;
 const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 const type = Shopware.Utils.types;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/*
+ * @package inventory
+ * @private
+ */
 Component.register('sw-product-detail', {
     template,
 
@@ -24,6 +24,7 @@ Component.register('sw-product-detail', {
         'seoUrlService',
         'acl',
         'systemConfigApiService',
+        'entityValidationService',
     ],
 
     mixins: [
@@ -44,6 +45,12 @@ Component.register('sw-product-detail', {
     props: {
         productId: {
             type: String,
+            required: false,
+            default: null,
+        },
+        /* Product "types" provided by the split button for creating a new product through a router parameter */
+        creationStates: {
+            type: Array,
             required: false,
             default: null,
         },
@@ -81,6 +88,7 @@ Component.register('sw-product-detail', {
             'defaultFeatureSet',
             'showModeSetting',
             'advanceModeEnabled',
+            'productStates',
         ]),
 
         ...mapPageErrors(errorConfiguration),
@@ -205,7 +213,8 @@ Component.register('sw-product-detail', {
                 .addAssociation('customFieldSets')
                 .addAssociation('featureSet')
                 .addAssociation('cmsPage')
-                .addAssociation('featureSet');
+                .addAssociation('featureSet')
+                .addAssociation('downloads.media');
 
             criteria.getAssociation('manufacturer')
                 .addAssociation('media');
@@ -538,6 +547,9 @@ Component.register('sw-product-detail', {
 
             Shopware.State.commit('swProductDetail/setLoading', ['product', true]);
 
+            // set product "type"
+            Shopware.State.commit('swProductDetail/setCreationStates', this.creationStates);
+
             // create empty product
             Shopware.State.commit('swProductDetail/setProduct', this.productRepository.create());
             Shopware.State.commit('swProductDetail/setProductId', this.product.id);
@@ -549,6 +561,10 @@ Component.register('sw-product-detail', {
             this.product.metaTitle = '';
             this.product.additionalText = '';
             this.product.variantListingConfig = {};
+
+            if (this.creationStates) {
+                this.adjustProductAccordingToType();
+            }
 
             return Promise.all([
                 this.loadCurrencies(),
@@ -605,6 +621,12 @@ Component.register('sw-product-detail', {
 
                 Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
             });
+        },
+
+        adjustProductAccordingToType() {
+            if (this.creationStates.includes('is-download')) {
+                this.product.maxPurchase = 1;
+            }
         },
 
         loadProduct() {
@@ -799,7 +821,31 @@ Component.register('sw-product-detail', {
                 this.product.slotConfig = cloneDeep(pageOverrides);
             }
 
+            if (!this.entityValidationService.validate(this.product, this.customValidate)) {
+                const titleSaveError = this.$tc('global.default.error');
+                const messageSaveError = this.$tc(
+                    'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+                );
+
+                this.createNotificationError({
+                    title: titleSaveError,
+                    message: messageSaveError,
+                });
+                return Promise.resolve();
+            }
+
             return this.saveProduct().then(this.onSaveFinished);
+        },
+
+        customValidate(errors, product) {
+            if (this.productStates.includes('is-download')) {
+                // custom download product validation
+                if (product.downloads === undefined || product.downloads.length < 1) {
+                    errors.push(EntityValidationService.createRequiredError('/0/downloads'));
+                }
+            }
+
+            return errors;
         },
 
         /**

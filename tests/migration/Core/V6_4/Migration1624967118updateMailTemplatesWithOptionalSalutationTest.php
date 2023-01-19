@@ -28,7 +28,7 @@ class Migration1624967118updateMailTemplatesWithOptionalSalutationTest extends T
             $templatesToConsider[] = \str_replace(self::TEMPLATE_DIR, '', $file->getPath());
         }
 
-        $notConsidered = ['password_change'];
+        $notConsidered = ['password_change', 'downloads_delivery'];
 
         $templatesToConsider = array_filter(\array_unique($templatesToConsider), function ($template) use ($notConsidered) {
             return !\in_array($template, $notConsidered, true);

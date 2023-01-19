@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -17,6 +18,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaTag\MediaTagDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
@@ -107,6 +109,8 @@ class MediaDefinition extends EntityDefinition
             (new OneToManyAssociationField('categories', CategoryDefinition::class, 'media_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'media_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'media_id', 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('productDownloads', ProductDownloadDefinition::class, 'media_id', 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('orderLineItemDownloads', OrderLineItemDownloadDefinition::class, 'media_id', 'id'))->addFlags(new RestrictDelete()),
             (new OneToOneAssociationField('avatarUser', 'id', 'avatar_id', UserDefinition::class, false))->addFlags(new CascadeDelete()),
             (new ManyToOneAssociationField('mediaFolder', 'media_folder_id', MediaFolderDefinition::class, 'id', false)),
             (new OneToManyAssociationField('propertyGroupOptions', PropertyGroupOptionDefinition::class, 'media_id'))->addFlags(new SetNullOnDelete()),

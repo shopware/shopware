@@ -197,6 +197,12 @@
                             :variations="item.variation"
                             :show-tooltip="false"
                         />
+                        <sw-label
+                            v-if="variantIsDigital(item)"
+                            class="sw-product-variant-modal__digital-indicator"
+                        >
+                            {{ $tc('sw-product.variations.generatedListColumnContentProductState.is-download') }}
+                        </sw-label>
                     </template>
                     {% endblock %}
 
@@ -322,6 +328,13 @@
                         :show-tooltip="false"
                     />
                     {% endblock %}
+
+                    <sw-label
+                        v-if="variantIsDigital(item)"
+                        class="sw-product-variant-modal__digital-indicator"
+                    >
+                        {{ $tc('sw-product.variations.generatedListColumnContentProductState.is-download') }}
+                    </sw-label>
                 </template>
                 {% endblock %}
             </template>

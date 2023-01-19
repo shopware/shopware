@@ -29,10 +29,7 @@ describe('Flow builder: Test acl privilege', () => {
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
-        // click on first element in grid
-        cy.get(`${page.elements.dataGridRow}--0`)
-            .contains('Order placed')
-            .click();
+        cy.contains(`${page.elements.dataGridRow}`, 'Order placed').click();
     });
 
     it('@settings: can edit flow builder', { tags: ['pa-business-ops'] }, () => {
@@ -66,9 +63,7 @@ describe('Flow builder: Test acl privilege', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('Order placed');
-
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible');
         cy.clickContextMenuItem(
             '.sw-flow-list__item-edit',
             page.elements.contextMenuButton,
@@ -80,37 +75,37 @@ describe('Flow builder: Test acl privilege', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
-        // Verify correct detail page
-        cy.contains('.smart-bar__header h2', 'Order placed');
-
         cy.get('#sw-field--flow-name').clearTypeAndCheck('Order placed v2');
         cy.get('.sw-flow-detail__tab-flow').click();
 
-        cy.get('.sw-flow-sequence-action__selection-action')
-            .typeSingleSelect('Generate document', '.sw-flow-sequence-action__selection-action');
+        cy.get('li.sw-flow-sequence-action__action-item').then(($listing) => {
+            const listLength = $listing.length;
 
-        cy.get('.sw-flow-generate-document-modal').should('be.visible');
+            cy.get('.sw-flow-sequence-action__selection-action')
+                .typeSingleSelect('Generate document', '.sw-flow-sequence-action__selection-action');
 
-        cy.get('.sw-flow-generate-document-modal__type-multi-select').typeMultiSelectAndCheck('Invoice');
+            cy.get('.sw-flow-generate-document-modal').should('be.visible');
 
-        cy.get('.sw-flow-generate-document-modal__save-button').click();
-        cy.get('.sw-flow-generate-document-modal').should('not.exist');
-        cy.get('li.sw-flow-sequence-action__action-item').should('have.length', 2);
+            cy.get('.sw-flow-generate-document-modal__type-multi-select').typeMultiSelectAndCheck('Invoice');
 
-        cy.get('.sw-flow-detail__save').click();
-        cy.wait('@updateData').its('response.statusCode').should('equal', 204);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
+            cy.get('.sw-flow-generate-document-modal__save-button').click();
+            cy.get('.sw-flow-generate-document-modal').should('not.exist');
+            cy.get('li.sw-flow-sequence-action__action-item').should('have.length', listLength + 1);
 
-        // Verify updated element
-        cy.get(page.elements.smartBarBack).click({force: true});
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed v2');
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('Order placed v2');
+            cy.get('.sw-flow-detail__save').click();
+            cy.wait('@updateData').its('response.statusCode').should('equal', 204);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+
+            // Verify updated element
+            cy.get(page.elements.smartBarBack).click({ force: true });
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed v2');
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+            cy.contains(`${page.elements.dataGridRow}`, 'Order placed v2').should('be.visible');
+        });
     });
 
     it('@settings: can create flow builder', { tags: ['pa-business-ops'] }, () => {
@@ -165,8 +160,7 @@ describe('Flow builder: Test acl privilege', () => {
 
         // Verify created element
         cy.get(page.elements.smartBarBack).click({force: true});
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('Order placed v1');
+        cy.contains(`${page.elements.dataGridRow}`, 'Order placed v1').should('be.visible');
     });
 
     it('@settings: can delete flow', { tags: ['pa-business-ops'] }, () => {
@@ -197,24 +191,30 @@ describe('Flow builder: Test acl privilege', () => {
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('Order placed');
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible');
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).then(($row) => {
+            const firstFlowName = $row.text().trim();
 
-        cy.clickContextMenuItem(
-            `${page.elements.contextMenu}-item--danger`,
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
-            'Delete',
-            true
-        );
+            cy.clickContextMenuItem(
+                `${page.elements.contextMenu}-item--danger`,
+                page.elements.contextMenuButton,
+                `${page.elements.dataGridRow}--0`,
+                'Delete',
+                true
+            );
 
-        cy.contains('.sw-modal__body', 'If you delete this flow, no more actions will be performed for the trigger. Are you sure you want to delete this flow?');
-        cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
-        cy.get(page.elements.modal).should('not.exist');
+            cy.contains('.sw-modal__body', 'If you delete this flow, no more actions will be performed for the trigger. Are you sure you want to delete this flow?');
+            cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
+            cy.get(page.elements.modal).should('not.exist');
 
-        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
+            cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
 
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-            .contains('Order placed').should('not.exist');
+            cy.contains(`${page.elements.dataGridRow}`, firstFlowName).should('not.exist');
+
+            cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).then(($rowAfterDelete) => {
+                const firstFlowNameAfterDelete = $rowAfterDelete.text().trim();
+                cy.expect(firstFlowName).to.not.equal(firstFlowNameAfterDelete);
+            });
+        });
     });
 });

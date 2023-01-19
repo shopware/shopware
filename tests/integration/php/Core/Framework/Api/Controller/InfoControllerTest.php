@@ -54,6 +54,7 @@ class InfoControllerTest extends TestCase
                 'enableUrlFeature' => true,
                 'appUrlReachable' => true,
                 'appsRequireAppUrl' => false,
+                'private_allowed_extensions' => $this->getContainer()->getParameter('shopware.filesystem.private_allowed_extensions'),
             ],
         ];
 
@@ -318,6 +319,7 @@ class InfoControllerTest extends TestCase
                 'kernel.shopware_version_revision' => 'shopware-version-revision',
                 'shopware.admin_worker.enable_admin_worker' => 'enable-admin-worker',
                 'shopware.admin_worker.transports' => 'transports',
+                'shopware.filesystem.private_allowed_extensions' => ['png'],
             ]),
             $kernelMock,
             $packagesMock,
@@ -372,6 +374,7 @@ class InfoControllerTest extends TestCase
                 'kernel.shopware_version_revision' => 'shopware-version-revision',
                 'shopware.admin_worker.enable_admin_worker' => 'enable-admin-worker',
                 'shopware.admin_worker.transports' => 'transports',
+                'shopware.filesystem.private_allowed_extensions' => ['png'],
             ]),
             $kernelMock,
             $this->getContainer()->get('assets.packages'),

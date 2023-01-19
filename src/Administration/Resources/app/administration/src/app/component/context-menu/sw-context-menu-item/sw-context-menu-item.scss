@@ -86,7 +86,7 @@ $sw-context-menu-color-warning: $color-pumpkin-spice-500;
     }
 
     &.sw-context-menu-item--headline {
-        text-align: center;
+        font-weight: $font-weight-semi-bold;
         cursor: default;
 
         &:hover {

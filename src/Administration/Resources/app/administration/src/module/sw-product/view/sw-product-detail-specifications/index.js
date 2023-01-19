@@ -11,27 +11,31 @@ const { mapState, mapGetters } = Component.getComponentHelper();
 Component.register('sw-product-detail-specifications', {
     template,
 
-    inject: ['acl', 'feature'],
+    inject: ['acl', 'feature', 'repositoryFactory'],
+
+    data() {
+        return {
+            showMediaModal: false,
+        };
+    },
 
     computed: {
         ...mapState('swProductDetail', [
             'product',
             'parentProduct',
             'customFieldSets',
+            'loading',
         ]),
 
         ...mapGetters('swProductDetail', [
             'isLoading',
             'showModeSetting',
             'showProductCard',
+            'productStates',
         ]),
 
         customFieldsExists() {
-            if (!this.customFieldSets.length > 0) {
-                return false;
-            }
-
-            return true;
+            return !this.customFieldSets.length <= 0;
         },
 
         showCustomFieldsCard() {

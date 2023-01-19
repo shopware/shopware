@@ -34,7 +34,7 @@ describe('Product: Edit product media', () => {
 
         // Add first image to product
         cy.get('.sw-product-media-form__previews').scrollIntoView();
-        cy.get('#files')
+        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
             .attachFile('img/sw-login-background.png');
         cy.get('.sw-product-image__image img')
             .should('have.attr', 'src')
@@ -42,7 +42,7 @@ describe('Product: Edit product media', () => {
         cy.awaitAndCheckNotification('File has been saved.');
 
         // Add second image to product
-        cy.get('#files')
+        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
             .attachFile('img/sw-test-image.png');
         cy.get('.sw-product-image:nth-of-type(2) img')
             .first()
@@ -51,7 +51,7 @@ describe('Product: Edit product media', () => {
         cy.awaitAndCheckNotification('File has been saved.');
 
         // Add third image to product
-        cy.get('#files')
+        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
             .attachFile('img/plugin-manager--login.png');
         cy.get('.sw-product-image:nth-of-type(3) img')
             .first()
@@ -117,7 +117,7 @@ describe('Product: Edit product media', () => {
 
         // Add first image to product
         cy.get('.sw-product-media-form__previews').scrollIntoView();
-        cy.get('#files')
+        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
             .attachFile('img/sw-login-background.png');
         cy.get('.sw-product-image__image img')
             .should('have.attr', 'src')
@@ -125,7 +125,7 @@ describe('Product: Edit product media', () => {
         cy.awaitAndCheckNotification('File has been saved.');
 
         // Add second image to product
-        cy.get('#files')
+        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
             .attachFile('img/sw-test-image.png');
         cy.get('.sw-product-image:nth-of-type(2) img')
             .first()
@@ -134,7 +134,7 @@ describe('Product: Edit product media', () => {
         cy.awaitAndCheckNotification('File has been saved.');
 
         // Add third image to product
-        cy.get('#files')
+        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
             .attachFile('img/plugin-manager--login.png');
         cy.get('.sw-product-image:nth-of-type(3) img')
             .first()
@@ -193,7 +193,7 @@ describe('Product: Edit product media', () => {
         // Add first image to product
         cy.get('.sw-product-media-form__previews').scrollIntoView();
 
-        cy.get('#files')
+        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
             .attachFile('img/sw-login-background.png');
 
         cy.get('.sw-product-image__image img')

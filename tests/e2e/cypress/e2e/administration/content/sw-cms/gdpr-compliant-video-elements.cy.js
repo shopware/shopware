@@ -59,7 +59,7 @@ describe('CMS: Check GDPR compliant video elements', () => {
 
             // Upload preview image
             cy.get('.sw-media-upload-v2__dropzone.is--droppable').should('be.visible');
-            cy.get('.sw-cms-slot__config-modal #files')
+            cy.get('.sw-cms-slot__config-modal .sw-media-upload-v2__file-input')
                 .attachFile('img/sw-login-background.png');
             cy.awaitAndCheckNotification('File has been saved.');
 

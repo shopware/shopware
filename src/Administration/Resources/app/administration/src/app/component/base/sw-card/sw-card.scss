@@ -66,6 +66,26 @@
         }
     }
 
+    &.has--tabs {
+        .sw-card__header {
+            padding-bottom: 0;
+
+            .sw-tabs {
+                flex-basis: 100%;
+            }
+
+            .sw-tabs__content::before {
+                all: unset;
+            }
+
+            .sw-tabs-item {
+                margin-right: 17.5px;
+                padding: 10px 0;
+                border-bottom: 0 none;
+            }
+        }
+    }
+
     .sw-card__header {
         display: flex;
         flex-wrap: wrap;

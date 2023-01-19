@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
+use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -2933,6 +2934,31 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
+    public function testFilterByStates(IdsCollection $ids): void
+    {
+        $context = $this->context;
+
+        try {
+            $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+            $criteria->addFilter(new EqualsAnyFilter('states', [State::IS_DOWNLOAD]));
+
+            $searcher = $this->createEntitySearcher();
+
+            $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
+
+            static::assertCount(1, $result);
+            static::assertSame($ids->get('s-4'), $result[0]);
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
     public function testEmptyEntityAggregation(IdsCollection $ids): void
     {
         $criteria = new Criteria();
@@ -3667,6 +3693,15 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Default-4')
                 ->price(1)
                 ->visibility(Defaults::SALES_CHANNEL_TYPE_STOREFRONT, ProductVisibilityDefinition::VISIBILITY_ALL)
+                ->add('downloads', [
+                    [
+                        'media' => [
+                            'fileName' => 'foo',
+                            'fileExtension' => 'bar',
+                            'private' => true,
+                        ],
+                    ],
+                ])
                 ->build(),
             (new ProductBuilder($this->ids, 'variant-1'))
                 ->name('Main-Product-1')

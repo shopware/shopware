@@ -74,6 +74,7 @@ Shopware.Service('privileges')
                     'order_address:update',
                     'order_delivery:update',
                     'product:read',
+                    'product_download:read',
                     'property_group_option:read',
                     'property_group:read',
                     'product_visibility:read',

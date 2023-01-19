@@ -682,5 +682,9 @@ Component.register('sw-product-variant-modal', {
                 },
             });
         },
+
+        variantIsDigital(variant) {
+            return variant.states && variant.states.includes('is-download');
+        },
     },
 });

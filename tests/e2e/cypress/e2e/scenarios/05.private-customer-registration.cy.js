@@ -64,7 +64,7 @@ describe('Product creation via UI and private customer registration', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');
-        cy.get('.sw-button.sw-button--primary').click();
+        cy.get('.sw-product-list__add-physical-button').click();
         cy.get('#sw-field--product-name').typeAndCheck('Product-5');
         cy.get('#manufacturerId').typeSingleSelectAndCheck('shopware AG', '#manufacturerId');
         cy.get('.sw-text-editor__content-editor').type('Test');

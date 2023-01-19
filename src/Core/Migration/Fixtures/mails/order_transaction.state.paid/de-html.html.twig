@@ -111,9 +111,11 @@ Bestellnummer: {{ order.orderNumber }}<br>
     {{ order.transactions.first.paymentMethod.translated.description }}<br>
     <br>
 
-    <strong>Gewählte Versandart:</strong> {{ delivery.shippingMethod.translated.name }}<br>
-    {{ delivery.shippingMethod.translated.description }}<br>
-    <br>
+    {% if delivery %}
+        <strong>Gewählte Versandart:</strong> {{ delivery.shippingMethod.translated.name }}<br>
+        {{ delivery.shippingMethod.translated.description }}<br>
+        <br>
+    {% endif %}
 
     {% set billingAddress = order.addresses.get(order.billingAddressId) %}
     <strong>Rechnungsadresse:</strong><br>
@@ -124,13 +126,15 @@ Bestellnummer: {{ order.orderNumber }}<br>
     {{ billingAddress.country.translated.name }}<br>
     <br>
 
-    <strong>Lieferadresse:</strong><br>
-    {{ delivery.shippingOrderAddress.company }}<br>
-    {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}<br>
-    {{ delivery.shippingOrderAddress.street }} <br>
-    {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}<br>
-    {{ delivery.shippingOrderAddress.country.translated.name }}<br>
-    <br>
+    {% if delivery %}
+        <strong>Lieferadresse:</strong><br>
+        {{ delivery.shippingOrderAddress.company }}<br>
+        {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}<br>
+        {{ delivery.shippingOrderAddress.street }} <br>
+        {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}<br>
+        {{ delivery.shippingOrderAddress.country.translated.name }}<br>
+        <br>
+    {% endif %}
     {% if order.orderCustomer.vatIds %}
         Ihre Umsatzsteuer-ID: {{ order.orderCustomer.vatIds|first }}
         Bei erfolgreicher Prüfung und sofern Sie aus dem EU-Ausland

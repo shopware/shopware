@@ -18,8 +18,6 @@ class Migration1659256999CreateFlowTemplateTableTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
-
-        $this->connection->executeStatement('DROP TABLE IF EXISTS `flow_template`');
     }
 
     public function testGetCreationTimestamp(): void
@@ -30,6 +28,8 @@ class Migration1659256999CreateFlowTemplateTableTest extends TestCase
 
     public function testTablesArePresent(): void
     {
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `flow_template`');
+
         $migration = new Migration1659256999CreateFlowTemplateTable();
 
         // should work as expected if executed multiple times

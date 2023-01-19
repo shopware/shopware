@@ -62,6 +62,8 @@ $sw-media-preview-v2-locked-icon-z-index: 5;
         visibility: visible;
         height: $sw-media-preview-v2-play-button-size;
         width: $sw-media-preview-v2-play-button-size;
+        max-width: 35px;
+        max-height: 35px;
     }
 
     .sw-media-preview-v2__placeholder {

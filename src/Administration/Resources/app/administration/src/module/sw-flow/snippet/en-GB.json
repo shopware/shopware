@@ -92,6 +92,7 @@
       "generateDocument": "Generate documents",
       "removeTag": "Remove tag",
       "mailSend": "Send email",
+      "grantDownloadAccess": "Set download access",
       "setOrderState": "Assign status",
       "stopFlow": "Stop flow",
       "changeCustomerGroup": "Assign customer group",
@@ -180,6 +181,15 @@
         "titleCreateDocument": "Generate documents",
         "labelDocumentType": "Documents",
         "placeholderDocumentType": "Select documents..."
+      },
+      "downloadAccess": {
+        "titleSetDownloadAccess": "Set download access",
+        "labelValueField": "Access",
+        "placeholderValueField": "Select operation...",
+        "options": {
+          "grant": "Grant",
+          "revoke": "Revoke"
+        }
       },
       "customerGroup": {
         "titleChangeCustomerGroup": "Assign customer group",

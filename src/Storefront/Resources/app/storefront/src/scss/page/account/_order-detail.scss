@@ -12,6 +12,12 @@
     padding-bottom: $spacer-sm;
 }
 
+.download-detail-content-header {
+    display: block;
+    border-bottom: 1px solid $gray-300;
+    padding-bottom: $spacer-sm;
+}
+
 .order-detail-content-header,
 .order-item-detail-footer {
     padding-left: $order-grid-gutter-width / 2;
@@ -52,6 +58,19 @@
 
     .order-item:first-of-type,
     .document-item:first-of-type {
+        padding-left: 0;
+    }
+
+    .download-item {
+        padding-left: $spacer-sm;
+        padding-right: $spacer-sm;
+    }
+
+    .download-item:last-of-type {
+        padding-right: 0;
+    }
+
+    .download-item:first-of-type {
         padding-left: 0;
     }
 }
@@ -192,6 +211,15 @@
     text-align: right;
 }
 
+.download-item-download-file {
+    text-align: right;
+}
+
+.order-download-row {
+    padding-top: $spacer-sm;
+    padding-bottom: $spacer-sm;
+}
+
 @include media-breakpoint-up(md) {
     .order-detail-content-header {
         display: block;
@@ -238,6 +266,10 @@
     .document-item-view-file-icon-btn {
         display: none;
     }
+
+    .download-item-view-file-icon-btn {
+        display: none;
+    }
 }
 
 // @deprecated tag:v6.5.0 - Bootstrap v5 uses the breakpoint itself instead of the next breakpoint in `media-breakpoint-down()`, use `md` instead of `sm`.
@@ -247,6 +279,14 @@
     }
 
     .document-item-view-file-text-btn {
+        display: none;
+    }
+
+    .download-header-date {
+        display: none;
+    }
+
+    .download-item-view-file-text-btn {
         display: none;
     }
 }

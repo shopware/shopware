@@ -34,6 +34,10 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTag\OrderTagDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -76,6 +80,10 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader">
+            <argument type="service" id="product_download.repository"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Order\OrderConverter">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
@@ -84,6 +92,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\OrderDefinition"/>
             <argument type="service" id="order_address.repository"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler">

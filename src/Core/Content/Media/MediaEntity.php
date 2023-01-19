@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -16,6 +17,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
@@ -71,7 +73,7 @@ class MediaEntity extends Entity
     protected $mediaTypeRaw;
 
     /**
-     * @var array|null
+     * @var array<string, mixed>|null
      */
     protected $metaData;
 
@@ -227,6 +229,10 @@ class MediaEntity extends Entity
      */
     protected $appPaymentMethods;
 
+    protected ?ProductDownloadCollection $productDownloads = null;
+
+    protected ?OrderLineItemDownloadCollection $orderLineItemDownloads = null;
+
     public function get(string $property)
     {
         if ($property === 'hasFile') {
@@ -286,11 +292,17 @@ class MediaEntity extends Entity
         $this->title = $title;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getMetaData(): ?array
     {
         return $this->metaData;
     }
 
+    /**
+     * @param array<string, mixed> $metaData
+     */
     public function setMetaData(array $metaData): void
     {
         $this->metaData = $metaData;
@@ -549,6 +561,9 @@ class MediaEntity extends Entity
         $this->paymentMethods = $paymentMethods;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         $data = parent::jsonSerialize();
@@ -635,5 +650,25 @@ class MediaEntity extends Entity
     public function setAppPaymentMethods(AppPaymentMethodCollection $appPaymentMethods): void
     {
         $this->appPaymentMethods = $appPaymentMethods;
+    }
+
+    public function getProductDownloads(): ?ProductDownloadCollection
+    {
+        return $this->productDownloads;
+    }
+
+    public function setProductDownloads(ProductDownloadCollection $productDownloads): void
+    {
+        $this->productDownloads = $productDownloads;
+    }
+
+    public function getOrderLineItemDownloads(): ?OrderLineItemDownloadCollection
+    {
+        return $this->orderLineItemDownloads;
+    }
+
+    public function setOrderLineItemDownloads(OrderLineItemDownloadCollection $orderLineItemDownloads): void
+    {
+        $this->orderLineItemDownloads = $orderLineItemDownloads;
     }
 }

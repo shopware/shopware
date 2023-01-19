@@ -524,7 +524,8 @@ class FileSaverTest extends TestCase
             $this->getContainer()->get(TypeDetector::class),
             $this->getContainer()->get('messenger.bus.shopware'),
             $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->getParameter('shopware.filesystem.allowed_extensions')
+            $this->getContainer()->getParameter('shopware.filesystem.allowed_extensions'),
+            $this->getContainer()->getParameter('shopware.filesystem.private_allowed_extensions')
         );
 
         $mediaPath = $this->urlGenerator->getRelativeMediaUrl($png);

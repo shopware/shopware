@@ -353,7 +353,7 @@ class RecalculationService
     private function fetchOrder(string $orderId, Context $context): ?OrderEntity
     {
         $criteria = (new Criteria([$orderId]))
-            ->addAssociation('lineItems')
+            ->addAssociation('lineItems.downloads')
             ->addAssociation('transactions')
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('deliveries.positions.orderLineItem')

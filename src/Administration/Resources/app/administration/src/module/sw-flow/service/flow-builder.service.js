@@ -16,6 +16,7 @@ export default function flowBuilderService() {
         addEntityTag: 'regular-tag',
         removeEntityTag: 'regular-tag',
         mailSend: 'regular-envelope',
+        grantDownloadAccess: 'regular-file-signature',
         setOrderState: 'regular-shopping-bag-alt',
         generateDocument: 'regular-file-text',
         changeCustomerGroup: 'regular-users',
@@ -29,6 +30,7 @@ export default function flowBuilderService() {
         addEntityTag: 'sw-flow.actions.addTag',
         removeEntityTag: 'sw-flow.actions.removeTag',
         mailSend: 'sw-flow.actions.mailSend',
+        grantDownloadAccess: 'sw-flow.actions.grantDownloadAccess',
         setOrderState: 'sw-flow.actions.setOrderState',
         generateDocument: 'sw-flow.actions.generateDocument',
         changeCustomerGroup: 'sw-flow.actions.changeCustomerGroup',
@@ -103,6 +105,10 @@ export default function flowBuilderService() {
 
         if (mapActionType(actionName) === ACTION_TYPE.ADD_AFFILIATE_AND_CAMPAIGN_CODE) {
             return 'sw-flow-affiliate-and-campaign-code-modal';
+        }
+
+        if (mapActionType(actionName) === ACTION_TYPE.GRANT_DOWNLOAD_ACCESS) {
+            return 'sw-flow-grant-download-access-modal';
         }
 
         return `${actionName.replace(/\./g, '-').replace('action', 'sw-flow')}-modal`;

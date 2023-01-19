@@ -93,7 +93,7 @@ describe('Profile module', () => {
             .click()
 
         // Add avatar to profile
-        cy.get('#files')
+        cy.get('.sw-media-upload-v2__file-input')
             .attachFile({
                 filePath: 'img/sw-test-image.png',
                 fileName: 'sw-test-image.png',

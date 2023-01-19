@@ -27,7 +27,7 @@
                 variant="primary"
                 @click="onClickUpload"
             >
-                {{ $tc('global.sw-media-upload-v2.buttonFileUpload') }}
+                {{ buttonFileUploadLabel }}
             </sw-button>
             {% endblock %}
 
@@ -93,15 +93,55 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_upload_v2_preview %}
-            <template v-if="showPreview">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_media_upload_v2_regular_preview_file %}
-                <sw-media-preview-v2
-                    v-if="source || preview"
-                    class="sw-media-upload-v2__preview"
-                    :source="source || preview"
-                />
-                {% endblock %}
+            <div class="sw-media-compact-upload-v2__preview-wrapper">
+                <template v-if="allowMultiSelect && mediaPreview">
+                    <div
+                        v-for="item in mediaPreview"
+                        :key="item.name"
+                        class="sw-media-compact-upload-v2__preview-item"
+                    >
+                        <sw-media-preview-v2
+                            class="sw-media-upload-v2__preview"
+                            :source="item"
+                            :media-is-private="privateFilesystem"
+                        />
+
+                        <sw-context-button>
+                            <slot name="context-menu-items">
+                                <sw-context-menu-item variant="headline">
+                                    {{ getFileName(item) }}
+                                </sw-context-menu-item>
+                                <sw-context-menu-divider />
+                                <sw-context-menu-item
+                                    v-tooltip.top="{
+                                        message: disableDeletionForLastItem.helpText,
+                                        disabled: !isDeletionDisabled || !disableDeletionForLastItem.helpText,
+                                        showOnDisabledElements: true
+                                    }"
+                                    class="sw-media-upload-v2__delete-item-button sw-context-menu-item__buttonRemove"
+                                    :disabled="isDeletionDisabled"
+                                    variant="danger"
+                                    @click="$emit('delete-item', item)"
+                                >
+                                    {{ removeFileButtonLabel }}
+                                </sw-context-menu-item>
+                            </slot>
+                        </sw-context-button>
+                    </div>
+                </template>
+
+                <template v-else-if="!allowMultiSelect && (preview || source)">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_media_upload_v2_regular_preview_file %}
+                    <sw-media-preview-v2
+                        v-if="source || preview"
+                        class="sw-media-upload-v2__preview"
+                        :source="source || preview"
+                        :media-is-private="privateFilesystem"
+                    />
+                    {% endblock %}
+                </template>
+
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_upload_v2_regular_preview_fallback %}
                 <div
@@ -114,7 +154,7 @@
                     />
                 </div>
                 {% endblock %}
-            </template>
+            </div>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -161,28 +201,30 @@
                             size="small"
                             @click="onClickUpload"
                         >
-                            {{ $tc('global.sw-media-upload-v2.buttonFileUpload') }}
+                            {{ buttonFileUploadLabel }}
                         </sw-button>
                         {% endblock %}
 
-                        <sw-button
-                            variant="primary"
-                            :disabled="disabled"
-                            class="sw-media-compact-upload-v2__browse-button"
-                            @click="mediaModalIsOpen = true"
-                        >
-                            <sw-icon
-                                class="sw-media-compact-upload-v2__browse-icon"
-                                name="regular-image"
-                            />
-                        </sw-button>
+                        <template v-if="!privateFilesystem">
+                            <sw-button
+                                variant="primary"
+                                :disabled="disabled"
+                                class="sw-media-compact-upload-v2__browse-button"
+                                @click="mediaModalIsOpen = true"
+                            >
+                                <sw-icon
+                                    class="sw-media-compact-upload-v2__browse-icon"
+                                    name="regular-image"
+                                />
+                            </sw-button>
 
-                        <sw-media-modal-v2
-                            v-if="mediaModalIsOpen"
-                            :allow-multi-select="false"
-                            @modal-close="mediaModalIsOpen = false"
-                            @media-modal-selection-change="onModalClosed"
-                        />
+                            <sw-media-modal-v2
+                                v-if="mediaModalIsOpen"
+                                :allow-multi-select="false"
+                                @modal-close="mediaModalIsOpen = false"
+                                @media-modal-selection-change="onModalClosed"
+                            />
+                        </template>
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_media_upload_v2_regular_media_sidebar_button %}{% endblock %}

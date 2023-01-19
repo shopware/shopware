@@ -190,6 +190,13 @@ class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends Test
                 DROP INDEX `uniq.product_configurator_setting.prod_id.vers_id.prop_group_id`
             ');
         }
+
+        if ($this->hasNewIndex()) {
+            $this->connection->executeStatement('
+                ALTER TABLE `product_configurator_setting`
+                DROP INDEX `uniq.product_configurator_setting.p_id.vers_id.prop_group_id.cS`
+            ');
+        }
     }
 
     private function hasIndex(): bool
@@ -197,6 +204,14 @@ class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends Test
         return (bool) $this->connection->executeQuery('
             SHOW INDEXES IN `product_configurator_setting`
             WHERE `Key_name` = \'uniq.product_configurator_setting.prod_id.vers_id.prop_group_id\'
+        ')->fetchOne();
+    }
+
+    private function hasNewIndex(): bool
+    {
+        return (bool) $this->connection->executeQuery('
+            SHOW INDEXES IN `product_configurator_setting`
+            WHERE `Key_name` = \'uniq.product_configurator_setting.p_id.vers_id.prop_group_id.cS\'
         ')->fetchOne();
     }
 

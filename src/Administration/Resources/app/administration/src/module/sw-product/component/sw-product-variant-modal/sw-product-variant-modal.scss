@@ -195,4 +195,13 @@
             width: 100%;
         }
     }
+
+    &__bulk-edit-modal .sw-product-variant-modal__digital-indicator,
+    .sw-product-variant-modal__digital-indicator {
+        height: 24px;
+        padding: 4px 8px;
+        margin: 0;
+        min-width: auto;
+        vertical-align: middle;
+    }
 }

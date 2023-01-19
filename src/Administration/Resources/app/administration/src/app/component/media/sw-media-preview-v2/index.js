@@ -36,16 +36,35 @@ Component.register('sw-media-preview-v2', {
         'audio/wav',
     ],
 
+    placeholderThumbnailsBasePath: '/administration/static/img/media-preview/',
+
     placeHolderThumbnails: {
-        'application/pdf': 'multicolor-file-thumbnail-pdf',
-        'application/msword': 'multicolor-file-thumbnail-doc',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'multicolor-file-thumbnail-doc',
-        'application/vnd.ms-excel': 'multicolor-file-thumbnail-xls',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'multicolor-file-thumbnail-xls',
-        'application/svg': 'multicolor-file-thumbnail-svg',
-        'application/vnd.ms-powerpoint': 'multicolor-file-thumbnail-ppt',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'multicolor-file-thumbnail-ppt',
-        'application/svg+xml': 'multicolor-file-thumbnail-svg',
+        application: {
+            'adobe.illustrator': 'icons-multicolor-file-thumbnail-ai',
+            illustrator: 'icons-multicolor-file-thumbnail-ai',
+            postscript: 'icons-multicolor-file-thumbnail-ai',
+            msword: 'icons-multicolor-file-thumbnail-doc',
+            'vnd.openxmlformats-officedocument.wordprocessingml.document': 'icons-multicolor-file-thumbnail-doc',
+            pdf: 'icons-multicolor-file-thumbnail-pdf',
+            'vnd.ms-excel': 'icons-multicolor-file-thumbnail-xls',
+            'vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'icons-multicolor-file-thumbnail-xls',
+            'vnd.ms-powerpoint': 'icons-multicolor-file-thumbnail-ppt',
+            'vnd.openxmlformats-officedocument.presentationml.presentation': 'icons-multicolor-file-thumbnail-ppt',
+        },
+        video: {
+            'x-msvideo': 'icons-multicolor-file-thumbnail-avi',
+            quicktime: 'icons-multicolor-file-thumbnail-mov',
+            mp4: 'icons-multicolor-file-thumbnail-mp4',
+        },
+        text: {
+            csv: 'icons-multicolor-file-thumbnail-csv',
+            plain: 'icons-multicolor-file-thumbnail-csv',
+        },
+        image: {
+            gif: 'icons-multicolor-file-thumbnail-gif',
+            jpeg: 'icons-multicolor-file-thumbnail-jpg',
+            'svg+xml': 'icons-multicolor-file-thumbnail-svg',
+        },
     },
 
     props: {
@@ -175,15 +194,27 @@ Component.register('sw-media-preview-v2', {
         },
 
         placeholderIcon() {
-            if (this.mimeTypeGroup === 'video') {
-                return 'multicolor-file-thumbnail-mov';
+            if (!this.mimeType) {
+                return 'icons-multicolor-file-thumbnail-broken';
             }
 
-            if (this.mimeTypeGroup === 'audio') {
-                return 'multicolor-file-thumbnail-mp3';
+            const mediaTypeIconGroup = this.$options.placeHolderThumbnails[this.mimeTypeGroup];
+            if (mediaTypeIconGroup) {
+                const mediaTypeIcon = mediaTypeIconGroup[`${this.mimeType.split('/')[1]}`];
+                if (mediaTypeIcon) {
+                    return mediaTypeIcon;
+                }
             }
 
-            return this.$options.placeHolderThumbnails[this.mimeType] || 'multicolor-file-thumbnail-normal';
+            return 'icons-multicolor-file-thumbnail-normal';
+        },
+
+        placeholderIconPath() {
+            return `${this.$options.placeholderThumbnailsBasePath}${this.placeholderIcon}.svg`;
+        },
+
+        lockIsVisible() {
+            return this.width > 40;
         },
 
         previewUrl() {
@@ -279,6 +310,9 @@ Component.register('sw-media-preview-v2', {
                 this.trueSource = await this.mediaRepository.get(this.source, Context.api);
             } else {
                 this.trueSource = this.source;
+                if (this.source[0]) {
+                    this.trueSource = this.source[0];
+                }
             }
         },
 

@@ -218,6 +218,12 @@
 
             </div>
 
+            {% block page_account_order_item_downloads_table %}
+                <div class="order-detail-content-list">
+                    {% sw_include '@Storefront/storefront/component/line-item/element/downloads.html.twig' %}
+                </div>
+            {% endblock %}
+
             {% block page_account_order_item_detail_children_template %}
                 {% if isNested %}
                     {# @deprecated tag:v6.5.0 - `page_account_order_item_detail_list_item_children` will be moved to `@Storefront/storefront/page/account/order-history/order-detail-list-item-children.html.twig` #}

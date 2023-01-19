@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -92,7 +93,7 @@ class AdministrationController extends AbstractController
         EntityRepository $currencyRepository,
         HtmlSanitizer $htmlSanitizer,
         DefinitionInstanceRegistry $definitionInstanceRegistry,
-        bool $esAdministrationEnabled
+        ParameterBagInterface $params
     ) {
         $this->finder = $finder;
         $this->firstRunWizardService = $firstRunWizardService;
@@ -106,7 +107,11 @@ class AdministrationController extends AbstractController
         $this->currencyRepository = $currencyRepository;
         $this->htmlSanitizer = $htmlSanitizer;
         $this->definitionInstanceRegistry = $definitionInstanceRegistry;
-        $this->esAdministrationEnabled = $esAdministrationEnabled;
+
+        // param is only available if the elasticsearch bundle is enabled
+        $this->esAdministrationEnabled = $params->has('elasticsearch.administration.enabled')
+            ? $params->get('elasticsearch.administration.enabled')
+            : false;
     }
 
     /**

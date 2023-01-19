@@ -103,7 +103,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_rule_detail_tabs_discard_changes_modal %}
         <sw-discard-changes-modal
-            v-if="isDisplayingSaveChangesWarning && feature.isActive('v6.5.0.0')"
+            v-if="isDisplayingSaveChangesWarning"
             @keep-editing="onLeaveModalClose(nextRoute)"
             @discard-changes="onLeaveModalConfirm(nextRoute)"
         />

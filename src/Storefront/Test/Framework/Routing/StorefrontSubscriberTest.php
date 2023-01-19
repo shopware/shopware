@@ -126,24 +126,6 @@ class StorefrontSubscriberTest extends TestCase
 
     public function testSubscribedEvents(): void
     {
-        $featureAll = $_SERVER['FEATURE_ALL'] ?? null;
-
-        if (isset($featureAll)) {
-            unset($_SERVER['FEATURE_ALL']);
-        }
-
-        $defaultVar = $_SERVER['v6_5_0_0'] ?? null;
-
         static::assertCount(2, (array) StorefrontSubscriber::getSubscribedEvents()[KernelEvents::EXCEPTION]);
-
-        if ($defaultVar !== null) {
-            $_SERVER['V6_5_0_0'] = $defaultVar;
-        } else {
-            unset($_SERVER['V6_5_0_0']);
-        }
-
-        if (isset($featureAll)) {
-            $_SERVER['FEATURE_ALL'] = $featureAll;
-        }
     }
 }

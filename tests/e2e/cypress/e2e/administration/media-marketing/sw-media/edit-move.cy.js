@@ -41,9 +41,9 @@ describe('Media: Move folder and image', () => {
             .should('be.visible');
 
         // Navigate back
-        cy.get('.icon--multicolor-folder-breadcrumbs-back-to-root').click();
+        cy.get('.icon--regular-double-chevron-left-s').click();
         cy.get(page.elements.loader).should('not.exist');
-        cy.get('.icon--multicolor-folder-breadcrumbs-back-to-root').should('not.exist');
+        cy.get('.icon--regular-double-chevron-left-s').should('not.exist');
 
         // Upload another image
         page.uploadImageUsingFileUpload('img/sw-test-image.png');

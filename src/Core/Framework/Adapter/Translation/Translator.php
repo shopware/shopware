@@ -330,15 +330,16 @@ class Translator extends AbstractTranslator
      */
     private function loadSnippets(MessageCatalogueInterface $catalog, string $snippetSetId, ?string $fallbackLocale): array
     {
-        $salesChannelId = $this->resolveSalesChannelId() ?? 'DEFAULT';
+        $salesChannelId = $this->resolveSalesChannelId();
 
-        $key = sprintf('translation.catalog.%s.%s', $salesChannelId, $snippetSetId);
+        $key = sprintf('translation.catalog.%s.%s', $salesChannelId ?? 'DEFAULT', $snippetSetId);
 
-        return $this->cache->get($key, function (ItemInterface $item) use ($catalog, $snippetSetId, $salesChannelId, $fallbackLocale) {
+        return $this->cache->get($key, function (ItemInterface $item) use ($catalog, $snippetSetId, $fallbackLocale, $salesChannelId) {
             $item->tag('translation.catalog.' . $snippetSetId);
-            $item->tag('translation.catalog.' . $salesChannelId);
+            $salesChannelKey = sprintf('translation.catalog.%s', $salesChannelId ?? 'DEFAULT');
+            $item->tag($salesChannelKey);
 
-            return $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $fallbackLocale);
+            return $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $fallbackLocale, $salesChannelId);
         });
     }
 

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\System\Snippet\SnippetService;
+use Shopware\Storefront\Theme\SalesChannelThemeLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -85,6 +86,76 @@ class SnippetServiceTest extends TestCase
 
         static::assertSame([
             'title' => 'Storefront DE',
+        ], $snippets);
+    }
+
+    public function testGetStorefrontSnippetsWithSalesChannelId(): void
+    {
+        $themeRegistry = class_exists(StorefrontPluginRegistry::class) ? $this->createMock(StorefrontPluginRegistry::class) : null;
+        $themeLoader = class_exists(SalesChannelThemeLoader::class) ? $this->createMock(SalesChannelThemeLoader::class) : null;
+
+        if ($themeRegistry === null || $themeLoader === null) {
+            $this->testGetStorefrontSnippetsWithoutThemeRegistry();
+
+            return;
+        }
+
+        $this->addThemes();
+
+        $locale = 'de-DE';
+        $snippetSetId = Uuid::randomHex();
+        $catalog = new MessageCatalogue($locale, []);
+
+        $requestStack = new RequestStack();
+
+        $salesChannelId = Uuid::randomHex();
+
+        $container = $this->createMock(ContainerInterface::class);
+
+        $container->expects(static::exactly(2))->method('get')->withConsecutive(
+            [SalesChannelThemeLoader::class],
+            [StorefrontPluginRegistry::class]
+        )->willReturnOnConsecutiveCalls(
+            $themeLoader,
+            $themeRegistry,
+        );
+        $container->expects(static::exactly(2))->method('has')->withConsecutive(
+            [SalesChannelThemeLoader::class],
+            [StorefrontPluginRegistry::class]
+        )->willReturn(true);
+
+        $themeLoader->expects(static::once())->method('load')->with($salesChannelId)->willReturn([
+            'themeName' => 'SwagTheme',
+            'parentThemeName' => null,
+        ]);
+
+        $snippetService = new SnippetService(
+            $this->connection,
+            $this->snippetCollection,
+            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(SnippetFilterFactory::class),
+            $requestStack,
+            $container
+        );
+
+        $plugins = new StorefrontPluginConfigurationCollection();
+
+        $storefront = new StorefrontPluginConfiguration('Storefront');
+        $storefront->setIsTheme(true);
+        $swagTheme = new StorefrontPluginConfiguration('SwagTheme');
+        $swagTheme->setIsTheme(true);
+
+        $plugins->add($storefront);
+        $plugins->add($swagTheme);
+
+        $themeRegistry->expects(static::once())->method('getConfigurations')->willReturn($plugins);
+
+        $snippets = $snippetService->getStorefrontSnippets($catalog, $snippetSetId, $locale, $salesChannelId);
+
+        static::assertSame([
+            'title' => 'SwagTheme DE',
         ], $snippets);
     }
 

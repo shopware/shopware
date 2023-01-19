@@ -43,7 +43,7 @@ describe('Basic Informaion: Edit assignments', () => {
             .first()
             .should('have.attr', 'src')
             .and('match', /404_error/);
-        cy.get('.btn').contains('Back to homepage');
+        cy.get('.btn').contains('Back to shop');
         cy.get('.main-navigation-link-text ').contains('Home');
 
         // Check footer navigation

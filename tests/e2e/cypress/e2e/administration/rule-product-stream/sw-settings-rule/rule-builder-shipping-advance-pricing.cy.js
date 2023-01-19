@@ -159,7 +159,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
         cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
 
         cy.get('.line-item-label').contains('Product name');
-        cy.get('a[title="Proceed to checkout"]').click();
+        cy.get('a[title="Go to checkout"]').click();
         cy.url().should('include', 'checkout/confirm');
         cy.get('.address').contains('Germany');
         cy.contains('Standard').should('exist');

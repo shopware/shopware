@@ -20,7 +20,7 @@ describe('Test review function on Product page', () => {
         cy.get('.search-suggest-product-name').click();
         cy.get('#review-tab').click();
 
-        cy.get('button.product-detail-review-teaser-btn').contains('Write a review!').click();
+        cy.get('button.product-detail-review-teaser-btn').contains('Write review').click();
 
         cy.get('.product-detail-review-login .login-form').should('be.visible');
     });

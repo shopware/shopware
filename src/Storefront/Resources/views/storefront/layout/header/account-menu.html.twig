@@ -21,7 +21,7 @@
 
                     <div class="account-menu-register">
                         {{ "account.orRegister"|trans|sw_sanitize }} <a href="{{ path('frontend.account.login.page') }}"
-                                                            title="{{ "account.orRegisterLink"|trans|striptags }}">{{ "account.orRegisterLink"|trans|striptags }}</a>
+                                                            title="{{ "account.orRegisterLink"|trans|striptags }}">{{ "account.orRegisterLink"|trans|striptags|lower }}</a>
                     </div>
                 </div>
             {% endif %}

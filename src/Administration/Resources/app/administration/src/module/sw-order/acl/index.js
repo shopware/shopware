@@ -55,6 +55,7 @@ Shopware.Service('privileges')
                     'customer:read',
                     'customer_address:read',
                     'version:delete',
+                    'media_default_folder:read',
                 ],
                 dependencies: [],
             },

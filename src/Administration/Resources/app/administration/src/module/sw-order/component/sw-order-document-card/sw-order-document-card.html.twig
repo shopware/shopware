@@ -30,12 +30,12 @@
                         v-if="!attachView"
                         v-tooltip="{
                             message: tooltipCreateDocumentButton,
-                            disabled: acl.can('order.editor') && !isEditing,
+                            disabled: acl.can('document.viewer') && !isEditing,
                             showOnDisabledElements: true
                         }"
                         size="small"
                         variant="ghost"
-                        :disabled="!acl.can('order.editor') || isEditing"
+                        :disabled="!acl.can('document.viewer') || isEditing"
                         class="sw-order-document-grid-button"
                         @click="onShowSelectDocumentTypeModal"
                     >
@@ -119,6 +119,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_card_grid_action_open %}
                 <sw-context-menu-item
+                    :disabled="!acl.can('document.viewer')"
                     @click="onOpenDocument(item.id, item.deepLinkCode)"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -130,7 +131,10 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_card_grid_action_download %}
-                <sw-context-menu-item @click="onDownload(item.id, item.deepLinkCode)">
+                <sw-context-menu-item
+                    :disabled="!acl.can('document.viewer')"
+                    @click="onDownload(item.id, item.deepLinkCode)"
+                >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_document_card_grid_action_download_label %}
                     {{ $tc('sw-order.documentCard.labelDownloadPdf') }}
@@ -141,6 +145,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_card_grid_action_send %}
                 <sw-context-menu-item
+                    :disabled="!acl.can('document.viewer')"
                     @click="onSendDocument(item.id)"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -153,7 +158,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_card_grid_action_mark_sent %}
                 <sw-context-menu-item
-                    :disabled="item.sent"
+                    :disabled="!acl.can('document.viewer') || item.sent"
                     @click="onMarkDocumentAsSent(item.id)"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -166,7 +171,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_card_grid_action_mark_unsent %}
                 <sw-context-menu-item
-                    :disabled="!item.sent"
+                    :disabled="!acl.can('document.viewer') || !item.sent"
                     @click="onMarkDocumentAsUnsent(item.id)"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -240,12 +245,12 @@
                 v-if="showCreateDocumentButton"
                 v-tooltip="{
                     message: tooltipCreateDocumentButton,
-                    disabled: acl.can('order.editor') && !isEditing,
+                    disabled: acl.can('document.viewer') && !isEditing,
                     showOnDisabledElements: true
                 }"
                 size="small"
                 variant="ghost"
-                :disabled="!acl.can('order.editor') || isEditing"
+                :disabled="!acl.can('document.viewer') || isEditing"
                 class="sw-order-document-grid-button"
                 @click="onShowSelectDocumentTypeModal"
             >

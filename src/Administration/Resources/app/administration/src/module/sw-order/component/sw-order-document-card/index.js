@@ -181,7 +181,7 @@ export default {
         },
 
         tooltipCreateDocumentButton() {
-            if (!this.acl.can('order.editor')) {
+            if (!this.acl.can('document.viewer')) {
                 return this.$tc('sw-privileges.tooltip.warning');
             }
 

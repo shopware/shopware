@@ -77,6 +77,17 @@
     &__modal-container {
         margin: -21px -30px -20px;
 
+        .sw-sidebar-collapse__indicator {
+            .icon--regular-chevron-up-xxs {
+                width: 16px;
+                height: 16px;
+                padding-top: 4px;
+                padding-right: 2px;
+                padding-bottom: 3px;
+                padding-left: 2px;
+            }
+        }
+
         .sw-cms-slot__element-selection {
             padding: 0 20px 16px;
         }

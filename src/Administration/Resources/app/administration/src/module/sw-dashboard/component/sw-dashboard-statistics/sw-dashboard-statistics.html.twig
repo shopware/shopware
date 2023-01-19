@@ -152,10 +152,11 @@
             {% block sw_dashboard_statistics_count %}
             <sw-chart-card
                 class="sw-dashboard-statistics__statistics-count"
+                :available-ranges="availableRanges"
                 :card-subtitle="getCardSubtitle(ordersDateRange)"
                 :series="orderCountSeries"
                 :options="chartOptionsOrderCount"
-                :fill-empty-values="getTimeUnitInterval(ordersDateRange)"
+                :fill-empty-values="ordersDateRange.aggregate"
                 type="line"
                 sort
                 @sw-chart-card-range-update="onOrdersRangeUpdate"
@@ -180,10 +181,11 @@
             {% block sw_dashboard_statistics_sum %}
             <sw-chart-card
                 class="sw-dashboard-statistics__statistics-sum"
+                :available-ranges="availableRanges"
                 :card-subtitle="getCardSubtitle(turnoverDateRange)"
                 :series="orderSumSeries"
                 :options="chartOptionsOrderSum"
-                :fill-empty-values="getTimeUnitInterval(turnoverDateRange)"
+                :fill-empty-values="turnoverDateRange.aggregate"
                 type="line"
                 sort
                 @sw-chart-card-range-update="onTurnoverRangeUpdate"

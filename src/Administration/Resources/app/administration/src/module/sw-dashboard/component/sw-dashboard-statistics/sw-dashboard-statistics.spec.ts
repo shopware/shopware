@@ -1,5 +1,10 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swDashboardStatistics from 'src/module/sw-dashboard/component/sw-dashboard-statistics';
+import 'src/app/component/form/sw-select-field';
+import 'src/app/component/form/field-base/sw-block-field';
+import 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/base/sw-chart-card';
+import 'src/app/component/base/sw-card';
 import dictionary from 'src/module/sw-dashboard/snippet/en-GB.json';
 import { currency } from 'src/core/service/utils/format.utils';
 
@@ -11,26 +16,33 @@ async function createWrapper(privileges = [], orderSumToday = null) {
     localVue.filter('date', v => v);
     localVue.filter('currency', currency);
 
-    const responseMock = [{}, {}];
-    responseMock.aggregations = {
-        order_count_bucket: {
-            buckets: []
-        },
-        order_sum_bucket: {
-            buckets: []
+    const responseMock = {
+        aggregations: {
+            order_count_bucket: {
+                buckets: []
+            },
+            order_sum_bucket: {
+                buckets: []
+            }
         }
     };
 
     const options = {
         localVue,
         stubs: {
-            'sw-card': true,
-            'sw-chart-card': true,
+            'sw-card': await Shopware.Component.build('sw-card'),
+            'sw-chart-card': await Shopware.Component.build('sw-chart-card'),
             'sw-entity-listing': true,
             'sw-chart': true,
-            'sw-select-field': true,
+            'sw-select-field': await Shopware.Component.build('sw-select-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-skeleton': true,
             'sw-help-text': true,
+            'sw-ignore-class': true,
+            'sw-extension-component-section': true,
+            'sw-icon': true,
+            'sw-field-error': true,
         },
         mocks: {
             $tc: (...args) => JSON.stringify([...args]),
@@ -67,6 +79,7 @@ async function createWrapper(privileges = [], orderSumToday = null) {
     };
 
     if (orderSumToday !== null) {
+        options.computed.hasOrderToday = () => true;
         options.computed.orderSumToday = () => orderSumToday;
     }
 
@@ -127,7 +140,7 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
         const statisticsCount = wrapper.find('.sw-dashboard-statistics__statistics-count');
         const statisticsSum = wrapper.find('.sw-dashboard-statistics__statistics-sum');
 
-        expect(orderToday.exists()).toBeTruthy();
+        expect(orderToday.exists()).toBeFalsy();
         expect(statisticsCount.exists()).toBeTruthy();
         expect(statisticsSum.exists()).toBeTruthy();
     });
@@ -138,5 +151,35 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
 
         const todaysTotalSum = wrapper.find('.sw-dashboard-statistics__intro-stats-today-single-stat:nth-of-type(2) span:nth-of-type(2)').text();
         expect(todaysTotalSum).toBe('€43,383.13');
+    });
+
+    it('should allow the possibility to extend the date ranges', async () => {
+        Shopware.Component.override('sw-dashboard-statistics', {
+            computed: {
+                rangesValueMap(): Array<HistoryDateRange> {
+                    return [
+                        ...this.$super('rangesValueMap'),
+                        {
+                            label: '72Hours',
+                            range: 72,
+                            interval: 'hour',
+                        },
+                        {
+                            label: '90Days',
+                            range: 90,
+                            interval: 'day',
+                        },
+                    ];
+                }
+            }
+        });
+
+        wrapper = await createWrapper(['order.viewer']);
+        await flushPromises();
+
+        const dateRanges = wrapper.get('#sw-field--selectedRange').findAll('option');
+
+        expect(dateRanges.at(dateRanges.length - 2).text()).toBe('["sw-dashboard.monthStats.dateRanges.72Hours"]');
+        expect(dateRanges.at(dateRanges.length - 1).text()).toBe('["sw-dashboard.monthStats.dateRanges.90Days"]');
     });
 });

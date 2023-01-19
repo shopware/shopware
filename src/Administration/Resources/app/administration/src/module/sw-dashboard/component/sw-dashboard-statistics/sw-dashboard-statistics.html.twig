@@ -156,7 +156,7 @@
                 :card-subtitle="getCardSubtitle(ordersDateRange)"
                 :series="orderCountSeries"
                 :options="chartOptionsOrderCount"
-                :fill-empty-values="ordersDateRange.interval"
+                :fill-empty-values="ordersDateRange.aggregate"
                 type="line"
                 sort
                 @sw-chart-card-range-update="onOrdersRangeUpdate"
@@ -185,7 +185,7 @@
                 :card-subtitle="getCardSubtitle(turnoverDateRange)"
                 :series="orderSumSeries"
                 :options="chartOptionsOrderSum"
-                :fill-empty-values="turnoverDateRange.interval"
+                :fill-empty-values="turnoverDateRange.aggregate"
                 type="line"
                 sort
                 @sw-chart-card-range-update="onTurnoverRangeUpdate"

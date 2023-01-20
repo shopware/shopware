@@ -268,7 +268,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should not have an disabled create new button', async () => {
         wrapper = await createWrapper([
-            'order.editor'
+            'order.editor',
+            'document.viewer',
         ]);
         const createNewButton = wrapper.find('.sw-order-document-grid-button');
 
@@ -385,7 +386,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should show Select document type modal when click on Create new button', async () => {
         wrapper = await createWrapper([
-            'order.editor'
+            'order.editor',
+            'document.viewer',
         ]);
 
         const createNewButton = wrapper.find('.sw-order-document-grid-button');
@@ -625,7 +627,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should show order unsaved tooltip message on Create document button correctly', async () => {
         wrapper = await createWrapper([
-            'order.editor'
+            'order.editor',
+            'document.viewer',
         ]);
 
         Shopware.State.commit('swOrderDetail/setEditing', true);

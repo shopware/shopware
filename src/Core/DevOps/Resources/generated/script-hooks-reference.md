@@ -5,6 +5,30 @@
 
 All available Hooks that can be used to load additional data.
 
+#### payment-method-route-request
+
+| <!-- -->               | <!-- -->                                |
+|:-----------------------|:----------------------------------------|
+| **Name**               | payment-method-route-request                         |
+| **Since**              | 6.5.0.0                        |
+| **Class**              | `Shopware\Core\Checkout\Payment\Hook\PaymentMethodRouteHook`                      |
+| **Description**        | Triggered when PaymentMethodRoute is requested<br>                  |
+| **Available Data**     | collection: [`Shopware\Core\Checkout\Payment\PaymentMethodCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Payment/PaymentMethodCollection.php)<br>onlyAvailable: `bool`<br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php)<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>        |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br> |
+| **Stoppable**          | `false`                  |
+
+#### shipping-method-route-request
+
+| <!-- -->               | <!-- -->                                |
+|:-----------------------|:----------------------------------------|
+| **Name**               | shipping-method-route-request                         |
+| **Since**              | 6.5.0.0                        |
+| **Class**              | `Shopware\Core\Checkout\Shipping\Hook\ShippingMethodRouteHook`                      |
+| **Description**        | Triggered when ShippingMethodRoute is requested<br>                  |
+| **Available Data**     | collection: [`Shopware\Core\Checkout\Shipping\ShippingMethodCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Shipping/ShippingMethodCollection.php)<br>onlyAvailable: `bool`<br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php)<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>        |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br> |
+| **Stoppable**          | `false`                  |
+
 #### customer-group-registration-page-loaded
 
 | <!-- -->               | <!-- -->                                |

@@ -58,7 +58,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
         /** @var ShippingMethodCollection $shippingMethods */
         $shippingMethods = $result->getEntities();
 
-        if ($request->query->getBoolean('onlyAvailable', false)) {
+        if ($request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable')) {
             $shippingMethods = $shippingMethods->filterByActiveRules($context);
         }
 

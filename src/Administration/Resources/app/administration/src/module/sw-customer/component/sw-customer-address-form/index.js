@@ -1,5 +1,6 @@
 import template from './sw-customer-address-form.html.twig';
 import './sw-customer-address-form.scss';
+import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
  * @package customer-order
@@ -124,7 +125,7 @@ export default {
         },
 
         isBusinessAccountType() {
-            return this.customer.company !== null;
+            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
         },
     },
 

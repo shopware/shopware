@@ -195,7 +195,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
 
         expect(notificationMock).toBeCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
-            message: 'sw-customer.error.COMPANY_IS_REQUIRED'
+            message: 'sw-customer.detail.messageSaveError'
         });
 
         wrapperWithPrivileges.vm.createNotificationError.mockRestore();

@@ -10,6 +10,8 @@ use Shopware\Core\Content\ImportExport\Processing\Mapping\UpdateByCollection;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
 /**
+ * @phpstan-import-type MappingArray from Mapping
+ *
  * @package system-settings
  */
 class Config
@@ -26,7 +28,7 @@ class Config
     protected array $parameters = [];
 
     /**
-     * @param iterable<Mapping|string|array<string, mixed>> $mapping
+     * @param iterable<Mapping|string|MappingArray> $mapping
      * @param iterable<string, mixed> $parameters
      * @param iterable<UpdateBy|string|array<string, mixed>> $updateBy
      */

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport\Processing\Pipe;
+namespace Shopware\Tests\Unit\Core\Content\ImportExport\Processing\Pipe;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\KeyMappingPipe;
@@ -10,6 +10,8 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
  * @internal
  *
  * @package system-settings
+ *
+ * @covers \Shopware\Core\Content\ImportExport\Processing\Pipe\KeyMappingPipe
  */
 class KeyMappingPipeTest extends TestCase
 {
@@ -19,13 +21,20 @@ class KeyMappingPipeTest extends TestCase
         $keyMappingPipe = new KeyMappingPipe($mapping, true);
 
         $config = new Config($mapping, [], []);
-        $actualOutput = iterator_to_array($keyMappingPipe->in($config, ['foo' => 'bar']));
+        $pipeInResult = $keyMappingPipe->in($config, ['foo' => 'bar']);
+        static::assertInstanceOf(\Traversable::class, $pipeInResult);
+        $actualOutput = iterator_to_array($pipeInResult);
         static::assertEmpty($actualOutput);
 
-        $actualOutput = iterator_to_array($keyMappingPipe->out($config, ['foo' => 'bar']));
+        $pipeOutResult = $keyMappingPipe->out($config, ['foo' => 'bar']);
+        static::assertInstanceOf(\Traversable::class, $pipeOutResult);
+        $actualOutput = iterator_to_array($pipeOutResult);
         static::assertEmpty($actualOutput);
     }
 
+    /**
+     * @return array<array{input: array<string, mixed>, expectedOutput: array<string, mixed>}>
+     */
     public function simpleMappingProvider(): array
     {
         return [
@@ -69,8 +78,11 @@ class KeyMappingPipeTest extends TestCase
 
     /**
      * @dataProvider simpleMappingProvider
+     *
+     * @param array<string, mixed> $input
+     * @param array<string, mixed> $expectedOutput
      */
-    public function testSimpleMapping(array $input, array $expetedOutput): void
+    public function testSimpleMapping(array $input, array $expectedOutput): void
     {
         $mapping = [
             ['key' => 'foo', 'mappedKey' => 'bar'],
@@ -80,15 +92,22 @@ class KeyMappingPipeTest extends TestCase
 
         $config = new Config($mapping, [], []);
 
-        $actualOutput = iterator_to_array($keyMappingPipe->in($config, $input));
+        $pipeInResult = $keyMappingPipe->in($config, $input);
+        static::assertInstanceOf(\Traversable::class, $pipeInResult);
+        $actualOutput = iterator_to_array($pipeInResult);
 
-        static::assertSame($expetedOutput, $actualOutput);
+        static::assertSame($expectedOutput, $actualOutput);
 
-        $actualOutput = iterator_to_array($keyMappingPipe->in($config, $keyMappingPipe->out($config, $actualOutput)));
+        $pipeInResult = $keyMappingPipe->in($config, $keyMappingPipe->out($config, $actualOutput));
+        static::assertInstanceOf(\Traversable::class, $pipeInResult);
+        $actualOutput = iterator_to_array($pipeInResult);
 
-        static::assertSame($expetedOutput, $actualOutput);
+        static::assertSame($expectedOutput, $actualOutput);
     }
 
+    /**
+     * @return array<array{input: array<string, mixed>, expectedOutput: array<string, mixed>}>
+     */
     public function nestedProvider(): array
     {
         return [
@@ -149,8 +168,11 @@ class KeyMappingPipeTest extends TestCase
 
     /**
      * @dataProvider nestedProvider
+     *
+     * @param array<string, mixed> $input
+     * @param array<string, mixed> $expectedOutput
      */
-    public function testFlattenNested(array $input, array $expetedOutput): void
+    public function testFlattenNested(array $input, array $expectedOutput): void
     {
         $mapping = [
             ['key' => 'foo', 'mappedKey' => 'bar'],
@@ -161,16 +183,25 @@ class KeyMappingPipeTest extends TestCase
         $keyMappingPipe = new KeyMappingPipe($mapping, true);
 
         $config = new Config($mapping, [], []);
-        $actualOutput = iterator_to_array($keyMappingPipe->in($config, $input));
+        $pipeInResult = $keyMappingPipe->in($config, $input);
+        static::assertInstanceOf(\Traversable::class, $pipeInResult);
+        $actualOutput = iterator_to_array($pipeInResult);
 
-        static::assertSame($expetedOutput, $actualOutput);
+        static::assertSame($expectedOutput, $actualOutput);
 
-        $tmp = iterator_to_array($keyMappingPipe->out($config, $actualOutput));
-        $actualOutput = iterator_to_array($keyMappingPipe->in($config, $tmp));
+        $pipeOutResult = $keyMappingPipe->out($config, $actualOutput);
+        static::assertInstanceOf(\Traversable::class, $pipeOutResult);
+        $tmp = iterator_to_array($pipeOutResult);
+        $pipeInResult = $keyMappingPipe->in($config, $tmp);
+        static::assertInstanceOf(\Traversable::class, $pipeInResult);
+        $actualOutput = iterator_to_array($pipeInResult);
 
-        static::assertSame($expetedOutput, $actualOutput);
+        static::assertSame($expectedOutput, $actualOutput);
     }
 
+    /**
+     * @return array<array{input: array<string, mixed>, expectedOutput: array<string, mixed>}>
+     */
     public function nestedProviderNoFlatten(): array
     {
         return [
@@ -247,8 +278,11 @@ class KeyMappingPipeTest extends TestCase
 
     /**
      * @dataProvider nestedProviderNoFlatten
+     *
+     * @param array<string, mixed> $input
+     * @param array<string, mixed> $expectedOutput
      */
-    public function testNoFlatten(array $input, array $expetedOutput): void
+    public function testNoFlatten(array $input, array $expectedOutput): void
     {
         $mapping = [
             ['key' => 'foo', 'mappedKey' => 'bar'],
@@ -261,14 +295,20 @@ class KeyMappingPipeTest extends TestCase
         $config = new Config($mapping, [
             'flatten' => false,
         ], []);
-        $actualOutput = iterator_to_array($keyMappingPipe->in($config, $input));
+        $pipeInResult = $keyMappingPipe->in($config, $input);
+        static::assertInstanceOf(\Traversable::class, $pipeInResult);
+        $actualOutput = iterator_to_array($pipeInResult);
 
-        static::assertSame($expetedOutput, $actualOutput);
+        static::assertSame($expectedOutput, $actualOutput);
 
-        $tmp = iterator_to_array($keyMappingPipe->out($config, $actualOutput));
-        $actualOutput = iterator_to_array($keyMappingPipe->in($config, $tmp));
+        $pipeOutResult = $keyMappingPipe->out($config, $actualOutput);
+        static::assertInstanceOf(\Traversable::class, $pipeOutResult);
+        $tmp = iterator_to_array($pipeOutResult);
+        $pipeInResult = $keyMappingPipe->in($config, $tmp);
+        static::assertInstanceOf(\Traversable::class, $pipeInResult);
+        $actualOutput = iterator_to_array($pipeInResult);
 
-        static::assertSame($expetedOutput, $actualOutput);
+        static::assertSame($expectedOutput, $actualOutput);
     }
 
     public function testEntityExtensions(): void
@@ -286,7 +326,9 @@ class KeyMappingPipeTest extends TestCase
 
         $keyMappingPipe = new KeyMappingPipe();
         $config = new Config($mapping, [], []);
-        $actualOutput = iterator_to_array($keyMappingPipe->in($config, $input));
+        $pipeInResult = $keyMappingPipe->in($config, $input);
+        static::assertInstanceOf(\Traversable::class, $pipeInResult);
+        $actualOutput = iterator_to_array($pipeInResult);
         static::assertSame([
             'TestCustomString' => 'hello world',
         ], $actualOutput);

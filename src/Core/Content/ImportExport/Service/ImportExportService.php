@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @internal We might break this in v6.2
  *
- * @phpstan-type Config array{mapping?: ?list<array<string, mixed>>, updateBy?: ?array<string, mixed>, parameters?: ?array<string, mixed>}
+ * @phpstan-type Config array{mapping?: ?array<array<string, mixed>>, updateBy?: ?array<string, mixed>, parameters?: ?array<string, mixed>}
  *
  * @package system-settings
  */
@@ -65,9 +65,8 @@ class ImportExportService
         }
 
         $fileEntity = $this->fileService->storeFile($context, $expireDate, null, $originalFileName, $activity, $destinationPath);
-        $logEntity = $this->createLog($context, $activity, $fileEntity, $profileEntity, $config);
 
-        return $logEntity;
+        return $this->createLog($context, $activity, $fileEntity, $profileEntity, $config);
     }
 
     /**
@@ -94,9 +93,8 @@ class ImportExportService
 
         $fileEntity = $this->fileService->storeFile($context, $expireDate, $file->getPathname(), $file->getClientOriginalName(), ImportExportLogEntity::ACTIVITY_IMPORT);
         $activity = $dryRun ? ImportExportLogEntity::ACTIVITY_DRYRUN : ImportExportLogEntity::ACTIVITY_IMPORT;
-        $logEntity = $this->createLog($context, $activity, $fileEntity, $profileEntity, $config);
 
-        return $logEntity;
+        return $this->createLog($context, $activity, $fileEntity, $profileEntity, $config);
     }
 
     public function cancel(Context $context, string $logId): void
@@ -115,9 +113,8 @@ class ImportExportService
 
     public function getProgress(string $logId, int $offset): Progress
     {
-        /** @var ImportExportLogEntity|null $current */
         $current = $this->logRepository->search(new Criteria([$logId]), Context::createDefaultContext())->first();
-        if ($current === null) {
+        if (!$current instanceof ImportExportLogEntity) {
             throw new \RuntimeException('ImportExportLog "' . $logId . '" not found');
         }
 
@@ -136,7 +133,7 @@ class ImportExportService
     }
 
     /**
-     * @param list<array<mixed>>|null $result
+     * @param array<array<mixed>>|null $result
      */
     public function saveProgress(Progress $progress, ?array $result = null): void
     {
@@ -232,7 +229,7 @@ class ImportExportService
     /**
      * @param Config $config
      *
-     * @return array{mapping: ?list<array<string, mixed>>, updateBy: ?array<string, mixed>, parameters: ?array<string, mixed>}
+     * @return Config
      */
     private function getConfig(ImportExportProfileEntity $profileEntity, array $config): array
     {

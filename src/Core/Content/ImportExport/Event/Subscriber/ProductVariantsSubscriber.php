@@ -22,6 +22,8 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal
  *
+ * @phpstan-type CombinationPayload list<array{id: string, parentId: string, productNumber: string, stock: int, options: list<array{id: string, name: string, group: array{id: string, name: string}}>}>
+ *
  * @package system-settings
  */
 class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterface
@@ -132,7 +134,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
     /**
      * convert "size: m, l, xl" to ["size|m", "size|l", "size|xl"]
      *
-     * @return list<list<string>>
+     * @return list<array<string>>
      */
     private function parseVariantString(string $variantsString): array
     {
@@ -173,9 +175,9 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
     }
 
     /**
-     * @param list<list<string>> $variants
+     * @param list<array<string>> $variants
      *
-     * @return list<array<string, mixed>>
+     * @return CombinationPayload
      */
     private function getCombinationsPayload(array $variants, string $parentId, string $productNumber): array
     {
@@ -224,9 +226,9 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
      * convert [["size|m", "size|l"], ["color|blue", "color|red"]]
      * to [["size|m", "color|blue"], ["size|l", "color|blue"], ["size|m", "color|red"], ["size|l", "color|red"]]
      *
-     * @param list<list<string>> $variants
+     * @param list<array<string>> $variants
      *
-     * @return list<list<string>>|list<string>
+     * @return list<array<string>>|array<string>
      */
     private function getCombinations(array $variants, int $currentIndex = 0): array
     {
@@ -254,9 +256,9 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
     }
 
     /**
-     * @param list<array<string, mixed>> $variantsPayload
+     * @param CombinationPayload $variantsPayload
      *
-     * @return list<array<string, mixed>>
+     * @return list<array{id: string, optionId: string, productId: string}>
      */
     private function getProductConfiguratorSettingPayload(array $variantsPayload, string $parentId): array
     {

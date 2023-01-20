@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport\Processing\Mapping;
+namespace Shopware\Tests\Unit\Core\Content\ImportExport\Processing\Mapping;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
  * @internal
  *
  * @package system-settings
+ *
+ * @covers \Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection
  */
 class MappingCollectionTest extends TestCase
 {
@@ -49,7 +51,7 @@ class MappingCollectionTest extends TestCase
     public function testInvalidElement(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        // @phpstan-ignore-next-line
+        /** @phpstan-ignore-next-line intentionally wrong parameter provided */
         new MappingCollection([new ArrayEntity()]);
     }
 
@@ -105,6 +107,7 @@ class MappingCollectionTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('key is required in mapping');
 
+        /** @phpstan-ignore-next-line intentionally wrong array provided */
         MappingCollection::fromIterable([$mappingFoo]);
     }
 

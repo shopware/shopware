@@ -58,7 +58,6 @@ class LandingPageLoader
         }
 
         $page = $this->genericPageLoader->load($request, $context);
-        /** @var LandingPage $page */
         $page = LandingPage::createFrom($page);
 
         $page->setLandingPage($landingPage);

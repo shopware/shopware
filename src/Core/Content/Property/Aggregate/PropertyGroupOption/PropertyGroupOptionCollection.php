@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class PropertyGroupOptionCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getPropertyGroupIds(): array
     {
@@ -31,7 +31,7 @@ class PropertyGroupOptionCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getMediaIds(): array
     {
@@ -64,13 +64,15 @@ class PropertyGroupOptionCollection extends EntityCollection
             if ($groups->has($element->getGroupId())) {
                 $group = $groups->get($element->getGroupId());
             } else {
-                $group = PropertyGroupEntity::createFrom($element->getGroup());
+                $group = PropertyGroupEntity::createFrom($element->getGroup() ?? new PropertyGroupEntity());
                 $groups->add($group);
 
                 $group->setOptions(new self());
             }
 
-            $group->getOptions()->add($element);
+            if ($group->getOptions()) {
+                $group->getOptions()->add($element);
+            }
         }
 
         return $groups;

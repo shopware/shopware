@@ -51,12 +51,16 @@ class CustomerGroupRegistrationPageLoader extends AbstractCustomerGroupRegistrat
             $this->customerGroupRegistrationRoute->load($customerGroupId, $salesChannelContext)->getRegistration()
         );
 
-        if ($metaDescription = $page->getGroup()->getTranslation('registrationSeoMetaDescription')) {
-            $page->getMetaInformation()->setMetaDescription($metaDescription);
-        }
+        if ($page->getMetaInformation()) {
+            $metaDescription = $page->getGroup()->getTranslation('registrationSeoMetaDescription');
+            if ($metaDescription) {
+                $page->getMetaInformation()->setMetaDescription($metaDescription);
+            }
 
-        if ($title = $page->getGroup()->getTranslation('registrationTitle')) {
-            $page->getMetaInformation()->setMetaTitle($title);
+            $title = $page->getGroup()->getTranslation('registrationTitle');
+            if ($title) {
+                $page->getMetaInformation()->setMetaTitle($title);
+            }
         }
 
         $this->eventDispatcher->dispatch(new CustomerGroupRegistrationPageLoadedEvent($page, $salesChannelContext, $request));

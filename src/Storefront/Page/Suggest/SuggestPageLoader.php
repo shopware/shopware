@@ -65,7 +65,7 @@ class SuggestPageLoader
                 ->getListingResult()
         );
 
-        $page->setSearchTerm($request->query->get('search'));
+        $page->setSearchTerm((string) $request->query->get('search'));
 
         $this->eventDispatcher->dispatch(
             new SuggestPageLoadedEvent($page, $salesChannelContext, $request)

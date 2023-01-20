@@ -266,11 +266,6 @@ parameters:
 			path: src/Core/Checkout/Cart/Delivery/Struct/ShippingLocation.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Error\\\\Error\\:\\:createFrom\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Error/Error.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Error\\\\ErrorCollection\\:\\:filterByErrorLevel\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Error/ErrorCollection.php
@@ -4286,31 +4281,6 @@ parameters:
 			path: src/Core/Content/Newsletter/Event/NewsletterSubscribeUrlEvent.php
 
 		-
-			message: "#^Cannot call method getGroup\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductConfiguratorSetting/ProductConfiguratorSettingCollection.php
-
-		-
-			message: "#^Cannot call method getGroupId\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Product/Aggregate/ProductConfiguratorSetting/ProductConfiguratorSettingCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductConfiguratorSetting\\\\ProductConfiguratorSettingCollection\\:\\:getOptionIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductConfiguratorSetting/ProductConfiguratorSettingCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductConfiguratorSetting\\\\ProductConfiguratorSettingCollection\\:\\:getProductIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductConfiguratorSetting/ProductConfiguratorSettingCollection.php
-
-		-
-			message: "#^Parameter \\#1 \\$object of static method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\:\\:createFrom\\(\\) expects Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct, Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupEntity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductConfiguratorSetting/ProductConfiguratorSettingCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductCrossSellingAssignedProducts\\\\ProductCrossSellingAssignedProductsCollection\\:\\:getProductIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Aggregate/ProductCrossSellingAssignedProducts/ProductCrossSellingAssignedProductsCollection.php
@@ -4756,11 +4726,6 @@ parameters:
 			path: src/Core/Content/Product/SearchKeyword/ProductSearchTermInterpreter.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Error\\\\Error\\:\\:createFrom\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/ProductExport/Error/Error.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Error\\\\Error\\:\\:getParameters\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ProductExport/Error/Error.php
@@ -5014,21 +4979,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Service\\\\ProductStreamBuilderInterface\\:\\:buildFilters\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ProductStream/Service/ProductStreamBuilderInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionCollection\\:\\:getMediaIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Property/Aggregate/PropertyGroupOption/PropertyGroupOptionCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionCollection\\:\\:getPropertyGroupIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Property/Aggregate/PropertyGroupOption/PropertyGroupOptionCollection.php
-
-		-
-			message: "#^Parameter \\#1 \\$object of static method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\:\\:createFrom\\(\\) expects Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct, Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupEntity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Property/Aggregate/PropertyGroupOption/PropertyGroupOptionCollection.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOptionTranslation\\\\PropertyGroupOptionTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"
@@ -11783,11 +11733,6 @@ parameters:
 			path: src/Core/Framework/Demodata/Generator/CustomerGenerator.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\FlowGenerator\\:\\:\\$ids \\(array\\<string, list\\<string\\>\\>\\) does not accept non\\-empty\\-array\\<string, array\\<int\\<0, max\\>, string\\>\\>\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/FlowGenerator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\OrderGenerator\\:\\:getTags\\(\\) should return list\\<array\\{id\\: string\\}\\> but returns array\\<array\\{id\\: string\\}\\>\\.$#"
 			count: 1
 			path: src/Core/Framework/Demodata/Generator/OrderGenerator.php
@@ -12899,11 +12844,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\:\\:cloneArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Struct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\:\\:createFrom\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Struct.php
 

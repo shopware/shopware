@@ -49,7 +49,6 @@ class AccountRecoverPasswordPageLoader
     {
         $page = $this->genericLoader->load($request, $context);
 
-        /** @var AccountRecoverPasswordPage $page */
         $page = AccountRecoverPasswordPage::createFrom($page);
         $page->setHash($hash);
 

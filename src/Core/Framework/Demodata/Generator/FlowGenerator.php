@@ -37,7 +37,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class FlowGenerator implements DemodataGeneratorInterface
 {
     /**
-     * @var array<string, list<string>>
+     * @var array<string, array<string>>
      */
     private array $ids = [];
 
@@ -222,7 +222,6 @@ class FlowGenerator implements DemodataGeneratorInterface
 
         $randomRuleId = $this->faker->randomElement($ruleIds);
 
-        /** @var FlowSequenceEntity $sequence */
         $sequence = FlowSequenceEntity::createFrom($parent);
         $sequence->setId(Uuid::randomHex());
         $sequence->setParentId($parent->getId());
@@ -244,7 +243,6 @@ class FlowGenerator implements DemodataGeneratorInterface
     {
         $actions = $this->getActions();
 
-        /** @var FlowSequenceEntity $sequence */
         $sequence = FlowSequenceEntity::createFrom($parent);
 
         /** @var FlowActionDefinition $action */
@@ -316,7 +314,7 @@ class FlowGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     private function getIds(string $table): array
     {

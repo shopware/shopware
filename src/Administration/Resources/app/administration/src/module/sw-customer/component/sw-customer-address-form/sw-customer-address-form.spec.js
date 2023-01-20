@@ -1,6 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/component/sw-customer-address-form';
 
+// eslint-disable-next-line import/named
+import CUSTOMER from '../../constant/sw-customer.constant';
 /**
  * @package customer-order
  */
@@ -109,28 +111,29 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         expect(stateSelect.exists()).toBeTruthy();
     });
 
-    it('should display company, department and vat fields when switching to business type', async () => {
+    it('should mark company as required field when switching to business type', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
             customer: {
-                accountType: 'business',
+                accountType: CUSTOMER.ACCOUNT_TYPE_BUSINESS,
             },
             address: {}
         });
 
-        expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]').exists()).toBeTruthy();
-        expect(wrapper.find('[label="sw-customer.addressForm.labelDepartment"]').exists()).toBeTruthy();
+        expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]')
+            .attributes('required')).toBeTruthy();
     });
 
-    it('should hide commercial inputs when switching to private type', async () => {
+    it('should not mark company as required when switching to private type', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
             customer: {
-                company: null,
+                accountType: CUSTOMER.ACCOUNT_TYPE_PRIVATE,
             }
         });
-        expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]').exists()).toBeFalsy();
-        expect(wrapper.find('[label="sw-customer.addressForm.labelDepartment"]').exists()).toBeFalsy();
+
+        expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]')
+            .attributes('required')).toBeFalsy();
     });
 
     it('should display company, department and vat fields by default when account type is empty', async () => {

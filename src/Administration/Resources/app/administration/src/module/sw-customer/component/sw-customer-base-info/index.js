@@ -1,5 +1,6 @@
 import template from './sw-customer-base-info.html.twig';
 import './sw-customer-base-info.scss';
+import errorConfig from '../../error-config.json';
 
 /**
  * @package customer-order
@@ -7,6 +8,7 @@ import './sw-customer-base-info.scss';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-customer-base-info', {
@@ -79,6 +81,11 @@ Component.register('sw-customer-base-info', {
 
             return criteria;
         },
+
+        ...mapPropertyErrors(
+            'customer',
+            [...errorConfig['sw.customer.detail.base'].customer],
+        ),
     },
 
     watch: {

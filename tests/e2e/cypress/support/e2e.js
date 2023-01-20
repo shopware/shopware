@@ -15,6 +15,7 @@
 //
 import 'cypress-file-upload';
 import 'cypress-real-events/support';
+import 'cypress-network-idle';
 import registerCypressGrep from '@cypress/grep/src/support';
 
 registerCypressGrep();

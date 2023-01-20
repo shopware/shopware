@@ -18,6 +18,7 @@ Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null, width = nul
     }
 
     if (selectorToCheck) {
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-loader__element').should('not.exist');
         cy.get(selectorToCheck).should('be.visible');
@@ -31,6 +32,9 @@ Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null, width = nul
     if (percyCSS) {
         Object.assign(options, percyCSS);
     }
+
+    // Wait 1 second for the network to idle. This will reduce flackyness with missing icons etc.
+    cy.waitForNetworkIdle(1000);
 
     cy.percySnapshot(title, options);
 });

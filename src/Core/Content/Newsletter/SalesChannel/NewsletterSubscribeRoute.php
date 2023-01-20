@@ -164,7 +164,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 
         $recipient = $this->getNewsletterRecipient('email', $data['email'], $context->getContext());
 
-        if ($data['status'] === self::STATUS_DIRECT) {
+        if (!$this->isNewsletterDoi($context)) {
             $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
             $this->eventDispatcher->dispatch($event);
 
@@ -180,11 +180,20 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         return new NoContentResponse();
     }
 
+    public function isNewsletterDoi(SalesChannelContext $context): ?bool
+    {
+        if ($context->getCustomerId() === null) {
+            return $this->systemConfigService->getBool('core.newsletter.doubleOptIn', $context->getSalesChannelId());
+        }
+
+        return $this->systemConfigService->getBool('core.newsletter.doubleOptInRegistered', $context->getSalesChannelId());
+    }
+
     private function getOptInValidator(DataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('newsletter_recipient.create');
         $definition->add('email', new NotBlank(), new Email())
-            ->add('option', new NotBlank(), new Choice(array_keys($this->getOptionSelection())));
+            ->add('option', new NotBlank(), new Choice(array_keys($this->getOptionSelection($context))));
 
         if (!empty($dataBag->get('firstName'))) {
             $definition->add('firstName', new NotBlank(), new Regex([
@@ -223,7 +232,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $data['id'] = $id ?: Uuid::randomHex();
         $data['languageId'] = $context->getContext()->getLanguageId();
         $data['salesChannelId'] = $context->getSalesChannel()->getId();
-        $data['status'] = $this->getOptionSelection()[$data['option']];
+        $data['status'] = $this->getOptionSelection($context)[$data['option']];
         $data['hash'] = Uuid::randomHex();
 
         return $data;
@@ -248,11 +257,11 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     /**
      * @return array<string, string>
      */
-    private function getOptionSelection(): array
+    private function getOptionSelection(SalesChannelContext $context): array
     {
         return [
-            self::OPTION_DIRECT => self::STATUS_DIRECT,
-            self::OPTION_SUBSCRIBE => self::STATUS_NOT_SET,
+            self::OPTION_DIRECT => $this->isNewsletterDoi($context) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
+            self::OPTION_SUBSCRIBE => $this->isNewsletterDoi($context) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
             self::OPTION_CONFIRM_SUBSCRIBE => self::STATUS_OPT_IN,
             self::OPTION_UNSUBSCRIBE => self::STATUS_OPT_OUT,
         ];

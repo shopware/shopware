@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -64,6 +65,10 @@ class NewsletterControllerTest extends TestCase
 
     public function testRegisterNewsletterForCustomerDoi(): void
     {
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        static::assertNotNull($systemConfigService);
+        $systemConfigService->set('core.newsletter.doubleOptInRegistered', true);
+
         $browser = $this->login();
         $data = [
             'option' => 'subscribe',

@@ -15,6 +15,19 @@ class Entity
 {
     private string $value;
 
+    /**
+     * @param array{value: string} $values
+     */
+    public function __construct(array $values)
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
+        $this->value = $values['value'];
+    }
+
     public function getAliasName(): string
     {
         Feature::triggerDeprecationOrThrow(

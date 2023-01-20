@@ -32,14 +32,14 @@ Component.register('sw-range-filter', {
 
     computed: {
         /**
-         * @deprecated tag:v6.5.0 - will be dropped
+         * @feature-deprecated (flag:FEATURE_NEXT_7530) will be dropped
          */
         columns() {
             return this.isShowDivider ? '1fr 12px 1fr' : '1fr';
         },
 
         /**
-         * @deprecated tag:v6.5.0 - will be dropped
+         * @feature-deprecated (flag:FEATURE_NEXT_7530) will be dropped
          */
         gap() {
             return this.isShowDivider ? '4px' : '12px';

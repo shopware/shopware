@@ -19,13 +19,11 @@ const lineItem = {
 
 const cartResponse = {
     data: {
-        token: 'is-exactly-32-chars-as-required-',
+        token: 'token',
         deliveries: [],
         lineItems: [],
     },
 };
-
-const cartToken = 'is-exactly-32-chars-as-required-';
 
 Shopware.Component.register('sw-order-create-initial-modal', swOrderCreateInitialModal);
 
@@ -174,7 +172,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
     });
 
     it('should cancel cart when click cancel button', async () => {
-        Shopware.State.commit('swOrder/setCartToken', cartToken);
+        Shopware.State.commit('swOrder/setCartToken', 'token');
 
         const wrapper = await createWrapper();
         const spyCancelCart = jest.spyOn(wrapper.vm, 'cancelCart');
@@ -254,7 +252,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
 
     it('should able to preview order', async () => {
         Shopware.State.commit('swOrder/setCart', {
-            token: cartToken,
+            token: 'token',
             lineItems: [],
             deliveries: [{
                 shippingCosts: {

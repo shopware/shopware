@@ -14,7 +14,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_date_filter_timeframe %}
     <sw-single-select
-        v-if="filter.showTimeframe"
+        v-if="feature.isActive('FEATURE_NEXT_7530') && filter.showTimeframe"
         v-model="dateValue.timeframe"
         class="sw-date-filter__timeframe"
         placeholder="Select timeframe"

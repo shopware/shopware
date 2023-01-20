@@ -1,17 +1,23 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_document_settings_modal_form_first_row %}
-{# @deprecated tag:v6.5.0 - this block will be removed #}
+{# @feature-deprecated (FEATURE_NEXT_7530) tag:v6.5.0 - this block will be removed #}
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_document_settings_modal_form_document_number_before %}
+<sw-text-field
+    v-if="!feature.isActive('FEATURE_NEXT_7530')"
+    v-model="documentConfig.documentNumber"
+    :label="$tc('sw-order.documentModal.labelDeliveryNoteNumber')"
+/>
 {% endblock %}
 
 <sw-container
-    columns="1fr 1fr 1fr"
+    :columns="feature.isActive('FEATURE_NEXT_7530') ? '1fr 1fr 1fr' : '1fr 1fr'"
     gap="0 14px"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_document_number %}
     <sw-text-field
+        v-if="feature.isActive('FEATURE_NEXT_7530')"
         v-model="documentConfig.documentNumber"
         :label="$tc('sw-order.documentModal.labelDeliveryNoteNumber')"
     />

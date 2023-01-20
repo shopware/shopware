@@ -1,6 +1,7 @@
 ---
 title: Add sw-order-state-select-v2
 issue: NEXT-16675
+flag: FEATURE_NEXT_7530
 author: Sebastian Seggewiss
 author_email: s.seggewiss@shopware.com 
 author_github: seggewiss

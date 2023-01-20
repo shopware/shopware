@@ -172,7 +172,11 @@ Component.register('sw-order-document-card', {
         },
 
         showCardFilter() {
-            return this.order?.documents?.length > 0;
+            if (this.feature.isActive('FEATURE_NEXT_7530')) {
+                return this.order?.documents?.length > 0;
+            }
+
+            return true;
         },
 
         showCreateDocumentButton() {
@@ -296,7 +300,11 @@ Component.register('sw-order-document-card', {
             this.currentDocumentType = null;
         },
 
-        onPrepareDocument() {
+        onPrepareDocument(documentType) {
+            if (!this.feature.isActive('FEATURE_NEXT_7530')) {
+                this.currentDocumentType = documentType;
+            }
+
             this.showModal = true;
         },
 

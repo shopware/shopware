@@ -58,7 +58,13 @@ describe('Order: Test order state', () => {
                 `${page.elements.dataGridRow}--0`
             );
 
-            page.changeActiveTab('documents');
+            cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+                cy.contains(`${page.elements.userMetadata}-user-name`, 'Max Mustermann');
+            });
+
+            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+                page.changeActiveTab('documents');
+            });
 
             // Find documents
             cy.get(page.elements.tabs.documents.documentGrid)
@@ -67,14 +73,25 @@ describe('Order: Test order state', () => {
 
             cy.get('.sw-loader').should('not.exist');
 
-            cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
-            cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
+            cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+                cy.clickContextMenuItem(
+                    '.sw-context-menu-item',
+                    '.sw-order-document-grid-button',
+                    null,
+                    'Invoice'
+                );
+            });
 
-            cy.get(page.elements.tabs.documents.documentTypeModalRadios).contains('Invoice').click();
+            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+                cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
+                cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
 
-            cy.get('.sw-modal__footer .sw-button--primary')
-                .should('not.be.disabled')
-                .click();
+                cy.get(page.elements.tabs.documents.documentTypeModalRadios).contains('Invoice').click();
+
+                cy.get('.sw-modal__footer .sw-button--primary')
+                    .should('not.be.disabled')
+                    .click();
+            });
 
             // Generate invoice
             cy.get(page.elements.tabs.documents.documentSettingsModal).should('be.visible');
@@ -95,7 +112,9 @@ describe('Order: Test order state', () => {
                 `${page.elements.dataGridRow}--0`
             );
 
-            page.changeActiveTab('documents');
+            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+                page.changeActiveTab('documents');
+            });
 
             cy.get(page.elements.tabs.documents.documentGrid).scrollIntoView();
             cy.contains(`${page.elements.tabs.documents.documentGrid} ${page.elements.dataGridRow}--0`, 'Invoice')
@@ -140,7 +159,13 @@ describe('Order: Test order state', () => {
                 `${page.elements.dataGridRow}--0`
             );
 
-            page.changeActiveTab('documents');
+            cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+                cy.contains(`${page.elements.userMetadata}-user-name`, 'Max Mustermann');
+            });
+
+            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+                page.changeActiveTab('documents');
+            });
 
             // Find documents
             cy.get(page.elements.tabs.documents.documentGrid)
@@ -149,14 +174,25 @@ describe('Order: Test order state', () => {
 
             cy.get('.sw-loader').should('not.exist');
 
-            cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
-            cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
+            cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+                cy.clickContextMenuItem(
+                    '.sw-context-menu-item',
+                    '.sw-order-document-grid-button',
+                    null,
+                    'Invoice'
+                );
+            });
 
-            cy.get(page.elements.tabs.documents.documentTypeModalRadios).contains('Invoice').click();
+            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+                cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
+                cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
 
-            cy.get('.sw-modal__footer .sw-button--primary')
-                .should('not.be.disabled')
-                .click();
+                cy.get(page.elements.tabs.documents.documentTypeModalRadios).contains('Invoice').click();
+
+                cy.get('.sw-modal__footer .sw-button--primary')
+                    .should('not.be.disabled')
+                    .click();
+            });
 
             cy.wait('@reserveDocumentNumberRange').its('response.statusCode').should('equal', 200);
 
@@ -180,14 +216,25 @@ describe('Order: Test order state', () => {
                         .scrollIntoView()
                         .should('be.visible');
 
-                    cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
-                    cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
+                    cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+                        cy.clickContextMenuItem(
+                            '.sw-context-menu-item',
+                            '.sw-order-document-grid-button',
+                            null,
+                            'Invoice'
+                        );
+                    });
 
-                    cy.get(page.elements.tabs.documents.documentTypeModalRadios).contains('Invoice').click();
+                    cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+                        cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
+                        cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
 
-                    cy.get('.sw-modal__footer .sw-button--primary')
-                        .should('not.be.disabled')
-                        .click();
+                        cy.get(page.elements.tabs.documents.documentTypeModalRadios).contains('Invoice').click();
+
+                        cy.get('.sw-modal__footer .sw-button--primary')
+                            .should('not.be.disabled')
+                            .click();
+                    });
 
                     cy.wait('@reserveDocumentNumberRange').its('response.statusCode').should('equal', 200);
 
@@ -251,7 +298,13 @@ describe('Order: Test order state', () => {
                 `${page.elements.dataGridRow}--0`
             );
 
-            page.changeActiveTab('documents');
+            cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+                cy.contains(`${page.elements.userMetadata}-user-name`,'Max Mustermann');
+            });
+
+            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+                page.changeActiveTab('documents');
+            });
 
             // Find documents
             cy.get(page.elements.tabs.documents.documentGrid)
@@ -260,30 +313,56 @@ describe('Order: Test order state', () => {
 
             cy.get('.sw-loader').should('not.exist');
 
-            cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
-            cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
+            cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+                cy.clickContextMenuItem(
+                    '.sw-context-menu-item',
+                    '.sw-order-document-grid-button',
+                    null,
+                    'Invoice'
+                );
+            });
 
-            cy.get(page.elements.tabs.documents.documentTypeModalRadios).contains('Invoice').click();
+            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+                cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
+                cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
 
-            cy.get('.sw-modal__footer .sw-button--primary')
-                .should('not.be.disabled')
-                .click();
+                cy.get(page.elements.tabs.documents.documentTypeModalRadios).contains('Invoice').click();
+
+                cy.get('.sw-modal__footer .sw-button--primary')
+                    .should('not.be.disabled')
+                    .click();
+            });
 
             // Generate invoice
             cy.get(page.elements.tabs.documents.documentSettingsModal).should('be.visible');
             cy.get('#sw-field--documentConfig-documentComment').type('Always get a bill');
             cy.get('.sw-order-document-settings-modal__file-toggle input[type="checkbox"]').check().should('be.checked');
 
-            cy.get('.sw-media-upload-v2').should('be.visible');
+            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+                cy.get('.sw-media-upload-v2').should('be.visible');
+            });
 
-            cy.get('.sw-media-upload-v2__file-input').attachFile('img/sw-test-image.png');
-            cy.awaitAndCheckNotification('The selected file "sw-test-image.png" has an unsupported format. Please use one of the following types: application/pdf.');
-            cy.get('.sw-media-upload-v2__file-headline').should('not.exist');
+            cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+                cy.get('.sw-file-input__file-input').attachFile('img/sw-test-image.png');
+                cy.awaitAndCheckNotification('The selected file "sw-test-image.png" has an unsupported format. Please use one of the following types: application/pdf.');
+                cy.get('.sw-file-input__file-headline').should('not.exist');
 
-            cy.get('.sw-media-upload-v2__file-input').attachFile('pdf/sample.pdf');
-            cy.get('.sw-media-upload-v2__file-headline')
-                .should('be.visible')
-                .contains('sample.pdf');
+                cy.get('.sw-file-input__file-input').attachFile('pdf/sample.pdf');
+                cy.get('.sw-file-input__file-headline')
+                    .should('be.visible')
+                    .contains('sample.pdf');
+            });
+
+            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+                cy.get('.sw-media-upload-v2__file-input').attachFile('img/sw-test-image.png');
+                cy.awaitAndCheckNotification('The selected file "sw-test-image.png" has an unsupported format. Please use one of the following types: application/pdf.');
+                cy.get('.sw-media-upload-v2__file-headline').should('not.exist');
+
+                cy.get('.sw-media-upload-v2__file-input').attachFile('pdf/sample.pdf');
+                cy.get('.sw-media-upload-v2__file-headline')
+                    .should('be.visible')
+                    .contains('sample.pdf');
+            });
 
             cy.get(`${page.elements.tabs.documents.documentSettingsModal} .sw-order-document-settings-modal__create`).click();
 
@@ -301,7 +380,9 @@ describe('Order: Test order state', () => {
                 `${page.elements.dataGridRow}--0`
             );
 
-            page.changeActiveTab('documents');
+            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+                page.changeActiveTab('documents');
+            });
 
             cy.get(page.elements.tabs.documents.documentGrid).scrollIntoView();
             cy.get(`${page.elements.tabs.documents.documentGrid} ${page.elements.dataGridRow}--0`)

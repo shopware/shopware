@@ -1,6 +1,7 @@
 ---
 title: Implement new selection for address in order detail
 issue: NEXT-16676
+flag: FEATURE_NEXT_7530
 ---
 # Administration
 * Added component `src/module/sw-order/component/sw-order-address-selection/index.js` to create new component to handle logic selection billing address and shipping address.

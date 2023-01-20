@@ -1,6 +1,7 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_document_settings_modal_form_first_row %}
 <sw-container
+    v-if="feature.isActive('FEATURE_NEXT_7530')"
     columns="1fr 1fr 1fr"
     gap="0 14px"
 >
@@ -41,18 +42,45 @@
     {% endblock %}
 </sw-container>
 
-{# @deprecated tag:v6.5.0 - this block will be removed #}
+{# @feature-deprecated (FEATURE_NEXT_7530) tag:v6.5.0 - this block will be removed #}
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_document_settings_modal_form_document_number %}
+<sw-text-field
+    v-if="!feature.isActive('FEATURE_NEXT_7530')"
+    v-model="documentConfig.documentNumber"
+    :label="$tc('sw-order.documentModal.labelDocumentStornoNumber')"
+/>
 {% endblock %}
 
-{# @deprecated tag:v6.5.0 - this block will be removed #}
+{# @feature-deprecated (FEATURE_NEXT_7530) tag:v6.5.0 - this block will be removed #}
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_detail_base_general_input_type %}
+<sw-select-field
+    v-if="!feature.isActive('FEATURE_NEXT_7530')"
+    v-model="documentConfig.custom.invoiceNumber"
+    class="sw-order-document-settings-storno-modal__invoice-select"
+    :label="$tc('sw-order.documentModal.labelInvoiceNumber')"
+    :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')"
+>
+    <option
+        v-for="invoice in invoices"
+        :key="invoice.config.custom.invoiceNumber"
+        :value="invoice.config.custom.invoiceNumber"
+    >
+        {{ invoice.config.custom.invoiceNumber }}
+    </option>
+</sw-select-field>
 {% endblock %}
 
-{# @deprecated tag:v6.5.0 - this block will be removed #}
+{# @feature-deprecated (FEATURE_NEXT_7530) tag:v6.5.0 - this block will be removed #}
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_document_settings_modal_form_document_date %}
+<sw-datepicker
+    v-if="!feature.isActive('FEATURE_NEXT_7530')"
+    v-model="documentConfig.documentDate"
+    date-type="date"
+    required
+    :label="$tc('sw-order.documentModal.labelDocumentDate')"
+/>
 {% endblock %}
 {% endblock %}

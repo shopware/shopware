@@ -100,7 +100,9 @@ class MediaFolderService
         }
 
         if ((!$folder->getUseParentConfiguration()) && \count($subFolders) > 1) {
-            $payload = $this->duplicateFolderConfig($subFolders->getEntities(), $payload, $context);
+            /** @var MediaFolderCollection $collection */
+            $collection = $subFolders->getEntities();
+            $payload = $this->duplicateFolderConfig($collection, $payload, $context);
         }
 
         $this->mediaFolderRepo->update(array_values($payload), $context);

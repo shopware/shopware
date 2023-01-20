@@ -123,7 +123,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     /**
      * @param class-string $class
      *
-     * tag v.6.6.0 Return type will be natively typed to `static`
+     * tag v6.6.0 Return type will be natively typed to `static`
      *
      * @return static
      */
@@ -136,7 +136,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * tag v.6.6.0 Return type will be natively typed to `static`
+     * tag v6.6.0 Return type will be natively typed to `static`
      *
      * @return static
      */
@@ -147,7 +147,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * tag v.6.6.0 Return type will be natively typed to `static`
+     * tag v6.6.0 Return type will be natively typed to `static`
      *
      * @return static
      */
@@ -226,7 +226,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     /**
      * @param iterable<TElement> $elements
      *
-     * tag v.6.6.0 Return type will be natively typed to `static`
+     * tag v6.6.0 Return type will be natively typed to `static`
      *
      * @return static
      */

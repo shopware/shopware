@@ -47,7 +47,7 @@ class EntityCollection extends Collection
     }
 
     /**
-     * tag v.6.6.0 Return type will be natively typed to `static`
+     * tag v6.6.0 Return type will be natively typed to `static`
      *
      * @return static
      */
@@ -62,7 +62,7 @@ class EntityCollection extends Collection
     }
 
     /**
-     * tag v.6.6.0 Return type will be natively typed to `static`
+     * tag v6.6.0 Return type will be natively typed to `static`
      *
      * @return static
      */
@@ -113,7 +113,7 @@ class EntityCollection extends Collection
     }
 
     /**
-     * tag v.6.6.0 Return type will be natively typed to `static`
+     * tag v6.6.0 Return type will be natively typed to `static`
      *
      * @return static
      */

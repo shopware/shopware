@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
 use Shopware\Core\Checkout\Cart\Facade\ContainerFacade;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -34,8 +33,6 @@ trait ContainerFactoryTrait
      */
     public function container(string $id, ?string $label = null): ContainerFacade
     {
-        Feature::throwException('FEATURE_NEXT_19501', 'cart.container is temporary disabled', false);
-
         $item = new LineItem($id, LineItem::CONTAINER_LINE_ITEM, $id);
         $item->setLabel($label);
         $item->setRemovable(true);

@@ -7,8 +7,3 @@ shopware:
       - name: v6.6.0.0
         default: false
         major: true
-      - name: FEATURE_NEXT_19501
-        default: false
-        major: false
-        description: "Disables the cart.container function"
-        # issue: NEXT-19501

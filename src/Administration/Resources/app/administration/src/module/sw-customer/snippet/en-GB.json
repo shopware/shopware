@@ -1,7 +1,8 @@
 {
   "sw-customer": {
     "error": {
-      "COMPANY_IS_REQUIRED": "Company is required for commercial customer type"
+      "COMPANY_IS_REQUIRED": "The field company is required for commercial customers.",
+      "passwordDoNotMatch": "Your inputs for the new password and password confirmation do not match."
     },
     "notification": {
       "requiredFields": "Please fill in all required fields."

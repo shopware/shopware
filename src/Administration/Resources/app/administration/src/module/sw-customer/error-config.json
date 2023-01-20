@@ -10,7 +10,10 @@
       "defaultPaymentMethodId",
       "customerNumber",
       "password",
-      "vatIds"
+      "vatIds",
+      "company",
+      "passwordNew",
+      "passwordConfirm"
     ]
   }
 }

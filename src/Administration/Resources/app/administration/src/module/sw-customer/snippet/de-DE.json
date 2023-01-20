@@ -1,7 +1,8 @@
 {
   "sw-customer": {
     "error": {
-      "COMPANY_IS_REQUIRED": "Bei gewerblichen Kunden ist Firma ein Pflichtfeld"
+      "COMPANY_IS_REQUIRED": "Bei gewerblichen Kunden ist die Firma ein Pflichtfeld",
+      "passwordDoNotMatch": "Die Eingaben für Passwort und Passwortbestätigung stimmen nicht überein."
     },
     "notification": {
       "requiredFields": "Bitte fülle alle Pflichtfelder aus."

@@ -74,7 +74,7 @@ class OrderServiceTest extends TestCase
         $dataBag->set('tos', true);
         $context = $this->createMock(SalesChannelContext::class);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->add((new LineItem('a', 'test'))->setStates([State::IS_PHYSICAL]));
 
         $this->cartService->method('getCart')->willReturn($cart);

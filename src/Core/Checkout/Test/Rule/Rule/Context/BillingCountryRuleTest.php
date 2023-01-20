@@ -22,7 +22,7 @@ class BillingCountryRuleTest extends TestCase
     {
         $rule = (new BillingCountryRule())->assign(['countryIds' => ['SWAG-AREA-COUNTRY-ID-1']]);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -48,7 +48,7 @@ class BillingCountryRuleTest extends TestCase
     {
         $rule = (new BillingCountryRule())->assign(['countryIds' => ['SWAG-AREA-COUNTRY-ID-2']]);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -74,7 +74,7 @@ class BillingCountryRuleTest extends TestCase
     {
         $rule = (new BillingCountryRule())->assign(['countryIds' => ['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-3', 'SWAG-AREA-COUNTRY-ID-2']]);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -100,7 +100,7 @@ class BillingCountryRuleTest extends TestCase
     {
         $rule = (new BillingCountryRule())->assign(['countryIds' => ['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-3', 'SWAG-AREA-COUNTRY-ID-2']]);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);
 

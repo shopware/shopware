@@ -152,8 +152,7 @@ class RecalculationServiceTest extends TestCase
         $convertedCart = $this->getContainer()->get(OrderConverter::class)
             ->convertToCart($order, $this->context);
 
-        // check name and token
-        static::assertEquals(OrderConverter::CART_TYPE, $convertedCart->getName());
+        // check token
         static::assertNotEquals($cart->getToken(), $convertedCart->getToken());
         static::assertTrue(Uuid::isValid($convertedCart->getToken()));
 
@@ -167,8 +166,7 @@ class RecalculationServiceTest extends TestCase
             }
             ++$idx;
         }
-        // set name and token to be equal for further comparison
-        $cart->setName($convertedCart->getName());
+        // set token to be equal for further comparison
         $cart->setToken($convertedCart->getToken());
 
         // transactions are currently not supported so they are excluded for comparison
@@ -1162,7 +1160,7 @@ class RecalculationServiceTest extends TestCase
 
     private function generateDemoCart(?string $productId1 = null, ?string $productId2 = null): Cart
     {
-        $cart = new Cart('A', 'a-b-c');
+        $cart = new Cart('a-b-c');
 
         $cart = $this->addProduct($cart, $productId1 ?? Uuid::randomHex());
 

@@ -23,8 +23,6 @@ class Cart extends Struct
 {
     use StateAwareTrait;
 
-    protected string $name;
-
     protected string $token;
 
     protected CartPrice $price;
@@ -57,25 +55,14 @@ class Cart extends Struct
     /**
      * @internal
      */
-    public function __construct(string $name, string $token)
+    public function __construct(string $token)
     {
-        $this->name = $name;
         $this->token = $token;
         $this->lineItems = new LineItemCollection();
         $this->transactions = new TransactionCollection();
         $this->errors = new ErrorCollection();
         $this->deliveries = new DeliveryCollection();
         $this->price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
     }
 
     public function getToken(): string

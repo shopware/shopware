@@ -33,7 +33,7 @@ class CartScopeDiscountPackagerTest extends TestCase
      */
     public function testBuildPackages(array $items, array $expected): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->setLineItems(new LineItemCollection($items));
 
         $packager = $this->getContainer()->get(CartScopeDiscountPackager::class);

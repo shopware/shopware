@@ -77,7 +77,7 @@ class CartOrderRouteBench extends BenchCase
             $this->getContainer()->get('product.repository')->create($productPayload, $context);
         });
 
-        $this->cart = new Cart('sales-channel', $this->context->getToken());
+        $this->cart = new Cart($this->context->getToken());
 
         foreach ($this->ids->prefixed('product-state-') as $id) {
             $this->cart->getLineItems()->add(new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, $id));

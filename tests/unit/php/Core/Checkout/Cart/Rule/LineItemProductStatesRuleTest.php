@@ -108,7 +108,7 @@ class LineItemProductStatesRuleTest extends TestCase
             $this->createLineItemWithStates($states),
         ]);
 
-        $cart = new Cart('test-cart', 'test-token');
+        $cart = new Cart('test-token');
         $cart->setLineItems($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(

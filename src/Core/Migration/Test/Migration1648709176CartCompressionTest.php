@@ -40,7 +40,7 @@ class Migration1648709176CartCompressionTest extends TestCase
         $this->restoreOldColumn();
 
         $token = Uuid::randomHex();
-        $cart = new Cart('test', $token);
+        $cart = new Cart($token);
         $cart->add(new LineItem('test', 'test'));
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create($token, TestDefaults::SALES_CHANNEL);
@@ -62,7 +62,7 @@ class Migration1648709176CartCompressionTest extends TestCase
      */
     public function testCompression(CartPersister $saver, CartPersister $loader): void
     {
-        $origin = new Cart('shopware', 'existing');
+        $origin = new Cart('existing');
 
         $origin->addLineItems(new LineItemCollection([
             new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1),

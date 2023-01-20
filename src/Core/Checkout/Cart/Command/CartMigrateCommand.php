@@ -238,7 +238,6 @@ class CartMigrateCommand extends Command
                     // used for migration
                     'token' => $row['token'],
                     'customer_id' => $row['customer_id'] ? Uuid::fromBytesToHex($row['customer_id']) : null,
-                    'name' => $row['name'],
                     'rule_ids' => \json_decode($row['rule_ids'], true, 512, \JSON_THROW_ON_ERROR),
                     'currency_id' => Uuid::fromBytesToHex($row['currency_id']),
                     'shipping_method_id' => Uuid::fromBytesToHex($row['shipping_method_id']),

@@ -521,7 +521,7 @@ class InvoiceRendererTest extends TestCase
      */
     private function generateDemoCart(array $taxes): Cart
     {
-        $cart = $this->cartService->createNew('a-b-c', 'A');
+        $cart = $this->cartService->createNew('A');
 
         $keywords = ['awesome', 'epic', 'high quality'];
 

@@ -115,7 +115,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $lineItem = new LineItem(Uuid::randomHex(), 'shirt');
 
-        $cart = new Cart('testCart', Uuid::randomHex());
+        $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems(new LineItemCollection([$lineItem]));
         $scope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
 
@@ -128,7 +128,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $lineItem = new LineItem(Uuid::randomHex(), 'shirt');
 
-        $cart = new Cart('testCart', Uuid::randomHex());
+        $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems(new LineItemCollection([$lineItem]));
         $scope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
 
@@ -141,7 +141,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $lineItem = new LineItem(Uuid::randomHex(), 'shirt');
 
-        $cart = new Cart('testCart', Uuid::randomHex());
+        $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems(new LineItemCollection([$lineItem]));
         $scope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
 
@@ -154,7 +154,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $lineItem = new LineItem(Uuid::randomHex(), 'shirt');
 
-        $cart = new Cart('testCart', Uuid::randomHex());
+        $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems(new LineItemCollection([$lineItem]));
         $scope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
 
@@ -167,7 +167,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $lineItem = new LineItem(Uuid::randomHex(), 'shirt');
 
-        $cart = new Cart('testCart', Uuid::randomHex());
+        $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems(new LineItemCollection([$lineItem]));
         $scope = new CheckoutRuleScope(static::createMock(SalesChannelContext::class));
 
@@ -177,7 +177,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $lineItem = new LineItem(Uuid::randomHex(), 'jeans');
 
-        $cart = new Cart('testCart', Uuid::randomHex());
+        $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems(new LineItemCollection([$lineItem]));
         $scope = new CheckoutRuleScope(static::createMock(SalesChannelContext::class));
 
@@ -190,7 +190,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $lineItem = new LineItem(Uuid::randomHex(), 'shirt');
 
-        $cart = new Cart('testCart', Uuid::randomHex());
+        $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems(new LineItemCollection([$lineItem]));
         $scope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
 

@@ -96,7 +96,7 @@ class LineItemFactoryRegistryTest extends TestCase
         $lineItem = new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1);
         $lineItem->setStackable(false);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->add($lineItem);
 
         $this->expectException(CartException::class);
@@ -110,7 +110,7 @@ class LineItemFactoryRegistryTest extends TestCase
         $lineItem = new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1);
         $lineItem->setStackable(true);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->add($lineItem);
 
         $this->service->update($cart, ['id' => $id, 'quantity' => 2], $this->context);
@@ -128,7 +128,7 @@ class LineItemFactoryRegistryTest extends TestCase
 
     public function testCreateCustomWithoutPermission(): void
     {
-        static::expectException(CartException::class);
+        $this->expectException(CartException::class);
 
         $this->service->create(['type' => 'custom', 'referencedId' => 'test'], $this->context);
     }

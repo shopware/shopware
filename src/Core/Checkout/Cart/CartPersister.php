@@ -97,16 +97,16 @@ class CartPersister extends AbstractCartPersister
         $payloadExists = $this->payloadExists();
 
         $sql = <<<'SQL'
-            INSERT INTO `cart` (`token`, `name`, `currency_id`, `shipping_method_id`, `payment_method_id`, `country_id`, `sales_channel_id`, `customer_id`, `price`, `line_item_count`, `cart`, `rule_ids`, `created_at`)
-            VALUES (:token, :name, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :payload, :rule_ids, :now)
-            ON DUPLICATE KEY UPDATE `name` = :name,`currency_id` = :currency_id, `shipping_method_id` = :shipping_method_id, `payment_method_id` = :payment_method_id, `country_id` = :country_id, `sales_channel_id` = :sales_channel_id, `customer_id` = :customer_id,`price` = :price, `line_item_count` = :line_item_count, `cart` = :payload, `rule_ids` = :rule_ids, `updated_at` = :now;
+            INSERT INTO `cart` (`token`, `currency_id`, `shipping_method_id`, `payment_method_id`, `country_id`, `sales_channel_id`, `customer_id`, `price`, `line_item_count`, `cart`, `rule_ids`, `created_at`)
+            VALUES (:token, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :payload, :rule_ids, :now)
+            ON DUPLICATE KEY UPDATE `currency_id` = :currency_id, `shipping_method_id` = :shipping_method_id, `payment_method_id` = :payment_method_id, `country_id` = :country_id, `sales_channel_id` = :sales_channel_id, `customer_id` = :customer_id,`price` = :price, `line_item_count` = :line_item_count, `cart` = :payload, `rule_ids` = :rule_ids, `updated_at` = :now;
         SQL;
 
         if ($payloadExists) {
             $sql = <<<'SQL'
-                INSERT INTO `cart` (`token`, `name`, `currency_id`, `shipping_method_id`, `payment_method_id`, `country_id`, `sales_channel_id`, `customer_id`, `price`, `line_item_count`, `payload`, `rule_ids`, `compressed`, `created_at`)
-                VALUES (:token, :name, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :payload, :rule_ids, :compressed, :now)
-                ON DUPLICATE KEY UPDATE `name` = :name, `currency_id` = :currency_id, `shipping_method_id` = :shipping_method_id, `payment_method_id` = :payment_method_id, `country_id` = :country_id, `sales_channel_id` = :sales_channel_id, `customer_id` = :customer_id,`price` = :price, `line_item_count` = :line_item_count, `payload` = :payload, `compressed` = :compressed, `rule_ids` = :rule_ids, `updated_at` = :now;
+                INSERT INTO `cart` (`token`, `currency_id`, `shipping_method_id`, `payment_method_id`, `country_id`, `sales_channel_id`, `customer_id`, `price`, `line_item_count`, `payload`, `rule_ids`, `compressed`, `created_at`)
+                VALUES (:token, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :payload, :rule_ids, :compressed, :now)
+                ON DUPLICATE KEY UPDATE `currency_id` = :currency_id, `shipping_method_id` = :shipping_method_id, `payment_method_id` = :payment_method_id, `country_id` = :country_id, `sales_channel_id` = :sales_channel_id, `customer_id` = :customer_id,`price` = :price, `line_item_count` = :line_item_count, `payload` = :payload, `compressed` = :compressed, `rule_ids` = :rule_ids, `updated_at` = :now;
             SQL;
         }
 
@@ -114,7 +114,6 @@ class CartPersister extends AbstractCartPersister
 
         $data = [
             'token' => $cart->getToken(),
-            'name' => $cart->getName(),
             'currency_id' => Uuid::fromHexToBytes($context->getCurrency()->getId()),
             'shipping_method_id' => Uuid::fromHexToBytes($context->getShippingMethod()->getId()),
             'payment_method_id' => Uuid::fromHexToBytes($context->getPaymentMethod()->getId()),

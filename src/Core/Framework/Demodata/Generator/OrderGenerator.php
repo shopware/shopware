@@ -94,7 +94,7 @@ class OrderGenerator implements DemodataGeneratorInterface
 
             $salesChannelContext = $this->getContext($customerId, $salesChannelIds);
 
-            $cart = $this->cartService->createNew($salesChannelContext->getToken(), 'demo-data');
+            $cart = $this->cartService->createNew($salesChannelContext->getToken());
             foreach ($this->faker->randomElements($productLineItems, random_int(3, 5)) as $lineItem) {
                 $cart->add($lineItem);
             }
@@ -146,7 +146,7 @@ class OrderGenerator implements DemodataGeneratorInterface
             }
         }
 
-        return $tagAssignments;
+        return array_values($tagAssignments);
     }
 
     /**

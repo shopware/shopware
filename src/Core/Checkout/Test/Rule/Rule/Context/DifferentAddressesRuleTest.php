@@ -21,7 +21,7 @@ class DifferentAddressesRuleTest extends TestCase
     {
         $rule = new DifferentAddressesRule();
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -48,7 +48,7 @@ class DifferentAddressesRuleTest extends TestCase
     {
         $rule = new DifferentAddressesRule();
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -75,7 +75,7 @@ class DifferentAddressesRuleTest extends TestCase
     {
         $rule = new DifferentAddressesRule();
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);
 

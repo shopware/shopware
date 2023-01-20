@@ -356,7 +356,7 @@ class CartFacadeTest extends TestCase
 
     private static function createCart(): Cart
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->setBehavior(new CartBehavior());
         $cart->addState('default-state');
 

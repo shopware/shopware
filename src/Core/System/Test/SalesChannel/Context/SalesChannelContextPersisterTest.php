@@ -278,7 +278,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create($token, TestDefaults::SALES_CHANNEL);
 
-        $cart = new Cart('test', $token);
+        $cart = new Cart($token);
         $cart->addLineItems(new LineItemCollection([new LineItem('test', 'test', Uuid::randomHex(), 10)]));
         $this->getContainer()->get(CartPersister::class)->save($cart, $context);
 

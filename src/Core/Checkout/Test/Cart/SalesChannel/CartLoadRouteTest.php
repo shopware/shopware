@@ -98,7 +98,7 @@ class CartLoadRouteTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $cart = new Cart('sales-channel', $this->ids->create('token'));
+        $cart = new Cart($this->ids->create('token'));
         $cart->add(new LineItem($this->ids->create('productId'), LineItem::PRODUCT_LINE_ITEM_TYPE, $this->ids->get('productId')));
 
         $context = $this->salesChannelFactory->create($this->ids->get('token'), $this->ids->get('sales-channel'));

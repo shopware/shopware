@@ -153,7 +153,7 @@ class PromotionLineItemRuleTest extends TestCase
         }
 
         $scope = new CartRuleScope(
-            (new Cart('test', 'test'))->assign([
+            (new Cart('test'))->assign([
                 'lineItems' => new LineItemCollection($lineItems),
             ]),
             $this->createMock(SalesChannelContext::class)

@@ -389,7 +389,7 @@ class LineItemListPriceRuleTest extends TestCase
             ->create('test', TestDefaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
 
         // fetch cart for recalculation
-        $cart = $service->getCart('test', $context, CartService::SALES_CHANNEL, false);
+        $cart = $service->getCart('test', $context, false);
         $lineItem = $cart->get($ids->get('product'));
 
         $rules = [

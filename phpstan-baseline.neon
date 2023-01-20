@@ -1366,11 +1366,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/LineItem/LineItemQuantitySplitterTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Processor\\\\DiscountProcessorTest\\:\\:testProcessor\\(\\) has parameter \\$items with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Processor/DiscountProcessorTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Processor\\\\_fixtures\\\\CalculatedTaxes\\:\\:__construct\\(\\) has parameter \\$taxes with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Processor/_fixtures/CalculatedTaxes.php
@@ -1811,26 +1806,6 @@ parameters:
 			path: src/Core/Checkout/Test/Order/OrderBuilder.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\OrderRepositoryTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/OrderRepositoryTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/OrderRepositoryTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\OrderRepositoryTest\\:\\:\\$stateMachineRegistry is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/OrderRepositoryTest.php
-
-		-
-			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/OrderRepositoryTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\SalesChannel\\\\OrderRouteTest\\:\\:createDefaultSalesChannelContext\\(\\) is unused\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
@@ -1944,11 +1919,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Rule\\\\Rule\\\\Context\\\\CustomerCustomFieldRuleTest\\:\\:setCustomerCustomFields\\(\\) has parameter \\$customFields with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Rule/Rule/Context/CustomerCustomFieldRuleTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Rule\\\\Rule\\\\Context\\\\ShippingCountryRuleTest\\:\\:unsupportedOperators\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Rule/Rule/Context/ShippingCountryRuleTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Shipping\\\\SalesChannel\\\\CachedShippingMethodRouteTest\\:\\:invalidationProvider\\(\\) has no return type specified\\.$#"
@@ -11401,11 +11371,6 @@ parameters:
 			path: src/Core/Framework/Demodata/Generator/CustomerGenerator.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\OrderGenerator\\:\\:getTags\\(\\) should return list\\<array\\{id\\: string\\}\\> but returns array\\<array\\{id\\: string\\}\\>\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/OrderGenerator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DependencyInjection\\\\CompilerPass\\\\ActionEventCompilerPass\\:\\:getEventClasses\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DependencyInjection/CompilerPass/ActionEventCompilerPass.php
@@ -18106,41 +18071,6 @@ parameters:
 			path: src/Storefront/Test/Controller/SearchControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\StorefrontControllerTest\\:\\:createFinder\\(\\) has parameter \\$bundles with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/StorefrontControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\StorefrontControllerTest\\:\\:getErrors\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/StorefrontControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\StorefrontControllerTest\\:\\:getRequestStack\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/StorefrontControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\StorefrontControllerTest\\:\\:getRouter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/StorefrontControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\StorefrontControllerTest\\:\\:getTranslator\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/StorefrontControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\TestController\\:\\:addFlash\\(\\) has parameter \\$message with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/StorefrontControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\TestController\\:\\:testRenderViewInheritance\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/StorefrontControllerTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/StorefrontRoutingTest.php
@@ -19109,3 +19039,4 @@ parameters:
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductCategoryDenormalizerTest\\:\\:getProductCategoryList\\(\\) should return list\\<string\\>\\|null but returns array\\<string\\>\\|null\\.$#"
 			count: 1
 			path: tests/integration/php/Core/Content/Product/DataAbstractionLayer/ProductCategoryDenormalizerTest.php
+

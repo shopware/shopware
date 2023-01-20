@@ -294,7 +294,7 @@ class AuthControllerTest extends TestCase
             $customer->getId()
         );
 
-        $cart = new Cart('sales-channel', $contextToken);
+        $cart = new Cart($contextToken);
 
         $cart->add(new LineItem('productId', LineItem::PRODUCT_LINE_ITEM_TYPE, $productId));
 

@@ -49,7 +49,7 @@ class RecalculationServiceTest extends TestCase
 
         $orderId = Uuid::randomHex();
 
-        $cart = new Cart(OrderConverter::CART_TYPE, Uuid::randomHex());
+        $cart = new Cart(Uuid::randomHex());
         $cart->setPrice(new CartPrice(
             0.0,
             0.0,

@@ -266,7 +266,6 @@ class StorefrontCartFacadeTest extends TestCase
             ->with(
                 'token',
                 static::isInstanceOf(SalesChannelContext::class),
-                CartService::SALES_CHANNEL,
                 false,
                 true
             );
@@ -386,7 +385,7 @@ class StorefrontCartFacadeTest extends TestCase
 
     private function getCart(): Cart
     {
-        $cart = new Cart('cart-name', 'cart-token');
+        $cart = new Cart('cart-token');
         $cart->add(
             (new LineItem('line-item-id-1', 'line-item-type-1'))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))

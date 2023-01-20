@@ -52,7 +52,7 @@ class FlowRuleScopeBuilderTest extends TestCase
     public function testBuild(): void
     {
         $mockContext = $this->createMock(SalesChannelContext::class);
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $this->orderConverter->method('assembleSalesChannelContext')->willReturn($mockContext);
         $this->orderConverter->method('convertToCart')->willReturn($cart);
         $this->deliveryBuilder->method('build')->willReturn(new DeliveryCollection());

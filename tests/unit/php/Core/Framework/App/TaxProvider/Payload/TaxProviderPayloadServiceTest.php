@@ -109,7 +109,7 @@ class TaxProviderPayloadServiceTest extends TestCase
             'https://test-shop.com'
         );
 
-        $cart = new Cart('cart', $this->ids->get('cart'));
+        $cart = new Cart($this->ids->get('cart'));
         $salesChannelContext = static::createMock(SalesChannelContext::class);
         $payload = new TaxProviderPayload($cart, $salesChannelContext);
 

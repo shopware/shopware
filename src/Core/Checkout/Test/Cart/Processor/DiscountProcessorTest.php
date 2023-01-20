@@ -39,6 +39,7 @@ class DiscountProcessorTest extends TestCase
     public const DISCOUNT_ID = 'discount-id';
 
     /**
+     * @param array<LineItem> $items
      * @dataProvider processorProvider
      */
     public function testProcessor(array $items, ?CalculatedPrice $expected): void
@@ -48,10 +49,10 @@ class DiscountProcessorTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->setLineItems(new LineItemCollection($items));
 
-        $new = new Cart('after', 'after');
+        $new = new Cart('after');
         $new->setLineItems(
             (new LineItemCollection($items))->filter(function (LineItem $item) {
                 return $item->getType() !== LineItem::DISCOUNT_LINE_ITEM;

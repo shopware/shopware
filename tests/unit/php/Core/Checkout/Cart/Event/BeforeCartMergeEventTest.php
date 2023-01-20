@@ -17,8 +17,8 @@ class BeforeCartMergeEventTest extends TestCase
 {
     public function testReturnsCorrectProperties(): void
     {
-        $customerCart = new Cart('customerCart', 'customerCart');
-        $guestCart = new Cart('customerCart', 'customerCart');
+        $customerCart = new Cart('customerCart');
+        $guestCart = new Cart('customerCart');
         $mergeableLineItems = new LineItemCollection();
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
 

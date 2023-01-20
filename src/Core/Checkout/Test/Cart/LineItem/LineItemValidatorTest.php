@@ -22,7 +22,7 @@ class LineItemValidatorTest extends TestCase
 {
     public function testValidateEmptyCart(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $validator = new LineItemValidator();
         $errors = new ErrorCollection();
@@ -33,7 +33,7 @@ class LineItemValidatorTest extends TestCase
 
     public function testValidateWithValidLineItem(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $lineItem = new LineItem('id', 'fake');
         $lineItem->setLabel('Label');
         $lineItem->setPrice(new CalculatedPrice(5, 10, new CalculatedTaxCollection(), new TaxRuleCollection()));
@@ -49,7 +49,7 @@ class LineItemValidatorTest extends TestCase
 
     public function testValidateWithoutLabel(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $lineItem = new LineItem('id', 'fake');
         $lineItem->setPrice(new CalculatedPrice(5, 10, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $cart->add($lineItem);
@@ -66,7 +66,7 @@ class LineItemValidatorTest extends TestCase
 
     public function testValidateWithoutLabelGotRemoved(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $lineItem = new LineItem('id', 'fake');
         $lineItem->setPrice(new CalculatedPrice(5, 10, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $cart->add($lineItem);
@@ -80,7 +80,7 @@ class LineItemValidatorTest extends TestCase
 
     public function testValidateWithoutPrice(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $lineItem = new LineItem('id', 'fake');
         $lineItem->setLabel('Label');
         $cart->add($lineItem);
@@ -97,7 +97,7 @@ class LineItemValidatorTest extends TestCase
 
     public function testValidateWithoutLabelAndPrice(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $lineItem = new LineItem('id', 'fake');
         $cart->add($lineItem);
 

@@ -17,13 +17,13 @@ class CartTest extends TestCase
 {
     public function testEmptyCartHasNoGoods(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         static::assertCount(0, $cart->getLineItems()->filterGoods());
     }
 
     public function testCartWithLineItemsHasGoods(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->add(
             (new LineItem('A', 'test'))
                 ->setGood(true)
@@ -40,7 +40,7 @@ class CartTest extends TestCase
 
     public function testCartHasNoGoodsIfNoLineItemDefinedAsGoods(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $cart->add((new LineItem('A', 'test'))->setGood(false));
         $cart->add((new LineItem('B', 'test'))->setGood(false));
@@ -50,7 +50,7 @@ class CartTest extends TestCase
 
     public function testCartWithNestedLineItemHasChildren(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $cart->add(
             (new LineItem('nested', 'nested'))
@@ -75,14 +75,14 @@ class CartTest extends TestCase
      */
     public function testRemoveNonRemovableLineItemFromCart(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $lineItem = new LineItem('A', 'test');
         $lineItem->setRemovable(false);
 
         $cart->add($lineItem);
 
-        static::expectException(CartException::class);
+        $this->expectException(CartException::class);
 
         $cart->remove($lineItem->getId());
 

@@ -60,7 +60,7 @@ class StorefrontCartFacade
         bool $caching = true,
         bool $taxed = false
     ): Cart {
-        $originalCart = $this->cartService->getCart($token, $originalContext, CartService::SALES_CHANNEL, $caching, $taxed);
+        $originalCart = $this->cartService->getCart($token, $originalContext, $caching, $taxed);
         $cartErrors = $originalCart->getErrors();
         if (!$this->cartContainsBlockedMethods($cartErrors)) {
             return $originalCart;

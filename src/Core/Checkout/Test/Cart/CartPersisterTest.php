@@ -65,13 +65,13 @@ class CartPersisterTest extends TestCase
         $connection->expects(static::once())
             ->method('fetchAssociative')
             ->willReturn(
-                ['payload' => serialize(new Cart('shopware', 'existing')), 'rule_ids' => json_encode([]), 'compressed' => 0]
+                ['payload' => serialize(new Cart('existing')), 'rule_ids' => json_encode([]), 'compressed' => 0]
             );
 
         $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, false);
         $cart = $persister->load('existing', Generator::createSalesChannelContext());
 
-        static::assertEquals(new Cart('shopware', 'existing'), $cart);
+        static::assertEquals(new Cart('existing'), $cart);
     }
 
     public function testEmptyCartShouldNotBeSaved(): void
@@ -87,14 +87,14 @@ class CartPersisterTest extends TestCase
 
         $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, false);
 
-        $cart = new Cart('shopware', 'existing');
+        $cart = new Cart('existing');
 
         $persister->save($cart, Generator::createSalesChannelContext());
     }
 
     public function testEmptyCartWithManualShippingCostsExtensionIsSaved(): void
     {
-        $cart = new Cart('shopware', 'existing');
+        $cart = new Cart('existing');
         $cart->addExtension(
             DeliveryProcessor::MANUAL_SHIPPING_COSTS,
             new CalculatedPrice(
@@ -116,7 +116,7 @@ class CartPersisterTest extends TestCase
 
     public function testEmptyCartWithCustomerCommentIsSaved(): void
     {
-        $cart = new Cart('shopware', 'existing');
+        $cart = new Cart('existing');
         $cart->setCustomerComment('Foo');
 
         $this->getContainer()->get(CartPersister::class)
@@ -130,7 +130,7 @@ class CartPersisterTest extends TestCase
 
     public function testSaveWithItems(): void
     {
-        $cart = new Cart('shopware', 'existing');
+        $cart = new Cart('existing');
         $cart->add(
             (new LineItem('A', 'test'))
                 ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
@@ -155,7 +155,7 @@ class CartPersisterTest extends TestCase
             $caughtEvent = $event;
         });
 
-        $cart = new Cart('shopware', 'existing');
+        $cart = new Cart('existing');
         $cart->add(
             (new LineItem('A', 'test'))
                 ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
@@ -198,7 +198,7 @@ class CartPersisterTest extends TestCase
 
         $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, false);
 
-        $cart = new Cart('shopware', 'existing');
+        $cart = new Cart('existing');
 
         $persister->save(
             $cart,
@@ -216,7 +216,7 @@ class CartPersisterTest extends TestCase
             $caughtEvent = $event;
         });
 
-        $cart = new Cart('shopware', 'existing');
+        $cart = new Cart('existing');
         $cart->addLineItems(new LineItemCollection([
             new LineItem(Uuid::randomHex(), LineItem::PROMOTION_LINE_ITEM_TYPE, Uuid::randomHex(), 1),
         ]));
@@ -242,7 +242,7 @@ class CartPersisterTest extends TestCase
             $event->setShouldPersist(false);
         });
 
-        $cart = new Cart('shopware', 'existing');
+        $cart = new Cart('existing');
         $cart->addLineItems(new LineItemCollection([
             new LineItem(Uuid::randomHex(), LineItem::PROMOTION_LINE_ITEM_TYPE, Uuid::randomHex(), 1),
         ]));

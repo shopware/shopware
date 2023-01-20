@@ -57,7 +57,7 @@ class CalculatorTest extends TestCase
 
     public function testCalculateSimplePrice(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $lineItem = (new LineItem('A', 'test'))
             ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([])));
@@ -74,7 +74,7 @@ class CalculatorTest extends TestCase
 
     public function testCalculateQuantityPrice(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $lineItem = (new LineItem('A', 'test', null, 2))
             ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2));
@@ -91,7 +91,7 @@ class CalculatorTest extends TestCase
 
     public function testPercentagePrice(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $lineItem = (new LineItem('A', 'test', null, 2))
             ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection(), 2));
@@ -116,7 +116,7 @@ class CalculatorTest extends TestCase
 
     public function testPercentagePriceWithWrongPriority(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $lineItem = (new LineItem('A', 'test', null, 2))
             ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection(), 2));
@@ -141,7 +141,7 @@ class CalculatorTest extends TestCase
 
     public function testCalculateAbsolutePrice(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $lineItem = (new LineItem('A', 'test', null, 2))
             ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2));
@@ -166,7 +166,7 @@ class CalculatorTest extends TestCase
 
     public function testPercentagePriceWithFilter(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $lineItem = (new LineItem('A', 'test'))
             ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection()));
@@ -205,7 +205,7 @@ class CalculatorTest extends TestCase
 
     public function testAbsolutePriceWithFilter(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $lineItem = new LineItem('A', 'test');
         $lineItem->setPriceDefinition(
@@ -256,7 +256,7 @@ class CalculatorTest extends TestCase
 
         $lineItem->setChildren($children);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->add($lineItem);
 
         $calculated = $this->calculator->calculate($cart->getLineItems(), $this->context, new CartBehavior());
@@ -275,7 +275,7 @@ class CalculatorTest extends TestCase
 
     public function testDeepNesting(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $nested = (new LineItem('A', 'container'))->assign([
             'children' => new LineItemCollection([
@@ -366,7 +366,7 @@ class CalculatorTest extends TestCase
 
     public function testNoDiscountOfDiscounts(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $noContainerRule = new LineItemOfTypeRule(LineItemOfTypeRule::OPERATOR_NEQ, 'container');
 

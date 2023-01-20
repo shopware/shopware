@@ -22,6 +22,20 @@ class HttpCache
      */
     private ?array $states = null;
 
+    /**
+     * @param array{maxAge?: int, states?: list<string>} $values
+     */
+    public function __construct(array $values)
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
+        $this->maxAge = $values['maxAge'] ?? null;
+        $this->states = $values['states'] ?? null;
+    }
+
     public function getAliasName(): string
     {
         Feature::triggerDeprecationOrThrow(

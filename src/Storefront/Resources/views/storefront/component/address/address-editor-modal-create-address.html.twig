@@ -28,6 +28,7 @@
                                   action="{{ path('frontend.account.addressbook') }}"
                                   class="js-close-address-editor"
                                   data-form-ajax-submit="true"
+                                  data-form-validation="true"
                                   data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
                                 {% block component_address_address_editor_modal_create_address_form_hidden_inputs %}

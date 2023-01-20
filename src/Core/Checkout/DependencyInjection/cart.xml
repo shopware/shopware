@@ -56,7 +56,7 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" public="true">
+        <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" public="true" lazy="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>

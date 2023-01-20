@@ -65,7 +65,7 @@
         </service>
 
         <!-- Assets -->
-        <service id="shopware.asset.public" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage">
+        <service id="shopware.asset.public" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage" lazy="true">
             <argument type="collection">
                 <argument>%shopware.filesystem.public.url%</argument>
             </argument>
@@ -85,7 +85,7 @@
             <argument type="service" id="cache.object"/>
         </service>
 
-        <service id="shopware.asset.asset" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage">
+        <service id="shopware.asset.asset" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage" lazy="true">
             <argument type="collection">
                 <argument>%shopware.filesystem.asset.url%</argument>
             </argument>
@@ -93,14 +93,14 @@
             <tag name="shopware.asset" asset="asset"/>
         </service>
 
-        <service id="shopware.asset.asset_without_versioning" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage">
+        <service id="shopware.asset.asset_without_versioning" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage" lazy="true">
             <argument type="collection">
                 <argument>%shopware.filesystem.asset.url%</argument>
             </argument>
             <argument type="service" id="assets.empty_version_strategy"/>
         </service>
 
-        <service id="shopware.asset.sitemap" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage">
+        <service id="shopware.asset.sitemap" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage" lazy="true">
             <argument type="collection">
                 <argument>%shopware.filesystem.sitemap.url%</argument>
             </argument>

@@ -2,16 +2,11 @@
 
 namespace Shopware\Core\Maintenance\System\Service;
 
+use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -24,16 +19,16 @@ class AppUrlVerifier
 {
     private Client $guzzle;
 
-    private EntityRepository $appRepository;
+    private Connection $connection;
 
     private string $appEnv;
 
     private bool $appUrlCheckDisabled;
 
-    public function __construct(Client $guzzle, EntityRepository $appRepository, string $appEnv, bool $appUrlCheckDisabled)
+    public function __construct(Client $guzzle, Connection $connection, string $appEnv, bool $appUrlCheckDisabled)
     {
         $this->guzzle = $guzzle;
-        $this->appRepository = $appRepository;
+        $this->connection = $connection;
         $this->appEnv = $appEnv;
         $this->appUrlCheckDisabled = $appUrlCheckDisabled;
     }
@@ -74,11 +69,10 @@ class AppUrlVerifier
         return false;
     }
 
-    public function hasAppsThatNeedAppUrl(Context $context): bool
+    public function hasAppsThatNeedAppUrl(): bool
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('appSecret', null)]));
+        $foundApp = $this->connection->fetchOne('SELECT 1 FROM app WHERE app_secret IS NOT NULL');
 
-        return $this->appRepository->searchIds($criteria, $context)->getTotal() > 0;
+        return $foundApp === '1';
     }
 }

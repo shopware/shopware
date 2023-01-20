@@ -210,7 +210,7 @@ class InfoController extends AbstractController
             'settings' => [
                 'enableUrlFeature' => $this->enableUrlFeature,
                 'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
-                'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl($context),
+                'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
                 'private_allowed_extensions' => $this->params->get('shopware.filesystem.private_allowed_extensions'),
             ],
         ]);

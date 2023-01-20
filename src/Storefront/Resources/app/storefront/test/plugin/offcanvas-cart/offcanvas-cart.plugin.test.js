@@ -141,7 +141,7 @@ describe('OffCanvasCartPlugin tests', () => {
         quantityInput.dispatchEvent(new Event('change', { bubbles: true }));
 
         // Wait for debounce with time from defaults
-        jest.advanceTimersByTime(350);
+        jest.advanceTimersByTime(800);
 
         expect(plugin.$emitter.publish).toBeCalledWith('beforeFireRequest');
         expect(fireRequestSpy).toHaveBeenCalledTimes(1);
@@ -166,13 +166,13 @@ describe('OffCanvasCartPlugin tests', () => {
         quantityInput.dispatchEvent(new Event('change', { bubbles: true }));
 
         // Wait for debounce with time from defaults
-        jest.advanceTimersByTime(350);
+        jest.advanceTimersByTime(800);
 
         // Change quantity again, this time after waiting long enough
         quantityInput.dispatchEvent(new Event('change', { bubbles: true }));
 
         // Wait for debounce with time from defaults
-        jest.advanceTimersByTime(350);
+        jest.advanceTimersByTime(800);
 
         expect(plugin.$emitter.publish).toBeCalledWith('beforeFireRequest');
 

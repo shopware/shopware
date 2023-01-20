@@ -680,6 +680,12 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler.inner"/>
             <argument>%shopware.logger.exclude_exception%</argument>
         </service>
+
+        <service id="Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler" decorates="monolog.handler.main" decoration-on-invalid="ignore">
+            <argument type="service" id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler.inner"/>
+            <argument>%shopware.logger.exclude_events%</argument>
+        </service>
+
         <service id="Shopware\Core\Framework\Routing\RouteParamsCleanupListener">
             <tag name="kernel.event_listener"/>
         </service>

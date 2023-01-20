@@ -10,20 +10,19 @@ use Monolog\Handler\HandlerInterface;
  */
 class ExcludeExceptionHandler extends AbstractHandler
 {
-    private HandlerInterface $handler;
-
-    private array $excludeExceptionList;
-
     /**
      * @internal
+     *
+     * @param array<int, string> $excludeExceptionList
      */
-    public function __construct(HandlerInterface $handler, array $excludeExceptionList)
+    public function __construct(private HandlerInterface $handler, private array $excludeExceptionList)
     {
         parent::__construct();
-        $this->handler = $handler;
-        $this->excludeExceptionList = $excludeExceptionList;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function handle(array $record): bool
     {
         if (

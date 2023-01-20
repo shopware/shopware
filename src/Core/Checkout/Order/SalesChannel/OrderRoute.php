@@ -178,6 +178,10 @@ class OrderRoute extends AbstractOrderRoute
     {
         /** @var Container $payload */
         $payload = $cartRule->getPayload();
+        if (!$payload instanceof Container) {
+            return true;
+        }
+
         foreach ($payload->getRules() as $rule) {
             if ($rule instanceof Container && $this->checkRuleType($rule) === false) {
                 return false;

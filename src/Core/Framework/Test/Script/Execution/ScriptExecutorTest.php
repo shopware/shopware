@@ -10,9 +10,9 @@ use Shopware\Core\Framework\Script\Exception\NoHookServiceFactoryException;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -32,6 +32,8 @@ class ScriptExecutorTest extends TestCase
     }
 
     /**
+     * @param array<string> $hooks
+     * @param array<string, string> $expected
      * @dataProvider executeProvider
      */
     public function testExecute(array $hooks, array $expected): void
@@ -182,7 +184,10 @@ class ScriptExecutorTest extends TestCase
         ], $traces['simple-function-case::test'][0]['deprecations']);
     }
 
-    public function executeProvider()
+    /**
+     * @return array<string, array{0: array<string>, 1: array<string, string|int>}>
+     */
+    public function executeProvider(): iterable
     {
         yield 'Test simple function call' => [
             ['simple-function-case'],

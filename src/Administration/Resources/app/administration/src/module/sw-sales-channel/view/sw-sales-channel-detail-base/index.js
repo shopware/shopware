@@ -330,6 +330,20 @@ export default {
             return null;
         },
 
+        helpTextTaxCalculation() {
+            const link = {
+                name: 'sw.settings.tax.index',
+            };
+
+            return this.$tc('sw-sales-channel.detail.helpTextTaxCalculation.label', 0, {
+                link: `<sw-internal-link
+                           :router-link=${JSON.stringify(link)}
+                           :inline="true">
+                           ${this.$tc('sw-sales-channel.detail.helpTextTaxCalculation.linkText')}
+                      </sw-internal-link>`,
+            });
+        },
+
         taxCalculationTypeOptions() {
             return [
                 {

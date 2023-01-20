@@ -12,6 +12,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\App\Manifest\Xml\RuleConditions;
 use Shopware\Core\Framework\App\Manifest\Xml\Setup;
 use Shopware\Core\Framework\App\Manifest\Xml\Storefront;
+use Shopware\Core\Framework\App\Manifest\Xml\Tax;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhooks;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
@@ -49,6 +50,8 @@ class Manifest
 
     private ?Storefront $storefront;
 
+    private ?Tax $tax;
+
     private function __construct(
         string $path,
         Metadata $metadata,
@@ -61,7 +64,8 @@ class Manifest
         ?Cookies $cookies,
         ?Payments $payments,
         ?RuleConditions $ruleConditions,
-        ?Storefront $storefront
+        ?Storefront $storefront,
+        ?Tax $tax
     ) {
         $this->path = $path;
         $this->metadata = $metadata;
@@ -75,6 +79,7 @@ class Manifest
         $this->payments = $payments;
         $this->ruleConditions = $ruleConditions;
         $this->storefront = $storefront;
+        $this->tax = $tax;
     }
 
     public static function createFromXmlFile(string $xmlFile): self
@@ -105,11 +110,27 @@ class Manifest
             $ruleConditions = $ruleConditions === null ? null : RuleConditions::fromXml($ruleConditions);
             $storefront = $doc->getElementsByTagName('storefront')->item(0);
             $storefront = $storefront === null ? null : Storefront::fromXml($storefront);
+            $tax = $doc->getElementsByTagName('tax')->item(0);
+            $tax = $tax === null ? null : Tax::fromXml($tax);
         } catch (\Exception $e) {
             throw new XmlParsingException($xmlFile, $e->getMessage());
         }
 
-        return new self(\dirname($xmlFile), $metadata, $setup, $admin, $permissions, $allowedHosts, $customFields, $webhooks, $cookies, $payments, $ruleConditions, $storefront);
+        return new self(
+            \dirname($xmlFile),
+            $metadata,
+            $setup,
+            $admin,
+            $permissions,
+            $allowedHosts,
+            $customFields,
+            $webhooks,
+            $cookies,
+            $payments,
+            $ruleConditions,
+            $storefront,
+            $tax
+        );
     }
 
     public function getPath(): string
@@ -189,6 +210,11 @@ class Manifest
         return $this->storefront;
     }
 
+    public function getTax(): ?Tax
+    {
+        return $this->tax;
+    }
+
     /**
      * @return array<string> all hosts referenced in the manifest file
      */
@@ -202,19 +228,23 @@ class Manifest
         }
 
         if ($this->webhooks) {
-            $urls = array_merge($urls, $this->webhooks->getUrls());
+            $urls = \array_merge($urls, $this->webhooks->getUrls());
         }
 
         if ($this->admin) {
-            $urls = array_merge($urls, $this->admin->getUrls());
+            $urls = \array_merge($urls, $this->admin->getUrls());
         }
 
         if ($this->payments) {
-            $urls = array_merge($urls, $this->payments->getUrls());
+            $urls = \array_merge($urls, $this->payments->getUrls());
         }
 
-        $urls = array_map(fn (string $url) => \parse_url($url, \PHP_URL_HOST), $urls);
+        if ($this->tax) {
+            $urls = \array_merge($urls, $this->tax->getUrls());
+        }
 
-        return array_values(array_unique(array_merge($hosts, $urls)));
+        $urls = \array_map(fn (string $url) => \parse_url($url, \PHP_URL_HOST), $urls);
+
+        return \array_values(\array_unique(\array_merge($hosts, $urls)));
     }
 }

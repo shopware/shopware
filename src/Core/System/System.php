@@ -38,6 +38,7 @@ class System extends Bundle
         $loader->load('snippet.xml');
         $loader->load('salutation.xml');
         $loader->load('tax.xml');
+        $loader->load('tax_provider.xml');
         $loader->load('unit.xml');
         $loader->load('user.xml');
         $loader->load('integration.xml');

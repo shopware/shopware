@@ -8,10 +8,10 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -29,8 +29,9 @@ class ScriptControllerTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps');
 
         $response = $this->request('GET', '/storefront/script/json-response', []);
+        static::assertNotFalse($response->getContent());
 
-        $body = \json_decode((string) $response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         $traces = $this->getScriptTraces();
@@ -47,8 +48,9 @@ class ScriptControllerTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps');
 
         $response = $this->request('GET', '/storefront/script/json/response', []);
+        static::assertNotFalse($response->getContent());
 
-        $body = \json_decode((string) $response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         $traces = $this->getScriptTraces();
@@ -70,7 +72,9 @@ class ScriptControllerTest extends TestCase
             $this->tokenize('frontend.script_endpoint', [])
         );
 
-        $body = \json_decode((string) $response->getContent(), true);
+        static::assertNotFalse($response->getContent());
+
+        $body = \json_decode($response->getContent(), true);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         $traces = $this->getScriptTraces();
@@ -94,8 +98,9 @@ class ScriptControllerTest extends TestCase
             []
         );
 
+        static::assertNotFalse($response->getContent());
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertStringContainsString('My Test-Product', (string) $response->getContent());
+        static::assertStringContainsString('My Test-Product', $response->getContent());
     }
 
     public function testRedirectResponseTemplate(): void
@@ -134,8 +139,9 @@ class ScriptControllerTest extends TestCase
         );
         $response = $browser->getResponse();
 
+        static::assertNotFalse($response->getContent());
         static::assertSame($expectedStatus, $response->getStatusCode());
-        static::assertStringContainsString($expectedResponse, (string) $response->getContent());
+        static::assertStringContainsString($expectedResponse, $response->getContent());
     }
 
     public function ensureLoginProvider(): \Generator
@@ -214,7 +220,9 @@ class ScriptControllerTest extends TestCase
             $this->tokenize('frontend.account.register.save', $data)
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+
+        static::assertNotFalse($response->getContent());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
         return $browser;
     }

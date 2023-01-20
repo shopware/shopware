@@ -7,6 +7,8 @@ import './acl';
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-tax-list', () => import('./page/sw-settings-tax-list'));
 Shopware.Component.register('sw-settings-tax-detail', () => import('./page/sw-settings-tax-detail'));
+Shopware.Component.register('sw-settings-tax-provider-detail', () => import('./page/sw-settings-tax-provider-detail'));
+Shopware.Component.register('sw-settings-tax-provider-sorting-modal', () => import('./component/sw-settings-tax-provider-sorting-modal'));
 Shopware.Component.register('sw-tax-rule-card', () => import('./component/sw-tax-rule-card'));
 Shopware.Component.register('sw-settings-tax-rule-modal', () => import('./component/sw-settings-tax-rule-modal'));
 Shopware.Component.register('sw-settings-tax-rule-type-individual-states', () => import('./component/sw-settings-tax-rule-type-individual-states'));
@@ -60,6 +62,21 @@ Module.register('sw-settings-tax', {
             meta: {
                 parentPath: 'sw.settings.tax.index',
                 privilege: 'tax.creator',
+            },
+        },
+        'tax_provider.detail': {
+            component: 'sw-settings-tax-provider-detail',
+            path: 'tax-provider/detail/:id',
+            meta: {
+                parentPath: 'sw.settings.tax.index',
+                privilege: 'tax.viewer',
+            },
+            props: {
+                default(route) {
+                    return {
+                        taxProviderId: route.params.id,
+                    };
+                },
             },
         },
     },

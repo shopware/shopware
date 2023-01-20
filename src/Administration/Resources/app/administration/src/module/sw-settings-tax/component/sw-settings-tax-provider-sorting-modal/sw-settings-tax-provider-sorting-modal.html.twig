@@ -1,0 +1,55 @@
+<sw-modal
+    class="sw-settings-tax-provider-sorting-modal"
+    :title="$tc('sw-settings-tax.list.taxProvider.sorting-modal.modalTitle')"
+    @modal-close="closeModal"
+>
+    <template #body>
+        <div class="sw-modal__body sw-settings-tax-provider-sorting-modal__subtitle">
+            {{ $tc('sw-settings-tax.list.taxProvider.sorting-modal.subTitle') }}
+        </div>
+
+        <div class="sw-modal__body">
+            <sw-sortable-list
+                class="sw-settings-tax-provider-sorting-modal__tax-provider-list"
+                :items="sortedTaxProviders"
+                @itemsSorted="onSort"
+            >
+                <template #item="{ item: taxProvider }">
+                    <div
+                        class="sw-settings-tax-provider-sorting-modal__tax-provider-list-item"
+                        :class="!taxProvider.active ? 'is--disabled' : ''"
+                    >
+                        <sw-icon
+                            class="sw-settings-tax-provider-sorting-modal__tax-provider-list-item__action"
+                            name="regular-grip-vertical"
+                        />
+
+                        <div class="sw-settings-tax-provider-sorting-modal__tax-provider-list-item__name">
+                            {{ taxProvider.translated.name }}
+                        </div>
+                    </div>
+                </template>
+            </sw-sortable-list>
+        </div>
+    </template>
+
+    <template #modal-footer>
+        <sw-button
+            class="sw-settings-tax-provider-sorting-modal__cancel-button"
+            @click="closeModal"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+
+        <sw-button-process
+            class="sw-settings-tax-provider-sorting-modal__save-button"
+            variant="primary"
+            :is-loading="isSaving"
+            :disabled="!acl.can('tax.editor')"
+            :process-success="false"
+            @click="applyChanges"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button-process>
+    </template>
+</sw-modal>

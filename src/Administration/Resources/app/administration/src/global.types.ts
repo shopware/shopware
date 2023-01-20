@@ -301,6 +301,7 @@ declare module 'vue-router' {
  */
 declare module 'vue/types/vue' {
     interface Vue extends ServiceContainer {
+        $createTitle: (identifier?: string|null) => string,
         $router: VueRouter,
         $route: Route,
     }

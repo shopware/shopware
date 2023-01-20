@@ -210,6 +210,21 @@ class RecalculationServiceTest extends TestCase
         // The behaviour will be set during the process, therefore we remove it here
         $cart->setBehavior(null);
 
+        // unique identifier is set at runtime to be random uuid
+        foreach ($convertedCart->getLineItems()->getFlat() as $lineItem) {
+            $lineItem->assign(['uniqueIdentifier' => 'foo']);
+        }
+
+        foreach ($convertedCart->getDeliveries() as $delivery) {
+            foreach ($delivery->getPositions() as $position) {
+                $position->getLineItem()->assign(['uniqueIdentifier' => 'foo']);
+
+                foreach ($position->getLineItem()->getChildren()->getFlat() as $lineItem) {
+                    $lineItem->assign(['uniqueIdentifier' => 'foo']);
+                }
+            }
+        }
+
         static::assertEquals($cart, $convertedCart);
     }
 
@@ -1188,6 +1203,8 @@ class RecalculationServiceTest extends TestCase
 
         $lineItem = $this->getContainer()->get(ProductLineItemFactory::class)
             ->create($id);
+
+        $lineItem->assign(['uniqueIdentifier' => 'foo']);
 
         $cart->add($lineItem);
 

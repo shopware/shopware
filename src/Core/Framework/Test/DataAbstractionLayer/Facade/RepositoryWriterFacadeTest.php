@@ -15,11 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
  * @internal
@@ -42,6 +42,7 @@ class RepositoryWriterFacadeTest extends TestCase
     }
 
     /**
+     * @param array<int, mixed> $payload
      * @dataProvider testCases
      */
     public function testFacade(array $payload, string $method, IdsCollection $ids, callable $expectation): void
@@ -59,6 +60,9 @@ class RepositoryWriterFacadeTest extends TestCase
         $expectation($this->context);
     }
 
+    /**
+     * @return array<string, array<int, mixed>>
+     */
     public function testCases(): array
     {
         $ids = new IdsCollection();
@@ -164,6 +168,7 @@ class RepositoryWriterFacadeTest extends TestCase
     }
 
     /**
+     * @param array<int, mixed> $arguments
      * @dataProvider withoutPermissionsCases
      */
     public function testWithoutPermission(array $arguments, string $method, IdsCollection $ids): void
@@ -182,6 +187,9 @@ class RepositoryWriterFacadeTest extends TestCase
         $facade->$method(...$arguments);
     }
 
+    /**
+     * @return array<string, array<int, mixed>>
+     */
     public function withoutPermissionsCases(): array
     {
         $ids = new IdsCollection();

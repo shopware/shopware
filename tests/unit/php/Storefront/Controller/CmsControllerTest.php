@@ -198,16 +198,16 @@ class CmsControllerTest extends TestCase
  */
 class CmsControllerTestClass extends CmsController
 {
-    /**
-     * @var mixed
-     */
-    public $renderStorefrontView;
+    public string $renderStorefrontView;
 
     /**
-     * @var mixed
+     * @var array<array-key, mixed>
      */
-    public $renderStorefrontParameters;
+    public array $renderStorefrontParameters;
 
+    /**
+     * @param array<array-key, mixed> $parameters
+     */
     protected function renderStorefront(string $view, array $parameters = []): Response
     {
         $this->renderStorefrontView = $view;

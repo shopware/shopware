@@ -83,7 +83,7 @@
       "optionKilogram": "Kilogram",
       "optionMetre": "Metre",
       "taxRateHelpText": {
-        "label": "Adjust the applicable VAT rate. A default VAT rate and up to two reduced rates are predefined for most countries. You can check and alter the actual VAT rates or add additional rates and country assignments in {link}.",
+        "label": "Adjust the applicable VAT rate. A default VAT rate and up to two reduced rates are predefined for most countries. If you activated a tax provider the defined tax rate may be overwritten. You can check and alter the actual VAT rates or add additional rates and country assignments in {link}.",
         "linkText": "settings"
       }
     },

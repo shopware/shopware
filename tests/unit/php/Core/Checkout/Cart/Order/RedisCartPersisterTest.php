@@ -120,6 +120,9 @@ class RedisCartPersisterTest extends TestCase
         (new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true, 90))->load($token, $context);
     }
 
+    /**
+     * @return iterable<string, array{mixed, class-string<CartException>}>
+     */
     public function dataProviderInvalidData(): iterable
     {
         yield 'not existing' => [null, CartTokenNotFoundException::class];

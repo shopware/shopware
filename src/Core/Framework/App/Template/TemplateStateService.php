@@ -14,10 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
  */
 class TemplateStateService
 {
-    /**
-     * @var EntityRepository
-     */
-    private $templateRepo;
+    private EntityRepository $templateRepo;
 
     public function __construct(EntityRepository $templateRepo)
     {

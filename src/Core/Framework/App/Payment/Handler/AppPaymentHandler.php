@@ -18,7 +18,7 @@ use Shopware\Core\Checkout\Payment\Exception\CapturePreparedPaymentException;
 use Shopware\Core\Checkout\Payment\Exception\RefundException;
 use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
-use Shopware\Core\Framework\App\Payment\Payload\PayloadService;
+use Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\CapturePayload;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\RefundPayload;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\ValidatePayload;
@@ -47,14 +47,14 @@ class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymen
 
     protected StateMachineRegistry $stateMachineRegistry;
 
-    protected PayloadService $payloadService;
+    protected PaymentPayloadService $payloadService;
 
     protected EntityRepository $refundRepository;
 
     public function __construct(
         OrderTransactionStateHandler $transactionStateHandler,
         StateMachineRegistry $stateMachineRegistry,
-        PayloadService $payloadService,
+        PaymentPayloadService $payloadService,
         EntityRepository $refundRepository
     ) {
         $this->transactionStateHandler = $transactionStateHandler;

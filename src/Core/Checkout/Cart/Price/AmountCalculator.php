@@ -79,12 +79,7 @@ class AmountCalculator
         $all = $prices->merge($shippingCosts);
 
         $total = $all->sum();
-
-        if ($context->getTaxState() === CartPrice::TAX_STATE_FREE) {
-            $taxes = new CalculatedTaxCollection([]);
-        } else {
-            $taxes = $this->calculateTaxes($all, $context);
-        }
+        $taxes = $this->calculateTaxes($all, $context);
 
         $price = $this->rounding->cashRound(
             $total->getTotalPrice(),
@@ -118,12 +113,7 @@ class AmountCalculator
         $all = $prices->merge($shippingCosts);
 
         $total = $all->sum();
-
-        if ($context->getTaxState() === CartPrice::TAX_STATE_FREE) {
-            $taxes = new CalculatedTaxCollection([]);
-        } else {
-            $taxes = $this->calculateTaxes($all, $context);
-        }
+        $taxes = $this->calculateTaxes($all, $context);
 
         $price = $this->rounding->cashRound(
             $total->getTotalPrice() + $taxes->getAmount(),

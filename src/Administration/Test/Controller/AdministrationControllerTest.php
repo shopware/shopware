@@ -38,7 +38,7 @@ class AdministrationControllerTest extends TestCase
         $content = $this->getBrowser()->getResponse()->getContent();
         static::assertNotFalse($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('de-DE', $response);
         static::assertArrayHasKey('en-GB', $response);
     }
@@ -71,7 +71,7 @@ class AdministrationControllerTest extends TestCase
         $content = $this->getBrowser()->getResponse()->getContent();
         static::assertNotFalse($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals(200, $browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('isValid', $response);
     }
@@ -95,7 +95,7 @@ class AdministrationControllerTest extends TestCase
         $content = $this->getBrowser()->getResponse()->getContent();
         static::assertNotFalse($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals(400, $browser->getResponse()->getStatusCode());
         static::assertSame('The email address ' . $email . ' is already in use', $response['errors'][0]['detail']);
     }
@@ -118,7 +118,7 @@ class AdministrationControllerTest extends TestCase
 
         static::assertNotFalse($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(200, $browser->getResponse()->getStatusCode());
         static::assertSame('<img alt="" src="#" /><div>test</div>', $response['preview']);
@@ -136,7 +136,7 @@ class AdministrationControllerTest extends TestCase
 
         static::assertNotFalse($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(200, $browser->getResponse()->getStatusCode());
         static::assertSame($html, $response['preview']);

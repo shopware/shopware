@@ -27,6 +27,6 @@ class Administration extends Bundle
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('services.xml');
 
-        $container->addCompilerPass(new AdministrationMigrationCompilerPass());
+        $container->addCompilerPass(new AdministrationMigrationCompilerPass(), \Symfony\Component\DependencyInjection\Compiler\PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
     }
 }

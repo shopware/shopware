@@ -63,7 +63,7 @@ class NotificationControllerTest extends TestCase
             'requiredPrivileges' => $requirePrivileges,
         ];
 
-        $json = \json_encode($data);
+        $json = \json_encode($data, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
         if (!$isSuccess) {
@@ -138,7 +138,7 @@ class NotificationControllerTest extends TestCase
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
 
-        $content = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($resultQuantity === 0) {
             static::assertCount(0, $content['notifications']);

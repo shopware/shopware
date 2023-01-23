@@ -16,26 +16,6 @@ parameters:
 			path: src/Administration/Controller/UserConfigController.php
 
 		-
-			message: "#^Method Shopware\\\\Administration\\\\Events\\\\PreResetExcludedSearchTermEvent\\:\\:__construct\\(\\) has parameter \\$excludedTerms with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Events/PreResetExcludedSearchTermEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Events\\\\PreResetExcludedSearchTermEvent\\:\\:getExcludedTerms\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Events/PreResetExcludedSearchTermEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Events\\\\PreResetExcludedSearchTermEvent\\:\\:setExcludedTerms\\(\\) has parameter \\$excludedTerms with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Events/PreResetExcludedSearchTermEvent.php
-
-		-
-			message: "#^Property Shopware\\\\Administration\\\\Events\\\\PreResetExcludedSearchTermEvent\\:\\:\\$excludedTerms type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Events/PreResetExcludedSearchTermEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Administration\\\\Framework\\\\Routing\\\\KnownIps\\\\KnownIpsCollector\\:\\:collectIps\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Administration/Framework/Routing/KnownIps/KnownIpsCollector.php

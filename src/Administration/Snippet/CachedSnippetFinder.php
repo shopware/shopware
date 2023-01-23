@@ -10,22 +10,10 @@ use Symfony\Component\Cache\Adapter\AdapterInterface;
 class CachedSnippetFinder implements SnippetFinderInterface
 {
     /**
-     * @var SnippetFinder
-     */
-    private $snippetFinder;
-
-    /**
-     * @var AdapterInterface
-     */
-    private $cache;
-
-    /**
      * @internal
      */
-    public function __construct(SnippetFinder $snippetFinder, AdapterInterface $cache)
+    public function __construct(private readonly SnippetFinder $snippetFinder, private readonly AdapterInterface $cache)
     {
-        $this->snippetFinder = $snippetFinder;
-        $this->cache = $cache;
     }
 
     /**

@@ -17,16 +17,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class SalesChannelUserConfigSubscriber implements EventSubscriberInterface
 {
-    public const CONFIG_KEY = 'sales-channel-favorites';
-
-    private EntityRepository $userConfigRepository;
+    final public const CONFIG_KEY = 'sales-channel-favorites';
 
     /**
      * @internal
      */
-    public function __construct(EntityRepository $userConfigRepository)
+    public function __construct(private readonly EntityRepository $userConfigRepository)
     {
-        $this->userConfigRepository = $userConfigRepository;
     }
 
     public static function getSubscribedEvents(): array

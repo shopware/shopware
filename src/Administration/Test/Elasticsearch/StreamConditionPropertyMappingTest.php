@@ -44,7 +44,7 @@ class StreamConditionPropertyMappingTest extends TestCase
         }
 
         $json = sprintf('[%s]', rtrim(trim(str_replace(['\'', \PHP_EOL], ['"', ''], $matches[2])), ','));
-        $properties = json_decode($json, true);
+        $properties = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\is_array($properties)) {
             static::fail('could not extract product properties from product-stream-condition.service.js');

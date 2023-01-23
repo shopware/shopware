@@ -26,35 +26,16 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal Only to be used by the admin-extension-sdk.
  *
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package administration
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class AdminExtensionApiController extends AbstractController
 {
-    private Executor $executor;
-
-    private ShopIdProvider $shopIdProvider;
-
-    private EntityRepository $appRepository;
-
-    private QuerySigner $querySigner;
-
-    public function __construct(
-        Executor $executor,
-        ShopIdProvider $shopIdProvider,
-        EntityRepository $appRepository,
-        QuerySigner $querySigner
-    ) {
-        $this->executor = $executor;
-        $this->shopIdProvider = $shopIdProvider;
-        $this->appRepository = $appRepository;
-        $this->querySigner = $querySigner;
+    public function __construct(private readonly Executor $executor, private readonly ShopIdProvider $shopIdProvider, private readonly EntityRepository $appRepository, private readonly QuerySigner $querySigner)
+    {
     }
 
-    /**
-     * @Route("/api/_action/extension-sdk/run-action", name="api.action.extension-sdk.run-action", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/extension-sdk/run-action', name: 'api.action.extension-sdk.run-action', methods: ['POST'])]
     public function runAction(RequestDataBag $requestDataBag, Context $context): Response
     {
         $appName = $requestDataBag->get('appName');
@@ -80,7 +61,7 @@ class AdminExtensionApiController extends AbstractController
         }
 
         $targetUrl = $requestDataBag->get('url');
-        $targetHost = \parse_url($targetUrl, \PHP_URL_HOST);
+        $targetHost = \parse_url((string) $targetUrl, \PHP_URL_HOST);
         $allowedHosts = $app->getAllowedHosts() ?? [];
         if (!$targetHost || !\in_array($targetHost, $allowedHosts, true)) {
             throw new UnallowedHostException($targetUrl, $allowedHosts, $app->getName());
@@ -101,9 +82,7 @@ class AdminExtensionApiController extends AbstractController
         return $this->executor->execute($action, $context);
     }
 
-    /**
-     * @Route("/api/_action/extension-sdk/sign-uri", name="api.action.extension-sdk.sign-uri", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/extension-sdk/sign-uri', name: 'api.action.extension-sdk.sign-uri', methods: ['POST'])]
     public function signUri(RequestDataBag $requestDataBag, Context $context): Response
     {
         $appName = $requestDataBag->get('appName');

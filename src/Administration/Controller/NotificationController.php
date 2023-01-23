@@ -18,33 +18,26 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package administration
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class NotificationController extends AbstractController
 {
-    public const NOTIFICATION = 'notification';
+    final public const NOTIFICATION = 'notification';
 
-    public const LIMIT = 5;
-
-    private RateLimiter $rateLimiter;
-
-    private NotificationService $notificationService;
+    final public const LIMIT = 5;
 
     /**
      * @internal
      */
-    public function __construct(RateLimiter $rateLimiter, NotificationService $notificationService)
+    public function __construct(private readonly RateLimiter $rateLimiter, private readonly NotificationService $notificationService)
     {
-        $this->rateLimiter = $rateLimiter;
-        $this->notificationService = $notificationService;
     }
 
     /**
      * @Since("6.4.7.0")
-     * @Route("/api/notification", name="api.notification", methods={"POST"}, defaults={"_acl"={"notification:create"}})
      */
+    #[Route(path: '/api/notification', name: 'api.notification', defaults: ['_acl' => ['notification:create']], methods: ['POST'])]
     public function saveNotification(Request $request, Context $context): Response
     {
         $status = $request->request->get('status');
@@ -54,7 +47,7 @@ class NotificationController extends AbstractController
 
         $source = $context->getSource();
         if (!$source instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
+            throw new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class);
         }
 
         if (empty($status) || empty($message)) {
@@ -91,8 +84,8 @@ class NotificationController extends AbstractController
 
     /**
      * @Since("6.4.7.0")
-     * @Route("/api/notification/message", name="api.notification.message", methods={"GET"})
      */
+    #[Route(path: '/api/notification/message', name: 'api.notification.message', methods: ['GET'])]
     public function fetchNotification(Request $request, Context $context): Response
     {
         $limit = $request->query->get('limit');

@@ -17,8 +17,8 @@ class AdminMigrationCompilerPassTest extends TestCase
         $container = new ContainerBuilder();
         $container->register(MigrationSource::class . '.core.V6_4', MigrationSource::class)->setPublic(true);
 
-        $container->addCompilerPass(new AdministrationMigrationCompilerPass());
-        $container->compile();
+        $container->addCompilerPass(new AdministrationMigrationCompilerPass(), \Symfony\Component\DependencyInjection\Compiler\PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->compile(false);
 
         $calls = $container->getDefinition(MigrationSource::class . '.core.V6_4')->getMethodCalls();
         static::assertCount(1, $calls);

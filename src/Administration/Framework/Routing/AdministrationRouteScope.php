@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class AdministrationRouteScope extends AbstractRouteScope implements ApiContextRouteScopeDependant
 {
-    public const ID = 'administration';
+    final public const ID = 'administration';
 
     /**
      * @var string[]

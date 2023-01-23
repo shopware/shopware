@@ -9626,17 +9626,7 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\:\\:filterAndReduceByProperty\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\:\\:filterAndReduceByProperty\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\:\\:filterByProperty\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
 
@@ -9647,11 +9637,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\:\\:getIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\:\\:getList\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
 

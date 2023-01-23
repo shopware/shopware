@@ -7,7 +7,7 @@ use Shopware\Core\Framework\App\Exception\ActionNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 class AppActionLoader
 {
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $actionButtonRepo;
 
@@ -32,7 +32,7 @@ class AppActionLoader
      */
     private $shopIdProvider;
 
-    public function __construct(string $url, EntityRepository $actionButtonRepo, ShopIdProvider $shopIdProvider)
+    public function __construct(string $url, EntityRepositoryInterface $actionButtonRepo, ShopIdProvider $shopIdProvider)
     {
         $this->actionButtonRepo = $actionButtonRepo;
         $this->url = $url;

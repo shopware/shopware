@@ -3,7 +3,7 @@
 namespace Shopware\Administration\System\SalesChannel\Subscriber;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -19,12 +19,12 @@ class SalesChannelUserConfigSubscriber implements EventSubscriberInterface
 {
     public const CONFIG_KEY = 'sales-channel-favorites';
 
-    private EntityRepository $userConfigRepository;
+    private EntityRepositoryInterface $userConfigRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepository $userConfigRepository)
+    public function __construct(EntityRepositoryInterface $userConfigRepository)
     {
         $this->userConfigRepository = $userConfigRepository;
     }

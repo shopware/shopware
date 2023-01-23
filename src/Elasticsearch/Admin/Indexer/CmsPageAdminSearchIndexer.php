@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -25,14 +25,14 @@ final class CmsPageAdminSearchIndexer extends AbstractAdminIndexer
 
     private IteratorFactory $factory;
 
-    private EntityRepository $repository;
+    private EntityRepositoryInterface $repository;
 
     private int $indexingBatchSize;
 
     public function __construct(
         Connection $connection,
         IteratorFactory $factory,
-        EntityRepository $repository,
+        EntityRepositoryInterface $repository,
         int $indexingBatchSize
     ) {
         $this->connection = $connection;

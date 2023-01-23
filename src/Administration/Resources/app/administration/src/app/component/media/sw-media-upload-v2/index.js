@@ -167,6 +167,10 @@ Component.register('sw-media-upload-v2', {
             });
         },
 
+        showPreview() {
+            return !this.multiSelect;
+        },
+
         hasOpenMediaButtonListener() {
             return Object.keys(this.$listeners).includes('media-upload-sidebar-open');
         },

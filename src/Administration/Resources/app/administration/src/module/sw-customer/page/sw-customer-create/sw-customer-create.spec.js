@@ -92,7 +92,7 @@ describe('module/sw-customer/page/sw-customer-create', () => {
 
         expect(notificationMock).toBeCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
-            message: 'sw-customer.error.COMPANY_IS_REQUIRED'
+            message: 'sw-customer.detail.messageSaveError'
         });
 
         wrapper.vm.createNotificationError.mockRestore();

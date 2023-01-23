@@ -81,7 +81,10 @@ Component.register('sw-customer-card', {
             return criteria;
         },
 
-        ...mapPropertyErrors('customer', [...errorConfig['sw.customer.detail.base'].customer, 'company']),
+        ...mapPropertyErrors(
+            'customer',
+            [...errorConfig['sw.customer.detail.base'].customer],
+        ),
 
         accountTypeOptions() {
             return [{
@@ -93,6 +96,21 @@ Component.register('sw-customer-card', {
 
         isBusinessAccountType() {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
+        },
+    },
+
+    watch: {
+        'customer.accountType'(value) {
+            if (value === CUSTOMER.ACCOUNT_TYPE_BUSINESS || !this.customerCompanyError) {
+                return;
+            }
+
+            Shopware.State.dispatch(
+                'error/removeApiError',
+                {
+                    expression: `customer.${this.customer.id}.company`,
+                },
+            );
         },
     },
 

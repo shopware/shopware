@@ -37,8 +37,7 @@
             "roave/backward-compatibility-check": {
                 "Add exclude errors": "patches/add-exclude-errors.patch",
                 "Add exclude files": "patches/add-exclude-files.patch",
-                "Add Composer 2": "patches/add-composer-2.patch",
-                "Add Annotation check": "patches/add-annotation-check.patch"
+                "Add Composer 2": "patches/add-composer-2.patch"
             }
         }
     }

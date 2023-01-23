@@ -167,6 +167,10 @@ export default {
             });
         },
 
+        showPreview() {
+            return !this.multiSelect;
+        },
+
         hasOpenMediaButtonListener() {
             return Object.keys(this.$listeners).includes('media-upload-sidebar-open');
         },

@@ -23,39 +23,18 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
     private const API_URL = 'https://api.fastly.com';
     private const MAX_TAG_INVALIDATION = 256;
 
-    protected Client $client;
-
-    protected string $serviceId;
-
-    protected string $apiKey;
-
-    protected string $softPurge;
-
-    protected int $concurrency;
-
-    protected string $tagPrefix;
-
     /**
      * @var array<string, string>
      */
     private array $tagBuffer = [];
 
-    private string $instanceTag;
-
-    private string $appUrl;
+    private readonly string $appUrl;
 
     /**
      * @internal
      */
-    public function __construct(Client $client, string $serviceId, string $apiKey, string $softPurge, int $concurrency, string $tagPrefix, string $instanceTag, string $appUrl)
+    public function __construct(protected Client $client, protected string $serviceId, protected string $apiKey, protected string $softPurge, protected int $concurrency, protected string $tagPrefix, private readonly string $instanceTag, string $appUrl)
     {
-        $this->client = $client;
-        $this->serviceId = $serviceId;
-        $this->apiKey = $apiKey;
-        $this->softPurge = $softPurge;
-        $this->concurrency = $concurrency;
-        $this->tagPrefix = $tagPrefix;
-        $this->instanceTag = $instanceTag;
         $this->appUrl = (string) preg_replace('/^https?:\/\//', '', $appUrl);
     }
 
@@ -163,8 +142,6 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 
         $prefix = $this->tagPrefix;
 
-        return array_map(static function (string $tag) use ($prefix) {
-            return $prefix . $tag;
-        }, $tags);
+        return array_map(static fn (string $tag) => $prefix . $tag, $tags);
     }
 }

@@ -27,29 +27,17 @@ class ErrorController extends StorefrontController
      */
     protected $errorTemplateResolver;
 
-    private HeaderPageletLoaderInterface $headerPageletLoader;
-
-    private ErrorPageLoaderInterface $errorPageLoader;
-
-    private SystemConfigService $systemConfigService;
-
-    private FooterPageletLoaderInterface $footerPageletLoader;
-
     /**
      * @internal
      */
     public function __construct(
         ErrorTemplateResolver $errorTemplateResolver,
-        HeaderPageletLoaderInterface $headerPageletLoader,
-        SystemConfigService $systemConfigService,
-        ErrorPageLoaderInterface $errorPageLoader,
-        FooterPageletLoaderInterface $footerPageletLoader
+        private readonly HeaderPageletLoaderInterface $headerPageletLoader,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly ErrorPageLoaderInterface $errorPageLoader,
+        private readonly FooterPageletLoaderInterface $footerPageletLoader
     ) {
         $this->errorTemplateResolver = $errorTemplateResolver;
-        $this->headerPageletLoader = $headerPageletLoader;
-        $this->errorPageLoader = $errorPageLoader;
-        $this->systemConfigService = $systemConfigService;
-        $this->footerPageletLoader = $footerPageletLoader;
     }
 
     public function error(\Throwable $exception, Request $request, SalesChannelContext $context): Response

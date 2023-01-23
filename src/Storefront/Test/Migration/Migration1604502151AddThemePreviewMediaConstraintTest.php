@@ -24,15 +24,9 @@ class Migration1604502151AddThemePreviewMediaConstraintTest extends TestCase
 
     private const FK_INDEX = 'fk.theme.preview_media_id';
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var Migration1604502151AddThemePreviewMediaConstraint
-     */
-    private $migration;
+    private Migration1604502151AddThemePreviewMediaConstraint $migration;
 
     public function setUp(): void
     {

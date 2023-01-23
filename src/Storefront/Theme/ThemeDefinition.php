@@ -29,7 +29,7 @@ use Shopware\Storefront\Theme\Aggregate\ThemeTranslationDefinition;
  */
 class ThemeDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'theme';
+    final public const ENTITY_NAME = 'theme';
 
     public function getEntityName(): string
     {

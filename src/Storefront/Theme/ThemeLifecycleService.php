@@ -25,55 +25,11 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
  */
 class ThemeLifecycleService
 {
-    private StorefrontPluginRegistryInterface $pluginRegistry;
-
-    private EntityRepository $themeRepository;
-
-    private EntityRepository $mediaRepository;
-
-    private EntityRepository $mediaFolderRepository;
-
-    private EntityRepository $themeMediaRepository;
-
-    private FileSaver $fileSaver;
-
-    private ThemeFileImporterInterface $themeFileImporter;
-
-    private FileNameProvider $fileNameProvider;
-
-    private EntityRepository $languageRepository;
-
-    private EntityRepository $themeChildRepository;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(
-        StorefrontPluginRegistryInterface $pluginRegistry,
-        EntityRepository $themeRepository,
-        EntityRepository $mediaRepository,
-        EntityRepository $mediaFolderRepository,
-        EntityRepository $themeMediaRepository,
-        FileSaver $fileSaver,
-        FileNameProvider $fileNameProvider,
-        ThemeFileImporterInterface $themeFileImporter,
-        EntityRepository $languageRepository,
-        EntityRepository $themeChildRepository,
-        Connection $connection
-    ) {
-        $this->pluginRegistry = $pluginRegistry;
-        $this->themeRepository = $themeRepository;
-        $this->mediaRepository = $mediaRepository;
-        $this->mediaFolderRepository = $mediaFolderRepository;
-        $this->themeMediaRepository = $themeMediaRepository;
-        $this->fileSaver = $fileSaver;
-        $this->fileNameProvider = $fileNameProvider;
-        $this->themeFileImporter = $themeFileImporter;
-        $this->languageRepository = $languageRepository;
-        $this->themeChildRepository = $themeChildRepository;
-        $this->connection = $connection;
+    public function __construct(private readonly StorefrontPluginRegistryInterface $pluginRegistry, private readonly EntityRepository $themeRepository, private readonly EntityRepository $mediaRepository, private readonly EntityRepository $mediaFolderRepository, private readonly EntityRepository $themeMediaRepository, private readonly FileSaver $fileSaver, private readonly FileNameProvider $fileNameProvider, private readonly ThemeFileImporterInterface $themeFileImporter, private readonly EntityRepository $languageRepository, private readonly EntityRepository $themeChildRepository, private readonly Connection $connection)
+    {
     }
 
     public function refreshThemes(
@@ -92,6 +48,7 @@ class ThemeLifecycleService
 
     public function refreshTheme(StorefrontPluginConfiguration $configuration, Context $context): void
     {
+        $themeData = [];
         $themeData['name'] = $configuration->getName();
         $themeData['technicalName'] = $configuration->getTechnicalName();
         $themeData['author'] = $configuration->getAuthor();
@@ -147,12 +104,10 @@ class ThemeLifecycleService
         }
 
         $dependentThemes = $theme->getDependentThemes() ?? new ThemeCollection();
-        $ids = array_merge(array_values($dependentThemes->getIds()), [$theme->getId()]);
+        $ids = [...array_values($dependentThemes->getIds()), ...[$theme->getId()]];
 
         $this->removeOldMedia($technicalName, $context);
-        $this->themeRepository->delete(array_map(function (string $id) {
-            return ['id' => $id];
-        }, $ids), $context);
+        $this->themeRepository->delete(array_map(fn (string $id) => ['id' => $id], $ids), $context);
     }
 
     private function getThemeByTechnicalName(string $technicalName, Context $context): ?ThemeEntity
@@ -352,7 +307,7 @@ class ThemeLifecycleService
         foreach ($themeMediaData as $item) {
             try {
                 $this->mediaRepository->delete([['id' => $item['mediaId']]], $context);
-            } catch (RestrictDeleteViolationException $e) {
+            } catch (RestrictDeleteViolationException) {
                 // don't delete files that are associated with other entities.
                 // This files will be recreated using the file name strategy for duplicated filenames.
             }
@@ -427,7 +382,7 @@ class ThemeLifecycleService
             foreach ($media as $item) {
                 try {
                     $this->fileSaver->persistFileToMedia($item['mediaFile'], $item['basename'], $item['media']['id'], $context);
-                } catch (DuplicatedMediaFileNameException $e) {
+                } catch (DuplicatedMediaFileNameException) {
                     $newFileName = $this->fileNameProvider->provide(
                         $item['basename'],
                         $item['mediaFile']->getFileExtension(),
@@ -501,7 +456,7 @@ class ThemeLifecycleService
                 continue;
             }
             /** @var string $lastNotSameTheme */
-            $lastNotSameTheme = str_replace('@', '', $themeName);
+            $lastNotSameTheme = str_replace('@', '', (string) $themeName);
         }
 
         if ($lastNotSameTheme !== null) {

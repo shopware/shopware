@@ -13,22 +13,16 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class ThemeAssetPackage extends FallbackUrlPackage
 {
-    private RequestStack $requestStack;
-
-    private AbstractThemePathBuilder $themePathBuilder;
-
     /**
      * @internal
      */
     public function __construct(
         $baseUrls,
         VersionStrategyInterface $versionStrategy,
-        RequestStack $requestStack,
-        AbstractThemePathBuilder $themePathBuilder
+        private readonly RequestStack $requestStack,
+        private readonly AbstractThemePathBuilder $themePathBuilder
     ) {
         parent::__construct($baseUrls, $versionStrategy);
-        $this->requestStack = $requestStack;
-        $this->themePathBuilder = $themePathBuilder;
     }
 
     public function getUrl(string $path): string

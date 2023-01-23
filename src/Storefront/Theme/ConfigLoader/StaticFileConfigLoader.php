@@ -17,14 +17,11 @@ use const JSON_THROW_ON_ERROR;
  */
 class StaticFileConfigLoader extends AbstractConfigLoader
 {
-    private FilesystemOperator $filesystem;
-
     /**
      * @internal
      */
-    public function __construct(FilesystemOperator $filesystem)
+    public function __construct(private readonly FilesystemOperator $filesystem)
     {
-        $this->filesystem = $filesystem;
     }
 
     public function getDecorated(): AbstractConfigLoader
@@ -54,13 +51,9 @@ class StaticFileConfigLoader extends AbstractConfigLoader
 
     private function prepareCollections(array $fileObject): array
     {
-        $fileObject['styleFiles'] = array_map(function (array $file) {
-            return (new File(''))->assign($file);
-        }, $fileObject['styleFiles']);
+        $fileObject['styleFiles'] = array_map(fn (array $file) => (new File(''))->assign($file), $fileObject['styleFiles']);
 
-        $fileObject['scriptFiles'] = array_map(function (array $file) {
-            return (new File(''))->assign($file);
-        }, $fileObject['scriptFiles']);
+        $fileObject['scriptFiles'] = array_map(fn (array $file) => (new File(''))->assign($file), $fileObject['scriptFiles']);
 
         $fileObject['styleFiles'] = new FileCollection($fileObject['styleFiles']);
         $fileObject['scriptFiles'] = new FileCollection($fileObject['scriptFiles']);

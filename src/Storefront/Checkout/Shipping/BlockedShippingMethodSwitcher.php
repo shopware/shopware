@@ -22,11 +22,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class BlockedShippingMethodSwitcher
 {
-    private AbstractShippingMethodRoute $shippingMethodRoute;
-
-    public function __construct(AbstractShippingMethodRoute $shippingMethodRoute)
+    public function __construct(private readonly AbstractShippingMethodRoute $shippingMethodRoute)
     {
-        $this->shippingMethodRoute = $shippingMethodRoute;
     }
 
     public function switch(ErrorCollection $errors, SalesChannelContext $salesChannelContext): ShippingMethodEntity
@@ -59,9 +56,7 @@ class BlockedShippingMethodSwitcher
 
     private function getShippingMethodToChangeTo(ErrorCollection $errors, SalesChannelContext $salesChannelContext): ?ShippingMethodEntity
     {
-        $blockedShippingMethodNames = $errors->fmap(static function (Error $error) {
-            return $error instanceof ShippingMethodBlockedError ? $error->getName() : null;
-        });
+        $blockedShippingMethodNames = $errors->fmap(static fn (Error $error) => $error instanceof ShippingMethodBlockedError ? $error->getName() : null);
 
         $request = new Request(['onlyAvailable' => true]);
         $defaultShippingMethod = $this->shippingMethodRoute->load(

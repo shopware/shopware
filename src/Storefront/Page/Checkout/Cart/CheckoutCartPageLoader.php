@@ -23,35 +23,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CheckoutCartPageLoader
 {
-    private GenericPageLoaderInterface $genericLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private StorefrontCartFacade $cartService;
-
-    private AbstractPaymentMethodRoute $paymentMethodRoute;
-
-    private AbstractShippingMethodRoute $shippingMethodRoute;
-
-    private AbstractCountryRoute $countryRoute;
-
     /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher,
-        StorefrontCartFacade $cartService,
-        AbstractPaymentMethodRoute $paymentMethodRoute,
-        AbstractShippingMethodRoute $shippingMethodRoute,
-        AbstractCountryRoute $countryRoute
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartService = $cartService;
-        $this->paymentMethodRoute = $paymentMethodRoute;
-        $this->shippingMethodRoute = $shippingMethodRoute;
-        $this->countryRoute = $countryRoute;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly StorefrontCartFacade $cartService, private readonly AbstractPaymentMethodRoute $paymentMethodRoute, private readonly AbstractShippingMethodRoute $shippingMethodRoute, private readonly AbstractCountryRoute $countryRoute)
+    {
     }
 
     /**

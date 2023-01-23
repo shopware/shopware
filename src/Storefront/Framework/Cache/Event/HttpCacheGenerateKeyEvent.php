@@ -10,20 +10,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class HttpCacheGenerateKeyEvent extends Event
 {
-    /**
-     * @var Request
-     */
-    private $request;
-
-    /**
-     * @var string
-     */
-    private $hash;
-
-    public function __construct(Request $request, string $hash)
+    public function __construct(private readonly Request $request, private string $hash)
     {
-        $this->request = $request;
-        $this->hash = $hash;
     }
 
     public function getRequest(): Request

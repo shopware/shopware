@@ -11,14 +11,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class BasicCaptchaPageletLoadedEvent extends PageletLoadedEvent
 {
-    protected BasicCaptchaPagelet $pagelet;
-
     public function __construct(
-        BasicCaptchaPagelet $pagelet,
+        protected BasicCaptchaPagelet $pagelet,
         SalesChannelContext $salesChannelContext,
         Request $request
     ) {
-        $this->pagelet = $pagelet;
         parent::__construct($salesChannelContext, $request);
     }
 

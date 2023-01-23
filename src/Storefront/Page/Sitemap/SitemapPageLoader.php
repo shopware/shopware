@@ -14,24 +14,10 @@ use Symfony\Component\HttpFoundation\Request;
 class SitemapPageLoader
 {
     /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var AbstractSitemapRoute
-     */
-    private $sitemapRoute;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        AbstractSitemapRoute $sitemapRoute
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->sitemapRoute = $sitemapRoute;
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractSitemapRoute $sitemapRoute)
+    {
     }
 
     /**

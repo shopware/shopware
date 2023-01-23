@@ -11,7 +11,7 @@ use Shopware\Storefront\Page\Page;
  */
 class LandingPage extends Page
 {
-    protected ?LandingPageEntity $landingPage;
+    protected ?LandingPageEntity $landingPage = null;
 
     public function getEntityName(): string
     {

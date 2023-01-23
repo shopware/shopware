@@ -12,22 +12,10 @@ use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 class TemplateConfigAccessor
 {
     /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
-     * @var ThemeConfigValueAccessor
-     */
-    private $themeConfigAccessor;
-
-    /**
      * @internal
      */
-    public function __construct(SystemConfigService $config, ThemeConfigValueAccessor $themeConfigAccessor)
+    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly ThemeConfigValueAccessor $themeConfigAccessor)
     {
-        $this->systemConfigService = $config;
-        $this->themeConfigAccessor = $themeConfigAccessor;
     }
 
     /**

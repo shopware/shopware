@@ -19,15 +19,12 @@ class SitemapPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'sitemap-page-loaded';
+    final public const HOOK_NAME = 'sitemap-page-loaded';
 
-    private SitemapPage $page;
-
-    public function __construct(SitemapPage $page, SalesChannelContext $context)
+    public function __construct(private readonly SitemapPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

@@ -351,11 +351,9 @@ class DatabaseConfigLoaderTest extends TestCase
     }
 
     /**
-     * @param string|int $value
-     *
      * @return array<string,string|int>
      */
-    private static function fieldUntyped($value): array
+    private static function fieldUntyped(string|int $value): array
     {
         return ['value' => $value];
     }

@@ -14,23 +14,17 @@ use Twig\TwigFunction;
 class ConfigExtension extends AbstractExtension
 {
     /**
-     * @var TemplateConfigAccessor
-     */
-    private $config;
-
-    /**
      * @internal
      */
-    public function __construct(TemplateConfigAccessor $config)
+    public function __construct(private readonly TemplateConfigAccessor $config)
     {
-        $this->config = $config;
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('config', [$this, 'config'], ['needs_context' => true]),
-            new TwigFunction('theme_config', [$this, 'theme'], ['needs_context' => true]),
+            new TwigFunction('config', $this->config(...), ['needs_context' => true]),
+            new TwigFunction('theme_config', $this->theme(...), ['needs_context' => true]),
         ];
     }
 

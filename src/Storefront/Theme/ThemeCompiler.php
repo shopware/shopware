@@ -36,18 +36,18 @@ class ThemeCompiler implements ThemeCompilerInterface
      * @param Package[] $packages
      */
     public function __construct(
-        private FilesystemOperator $filesystem,
-        private FilesystemOperator $tempFilesystem,
-        private ThemeFileResolver $themeFileResolver,
-        private bool $debug,
-        private EventDispatcherInterface $eventDispatcher,
-        private ThemeFileImporterInterface $themeFileImporter,
-        private iterable $packages,
-        private CacheInvalidator $logger,
-        private AbstractThemePathBuilder $themePathBuilder,
-        private string $projectDir,
-        private AbstractScssCompiler $scssCompiler,
-        private MessageBusInterface $messageBus
+        private readonly FilesystemOperator $filesystem,
+        private readonly FilesystemOperator $tempFilesystem,
+        private readonly ThemeFileResolver $themeFileResolver,
+        private readonly bool $debug,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ThemeFileImporterInterface $themeFileImporter,
+        private readonly iterable $packages,
+        private readonly CacheInvalidator $logger,
+        private readonly AbstractThemePathBuilder $themePathBuilder,
+        private readonly string $projectDir,
+        private readonly AbstractScssCompiler $scssCompiler,
+        private readonly MessageBusInterface $messageBus
     ) {
     }
 
@@ -151,8 +151,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         foreach ($configuration->getAssetPaths() as $asset) {
-            if (mb_strpos($asset, '@') === 0) {
-                $name = mb_substr($asset, 1);
+            if (mb_strpos((string) $asset, '@') === 0) {
+                $name = mb_substr((string) $asset, 1);
                 $config = $configurationCollection->getByTechnicalName($name);
                 if (!$config) {
                     throw new InvalidThemeException($name);
@@ -258,23 +258,19 @@ class ThemeCompiler implements ThemeCompilerInterface
     {
         $allFeatures = Feature::getAll();
 
-        $featuresScss = implode(',', array_map(function ($value, $key) {
-            return sprintf('"%s": %s', $key, json_encode($value));
-        }, $allFeatures, array_keys($allFeatures)));
+        $featuresScss = implode(',', array_map(fn ($value, $key) => sprintf('"%s": %s', $key, json_encode($value, \JSON_THROW_ON_ERROR)), $allFeatures, array_keys($allFeatures)));
 
         return sprintf('$sw-features: (%s);', $featuresScss);
     }
 
     /**
-     * @param array<string, string> $variables
+     * @param array<string, string|int> $variables
      *
      * @return array<string>
      */
     private function formatVariables(array $variables): array
     {
-        return array_map(function ($value, $key) {
-            return sprintf('$%s: %s;', $key, (!empty($value) ? $value : 0));
-        }, $variables, array_keys($variables));
+        return array_map(fn ($value, $key) => sprintf('$%s: %s;', $key, (!empty($value) ? $value : 0)), $variables, array_keys($variables));
     }
 
     /**
@@ -292,8 +288,8 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $variables[$key] = '\'' . $data['value'] . '\'';
             } elseif ($data['type'] === 'switch' || $data['type'] === 'checkbox') {
                 $variables[$key] = (int) ($data['value']);
-            } else {
-                $variables[$key] = $data['value'];
+            } elseif (!\is_array($data['value'])) {
+                $variables[$key] = (string) $data['value'];
             }
         }
 

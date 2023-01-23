@@ -22,27 +22,11 @@ use Shopware\Storefront\Theme\ThemeEntity;
  */
 class DatabaseConfigLoader extends AbstractConfigLoader
 {
-    private EntityRepository $themeRepository;
-
-    private StorefrontPluginRegistryInterface $extensionRegistry;
-
-    private EntityRepository $mediaRepository;
-
-    private string $baseTheme;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $themeRepository,
-        StorefrontPluginRegistryInterface $extensionRegistry,
-        EntityRepository $mediaRepository,
-        string $baseTheme = StorefrontPluginRegistry::BASE_THEME_NAME
-    ) {
-        $this->themeRepository = $themeRepository;
-        $this->extensionRegistry = $extensionRegistry;
-        $this->mediaRepository = $mediaRepository;
-        $this->baseTheme = $baseTheme;
+    public function __construct(private readonly EntityRepository $themeRepository, private readonly StorefrontPluginRegistryInterface $extensionRegistry, private readonly EntityRepository $mediaRepository, private readonly string $baseTheme = StorefrontPluginRegistry::BASE_THEME_NAME)
+    {
     }
 
     public function getDecorated(): AbstractConfigLoader
@@ -85,7 +69,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             $config[$name] = $clone;
         }
 
-        return json_decode((string) json_encode($config), true);
+        return json_decode((string) json_encode($config, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -108,9 +92,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
 
         if ($withBase) {
             /** @var ThemeEntity $baseTheme */
-            $baseTheme = $themes->filter(function (ThemeEntity $themeEntry) {
-                return $themeEntry->getTechnicalName() === $this->baseTheme;
-            })->first();
+            $baseTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === $this->baseTheme)->first();
 
             $baseThemeConfig = $this->mergeStaticConfig($baseTheme);
         }
@@ -138,9 +120,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
     {
         // add configured parent themes
         foreach ($this->getConfigInheritance($mainTheme) as $parentThemeName) {
-            $parentTheme = $themes->filter(function (ThemeEntity $themeEntry) use ($parentThemeName) {
-                return $themeEntry->getTechnicalName() === str_replace('@', '', $parentThemeName);
-            })->first();
+            $parentTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === str_replace('@', '', $parentThemeName))->first();
 
             if (!($parentTheme instanceof ThemeEntity)) {
                 continue;
@@ -161,9 +141,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         }
 
         // add database defined parent theme
-        $parentTheme = $themes->filter(function (ThemeEntity $themeEntry) use ($mainTheme) {
-            return $themeEntry->getId() === $mainTheme->getParentThemeId();
-        })->first();
+        $parentTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getId() === $mainTheme->getParentThemeId())->first();
 
         if (!($parentTheme instanceof ThemeEntity)) {
             return $parentThemes;

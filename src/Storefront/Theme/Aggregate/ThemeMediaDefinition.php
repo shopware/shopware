@@ -16,7 +16,7 @@ use Shopware\Storefront\Theme\ThemeDefinition;
  */
 class ThemeMediaDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'theme_media';
+    final public const ENTITY_NAME = 'theme_media';
 
     public function getEntityName(): string
     {

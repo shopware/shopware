@@ -19,22 +19,13 @@ class TwigAppVariable extends AppVariable
 {
     private ?Request $request = null;
 
-    private AppVariable $appVariable;
-
-    /**
-     * @var list<string>
-     */
-    private array $allowList;
-
     /**
      * @internal
      *
      * @param list<string> $allowList
      */
-    public function __construct(AppVariable $appVariable, array $allowList = [])
+    public function __construct(private readonly AppVariable $appVariable, private readonly array $allowList = [])
     {
-        $this->allowList = $allowList;
-        $this->appVariable = $appVariable;
     }
 
     public function getRequest(): ?Request

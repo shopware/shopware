@@ -19,22 +19,10 @@ use Symfony\Component\HttpFoundation\Request;
 class MenuOffcanvasPageletLoader implements MenuOffcanvasPageletLoaderInterface
 {
     /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var NavigationLoaderInterface
-     */
-    private $navigationLoader;
-
-    /**
      * @internal
      */
-    public function __construct(EventDispatcherInterface $eventDispatcher, NavigationLoaderInterface $navigationLoader)
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly NavigationLoaderInterface $navigationLoader)
     {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->navigationLoader = $navigationLoader;
     }
 
     /**

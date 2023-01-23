@@ -19,15 +19,12 @@ class AccountProfilePageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'account-profile-page-loaded';
+    final public const HOOK_NAME = 'account-profile-page-loaded';
 
-    private AccountProfilePage $page;
-
-    public function __construct(AccountProfilePage $page, SalesChannelContext $context)
+    public function __construct(private readonly AccountProfilePage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

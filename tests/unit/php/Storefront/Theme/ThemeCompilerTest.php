@@ -686,7 +686,7 @@ PHP_EOL;
         $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
 
         $event = new ThemeCompilerEnrichScssVariablesEvent(
-            ['any'],
+            ['bla' => 'any'],
             TestDefaults::SALES_CHANNEL,
             Context::createDefaultContext()
         );

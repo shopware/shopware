@@ -19,15 +19,12 @@ class CustomerGroupRegistrationPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'customer-group-registration-page-loaded';
+    final public const HOOK_NAME = 'customer-group-registration-page-loaded';
 
-    private CustomerGroupRegistrationPage $page;
-
-    public function __construct(CustomerGroupRegistrationPage $page, SalesChannelContext $context)
+    public function __construct(private readonly CustomerGroupRegistrationPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

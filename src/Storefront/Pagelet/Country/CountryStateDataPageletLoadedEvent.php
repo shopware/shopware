@@ -11,11 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CountryStateDataPageletLoadedEvent extends PageletLoadedEvent
 {
-    protected CountryStateDataPagelet $pagelet;
-
-    public function __construct(CountryStateDataPagelet $pagelet, SalesChannelContext $salesChannelContext, Request $request)
+    public function __construct(protected CountryStateDataPagelet $pagelet, SalesChannelContext $salesChannelContext, Request $request)
     {
-        $this->pagelet = $pagelet;
         parent::__construct($salesChannelContext, $request);
     }
 

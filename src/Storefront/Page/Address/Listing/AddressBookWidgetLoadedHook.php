@@ -19,15 +19,12 @@ class AddressBookWidgetLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'address-book-widget-loaded';
+    final public const HOOK_NAME = 'address-book-widget-loaded';
 
-    private AddressListingPage $page;
-
-    public function __construct(AddressListingPage $page, SalesChannelContext $context)
+    public function __construct(private readonly AddressListingPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

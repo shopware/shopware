@@ -20,23 +20,11 @@ use const JSON_THROW_ON_ERROR;
  */
 class StaticFileConfigDumper implements EventSubscriberInterface
 {
-    private AbstractConfigLoader $configLoader;
-
-    private FilesystemOperator $filesystem;
-
-    private AbstractAvailableThemeProvider $availableThemeProvider;
-
     /**
      * @internal
      */
-    public function __construct(
-        AbstractConfigLoader $configLoader,
-        AbstractAvailableThemeProvider $availableThemeProvider,
-        FilesystemOperator $filesystem
-    ) {
-        $this->configLoader = $configLoader;
-        $this->filesystem = $filesystem;
-        $this->availableThemeProvider = $availableThemeProvider;
+    public function __construct(private readonly AbstractConfigLoader $configLoader, private readonly AbstractAvailableThemeProvider $availableThemeProvider, private readonly FilesystemOperator $filesystem)
+    {
     }
 
     public static function getSubscribedEvents(): array

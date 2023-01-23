@@ -16,22 +16,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 class AppCookieProvider implements CookieProviderInterface
 {
     /**
-     * @var CookieProviderInterface
-     */
-    private $inner;
-
-    /**
-     * @var EntityRepository
-     */
-    private $appRepository;
-
-    /**
      * @internal
      */
-    public function __construct(CookieProviderInterface $inner, EntityRepository $appRepository)
+    public function __construct(private readonly CookieProviderInterface $inner, private readonly EntityRepository $appRepository)
     {
-        $this->inner = $inner;
-        $this->appRepository = $appRepository;
     }
 
     /**

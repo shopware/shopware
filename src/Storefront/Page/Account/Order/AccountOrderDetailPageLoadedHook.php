@@ -19,15 +19,12 @@ class AccountOrderDetailPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'account-order-detail-page-loaded';
+    final public const HOOK_NAME = 'account-order-detail-page-loaded';
 
-    private AccountOrderDetailPage $page;
-
-    public function __construct(AccountOrderDetailPage $page, SalesChannelContext $context)
+    public function __construct(private readonly AccountOrderDetailPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

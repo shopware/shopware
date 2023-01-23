@@ -19,15 +19,12 @@ class ProductQuickViewWidgetLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'product-quick-view-widget-loaded';
+    final public const HOOK_NAME = 'product-quick-view-widget-loaded';
 
-    private MinimalQuickViewPage $page;
-
-    public function __construct(MinimalQuickViewPage $page, SalesChannelContext $context)
+    public function __construct(private readonly MinimalQuickViewPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

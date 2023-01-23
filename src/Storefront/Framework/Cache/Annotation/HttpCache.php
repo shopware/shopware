@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Feature;
  */
 class HttpCache
 {
-    public const ALIAS = 'httpCache';
+    final public const ALIAS = 'httpCache';
 
     private ?int $maxAge = null;
 
@@ -29,7 +29,7 @@ class HttpCache
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         $this->maxAge = $values['maxAge'] ?? null;
@@ -40,7 +40,7 @@ class HttpCache
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         return self::ALIAS;
@@ -50,7 +50,7 @@ class HttpCache
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         return true;
@@ -60,7 +60,7 @@ class HttpCache
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         return $this->maxAge;
@@ -70,7 +70,7 @@ class HttpCache
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         $this->maxAge = $maxAge;
@@ -83,7 +83,7 @@ class HttpCache
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         return $this->states ?? [];
@@ -96,7 +96,7 @@ class HttpCache
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         $this->states = $states;

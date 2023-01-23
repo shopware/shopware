@@ -20,26 +20,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
  */
 class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
 {
-    public const ROUTE_NAME = 'frontend.navigation.page';
-    public const DEFAULT_TEMPLATE = '{% for part in category.seoBreadcrumb %}{{ part }}/{% endfor %}';
-
-    /**
-     * @var CategoryDefinition
-     */
-    private $categoryDefinition;
-
-    /**
-     * @var CategoryBreadcrumbBuilder
-     */
-    private $breadcrumbBuilder;
+    final public const ROUTE_NAME = 'frontend.navigation.page';
+    final public const DEFAULT_TEMPLATE = '{% for part in category.seoBreadcrumb %}{{ part }}/{% endfor %}';
 
     /**
      * @internal
      */
-    public function __construct(CategoryDefinition $categoryDefinition, CategoryBreadcrumbBuilder $breadcrumbBuilder)
+    public function __construct(private readonly CategoryDefinition $categoryDefinition, private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder)
     {
-        $this->categoryDefinition = $categoryDefinition;
-        $this->breadcrumbBuilder = $breadcrumbBuilder;
     }
 
     public function getConfig(): SeoUrlRouteConfig

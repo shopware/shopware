@@ -11,16 +11,12 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class StorefrontMediaValidatorRegistry
 {
     /**
-     * @var StorefrontMediaValidatorInterface[]
-     */
-    private $validators;
-
-    /**
      * @internal
+     *
+     * @param StorefrontMediaValidatorInterface[] $validators
      */
-    public function __construct(iterable $validators)
+    public function __construct(private readonly iterable $validators)
     {
-        $this->validators = $validators;
     }
 
     public function validate(UploadedFile $file, string $type): void

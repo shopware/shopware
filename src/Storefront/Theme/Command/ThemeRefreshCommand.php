@@ -18,26 +18,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class ThemeRefreshCommand extends Command
 {
-    protected static $defaultName = 'theme:refresh';
-
-    /**
-     * @var ThemeLifecycleService
-     */
-    private $themeLifecycleService;
-
-    /**
-     * @var Context
-     */
-    private $context;
+    private readonly Context $context;
 
     /**
      * @internal
      */
-    public function __construct(ThemeLifecycleService $themeLifecycleService)
+    public function __construct(private readonly ThemeLifecycleService $themeLifecycleService)
     {
         parent::__construct();
-
-        $this->themeLifecycleService = $themeLifecycleService;
         $this->context = Context::createDefaultContext();
     }
 

@@ -12,28 +12,21 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package storefront
- *
- * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class ThemeController extends AbstractController
 {
     /**
-     * @var ThemeService
-     */
-    private $themeService;
-
-    /**
      * @internal
      */
-    public function __construct(ThemeService $themeService)
+    public function __construct(private readonly ThemeService $themeService)
     {
-        $this->themeService = $themeService;
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/theme/{themeId}/configuration", name="api.action.theme.configuration", methods={"GET"})
      */
+    #[Route(path: '/api/_action/theme/{themeId}/configuration', name: 'api.action.theme.configuration', methods: ['GET'])]
     public function configuration(string $themeId, Context $context): JsonResponse
     {
         $themeConfiguration = $this->themeService->getThemeConfiguration($themeId, true, $context);
@@ -43,8 +36,8 @@ class ThemeController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/theme/{themeId}", name="api.action.theme.update", methods={"PATCH"})
      */
+    #[Route(path: '/api/_action/theme/{themeId}', name: 'api.action.theme.update', methods: ['PATCH'])]
     public function updateTheme(string $themeId, Request $request, Context $context): JsonResponse
     {
         $config = $request->request->all('config');
@@ -61,8 +54,8 @@ class ThemeController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/theme/{themeId}/assign/{salesChannelId}", name="api.action.theme.assign", methods={"POST"})
      */
+    #[Route(path: '/api/_action/theme/{themeId}/assign/{salesChannelId}', name: 'api.action.theme.assign', methods: ['POST'])]
     public function assignTheme(string $themeId, string $salesChannelId, Context $context): JsonResponse
     {
         $this->themeService->assignTheme($themeId, $salesChannelId, $context);
@@ -72,8 +65,8 @@ class ThemeController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/theme/{themeId}/reset", name="api.action.theme.reset", methods={"PATCH"})
      */
+    #[Route(path: '/api/_action/theme/{themeId}/reset', name: 'api.action.theme.reset', methods: ['PATCH'])]
     public function resetTheme(string $themeId, Context $context): JsonResponse
     {
         $this->themeService->resetTheme($themeId, $context);
@@ -83,8 +76,8 @@ class ThemeController extends AbstractController
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/api/_action/theme/{themeId}/structured-fields", name="api.action.theme.structuredFields", methods={"GET"})
      */
+    #[Route(path: '/api/_action/theme/{themeId}/structured-fields', name: 'api.action.theme.structuredFields', methods: ['GET'])]
     public function structuredFields(string $themeId, Context $context): JsonResponse
     {
         $themeConfiguration = $this->themeService->getThemeConfigurationStructuredFields($themeId, true, $context);

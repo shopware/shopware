@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  */
 class Migration1641476963ThemeDependentIds extends MigrationStep
 {
-    public const NEW_PRIVILEGES = [
+    final public const NEW_PRIVILEGES = [
         'theme.viewer' => [
             'theme_child:read',
         ],
@@ -49,13 +49,13 @@ class Migration1641476963ThemeDependentIds extends MigrationStep
 
         $roles = $connection->fetchAllAssociative('SELECT * from `acl_role`');
         foreach ($roles as $role) {
-            $currentPrivileges = json_decode($role['privileges']);
+            $currentPrivileges = json_decode((string) $role['privileges'], null, 512, \JSON_THROW_ON_ERROR);
             $newPrivileges = array_values($this->fixRolePrivileges($currentPrivileges));
             if ($currentPrivileges === $newPrivileges) {
                 continue;
             }
 
-            $role['privileges'] = json_encode($newPrivileges);
+            $role['privileges'] = json_encode($newPrivileges, \JSON_THROW_ON_ERROR);
             $role['updated_at'] = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT);
 
             $connection->update('acl_role', $role, ['id' => $role['id']]);

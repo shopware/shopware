@@ -9,16 +9,13 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 class ThemeDependencies extends Struct
 {
-    protected ?string $id;
-
     /**
      * @var array<int, string>
      */
     protected array $dependentThemes = [];
 
-    public function __construct(?string $id = null)
+    public function __construct(protected ?string $id = null)
     {
-        $this->id = $id;
     }
 
     public function getId(): ?string

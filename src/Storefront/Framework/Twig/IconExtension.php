@@ -12,16 +12,10 @@ use Twig\Extension\AbstractExtension;
 class IconExtension extends AbstractExtension
 {
     /**
-     * @var TemplateFinder
-     */
-    private $finder;
-
-    /**
      * @internal
      */
-    public function __construct(TemplateFinder $finder)
+    public function __construct(private readonly TemplateFinder $finder)
     {
-        $this->finder = $finder;
     }
 
     public function getTokenParsers(): array

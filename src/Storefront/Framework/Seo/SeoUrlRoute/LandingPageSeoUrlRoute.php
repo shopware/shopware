@@ -17,20 +17,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
  */
 class LandingPageSeoUrlRoute implements SeoUrlRouteInterface
 {
-    public const ROUTE_NAME = 'frontend.landing.page';
-    public const DEFAULT_TEMPLATE = '{{ landingPage.translated.url }}';
-
-    /**
-     * @var LandingPageDefinition
-     */
-    private $landingPageDefinition;
+    final public const ROUTE_NAME = 'frontend.landing.page';
+    final public const DEFAULT_TEMPLATE = '{{ landingPage.translated.url }}';
 
     /**
      * @internal
      */
-    public function __construct(LandingPageDefinition $landingPageDefinition)
+    public function __construct(private readonly LandingPageDefinition $landingPageDefinition)
     {
-        $this->landingPageDefinition = $landingPageDefinition;
     }
 
     public function getConfig(): SeoUrlRouteConfig

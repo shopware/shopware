@@ -12,23 +12,11 @@ use Symfony\Component\Finder\Finder;
  */
 class IconTemplateLoader extends AbstractTemplateLoader
 {
-    private AbstractTemplateLoader $inner;
-
-    private AbstractStorefrontPluginConfigurationFactory $storefrontPluginConfigurationFactory;
-
-    private string $projectDir;
-
     /**
      * @internal
      */
-    public function __construct(
-        AbstractTemplateLoader $inner,
-        AbstractStorefrontPluginConfigurationFactory $storefrontPluginConfigurationFactory,
-        string $projectDir
-    ) {
-        $this->inner = $inner;
-        $this->storefrontPluginConfigurationFactory = $storefrontPluginConfigurationFactory;
-        $this->projectDir = $projectDir;
+    public function __construct(private readonly AbstractTemplateLoader $inner, private readonly AbstractStorefrontPluginConfigurationFactory $storefrontPluginConfigurationFactory, private readonly string $projectDir)
+    {
     }
 
     public function getTemplatePathsForApp(Manifest $app): array

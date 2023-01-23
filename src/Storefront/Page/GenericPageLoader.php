@@ -25,52 +25,10 @@ use Symfony\Component\HttpFoundation\Request;
 class GenericPageLoader implements GenericPageLoaderInterface
 {
     /**
-     * @var HeaderPageletLoaderInterface
-     */
-    private $headerLoader;
-
-    /**
-     * @var FooterPageletLoaderInterface
-     */
-    private $footerLoader;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
-     * @var AbstractPaymentMethodRoute
-     */
-    private $paymentMethodRoute;
-
-    /**
-     * @var AbstractShippingMethodRoute
-     */
-    private $shippingMethodRoute;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @internal
      */
-    public function __construct(
-        HeaderPageletLoaderInterface $headerLoader,
-        FooterPageletLoaderInterface $footerLoader,
-        SystemConfigService $systemConfigService,
-        AbstractPaymentMethodRoute $paymentMethodRoute,
-        AbstractShippingMethodRoute $shippingMethodRoute,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->headerLoader = $headerLoader;
-        $this->footerLoader = $footerLoader;
-        $this->systemConfigService = $systemConfigService;
-        $this->paymentMethodRoute = $paymentMethodRoute;
-        $this->shippingMethodRoute = $shippingMethodRoute;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly HeaderPageletLoaderInterface $headerLoader, private readonly FooterPageletLoaderInterface $footerLoader, private readonly SystemConfigService $systemConfigService, private readonly AbstractPaymentMethodRoute $paymentMethodRoute, private readonly AbstractShippingMethodRoute $shippingMethodRoute, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function load(Request $request, SalesChannelContext $context): Page

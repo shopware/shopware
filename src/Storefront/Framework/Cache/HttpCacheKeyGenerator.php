@@ -14,28 +14,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class HttpCacheKeyGenerator extends AbstractHttpCacheKeyGenerator
 {
-    private string $cacheHash;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    /**
-     * @var string[]
-     */
-    private array $ignoredParameters;
-
     /**
      * @param string[] $ignoredParameters
      *
      * @internal
      */
-    public function __construct(
-        string $cacheHash,
-        EventDispatcherInterface $eventDispatcher,
-        array $ignoredParameters
-    ) {
-        $this->cacheHash = $cacheHash;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->ignoredParameters = $ignoredParameters;
+    public function __construct(private readonly string $cacheHash, private readonly EventDispatcherInterface $eventDispatcher, private readonly array $ignoredParameters)
+    {
     }
 
     public function getDecorated(): AbstractHttpCacheKeyGenerator

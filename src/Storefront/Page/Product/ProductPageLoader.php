@@ -26,31 +26,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ProductPageLoader
 {
-    private GenericPageLoaderInterface $genericLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AbstractProductDetailRoute $productDetailRoute;
-
-    private ProductReviewLoader $productReviewLoader;
-
-    private AbstractProductCrossSellingRoute $crossSellingRoute;
-
     /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractProductDetailRoute $productDetailRoute,
-        ProductReviewLoader $productReviewLoader,
-        AbstractProductCrossSellingRoute $crossSellingRoute
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->productDetailRoute = $productDetailRoute;
-        $this->productReviewLoader = $productReviewLoader;
-        $this->crossSellingRoute = $crossSellingRoute;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractProductDetailRoute $productDetailRoute, private readonly ProductReviewLoader $productReviewLoader, private readonly AbstractProductCrossSellingRoute $crossSellingRoute)
+    {
     }
 
     /**
@@ -79,9 +59,7 @@ class ProductPageLoader
         $product = $result->getProduct();
 
         if ($product->getMedia()) {
-            $product->getMedia()->sort(function (ProductMediaEntity $a, ProductMediaEntity $b) {
-                return $a->getPosition() <=> $b->getPosition();
-            });
+            $product->getMedia()->sort(fn (ProductMediaEntity $a, ProductMediaEntity $b) => $a->getPosition() <=> $b->getPosition());
         }
 
         if ($product->getMedia() && $product->getCover()) {

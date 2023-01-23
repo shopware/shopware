@@ -16,7 +16,7 @@ class NavigationPage extends Page
      */
     protected $cmsPage;
 
-    protected ?string $navigationId;
+    protected ?string $navigationId = null;
 
     public function getCmsPage(): ?CmsPageEntity
     {

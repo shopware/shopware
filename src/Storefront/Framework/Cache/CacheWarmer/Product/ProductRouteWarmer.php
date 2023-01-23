@@ -14,22 +14,10 @@ use Shopware\Storefront\Framework\Cache\CacheWarmer\WarmUpMessage;
 class ProductRouteWarmer implements CacheRouteWarmer
 {
     /**
-     * @var IteratorFactory
-     */
-    private $iteratorFactory;
-
-    /**
-     * @var ProductDefinition
-     */
-    private $definition;
-
-    /**
      * @internal
      */
-    public function __construct(IteratorFactory $iteratorFactory, ProductDefinition $definition)
+    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly ProductDefinition $definition)
     {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->definition = $definition;
     }
 
     public function createMessage(SalesChannelDomainEntity $domain, ?array $offset): ?WarmUpMessage
@@ -47,9 +35,7 @@ class ProductRouteWarmer implements CacheRouteWarmer
             return null;
         }
 
-        $ids = array_map(function ($id) {
-            return ['productId' => $id];
-        }, $ids);
+        $ids = array_map(fn ($id) => ['productId' => $id], $ids);
 
         return new WarmUpMessage('frontend.detail.page', $ids, $iterator->getOffset());
     }

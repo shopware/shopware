@@ -15,28 +15,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class SwitchBuyBoxVariantEvent extends Event implements ShopwareSalesChannelEvent
 {
-    private Request $request;
-
-    private string $elementId;
-
-    private SalesChannelProductEntity $product;
-
-    private ?PropertyGroupCollection $configurator;
-
-    private SalesChannelContext $salesChannelContext;
-
-    public function __construct(
-        string $elementId,
-        SalesChannelProductEntity $product,
-        ?PropertyGroupCollection $configurator,
-        Request $request,
-        SalesChannelContext $salesChannelContext
-    ) {
-        $this->request = $request;
-        $this->elementId = $elementId;
-        $this->product = $product;
-        $this->configurator = $configurator;
-        $this->salesChannelContext = $salesChannelContext;
+    public function __construct(private readonly string $elementId, private readonly SalesChannelProductEntity $product, private readonly ?PropertyGroupCollection $configurator, private readonly Request $request, private readonly SalesChannelContext $salesChannelContext)
+    {
     }
 
     public function getRequest(): Request

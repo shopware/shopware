@@ -30,24 +30,10 @@ class ProductReviewLoader
     private const FILTER_LANGUAGE = 'filter-language';
 
     /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var AbstractProductReviewRoute
-     */
-    private $route;
-
-    /**
      * @internal
      */
-    public function __construct(
-        AbstractProductReviewRoute $route,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->route = $route;
+    public function __construct(private readonly AbstractProductReviewRoute $route, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**
@@ -149,6 +135,7 @@ class ProductReviewLoader
 
     private function handlePointsAggregation(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
+        $reviewFilters = [];
         $points = $request->get('points', []);
 
         if (\is_array($points) && \count($points) > 0) {

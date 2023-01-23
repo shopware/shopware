@@ -15,23 +15,17 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class AppLifecycleSubscriber implements EventSubscriberInterface
 {
-    private ThemeLifecycleService $themeLifecycleService;
-
-    private EntityRepository $appRepository;
-
     /**
      * @internal
      */
-    public function __construct(ThemeLifecycleService $themeLifecycleService, EntityRepository $appRepository)
+    public function __construct(private readonly ThemeLifecycleService $themeLifecycleService, private readonly EntityRepository $appRepository)
     {
-        $this->themeLifecycleService = $themeLifecycleService;
-        $this->appRepository = $appRepository;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             AppDeletedEvent::class => 'onAppDeleted',

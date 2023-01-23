@@ -19,15 +19,12 @@ class LandingPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'landing-page-loaded';
+    final public const HOOK_NAME = 'landing-page-loaded';
 
-    private LandingPage $page;
-
-    public function __construct(LandingPage $page, SalesChannelContext $context)
+    public function __construct(private readonly LandingPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

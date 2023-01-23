@@ -255,9 +255,7 @@ class ProductPageTest extends TestCase
             ],
         ];
 
-        $product = $context->getContext()->scope(Context::SYSTEM_SCOPE, function () use ($context, $productCmsPageData): ProductEntity {
-            return $this->getRandomProduct($context, 10, false, $productCmsPageData);
-        });
+        $product = $context->getContext()->scope(Context::SYSTEM_SCOPE, fn (): ProductEntity => $this->getRandomProduct($context, 10, false, $productCmsPageData));
 
         static::assertEquals($cmsPageId, $product->getCmsPageId());
         $request = new Request([], [], ['productId' => $product->getId()]);
@@ -429,7 +427,7 @@ class ProductPageTest extends TestCase
         $connection->executeStatement(
             'UPDATE `product` SET `stream_ids` = :streamIds WHERE `id` = :id',
             [
-                'streamIds' => json_encode([$streamId]),
+                'streamIds' => json_encode([$streamId], \JSON_THROW_ON_ERROR),
                 'id' => Uuid::fromHexToBytes($productId),
             ]
         );

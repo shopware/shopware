@@ -53,20 +53,11 @@ class ThemeTest extends TestCase
      */
     protected $context;
 
-    /**
-     * @var EntityRepository
-     */
-    private $themeRepository;
+    private EntityRepository $themeRepository;
 
-    /**
-     * @var string
-     */
-    private $createdStorefrontTheme = '';
+    private string $createdStorefrontTheme = '';
 
-    /**
-     * @var EntityRepository
-     */
-    private $mediaRepository;
+    private EntityRepository $mediaRepository;
 
     private string $faviconId;
 
@@ -558,19 +549,10 @@ class ThemeTest extends TestCase
             );
 
         $kernel = new class($this->getContainer()->get('kernel')) implements KernelInterface {
-            /**
-             * @var KernelInterface
-             */
-            private $kernel;
+            private readonly SimpleTheme $simpleTheme;
 
-            /**
-             * @var SimpleTheme
-             */
-            private $simpleTheme;
-
-            public function __construct(KernelInterface $kernel)
+            public function __construct(private readonly KernelInterface $kernel)
             {
-                $this->kernel = $kernel;
                 $this->simpleTheme = new SimpleTheme();
             }
 
@@ -587,7 +569,7 @@ class ThemeTest extends TestCase
                 return $name === $this->simpleTheme->getName() ? $this->simpleTheme : $this->kernel->getBundle($name);
             }
 
-            public function handle(Request $request, int $type = self::MASTER_REQUEST, bool $catch = true): Response
+            public function handle(Request $request, int $type = self::MAIN_REQUEST, bool $catch = true): Response
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }

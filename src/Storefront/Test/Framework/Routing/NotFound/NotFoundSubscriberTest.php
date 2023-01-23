@@ -67,9 +67,7 @@ class NotFoundSubscriberTest extends TestCase
         $cacheTracer
             ->expects(static::once())
             ->method('trace')
-            ->willReturnCallback(function (string $name, \Closure $closure) {
-                return $closure();
-            });
+            ->willReturnCallback(fn (string $name, \Closure $closure) => $closure());
 
         $requestStack = $this->createMock(RequestStack::class);
         $requestStack->method('getMainRequest')->willReturn(new Request());

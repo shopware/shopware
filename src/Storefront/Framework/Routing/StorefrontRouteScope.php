@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class StorefrontRouteScope extends AbstractRouteScope implements SalesChannelContextRouteScopeDependant
 {
-    public const ID = 'storefront';
+    final public const ID = 'storefront';
 
     /**
      * @var array<string>

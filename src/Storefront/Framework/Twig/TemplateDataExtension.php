@@ -16,17 +16,10 @@ use Twig\Extension\GlobalsInterface;
 class TemplateDataExtension extends AbstractExtension implements GlobalsInterface
 {
     /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    /**
      * @internal
      */
-    public function __construct(
-        RequestStack $requestStack
-    ) {
-        $this->requestStack = $requestStack;
+    public function __construct(private readonly RequestStack $requestStack)
+    {
     }
 
     /**
@@ -74,7 +67,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         }
 
         $matches = [];
-        preg_match('/Controller\\\\(\w+)Controller::?(\w+)$/', $controller, $matches);
+        preg_match('/Controller\\\\(\w+)Controller::?(\w+)$/', (string) $controller, $matches);
 
         if ($matches) {
             $controllerInfo->setName($matches[1]);

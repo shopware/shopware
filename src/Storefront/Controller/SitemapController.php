@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Sitemap\SitemapPageLoadedHook;
 use Shopware\Storefront\Page\Sitemap\SitemapPageLoader;
@@ -11,31 +10,21 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"storefront"}})
- *
  * @package sales-channel
  *
  * @internal
  */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
 class SitemapController extends StorefrontController
 {
     /**
-     * @var SitemapPageLoader
-     */
-    private $sitemapPageLoader;
-
-    /**
      * @internal
      */
-    public function __construct(SitemapPageLoader $sitemapPageLoader)
+    public function __construct(private readonly SitemapPageLoader $sitemapPageLoader)
     {
-        $this->sitemapPageLoader = $sitemapPageLoader;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/sitemap.xml", name="frontend.sitemap.xml", methods={"GET"}, defaults={"_format"="xml"})
-     */
+    #[Route(path: '/sitemap.xml', name: 'frontend.sitemap.xml', defaults: ['_format' => 'xml'], methods: ['GET'])]
     public function sitemapXml(SalesChannelContext $context, Request $request): Response
     {
         $page = $this->sitemapPageLoader->load($request, $context);

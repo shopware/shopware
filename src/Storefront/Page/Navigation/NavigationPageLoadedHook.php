@@ -19,15 +19,12 @@ class NavigationPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'navigation-page-loaded';
+    final public const HOOK_NAME = 'navigation-page-loaded';
 
-    private NavigationPage $page;
-
-    public function __construct(NavigationPage $page, SalesChannelContext $context)
+    public function __construct(private readonly NavigationPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

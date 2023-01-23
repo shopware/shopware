@@ -243,7 +243,7 @@ class WishlistControllerTest extends TestCase
     {
         $browser = $this->login();
 
-        $browser->request('GET', '/wishlist', []);
+        $browser->request('GET', '/wishlist');
         $response = $browser->getResponse();
         static::assertEquals(200, $response->getStatusCode(), (string) $response->getContent());
 
@@ -282,7 +282,7 @@ class WishlistControllerTest extends TestCase
     {
         $browser = $this->login();
 
-        $browser->request('GET', '/widgets/wishlist', []);
+        $browser->request('GET', '/widgets/wishlist');
         $response = $browser->getResponse();
         static::assertEquals(200, $response->getStatusCode(), (string) $response->getContent());
 
@@ -295,7 +295,7 @@ class WishlistControllerTest extends TestCase
     {
         $browser = $this->login();
 
-        $browser->request('GET', '/wishlist/merge/pagelet', []);
+        $browser->request('GET', '/wishlist/merge/pagelet');
         $response = $browser->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 

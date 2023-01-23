@@ -20,29 +20,17 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class UpdateSubscriber implements EventSubscriberInterface
 {
-    private ThemeService $themeService;
-
-    private ThemeLifecycleService $themeLifecycleService;
-
-    private EntityRepository $salesChannelRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        ThemeService $themeService,
-        ThemeLifecycleService $themeLifecycleService,
-        EntityRepository $salesChannelRepository
-    ) {
-        $this->themeService = $themeService;
-        $this->themeLifecycleService = $themeLifecycleService;
-        $this->salesChannelRepository = $salesChannelRepository;
+    public function __construct(private readonly ThemeService $themeService, private readonly ThemeLifecycleService $themeLifecycleService, private readonly EntityRepository $salesChannelRepository)
+    {
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             UpdatePostFinishEvent::class => 'updateFinished',

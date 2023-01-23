@@ -16,14 +16,11 @@ use Symfony\Component\Finder\Finder;
  */
 class ThemeFileImporter implements ThemeFileImporterInterface
 {
-    private string $projectDir;
-
     /**
      * @internal
      */
-    public function __construct(string $projectDir)
+    public function __construct(private readonly string $projectDir)
     {
-        $this->projectDir = $projectDir;
     }
 
     public function fileExists(string $filePath): bool

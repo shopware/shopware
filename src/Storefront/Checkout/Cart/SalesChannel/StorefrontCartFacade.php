@@ -23,35 +23,11 @@ use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
  */
 class StorefrontCartFacade
 {
-    private CartService $cartService;
-
-    private BlockedShippingMethodSwitcher $blockedShippingMethodSwitcher;
-
-    private BlockedPaymentMethodSwitcher $blockedPaymentMethodSwitcher;
-
-    private AbstractContextSwitchRoute $contextSwitchRoute;
-
-    private CartCalculator $calculator;
-
-    private AbstractCartPersister $cartPersister;
-
     /**
      * @internal
      */
-    public function __construct(
-        CartService $cartService,
-        BlockedShippingMethodSwitcher $blockedShippingMethodSwitcher,
-        BlockedPaymentMethodSwitcher $blockedPaymentMethodSwitcher,
-        AbstractContextSwitchRoute $contextSwitchRoute,
-        CartCalculator $calculator,
-        AbstractCartPersister $cartPersister
-    ) {
-        $this->cartService = $cartService;
-        $this->blockedShippingMethodSwitcher = $blockedShippingMethodSwitcher;
-        $this->blockedPaymentMethodSwitcher = $blockedPaymentMethodSwitcher;
-        $this->contextSwitchRoute = $contextSwitchRoute;
-        $this->calculator = $calculator;
-        $this->cartPersister = $cartPersister;
+    public function __construct(private readonly CartService $cartService, private readonly BlockedShippingMethodSwitcher $blockedShippingMethodSwitcher, private readonly BlockedPaymentMethodSwitcher $blockedPaymentMethodSwitcher, private readonly AbstractContextSwitchRoute $contextSwitchRoute, private readonly CartCalculator $calculator, private readonly AbstractCartPersister $cartPersister)
+    {
     }
 
     public function get(

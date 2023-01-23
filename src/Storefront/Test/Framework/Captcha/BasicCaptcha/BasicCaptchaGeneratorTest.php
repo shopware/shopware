@@ -13,10 +13,7 @@ class BasicCaptchaGeneratorTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @var BasicCaptchaGenerator
-     */
-    private $captcha;
+    private BasicCaptchaGenerator $captcha;
 
     public function setUp(): void
     {

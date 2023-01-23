@@ -17118,11 +17118,6 @@ parameters:
 			path: src/Elasticsearch/Framework/Indexing/IndexingDto.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\Api\\\\CaptchaController\\:\\:__construct\\(\\) has parameter \\$captchas with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Storefront/Controller/Api/CaptchaController.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\DependencyInjection\\\\StorefrontExtension\\:\\:addConfig\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/DependencyInjection/StorefrontExtension.php
@@ -17153,16 +17148,6 @@ parameters:
 			path: src/Storefront/Event/StorefrontRenderEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheStateValidator\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/CacheStateValidator.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheStateValidator\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/CacheStateValidator.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheTracer\\:\\:get\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Cache/CacheTracer.php
@@ -17171,16 +17156,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheWarmer\\\\CacheRouteWarmer\\:\\:createMessage\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Cache/CacheWarmer/CacheRouteWarmer.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheWarmer\\\\CacheRouteWarmerRegistry\\:\\:__construct\\(\\) has parameter \\$routes with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/CacheWarmer/CacheRouteWarmerRegistry.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheWarmer\\\\CacheRouteWarmerRegistry\\:\\:\\$warmers \\(array\\<Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheWarmer\\\\CacheRouteWarmer\\>\\) does not accept iterable\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/CacheWarmer/CacheRouteWarmerRegistry.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheWarmer\\\\Navigation\\\\NavigationRouteWarmer\\:\\:createMessage\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
@@ -17223,11 +17198,6 @@ parameters:
 			path: src/Storefront/Framework/Cache/CacheWarmer/WarmUpMessage.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\Event\\\\HttpCacheItemWrittenEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/Event/HttpCacheItemWrittenEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\Event\\\\HttpCacheItemWrittenEvent\\:\\:getTags\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Cache/Event/HttpCacheItemWrittenEvent.php
@@ -17236,16 +17206,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Media/StorefrontMediaUploader.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Media\\\\StorefrontMediaValidatorRegistry\\:\\:__construct\\(\\) has parameter \\$validators with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Media/StorefrontMediaValidatorRegistry.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Media\\\\StorefrontMediaValidatorRegistry\\:\\:\\$validators \\(array\\<Shopware\\\\Storefront\\\\Framework\\\\Media\\\\StorefrontMediaValidatorInterface\\>\\) does not accept iterable\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Media/StorefrontMediaValidatorRegistry.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Media\\\\Validator\\\\StorefrontMediaDocumentValidator\\:\\:checkMimeType\\(\\) has parameter \\$allowedMimeTypes with no value type specified in iterable type array\\.$#"
@@ -17298,31 +17258,6 @@ parameters:
 			path: src/Storefront/Framework/Routing/MaintenanceModeResolver.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\NotFound\\\\NotFoundPageTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/NotFound/NotFoundPageTagsEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\NotFound\\\\NotFoundPageTagsEvent\\:\\:addTags\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/NotFound/NotFoundPageTagsEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\NotFound\\\\NotFoundPageTagsEvent\\:\\:getTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/NotFound/NotFoundPageTagsEvent.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\NotFound\\\\NotFoundPageTagsEvent\\:\\:\\$tags type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/NotFound/NotFoundPageTagsEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\NotFound\\\\NotFoundSubscriber\\:\\:generateTags\\(\\) should return list\\<string\\> but returns array\\<mixed\\>\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/NotFound/NotFoundSubscriber.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\Router\\:\\:generate\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Routing/Router.php
@@ -17358,36 +17293,6 @@ parameters:
 			path: src/Storefront/Framework/Routing/StorefrontResponse.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Script\\\\Api\\\\StorefrontHook\\:\\:__construct\\(\\) has parameter \\$query with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Script/Api/StorefrontHook.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Script\\\\Api\\\\StorefrontHook\\:\\:__construct\\(\\) has parameter \\$request with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Script/Api/StorefrontHook.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Script\\\\Api\\\\StorefrontHook\\:\\:getQuery\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Script/Api/StorefrontHook.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Script\\\\Api\\\\StorefrontHook\\:\\:getRequest\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Script/Api/StorefrontHook.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Script\\\\Api\\\\StorefrontHook\\:\\:\\$query type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Script/Api/StorefrontHook.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Script\\\\Api\\\\StorefrontHook\\:\\:\\$request type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Script/Api/StorefrontHook.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlUpdateListener\\:\\:getCategoryChildren\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Seo/SeoUrlRoute/SeoUrlUpdateListener.php
@@ -17406,31 +17311,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$ids of method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlUpdater\\:\\:update\\(\\) expects list\\<string\\>, array\\<string\\> given\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Seo/SeoUrlRoute/SeoUrlUpdateListener.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\ErrorTemplateStruct\\:\\:__construct\\(\\) has parameter \\$arguments with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/ErrorTemplateStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\ErrorTemplateStruct\\:\\:__construct\\(\\) has parameter \\$templateName with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/ErrorTemplateStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\ErrorTemplateStruct\\:\\:getArguments\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/ErrorTemplateStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\ErrorTemplateStruct\\:\\:setArguments\\(\\) has parameter \\$arguments with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/ErrorTemplateStruct.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\ErrorTemplateStruct\\:\\:\\$arguments type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/ErrorTemplateStruct.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\ConfigExtension\\:\\:config\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
@@ -17633,11 +17513,6 @@ parameters:
 			path: src/Storefront/Test/Framework/Captcha/GoogleReCaptchaV2Test.php
 
 		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Captcha\\\\GoogleReCaptchaV2Test\\:\\:\\$captcha \\(Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\HoneypotCaptcha\\) does not accept Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\GoogleReCaptchaV2\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Captcha/GoogleReCaptchaV2Test.php
-
-		-
 			message: "#^Cannot access offset string on array\\|bool\\|float\\|int\\|string\\|null\\.$#"
 			count: 2
 			path: src/Storefront/Test/Framework/Captcha/GoogleReCaptchaV3Test.php
@@ -17664,11 +17539,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#7 \\$content of class Symfony\\\\Component\\\\HttpFoundation\\\\Request constructor expects resource\\|string\\|null, array given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Captcha/GoogleReCaptchaV3Test.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Captcha\\\\GoogleReCaptchaV3Test\\:\\:\\$captcha \\(Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\HoneypotCaptcha\\) does not accept Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\GoogleReCaptchaV3\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Captcha/GoogleReCaptchaV3Test.php
 
@@ -17823,11 +17693,6 @@ parameters:
 			path: src/Storefront/Test/Framework/Seo/Api/SeoActionControllerTest.php
 
 		-
-			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 4
-			path: src/Storefront/Test/Framework/Seo/Api/SeoActionControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Seo\\\\NavigationPageSeoUrlTest\\:\\:getSeoUrls\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Seo/NavigationPageSeoUrlTest.php
@@ -17918,16 +17783,6 @@ parameters:
 			path: src/Storefront/Test/Framework/Twig/TwigAppVariableTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Twig\\\\TwigDateFormatTest\\:\\:renderTestTemplate\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Twig/TwigDateFormatTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Twig\\\\TwigDateFormatTest\\:\\:renderTestTemplate\\(\\) is unused\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Twig/TwigDateFormatTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Integration\\\\ProductVisibilityTest\\:\\:createProduct\\(\\) has parameter \\$visibilities with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Integration/ProductVisibilityTest.php
@@ -17953,24 +17808,9 @@ parameters:
 			path: src/Storefront/Test/Page/Account/AccountOrderPageLoaderTest.php
 
 		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\AccountOrderPageLoaderTest\\:\\:\\$salesChannel has no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/AccountOrderPageLoaderTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\CustomerGroupRegistrationTest\\:\\:\\$salesChannel has no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/CustomerGroupRegistrationTest.php
-
-		-
 			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
 			count: 2
 			path: src/Storefront/Test/Page/Account/LoginPageTest.php
-
-		-
-			message: "#^Call to an undefined method object\\:\\:load\\(\\)\\.$#"
-			count: 3
-			path: src/Storefront/Test/Page/Account/OrderDetailPageTest.php
 
 		-
 			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
@@ -17994,11 +17834,6 @@ parameters:
 
 		-
 			message: "#^Constant Shopware\\\\Storefront\\\\Test\\\\Page\\\\Cms\\\\DefaultMediaResolverTest\\:\\:FIXTURES_DIRECTORY is unused\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Cms/DefaultMediaResolverTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Page\\\\Cms\\\\DefaultMediaResolverTest\\:\\:\\$decorated has no type specified\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Cms/DefaultMediaResolverTest.php
 
@@ -18118,11 +17953,6 @@ parameters:
 			path: src/Storefront/Test/Theme/ConfigLoader/DatabaseAvailableThemeProviderTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ConfigLoader\\\\StaticFileAvailableThemeProvider\\:\\:getDecorated\\(\\) invoked with 1 parameter, 0 required\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ConfigLoader/StaticFileAvailableThemeProviderTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$contents of method League\\\\Flysystem\\\\Filesystem\\:\\:write\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Theme/ConfigLoader/StaticFileAvailableThemeProviderTest.php
@@ -18218,32 +18048,12 @@ parameters:
 			path: src/Storefront/Theme/ConfigLoader/StaticFileConfigLoader.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Event\\\\ThemeCompilerEnrichScssVariablesEvent\\:\\:__construct\\(\\) has parameter \\$variables with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Event/ThemeCompilerEnrichScssVariablesEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Event\\\\ThemeCompilerEnrichScssVariablesEvent\\:\\:getVariables\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Event/ThemeCompilerEnrichScssVariablesEvent.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\Event\\\\ThemeCompilerEnrichScssVariablesEvent\\:\\:\\$variables type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Event/ThemeCompilerEnrichScssVariablesEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Event\\\\ThemeConfigChangedEvent\\:\\:__construct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Event/ThemeConfigChangedEvent.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Event\\\\ThemeConfigChangedEvent\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Event/ThemeConfigChangedEvent.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\Event\\\\ThemeConfigChangedEvent\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Event/ThemeConfigChangedEvent.php
 
@@ -18264,16 +18074,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Event\\\\ThemeIndexerEvent\\:\\:getSkip\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Event/ThemeIndexerEvent.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\Event\\\\ThemeIndexerEvent\\:\\:\\$ids type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Event/ThemeIndexerEvent.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\Event\\\\ThemeIndexerEvent\\:\\:\\$skip type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Event/ThemeIndexerEvent.php
 

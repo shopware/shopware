@@ -8,16 +8,12 @@ namespace Shopware\Storefront\Framework\Cache\CacheWarmer;
 class CacheRouteWarmerRegistry
 {
     /**
-     * @var CacheRouteWarmer[]
-     */
-    private $warmers;
-
-    /**
      * @internal
+     *
+     * @param CacheRouteWarmer[] $warmers
      */
-    public function __construct(iterable $routes)
+    public function __construct(private readonly iterable $warmers)
     {
-        $this->warmers = $routes;
     }
 
     /**
@@ -31,7 +27,7 @@ class CacheRouteWarmerRegistry
     public function getWarmer(string $class): ?CacheRouteWarmer
     {
         foreach ($this->getWarmers() as $warmer) {
-            if (\get_class($warmer) === $class) {
+            if ($warmer::class === $class) {
                 return $warmer;
             }
         }

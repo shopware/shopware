@@ -17,28 +17,10 @@ use Symfony\Component\HttpFoundation\Request;
 class LandingPageLoader
 {
     /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericPageLoader;
-
-    /**
-     * @var AbstractLandingPageRoute
-     */
-    private $landingPageRoute;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericPageLoader,
-        AbstractLandingPageRoute $landingPageRoute,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->genericPageLoader = $genericPageLoader;
-        $this->landingPageRoute = $landingPageRoute;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly GenericPageLoaderInterface $genericPageLoader, private readonly AbstractLandingPageRoute $landingPageRoute, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**

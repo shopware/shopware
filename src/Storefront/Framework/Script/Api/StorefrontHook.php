@@ -29,34 +29,33 @@ class StorefrontHook extends Hook implements SalesChannelContextAware, Stoppable
     use StoppableHookTrait;
     use ScriptResponseAwareTrait;
 
-    public const HOOK_NAME = 'storefront-{hook}';
+    final public const HOOK_NAME = 'storefront-{hook}';
 
-    private array $request;
-
-    private array $query;
-
-    private SalesChannelContext $salesChannelContext;
-
-    private string $script;
-
-    private Page $page;
-
-    public function __construct(string $name, array $request, array $query, Page $page, SalesChannelContext $salesChannelContext)
-    {
-        $this->request = $request;
-        $this->query = $query;
-        $this->salesChannelContext = $salesChannelContext;
-
+    /**
+     * @param array<string, mixed> $request
+     * @param array<string, mixed> $query
+     */
+    public function __construct(
+        private readonly string $script,
+        private readonly array $request,
+        private readonly array $query,
+        private readonly Page $page,
+        private readonly SalesChannelContext $salesChannelContext
+    ) {
         parent::__construct($salesChannelContext->getContext());
-        $this->script = $name;
-        $this->page = $page;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getRequest(): array
     {
         return $this->request;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getQuery(): array
     {
         return $this->query;

@@ -15,22 +15,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class ResolvedConfigLoader extends AbstractResolvedConfigLoader
 {
     /**
-     * @var EntityRepository
-     */
-    private $repository;
-
-    /**
-     * @var ThemeService
-     */
-    private $service;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $repository, ThemeService $service)
+    public function __construct(private readonly EntityRepository $repository, private readonly ThemeService $service)
     {
-        $this->repository = $repository;
-        $this->service = $service;
     }
 
     public function getDecorated(): AbstractResolvedConfigLoader

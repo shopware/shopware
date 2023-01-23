@@ -23,18 +23,12 @@ class ThemeCompileCommand extends Command
 {
     private SymfonyStyle $io;
 
-    private ThemeService $themeService;
-
-    private AbstractAvailableThemeProvider $themeProvider;
-
     /**
      * @internal
      */
-    public function __construct(ThemeService $themeService, AbstractAvailableThemeProvider $themeProvider)
+    public function __construct(private readonly ThemeService $themeService, private readonly AbstractAvailableThemeProvider $themeProvider)
     {
         parent::__construct();
-        $this->themeService = $themeService;
-        $this->themeProvider = $themeProvider;
     }
 
     public function configure(): void

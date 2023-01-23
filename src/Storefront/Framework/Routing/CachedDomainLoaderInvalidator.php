@@ -14,20 +14,17 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class CachedDomainLoaderInvalidator implements EventSubscriberInterface
 {
-    private CacheInvalidator $logger;
-
     /**
      * @internal
      */
-    public function __construct(CacheInvalidator $logger)
+    public function __construct(private readonly CacheInvalidator $logger)
     {
-        $this->logger = $logger;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             EntityWrittenContainerEvent::class => [

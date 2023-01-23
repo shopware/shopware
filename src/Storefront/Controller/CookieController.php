@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2;
@@ -20,35 +19,19 @@ use Symfony\Component\Routing\Annotation\Route;
  * A group is structured as described above the "getCookieGroup"-method
  * @package storefront
  *
- * @Route(defaults={"_routeScope"={"storefront"}})
- *
  * @internal
  */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
 class CookieController extends StorefrontController
 {
     /**
-     * @var CookieProviderInterface
-     */
-    private $cookieProvider;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
      * @internal
      */
-    public function __construct(CookieProviderInterface $cookieProvider, SystemConfigService $systemConfigService)
+    public function __construct(private readonly CookieProviderInterface $cookieProvider, private readonly SystemConfigService $systemConfigService)
     {
-        $this->cookieProvider = $cookieProvider;
-        $this->systemConfigService = $systemConfigService;
     }
 
-    /**
-     * @Since("6.1.0.0")
-     * @Route("/cookie/offcanvas", name="frontend.cookie.offcanvas", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
-     */
+    #[Route(path: '/cookie/offcanvas', name: 'frontend.cookie.offcanvas', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
     public function offcanvas(SalesChannelContext $context): Response
     {
         $cookieGroups = $this->cookieProvider->getCookieGroups();
@@ -64,10 +47,7 @@ class CookieController extends StorefrontController
         return $response;
     }
 
-    /**
-     * @Since("6.1.0.0")
-     * @Route("/cookie/permission", name="frontend.cookie.permission", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
-     */
+    #[Route(path: '/cookie/permission', name: 'frontend.cookie.permission', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
     public function permission(SalesChannelContext $context): Response
     {
         $cookieGroups = $this->cookieProvider->getCookieGroups();
@@ -98,11 +78,9 @@ class CookieController extends StorefrontController
 
         foreach ($cookieGroups as $cookieGroup) {
             if ($cookieGroup['snippet_name'] === 'cookie.groupStatistical') {
-                $cookieGroup['entries'] = array_filter($cookieGroup['entries'], function ($item) {
-                    return $item['snippet_name'] !== 'cookie.groupStatisticalGoogleAnalytics';
-                });
+                $cookieGroup['entries'] = array_filter($cookieGroup['entries'], fn ($item) => $item['snippet_name'] !== 'cookie.groupStatisticalGoogleAnalytics');
                 // Only add statistics cookie group if it has entries
-                if (\count($cookieGroup['entries']) > 0) {
+                if (\count((array) $cookieGroup['entries']) > 0) {
                     $filteredGroups[] = $cookieGroup;
                 }
 
@@ -136,7 +114,7 @@ class CookieController extends StorefrontController
                 }
             }
 
-            if (\count($cookieGroups[$groupIndex]['entries']) === 0) {
+            if ((is_countable($cookieGroups[$groupIndex]['entries']) ? \count($cookieGroups[$groupIndex]['entries']) : 0) === 0) {
                 unset($cookieGroups[$groupIndex]);
             }
         }
@@ -169,7 +147,7 @@ class CookieController extends StorefrontController
                 }
             }
 
-            if (\count($cookieGroups[$groupIndex]['entries']) === 0) {
+            if ((is_countable($cookieGroups[$groupIndex]['entries']) ? \count($cookieGroups[$groupIndex]['entries']) : 0) === 0) {
                 unset($cookieGroups[$groupIndex]);
             }
         }

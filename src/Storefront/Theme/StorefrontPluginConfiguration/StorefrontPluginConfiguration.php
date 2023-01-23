@@ -11,8 +11,6 @@ class StorefrontPluginConfiguration extends Struct
 {
     protected ?array $themeConfig = [];
 
-    protected string $technicalName;
-
     protected ?string $name = null;
 
     protected ?string $previewMedia = null;
@@ -49,9 +47,8 @@ class StorefrontPluginConfiguration extends Struct
     /**
      * @internal
      */
-    public function __construct(string $technicalName)
+    public function __construct(protected string $technicalName)
     {
-        $this->technicalName = $technicalName;
         $this->styleFiles = new FileCollection();
         $this->scriptFiles = new FileCollection();
     }

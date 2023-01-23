@@ -11,11 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 class ThemeAssignmentException extends ShopwareHttpException
 {
     /**
-     * @var array<string, string>
-     */
-    private array $assignedSalesChannels;
-
-    /**
      * @param array<string, array<int, string>> $themeSalesChannel
      * @param array<string, array<int, string>> $childThemeSalesChannel
      * @param array<string, string> $assignedSalesChannels
@@ -24,11 +19,9 @@ class ThemeAssignmentException extends ShopwareHttpException
         string $themeName,
         array $themeSalesChannel,
         array $childThemeSalesChannel,
-        array $assignedSalesChannels,
+        private readonly array $assignedSalesChannels,
         ?\Throwable $e = null
     ) {
-        $this->assignedSalesChannels = $assignedSalesChannels;
-
         $parameters = ['themeName' => $themeName];
         $message = 'Unable to deactivate or uninstall theme "{{ themeName }}".';
         $message .= ' Remove the following assignments between theme and sales channel assignments: {{ assignments }}.';

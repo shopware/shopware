@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Page\Cms;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -22,7 +23,7 @@ class DefaultMediaResolverTest extends TestCase
 
     private DefaultMediaResolver $mediaResolver;
 
-    private $decorated;
+    private MockObject&AbstractDefaultMediaResolver $decorated;
 
     public function setUp(): void
     {

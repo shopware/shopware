@@ -15,25 +15,17 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
 {
-    private ConfigurationService $configurationService;
-
-    private StorefrontPluginRegistryInterface $storefrontPluginRegistry;
-
     /**
      * @internal
      */
-    public function __construct(
-        ConfigurationService $configurationService,
-        StorefrontPluginRegistryInterface $storefrontPluginRegistry
-    ) {
-        $this->configurationService = $configurationService;
-        $this->storefrontPluginRegistry = $storefrontPluginRegistry;
+    public function __construct(private readonly ConfigurationService $configurationService, private readonly StorefrontPluginRegistryInterface $storefrontPluginRegistry)
+    {
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             ThemeCompilerEnrichScssVariablesEvent::class => 'enrichExtensionVars',
@@ -87,10 +79,7 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
         }
     }
 
-    /**
-     * @param mixed $element
-     */
-    private function hasCssValue($element): bool
+    private function hasCssValue(mixed $element): bool
     {
         if (!\is_array($element)) {
             return false;

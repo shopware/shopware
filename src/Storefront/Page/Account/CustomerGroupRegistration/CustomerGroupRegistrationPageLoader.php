@@ -15,31 +15,10 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class CustomerGroupRegistrationPageLoader extends AbstractCustomerGroupRegistrationPageLoader
 {
     /**
-     * @var AbstractCustomerGroupRegistrationSettingsRoute
-     */
-    private $customerGroupRegistrationRoute;
-
-    /**
-     * @var AccountLoginPageLoader
-     */
-    private $accountLoginPageLoader;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @internal
      */
-    public function __construct(
-        AccountLoginPageLoader $accountLoginPageLoader,
-        AbstractCustomerGroupRegistrationSettingsRoute $customerGroupRegistrationRoute,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->customerGroupRegistrationRoute = $customerGroupRegistrationRoute;
-        $this->accountLoginPageLoader = $accountLoginPageLoader;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly AccountLoginPageLoader $accountLoginPageLoader, private readonly AbstractCustomerGroupRegistrationSettingsRoute $customerGroupRegistrationRoute, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function load(Request $request, SalesChannelContext $salesChannelContext): CustomerGroupRegistrationPage

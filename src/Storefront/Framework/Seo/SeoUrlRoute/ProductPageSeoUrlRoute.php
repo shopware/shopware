@@ -18,20 +18,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
  */
 class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
 {
-    public const ROUTE_NAME = 'frontend.detail.page';
-    public const DEFAULT_TEMPLATE = '{{ product.translated.name }}/{{ product.productNumber }}';
-
-    /**
-     * @var ProductDefinition
-     */
-    private $productDefinition;
+    final public const ROUTE_NAME = 'frontend.detail.page';
+    final public const DEFAULT_TEMPLATE = '{{ product.translated.name }}/{{ product.productNumber }}';
 
     /**
      * @internal
      */
-    public function __construct(ProductDefinition $productDefinition)
+    public function __construct(private readonly ProductDefinition $productDefinition)
     {
-        $this->productDefinition = $productDefinition;
     }
 
     public function getConfig(): SeoUrlRouteConfig

@@ -203,10 +203,7 @@ class ThemeChangeCommandTest extends TestCase
         ]);
     }
 
-    /**
-     * @return MockObject|StorefrontPluginRegistry
-     */
-    private function getPluginRegistryMock()
+    private function getPluginRegistryMock(): MockObject&StorefrontPluginRegistry
     {
         $storePluginConfiguration1 = new StorefrontPluginConfiguration('parentTheme');
         $storePluginConfiguration1->setThemeConfig([

@@ -19,15 +19,12 @@ class AccountPaymentMethodPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'account-payment-method-page-loaded';
+    final public const HOOK_NAME = 'account-payment-method-page-loaded';
 
-    private AccountPaymentMethodPage $page;
-
-    public function __construct(AccountPaymentMethodPage $page, SalesChannelContext $context)
+    public function __construct(private readonly AccountPaymentMethodPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

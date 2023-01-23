@@ -17,31 +17,10 @@ use Symfony\Component\HttpFoundation\Request;
 class MaintenancePageLoader
 {
     /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var SalesChannelCmsPageLoaderInterface
-     */
-    private $cmsPageLoader;
-
-    /**
      * @internal
      */
-    public function __construct(
-        SalesChannelCmsPageLoaderInterface $cmsPageLoader,
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->genericLoader = $genericLoader;
-        $this->cmsPageLoader = $cmsPageLoader;
+    public function __construct(private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader, private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**
@@ -65,7 +44,7 @@ class MaintenancePageLoader
             $this->eventDispatcher->dispatch(new MaintenancePageLoadedEvent($page, $context, $request));
 
             return $page;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new PageNotFoundException($cmsErrorLayoutId);
         }
     }

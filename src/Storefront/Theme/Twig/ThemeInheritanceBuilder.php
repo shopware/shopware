@@ -10,14 +10,11 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
  */
 class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 {
-    private StorefrontPluginRegistryInterface $themeRegistry;
-
     /**
      * @internal
      */
-    public function __construct(StorefrontPluginRegistryInterface $themeRegistry)
+    public function __construct(private readonly StorefrontPluginRegistryInterface $themeRegistry)
     {
-        $this->themeRegistry = $themeRegistry;
     }
 
     /**

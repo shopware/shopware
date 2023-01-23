@@ -37,15 +37,9 @@ class SeoUrlIndexerTest extends TestCase
     use StorefrontSalesChannelTestHelper;
     use QueueTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $templateRepository;
+    private EntityRepository $templateRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
     public function setUp(): void
     {
@@ -607,12 +601,10 @@ class SeoUrlIndexerTest extends TestCase
             $template->setTemplate('');
         }
 
-        $data = array_map(static function (string $templateId): array {
-            return [
-                'id' => $templateId,
-                'template' => null,
-            ];
-        }, $templates->getIds());
+        $data = array_map(static fn (string $templateId): array => [
+            'id' => $templateId,
+            'template' => null,
+        ], $templates->getIds());
 
         $templateRepository->upsert(array_values($data), Context::createDefaultContext());
 
@@ -674,7 +666,7 @@ class SeoUrlIndexerTest extends TestCase
 
         try {
             $this->productRepository->create([$data], Context::createDefaultContext());
-        } catch (WriteTypeIntendException $e) {
+        } catch (WriteTypeIntendException) {
             unset($data['visibilities']);
             $this->productRepository->upsert([$data], Context::createDefaultContext());
         }

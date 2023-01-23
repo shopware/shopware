@@ -64,9 +64,7 @@ abstract class StorefrontController extends AbstractController
             IconCacheTwigFilter::enable();
         }
 
-        $response = Profiler::trace('twig-rendering', function () use ($view, $event) {
-            return $this->render($view, $event->getParameters(), new StorefrontResponse());
-        });
+        $response = Profiler::trace('twig-rendering', fn () => $this->render($view, $event->getParameters(), new StorefrontResponse()));
 
         if ($iconCacheEnabled) {
             IconCacheTwigFilter::disable();

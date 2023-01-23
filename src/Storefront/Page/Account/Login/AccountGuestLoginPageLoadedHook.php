@@ -19,15 +19,12 @@ class AccountGuestLoginPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'account-guest-login-page-loaded';
+    final public const HOOK_NAME = 'account-guest-login-page-loaded';
 
-    private AccountLoginPage $page;
-
-    public function __construct(AccountLoginPage $page, SalesChannelContext $context)
+    public function __construct(private readonly AccountLoginPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

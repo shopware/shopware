@@ -11,11 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class NewsletterAccountPageletLoadedEvent extends PageletLoadedEvent
 {
-    protected NewsletterAccountPagelet $pagelet;
-
-    public function __construct(NewsletterAccountPagelet $pagelet, SalesChannelContext $salesChannelContext, Request $request)
+    public function __construct(protected NewsletterAccountPagelet $pagelet, SalesChannelContext $salesChannelContext, Request $request)
     {
-        $this->pagelet = $pagelet;
         parent::__construct($salesChannelContext, $request);
     }
 

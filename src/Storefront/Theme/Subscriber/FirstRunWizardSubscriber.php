@@ -19,37 +19,17 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class FirstRunWizardSubscriber implements EventSubscriberInterface
 {
-    private ThemeService $themeService;
-
-    private ThemeLifecycleService $themeLifecycleService;
-
-    private EntityRepository $themeRepository;
-
-    private EntityRepository $themeSalesChannelRepository;
-
-    private EntityRepository $salesChannelRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        ThemeService $themeService,
-        ThemeLifecycleService $themeLifecycleService,
-        EntityRepository $themeRepository,
-        EntityRepository $themeSalesChannelRepository,
-        EntityRepository $salesChannelRepository
-    ) {
-        $this->themeService = $themeService;
-        $this->themeLifecycleService = $themeLifecycleService;
-        $this->themeRepository = $themeRepository;
-        $this->themeSalesChannelRepository = $themeSalesChannelRepository;
-        $this->salesChannelRepository = $salesChannelRepository;
+    public function __construct(private readonly ThemeService $themeService, private readonly ThemeLifecycleService $themeLifecycleService, private readonly EntityRepository $themeRepository, private readonly EntityRepository $themeSalesChannelRepository, private readonly EntityRepository $salesChannelRepository)
+    {
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             FirstRunWizardFinishedEvent::class => 'frwFinished',

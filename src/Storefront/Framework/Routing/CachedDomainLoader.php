@@ -13,19 +13,13 @@ use Symfony\Contracts\Cache\ItemInterface;
  */
 class CachedDomainLoader extends AbstractDomainLoader
 {
-    public const CACHE_KEY = 'routing-domains';
-
-    private AbstractDomainLoader $decorated;
-
-    private CacheInterface $cache;
+    final public const CACHE_KEY = 'routing-domains';
 
     /**
      * @internal
      */
-    public function __construct(AbstractDomainLoader $decorated, CacheInterface $cache)
+    public function __construct(private readonly AbstractDomainLoader $decorated, private readonly CacheInterface $cache)
     {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
     }
 
     public function getDecorated(): AbstractDomainLoader
@@ -38,11 +32,9 @@ class CachedDomainLoader extends AbstractDomainLoader
      */
     public function load(): array
     {
-        $value = $this->cache->get(self::CACHE_KEY, function (ItemInterface $item) {
-            return CacheValueCompressor::compress(
-                $this->getDecorated()->load()
-            );
-        });
+        $value = $this->cache->get(self::CACHE_KEY, fn (ItemInterface $item) => CacheValueCompressor::compress(
+            $this->getDecorated()->load()
+        ));
 
         /** @var array<string, Domain> $value */
         $value = CacheValueCompressor::uncompress($value);

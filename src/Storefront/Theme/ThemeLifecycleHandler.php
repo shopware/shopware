@@ -18,31 +18,11 @@ use Shopware\Storefront\Theme\Struct\ThemeDependencies;
  */
 class ThemeLifecycleHandler
 {
-    private ThemeLifecycleService $themeLifecycleService;
-
-    private ThemeService $themeService;
-
-    private EntityRepository $themeRepository;
-
-    private StorefrontPluginRegistryInterface $storefrontPluginRegistry;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(
-        ThemeLifecycleService $themeLifecycleService,
-        ThemeService $themeService,
-        EntityRepository $themeRepository,
-        StorefrontPluginRegistryInterface $storefrontPluginRegistry,
-        Connection $connection
-    ) {
-        $this->themeLifecycleService = $themeLifecycleService;
-        $this->themeService = $themeService;
-        $this->themeRepository = $themeRepository;
-        $this->storefrontPluginRegistry = $storefrontPluginRegistry;
-        $this->connection = $connection;
+    public function __construct(private readonly ThemeLifecycleService $themeLifecycleService, private readonly ThemeService $themeService, private readonly EntityRepository $themeRepository, private readonly StorefrontPluginRegistryInterface $storefrontPluginRegistry, private readonly Connection $connection)
+    {
     }
 
     public function handleThemeInstallOrUpdate(
@@ -77,9 +57,7 @@ class ThemeLifecycleHandler
 
         $configs = $this->storefrontPluginRegistry->getConfigurations();
 
-        $configs = $configs->filter(function (StorefrontPluginConfiguration $registeredConfig) use ($config): bool {
-            return $registeredConfig->getTechnicalName() !== $config->getTechnicalName();
-        });
+        $configs = $configs->filter(fn (StorefrontPluginConfiguration $registeredConfig): bool => $registeredConfig->getTechnicalName() !== $config->getTechnicalName());
 
         $this->recompileThemesIfNecessary($config, $context, $configs, $themeId);
     }

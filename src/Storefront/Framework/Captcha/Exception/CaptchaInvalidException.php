@@ -16,7 +16,7 @@ class CaptchaInvalidException extends ShopwareHttpException
         parent::__construct(
             'The provided value for captcha "{{ captcha }}" is not valid.',
             [
-                'captcha' => \get_class($captcha),
+                'captcha' => $captcha::class,
             ]
         );
     }

@@ -13,7 +13,7 @@ class StorefrontPluginConfigurationCollection extends Collection
 {
     public function __construct(iterable $elements = [])
     {
-        parent::__construct([]);
+        parent::__construct();
 
         foreach ($elements as $element) {
             $this->validateType($element);
@@ -31,23 +31,17 @@ class StorefrontPluginConfigurationCollection extends Collection
 
     public function getByTechnicalName(string $name): ?StorefrontPluginConfiguration
     {
-        return $this->filter(function (StorefrontPluginConfiguration $config) use ($name) {
-            return $config->getTechnicalName() === $name;
-        })->first();
+        return $this->filter(fn (StorefrontPluginConfiguration $config) => $config->getTechnicalName() === $name)->first();
     }
 
     public function getThemes(): StorefrontPluginConfigurationCollection
     {
-        return $this->filter(function (StorefrontPluginConfiguration $configuration) {
-            return $configuration->getIsTheme();
-        });
+        return $this->filter(fn (StorefrontPluginConfiguration $configuration) => $configuration->getIsTheme());
     }
 
     public function getNoneThemes(): StorefrontPluginConfigurationCollection
     {
-        return $this->filter(function (StorefrontPluginConfiguration $configuration) {
-            return !$configuration->getIsTheme();
-        });
+        return $this->filter(fn (StorefrontPluginConfiguration $configuration) => !$configuration->getIsTheme());
     }
 
     protected function getExpectedClass(): ?string

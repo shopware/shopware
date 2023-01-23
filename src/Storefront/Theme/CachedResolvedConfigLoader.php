@@ -12,17 +12,11 @@ use Symfony\Contracts\Cache\ItemInterface;
  */
 class CachedResolvedConfigLoader extends AbstractResolvedConfigLoader
 {
-    private AbstractResolvedConfigLoader $decorated;
-
-    private CacheInterface $cache;
-
     /**
      * @internal
      */
-    public function __construct(AbstractResolvedConfigLoader $decorated, CacheInterface $cache)
+    public function __construct(private readonly AbstractResolvedConfigLoader $decorated, private readonly CacheInterface $cache)
     {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
     }
 
     public function getDecorated(): AbstractResolvedConfigLoader

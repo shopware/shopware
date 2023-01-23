@@ -29,42 +29,10 @@ use Symfony\Component\HttpFoundation\Request;
 class AddressDetailPageLoader
 {
     /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
-
-    /**
-     * @var AbstractCountryRoute
-     */
-    private $countryRoute;
-
-    /**
-     * @var AbstractSalutationRoute
-     */
-    private $salutationRoute;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    private AbstractListAddressRoute $listAddressRoute;
-
-    /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        AbstractCountryRoute $countryRoute,
-        AbstractSalutationRoute $salutationRoute,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractListAddressRoute $listAddressRoute
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->countryRoute = $countryRoute;
-        $this->salutationRoute = $salutationRoute;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->listAddressRoute = $listAddressRoute;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly AbstractCountryRoute $countryRoute, private readonly AbstractSalutationRoute $salutationRoute, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractListAddressRoute $listAddressRoute)
+    {
     }
 
     /**
@@ -104,9 +72,7 @@ class AddressDetailPageLoader
     {
         $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
 
-        $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
-            return $b->getSalutationKey() <=> $a->getSalutationKey();
-        });
+        $salutations->sort(fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
 
         return $salutations;
     }

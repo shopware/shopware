@@ -19,27 +19,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class OffcanvasCartPageLoader
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private StorefrontCartFacade $cartService;
-
-    private GenericPageLoaderInterface $genericLoader;
-
-    private AbstractShippingMethodRoute $shippingMethodRoute;
-
     /**
      * @internal
      */
-    public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        StorefrontCartFacade $cartService,
-        GenericPageLoaderInterface $genericLoader,
-        AbstractShippingMethodRoute $shippingMethodRoute
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartService = $cartService;
-        $this->genericLoader = $genericLoader;
-        $this->shippingMethodRoute = $shippingMethodRoute;
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly StorefrontCartFacade $cartService, private readonly GenericPageLoaderInterface $genericLoader, private readonly AbstractShippingMethodRoute $shippingMethodRoute)
+    {
     }
 
     /**

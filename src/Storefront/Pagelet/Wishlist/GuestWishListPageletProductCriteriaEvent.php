@@ -14,20 +14,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class GuestWishListPageletProductCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    private Criteria $criteria;
-
-    private SalesChannelContext $salesChannelContext;
-
-    private Request $request;
-
-    public function __construct(
-        Criteria $criteria,
-        SalesChannelContext $salesChannelContext,
-        Request $request
-    ) {
-        $this->criteria = $criteria;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->request = $request;
+    public function __construct(private readonly Criteria $criteria, private readonly SalesChannelContext $salesChannelContext, private readonly Request $request)
+    {
     }
 
     public function getCriteria(): Criteria

@@ -9,20 +9,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class ThemeCompilerConcatenatedStylesEvent extends Event
 {
-    /**
-     * @var string
-     */
-    private $concatenatedStyles;
-
-    /**
-     * @var string
-     */
-    private $salesChannelId;
-
-    public function __construct(string $concatenatedStyles, string $salesChannelId)
+    public function __construct(private string $concatenatedStyles, private readonly string $salesChannelId)
     {
-        $this->concatenatedStyles = $concatenatedStyles;
-        $this->salesChannelId = $salesChannelId;
     }
 
     public function getConcatenatedStyles(): string

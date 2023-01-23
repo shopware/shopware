@@ -778,18 +778,6 @@
       }
     },
     "sw-condition-generic": {
-      "orderDeliveryStatus": {
-        "stateName": {
-          "options": {
-            "shipped": "Shipped",
-            "shipped_partially": "Shipped (partially)",
-            "returned_partially": "Returned (partially)",
-            "returned": "Returned",
-            "cancelled": "Cancelled",
-            "open": "Open"
-          }
-        }
-      },
       "customerEmail": {
         "email": {
           "placeholder": "@:global.sw-condition.condition.emailRule.placeholder"

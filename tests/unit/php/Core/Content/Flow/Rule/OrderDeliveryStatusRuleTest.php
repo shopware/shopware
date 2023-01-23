@@ -6,24 +6,23 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
 use Shopware\Core\Content\Flow\Rule\OrderDeliveryStatusRule;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
 /**
  * @package business-ops
  *
  * @internal
+ *
  * @group rules
+ *
  * @covers \Shopware\Core\Content\Flow\Rule\OrderDeliveryStatusRule
  */
 class OrderDeliveryStatusRuleTest extends TestCase
@@ -44,26 +43,24 @@ class OrderDeliveryStatusRuleTest extends TestCase
     {
         $constraints = $this->rule->getConstraints();
 
-        static::assertArrayHasKey('stateName', $constraints, 'stateName constraint not found');
+        static::assertArrayHasKey('stateIds', $constraints, 'stateIds constraint not found');
         static::assertArrayHasKey('operator', $constraints, 'operator constraint not found');
 
-        static::assertEquals(RuleConstraints::string(), $constraints['stateName']);
-        static::assertEquals(RuleConstraints::stringOperators(false), $constraints['operator']);
+        static::assertEquals(RuleConstraints::uuids(), $constraints['stateIds']);
+        static::assertEquals(RuleConstraints::uuidOperators(false), $constraints['operator']);
     }
 
     /**
      * @dataProvider getMatchingValues
+     *
+     * @param list<string> $selectedOrderStateIds
      */
-    public function testOrderDeliveryStatusRuleMatching(bool $expected, string $orderState, string $selectedOrderState, string $operator): void
+    public function testOrderDeliveryStatusRuleMatching(bool $expected, string $orderStateId, array $selectedOrderStateIds, string $operator): void
     {
-        $state = new StateMachineStateEntity();
-        $state->setId(Uuid::randomHex());
-        $state->setTechnicalName($orderState);
-
         $orderDeliveryCollection = new OrderDeliveryCollection();
         $orderDelivery = new OrderDeliveryEntity();
         $orderDelivery->setId(Uuid::randomHex());
-        $orderDelivery->setStateMachineState($state);
+        $orderDelivery->setStateId($orderStateId);
         $orderDeliveryCollection->add($orderDelivery);
         $order = new OrderEntity();
         $order->setDeliveries($orderDeliveryCollection);
@@ -72,7 +69,7 @@ class OrderDeliveryStatusRuleTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $scope = new FlowRuleScope($order, $cart, $context);
 
-        $this->rule->assign(['stateName' => $selectedOrderState, 'operator' => $operator]);
+        $this->rule->assign(['stateIds' => $selectedOrderStateIds, 'operator' => $operator]);
         static::assertSame($expected, $this->rule->match($scope));
     }
 
@@ -83,28 +80,17 @@ class OrderDeliveryStatusRuleTest extends TestCase
         static::assertFalse($this->rule->match($invalidScope));
     }
 
-    public function testStateNameNotExist(): void
-    {
-        $order = $this->createMock(OrderEntity::class);
-        $cart = $this->createMock(Cart::class);
-        $context = $this->createMock(SalesChannelContext::class);
-        $scope = new FlowRuleScope($order, $cart, $context);
-
-        $this->rule->assign(['stateName' => null, 'operator' => Rule::OPERATOR_EQ]);
-        static::expectException(UnsupportedValueException::class);
-        static::assertFalse($this->rule->match($scope));
-    }
-
     public function testDeliveriesEmpty(): void
     {
         $order = new OrderEntity();
+        $order->setDeliveries(new OrderDeliveryCollection());
         $orderDeliveryCollection = new OrderDeliveryCollection();
         $order->setDeliveries($orderDeliveryCollection);
         $cart = $this->createMock(Cart::class);
         $context = $this->createMock(SalesChannelContext::class);
         $scope = new FlowRuleScope($order, $cart, $context);
 
-        $this->rule->assign(['stateName' => OrderDeliveryStates::STATE_OPEN, 'operator' => Rule::OPERATOR_EQ]);
+        $this->rule->assign(['stateIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($scope));
     }
 
@@ -118,20 +104,22 @@ class OrderDeliveryStatusRuleTest extends TestCase
 
         static::assertEquals([
             'operators' => $operators,
-            'isMatchAny' => false,
+            'isMatchAny' => true,
         ], $configData['operatorSet']);
     }
 
     /**
-     * @return array<string, array{boolean, string, string, string}>
+     * @return array<string, array{boolean, string, list<string>, string}>
      */
     public function getMatchingValues(): array
     {
+        $id = Uuid::randomHex();
+
         return [
-            'EQ - true' => [true, OrderDeliveryStates::STATE_OPEN, OrderDeliveryStates::STATE_OPEN, Rule::OPERATOR_EQ],
-            'EQ - false' => [false, OrderDeliveryStates::STATE_OPEN, OrderDeliveryStates::STATE_CANCELLED, Rule::OPERATOR_EQ],
-            'NQ - true' => [true, OrderDeliveryStates::STATE_OPEN, OrderDeliveryStates::STATE_CANCELLED, Rule::OPERATOR_NEQ],
-            'NQ - false' => [false, OrderDeliveryStates::STATE_OPEN, OrderDeliveryStates::STATE_OPEN, Rule::OPERATOR_NEQ],
+            'ONE OF - true' => [true, $id, [$id, Uuid::randomHex()], Rule::OPERATOR_EQ],
+            'ONE OF - false' => [false, $id, [Uuid::randomHex()], Rule::OPERATOR_EQ],
+            'NONE OF - true' => [true, $id, [Uuid::randomHex()], Rule::OPERATOR_NEQ],
+            'NONE OF - false' => [false, $id, [$id, Uuid::randomHex()], Rule::OPERATOR_NEQ],
         ];
     }
 }

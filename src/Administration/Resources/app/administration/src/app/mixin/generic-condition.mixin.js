@@ -1,6 +1,7 @@
 /**
  * @package admin
  */
+import createCriteriaFromArray from '../service/criteria-helper.service';
 
 const { Mixin } = Shopware;
 
@@ -115,6 +116,11 @@ Mixin.register('generic-condition', {
             const fieldClone = Shopware.Utils.object.cloneDeep(field);
             const snippetBasePath = ['global', 'sw-condition-generic', this.condition.type, fieldClone.name];
             const placeholderPath = [...snippetBasePath, 'placeholder'].join('.');
+
+            if (['multi-entity-id-select', 'single-entity-id-select'].includes(fieldClone.type)
+                && fieldClone.config.criteria) {
+                fieldClone.config.criteria = createCriteriaFromArray(fieldClone.config.criteria);
+            }
 
             if (fieldClone.type === 'single-select' && fieldClone.config.options) {
                 fieldClone.config.options = fieldClone.config.options.map((value) => {

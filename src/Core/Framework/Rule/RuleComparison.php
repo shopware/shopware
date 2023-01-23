@@ -51,7 +51,7 @@ class RuleComparison
     /**
      * @param list<string> $ruleValue
      */
-    public static function stringArray(?array $itemValue, array $ruleValue, string $operator): bool
+    public static function stringArray(?string $itemValue, array $ruleValue, string $operator): bool
     {
         if ($itemValue === null) {
             return false;

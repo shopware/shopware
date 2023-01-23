@@ -11,3 +11,7 @@ author_github: @LarsKemper
 ___
 # Administration
 * Added new `orderDeliveryStatus` rule condition to the `condition-type-data-provider.decorator`
+* Created new service file `criteria-helper.service.js` in `src/app/service`
+* Added function `createCriteriaFromArray` to `src/app/service/criteria-helper.service.js`
+* Added function `parseFilters` to `src/app/service/criteria-helper.service.js`
+* Changed method `getBind` in `src/app/mixin/generic-condition.mixin.js`

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\FlowRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -10,15 +11,20 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
+#[Package('business-ops')]
 class OrderDeliveryStatusRule extends FlowRule
 {
     public const RULE_NAME = 'orderDeliveryStatus';
 
     /**
      * @internal
+     *
+     * @param list<string> $stateIds
      */
-    public function __construct(public string $operator = Rule::OPERATOR_EQ, public ?array $stateIds = null)
-    {
+    public function __construct(
+        public string $operator = Rule::OPERATOR_EQ,
+        public ?array $stateIds = null
+    ) {
         parent::__construct();
     }
 
@@ -26,7 +32,7 @@ class OrderDeliveryStatusRule extends FlowRule
     {
         return [
             'operator' => RuleConstraints::uuidOperators(false),
-            'stateName' => RuleConstraints::uuids(),
+            'stateIds' => RuleConstraints::uuids(),
         ];
     }
 
@@ -41,7 +47,7 @@ class OrderDeliveryStatusRule extends FlowRule
         }
 
         $deliveryStateIds = [];
-        foreach ($deliveries as $delivery) {
+        foreach ($deliveries->getElements() as $delivery) {
             $deliveryStateIds[] = $delivery->getStateId();
         }
 
@@ -52,6 +58,24 @@ class OrderDeliveryStatusRule extends FlowRule
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
-            ->entitySelectField('stateIds',StateMachineStateDefinition::ENTITY_NAME,true);
+            ->entitySelectField(
+                'stateIds',
+                StateMachineStateDefinition::ENTITY_NAME,
+                true,
+                [
+                    'criteria' => [
+                        'associations' => [
+                            'stateMachine',
+                        ],
+                        'filters' => [
+                            [
+                                'type' => 'equals',
+                                'field' => 'state_machine_state.stateMachine.technicalName',
+                                'value' => 'order_delivery.state',
+                            ],
+                        ],
+                    ],
+                ]
+            );
     }
 }

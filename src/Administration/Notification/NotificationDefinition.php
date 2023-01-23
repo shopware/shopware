@@ -24,7 +24,7 @@ use Shopware\Core\System\User\UserDefinition;
  */
 class NotificationDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'notification';
+    final public const ENTITY_NAME = 'notification';
 
     public function getEntityName(): string
     {

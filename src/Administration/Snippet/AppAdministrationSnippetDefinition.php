@@ -20,7 +20,7 @@ use Shopware\Core\System\Locale\LocaleDefinition;
  */
 class AppAdministrationSnippetDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'app_administration_snippet';
+    final public const ENTITY_NAME = 'app_administration_snippet';
 
     public function getEntityName(): string
     {

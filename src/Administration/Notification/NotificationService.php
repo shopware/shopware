@@ -19,11 +19,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
  */
 class NotificationService
 {
-    private EntityRepository $notificationRepository;
-
-    public function __construct(EntityRepository $notificationRepository)
+    public function __construct(private readonly EntityRepository $notificationRepository)
     {
-        $this->notificationRepository = $notificationRepository;
     }
 
     public function createNotification(array $data, Context $context): void
@@ -37,7 +34,7 @@ class NotificationService
     {
         $source = $context->getSource();
         if (!$source instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
+            throw new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class);
         }
 
         $criteria = new Criteria();

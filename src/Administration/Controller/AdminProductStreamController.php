@@ -24,33 +24,17 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AdminProductStreamController extends AbstractController
 {
-    private ProductDefinition $productDefinition;
-
-    private SalesChannelRepository $salesChannelProductRepository;
-
-    private SalesChannelContextServiceInterface $salesChannelContextService;
-
-    private RequestCriteriaBuilder $criteriaBuilder;
-
     /**
      * @internal
      */
-    public function __construct(
-        ProductDefinition $productDefinition,
-        SalesChannelRepository $salesChannelProductRepository,
-        SalesChannelContextServiceInterface $salesChannelContextService,
-        RequestCriteriaBuilder $criteriaBuilder
-    ) {
-        $this->productDefinition = $productDefinition;
-        $this->salesChannelProductRepository = $salesChannelProductRepository;
-        $this->salesChannelContextService = $salesChannelContextService;
-        $this->criteriaBuilder = $criteriaBuilder;
+    public function __construct(private readonly ProductDefinition $productDefinition, private readonly SalesChannelRepository $salesChannelProductRepository, private readonly SalesChannelContextServiceInterface $salesChannelContextService, private readonly RequestCriteriaBuilder $criteriaBuilder)
+    {
     }
 
     /**
      * @Since("6.4.6.1")
-     * @Route("/api/_admin/product-stream-preview/{salesChannelId}", name="api.admin.product-stream-preview", methods={"POST"}, defaults={"_routeScope"={"administration"}})
      */
+    #[Route(path: '/api/_admin/product-stream-preview/{salesChannelId}', name: 'api.admin.product-stream-preview', defaults: ['_routeScope' => ['administration']], methods: ['POST'])]
     public function productStreamPreview(string $salesChannelId, Request $request, Context $context): JsonResponse
     {
         $salesChannelContext = $this->salesChannelContextService->get(

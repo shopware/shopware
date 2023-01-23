@@ -12,26 +12,22 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"administration"}})
- *
  * @package administration
  */
+#[Route(defaults: ['_routeScope' => ['administration']])]
 class AdminTagController extends AbstractController
 {
-    private FilterTagIdsService $filterTagIdsService;
-
     /**
      * @internal
      */
-    public function __construct(FilterTagIdsService $filterTagIdsService)
+    public function __construct(private readonly FilterTagIdsService $filterTagIdsService)
     {
-        $this->filterTagIdsService = $filterTagIdsService;
     }
 
     /**
      * @Since("6.4.10.1")
-     * @Route("/api/_admin/tag-filter-ids", name="api.admin.tag-filter-ids", methods={"POST"}, defaults={"_acl"={"tag:read"}, "_entity"="tag"})
      */
+    #[Route(path: '/api/_admin/tag-filter-ids', name: 'api.admin.tag-filter-ids', defaults: ['_acl' => ['tag:read'], '_entity' => 'tag'], methods: ['POST'])]
     public function filterIds(Request $request, Criteria $criteria, Context $context): JsonResponse
     {
         $filteredTagIdsStruct = $this->filterTagIdsService->filterIds($request, $criteria, $context);

@@ -12,14 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
  */
 class AdminSearcher
 {
-    private DefinitionInstanceRegistry $definitionRegistry;
-
     /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $definitionRegistry)
+    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry)
     {
-        $this->definitionRegistry = $definitionRegistry;
     }
 
     public function search(CriteriaCollection $entities, Context $context): array

@@ -48,7 +48,7 @@ class UserConfigControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-        static::assertEquals([$configKey => ['content']], json_decode($response->getContent(), true)['data']);
+        static::assertEquals([$configKey => ['content']], json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['data']);
     }
 
     public function testGetAllConfigMe(): void
@@ -69,7 +69,7 @@ class UserConfigControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-        static::assertEquals([$configKey => ['content']], json_decode($response->getContent(), true)['data']);
+        static::assertEquals([$configKey => ['content']], json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['data']);
     }
 
     public function testGetNullConfigMe(): void
@@ -103,7 +103,7 @@ class UserConfigControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-        static::assertEquals([], json_decode($response->getContent(), true)['data']);
+        static::assertEquals([], json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['data']);
 
         //Different Key
         $contextBrowser = $this->getBrowser()->getServerParameter(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
@@ -119,7 +119,7 @@ class UserConfigControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-        static::assertEquals([], json_decode($response->getContent(), true)['data']);
+        static::assertEquals([], json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['data']);
     }
 
     public function testUpdateConfigMe(): void
@@ -153,7 +153,7 @@ class UserConfigControllerTest extends TestCase
         static::assertEquals([
             $configKey => [$newValue],
             $anotherConfigKey => [$anotherValue],
-        ], json_decode($response->getContent(), true)['data']);
+        ], json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['data']);
     }
 
     public function testCreateConfigMe(): void
@@ -173,7 +173,7 @@ class UserConfigControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-        static::assertEquals([$configKey => [$newValue]], json_decode($response->getContent(), true)['data']);
+        static::assertEquals([$configKey => [$newValue]], json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['data']);
     }
 
     public function testCreateWithSendingEmptyParameter(): void

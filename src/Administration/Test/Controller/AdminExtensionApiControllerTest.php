@@ -34,10 +34,7 @@ class AdminExtensionApiControllerTest extends TestCase
 
     private EntityRepository $appRepository;
 
-    /**
-     * @var Executor|MockObject
-     */
-    private $executor;
+    private MockObject&Executor $executor;
 
     protected function setUp(): void
     {
@@ -105,9 +102,7 @@ class AdminExtensionApiControllerTest extends TestCase
         if (empty($hosts)) {
             $this->expectException(UnallowedHostException::class);
         } else {
-            $this->executor->expects(static::once())->method('execute')->with(static::callback(static function (AppAction $action) use ($targetUrl) {
-                return $action->getTargetUrl() === $targetUrl;
-            }))->willReturn(new Response());
+            $this->executor->expects(static::once())->method('execute')->with(static::callback(static fn (AppAction $action) => $action->getTargetUrl() === $targetUrl))->willReturn(new Response());
         }
 
         $response = $this->adminExtensionApiController->runAction($requestDataBag, $this->context);
@@ -174,7 +169,7 @@ class AdminExtensionApiControllerTest extends TestCase
 
         $content = $response->getContent();
         static::assertIsString($content);
-        $data = \json_decode($content, true);
+        $data = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($data);
         static::assertArrayHasKey('uri', $data);
         static::assertStringStartsWith(self::APP_URI, $data['uri']);

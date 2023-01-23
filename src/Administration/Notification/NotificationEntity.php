@@ -14,13 +14,13 @@ class NotificationEntity extends Entity
 {
     use EntityIdTrait;
 
-    protected ?string $createdByIntegrationId;
+    protected ?string $createdByIntegrationId = null;
 
-    protected ?IntegrationEntity $createdByIntegration;
+    protected ?IntegrationEntity $createdByIntegration = null;
 
-    protected ?string $createdByUserId;
+    protected ?string $createdByUserId = null;
 
-    protected ?UserEntity $createdByUser;
+    protected ?UserEntity $createdByUser = null;
 
     protected bool $adminOnly;
 

@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -32,7 +32,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('customer-order')]
 class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRoute
 {
-    private EntityRepository $customerRecoveryRepository;
+    private EntityRepositoryInterface $customerRecoveryRepository;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -42,7 +42,7 @@ class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRo
      * @internal
      */
     public function __construct(
-        EntityRepository $customerRecoveryRepository,
+        EntityRepositoryInterface $customerRecoveryRepository,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator
     ) {

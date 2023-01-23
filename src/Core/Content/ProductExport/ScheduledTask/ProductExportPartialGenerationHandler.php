@@ -12,7 +12,7 @@ use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -35,7 +35,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
 {
     private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
-    private EntityRepository $productExportRepository;
+    private EntityRepositoryInterface $productExportRepository;
 
     private ProductExportGeneratorInterface $productExportGenerator;
 
@@ -63,7 +63,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
     public function __construct(
         ProductExportGeneratorInterface $productExportGenerator,
         AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        EntityRepository $productExportRepository,
+        EntityRepositoryInterface $productExportRepository,
         ProductExportFileHandlerInterface $productExportFileHandler,
         MessageBusInterface $messageBus,
         ProductExportRendererInterface $productExportRender,

@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -24,9 +24,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('customer-order')]
 class CustomerGroupRegistrationActionController
 {
-    private EntityRepository $customerRepository;
+    private EntityRepositoryInterface $customerRepository;
 
-    private EntityRepository $customerGroupRepository;
+    private EntityRepositoryInterface $customerGroupRepository;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -36,8 +36,8 @@ class CustomerGroupRegistrationActionController
      * @internal
      */
     public function __construct(
-        EntityRepository $customerRepository,
-        EntityRepository $customerGroupRepository,
+        EntityRepositoryInterface $customerRepository,
+        EntityRepositoryInterface $customerGroupRepository,
         EventDispatcherInterface $eventDispatcher,
         SalesChannelContextRestorer $restorer
     ) {

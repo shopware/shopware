@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
@@ -20,12 +20,12 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 #[Package('customer-order')]
 class CustomerZipCodeValidator extends ConstraintValidator
 {
-    private EntityRepository $countryRepository;
+    private EntityRepositoryInterface $countryRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepository $countryRepository)
+    public function __construct(EntityRepositoryInterface $countryRepository)
     {
         $this->countryRepository = $countryRepository;
     }

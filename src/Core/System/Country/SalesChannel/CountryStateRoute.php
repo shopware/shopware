@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Country\SalesChannel;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -20,13 +20,13 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Package('system-settings')]
 class CountryStateRoute extends AbstractCountryStateRoute
 {
-    private EntityRepository $countryStateRepository;
+    private EntityRepositoryInterface $countryStateRepository;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $countryStateRepository
+        EntityRepositoryInterface $countryStateRepository
     ) {
         $this->countryStateRepository = $countryStateRepository;
     }

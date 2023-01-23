@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
@@ -25,12 +25,12 @@ class UserGenerator implements DemodataGeneratorInterface
 
     private UserDefinition $userDefinition;
 
-    private EntityRepository $languageRepository;
+    private EntityRepositoryInterface $languageRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityWriterInterface $writer, UserDefinition $userDefinition, EntityRepository $languageRepository)
+    public function __construct(EntityWriterInterface $writer, UserDefinition $userDefinition, EntityRepositoryInterface $languageRepository)
     {
         $this->writer = $writer;
         $this->userDefinition = $userDefinition;

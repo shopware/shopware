@@ -21,7 +21,7 @@ class Migration1659257396DownloadFlowTest extends TestCase
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    private const RULE_NAME = 'Cart/Order with downloadable products';
+    private const RULE_NAME = 'Shopping cart / Order with digital products';
     private const FLOW_NAME = 'Deliver ordered product downloads';
 
     private Connection $connection;

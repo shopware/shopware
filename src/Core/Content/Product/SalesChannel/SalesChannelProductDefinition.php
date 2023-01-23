@@ -27,6 +27,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class SalesChannelProductDefinition extends ProductDefinition implements SalesChannelDefinitionInterface
 {
+    private const PRICE_BASELINE = ['taxId', 'unitId', 'referenceUnit', 'purchaseUnit'];
+
     public function getEntityClass(): string
     {
         return SalesChannelProductEntity::class;
@@ -70,27 +72,23 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
         $fields = parent::defineFields();
 
         $fields->add(
-            (new JsonField('calculated_price', 'calculatedPrice'))->addFlags(new ApiAware(), new Runtime())
-        );
-
-        $fields->add(
-            (new ListField('calculated_prices', 'calculatedPrices'))->addFlags(new ApiAware(), new Runtime())
+            (new JsonField('calculated_price', 'calculatedPrice'))->addFlags(new ApiAware(), new Runtime(\array_merge(self::PRICE_BASELINE, ['price', 'prices'])))
         );
         $fields->add(
-            (new IntField('calculated_max_purchase', 'calculatedMaxPurchase'))->addFlags(new ApiAware(), new Runtime())
+            (new ListField('calculated_prices', 'calculatedPrices'))->addFlags(new ApiAware(), new Runtime(\array_merge(self::PRICE_BASELINE, ['prices'])))
         );
-
         $fields->add(
-            (new JsonField('calculated_cheapest_price', 'calculatedCheapestPrice'))->addFlags(new ApiAware(), new Runtime())
+            (new IntField('calculated_max_purchase', 'calculatedMaxPurchase'))->addFlags(new ApiAware(), new Runtime(['maxPurchase']))
         );
-
         $fields->add(
-            (new BoolField('is_new', 'isNew'))->addFlags(new ApiAware(), new Runtime())
+            (new JsonField('calculated_cheapest_price', 'calculatedCheapestPrice'))->addFlags(new ApiAware(), new Runtime(\array_merge(self::PRICE_BASELINE, ['cheapestPrice'])))
+        );
+        $fields->add(
+            (new BoolField('is_new', 'isNew'))->addFlags(new ApiAware(), new Runtime(['releaseDate']))
         );
         $fields->add(
             (new OneToOneAssociationField('seoCategory', 'seoCategory', 'id', CategoryDefinition::class))->addFlags(new ApiAware(), new Runtime())
         );
-
         $fields->add(
             (new CheapestPriceField('cheapest_price', 'cheapestPrice'))->addFlags(new WriteProtected(), new Inherited())
         );

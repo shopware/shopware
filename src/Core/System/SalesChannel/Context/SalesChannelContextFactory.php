@@ -146,8 +146,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $shippingLocation,
             $customer,
             $itemRounding,
-            $totalRounding,
-            []
+            $totalRounding
         );
 
         if (\array_key_exists(SalesChannelContextService::PERMISSIONS, $options)) {

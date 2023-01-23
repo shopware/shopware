@@ -4401,31 +4401,6 @@ parameters:
 			path: src/Core/Content/Product/Exception/VariantNotFoundException.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\ProductCollection\\:\\:getManufacturerIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/ProductCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\ProductCollection\\:\\:getParentIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/ProductCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\ProductCollection\\:\\:getTaxIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/ProductCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\ProductCollection\\:\\:getUnitIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/ProductCollection.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\)\\: mixed\\)\\|null, Closure\\(Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionEntity\\)\\: array\\{\\}\\|array\\{group\\: mixed, option\\: mixed\\} given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/ProductVariationBuilder.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\FindVariant\\\\FoundCombination\\:\\:__construct\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/FindVariant/FoundCombination.php
@@ -4479,16 +4454,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Listing\\\\ProductListingResult\\:\\:\\$currentFilters type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Listing/ProductListingResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Price\\\\AbstractProductPriceCalculator\\:\\:calculate\\(\\) has parameter \\$products with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Price/AbstractProductPriceCalculator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Price\\\\ProductPriceCalculator\\:\\:calculate\\(\\) has parameter \\$products with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Price/ProductPriceCalculator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Sorting\\\\ProductSortingCollection\\:\\:sortByKeyArray\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
@@ -4784,31 +4749,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Service\\\\ProductStreamBuilderInterface\\:\\:buildFilters\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ProductStream/Service/ProductStreamBuilderInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOptionTranslation\\\\PropertyGroupOptionTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Property/Aggregate/PropertyGroupOptionTranslation/PropertyGroupOptionTranslationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOptionTranslation\\\\PropertyGroupOptionTranslationCollection\\:\\:getPropertyGroupOptionIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Property/Aggregate/PropertyGroupOptionTranslation/PropertyGroupOptionTranslationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupTranslation\\\\PropertyGroupTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Property/Aggregate/PropertyGroupTranslation/PropertyGroupTranslationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupTranslation\\\\PropertyGroupTranslationCollection\\:\\:getPropertyGroupIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Property/Aggregate/PropertyGroupTranslation/PropertyGroupTranslationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupCollection\\:\\:getOptionIdMap\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Property/PropertyGroupCollection.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\Aggregate\\\\RuleCondition\\\\RuleConditionEntity\\:\\:getValue\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -9396,86 +9336,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityForeignKeyResolver.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityReader\\:\\:_read\\(\\) has parameter \\$partial with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityReader\\:\\:addAssociationsToCriteriaFields\\(\\) has parameter \\$fields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityReader\\:\\:buildCriteriaFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityReader\\:\\:collectManyToManyIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityReader\\:\\:fetch\\(\\) has parameter \\$partial with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityReader\\:\\:fetch\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityReader\\:\\:fetchAssociations\\(\\) has parameter \\$partial with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityReader\\:\\:fetchPaginatedOneToManyMapping\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityReader\\:\\:joinBasic\\(\\) has parameter \\$partial with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityReader\\:\\:loadManyToMany\\(\\) has parameter \\$partial with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityReader\\:\\:loadManyToManyOverExtension\\(\\) has parameter \\$partial with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityReader\\:\\:loadManyToManyWithCriteria\\(\\) has parameter \\$partial with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityReader\\:\\:loadOneToMany\\(\\) has parameter \\$partial with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityReader\\:\\:loadOneToManyWithPagination\\(\\) has parameter \\$partial with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityReader\\:\\:loadOneToManyWithoutPagination\\(\\) has parameter \\$partial with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityReader\\:\\:loadToOne\\(\\) has parameter \\$partial with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntitySearcher\\:\\:getTotalCount\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntitySearcher.php
@@ -9909,16 +9769,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\:\\:\\$payloads type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\PartialEntityLoadedEvent\\:\\:__construct\\(\\) has parameter \\$entities with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/PartialEntityLoadedEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\PartialEntityLoadedEvent\\:\\:getIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/PartialEntityLoadedEvent.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Exception\\\\ImpossibleWriteOrderException\\:\\:__construct\\(\\) has parameter \\$remaining with no value type specified in iterable type array\\.$#"
@@ -16284,11 +16134,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:\\$protections type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Api/StructEncoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\PartialSalesChannelEntityLoadedEvent\\:\\:__construct\\(\\) has parameter \\$entities with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/PartialSalesChannelEntityLoadedEvent.php
 
 		-
 			message: "#^Parameter \\#1 \\$entities of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:createForSalesChannel\\(\\) expects list\\<mixed\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\> given\\.$#"

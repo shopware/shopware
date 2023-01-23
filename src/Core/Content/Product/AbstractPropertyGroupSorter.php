@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Product;
 
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 
 /**
  * @package inventory
@@ -12,5 +14,8 @@ abstract class AbstractPropertyGroupSorter
 {
     abstract public function getDecorated(): AbstractPropertyGroupSorter;
 
-    abstract public function sort(PropertyGroupOptionCollection $groupOptionCollection): PropertyGroupCollection;
+    /**
+     * @param EntityCollection<PropertyGroupOptionEntity|PartialEntity> $options
+     */
+    abstract public function sort(EntityCollection $options): PropertyGroupCollection;
 }

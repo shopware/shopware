@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Exception\ContextPermissionsLockedException;
-use Shopware\Core\System\SalesChannel\Exception\ContextRulesLockedException;
 use Shopware\Core\System\Tax\Exception\TaxNotFoundException;
 use Shopware\Core\System\Tax\TaxCollection;
 
@@ -75,19 +74,9 @@ class SalesChannelContext extends Struct
     protected $shippingLocation;
 
     /**
-     * @var string[]
-     */
-    protected $rulesIds;
-
-    /**
      * @var array<string, string[]>
      */
     protected array $areaRuleIds;
-
-    /**
-     * @var bool
-     */
-    protected $rulesLocked = false;
 
     /**
      * @var mixed[]
@@ -122,7 +111,6 @@ class SalesChannelContext extends Struct
     /**
      * @internal
      *
-     * @param array<string> $rulesIds
      * @param array<string, string[]> $areaRuleIds
      */
     public function __construct(
@@ -139,7 +127,6 @@ class SalesChannelContext extends Struct
         ?CustomerEntity $customer,
         CashRoundingConfig $itemRounding,
         CashRoundingConfig $totalRounding,
-        array $rulesIds = [],
         array $areaRuleIds = []
     ) {
         $this->currentCustomerGroup = $currentCustomerGroup;
@@ -150,7 +137,6 @@ class SalesChannelContext extends Struct
         $this->paymentMethod = $paymentMethod;
         $this->shippingMethod = $shippingMethod;
         $this->shippingLocation = $shippingLocation;
-        $this->rulesIds = $rulesIds;
         $this->areaRuleIds = $areaRuleIds;
         $this->token = $token;
         $this->context = $baseContext;
@@ -235,7 +221,7 @@ class SalesChannelContext extends Struct
      */
     public function getRuleIds(): array
     {
-        return $this->rulesIds;
+        return $this->getContext()->getRuleIds();
     }
 
     /**
@@ -243,12 +229,7 @@ class SalesChannelContext extends Struct
      */
     public function setRuleIds(array $ruleIds): void
     {
-        if ($this->rulesLocked) {
-            throw new ContextRulesLockedException();
-        }
-
-        $this->rulesIds = array_filter(array_values($ruleIds));
-        $this->getContext()->setRuleIds($this->rulesIds);
+        $this->getContext()->setRuleIds($ruleIds);
     }
 
     /**
@@ -295,7 +276,7 @@ class SalesChannelContext extends Struct
 
     public function lockRules(): void
     {
-        $this->rulesLocked = true;
+        $this->getContext()->lockRules();
     }
 
     public function lockPermissions(): void

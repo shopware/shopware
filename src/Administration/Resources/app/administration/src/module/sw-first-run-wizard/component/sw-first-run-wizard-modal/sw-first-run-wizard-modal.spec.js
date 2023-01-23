@@ -17,6 +17,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
             stubs: {
                 'sw-modal': await Shopware.Component.build('sw-modal'),
                 'sw-container': await Shopware.Component.build('sw-container'),
+                'sw-loader': true,
                 'sw-icon': {
                     template: '<div />'
                 },
@@ -40,6 +41,15 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
             props: {}
         });
     };
+
+    beforeEach(() => {
+        Shopware.Context.app.firstRunWizard = false;
+
+        Object.defineProperty(window, 'location', {
+            writable: true,
+            value: { reload: jest.fn() },
+        });
+    });
 
     it('should be a vue js component', async () => {
         const firstRunWizardModal = await new CreateFirstRunWizardModal();
@@ -277,5 +287,74 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         firstRunWizardModal.vm.onButtonClick(callbackFunction);
 
         expect(callbackFunction).toHaveBeenCalled();
+    });
+
+    it('should not be closable when frw flag is active', async () => {
+        Shopware.Context.app.firstRunWizard = true;
+
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
+        const closeButton = firstRunWizardModal.find('[aria-label="global.sw-modal.labelClose"]');
+
+        expect(closeButton.exists()).toBe(false);
+    });
+
+    it('should be closable when frw flag is not true', async () => {
+        Shopware.Context.app.firstRunWizard = false;
+
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
+        const closeButton = firstRunWizardModal.find('[aria-label="global.sw-modal.labelClose"]');
+
+        expect(closeButton.exists()).toBe(true);
+    });
+
+    it('should push route to settings page when getting closed', async () => {
+        Shopware.Context.app.firstRunWizard = false;
+
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
+        const closeButton = firstRunWizardModal.find('[aria-label="global.sw-modal.labelClose"]');
+
+        jest.spyOn(firstRunWizardModal.vm.$router, 'push');
+
+        expect(firstRunWizardModal.vm.$router.push).not.toHaveBeenCalled();
+
+        await closeButton.trigger('click');
+
+        expect(firstRunWizardModal.vm.$router.push).toHaveBeenCalledWith({ name: 'sw.settings.index.system' });
+    });
+
+    it('should reload after push route to settings page when getting closed and extension was activated', async () => {
+        Shopware.Context.app.firstRunWizard = false;
+
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
+        firstRunWizardModal.vm.onExtensionActivated();
+        const closeButton = firstRunWizardModal.find('[aria-label="global.sw-modal.labelClose"]');
+
+        jest.spyOn(firstRunWizardModal.vm.$router, 'push');
+
+        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(firstRunWizardModal.vm.$router.push).not.toHaveBeenCalled();
+
+        await closeButton.trigger('click');
+        await flushPromises();
+
+        expect(firstRunWizardModal.vm.$router.push).toHaveBeenCalledWith({ name: 'sw.settings.index.system' });
+        expect(window.location.reload).toHaveBeenCalled();
+    });
+
+    it('should not reload after push route to settings page when getting closed and no extension was activated', async () => {
+        Shopware.Context.app.firstRunWizard = false;
+
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
+        const closeButton = firstRunWizardModal.find('[aria-label="global.sw-modal.labelClose"]');
+
+        jest.spyOn(firstRunWizardModal.vm.$router, 'push');
+
+        expect(firstRunWizardModal.vm.$router.push).not.toHaveBeenCalled();
+
+        await closeButton.trigger('click');
+        await flushPromises();
+
+        expect(firstRunWizardModal.vm.$router.push).toHaveBeenCalledWith({ name: 'sw.settings.index.system' });
+        expect(window.location.reload).not.toHaveBeenCalled();
     });
 });

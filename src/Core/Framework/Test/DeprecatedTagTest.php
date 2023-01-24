@@ -52,8 +52,6 @@ class DeprecatedTagTest extends TestCase
 
     public function testSourceFilesForWrongDeprecatedAnnotations(): void
     {
-        static::markTestSkipped('NEXT-24288 - Re-enable before 6.5.0.0 RC1');
-
         $finder = new Finder();
         $finder->in($this->rootDir)
             ->files()

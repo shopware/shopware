@@ -177,10 +177,6 @@ export default {
         },
 
         $route(newRoute, oldRoute) {
-            if (!this.feature.isActive('v6.5.0.0')) {
-                return;
-            }
-
             // Reload the rule data when switching from assignments to base tab because changes to the assignments
             // can affect the conditions that are selectable - rule awareness
             if (newRoute.name === 'sw.settings.rule.detail.base' &&
@@ -231,11 +227,6 @@ export default {
         },
 
         unsavedDataLeaveHandler(to, from, next) {
-            if (!this.feature.isActive('v6.5.0.0')) {
-                next();
-                return;
-            }
-
             if (this.forceDiscardChanges) {
                 this.forceDiscardChanges = false;
                 next();

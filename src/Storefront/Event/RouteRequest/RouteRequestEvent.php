@@ -14,35 +14,14 @@ use Symfony\Component\HttpFoundation\Request;
  */
 abstract class RouteRequestEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var Request
-     */
-    private $storefrontRequest;
-
-    /**
-     * @var Request
-     */
-    private $storeApiRequest;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var Criteria
-     */
-    private $criteria;
+    private readonly Criteria $criteria;
 
     public function __construct(
-        Request $storefrontRequest,
-        Request $storeApiRequest,
-        SalesChannelContext $salesChannelContext,
+        private readonly Request $storefrontRequest,
+        private readonly Request $storeApiRequest,
+        private readonly SalesChannelContext $salesChannelContext,
         ?Criteria $criteria = null
     ) {
-        $this->storefrontRequest = $storefrontRequest;
-        $this->storeApiRequest = $storeApiRequest;
-        $this->salesChannelContext = $salesChannelContext;
         $this->criteria = $criteria ?? new Criteria();
     }
 

@@ -7,20 +7,11 @@ namespace Shopware\Storefront\Framework\Twig;
  */
 class ControllerInfo
 {
-    /**
-     * @var string|null
-     */
-    private $action;
+    private ?string $action = null;
 
-    /**
-     * @var string|null
-     */
-    private $namespace;
+    private ?string $namespace = null;
 
-    /**
-     * @var string|null
-     */
-    private $name;
+    private ?string $name = null;
 
     public function getAction(): ?string
     {

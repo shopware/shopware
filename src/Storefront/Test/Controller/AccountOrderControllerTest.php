@@ -134,7 +134,7 @@ class AccountOrderControllerTest extends TestCase
         $orderRepo = $this->getContainer()->get('order.repository');
         $orderRepo->create($orderData, $context);
 
-        $browser->followRedirects(true);
+        $browser->followRedirects();
 
         $browser->request('GET', $_SERVER['APP_URL'] . '/account/order/' . $orderData[0]['deepLinkCode']);
         /** @var StorefrontResponse $response */
@@ -219,7 +219,7 @@ class AccountOrderControllerTest extends TestCase
         ], $context);
 
         $browser = $this->login($customer->getEmail());
-        $browser->followRedirects(true);
+        $browser->followRedirects();
 
         // Load home page to verify the saleschannel got a different shipping method from the ordered one
         $browser->request(
@@ -252,8 +252,7 @@ class AccountOrderControllerTest extends TestCase
 
         $browser->request(
             'GET',
-            '/account/order',
-            []
+            '/account/order'
         );
         $response = $browser->getResponse();
 
@@ -281,8 +280,7 @@ class AccountOrderControllerTest extends TestCase
 
         $browser->request(
             'GET',
-            '/account/order/' . $orderData[0]['deepLinkCode'],
-            []
+            '/account/order/' . $orderData[0]['deepLinkCode']
         );
         $response = $browser->getResponse();
 
@@ -322,8 +320,7 @@ class AccountOrderControllerTest extends TestCase
         $browser = $this->login($customer->getEmail());
         $browser->request(
             'GET',
-            '/widgets/account/order/detail/' . $orderData[0]['id'],
-            []
+            '/widgets/account/order/detail/' . $orderData[0]['id']
         );
         $response = $browser->getResponse();
 
@@ -365,8 +362,7 @@ class AccountOrderControllerTest extends TestCase
 
         $browser->request(
             'GET',
-            $url,
-            []
+            $url
         );
         $response = $browser->getResponse();
 
@@ -412,7 +408,7 @@ class AccountOrderControllerTest extends TestCase
                     'city' => 'Schöppingen',
                     'zipcode' => '12345',
                     'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId(TestDefaults::SALES_CHANNEL),
+                    'countryId' => $this->getValidCountryId(),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'guest' => $guest,

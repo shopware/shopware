@@ -22,35 +22,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class NewsletterAccountPageletLoader
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AbstractNewsletterSubscribeRoute $newsletterSubscribeRoute;
-
-    private AbstractNewsletterUnsubscribeRoute $newsletterUnsubscribeRoute;
-
-    private AbstractAccountNewsletterRecipientRoute $newsletterRecipientRoute;
-
-    private Translator $translator;
-
-    private SystemConfigService $systemConfigService;
-
     /**
      * @internal
      */
-    public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        AbstractNewsletterSubscribeRoute $newsletterSubscribeRoute,
-        AbstractNewsletterUnsubscribeRoute $newsletterUnsubscribeRoute,
-        AbstractAccountNewsletterRecipientRoute $newsletterRecipientRoute,
-        Translator $translator,
-        SystemConfigService $systemConfigService
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->newsletterSubscribeRoute = $newsletterSubscribeRoute;
-        $this->newsletterUnsubscribeRoute = $newsletterUnsubscribeRoute;
-        $this->newsletterRecipientRoute = $newsletterRecipientRoute;
-        $this->translator = $translator;
-        $this->systemConfigService = $systemConfigService;
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractNewsletterSubscribeRoute $newsletterSubscribeRoute, private readonly AbstractNewsletterUnsubscribeRoute $newsletterUnsubscribeRoute, private readonly AbstractAccountNewsletterRecipientRoute $newsletterRecipientRoute, private readonly Translator $translator, private readonly SystemConfigService $systemConfigService)
+    {
     }
 
     public function load(
@@ -144,7 +120,7 @@ class NewsletterAccountPageletLoader
                     ],
                 ]
             );
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             $newsletterAccountPagelet->setSuccess(false);
             $newsletterAccountPagelet->setMessages(
                 [
@@ -176,7 +152,7 @@ class NewsletterAccountPageletLoader
                     ],
                 ]
             );
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             $newsletterAccountPagelet->setSuccess(false);
             $newsletterAccountPagelet->setMessages(
                 [

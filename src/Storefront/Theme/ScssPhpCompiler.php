@@ -17,7 +17,7 @@ class ScssPhpCompiler extends AbstractScssCompiler
     /**
      * @var array<string, mixed>|null
      */
-    private ?array $cacheOptions;
+    private readonly ?array $cacheOptions;
 
     /**
      * @param array<string, mixed>|null $cacheOptions

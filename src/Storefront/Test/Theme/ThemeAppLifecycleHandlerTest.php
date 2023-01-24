@@ -24,15 +24,9 @@ class ThemeAppLifecycleHandlerTest extends TestCase
     use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var EntityRepository
-     */
-    private $themeRepository;
+    private EntityRepository $themeRepository;
 
     public function setUp(): void
     {

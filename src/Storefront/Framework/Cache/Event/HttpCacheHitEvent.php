@@ -12,26 +12,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class HttpCacheHitEvent extends Event
 {
-    /**
-     * @var CacheItemInterface
-     */
-    private $item;
-
-    /**
-     * @var Request
-     */
-    private $request;
-
-    /**
-     * @var Response
-     */
-    private $response;
-
-    public function __construct(CacheItemInterface $item, Request $request, Response $response)
+    public function __construct(private readonly CacheItemInterface $item, private readonly Request $request, private readonly Response $response)
     {
-        $this->item = $item;
-        $this->request = $request;
-        $this->response = $response;
     }
 
     public function getItem(): CacheItemInterface

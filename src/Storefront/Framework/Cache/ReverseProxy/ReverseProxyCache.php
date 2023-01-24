@@ -18,29 +18,14 @@ use function array_values;
  */
 class ReverseProxyCache implements StoreInterface
 {
-    private AbstractReverseProxyGateway $gateway;
-
-    /**
-     * @var AbstractCacheTracer<TCachedContent>
-     */
-    private AbstractCacheTracer $tracer;
-
-    /**
-     * @var string[]
-     */
-    private array $states;
-
     /**
      * @internal
      *
      * @param string[] $states
      * @param AbstractCacheTracer<TCachedContent> $tracer
      */
-    public function __construct(AbstractReverseProxyGateway $gateway, AbstractCacheTracer $tracer, array $states)
+    public function __construct(private readonly AbstractReverseProxyGateway $gateway, private readonly AbstractCacheTracer $tracer, private readonly array $states)
     {
-        $this->gateway = $gateway;
-        $this->tracer = $tracer;
-        $this->states = $states;
     }
 
     public function __destruct()
@@ -64,12 +49,12 @@ class ReverseProxyCache implements StoreInterface
 
         $tags = array_values(array_filter($tags, static function (string $tag): bool {
             // remove tag for global theme cache, http cache will be invalidate for each key which gets accessed in the request
-            if (strpos($tag, 'theme-config') !== false) {
+            if (str_contains($tag, 'theme-config')) {
                 return false;
             }
 
             // remove tag for global config cache, http cache will be invalidate for each key which gets accessed in the request
-            if (strpos($tag, 'system-config') !== false) {
+            if (str_contains($tag, 'system-config')) {
                 return false;
             }
 

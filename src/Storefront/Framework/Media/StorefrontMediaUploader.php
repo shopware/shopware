@@ -21,28 +21,10 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class StorefrontMediaUploader
 {
     /**
-     * @var FileSaver
-     */
-    private $fileSaver;
-
-    /**
-     * @var MediaService
-     */
-    private $mediaService;
-
-    /**
-     * @var StorefrontMediaValidatorRegistry
-     */
-    private $validator;
-
-    /**
      * @internal
      */
-    public function __construct(MediaService $mediaService, FileSaver $fileSaver, StorefrontMediaValidatorRegistry $validator)
+    public function __construct(private readonly MediaService $mediaService, private readonly FileSaver $fileSaver, private readonly StorefrontMediaValidatorRegistry $validator)
     {
-        $this->mediaService = $mediaService;
-        $this->fileSaver = $fileSaver;
-        $this->validator = $validator;
     }
 
     /**

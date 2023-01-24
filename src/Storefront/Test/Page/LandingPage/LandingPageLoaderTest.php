@@ -27,10 +27,7 @@ class LandingPageLoaderTest extends TestCase
     use StorefrontPageTestBehaviour;
     use IntegrationTestBehaviour;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     public function testLoadWithoutId(): void
     {

@@ -19,15 +19,12 @@ class AddressDetailPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'address-detail-page-loaded';
+    final public const HOOK_NAME = 'address-detail-page-loaded';
 
-    private AddressDetailPage $page;
-
-    public function __construct(AddressDetailPage $page, SalesChannelContext $context)
+    public function __construct(private readonly AddressDetailPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

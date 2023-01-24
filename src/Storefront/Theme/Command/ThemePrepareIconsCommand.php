@@ -39,7 +39,7 @@ class ThemePrepareIconsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new SymfonyStyle($input, $output);
-        $path = rtrim($input->getArgument('path'), '/') . '/';
+        $path = rtrim((string) $input->getArgument('path'), '/') . '/';
         $package = $input->getArgument('package');
 
         $fillcolor = $input->getOption('fillcolor');
@@ -115,7 +115,7 @@ class ThemePrepareIconsCommand extends Command
             $child = $defs->getChild(0);
 
             if ($child->getAttribute('id') === null || $cleanup) {
-                $id = 'icons-' . $package . '-' . $this->toKebabCase(basename($file, '.svg'));
+                $id = 'icons-' . $package . '-' . self::toKebabCase(basename($file, '.svg'));
                 $child->setAttribute('id', $id);
             } else {
                 $id = $child->getAttribute('id');

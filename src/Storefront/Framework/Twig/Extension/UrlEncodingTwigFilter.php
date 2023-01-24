@@ -17,8 +17,8 @@ class UrlEncodingTwigFilter extends AbstractExtension
     public function getFilters()
     {
         return [
-            new TwigFilter('sw_encode_url', [$this, 'encodeUrl']),
-            new TwigFilter('sw_encode_media_url', [$this, 'encodeMediaUrl']),
+            new TwigFilter('sw_encode_url', $this->encodeUrl(...)),
+            new TwigFilter('sw_encode_media_url', $this->encodeMediaUrl(...)),
         ];
     }
 

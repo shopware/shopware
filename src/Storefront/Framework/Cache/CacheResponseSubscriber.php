@@ -25,57 +25,29 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 class CacheResponseSubscriber implements EventSubscriberInterface
 {
-    public const STATE_LOGGED_IN = CacheStateSubscriber::STATE_LOGGED_IN;
-    public const STATE_CART_FILLED = CacheStateSubscriber::STATE_CART_FILLED;
+    final public const STATE_LOGGED_IN = CacheStateSubscriber::STATE_LOGGED_IN;
+    final public const STATE_CART_FILLED = CacheStateSubscriber::STATE_CART_FILLED;
 
-    public const CURRENCY_COOKIE = 'sw-currency';
-    public const CONTEXT_CACHE_COOKIE = 'sw-cache-hash';
-    public const SYSTEM_STATE_COOKIE = 'sw-states';
-    public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
+    final public const CURRENCY_COOKIE = 'sw-currency';
+    final public const CONTEXT_CACHE_COOKIE = 'sw-cache-hash';
+    final public const SYSTEM_STATE_COOKIE = 'sw-states';
+    final public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
 
     private const CORE_HTTP_CACHED_ROUTES = [
         'api.acl.privileges.get',
     ];
 
-    private bool $reverseProxyEnabled;
-
-    private CartService $cartService;
-
-    private int $defaultTtl;
-
-    private bool $httpCacheEnabled;
-
-    private MaintenanceModeResolver $maintenanceResolver;
-
-    private ?string $staleWhileRevalidate;
-
-    private ?string $staleIfError;
-
     /**
      * @internal
      */
-    public function __construct(
-        CartService $cartService,
-        int $defaultTtl,
-        bool $httpCacheEnabled,
-        MaintenanceModeResolver $maintenanceModeResolver,
-        bool $reverseProxyEnabled,
-        ?string $staleWhileRevalidate,
-        ?string $staleIfError
-    ) {
-        $this->cartService = $cartService;
-        $this->defaultTtl = $defaultTtl;
-        $this->httpCacheEnabled = $httpCacheEnabled;
-        $this->maintenanceResolver = $maintenanceModeResolver;
-        $this->reverseProxyEnabled = $reverseProxyEnabled;
-        $this->staleWhileRevalidate = $staleWhileRevalidate;
-        $this->staleIfError = $staleIfError;
+    public function __construct(private readonly CartService $cartService, private readonly int $defaultTtl, private readonly bool $httpCacheEnabled, private readonly MaintenanceModeResolver $maintenanceResolver, private readonly bool $reverseProxyEnabled, private readonly ?string $staleWhileRevalidate, private readonly ?string $staleIfError)
+    {
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => 'addHttpCacheToCoreRoutes',

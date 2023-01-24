@@ -11,19 +11,16 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class GoogleReCaptchaV3 extends AbstractCaptcha
 {
-    public const CAPTCHA_NAME = 'googleReCaptchaV3';
-    public const CAPTCHA_REQUEST_PARAMETER = '_grecaptcha_v3';
+    final public const CAPTCHA_NAME = 'googleReCaptchaV3';
+    final public const CAPTCHA_REQUEST_PARAMETER = '_grecaptcha_v3';
     private const GOOGLE_CAPTCHA_VERIFY_ENDPOINT = 'https://www.google.com/recaptcha/api/siteverify';
     private const DEFAULT_THRESHOLD_SCORE = 0.5;
-
-    private ClientInterface $client;
 
     /**
      * @internal
      */
-    public function __construct(ClientInterface $client)
+    public function __construct(private readonly ClientInterface $client)
     {
-        $this->client = $client;
     }
 
     /**
@@ -58,7 +55,7 @@ class GoogleReCaptchaV3 extends AbstractCaptcha
             $thresholdScore = !empty($captchaConfig['config']['thresholdScore']) ? (float) $captchaConfig['config']['thresholdScore'] : self::DEFAULT_THRESHOLD_SCORE;
 
             return $response && (bool) $response['success'] && (float) $response['score'] >= $thresholdScore;
-        } catch (ClientExceptionInterface $exception) {
+        } catch (ClientExceptionInterface) {
             return false;
         }
     }

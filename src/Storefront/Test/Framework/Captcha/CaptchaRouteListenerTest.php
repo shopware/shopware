@@ -110,7 +110,7 @@ class CaptchaRouteListenerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
 
         $responseContent = $response->getContent() ?: '';
-        $content = (array) json_decode($responseContent);
+        $content = (array) json_decode($responseContent, null, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(1, $content);
         static::assertObjectHasAttribute('type', $content[0]);
@@ -179,7 +179,7 @@ class CaptchaRouteListenerTest extends TestCase
             function (): void {
             },
             self::getRequest($this->getRequestAttributes(true)),
-            HttpKernelInterface::MASTER_REQUEST
+            HttpKernelInterface::MAIN_REQUEST
         );
     }
 

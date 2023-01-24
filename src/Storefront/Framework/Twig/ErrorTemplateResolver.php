@@ -48,8 +48,6 @@ class ErrorTemplateResolver
 
         $template .= '.html.twig';
 
-        $result = new ErrorTemplateStruct($template, ['exception' => $exception]);
-
-        return $result;
+        return new ErrorTemplateStruct($template, ['exception' => $exception]);
     }
 }

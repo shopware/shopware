@@ -29,35 +29,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CheckoutRegisterPageLoader
 {
-    private GenericPageLoaderInterface $genericLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private CartService $cartService;
-
-    private AbstractSalutationRoute $salutationRoute;
-
-    private AbstractCountryRoute $countryRoute;
-
-    private AbstractListAddressRoute $listAddressRoute;
-
     /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        AbstractListAddressRoute $listAddressRoute,
-        EventDispatcherInterface $eventDispatcher,
-        CartService $cartService,
-        AbstractSalutationRoute $salutationRoute,
-        AbstractCountryRoute $countryRoute
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartService = $cartService;
-        $this->salutationRoute = $salutationRoute;
-        $this->countryRoute = $countryRoute;
-        $this->listAddressRoute = $listAddressRoute;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly AbstractListAddressRoute $listAddressRoute, private readonly EventDispatcherInterface $eventDispatcher, private readonly CartService $cartService, private readonly AbstractSalutationRoute $salutationRoute, private readonly AbstractCountryRoute $countryRoute)
+    {
     }
 
     /**
@@ -125,9 +101,7 @@ class CheckoutRegisterPageLoader
     {
         $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
 
-        $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
-            return $b->getSalutationKey() <=> $a->getSalutationKey();
-        });
+        $salutations->sort(fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
 
         return $salutations;
     }

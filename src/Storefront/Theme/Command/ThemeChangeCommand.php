@@ -29,33 +29,20 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class ThemeChangeCommand extends Command
 {
-    private ThemeService $themeService;
-
-    private StorefrontPluginRegistryInterface $pluginRegistry;
-
-    private EntityRepository $salesChannelRepository;
-
-    private Context $context;
+    private readonly Context $context;
 
     private SymfonyStyle $io;
-
-    private EntityRepository $themeRepository;
 
     /**
      * @internal
      */
     public function __construct(
-        ThemeService $themeService,
-        StorefrontPluginRegistryInterface $pluginRegistry,
-        EntityRepository $salesChannelRepository,
-        EntityRepository $themeRepository
+        private readonly ThemeService $themeService,
+        private readonly StorefrontPluginRegistryInterface $pluginRegistry,
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly EntityRepository $themeRepository
     ) {
         parent::__construct();
-
-        $this->themeService = $themeService;
-        $this->pluginRegistry = $pluginRegistry;
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->themeRepository = $themeRepository;
         $this->context = Context::createDefaultContext();
     }
 

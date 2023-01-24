@@ -286,7 +286,7 @@ class RegisterControllerTest extends TestCase
         $queryData = new QueryDataBag();
         $queryData->set('redirectTo', 'frontend.checkout.confirm.page');
         $queryData->set('hash', $customer->first()->getHash());
-        $queryData->set('em', hash('sha1', $event->getCustomer()->getEmail()));
+        $queryData->set('em', hash('sha1', (string) $event->getCustomer()->getEmail()));
 
         /** @var RedirectResponse $response */
         $response = $registerController->confirmRegistration($this->salesChannelContext, $queryData);

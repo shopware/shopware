@@ -13,13 +13,13 @@ use Shopware\Core\Framework\Feature;
  */
 class NoStore
 {
-    public const ALIAS = 'noStore';
+    final public const ALIAS = 'noStore';
 
     public function getAliasName(): string
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         return self::ALIAS;
@@ -29,7 +29,7 @@ class NoStore
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         return false;

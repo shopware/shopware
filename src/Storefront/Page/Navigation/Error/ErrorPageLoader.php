@@ -23,31 +23,10 @@ use Symfony\Component\HttpFoundation\Request;
 class ErrorPageLoader implements ErrorPageLoaderInterface
 {
     /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var SalesChannelCmsPageLoaderInterface
-     */
-    private $cmsPageLoader;
-
-    /**
      * @internal
      */
-    public function __construct(
-        SalesChannelCmsPageLoaderInterface $cmsPageLoader,
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->genericLoader = $genericLoader;
-        $this->cmsPageLoader = $cmsPageLoader;
+    public function __construct(private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader, private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**

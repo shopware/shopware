@@ -26,7 +26,7 @@ class ProductPage extends Page
      */
     protected $cmsPage;
 
-    protected ?string $navigationId;
+    protected ?string $navigationId = null;
 
     /**
      * @var PropertyGroupCollection

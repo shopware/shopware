@@ -16,24 +16,10 @@ use Symfony\Component\HttpFoundation\Request;
 class NewsletterSubscribePageLoader
 {
     /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**

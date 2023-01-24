@@ -158,14 +158,10 @@ class StorefrontControllerTest extends TestCase
      */
     private function getTranslator(ErrorCollection $errors): array
     {
-        $argumentValidation = array_map(static function (Error $error): array {
-            return [
-                static::equalTo('checkout.' . $error->getMessageKey()),
-                static::callback(static function (array $parameters): bool {
-                    return \array_key_exists('%url%', $parameters) && $parameters['%url%'] === self::URL;
-                }),
-            ];
-        }, $errors->getElements());
+        $argumentValidation = array_map(static fn (Error $error): array => [
+            static::equalTo('checkout.' . $error->getMessageKey()),
+            static::callback(static fn (array $parameters): bool => \array_key_exists('%url%', $parameters) && $parameters['%url%'] === self::URL),
+        ], $errors->getElements());
 
         $translator = static::createMock(TranslatorInterface::class);
         $translator->expects(static::exactly(\count($errors)))

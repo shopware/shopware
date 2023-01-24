@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoadedHook;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoader;
@@ -11,32 +10,21 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"storefront"}})
- *
  * @package content
  *
  * @internal
  */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
 class LandingPageController extends StorefrontController
 {
     /**
-     * @var LandingPageLoader
-     */
-    private $landingPageLoader;
-
-    /**
      * @internal
      */
-    public function __construct(
-        LandingPageLoader $landingPageLoader
-    ) {
-        $this->landingPageLoader = $landingPageLoader;
+    public function __construct(private readonly LandingPageLoader $landingPageLoader)
+    {
     }
 
-    /**
-     * @Since("6.4.0.0")
-     * @Route("/landingPage/{landingPageId}", name="frontend.landing.page", methods={"GET"}, defaults={"_httpCache"=true})
-     */
+    #[Route(path: '/landingPage/{landingPageId}', name: 'frontend.landing.page', defaults: ['_httpCache' => true], methods: ['GET'])]
     public function index(SalesChannelContext $context, Request $request): Response
     {
         $page = $this->landingPageLoader->load($request, $context);

@@ -20,27 +20,12 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class CaptchaRouteListener implements EventSubscriberInterface
 {
     /**
-     * @var iterable<AbstractCaptcha>
-     */
-    private iterable $captchas;
-
-    private ErrorController $errorController;
-
-    private SystemConfigService $systemConfigService;
-
-    /**
      * @internal
      *
      * @param iterable<AbstractCaptcha> $captchas
      */
-    public function __construct(
-        iterable $captchas,
-        ErrorController $errorController,
-        SystemConfigService $systemConfigService
-    ) {
-        $this->captchas = $captchas;
-        $this->errorController = $errorController;
-        $this->systemConfigService = $systemConfigService;
+    public function __construct(private readonly iterable $captchas, private readonly ErrorController $errorController, private readonly SystemConfigService $systemConfigService)
+    {
     }
 
     /**
@@ -83,12 +68,7 @@ class CaptchaRouteListener implements EventSubscriberInterface
 
                 $violations = $captcha->getViolations();
 
-                $event->setController(function () use (
-                    $violations,
-                    $request
-                ) {
-                    return $this->errorController->onCaptchaFailure($violations, $request);
-                });
+                $event->setController(fn () => $this->errorController->onCaptchaFailure($violations, $request));
 
                 // Return on first invalid captcha
                 return;

@@ -18,31 +18,10 @@ use Symfony\Component\HttpFoundation\Request;
 class SearchPageLoader
 {
     /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var AbstractProductSearchRoute
-     */
-    private $productSearchRoute;
-
-    /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        AbstractProductSearchRoute $productSearchRoute,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->productSearchRoute = $productSearchRoute;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly AbstractProductSearchRoute $productSearchRoute, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**

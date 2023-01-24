@@ -9,20 +9,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class ThemeCompilerConcatenatedScriptsEvent extends Event
 {
-    /**
-     * @var string
-     */
-    private $concatenatedScripts;
-
-    /**
-     * @var string
-     */
-    private $salesChannelId;
-
-    public function __construct(string $concatenatedScripts, string $salesChannelId)
+    public function __construct(private string $concatenatedScripts, private readonly string $salesChannelId)
     {
-        $this->concatenatedScripts = $concatenatedScripts;
-        $this->salesChannelId = $salesChannelId;
     }
 
     public function getConcatenatedScripts(): string

@@ -8,15 +8,12 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @package storefront
  *
- * @Route(".well-known/", defaults={"_routeScope"={"storefront"}})
- *
  * @internal
  */
+#[Route(path: '.well-known/', defaults: ['_routeScope' => ['storefront']])]
 class WellKnownController extends StorefrontController
 {
-    /**
-     * @Route("change-password", name="frontend.well-known.change-password", methods={"GET"})
-     */
+    #[Route(path: 'change-password', name: 'frontend.well-known.change-password', methods: ['GET'])]
     public function changePassword(): Response
     {
         return $this->redirectToRoute(

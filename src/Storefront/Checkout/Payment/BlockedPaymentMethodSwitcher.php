@@ -22,11 +22,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class BlockedPaymentMethodSwitcher
 {
-    private AbstractPaymentMethodRoute $paymentMethodRoute;
-
-    public function __construct(AbstractPaymentMethodRoute $paymentMethodRoute)
+    public function __construct(private readonly AbstractPaymentMethodRoute $paymentMethodRoute)
     {
-        $this->paymentMethodRoute = $paymentMethodRoute;
     }
 
     public function switch(ErrorCollection $errors, SalesChannelContext $salesChannelContext): PaymentMethodEntity
@@ -59,9 +56,7 @@ class BlockedPaymentMethodSwitcher
 
     private function getPaymentMethodToChangeTo(ErrorCollection $errors, SalesChannelContext $salesChannelContext): ?PaymentMethodEntity
     {
-        $blockedPaymentMethodNames = $errors->fmap(static function (Error $error) {
-            return $error instanceof PaymentMethodBlockedError ? $error->getName() : null;
-        });
+        $blockedPaymentMethodNames = $errors->fmap(static fn (Error $error) => $error instanceof PaymentMethodBlockedError ? $error->getName() : null);
 
         $request = new Request(['onlyAvailable' => true]);
         $defaultPaymentMethod = $this->paymentMethodRoute->load(

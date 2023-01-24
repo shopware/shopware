@@ -147,7 +147,7 @@ class FormControllerTest extends TestCase
         $responseContent = $response->getContent();
         $content = (array) json_decode((string) $responseContent, false, 512, \JSON_THROW_ON_ERROR);
         $type = $content[0]->type;
-        $messageCount = mb_substr_count($content[0]->alert, '<li>');
+        $messageCount = mb_substr_count((string) $content[0]->alert, '<li>');
 
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());

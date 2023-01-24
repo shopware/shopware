@@ -19,15 +19,12 @@ class MaintenancePageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'maintenance-page-loaded';
+    final public const HOOK_NAME = 'maintenance-page-loaded';
 
-    private MaintenancePage $page;
-
-    public function __construct(MaintenancePage $page, SalesChannelContext $context)
+    public function __construct(private readonly MaintenancePage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

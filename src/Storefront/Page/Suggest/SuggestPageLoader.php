@@ -18,31 +18,10 @@ use Symfony\Component\HttpFoundation\Request;
 class SuggestPageLoader
 {
     /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var AbstractProductSuggestRoute
-     */
-    private $productSuggestRoute;
-
-    /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        AbstractProductSuggestRoute $productSuggestRoute,
-        GenericPageLoaderInterface $genericLoader
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->productSuggestRoute = $productSuggestRoute;
-        $this->genericLoader = $genericLoader;
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractProductSuggestRoute $productSuggestRoute, private readonly GenericPageLoaderInterface $genericLoader)
+    {
     }
 
     /**

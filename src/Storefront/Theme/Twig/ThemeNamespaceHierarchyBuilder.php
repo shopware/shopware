@@ -25,25 +25,17 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
      */
     private array $themes = [];
 
-    private ThemeInheritanceBuilderInterface $themeInheritanceBuilder;
-
-    private SalesChannelThemeLoader $salesChannelThemeLoader;
-
     /**
      * @internal
      */
-    public function __construct(
-        ThemeInheritanceBuilderInterface $themeInheritanceBuilder,
-        SalesChannelThemeLoader $salesChannelThemeLoader
-    ) {
-        $this->themeInheritanceBuilder = $themeInheritanceBuilder;
-        $this->salesChannelThemeLoader = $salesChannelThemeLoader;
+    public function __construct(private readonly ThemeInheritanceBuilderInterface $themeInheritanceBuilder, private readonly SalesChannelThemeLoader $salesChannelThemeLoader)
+    {
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => 'requestEvent',
@@ -103,6 +95,7 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
      */
     private function detectedThemes(Request $request): array
     {
+        $themes = [];
         // get name if theme is not inherited
         $theme = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
 

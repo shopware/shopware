@@ -17,27 +17,15 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface, ResetInterface
 {
-    public const BASE_THEME_NAME = 'Storefront';
+    final public const BASE_THEME_NAME = 'Storefront';
 
     private ?StorefrontPluginConfigurationCollection $pluginConfigurations = null;
-
-    private KernelInterface $kernel;
-
-    private AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory;
-
-    private ActiveAppsLoader $activeAppsLoader;
 
     /**
      * @internal
      */
-    public function __construct(
-        KernelInterface $kernel,
-        AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
-        ActiveAppsLoader $activeAppsLoader
-    ) {
-        $this->kernel = $kernel;
-        $this->pluginConfigurationFactory = $pluginConfigurationFactory;
-        $this->activeAppsLoader = $activeAppsLoader;
+    public function __construct(private readonly KernelInterface $kernel, private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory, private readonly ActiveAppsLoader $activeAppsLoader)
+    {
     }
 
     public function getConfigurations(): StorefrontPluginConfigurationCollection

@@ -25,20 +25,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 {
-    private EntityRepository $snippetSetRepository;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $snippetSetRepository,
+        private readonly EntityRepository $snippetSetRepository,
         SalesChannelCreator $salesChannelCreator
     ) {
         parent::__construct(
             $salesChannelCreator
         );
-
-        $this->snippetSetRepository = $snippetSetRepository;
     }
 
     protected function configure(): void

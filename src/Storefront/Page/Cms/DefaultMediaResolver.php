@@ -14,20 +14,11 @@ class DefaultMediaResolver extends AbstractDefaultMediaResolver
 {
     private const CMS_SNIPPET_DEFAULT_MEDIA_NAME = 'component.cms.defaultMedia';
 
-    private Translator $translator;
-
-    private Packages $packages;
-
-    private AbstractDefaultMediaResolver $decorated;
-
     /**
      * @internal
      */
-    public function __construct(AbstractDefaultMediaResolver $decorated, Translator $translator, Packages $packages)
+    public function __construct(private readonly AbstractDefaultMediaResolver $decorated, private readonly Translator $translator, private readonly Packages $packages)
     {
-        $this->decorated = $decorated;
-        $this->translator = $translator;
-        $this->packages = $packages;
     }
 
     public function getDecorated(): AbstractDefaultMediaResolver

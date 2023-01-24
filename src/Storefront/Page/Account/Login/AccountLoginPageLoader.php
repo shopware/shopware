@@ -23,38 +23,10 @@ use Symfony\Component\HttpFoundation\Request;
 class AccountLoginPageLoader
 {
     /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var AbstractCountryRoute
-     */
-    private $countryRoute;
-
-    /**
-     * @var AbstractSalutationRoute
-     */
-    private $salutationRoute;
-
-    /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractCountryRoute $countryRoute,
-        AbstractSalutationRoute $salutationRoute
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->countryRoute = $countryRoute;
-        $this->salutationRoute = $salutationRoute;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractCountryRoute $countryRoute, private readonly AbstractSalutationRoute $salutationRoute)
+    {
     }
 
     /**
@@ -90,9 +62,7 @@ class AccountLoginPageLoader
     {
         $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
 
-        $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
-            return $b->getSalutationKey() <=> $a->getSalutationKey();
-        });
+        $salutations->sort(fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
 
         return $salutations;
     }

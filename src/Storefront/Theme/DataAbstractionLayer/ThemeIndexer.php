@@ -23,27 +23,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class ThemeIndexer extends EntityIndexer
 {
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepository $repository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        Connection $connection,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->connection = $connection;
+    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function getName(): string

@@ -19,15 +19,12 @@ class SearchPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'search-page-loaded';
+    final public const HOOK_NAME = 'search-page-loaded';
 
-    private SearchPage $page;
-
-    public function __construct(SearchPage $page, SalesChannelContext $context)
+    public function __construct(private readonly SearchPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

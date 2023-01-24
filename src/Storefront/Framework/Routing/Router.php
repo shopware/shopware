@@ -21,19 +21,13 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     /**
      * @var int Used to indicate the router that we only need the path info without the sales channel prefix
      */
-    public const PATH_INFO = 10;
-
-    private SymfonyRouter $decorated;
-
-    private RequestStack $requestStack;
+    final public const PATH_INFO = 10;
 
     /**
      * @internal
      */
-    public function __construct(SymfonyRouter $decorated, RequestStack $requestStack)
+    public function __construct(private readonly SymfonyRouter $decorated, private readonly RequestStack $requestStack)
     {
-        $this->decorated = $decorated;
-        $this->requestStack = $requestStack;
     }
 
     /**
@@ -47,7 +41,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     /**
      * @return array<string>
      */
-    public function warmUp(string $cacheDir)
+    public function warmUp(string $cacheDir): array
     {
         return $this->decorated->warmUp($cacheDir);
     }
@@ -87,7 +81,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     {
         $basePath = $this->getBasePath();
         if ($referenceType === self::PATH_INFO) {
-            $route = $this->decorated->generate($name, $parameters, self::ABSOLUTE_PATH);
+            $route = $this->decorated->generate($name, $parameters);
 
             return $this->removePrefix($route, $basePath);
         }
@@ -191,8 +185,8 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     private function isStorefrontRoute(string $name): bool
     {
-        return strncmp($name, 'frontend.', 9) === 0
-            || strncmp($name, 'widgets.', 8) === 0
-            || strncmp($name, 'payment.', 8) === 0;
+        return str_starts_with($name, 'frontend.')
+            || str_starts_with($name, 'widgets.')
+            || str_starts_with($name, 'payment.');
     }
 }

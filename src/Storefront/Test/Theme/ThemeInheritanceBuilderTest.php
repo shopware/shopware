@@ -17,7 +17,6 @@ use Shopware\Storefront\Test\Theme\fixtures\ThemeWithoutStorefront\ThemeWithoutS
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilder;
 
 /**
@@ -27,20 +26,11 @@ class ThemeInheritanceBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var StorefrontPluginRegistryInterface|MockObject
-     */
-    private $themeRegistryMock;
+    private MockObject&StorefrontPluginRegistry $themeRegistryMock;
 
-    /**
-     * @var ThemeInheritanceBuilder
-     */
-    private $builder;
+    private ThemeInheritanceBuilder $builder;
 
-    /**
-     * @var StorefrontPluginConfigurationFactory
-     */
-    private $configFactory;
+    private StorefrontPluginConfigurationFactory $configFactory;
 
     public function setUp(): void
     {

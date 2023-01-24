@@ -13,16 +13,13 @@ use Twig\Extension\CoreExtension;
  */
 class TwigDateRequestListener implements EventSubscriberInterface
 {
-    public const TIMEZONE_COOKIE = 'timezone';
-
-    private ContainerInterface $container;
+    final public const TIMEZONE_COOKIE = 'timezone';
 
     /**
      * @internal
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(private readonly ContainerInterface $container)
     {
-        $this->container = $container;
     }
 
     /**

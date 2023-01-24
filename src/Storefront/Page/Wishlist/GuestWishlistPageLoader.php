@@ -13,24 +13,10 @@ use Symfony\Component\HttpFoundation\Request;
 class GuestWishlistPageLoader
 {
     /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericPageLoader;
-
-    /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericPageLoader,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->genericPageLoader = $genericPageLoader;
+    public function __construct(private readonly GenericPageLoaderInterface $genericPageLoader, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function load(Request $request, SalesChannelContext $context): GuestWishlistPage

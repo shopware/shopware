@@ -26,27 +26,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class HeaderPageletLoader implements HeaderPageletLoaderInterface
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AbstractCurrencyRoute $currencyRoute;
-
-    private AbstractLanguageRoute $languageRoute;
-
-    private NavigationLoaderInterface $navigationLoader;
-
     /**
      * @internal
      */
-    public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        AbstractCurrencyRoute $currencyRoute,
-        AbstractLanguageRoute $languageRoute,
-        NavigationLoaderInterface $navigationLoader
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->currencyRoute = $currencyRoute;
-        $this->languageRoute = $languageRoute;
-        $this->navigationLoader = $navigationLoader;
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractCurrencyRoute $currencyRoute, private readonly AbstractLanguageRoute $languageRoute, private readonly NavigationLoaderInterface $navigationLoader)
+    {
     }
 
     /**
@@ -108,9 +92,7 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
 
         $navigation = $this->navigationLoader->load($serviceId, $context, $serviceId, 1);
 
-        return new CategoryCollection(array_map(static function (TreeItem $treeItem) {
-            return $treeItem->getCategory();
-        }, $navigation->getTree()));
+        return new CategoryCollection(array_map(static fn (TreeItem $treeItem) => $treeItem->getCategory(), $navigation->getTree()));
     }
 
     private function getLanguages(SalesChannelContext $context, Request $request): LanguageCollection

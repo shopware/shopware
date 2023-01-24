@@ -27,27 +27,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class AccountOrderPageLoader
 {
-    private GenericPageLoaderInterface $genericLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AbstractOrderRoute $orderRoute;
-
-    private AccountService $accountService;
-
     /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractOrderRoute $orderRoute,
-        AccountService $accountService
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->orderRoute = $orderRoute;
-        $this->accountService = $accountService;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractOrderRoute $orderRoute, private readonly AccountService $accountService)
+    {
     }
 
     /**

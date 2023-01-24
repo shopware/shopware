@@ -17,14 +17,11 @@ use Shopware\Storefront\Theme\ThemeCollection;
  */
 class DatabaseAvailableThemeProvider extends AbstractAvailableThemeProvider
 {
-    private EntityRepository $salesChannelRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $salesChannelRepository)
+    public function __construct(private readonly EntityRepository $salesChannelRepository)
     {
-        $this->salesChannelRepository = $salesChannelRepository;
     }
 
     public function getDecorated(): AbstractAvailableThemeProvider

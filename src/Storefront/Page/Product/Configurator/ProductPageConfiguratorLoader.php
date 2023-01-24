@@ -14,16 +14,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class ProductPageConfiguratorLoader extends ProductConfiguratorLoader
 {
     /**
-     * @var ProductConfiguratorLoader
-     */
-    private $loader;
-
-    /**
      * @internal
      */
-    public function __construct(ProductConfiguratorLoader $decorated)
+    public function __construct(private readonly ProductConfiguratorLoader $loader)
     {
-        $this->loader = $decorated;
     }
 
     /**

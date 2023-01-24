@@ -21,38 +21,10 @@ use Symfony\Component\HttpFoundation\Request;
 class NavigationPageLoader implements NavigationPageLoaderInterface
 {
     /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var AbstractCategoryRoute
-     */
-    private $cmsPageRoute;
-
-    /**
-     * @var SeoUrlPlaceholderHandlerInterface
-     */
-    private $seoUrlReplacer;
-
-    /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractCategoryRoute $cmsPageRoute,
-        SeoUrlPlaceholderHandlerInterface $seoUrlReplacer
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cmsPageRoute = $cmsPageRoute;
-        $this->seoUrlReplacer = $seoUrlReplacer;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractCategoryRoute $cmsPageRoute, private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer)
+    {
     }
 
     public function load(Request $request, SalesChannelContext $context): NavigationPage

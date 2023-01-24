@@ -18,24 +18,12 @@ use Symfony\Component\HttpFoundation\Response;
 class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
 {
     /**
-     * @var array<string>
-     */
-    private array $hosts;
-
-    private Client $client;
-
-    private int $concurrency;
-
-    /**
      * @internal
      *
      * @param string[] $hosts
      */
-    public function __construct(array $hosts, int $concurrency, Client $client)
+    public function __construct(private readonly array $hosts, private readonly int $concurrency, private readonly Client $client)
     {
-        $this->hosts = $hosts;
-        $this->concurrency = $concurrency;
-        $this->client = $client;
     }
 
     public function getDecorated(): AbstractReverseProxyGateway

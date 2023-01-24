@@ -14,19 +14,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class CartMergedSubscriber implements EventSubscriberInterface
 {
-    private TranslatorInterface $translator;
-
-    private RequestStack $requestStack;
-
     /**
      * @internal
      */
-    public function __construct(
-        TranslatorInterface $translator,
-        RequestStack $requestStack
-    ) {
-        $this->translator = $translator;
-        $this->requestStack = $requestStack;
+    public function __construct(private readonly TranslatorInterface $translator, private readonly RequestStack $requestStack)
+    {
     }
 
     public static function getSubscribedEvents(): array

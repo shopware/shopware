@@ -19,15 +19,12 @@ class SuggestPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'suggest-page-loaded';
+    final public const HOOK_NAME = 'suggest-page-loaded';
 
-    private SuggestPage $page;
-
-    public function __construct(SuggestPage $page, SalesChannelContext $context)
+    public function __construct(private readonly SuggestPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

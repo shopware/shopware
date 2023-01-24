@@ -16,22 +16,10 @@ use Symfony\Component\HttpFoundation\Request;
 class MinimalQuickViewPageLoader
 {
     /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var AbstractProductDetailRoute
-     */
-    private $productRoute;
-
-    /**
      * @internal
      */
-    public function __construct(EventDispatcherInterface $eventDispatcher, AbstractProductDetailRoute $productRoute)
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractProductDetailRoute $productRoute)
     {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->productRoute = $productRoute;
     }
 
     /**

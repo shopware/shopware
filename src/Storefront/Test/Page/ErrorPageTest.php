@@ -24,30 +24,18 @@ class ErrorPageTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
-    /**
-     * @var EntityRepository
-     */
-    private $systemConfigRepository;
+    private EntityRepository $systemConfigRepository;
 
     /**
      * @var SalesChannelContext
      */
     private $salesChannelContext;
 
-    /**
-     * @var EntityRepository
-     */
-    private $cmsPageRepository;
+    private EntityRepository $cmsPageRepository;
 
-    /**
-     * @var string
-     */
-    private $errorLayoutId;
+    private string $errorLayoutId;
 
     public function setUp(): void
     {

@@ -14,17 +14,14 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
  */
 class ThemeFileResolver
 {
-    public const SCRIPT_FILES = 'script';
-    public const STYLE_FILES = 'style';
-
-    private ThemeFileImporterInterface $themeFileImporter;
+    final public const SCRIPT_FILES = 'script';
+    final public const STYLE_FILES = 'style';
 
     /**
      * @internal
      */
-    public function __construct(ThemeFileImporterInterface $themeFileImporter)
+    public function __construct(private readonly ThemeFileImporterInterface $themeFileImporter)
     {
-        $this->themeFileImporter = $themeFileImporter;
     }
 
     /**
@@ -78,9 +75,7 @@ class ThemeFileResolver
                 $themeConfig,
                 $configurationCollection,
                 $onlySourceFiles,
-                function (StorefrontPluginConfiguration $configuration) {
-                    return $configuration->getStyleFiles();
-                }
+                fn (StorefrontPluginConfiguration $configuration) => $configuration->getStyleFiles()
             ),
         ];
     }
@@ -168,7 +163,7 @@ class ThemeFileResolver
 
     private function isInclude(string $file): bool
     {
-        return strpos($file, '@') === 0;
+        return str_starts_with($file, '@');
     }
 
     private function convertPathsToAbsolute(FileCollection $files): void

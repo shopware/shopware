@@ -25,42 +25,10 @@ use Symfony\Component\HttpFoundation\Request;
 class AccountOverviewPageLoader
 {
     /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var AbstractOrderRoute
-     */
-    private $orderRoute;
-
-    /**
-     * @var AbstractCustomerRoute
-     */
-    private $customerRoute;
-
-    private NewsletterAccountPageletLoader $newsletterAccountPageletLoader;
-
-    /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractOrderRoute $orderRoute,
-        AbstractCustomerRoute $customerRoute,
-        NewsletterAccountPageletLoader $newsletterAccountPageletLoader
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->orderRoute = $orderRoute;
-        $this->customerRoute = $customerRoute;
-        $this->newsletterAccountPageletLoader = $newsletterAccountPageletLoader;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractOrderRoute $orderRoute, private readonly AbstractCustomerRoute $customerRoute, private readonly NewsletterAccountPageletLoader $newsletterAccountPageletLoader)
+    {
     }
 
     /**
@@ -76,9 +44,7 @@ class AccountOverviewPageLoader
         $page = AccountOverviewPage::createFrom($page);
         $page->setCustomer($this->loadCustomer($salesChannelContext, $customer));
 
-        if ($page->getMetaInformation()) {
-            $page->getMetaInformation()->setRobots('noindex,follow');
-        }
+        $page->getMetaInformation()?->setRobots('noindex,follow');
 
         $order = $this->loadNewestOrder($salesChannelContext, $request);
 

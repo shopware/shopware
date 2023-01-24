@@ -29,23 +29,11 @@ class WishlistPageLoader
 
     private const DEFAULT_PAGE = 1;
 
-    private GenericPageLoaderInterface $genericLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AbstractLoadWishlistRoute $wishlistLoadRoute;
-
     /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        AbstractLoadWishlistRoute $wishlistLoadRoute,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->wishlistLoadRoute = $wishlistLoadRoute;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly AbstractLoadWishlistRoute $wishlistLoadRoute, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**
@@ -64,7 +52,7 @@ class WishlistPageLoader
 
         try {
             $page->setWishlist($this->wishlistLoadRoute->load($request, $context, $criteria, $customer));
-        } catch (CustomerWishlistNotFoundException $exception) {
+        } catch (CustomerWishlistNotFoundException) {
             $page->setWishlist(
                 new LoadWishlistRouteResponse(
                     new CustomerWishlistEntity(),

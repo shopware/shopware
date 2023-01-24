@@ -19,15 +19,12 @@ class ProductPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'product-page-loaded';
+    final public const HOOK_NAME = 'product-page-loaded';
 
-    private ProductPage $page;
-
-    public function __construct(ProductPage $page, SalesChannelContext $context)
+    public function __construct(private readonly ProductPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

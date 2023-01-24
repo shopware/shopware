@@ -13,17 +13,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class ProductPageCriteriaEvent extends Event implements ShopwareSalesChannelEvent
 {
-    protected string $productId;
-
-    protected Criteria $criteria;
-
-    protected SalesChannelContext $context;
-
-    public function __construct(string $productId, Criteria $criteria, SalesChannelContext $context)
+    public function __construct(protected string $productId, protected Criteria $criteria, protected SalesChannelContext $context)
     {
-        $this->productId = $productId;
-        $this->criteria = $criteria;
-        $this->context = $context;
     }
 
     public function getProductId(): string

@@ -15,7 +15,7 @@ use Shopware\Storefront\Theme\ThemeDefinition;
  */
 class ThemeChildDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'theme_child';
+    final public const ENTITY_NAME = 'theme_child';
 
     public function getEntityName(): string
     {

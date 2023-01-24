@@ -34,25 +34,13 @@ class SeoUrlTest extends TestCase
     use StorefrontSalesChannelTestHelper;
     use QueueTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $seoUrlTemplateRepository;
+    private EntityRepository $seoUrlTemplateRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $landingPageRepository;
+    private EntityRepository $landingPageRepository;
 
-    /**
-     * @var SeoUrlGenerator
-     */
-    private $seoUrlGenerator;
+    private SeoUrlGenerator $seoUrlGenerator;
 
     public function setUp(): void
     {
@@ -226,7 +214,7 @@ class SeoUrlTest extends TestCase
             ],
         ];
 
-        $categories = array_merge($categoryLink, $categoryPage);
+        $categories = [...$categoryLink, ...$categoryPage];
         $categoryRepository->create($categories, Context::createDefaultContext());
         $this->runWorker();
 

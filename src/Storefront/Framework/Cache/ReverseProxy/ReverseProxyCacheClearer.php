@@ -9,14 +9,11 @@ use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
  */
 class ReverseProxyCacheClearer implements CacheClearerInterface
 {
-    protected AbstractReverseProxyGateway $gateway;
-
     /**
      * @internal
      */
-    public function __construct(AbstractReverseProxyGateway $gateway)
+    public function __construct(protected AbstractReverseProxyGateway $gateway)
     {
-        $this->gateway = $gateway;
     }
 
     public function clear(string $cacheDir): void

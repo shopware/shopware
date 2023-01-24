@@ -25,23 +25,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CheckoutFinishPageLoader
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private GenericPageLoaderInterface $genericLoader;
-
-    private AbstractOrderRoute $orderRoute;
-
     /**
      * @internal
      */
-    public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        GenericPageLoaderInterface $genericLoader,
-        AbstractOrderRoute $orderRoute
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->genericLoader = $genericLoader;
-        $this->orderRoute = $orderRoute;
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly GenericPageLoaderInterface $genericLoader, private readonly AbstractOrderRoute $orderRoute)
+    {
     }
 
     /**
@@ -124,7 +112,7 @@ class CheckoutFinishPageLoader
             $searchResult = $this->orderRoute
                 ->load(new Request(), $salesChannelContext, $criteria)
                 ->getOrders();
-        } catch (InvalidUuidException $e) {
+        } catch (InvalidUuidException) {
             throw OrderException::orderNotFound($orderId);
         }
 

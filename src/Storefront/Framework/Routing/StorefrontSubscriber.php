@@ -38,43 +38,11 @@ use Symfony\Component\Routing\RouterInterface;
  */
 class StorefrontSubscriber implements EventSubscriberInterface
 {
-    private RequestStack $requestStack;
-
-    private RouterInterface $router;
-
-    private MaintenanceModeResolver $maintenanceModeResolver;
-
-    private HreflangLoaderInterface $hreflangLoader;
-
-    private ShopIdProvider $shopIdProvider;
-
-    private ActiveAppsLoader $activeAppsLoader;
-
-    private SystemConfigService $systemConfigService;
-
-    private StorefrontPluginRegistryInterface $themeRegistry;
-
     /**
      * @internal
      */
-    public function __construct(
-        RequestStack $requestStack,
-        RouterInterface $router,
-        HreflangLoaderInterface $hreflangLoader,
-        MaintenanceModeResolver $maintenanceModeResolver,
-        ShopIdProvider $shopIdProvider,
-        ActiveAppsLoader $activeAppsLoader,
-        SystemConfigService $systemConfigService,
-        StorefrontPluginRegistryInterface $themeRegistry
-    ) {
-        $this->requestStack = $requestStack;
-        $this->router = $router;
-        $this->maintenanceModeResolver = $maintenanceModeResolver;
-        $this->hreflangLoader = $hreflangLoader;
-        $this->shopIdProvider = $shopIdProvider;
-        $this->activeAppsLoader = $activeAppsLoader;
-        $this->systemConfigService = $systemConfigService;
-        $this->themeRegistry = $themeRegistry;
+    public function __construct(private readonly RequestStack $requestStack, private readonly RouterInterface $router, private readonly HreflangLoaderInterface $hreflangLoader, private readonly MaintenanceModeResolver $maintenanceModeResolver, private readonly ShopIdProvider $shopIdProvider, private readonly ActiveAppsLoader $activeAppsLoader, private readonly SystemConfigService $systemConfigService, private readonly StorefrontPluginRegistryInterface $themeRegistry)
+    {
     }
 
     public static function getSubscribedEvents(): array
@@ -205,7 +173,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         $parameters = [
             'redirectTo' => $request->attributes->get('_route'),
-            'redirectParameters' => json_encode($request->attributes->get('_route_params')),
+            'redirectParameters' => json_encode($request->attributes->get('_route_params'), \JSON_THROW_ON_ERROR),
         ];
 
         $redirectResponse = new RedirectResponse($this->router->generate('frontend.account.login.page', $parameters));
@@ -245,7 +213,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $isAllowed = $event->getRequest()->attributes->getBoolean('XmlHttpRequest', false);
+        $isAllowed = $event->getRequest()->attributes->getBoolean('XmlHttpRequest');
 
         if ($isAllowed) {
             return;
@@ -302,7 +270,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         try {
             $shopId = $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
+        } catch (AppUrlChangeDetectedException) {
             return;
         }
 

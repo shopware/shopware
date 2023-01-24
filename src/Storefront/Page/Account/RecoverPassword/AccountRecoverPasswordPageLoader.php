@@ -20,23 +20,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class AccountRecoverPasswordPageLoader
 {
-    private GenericPageLoaderInterface $genericLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private CustomerRecoveryIsExpiredRoute $recoveryIsExpiredRoute;
-
     /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher,
-        CustomerRecoveryIsExpiredRoute $recoveryIsExpiredRoute
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->recoveryIsExpiredRoute = $recoveryIsExpiredRoute;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly CustomerRecoveryIsExpiredRoute $recoveryIsExpiredRoute)
+    {
     }
 
     /**

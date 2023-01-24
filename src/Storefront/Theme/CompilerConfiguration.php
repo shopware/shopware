@@ -10,16 +10,10 @@ namespace Shopware\Storefront\Theme;
 class CompilerConfiguration extends AbstractCompilerConfiguration
 {
     /**
-     * @var array<string, mixed>
-     */
-    private array $configuration;
-
-    /**
      * @param array<string, mixed> $configuration
      */
-    public function __construct(array $configuration)
+    public function __construct(private readonly array $configuration)
     {
-        $this->configuration = $configuration;
     }
 
     public function getConfiguration(): array

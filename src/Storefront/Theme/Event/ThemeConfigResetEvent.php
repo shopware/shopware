@@ -9,11 +9,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class ThemeConfigResetEvent extends Event
 {
-    private string $themeId;
-
-    public function __construct(string $themeId)
+    public function __construct(private readonly string $themeId)
     {
-        $this->themeId = $themeId;
     }
 
     public function getThemeId(): string

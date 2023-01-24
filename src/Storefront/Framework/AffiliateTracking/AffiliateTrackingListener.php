@@ -17,8 +17,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 class AffiliateTrackingListener implements EventSubscriberInterface
 {
-    public const AFFILIATE_CODE_KEY = OrderService::AFFILIATE_CODE_KEY;
-    public const CAMPAIGN_CODE_KEY = OrderService::CAMPAIGN_CODE_KEY;
+    final public const AFFILIATE_CODE_KEY = OrderService::AFFILIATE_CODE_KEY;
+    final public const CAMPAIGN_CODE_KEY = OrderService::CAMPAIGN_CODE_KEY;
 
     public static function getSubscribedEvents(): array
     {

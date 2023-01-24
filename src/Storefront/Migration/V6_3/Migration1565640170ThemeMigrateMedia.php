@@ -39,7 +39,7 @@ class Migration1565640170ThemeMigrateMedia extends MigrationStep
                 continue;
             }
 
-            $baseConfig = json_decode($themeConfig['base_config'], true);
+            $baseConfig = json_decode((string) $themeConfig['base_config'], true, 512, \JSON_THROW_ON_ERROR);
 
             if (!\array_key_exists('fields', $baseConfig) || !\is_array($baseConfig['fields'])) {
                 continue;

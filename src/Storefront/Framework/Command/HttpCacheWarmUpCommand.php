@@ -20,17 +20,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 class HttpCacheWarmUpCommand extends Command
 {
     /**
-     * @var CacheWarmer
-     */
-    private $warmer;
-
-    /**
      * @internal
      */
-    public function __construct(CacheWarmer $warmer)
+    public function __construct(private readonly CacheWarmer $warmer)
     {
         parent::__construct();
-        $this->warmer = $warmer;
     }
 
     protected function configure(): void

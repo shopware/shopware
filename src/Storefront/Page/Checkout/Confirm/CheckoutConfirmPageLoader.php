@@ -29,39 +29,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CheckoutConfirmPageLoader
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private StorefrontCartFacade $cartService;
-
-    private AbstractShippingMethodRoute $shippingMethodRoute;
-
-    private AbstractPaymentMethodRoute $paymentMethodRoute;
-
-    private GenericPageLoaderInterface $genericPageLoader;
-
-    private DataValidationFactoryInterface $addressValidationFactory;
-
-    private DataValidator $validator;
-
     /**
      * @internal
      */
-    public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        StorefrontCartFacade $cartService,
-        AbstractShippingMethodRoute $shippingMethodRoute,
-        AbstractPaymentMethodRoute $paymentMethodRoute,
-        GenericPageLoaderInterface $genericPageLoader,
-        DataValidationFactoryInterface $addressValidationFactory,
-        DataValidator $validator
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartService = $cartService;
-        $this->shippingMethodRoute = $shippingMethodRoute;
-        $this->paymentMethodRoute = $paymentMethodRoute;
-        $this->genericPageLoader = $genericPageLoader;
-        $this->addressValidationFactory = $addressValidationFactory;
-        $this->validator = $validator;
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly StorefrontCartFacade $cartService, private readonly AbstractShippingMethodRoute $shippingMethodRoute, private readonly AbstractPaymentMethodRoute $paymentMethodRoute, private readonly GenericPageLoaderInterface $genericPageLoader, private readonly DataValidationFactoryInterface $addressValidationFactory, private readonly DataValidator $validator)
+    {
     }
 
     /**

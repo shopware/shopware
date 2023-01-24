@@ -27,38 +27,22 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class ThemeDumpCommand extends Command
 {
-    private StorefrontPluginRegistryInterface$pluginRegistry;
-
-    private ThemeFileResolver $themeFileResolver;
-
-    private EntityRepository $themeRepository;
-
-    private string $projectDir;
-
-    private Context $context;
+    private readonly Context $context;
 
     private SymfonyStyle $io;
-
-    private StaticFileConfigDumper $staticFileConfigDumper;
 
     /**
      * @internal
      */
     public function __construct(
-        StorefrontPluginRegistryInterface $pluginRegistry,
-        ThemeFileResolver $themeFileResolver,
-        EntityRepository $themeRepository,
-        string $projectDir,
-        StaticFileConfigDumper $staticFileConfigDumper
+        private readonly StorefrontPluginRegistryInterface $pluginRegistry,
+        private readonly ThemeFileResolver $themeFileResolver,
+        private readonly EntityRepository $themeRepository,
+        private readonly string $projectDir,
+        private readonly StaticFileConfigDumper $staticFileConfigDumper
     ) {
         parent::__construct();
-
-        $this->pluginRegistry = $pluginRegistry;
-        $this->themeFileResolver = $themeFileResolver;
-        $this->themeRepository = $themeRepository;
-        $this->projectDir = $projectDir;
         $this->context = Context::createDefaultContext();
-        $this->staticFileConfigDumper = $staticFileConfigDumper;
     }
 
     protected function configure(): void

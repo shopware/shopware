@@ -11,20 +11,14 @@ class ShippingMethodChangedError extends Error
 {
     private const KEY = 'shipping-method-changed';
 
-    private string $oldShippingMethodName;
-
-    private string $newShippingMethodName;
-
     public function __construct(
-        string $oldPaymentMethodName,
-        string $newPaymentMethodName
+        private readonly string $oldShippingMethodName,
+        private readonly string $newShippingMethodName
     ) {
-        $this->oldShippingMethodName = $oldPaymentMethodName;
-        $this->newShippingMethodName = $newPaymentMethodName;
         $this->message = \sprintf(
             '%s shipping is not available for your current cart, the shipping was changed to %s',
-            $oldPaymentMethodName,
-            $newPaymentMethodName
+            $oldShippingMethodName,
+            $newShippingMethodName
         );
 
         parent::__construct($this->message);

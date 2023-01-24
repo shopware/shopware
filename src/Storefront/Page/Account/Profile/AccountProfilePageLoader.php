@@ -23,31 +23,10 @@ use Symfony\Component\HttpFoundation\Request;
 class AccountProfilePageLoader
 {
     /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var AbstractSalutationRoute
-     */
-    private $salutationRoute;
-
-    /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractSalutationRoute $salutationRoute
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->salutationRoute = $salutationRoute;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractSalutationRoute $salutationRoute)
+    {
     }
 
     /**
@@ -88,9 +67,7 @@ class AccountProfilePageLoader
             ->load($event->getStoreApiRequest(), $context, $event->getCriteria())
             ->getSalutations();
 
-        $salutations->sort(static function (SalutationEntity $a, SalutationEntity $b) {
-            return $b->getSalutationKey() <=> $a->getSalutationKey();
-        });
+        $salutations->sort(static fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
 
         return $salutations;
     }

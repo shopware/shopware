@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Script\Api\ScriptResponseEncoder;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
@@ -18,27 +17,16 @@ use Symfony\Component\Routing\Annotation\Route;
  * @package core
  *
  * @internal
- *
- * @Route(defaults={"_routeScope"={"storefront"}})
- *
  * @internal
  */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
 class ScriptController extends StorefrontController
 {
-    private GenericPageLoaderInterface $pageLoader;
-
-    private ScriptResponseEncoder $scriptResponseEncoder;
-
-    public function __construct(GenericPageLoaderInterface $pageLoader, ScriptResponseEncoder $scriptResponseEncoder)
+    public function __construct(private readonly GenericPageLoaderInterface $pageLoader, private readonly ScriptResponseEncoder $scriptResponseEncoder)
     {
-        $this->pageLoader = $pageLoader;
-        $this->scriptResponseEncoder = $scriptResponseEncoder;
     }
 
-    /**
-     * @Since("6.4.9.0")
-     * @Route("/storefront/script/{hook}", name="frontend.script_endpoint", defaults={"XmlHttpRequest"=true}, methods={"GET", "POST"}, requirements={"hook"=".+"})
-     */
+    #[Route(path: '/storefront/script/{hook}', name: 'frontend.script_endpoint', requirements: ['hook' => '.+'], defaults: ['XmlHttpRequest' => true], methods: ['GET', 'POST'])]
     public function execute(string $hook, Request $request, SalesChannelContext $context): Response
     {
         //  blog/update =>  blog-update

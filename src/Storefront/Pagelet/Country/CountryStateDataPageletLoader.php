@@ -13,17 +13,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CountryStateDataPageletLoader
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AbstractCountryStateRoute $countryStateRoute;
-
     /**
      * @internal
      */
-    public function __construct(AbstractCountryStateRoute $countryStateRoute, EventDispatcherInterface $eventDispatcher)
+    public function __construct(private readonly AbstractCountryStateRoute $countryStateRoute, private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->countryStateRoute = $countryStateRoute;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function load(string $countryId, Request $request, SalesChannelContext $context): CountryStateDataPagelet

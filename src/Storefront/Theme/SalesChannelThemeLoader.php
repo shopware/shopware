@@ -16,14 +16,11 @@ class SalesChannelThemeLoader implements ResetInterface
      */
     private array $themes = [];
 
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**

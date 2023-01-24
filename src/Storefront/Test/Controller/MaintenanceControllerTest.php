@@ -39,7 +39,7 @@ class MaintenanceControllerTest extends TestCase
         $this->setMaintenanceMode();
 
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
-        $browser->followRedirects(true);
+        $browser->followRedirects();
 
         $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/');
         $response = $browser->getResponse();

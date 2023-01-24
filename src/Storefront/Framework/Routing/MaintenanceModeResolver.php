@@ -123,6 +123,6 @@ class MaintenanceModeResolver
             return [];
         }
 
-        return json_decode($whitelist, true) ?? [];
+        return json_decode((string) $whitelist, true, 512, \JSON_THROW_ON_ERROR) ?? [];
     }
 }

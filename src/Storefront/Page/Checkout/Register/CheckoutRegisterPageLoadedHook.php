@@ -19,15 +19,12 @@ class CheckoutRegisterPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'checkout-register-page-loaded';
+    final public const HOOK_NAME = 'checkout-register-page-loaded';
 
-    private CheckoutRegisterPage $page;
-
-    public function __construct(CheckoutRegisterPage $page, SalesChannelContext $context)
+    public function __construct(private readonly CheckoutRegisterPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

@@ -24,31 +24,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class AccountOrderDetailPageLoader
 {
     /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var AbstractOrderRoute
-     */
-    private $orderRoute;
-
-    /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractOrderRoute $orderRoute
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->orderRoute = $orderRoute;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractOrderRoute $orderRoute)
+    {
     }
 
     /**

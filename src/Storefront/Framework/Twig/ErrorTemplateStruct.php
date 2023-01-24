@@ -11,27 +11,16 @@ use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
  */
 class ErrorTemplateStruct extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $templateName;
-
-    /**
-     * @var array
-     */
-    protected $arguments;
-
-    /**
-     * @var HeaderPagelet|null
-     */
-    protected $header;
+    protected ?HeaderPagelet $header;
 
     protected ?FooterPagelet $footer = null;
 
-    public function __construct($templateName = '', $arguments = [])
+    /**
+     * @param string $templateName
+     * @param array<string, \Throwable> $arguments
+     */
+    public function __construct(protected string $templateName = '', protected array $arguments = [])
     {
-        $this->templateName = $templateName;
-        $this->arguments = $arguments;
         $this->header = null;
     }
 
@@ -45,11 +34,17 @@ class ErrorTemplateStruct extends Struct
         $this->templateName = $templateName;
     }
 
+    /**
+     * @return array<string, \Throwable>
+     */
     public function getArguments(): array
     {
         return $this->arguments;
     }
 
+    /**
+     * @param array<string, \Throwable> $arguments
+     */
     public function setArguments(array $arguments): void
     {
         $this->arguments = $arguments;

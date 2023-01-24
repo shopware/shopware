@@ -32,39 +32,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class AccountEditOrderPageLoader
 {
-    private GenericPageLoaderInterface $genericLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AbstractOrderRoute $orderRoute;
-
-    private RequestCriteriaBuilder $requestCriteriaBuilder;
-
-    private AbstractPaymentMethodRoute $paymentMethodRoute;
-
-    private OrderConverter $orderConverter;
-
-    private OrderService $orderService;
-
     /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractOrderRoute $orderRoute,
-        RequestCriteriaBuilder $requestCriteriaBuilder,
-        AbstractPaymentMethodRoute $paymentMethodRoute,
-        OrderConverter $orderConverter,
-        OrderService $orderService
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->orderRoute = $orderRoute;
-        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
-        $this->paymentMethodRoute = $paymentMethodRoute;
-        $this->orderConverter = $orderConverter;
-        $this->orderService = $orderService;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractOrderRoute $orderRoute, private readonly RequestCriteriaBuilder $requestCriteriaBuilder, private readonly AbstractPaymentMethodRoute $paymentMethodRoute, private readonly OrderConverter $orderConverter, private readonly OrderService $orderService)
+    {
     }
 
     /**

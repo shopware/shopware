@@ -15,16 +15,10 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 class DomainLoader extends AbstractDomainLoader
 {
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function getDecorated(): AbstractDomainLoader

@@ -25,7 +25,7 @@ class StorefrontMediaUploaderTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    public const FIXTURE_DIR = __DIR__ . '/fixtures';
+    final public const FIXTURE_DIR = __DIR__ . '/fixtures';
 
     public function testUploadDocument(): void
     {
@@ -112,9 +112,7 @@ class StorefrontMediaUploaderTest extends TestCase
         }
 
         $this->getContainer()->get('media.repository')->delete(
-            array_map(static function (string $id) {
-                return ['id' => $id];
-            }, $ids),
+            array_map(static fn (string $id) => ['id' => $id], $ids),
             Context::createDefaultContext()
         );
     }

@@ -12,17 +12,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class BasicCaptchaPageletLoader extends AbstractBasicCaptchaPageletLoader
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AbstractBasicCaptchaGenerator $basicCaptchaGenerator;
-
     /**
      * @internal
      */
-    public function __construct(EventDispatcherInterface $eventDispatcher, AbstractBasicCaptchaGenerator $basicCaptchaGenerator)
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractBasicCaptchaGenerator $basicCaptchaGenerator)
     {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->basicCaptchaGenerator = $basicCaptchaGenerator;
     }
 
     public function load(Request $request, SalesChannelContext $context): BasicCaptchaPagelet

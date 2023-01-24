@@ -19,15 +19,12 @@ class ProductReviewsWidgetLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'product-reviews-loaded';
+    final public const HOOK_NAME = 'product-reviews-loaded';
 
-    private ReviewLoaderResult $reviews;
-
-    public function __construct(ReviewLoaderResult $reviews, SalesChannelContext $context)
+    public function __construct(private readonly ReviewLoaderResult $reviews, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->reviews = $reviews;
     }
 
     public function getName(): string

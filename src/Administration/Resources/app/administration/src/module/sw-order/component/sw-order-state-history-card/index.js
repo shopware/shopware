@@ -273,12 +273,18 @@ Component.register('sw-order-state-history-card', {
             });
 
             const options = entries.map((state, index) => {
-                return {
+                const option = {
                     stateName: state.technicalName,
-                    id: index,
+                    id: null,
                     name: state.translated.name,
                     disabled: true,
                 };
+
+                if (this.feature.isActive('FEATURE_NEXT_7530')) {
+                    option.id = index;
+                }
+
+                return option;
             });
 
             options.forEach((option) => {

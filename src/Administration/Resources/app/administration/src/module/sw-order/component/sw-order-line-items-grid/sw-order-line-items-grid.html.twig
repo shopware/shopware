@@ -337,6 +337,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_grid_actions_delete %}
             <sw-context-menu-item
+                v-if="feature.isActive('FEATURE_NEXT_7530')"
                 v-tooltip.left="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: editable,

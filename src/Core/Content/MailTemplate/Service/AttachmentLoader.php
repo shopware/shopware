@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal (flag: FEATURE_NEXT_7530)
+ */
 #[Package('sales-channel')]
 class AttachmentLoader
 {

@@ -55,11 +55,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_actions_abort %}
         <sw-button
-            v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
-                disabled: acl.can('order.editor'),
-                showOnDisabledElements: true
-            }"
+            v-if="isEditing || feature.isActive('FEATURE_NEXT_7530')"
             class="sw-order-detail__smart-bar-cancel-button"
             :disabled="isLoading || !acl.can('order.editor')"
             @click="onCancelEditing"
@@ -68,19 +64,28 @@
         </sw-button>
         {% endblock %}
 
-        {# @deprecated tag:v6.5.0 - this block will be removed #}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_actions_edit %}
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_order_detail_actions_save %}
-        <sw-button-process
+        <sw-button
+            v-if="!feature.isActive('FEATURE_NEXT_7530') && !isEditing"
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('order.editor'),
                 showOnDisabledElements: true
             }"
+            class="sw-order-detail__smart-bar-edit-button"
+            variant="primary"
+            :disabled="isLoading || !acl.can('order.editor')"
+            @click="onStartEditing"
+        >
+            {{ $tc('global.default.edit') }}
+        </sw-button>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_order_detail_actions_save %}
+        <sw-button-process
+            v-if="isEditing || feature.isActive('FEATURE_NEXT_7530')"
             class="sw-order-detail__smart-bar-save-button"
             variant="primary"
             :disabled="isLoading || !acl.can('order.editor')"
@@ -103,7 +108,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_content_leave_page_modal %}
         <sw-order-leave-page-modal
-            v-if="isDisplayingLeavePageWarning"
+            v-if="feature.isActive('FEATURE_NEXT_7530') && isDisplayingLeavePageWarning"
             @page-leave-cancel="onLeaveModalClose"
             @page-leave-confirm="onLeaveModalConfirm"
         />
@@ -129,6 +134,15 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_content_tabs_general %}
                 <sw-tabs-item
+                    v-if="!feature.isActive('FEATURE_NEXT_7530')"
+                    :route="{ name: 'sw.order.detail.base', params: { id: $route.params.id } }"
+                    :title="$tc('sw-order.detail.tabGeneral')"
+                >
+                    {{ $tc('sw-order.detail.tabGeneral') }}
+                </sw-tabs-item>
+
+                <sw-tabs-item
+                    v-if="feature.isActive('FEATURE_NEXT_7530')"
                     class="sw-order-detail__tabs-tab-general"
                     :route="{ name: 'sw.order.detail.general', params: { id: $route.params.id } }"
                     :title="$tc('sw-order.detail.tabGeneral')"
@@ -140,6 +154,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_content_tabs_details %}
                 <sw-tabs-item
+                    v-if="feature.isActive('FEATURE_NEXT_7530')"
                     class="sw-order-detail__tabs-tab-details"
                     :route="{ name: 'sw.order.detail.details', params: { id: $route.params.id } }"
                     :title="$tc('sw-order.detail.tabDetails')"
@@ -151,6 +166,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_content_tabs_documents %}
                 <sw-tabs-item
+                    v-if="feature.isActive('FEATURE_NEXT_7530')"
                     class="sw-order-detail__tabs-tab-documents"
                     :class="{ 'has-warning': isOrderEditing }"
                     :route="{ name: 'sw.order.detail.documents', params: { id: $route.params.id } }"
@@ -182,7 +198,7 @@
 
             {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
             <router-view
-                v-if="order"
+                v-if="!feature.isActive('FEATURE_NEXT_7530') || order"
                 v-show="!isLoading"
                 ref="baseComponent"
                 :order-id="orderId"

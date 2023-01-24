@@ -75,7 +75,11 @@ Component.register('sw-date-filter', {
         },
 
         showDivider() {
-            return !this.isDateTimeType && !this.filter.showTimeframe;
+            if (this.feature.isActive('FEATURE_NEXT_7530')) {
+                return !this.isDateTimeType && !this.filter.showTimeframe;
+            }
+
+            return !this.isDateTimeType;
         },
     },
 

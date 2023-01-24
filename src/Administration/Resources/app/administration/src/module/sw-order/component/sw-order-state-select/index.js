@@ -5,7 +5,7 @@ const { Component } = Shopware;
 
 /**
  * @package customer-order
- * @deprecated tag:v6.5.0 will be dropped
+ * @feature-deprecated (flag:FEATURE_NEXT_7530) will be dropped
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-state-select', {

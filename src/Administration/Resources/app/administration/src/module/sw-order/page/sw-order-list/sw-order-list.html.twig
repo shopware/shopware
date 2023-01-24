@@ -156,7 +156,16 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_columns_state %}
                 <template #column-stateMachineState.name="{ item }">
+                    <sw-label
+                        v-if="!feature.isActive('FEATURE_NEXT_7530')"
+                        :variant="getVariantFromOrderState(item)"
+                        appearance="pill"
+                    >
+                        {{ item.stateMachineState.translated.name }}
+                    </sw-label>
+
                     <div
+                        v-if="feature.isActive('FEATURE_NEXT_7530')"
                         class="sw-order-list__state"
                     >
                         <sw-color-badge
@@ -172,8 +181,16 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_columns_transaction_state %}
                 <template #column-transactions.last().stateMachineState.name="{ item }">
+                    <sw-label
+                        v-if="!feature.isActive('FEATURE_NEXT_7530') && item.transactions && item.transactions[0]"
+                        :variant="getVariantFromPaymentState(item)"
+                        appearance="pill"
+                    >
+                        {{ transaction(item).stateMachineState.translated.name }}
+                    </sw-label>
+
                     <div
-                        v-if="item.transactions && item.transactions[0]"
+                        v-if="feature.isActive('FEATURE_NEXT_7530') && item.transactions && item.transactions[0]"
                         class="sw-order-list__state"
                     >
                         <sw-color-badge
@@ -190,8 +207,16 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_columns_delivery_state %}
                 <template #column-deliveries[0].stateMachineState.name="{ item }">
+                    <sw-label
+                        v-if="!feature.isActive('FEATURE_NEXT_7530') && item.deliveries && item.deliveries[0]"
+                        :variant="getVariantFromDeliveryState(item)"
+                        appearance="pill"
+                    >
+                        {{ item.deliveries[0].stateMachineState.translated.name }}
+                    </sw-label>
+
                     <div
-                        v-if="item.deliveries && item.deliveries[0]"
+                        v-if="feature.isActive('FEATURE_NEXT_7530') && item.deliveries && item.deliveries[0]"
                         class="sw-order-list__state"
                     >
                         <sw-color-badge

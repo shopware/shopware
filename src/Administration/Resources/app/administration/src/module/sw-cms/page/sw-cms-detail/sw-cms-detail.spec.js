@@ -71,6 +71,7 @@ async function createWrapper() {
             'sw-cms-section': true,
             'sw-cms-layout-assignment-modal': true,
             'sw-button': true,
+            'sw-app-actions': true,
             'sw-modal': {
                 template: `
                     <div class="sw-modal-stub">

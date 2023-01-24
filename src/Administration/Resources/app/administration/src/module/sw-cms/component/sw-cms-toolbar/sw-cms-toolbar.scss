@@ -36,5 +36,9 @@
 
     .sw-cms-toolbar__actions {
         text-align: center;
+
+        .sw-app-actions {
+            float: left;
+        }
     }
 }

@@ -60,6 +60,9 @@ Shopware.Module.register('sw-cms', {
             meta: {
                 parentPath: 'sw.cms.index',
                 privilege: 'cms.viewer',
+                appSystem: {
+                    view: 'detail',
+                },
             },
         },
         create: {

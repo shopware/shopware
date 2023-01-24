@@ -49,14 +49,6 @@ export default {
             isLoading: false,
             actualProgress: 0,
             maxProgress: 0,
-            /**
-             * @deprecated tag:v6.5.0 - Will be removed
-             */
-            notificationModal: false,
-            /**
-             * @deprecated tag:v6.5.0 - Will be removed
-             */
-            notificationInfos: {},
             progressType: '',
             variantsNumber: 0,
             variantsGenerator: null,
@@ -334,22 +326,6 @@ export default {
                 ? groupedDataValues.map((group) => group.length)
                     .reduce((curr, length) => curr * length)
                 : 0;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         */
-        onConfirmNotificationModal() {
-            this.notificationModal = false;
-            this.generateVariants();
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         */
-        onCloseNotificationModal() {
-            this.notificationModal = false;
-            this.isLoading = false;
         },
 
         onChangeAllVariantValues(checked) {

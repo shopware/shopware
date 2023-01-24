@@ -18,11 +18,6 @@ $sw-product-price-suffix-font-size: 20px;
             cursor: pointer;
             margin-top: 16px;
         }
-
-        .sw-icon.icon--regular-long-arrow-right {
-            // @deprecated tag:v6.5.0 - padding can be removed
-            padding: 0 !important;
-        }
     }
 
     .sw-product-price-form__price-list:not(.has--parent) {

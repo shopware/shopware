@@ -732,19 +732,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         expect(wrapper.vm.variantGenerationQueue.deleteQueue).toHaveLength(0);
     });
 
-    it('should close the modal', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.setData({
-            isLoading: true,
-            notificationModal: true
-        });
-
-        wrapper.vm.onCloseNotificationModal();
-
-        expect(wrapper.vm.isLoading).toBe(false);
-        expect(wrapper.vm.notificationModal).toBe(false);
-    });
-
     it('should prevent uploads of duplicate files on single variants', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.mediaRepository.get = jest.fn().mockResolvedValueOnce({ id: 'random-id', fileName: 'example', fileExtension: 'jpg' });

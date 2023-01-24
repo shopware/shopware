@@ -4900,10 +4900,7 @@ parameters:
 			count: 1
 			path: src/Core/Content/Seo/SeoUrlTemplate/TemplateGroup.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlTwigFactory\\:\\:createTwigEnvironment\\(\\) has parameter \\$twigExtensions with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlTwigFactory.php
+
 
 		-
 			message: "#^Cannot call method map\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainCollection\\|null\\.$#"

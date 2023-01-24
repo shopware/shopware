@@ -3,6 +3,8 @@
  */
 import template from './sw-profile-index-general.html.twig';
 
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -57,6 +59,10 @@ export default {
     },
 
     computed: {
+        ...mapPropertyErrors('user', [
+            'password',
+        ]),
+
         computedNewPassword: {
             get() {
                 return this.newPassword;

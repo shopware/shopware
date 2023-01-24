@@ -63,7 +63,7 @@ class LoginRouteTest extends TestCase
                 '/store-api/account/login',
                 [
                     'email' => 'foo',
-                    'password' => 'foo',
+                    'password' => 'foo12345',
                 ]
             );
 
@@ -308,7 +308,7 @@ class LoginRouteTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $salesChannelData
+     * @param array<string, mixed> $salesChannelData
      */
     private function createSalesChannelContext(string $contextToken, array $salesChannelData, ?string $customerId, ?string $salesChannelId = null): SalesChannelContext
     {

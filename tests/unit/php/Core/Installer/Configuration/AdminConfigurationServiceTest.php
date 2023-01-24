@@ -35,6 +35,8 @@ class AdminConfigurationServiceTest extends TestCase
                 })
             );
 
+        $connection->expects(static::once())->method('fetchOne')->willReturn(json_encode(['_value' => 8]));
+
         $connection->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
             new FakeQueryBuilder($connection, []),
             new FakeQueryBuilder($connection, [[$localeId]])

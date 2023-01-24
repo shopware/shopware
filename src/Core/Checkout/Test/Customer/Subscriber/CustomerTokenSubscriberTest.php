@@ -59,7 +59,7 @@ class CustomerTokenSubscriberTest extends TestCase
         $this->customerRepository->update([
             [
                 'id' => $customerId,
-                'password' => 'fooo',
+                'password' => 'fooo12345',
             ],
         ], Context::createDefaultContext());
 
@@ -106,7 +106,7 @@ class CustomerTokenSubscriberTest extends TestCase
         $this->customerRepository->update([
             [
                 'id' => $customerId,
-                'password' => 'fooo',
+                'password' => 'fooo12345',
             ],
         ], Context::createDefaultContext());
 

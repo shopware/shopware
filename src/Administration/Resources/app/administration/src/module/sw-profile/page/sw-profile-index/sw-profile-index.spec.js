@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swProfileIndex from 'src/module/sw-profile/page/sw-profile-index';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -163,5 +166,25 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
         wrapper.vm.createdComponent.mockRestore();
         wrapper.vm.beforeMountComponent.mockRestore();
+    });
+
+    it('should handle user-save errors correctly', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.setData({
+            isLoading: true,
+            $route: {
+                name: 'sw.profile.index.general',
+            },
+        });
+        wrapper.vm.handleUserSaveError();
+
+        expect(wrapper.vm.isLoading).toBe(false);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-profile.index.notificationSaveErrorMessage',
+        });
+
+        wrapper.vm.createNotificationError.mockRestore();
     });
 });

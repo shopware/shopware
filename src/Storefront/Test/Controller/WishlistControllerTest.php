@@ -326,7 +326,7 @@ class WishlistControllerTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'testuser@example.com',
-                'password' => 'test',
+                'password' => 'test12345',
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),
@@ -351,7 +351,7 @@ class WishlistControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $customer->getEmail(),
-                'password' => 'test',
+                'password' => 'test12345',
             ])
         );
         $response = $browser->getResponse();
@@ -403,10 +403,7 @@ class WishlistControllerTest extends TestCase
         return $browser;
     }
 
-    /**
-     * @param array<string, mixed> $config
-     */
-    private function createProduct(?string $salesChannelId = null, array $config = []): string
+    private function createProduct(?string $salesChannelId = null): string
     {
         $id = Uuid::randomHex();
 
@@ -426,8 +423,6 @@ class WishlistControllerTest extends TestCase
                 ],
             ],
         ];
-
-        $product = array_replace_recursive($product, $config);
 
         $repository = $this->getContainer()->get('product.repository');
 

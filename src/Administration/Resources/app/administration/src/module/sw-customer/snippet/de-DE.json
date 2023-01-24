@@ -227,7 +227,6 @@
       "messageSaveError": "Der Kunde konnte nicht gespeichert werden.",
       "messageSaveSuccess": "Der Kunde \"{name}\" wurde erfolgreich gespeichert.",
       "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
-      "notificationPasswordLengthErrorMessage": "Das Passwort erfüllt nicht die Mindestlänge von acht Zeichen.",
       "labelCreatedByAdmin": "Erstellt von Admin"
     },
     "filter": {

@@ -327,6 +327,16 @@ export default {
                     this.isSaveSuccessful = true;
 
                     Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                }).catch((error) => {
+                    State.dispatch('error/addApiError', {
+                        expression: `user.${this.user?.id}.password`,
+                        error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
+                    });
+                    this.createNotificationError({
+                        message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
+                    });
+                    this.isLoading = false;
+                    this.isSaveSuccessful = false;
                 });
 
                 return;
@@ -358,6 +368,8 @@ export default {
                 this.newPasswordConfirm = '';
             }).catch(() => {
                 this.handleUserSaveError();
+                this.isLoading = false;
+                this.isSaveSuccessful = false;
             });
         },
 
@@ -423,9 +435,11 @@ export default {
         },
 
         handleUserSaveError() {
-            this.createNotificationError({
-                message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
-            });
+            if (this.$route.name.includes('sw.profile.index')) {
+                this.createNotificationError({
+                    message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
+                });
+            }
             this.isLoading = false;
         },
 

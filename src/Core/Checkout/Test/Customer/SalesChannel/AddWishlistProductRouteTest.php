@@ -165,7 +165,7 @@ class AddWishlistProductRouteTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return array<int, string>
      */
     private function createProduct(Context $context): array
     {

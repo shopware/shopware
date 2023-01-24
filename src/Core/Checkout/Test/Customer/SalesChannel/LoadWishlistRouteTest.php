@@ -194,7 +194,7 @@ class LoadWishlistRouteTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $attributes
+     * @param array<string, mixed> $attributes
      */
     private function createProduct(Context $context, array $attributes = []): string
     {

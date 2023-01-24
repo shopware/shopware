@@ -40,6 +40,10 @@ class Profiling extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('services.xml');
+
+        if ($environment === 'dev') {
+            $loader->load('services_dev.xml');
+        }
     }
 
     public function boot(): void

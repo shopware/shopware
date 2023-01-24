@@ -103,6 +103,7 @@ workflow:
         npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/src/Resources/app/administration" || true
         npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/Resources/app/storefront" || true
         npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/src/Resources/app/storefront" || true
+        composer -d "${PROJECT_ROOT}/custom/plugins/${plugin_name}" dump-autoload || true
     done
   - bin/console plugin:refresh
   - |

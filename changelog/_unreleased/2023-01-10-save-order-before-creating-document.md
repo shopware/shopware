@@ -1,6 +1,7 @@
 ---
 title: Save order before creating document
 issue: NEXT-24566
+flag: FEATURE_NEXT_7530
 ---
 # Administration
 * Changed in `src/module/sw-order/component/sw-order-address-selection/index.js`

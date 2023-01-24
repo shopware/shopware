@@ -3006,11 +3006,6 @@ parameters:
 			path: src/Core/Content/ImportExport/Event/ImportExportExceptionImportRecordEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Event\\\\Subscriber\\\\ProductVariantsSubscriber\\:\\:parseVariantString\\(\\) should return list\\<list\\<string\\>\\> but returns non\\-empty\\-list\\<array\\<int\\<0, max\\>, non\\-falsy\\-string\\>\\>\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Event/Subscriber/ProductVariantsSubscriber.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Exception\\\\DeleteDefaultProfileException\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Exception/DeleteDefaultProfileException.php
@@ -3111,11 +3106,6 @@ parameters:
 			path: src/Core/Content/ImportExport/ImportExport.php
 
 		-
-			message: "#^Parameter \\#2 \\$result of method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Service\\\\ImportExportService\\:\\:saveProgress\\(\\) expects list\\<array\\>\\|null, array given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/ImportExport.php
-
-		-
 			message: "#^Cannot call method getSourceEntity\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportProfileEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/ImportExportFactory.php
@@ -3179,21 +3169,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Message\\\\DeleteFileMessage\\:\\:\\$files type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Message/DeleteFileMessage.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\MappingCollection\\:\\:fromIterable\\(\\) has parameter \\$data with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Mapping/MappingCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\MappingCollection\\:\\:sortByPosition\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Mapping/MappingCollection.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\MappingCollection\\:\\:\\$reverseIndex type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Mapping/MappingCollection.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\UpdateBy\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
@@ -3279,31 +3254,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Pipe\\\\EntityPipe\\:\\:out\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Processing/Pipe/EntityPipe.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Pipe\\\\KeyMappingPipe\\:\\:__construct\\(\\) has parameter \\$mapping with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Pipe/KeyMappingPipe.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Pipe\\\\KeyMappingPipe\\:\\:in\\(\\) has parameter \\$record with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Pipe/KeyMappingPipe.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Pipe\\\\KeyMappingPipe\\:\\:in\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Pipe/KeyMappingPipe.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Pipe\\\\KeyMappingPipe\\:\\:out\\(\\) has parameter \\$record with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Pipe/KeyMappingPipe.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Pipe\\\\KeyMappingPipe\\:\\:out\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Pipe/KeyMappingPipe.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Reader\\\\AbstractReader\\:\\:read\\(\\) return type has no value type specified in iterable type iterable\\.$#"
@@ -3424,11 +3374,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Service\\\\FileService\\:\\:updateFile\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Service/FileService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Service\\\\ImportExportService\\:\\:getConfig\\(\\) should return array\\{mapping\\: list\\<array\\<string, mixed\\>\\>\\|null, updateBy\\: array\\<string, mixed\\>\\|null, parameters\\: array\\<string, mixed\\>\\|null\\} but returns array\\{mapping\\: array\\|null, updateBy\\: array\\|null, parameters\\: non\\-empty\\-array\\}\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Service/ImportExportService.php
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getMapping\\(\\)\\.$#"
@@ -5528,16 +5473,6 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/Processing/Pipe/ChainPipeTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$data of static method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\MappingCollection\\:\\:fromIterable\\(\\) expects iterable, array\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Pipe/DefaultMappingsTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$iterator of function iterator_to_array expects Traversable, iterable given\\.$#"
-			count: 10
-			path: src/Core/Content/Test/ImportExport/Processing/Pipe/DefaultMappingsTest.php
-
-		-
 			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductTranslation\\\\ProductTranslationCollection\\|null\\.$#"
 			count: 2
 			path: src/Core/Content/Test/ImportExport/Processing/Pipe/EntityPipeTest.php
@@ -5546,56 +5481,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$iterator of function iterator_to_array expects Traversable, iterable given\\.$#"
 			count: 2
 			path: src/Core/Content/Test/ImportExport/Processing/Pipe/EntityPipeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Processing\\\\Pipe\\\\KeyMappingPipeTest\\:\\:nestedProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Pipe/KeyMappingPipeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Processing\\\\Pipe\\\\KeyMappingPipeTest\\:\\:nestedProviderNoFlatten\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Pipe/KeyMappingPipeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Processing\\\\Pipe\\\\KeyMappingPipeTest\\:\\:simpleMappingProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Pipe/KeyMappingPipeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Processing\\\\Pipe\\\\KeyMappingPipeTest\\:\\:testFlattenNested\\(\\) has parameter \\$expetedOutput with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Pipe/KeyMappingPipeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Processing\\\\Pipe\\\\KeyMappingPipeTest\\:\\:testFlattenNested\\(\\) has parameter \\$input with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Pipe/KeyMappingPipeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Processing\\\\Pipe\\\\KeyMappingPipeTest\\:\\:testNoFlatten\\(\\) has parameter \\$expetedOutput with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Pipe/KeyMappingPipeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Processing\\\\Pipe\\\\KeyMappingPipeTest\\:\\:testNoFlatten\\(\\) has parameter \\$input with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Pipe/KeyMappingPipeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Processing\\\\Pipe\\\\KeyMappingPipeTest\\:\\:testSimpleMapping\\(\\) has parameter \\$expetedOutput with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Pipe/KeyMappingPipeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Processing\\\\Pipe\\\\KeyMappingPipeTest\\:\\:testSimpleMapping\\(\\) has parameter \\$input with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Pipe/KeyMappingPipeTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$iterator of function iterator_to_array expects Traversable, iterable given\\.$#"
-			count: 11
-			path: src/Core/Content/Test/ImportExport/Processing/Pipe/KeyMappingPipeTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReaderTest\\:\\:eolProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -14921,26 +14806,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\VersionFactory\\:\\:create\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Update/VersionFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\ArrayNormalizer\\:\\:expand\\(\\) has parameter \\$input with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Util/ArrayNormalizer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\ArrayNormalizer\\:\\:expand\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Util/ArrayNormalizer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\ArrayNormalizer\\:\\:flatten\\(\\) has parameter \\$input with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Util/ArrayNormalizer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\ArrayNormalizer\\:\\:flatten\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Util/ArrayNormalizer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\HtmlSanitizer\\:\\:__construct\\(\\) has parameter \\$fieldSets with no value type specified in iterable type array\\.$#"

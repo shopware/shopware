@@ -6,43 +6,24 @@ use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @package system-settings
+ *
+ * @phpstan-type MappingArray array{key: string, mappedKey?: string, position?: int, default?: mixed, mappedDefault?: mixed, requiredByUser?: bool, useDefaultValue?: bool, defaultValue?: mixed}
  */
 class Mapping extends Struct
 {
-    protected string $key;
-
     protected string $mappedKey;
 
-    protected mixed $default;
-
-    protected mixed $mappedDefault;
-
-    protected bool $requiredByUser;
-
-    protected bool $useDefaultValue;
-
-    protected mixed $defaultValue;
-
-    protected int $position;
-
     public function __construct(
-        string $key,
+        protected string $key,
         ?string $mappedKey = null,
-        int $position = 0,
-        mixed $default = null,
-        mixed $mappedDefault = null,
-        bool $requiredByUser = false,
-        bool $useDefaultValue = false,
-        mixed $defaultValue = null
+        protected int $position = 0,
+        protected mixed $default = null,
+        protected mixed $mappedDefault = null,
+        protected bool $requiredByUser = false,
+        protected bool $useDefaultValue = false,
+        protected mixed $defaultValue = null
     ) {
-        $this->key = $key;
         $this->mappedKey = $mappedKey ?? $key;
-        $this->default = $default;
-        $this->mappedDefault = $mappedDefault;
-        $this->requiredByUser = $requiredByUser;
-        $this->useDefaultValue = $useDefaultValue;
-        $this->defaultValue = $defaultValue;
-        $this->position = $position;
     }
 
     public function getKey(): string
@@ -81,7 +62,7 @@ class Mapping extends Struct
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param MappingArray $data
      */
     public static function fromArray(array $data): self
     {

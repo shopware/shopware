@@ -47,7 +47,7 @@ class AppRefundHandlerTest extends AbstractAppPaymentHandlerTest
         static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
         static::assertSame('POST', $request->getMethod());
         static::assertJson($body);
-        $content = json_decode($body, true);
+        $content = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('source', $content);
         static::assertSame([
             'url' => $this->shopUrl,
@@ -100,7 +100,7 @@ FOO_BAR_ERROR_MESSAGE', $e->getMessage());
         $refundId = $this->createRefund($captureId);
 
         $response = RefundResponse::create($transactionId, []);
-        $json = \json_encode($response);
+        $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
         $this->appendNewResponse(new Response(200, [], $json));
@@ -131,7 +131,7 @@ Invalid app response', $e->getMessage());
         $refundId = $this->createRefund($captureId);
 
         $response = RefundResponse::create($transactionId, []);
-        $json = \json_encode($response);
+        $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
         $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));

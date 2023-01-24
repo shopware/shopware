@@ -27,7 +27,7 @@ class DocsAppEventCommandTest extends TestCase
 
         static::assertEquals(
             md5($savedContents),
-            md5($docsAppEventCommand->render()),
+            md5((string) $docsAppEventCommand->render()),
             'The webhook events app system document is not up to date' . \PHP_EOL
             . 'Run command docs:app-system-events to get new the webhook-events-reference.md file' . \PHP_EOL
             . 'This file also need to be uploaded to gitbook at /resources/references/app-reference/webhook-events-reference.md!'

@@ -211,7 +211,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             ->method('getCustomer')
             ->willReturn(null);
 
-        $expected = \get_class(CartException::customerNotLoggedIn());
+        $expected = CartException::customerNotLoggedIn()::class;
 
         static::expectException($expected);
         static::expectExceptionMessage('Customer is not logged in');

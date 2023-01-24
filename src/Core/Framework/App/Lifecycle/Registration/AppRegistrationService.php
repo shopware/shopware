@@ -45,7 +45,7 @@ class AppRegistrationService
         } catch (RequestException $e) {
             if ($e->hasResponse() && $e->getResponse() !== null) {
                 $response = $e->getResponse();
-                $data = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+                $data = json_decode($response->getBody()->getContents(), true);
 
                 if (isset($data['error']) && \is_string($data['error'])) {
                     throw new AppRegistrationException($data['error']);

@@ -12,10 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @internal
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class StoreApiTestOtherRoute
 {
     /**
@@ -32,9 +31,8 @@ class StoreApiTestOtherRoute
      *          description="Success"
      *     )
      * )
-     *
-     * @Route("/api/test", name="api.test", methods={"GET"}, defaults={"_loginRequired"=true})
      */
+    #[Route(path: '/api/test', name: 'api.test', methods: ['GET'], defaults: ['_loginRequired' => true])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): Response
     {
         return new Response();

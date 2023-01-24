@@ -91,7 +91,7 @@ class TaxProviderPayloadServiceTest extends TestCase
                     'price' => 200,
                 ],
             ],
-        ]);
+        ], \JSON_THROW_ON_ERROR);
 
         static::assertNotFalse($responseContent);
         $response = new Response(200, [], $responseContent);

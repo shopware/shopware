@@ -68,7 +68,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
             return $field->getDefault();
         }
 
-        $raw = json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
+        $raw = json_decode((string) $value, true);
         $decoded = $raw;
         if (empty($field->getPropertyMapping())) {
             return $raw;

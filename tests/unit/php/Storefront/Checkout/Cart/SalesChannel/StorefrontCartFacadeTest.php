@@ -66,7 +66,7 @@ class StorefrontCartFacadeTest extends TestCase
 
         $cartFacade = $this->getStorefrontCartFacade(
             $cart,
-            [$this, 'callbackShippingMethodSwitcherReturnFallbackMethod']
+            $this->callbackShippingMethodSwitcherReturnFallbackMethod(...)
         );
         $returnedCart = $cartFacade->get('', $salesChannelContext);
 
@@ -99,8 +99,8 @@ class StorefrontCartFacadeTest extends TestCase
 
         $cartFacade = $this->getStorefrontCartFacade(
             $cart,
-            [$this, 'callbackShippingMethodSwitcherReturnOriginalMethod'],
-            [$this, 'callbackPaymentMethodSwitcherReturnFallbackMethod']
+            $this->callbackShippingMethodSwitcherReturnOriginalMethod(...),
+            $this->callbackPaymentMethodSwitcherReturnFallbackMethod(...)
         );
         $returnedCart = $cartFacade->get('', $salesChannelContext);
 
@@ -134,8 +134,8 @@ class StorefrontCartFacadeTest extends TestCase
 
         $cartFacade = $this->getStorefrontCartFacade(
             $cart,
-            [$this, 'callbackShippingMethodSwitcherReturnFallbackMethod'],
-            [$this, 'callbackPaymentMethodSwitcherReturnFallbackMethod']
+            $this->callbackShippingMethodSwitcherReturnFallbackMethod(...),
+            $this->callbackPaymentMethodSwitcherReturnFallbackMethod(...)
         );
         $returnedCart = $cartFacade->get('', $salesChannelContext);
 
@@ -235,8 +235,8 @@ class StorefrontCartFacadeTest extends TestCase
 
         $cartFacade = $this->getStorefrontCartFacade(
             $cart,
-            [$this, 'callbackShippingMethodSwitcherUnswitchableCart'],
-            [$this, 'callbackPaymentMethodSwitcherUnswitchableCart']
+            $this->callbackShippingMethodSwitcherUnswitchableCart(...),
+            $this->callbackPaymentMethodSwitcherUnswitchableCart(...)
         );
         $returnedCart = $cartFacade->get('', $salesChannelContext);
 
@@ -448,10 +448,10 @@ class StorefrontCartFacadeTest extends TestCase
         $cartService->method('getCart')->willReturn($cart);
 
         $blockedShippingMethodSwitcher = $this->createMock(BlockedShippingMethodSwitcher::class);
-        $blockedShippingMethodSwitcher->method('switch')->willReturnCallback($shippingSwitcherCallbackMethod ?? [$this, 'callbackShippingMethodSwitcherReturnOriginalMethod']);
+        $blockedShippingMethodSwitcher->method('switch')->willReturnCallback($shippingSwitcherCallbackMethod ?? $this->callbackShippingMethodSwitcherReturnOriginalMethod(...));
 
         $blockedPaymentMethodSwitcher = $this->createMock(BlockedPaymentMethodSwitcher::class);
-        $blockedPaymentMethodSwitcher->method('switch')->willReturnCallback($paymentSwitcherCallbackMethod ?? [$this, 'callbackPaymentMethodSwitcherReturnOriginalMethod']);
+        $blockedPaymentMethodSwitcher->method('switch')->willReturnCallback($paymentSwitcherCallbackMethod ?? $this->callbackPaymentMethodSwitcherReturnOriginalMethod(...));
 
         $contextSwitchRoute = $this->createMock(ContextSwitchRoute::class);
 

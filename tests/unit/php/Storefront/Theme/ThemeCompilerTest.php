@@ -53,10 +53,7 @@ class ThemeCompilerTest extends TestCase
 
     private string $mockSalesChannelId;
 
-    /**
-     * @var MockObject|EventDispatcher
-     */
-    private $eventDispatcher;
+    private MockObject&EventDispatcher $eventDispatcher;
 
     public function setUp(): void
     {
@@ -525,7 +522,7 @@ PHP_EOL;
                 true,
                 Context::createDefaultContext()
             );
-        } catch (ThemeCompileException $e) {
+        } catch (ThemeCompileException) {
             $wasThrown = true;
         }
 
@@ -586,7 +583,7 @@ PHP_EOL;
                 true,
                 Context::createDefaultContext()
             );
-        } catch (ThemeCompileException $e) {
+        } catch (ThemeCompileException) {
             $wasThrown = true;
         }
 

@@ -262,8 +262,8 @@ class CheckoutFinishPageLoaderTest extends TestCase
                 $request,
                 $this->getContextWithDummyCustomer(),
             );
-        } catch (OrderException $e) {
-        } catch (\Exception $e) {
+        } catch (OrderException) {
+        } catch (\Exception) {
             static::fail('Not an expected Exception');
         }
     }

@@ -17,15 +17,9 @@ class AbstractStrategyTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var MockObject|AbstractAppUrlChangeStrategy
-     */
-    private $firstStrategy;
+    private MockObject&AbstractAppUrlChangeStrategy $firstStrategy;
 
-    /**
-     * @var MockObject|AbstractAppUrlChangeStrategy
-     */
-    private $secondStrategy;
+    private MockObject&AbstractAppUrlChangeStrategy $secondStrategy;
 
     private Resolver $appUrlChangedResolverStrategy;
 

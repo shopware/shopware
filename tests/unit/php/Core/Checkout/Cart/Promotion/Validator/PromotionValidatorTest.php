@@ -50,6 +50,7 @@ class PromotionValidatorTest extends TestCase
      */
     public function testPromotionCodeRequired(): void
     {
+        $commands = [];
         $this->expectException(WriteException::class);
 
         $commands[] = new InsertCommand(
@@ -74,7 +75,7 @@ class PromotionValidatorTest extends TestCase
             $event->getExceptions()->tryToThrow();
             static::fail('Validation with invalid until was not triggered.');
         } catch (WriteException $e) {
-            static::assertEquals(WriteConstraintViolationException::class, \get_class($e->getExceptions()[0]));
+            static::assertEquals(WriteConstraintViolationException::class, $e->getExceptions()[0]::class);
             static::assertEquals('/0/code', $e->getExceptions()[0]->getViolations()[0]->getPropertyPath());
 
             throw $e;
@@ -89,6 +90,7 @@ class PromotionValidatorTest extends TestCase
      */
     public function testPromotionValidUntilAfterFrom(): void
     {
+        $commands = [];
         $this->expectException(WriteException::class);
 
         $commands[] = new InsertCommand(
@@ -112,7 +114,7 @@ class PromotionValidatorTest extends TestCase
             $event->getExceptions()->tryToThrow();
             static::fail('Validation with invalid until was not triggered.');
         } catch (WriteException $e) {
-            static::assertEquals(WriteConstraintViolationException::class, \get_class($e->getExceptions()[0]));
+            static::assertEquals(WriteConstraintViolationException::class, $e->getExceptions()[0]::class);
 
             throw $e;
         }
@@ -126,6 +128,7 @@ class PromotionValidatorTest extends TestCase
      */
     public function testPromotionIndividualDoesNotRequireCode(): void
     {
+        $commands = [];
         $commands[] = new InsertCommand(
             $this->promotionDefinition,
             [
@@ -163,6 +166,7 @@ class PromotionValidatorTest extends TestCase
      */
     public function testDiscountValueInvalid(string $type, float $value): void
     {
+        $commands = [];
         $this->expectException(WriteException::class);
 
         $commands[] = new InsertCommand(
@@ -186,7 +190,7 @@ class PromotionValidatorTest extends TestCase
             $event->getExceptions()->tryToThrow();
             static::fail('Validation with invalid until was not triggered.');
         } catch (WriteException $e) {
-            static::assertEquals(WriteConstraintViolationException::class, \get_class($e->getExceptions()[0]));
+            static::assertEquals(WriteConstraintViolationException::class, $e->getExceptions()[0]::class);
 
             throw $e;
         }
@@ -223,6 +227,7 @@ class PromotionValidatorTest extends TestCase
      */
     public function testDiscountValueValid(string $type, float $value): void
     {
+        $commands = [];
         $commands[] = new InsertCommand(
             $this->discountDefinition,
             [

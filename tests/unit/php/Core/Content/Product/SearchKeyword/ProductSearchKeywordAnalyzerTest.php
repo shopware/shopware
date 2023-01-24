@@ -18,10 +18,7 @@ use Shopware\Core\System\Tag\TagEntity;
  */
 class ProductSearchKeywordAnalyzerTest extends TestCase
 {
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -42,9 +39,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
         $tokenizer = new Tokenizer(3);
         $tokenFilter = $this->createMock(TokenFilter::class);
-        $tokenFilter->method('filter')->willReturnCallback(function (array $tokens) {
-            return $tokens;
-        });
+        $tokenFilter->method('filter')->willReturnCallback(fn (array $tokens) => $tokens);
 
         $analyzer = new ProductSearchKeywordAnalyzer($tokenizer, $tokenFilter);
         $analyzer = $analyzer->analyze($product, $this->context, $configFields);

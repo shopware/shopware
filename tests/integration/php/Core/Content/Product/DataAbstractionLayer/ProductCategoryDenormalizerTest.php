@@ -36,7 +36,7 @@ class ProductCategoryDenormalizerTest extends TestCase
 
     public function testUpdateWithProductAddedCategoriesWillVariantGetSameCategories(): void
     {
-        list('products' => $productFixture, 'categories' => $categoryIds) = $this->prepareData();
+        ['products' => $productFixture, 'categories' => $categoryIds] = $this->prepareData();
 
         $this->productRepository->update([
             [

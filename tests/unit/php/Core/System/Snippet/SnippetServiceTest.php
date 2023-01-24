@@ -27,10 +27,7 @@ class SnippetServiceTest extends TestCase
 {
     private SnippetFileCollection $snippetCollection;
 
-    /**
-     * @var Connection&MockObject
-     */
-    private $connection;
+    private Connection&MockObject $connection;
 
     protected function setUp(): void
     {

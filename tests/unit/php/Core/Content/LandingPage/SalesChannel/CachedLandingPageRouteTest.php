@@ -38,15 +38,9 @@ use Symfony\Contracts\Cache\CacheInterface;
  */
 class CachedLandingPageRouteTest extends TestCase
 {
-    /**
-     * @var AbstractLandingPageRoute&MockObject
-     */
-    private $decorated;
+    private MockObject&AbstractLandingPageRoute $decorated;
 
-    /**
-     * @var CacheInterface&MockObject
-     */
-    private $cache;
+    private MockObject&CacheInterface $cache;
 
     private EventDispatcher $eventDispatcher;
 

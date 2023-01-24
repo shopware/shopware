@@ -21,7 +21,7 @@ class DemodataCompilerPassTest extends TestCase
     {
         $this->builder = new ContainerBuilder();
         $this->builder->setDefinition(DemodataCommand::class, (new Definition(DemodataCommand::class))->setPublic(true));
-        $this->builder->addCompilerPass(new DemodataCompilerPass());
+        $this->builder->addCompilerPass(new DemodataCompilerPass(), \Symfony\Component\DependencyInjection\Compiler\PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
     }
 
     /**
@@ -34,7 +34,7 @@ class DemodataCompilerPassTest extends TestCase
 
         $this->builder->setDefinition('foo', $definition);
 
-        $this->builder->compile();
+        $this->builder->compile(false);
 
         $def = $this->builder->getDefinition(DemodataCommand::class);
         $calls = $def->getMethodCalls();

@@ -19,7 +19,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
  */
 class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
 {
-    public const REDIRECT_URL = 'http://payment.app/do/something';
+    final public const REDIRECT_URL = 'http://payment.app/do/something';
 
     /**
      * @dataProvider dataProviderFinalize
@@ -54,7 +54,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
         static::assertSame('POST', $request->getMethod());
         static::assertJson($body);
-        $content = json_decode($body, true);
+        $content = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('source', $content);
         static::assertSame([
             'url' => $this->shopUrl,
@@ -165,7 +165,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $response = (new AsyncPayResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
         ]);
-        $json = \json_encode($response);
+        $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
         $this->appendNewResponse(new Response(200, [], $json));
@@ -185,7 +185,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $response = (new AsyncPayResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
         ]);
-        $json = \json_encode($response);
+        $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
         $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));
@@ -228,7 +228,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $response = (new AsyncFinalizeResponse())->assign([
             'message' => self::ERROR_MESSAGE,
         ]);
-        $json = \json_encode($response);
+        $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
         $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));
@@ -243,7 +243,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $response = (new AsyncFinalizeResponse())->assign([
             'message' => self::ERROR_MESSAGE,
         ]);
-        $json = \json_encode($response);
+        $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
         $this->appendNewResponse(new Response(200, [], $json));
@@ -265,7 +265,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
     public function dataProviderFinalize(): \Generator
     {
         foreach (get_class_methods($this) as $functionName) {
-            if (strpos($functionName, 'addTestFinalize') === 0) {
+            if (str_starts_with($functionName, 'addTestFinalize')) {
                 yield str_replace('addTest', '', $functionName) => [$functionName];
             }
         }
@@ -294,7 +294,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
         static::assertSame('POST', $request->getMethod());
         static::assertJson($body);
-        $content = json_decode($body, true);
+        $content = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('source', $content);
         static::assertSame([
             'url' => $this->shopUrl,

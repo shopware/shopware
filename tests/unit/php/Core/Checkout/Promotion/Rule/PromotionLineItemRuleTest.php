@@ -146,7 +146,7 @@ class PromotionLineItemRuleTest extends TestCase
      * @param list<string>|null $ids
      * @param list<LineItem>|LineItem $lineItems
      */
-    public function testMatchesInCartScope(?array $ids, $lineItems, bool $expected): void
+    public function testMatchesInCartScope(?array $ids, array|LineItem $lineItems, bool $expected): void
     {
         if ($lineItems instanceof LineItem) {
             $lineItems = [$lineItems];

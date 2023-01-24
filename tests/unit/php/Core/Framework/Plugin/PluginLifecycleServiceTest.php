@@ -57,45 +57,21 @@ class PluginLifecycleServiceTest extends TestCase
 {
     private PluginLifecycleService $pluginLifecycleService;
 
-    /**
-     * @var MockObject&EntityRepository
-     */
-    private $pluginRepoMock;
+    private MockObject&EntityRepository $pluginRepoMock;
 
-    /**
-     * @var MockObject&KernelPluginCollection
-     */
-    private $kernelPluginCollectionMock;
+    private MockObject&KernelPluginCollection $kernelPluginCollectionMock;
 
-    /**
-     * @var MockObject&Container
-     */
-    private $containerMock;
+    private MockObject&Container $containerMock;
 
-    /**
-     * @var MockObject&MigrationCollectionLoader
-     */
-    private $migrationLoaderMock;
+    private MockObject&MigrationCollectionLoader $migrationLoaderMock;
 
-    /**
-     * @var MockObject&RequirementsValidator
-     */
-    private $requirementsValidatorMock;
+    private MockObject&RequirementsValidator $requirementsValidatorMock;
 
-    /**
-     * @var MockObject&CacheItemPoolInterface
-     */
-    private $cacheItemPoolInterfaceMock;
+    private MockObject&CacheItemPoolInterface $cacheItemPoolInterfaceMock;
 
-    /**
-     * @var MockObject&Plugin
-     */
-    private $pluginMock;
+    private MockObject&Plugin $pluginMock;
 
-    /**
-     * @var MockObject&EventDispatcher
-     */
-    private $eventDispatcherMock;
+    private MockObject&EventDispatcher $eventDispatcherMock;
 
     public function setUp(): void
     {
@@ -771,16 +747,10 @@ class PluginLifecycleServiceTest extends TestCase
 class FakeKernelPluginLoader extends Bundle
 {
     /**
-     * @var array<int, array<string, string|false>>
-     */
-    private array $pluginInfos;
-
-    /**
      * @param array<int, array<string, string|false>> $pluginInfos
      */
-    public function __construct(array $pluginInfos)
+    public function __construct(private readonly array $pluginInfos)
     {
-        $this->pluginInfos = $pluginInfos;
     }
 
     /**

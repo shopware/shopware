@@ -738,9 +738,7 @@ class CustomEntityTest extends TestCase
         // create
         $client->request('POST', '/api/custom-entity-blog', [], [], [], json_encode(self::blog('blog-1', $ids), \JSON_THROW_ON_ERROR));
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($body, true));
-        static::assertNull($body);
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r((string) $response->getContent(), true));
 
         // update
         $client->request(
@@ -752,9 +750,7 @@ class CustomEntityTest extends TestCase
             \json_encode(['id' => $ids->get('blog-1'), 'title' => 'update'], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($body, true));
-        static::assertNull($body);
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
 
         // list
         $client->request('GET', '/api/custom-entity-blog', ['ids' => [$ids->get('blog-1')]], [], ['HTTP_ACCEPT' => 'application/json']);
@@ -838,9 +834,7 @@ class CustomEntityTest extends TestCase
             \json_encode(['ids' => [$ids->get('blog-1')]], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($body, true));
-        static::assertNull($body);
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
     }
 
     private function testStoreApiAware(IdsCollection $ids, ContainerInterface $container): void

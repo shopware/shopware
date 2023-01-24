@@ -44,15 +44,9 @@ class ThemeServiceTest extends TestCase
      */
     private StorefrontPluginRegistry $storefrontPluginRegistryMock;
 
-    /**
-     * @var EntityRepository&MockObject
-     */
-    private $themeRepositoryMock;
+    private MockObject&EntityRepository $themeRepositoryMock;
 
-    /**
-     * @var EntityRepository&MockObject
-     */
-    private $themeSalesChannelRepositoryMock;
+    private MockObject&EntityRepository $themeSalesChannelRepositoryMock;
 
     /**
      * @var ThemeCompiler|MockObject

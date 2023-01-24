@@ -237,7 +237,7 @@ class CmsAwareAndAdminUiTest extends TestCase
             'A cms-aware custom entity should be connected to the categories'
         );
 
-        $idColumn = match (\get_class($entity)) {
+        $idColumn = match ($entity::class) {
             AppEntity::class => 'app_id',
             PluginEntity::class => 'plugin_id',
             default => throw new \Exception('Wrong Entity!')

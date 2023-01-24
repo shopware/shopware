@@ -111,7 +111,7 @@ class CustomFieldsSerializer extends FieldSerializer
                 continue;
             }
 
-            $jsonDecoded = json_decode((string) $value, null, 512, \JSON_THROW_ON_ERROR);
+            $jsonDecoded = json_decode((string) $value);
 
             if (\is_array($jsonDecoded)) {
                 $customFields[$key] = $jsonDecoded;

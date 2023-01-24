@@ -20,19 +20,17 @@ class ClientProfilerTest extends TestCase
      *
      * @param string|array<string> $index
      */
-    public function testProfiling($index, string $expectedUrl): void
+    public function testProfiling(string|array $index, string $expectedUrl): void
     {
         $builder = new ClientBuilder();
-        $builder->setHandler(function () {
-            return new FutureArray(resolve([
-                'status' => 200,
-                'body' => fopen('php://memory', 'rb'),
-                'transfer_stats' => [
-                    'total_time' => 0,
-                ],
-                'effective_url' => 'http://localhost:9200/test/_search',
-            ]));
-        });
+        $builder->setHandler(fn () => new FutureArray(resolve([
+            'status' => 200,
+            'body' => fopen('php://memory', 'rb'),
+            'transfer_stats' => [
+                'total_time' => 0,
+            ],
+            'effective_url' => 'http://localhost:9200/test/_search',
+        ])));
 
         $profiler = new ClientProfiler($builder->build());
 

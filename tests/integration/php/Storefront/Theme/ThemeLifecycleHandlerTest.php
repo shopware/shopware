@@ -83,10 +83,7 @@ class ThemeLifecycleHandlerTest extends TestCase
                 TestDefaults::SALES_CHANNEL,
                 static::isType('string'),
                 static::isInstanceOf(Context::class),
-                static::callback(function (StorefrontPluginConfigurationCollection $configs): bool {
-                    // assert installConfig is used when compiling the theme
-                    return $configs->count() === 2;
-                })
+                static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
             );
 
         $configs = new StorefrontPluginConfigurationCollection([
@@ -130,10 +127,7 @@ class ThemeLifecycleHandlerTest extends TestCase
             ->with(
                 $themeId,
                 static::isInstanceOf(Context::class),
-                static::callback(function (StorefrontPluginConfigurationCollection $configs): bool {
-                    // assert installConfig is used when compiling the theme
-                    return $configs->count() === 2;
-                })
+                static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
             );
 
         $configs = new StorefrontPluginConfigurationCollection([
@@ -154,16 +148,13 @@ class ThemeLifecycleHandlerTest extends TestCase
                 TestDefaults::SALES_CHANNEL,
                 static::isType('string'),
                 static::isInstanceOf(Context::class),
-                static::callback(function (StorefrontPluginConfigurationCollection $configs): bool {
-                    // assert uninstalledConfig is not used when compiling the theme
-                    return $configs->count() === 1 && (
-                        (
-                            $configs->first()
-                            ? $configs->first()->getTechnicalName()
-                            : ''
-                        ) === 'Storefront'
-                    );
-                })
+                static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 1 && (
+                    (
+                        $configs->first()
+                        ? $configs->first()->getTechnicalName()
+                        : ''
+                    ) === 'Storefront'
+                ))
             );
 
         $configs = new StorefrontPluginConfigurationCollection([

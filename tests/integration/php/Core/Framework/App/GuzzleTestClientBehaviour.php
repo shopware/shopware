@@ -53,10 +53,7 @@ trait GuzzleTestClientBehaviour
         return \count($historyCollector->getHistory());
     }
 
-    /**
-     * @param ResponseInterface|\Exception|PromiseInterface $response
-     */
-    public function appendNewResponse($response): void
+    public function appendNewResponse(ResponseInterface|\Exception|PromiseInterface $response): void
     {
         /** @var MockHandler $mockHandler */
         $mockHandler = $this->getContainer()->get(MockHandler::class);

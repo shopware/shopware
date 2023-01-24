@@ -29,25 +29,13 @@ use Symfony\Component\Validator\Validation;
  */
 class OrderServiceTest extends TestCase
 {
-    /**
-     * @var MockObject|EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private MockObject&EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var MockObject|CartService
-     */
-    private $cartService;
+    private MockObject&CartService $cartService;
 
-    /**
-     * @var MockObject|EntityRepository
-     */
-    private $paymentMethodRepository;
+    private MockObject&EntityRepository $paymentMethodRepository;
 
-    /**
-     * @var MockObject|StateMachineRegistry
-     */
-    private $stateMachineRegistry;
+    private MockObject&StateMachineRegistry $stateMachineRegistry;
 
     private OrderService $orderService;
 

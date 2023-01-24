@@ -149,7 +149,7 @@ class FeatureTest extends TestCase
         yield 'Execute a callable with inactivated feature flag and throw a deprecated message' => [
             // `v6.4.0.0` is not registered as feature flag, therefore it will always throw the deprecation
             'v6.4.0.0', 'deprecated message', function ($deprecatedMessage, $errorMessage): void {
-                static::assertTrue(strpos($deprecatedMessage, $errorMessage) !== -1);
+                static::assertTrue(strpos($deprecatedMessage, (string) $errorMessage) !== -1);
             },
         ];
     }

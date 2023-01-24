@@ -200,8 +200,7 @@ class Criteria extends Struct implements \Stringable
      */
     public function hasEqualsFilter($field): bool
     {
-        return \count(array_filter($this->filters, static fn (Filter $filter) /* EqualsFilter $filter */
-=> $filter instanceof EqualsFilter && $filter->getField() === $field)) > 0;
+        return \count(array_filter($this->filters, static fn (Filter $filter) /* EqualsFilter $filter */ => $filter instanceof EqualsFilter && $filter->getField() === $field)) > 0;
     }
 
     /**

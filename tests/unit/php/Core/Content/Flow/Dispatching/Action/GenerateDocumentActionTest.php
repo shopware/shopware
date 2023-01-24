@@ -22,15 +22,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class GenerateDocumentActionTest extends TestCase
 {
-    /**
-     * @var MockObject
-     */
-    private $documentGenerator;
+    private MockObject&DocumentGenerator $documentGenerator;
 
-    /**
-     * @var MockObject|StorableFlow
-     */
-    private $flow;
+    private MockObject&StorableFlow $flow;
 
     private GenerateDocumentAction $action;
 

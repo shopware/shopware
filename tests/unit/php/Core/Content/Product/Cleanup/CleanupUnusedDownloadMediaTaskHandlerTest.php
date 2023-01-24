@@ -19,10 +19,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
  */
 class CleanupUnusedDownloadMediaTaskHandlerTest extends TestCase
 {
-    /**
-     * @var MockObject|DeleteNotUsedMediaService
-     */
-    private $deleteMediaService;
+    private MockObject&DeleteNotUsedMediaService $deleteMediaService;
 
     private CleanupUnusedDownloadMediaTaskHandler $handler;
 

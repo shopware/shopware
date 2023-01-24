@@ -724,8 +724,8 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(2, $oldAddresses);
         static::assertCount(2, $newAddresses);
 
-        $oldAddressIds = $oldAddresses->getAddresses()->map(static fn (CustomerAddressEntity $address) => $address->getId());
-        $newAddressIds = $newAddresses->getAddresses()->map(static fn (CustomerAddressEntity $address) => $address->getId());
+        $oldAddressIds = $oldAddresses->map(static fn (CustomerAddressEntity $address) => $address->getId());
+        $newAddressIds = $newAddresses->map(static fn (CustomerAddressEntity $address) => $address->getId());
 
         foreach ($oldAddressIds as $id) {
             static::assertNotContains($id, $newAddressIds);

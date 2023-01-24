@@ -26,10 +26,8 @@ class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
 
     /**
      * Allows to define a filter rule which line items should be considered for percentage discount/surcharge
-     *
-     * @var Rule|null
      */
-    protected $filter;
+    protected ?Rule $filter;
 
     public function __construct(float $price, ?Rule $filter = null)
     {

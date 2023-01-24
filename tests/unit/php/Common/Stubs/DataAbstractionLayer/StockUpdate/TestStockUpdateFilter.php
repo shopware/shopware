@@ -11,16 +11,10 @@ use Shopware\Core\Framework\Context;
 class TestStockUpdateFilter extends AbstractStockUpdateFilter
 {
     /**
-     * @var list<string>
-     */
-    private array $ids;
-
-    /**
      * @param list<string> $ids
      */
-    public function __construct(array $ids)
+    public function __construct(private readonly array $ids)
     {
-        $this->ids = $ids;
     }
 
     public function filter(array $ids, Context $context): array

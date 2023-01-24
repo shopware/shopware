@@ -25,10 +25,7 @@ class UserStorerTest extends TestCase
 {
     private UserStorer $storer;
 
-    /**
-     * @var MockObject|EntityRepository
-     */
-    private $repository;
+    private MockObject&EntityRepository $repository;
 
     public function setUp(): void
     {

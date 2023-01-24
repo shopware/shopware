@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace unit\php\Core\Content\Media\File;
+namespace Shopware\Tests\Unit\Core\Content\Media\File;
 
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -30,47 +30,23 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class FileSaverTest extends TestCase
 {
-    /**
-     * @var MockObject|EntityRepository
-     */
-    private $mediaRepository;
+    private MockObject&EntityRepository $mediaRepository;
 
-    /**
-     * @var MockObject|FilesystemOperator
-     */
-    private $filesystemPublic;
+    private FilesystemOperator&MockObject $filesystemPublic;
 
-    /**
-     * @var MockObject|UrlGeneratorInterface
-     */
-    private $urlGenerator;
+    private MockObject&UrlGeneratorInterface $urlGenerator;
 
-    /**
-     * @var MockObject|ThumbnailService
-     */
-    private $thumbnailService;
+    private MockObject&ThumbnailService $thumbnailService;
 
     private CollectingMessageBus $messageBus;
 
-    /**
-     * @var MockObject|MetadataLoader
-     */
-    private $metadataLoader;
+    private MockObject&MetadataLoader $metadataLoader;
 
-    /**
-     * @var MockObject|TypeDetector
-     */
-    private $typeDetector;
+    private MockObject&TypeDetector $typeDetector;
 
-    /**
-     * @var MockObject|FilesystemOperator
-     */
-    private $filesystemPrivate;
+    private FilesystemOperator&MockObject $filesystemPrivate;
 
-    /**
-     * @var MockObject|EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private MockObject&EventDispatcherInterface $eventDispatcher;
 
     private FileSaver $fileSaver;
 
@@ -197,9 +173,7 @@ class FileSaverTest extends TestCase
         $this->mediaRepository
             ->expects(static::once())
             ->method('update')
-            ->with(static::callback(static function (array $payload) use ($currentMedia) {
-                return $payload[0]['id'] === $currentMedia->getId() && $payload[0]['fileName'] === 'foo';
-            }));
+            ->with(static::callback(static fn (array $payload) => $payload[0]['id'] === $currentMedia->getId() && $payload[0]['fileName'] === 'foo'));
 
         $this->fileSaver->persistFileToMedia($mediaFile, 'foo', $mediaId, $context);
 

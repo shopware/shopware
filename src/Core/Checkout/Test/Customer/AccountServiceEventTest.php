@@ -35,32 +35,17 @@ class AccountServiceEventTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    /**
-     * @var AccountService
-     */
-    private $accountService;
+    private AccountService $accountService;
 
-    /**
-     * @var EntityRepository
-     */
-    private $customerRepository;
+    private EntityRepository $customerRepository;
 
     private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var LoginRoute
-     */
-    private $loginRoute;
+    private LoginRoute $loginRoute;
 
-    /**
-     * @var LogoutRoute
-     */
-    private $logoutRoute;
+    private LogoutRoute $logoutRoute;
 
-    /**
-     * @var ChangePaymentMethodRoute
-     */
-    private $changePaymentMethodRoute;
+    private ChangePaymentMethodRoute $changePaymentMethodRoute;
 
     protected function setUp(): void
     {

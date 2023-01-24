@@ -29,7 +29,7 @@ class ErrorResponseFactoryTest extends TestCase
 
         $data = null;
         if ($response->getContent()) {
-            $data = json_decode($response->getContent(), true);
+            $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         }
 
         $errors = $data['errors'];
@@ -61,7 +61,7 @@ class ErrorResponseFactoryTest extends TestCase
         $response = $factory->getResponseFromException(new \Exception('test'));
         $data = null;
         if ($response->getContent()) {
-            $data = json_decode($response->getContent(), true);
+            $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         }
 
         if ($exception instanceof ShopwareHttpException) {

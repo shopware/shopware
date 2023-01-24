@@ -21,10 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class LineItemDownloadLoaderTest extends TestCase
 {
-    /**
-     * @var MockObject|EntityRepository
-     */
-    private $productDownloadRepository;
+    private MockObject&EntityRepository $productDownloadRepository;
 
     private LineItemDownloadLoader $loader;
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -160,7 +161,7 @@ class SystemInstallCommandTest extends TestCase
      */
     private function prepareCommandInstance(array $expectedCommands = []): SystemInstallCommand
     {
-        $connection = $this->createMock(\Doctrine\DBAL\Connection::class);
+        $connection = $this->createMock(Connection::class);
         $connectionFactory = $this->createMock(DatabaseConnectionFactory::class);
 
         $connectionFactory->method('getConnection')->willReturn($connection);

@@ -43,11 +43,12 @@ class TimeBackoff implements LimiterStateInterface
 
     public function __wakeup(): void
     {
-        if (($limits = \json_decode($this->stringLimits, true, 512, \JSON_THROW_ON_ERROR)) === null) {
+        try {
+            $this->limits = json_decode($this->stringLimits, true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
             throw new \BadMethodCallException('Cannot unserialize ' . self::class);
         }
 
-        $this->limits = $limits;
         unset($this->stringLimits);
     }
 

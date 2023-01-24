@@ -283,12 +283,12 @@ class BlockedShippingMethodSwitcherTest extends TestCase
             $shippingMethodRoute
                 ->method('load')
                 ->withAnyParameters()
-                ->willReturnCallback([$this, 'callbackLoadShippingMethodsForAllBlocked']);
+                ->willReturnCallback($this->callbackLoadShippingMethodsForAllBlocked(...));
         } else {
             $shippingMethodRoute
                 ->method('load')
                 ->withAnyParameters()
-                ->willReturnCallback([$this, 'callbackLoadShippingMethods']);
+                ->willReturnCallback($this->callbackLoadShippingMethods(...));
         }
 
         return $shippingMethodRoute;

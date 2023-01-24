@@ -30,7 +30,6 @@ use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -114,14 +113,15 @@ class ProcessorTest extends TestCase
     {
         $extension = new class() extends Struct {
         };
+
         $cart = new Cart('bar');
         $cart->addExtension('unit-test', $extension);
 
-        $processorProperty = ReflectionHelper::getProperty(Processor::class, 'processors');
-        $originalProcessors = $processorProperty->getValue($this->processor);
-
-        try {
-            $processorProperty->setValue($this->processor, [
+        $processor = new Processor(
+            new Validator([]),
+            $this->createMock(AmountCalculator::class),
+            $this->createMock(TransactionProcessor::class),
+            [
                 new class() implements CartProcessorInterface {
                     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
                     {
@@ -130,14 +130,14 @@ class ProcessorTest extends TestCase
                         TestCase::assertSame($original->getExtension('unit-test'), $toCalculate->getExtension('unit-test'));
                     }
                 },
-            ]);
+            ],
+            [],
+            $this->createMock(ScriptExecutor::class)
+        );
 
-            $newCart = $this->processor->process($cart, $this->context, new CartBehavior());
+        $newCart = $processor->process($cart, $this->context, new CartBehavior());
 
-            static::assertSame($extension, $newCart->getExtension('unit-test'));
-        } finally {
-            $processorProperty->setValue($this->processor, $originalProcessors);
-        }
+        static::assertSame($extension, $newCart->getExtension('unit-test'));
     }
 
     public function testCalculatedCreditTaxesIncludeCustomItemTax(): void
@@ -337,7 +337,7 @@ class ProcessorTest extends TestCase
         );
         $originalCart->add(
             (new LineItem(Uuid::randomHex(), LineItem::PROMOTION_LINE_ITEM_TYPE, '', 1))
-            ->setLabel('Discount 15%')
+                ->setLabel('Discount 15%')
         );
         $originalCart->add(
             (new LineItem(Uuid::randomHex(), LineItem::PROMOTION_LINE_ITEM_TYPE, '', 1))

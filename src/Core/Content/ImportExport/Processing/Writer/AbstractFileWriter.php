@@ -10,20 +10,14 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
  */
 abstract class AbstractFileWriter extends AbstractWriter
 {
-    /**
-     * @var FilesystemOperator
-     */
-    protected $filesystem;
+    protected FilesystemOperator $filesystem;
 
     /**
      * @var resource
      */
     protected $tempFile;
 
-    /**
-     * @var string
-     */
-    protected $tempPath;
+    protected string $tempPath;
 
     /**
      * @var resource

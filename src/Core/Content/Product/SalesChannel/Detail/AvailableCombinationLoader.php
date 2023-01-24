@@ -57,9 +57,9 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
         $result = new AvailableCombinationResult();
 
         foreach ($combinations as $combination) {
-            $options = json_decode((string) $combination['options'], true, 512, \JSON_THROW_ON_ERROR);
-
-            if (!$options) {
+            try {
+                $options = json_decode((string) $combination['options'], true, 512, \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
                 continue;
             }
 

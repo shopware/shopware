@@ -159,9 +159,7 @@ class TaxProviderProcessorTest extends TestCase
         $taxProviderRegistry = static::createMock(TaxProviderRegistry::class);
         $taxProviderRegistry
             ->method('has')
-            ->willReturnCallback(function (string $identifier) {
-                return $identifier === TestEmptyTaxProvider::class;
-            });
+            ->willReturnCallback(fn (string $identifier) => $identifier === TestEmptyTaxProvider::class);
 
         $taxProviderRegistry
             ->method('get')
@@ -268,9 +266,7 @@ class TaxProviderProcessorTest extends TestCase
         $taxProviderRegistry = static::createMock(TaxProviderRegistry::class);
         $taxProviderRegistry
             ->method('has')
-            ->willReturnCallback(function (string $identifier) {
-                return $identifier === TestEmptyTaxProvider::class;
-            });
+            ->willReturnCallback(fn (string $identifier) => $identifier === TestEmptyTaxProvider::class);
 
         $taxProviderRegistry
             ->method('get')

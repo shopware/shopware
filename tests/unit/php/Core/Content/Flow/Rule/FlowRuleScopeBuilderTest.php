@@ -24,20 +24,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class FlowRuleScopeBuilderTest extends TestCase
 {
-    /**
-     * @var MockObject|OrderConverter
-     */
-    private $orderConverter;
+    private MockObject&OrderConverter $orderConverter;
 
-    /**
-     * @var MockObject|DeliveryBuilder
-     */
-    private $deliveryBuilder;
+    private MockObject&DeliveryBuilder $deliveryBuilder;
 
-    /**
-     * @var MockObject|CartDataCollectorInterface
-     */
-    private $cartDataCollector;
+    private MockObject&CartDataCollectorInterface $cartDataCollector;
 
     private FlowRuleScopeBuilder $scopeBuilder;
 

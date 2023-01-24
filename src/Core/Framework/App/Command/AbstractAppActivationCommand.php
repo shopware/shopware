@@ -19,10 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 abstract class AbstractAppActivationCommand extends Command
 {
-    /**
-     * @var EntityRepository
-     */
-    protected $appRepo;
+    protected EntityRepository $appRepo;
 
     public function __construct(EntityRepository $appRepo, private readonly string $action)
     {

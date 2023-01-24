@@ -33,7 +33,7 @@ class AccessToken implements AccessTokenEntityInterface
         return $this->client;
     }
 
-    public function getUserIdentifier(): string|int
+    public function getUserIdentifier(): string|int|null
     {
         return $this->userIdentifier;
     }

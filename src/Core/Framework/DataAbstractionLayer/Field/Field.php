@@ -116,16 +116,12 @@ abstract class Field extends Struct
     {
         $this->initLazy();
 
-        \assert($this->resolver !== null);
-
         return $this->resolver;
     }
 
     public function getAccessorBuilder(): ?FieldAccessorBuilderInterface
     {
         $this->initLazy();
-
-        \assert($this->accessorBuilder !== null);
 
         return $this->accessorBuilder;
     }

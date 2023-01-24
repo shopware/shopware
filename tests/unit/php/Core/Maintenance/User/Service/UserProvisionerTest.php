@@ -32,7 +32,7 @@ class UserProvisionerTest extends TestCase
                     static::assertFalse($data['admin']);
                     static::assertTrue($data['active']);
 
-                    return password_verify('shopware', $data['password']);
+                    return password_verify('shopware', (string) $data['password']);
                 })
             );
         $connection->expects(static::once())->method('fetchOne')->willReturn(json_encode(['_value' => 8]));

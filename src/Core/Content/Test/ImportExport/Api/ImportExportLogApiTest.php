@@ -84,7 +84,7 @@ class ImportExportLogApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode($response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
+            $content = json_decode((string) $response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
 
             $expectData = [];
             foreach (array_values($data) as $entry) {

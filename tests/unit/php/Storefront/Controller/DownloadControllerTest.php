@@ -17,10 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class DownloadControllerTest extends TestCase
 {
-    /**
-     * @var MockObject|DownloadRoute
-     */
-    private $downloadRouteMock;
+    private MockObject&DownloadRoute $downloadRouteMock;
 
     private DownloadController $controller;
 

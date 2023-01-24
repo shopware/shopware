@@ -33,7 +33,7 @@ class Migration1627650101AddUploadPluginRolePrivilegeTest extends TestCase
         $migration->update($connection);
 
         $privileges = $connection->fetchOne('SELECT privileges FROM acl_role WHERE id = :id', ['id' => $id]);
-        $privileges = \json_decode($privileges, true, 512, \JSON_THROW_ON_ERROR);
+        $privileges = \json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertContains('user_config:read', $privileges);
         static::assertContains('user_config:create', $privileges);

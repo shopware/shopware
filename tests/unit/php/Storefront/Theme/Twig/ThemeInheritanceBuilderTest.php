@@ -49,11 +49,8 @@ class ThemeInheritanceBuilderTest extends TestCase
  */
 class TestStorefrontPluginRegistry implements StorefrontPluginRegistryInterface
 {
-    private StorefrontPluginConfigurationCollection $plugins;
-
-    public function __construct(StorefrontPluginConfigurationCollection $plugins)
+    public function __construct(private readonly StorefrontPluginConfigurationCollection $plugins)
     {
-        $this->plugins = $plugins;
     }
 
     public function getConfigurations(): StorefrontPluginConfigurationCollection

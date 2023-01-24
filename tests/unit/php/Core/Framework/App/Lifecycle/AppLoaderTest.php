@@ -17,6 +17,7 @@ class AppLoaderTest extends TestCase
 {
     public function testGetSnippets(): void
     {
+        $expectedSnippet = [];
         $expectedSnippet['en-GB'] = file_get_contents(__DIR__ . '/../_fixtures/Resources/app/administration/snippet/en-GB.json');
 
         $appLoader = new AppLoader(

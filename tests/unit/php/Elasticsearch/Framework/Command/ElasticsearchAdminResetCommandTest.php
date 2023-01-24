@@ -22,10 +22,7 @@ class ElasticsearchAdminResetCommandTest extends TestCase
 {
     private Connection $connection;
 
-    /**
-     * @var Client&MockObject
-     */
-    private $client;
+    private Client&MockObject $client;
 
     public function setUp(): void
     {

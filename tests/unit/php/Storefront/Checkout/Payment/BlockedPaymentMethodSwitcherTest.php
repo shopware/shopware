@@ -283,12 +283,12 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
             $paymentMethodRoute
                 ->method('load')
                 ->withAnyParameters()
-                ->willReturnCallback([$this, 'callbackLoadPaymentMethodsForAllBlocked']);
+                ->willReturnCallback($this->callbackLoadPaymentMethodsForAllBlocked(...));
         } else {
             $paymentMethodRoute
                 ->method('load')
                 ->withAnyParameters()
-                ->willReturnCallback([$this, 'callbackLoadPaymentMethods']);
+                ->willReturnCallback($this->callbackLoadPaymentMethods(...));
         }
 
         return $paymentMethodRoute;

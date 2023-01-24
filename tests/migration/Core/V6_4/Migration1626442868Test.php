@@ -16,13 +16,13 @@ class Migration1626442868Test extends TestCase
 {
     use MigrationTestTrait;
 
-    public const SALES_CHANNEL_STOREFRONT = 'Storefront';
-    public const SALES_CHANNEL_API = 'Headless';
-    public const BEFORE_MIGRATION_DESCRIPTION_STOREFRONT = 'Sales channel mit HTML storefront';
-    public const BEFORE_MIGRATION_DESCRIPTION_API = 'API only sales channel';
-    public const AFTER_MIGRATION_DESCRIPTION_STOREFRONT = 'Verkaufskanal mit HTML-Storefront';
-    public const AFTER_MIGRATION_DESCRIPTION_API = 'Verkaufskanal mit API-only-Zugang';
-    public const CUSTOM_DESCRIPTION = 'Custom Description';
+    final public const SALES_CHANNEL_STOREFRONT = 'Storefront';
+    final public const SALES_CHANNEL_API = 'Headless';
+    final public const BEFORE_MIGRATION_DESCRIPTION_STOREFRONT = 'Sales channel mit HTML storefront';
+    final public const BEFORE_MIGRATION_DESCRIPTION_API = 'API only sales channel';
+    final public const AFTER_MIGRATION_DESCRIPTION_STOREFRONT = 'Verkaufskanal mit HTML-Storefront';
+    final public const AFTER_MIGRATION_DESCRIPTION_API = 'Verkaufskanal mit API-only-Zugang';
+    final public const CUSTOM_DESCRIPTION = 'Custom Description';
 
     private string $oldDescriptionStorefront;
 

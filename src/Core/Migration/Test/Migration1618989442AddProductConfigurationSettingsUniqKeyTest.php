@@ -290,8 +290,7 @@ class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends Test
                 'stock' => 10,
                 'active' => true,
                 'parentId' => $productId,
-                'options' => array_map(fn (array $group) // Assign first option from each group
-=> ['id' => $group[0]], $optionIds),
+                'options' => array_map(fn (array $group) => ['id' => $group[0]], $optionIds),
             ],
         ];
 

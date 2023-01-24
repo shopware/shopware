@@ -115,7 +115,7 @@ class AssetServiceTest extends TestCase
             new ParameterBag()
         );
 
-        $assetService->copyAssetsFromBundle('Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\ExampleBundle\ExampleBundle');
+        $assetService->copyAssetsFromBundle(ExampleBundle::class);
 
         static::assertTrue($filesystem->has('bundles/example'));
         static::assertTrue($filesystem->has('bundles/example/test.txt'));

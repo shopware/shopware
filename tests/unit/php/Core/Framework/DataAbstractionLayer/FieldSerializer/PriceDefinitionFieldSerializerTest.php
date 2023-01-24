@@ -26,15 +26,9 @@ use Symfony\Component\Validator\Validation;
  */
 class PriceDefinitionFieldSerializerTest extends TestCase
 {
-    /**
-     * @var MockObject|DefinitionInstanceRegistry
-     */
-    private $definitionInstanceRegistry;
+    private MockObject&DefinitionInstanceRegistry $definitionInstanceRegistry;
 
-    /**
-     * @var MockObject|RuleConditionRegistry
-     */
-    private $ruleConditionRegistry;
+    private MockObject&RuleConditionRegistry $ruleConditionRegistry;
 
     private PriceDefinitionFieldSerializer $fieldSerializer;
 

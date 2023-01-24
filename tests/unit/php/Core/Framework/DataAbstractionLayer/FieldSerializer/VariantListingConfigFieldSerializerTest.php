@@ -67,7 +67,7 @@ class VariantListingConfigFieldSerializerTest extends TestCase
 
         static::assertNull($result['display_parent']);
         static::assertNull($result['main_variant_id']);
-        static::assertSame(json_encode($data['configuratorGroupConfig']), $result['configurator_group_config']);
+        static::assertSame(json_encode($data['configuratorGroupConfig'], \JSON_THROW_ON_ERROR), $result['configurator_group_config']);
     }
 
     public function testEncodeThrowExceptionOnWrongField(): void

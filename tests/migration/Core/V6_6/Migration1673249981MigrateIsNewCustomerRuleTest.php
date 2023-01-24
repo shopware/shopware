@@ -63,7 +63,7 @@ class Migration1673249981MigrateIsNewCustomerRuleTest extends TestCase
         $this->migration->update($this->connection);
         static::assertCount(0, $this->getIsNewCustomerConditions());
         static::assertNull($this->getTestRule()['payload'], 'the migrated rule payload should be empty');
-        $value = json_decode($this->getDaysSinceFirstLoginConditions()['value'], true, 512, \JSON_THROW_ON_ERROR);
+        $value = json_decode((string) $this->getDaysSinceFirstLoginConditions()['value'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals('=', $value['operator']);
         static::assertEquals(0, $value['daysPassed']);
 

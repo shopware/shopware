@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Log\Monolog;
 
 use Monolog\Handler\AbstractHandler;
+use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Monolog\AnnotatePackageHandler;
 use Shopware\Core\Framework\Log\Package;
@@ -19,7 +20,16 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @internal
  *
- * @phpstan-import-type Record from \Monolog\Logger
+ * @phpstan-import-type Record from Logger
+ *
+ * @package core
+ */
+/**
+ * @covers \Shopware\Core\Framework\Log\Monolog\AnnotatePackageHandler
+ *
+ * @internal
+ *
+ * @phpstan-import-type Record from Logger
  *
  * @package core
  */
@@ -211,7 +221,7 @@ class TestCommand extends Command
         $testCause = new TestCause();
         $testCause->throw(new TestException('test'));
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }
 

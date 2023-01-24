@@ -26,20 +26,11 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class DownloadRouteTest extends TestCase
 {
-    /**
-     * @var MockObject|EntityRepository
-     */
-    private $downloadRepository;
+    private MockObject&EntityRepository $downloadRepository;
 
-    /**
-     * @var MockObject|DownloadResponseGenerator
-     */
-    private $downloadResponseGenerator;
+    private MockObject&DownloadResponseGenerator $downloadResponseGenerator;
 
-    /**
-     * @var MockObject|SalesChannelContext
-     */
-    private $salesChannelContext;
+    private MockObject&SalesChannelContext $salesChannelContext;
 
     private DownloadRoute $downloadRoute;
 

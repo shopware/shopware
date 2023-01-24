@@ -66,9 +66,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         static::assertCount(2, $tokenQueries, 'Expected 2 token queries due to token searches');
 
-        $nameQueries = array_map(function (BuilderInterface $query) {
-            return $query->toArray();
-        }, array_values($tokenQueries[0]->getQueries(BoolQuery::SHOULD)));
+        $nameQueries = array_map(fn (BuilderInterface $query) => $query->toArray(), array_values($tokenQueries[0]->getQueries(BoolQuery::SHOULD)));
 
         static::assertCount(8, $nameQueries);
 

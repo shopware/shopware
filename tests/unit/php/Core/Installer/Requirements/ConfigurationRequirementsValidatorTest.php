@@ -15,10 +15,7 @@ use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
  */
 class ConfigurationRequirementsValidatorTest extends TestCase
 {
-    /**
-     * @var IniConfigReader&MockObject
-     */
-    private $configReader;
+    private MockObject&IniConfigReader $configReader;
 
     private ConfigurationRequirementsValidator $validator;
 
@@ -37,9 +34,7 @@ class ConfigurationRequirementsValidatorTest extends TestCase
     public function testValidateRequirements(array $iniValues, array $expectedChecks): void
     {
         $this->configReader->method('get')->willReturnCallback(
-            function ($arg) use ($iniValues) {
-                return $iniValues[$arg] ?? '';
-            }
+            fn ($arg) => $iniValues[$arg] ?? ''
         );
 
         $checks = $this->validator->validateRequirements(new RequirementsCheckCollection());

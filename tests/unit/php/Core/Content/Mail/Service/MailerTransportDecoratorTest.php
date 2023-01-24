@@ -24,25 +24,13 @@ use Symfony\Component\Mime\Email;
  */
 class MailerTransportDecoratorTest extends TestCase
 {
-    /**
-     * @var MockObject|TransportInterface
-     */
-    private $decorated;
+    private MockObject&TransportInterface $decorated;
 
-    /**
-     * @var MockObject|MailAttachmentsBuilder
-     */
-    private $attachmentsBuilder;
+    private MockObject&MailAttachmentsBuilder $attachmentsBuilder;
 
-    /**
-     * @var MockObject|FilesystemOperator
-     */
-    private $filesystem;
+    private FilesystemOperator&MockObject $filesystem;
 
-    /**
-     * @var MockObject|EntityRepository
-     */
-    private $documentRepository;
+    private MockObject&EntityRepository $documentRepository;
 
     private MailerTransportDecorator $decorator;
 

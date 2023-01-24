@@ -88,7 +88,7 @@ final class WebhookEventMessageHandler
                     'processingTime' => time() - $timestamp,
                     'responseContent' => [
                         'headers' => $response->getHeaders(),
-                        'body' => \json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR),
+                        'body' => \json_decode($response->getBody()->getContents(), true),
                     ],
                     'responseStatusCode' => $response->getStatusCode(),
                     'responseReasonPhrase' => $response->getReasonPhrase(),
@@ -127,7 +127,7 @@ final class WebhookEventMessageHandler
 
             $this->webhookEventLogRepository->update([$payload], $context);
 
-            throw new \RuntimeException(\sprintf('Message %s failed', static::class));
+            throw new \RuntimeException(\sprintf('Message %s failed with error: %s', static::class, $e->getMessage()), $e->getCode(), $e);
         }
     }
 }

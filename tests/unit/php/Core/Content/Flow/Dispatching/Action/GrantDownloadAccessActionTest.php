@@ -28,10 +28,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class GrantDownloadAccessActionTest extends TestCase
 {
-    /**
-     * @var MockObject|EntityRepository
-     */
-    private $orderLineItemDownloadRepository;
+    private MockObject&EntityRepository $orderLineItemDownloadRepository;
 
     private GrantDownloadAccessAction $action;
 

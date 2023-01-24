@@ -66,9 +66,7 @@ class UninstallAppsStrategyTest extends TestCase
             $themeLifecycleHandler->expects(static::once())
                 ->method('handleUninstall')
                 ->with(
-                    static::callback(function (AppDeactivatedEvent $event) use ($app) {
-                        return $event->getApp()->getName() === $app->getName();
-                    })
+                    static::callback(fn (AppDeactivatedEvent $event) => $event->getApp()->getName() === $app->getName())
                 );
         }
 
@@ -95,7 +93,7 @@ class UninstallAppsStrategyTest extends TestCase
 
         try {
             $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
+        } catch (AppUrlChangeDetectedException) {
             $wasThrown = true;
         }
         static::assertTrue($wasThrown);

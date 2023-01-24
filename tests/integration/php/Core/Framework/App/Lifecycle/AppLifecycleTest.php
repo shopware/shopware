@@ -179,7 +179,7 @@ class AppLifecycleTest extends TestCase
 
         try {
             $this->appLifecycle->install($manifest, true, $this->context);
-        } catch (AppRegistrationException $e) {
+        } catch (AppRegistrationException) {
             $wasThrown = true;
         }
 
@@ -1153,7 +1153,7 @@ class AppLifecycleTest extends TestCase
         ', ['aclRoleId' => Uuid::fromHexToBytes($aclRoleId)]);
 
         static::assertIsString($privileges);
-        $privileges = json_decode($privileges, true);
+        $privileges = json_decode($privileges, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertContains('app.' . $appEntity->getName(), $privileges);
     }
@@ -1424,7 +1424,7 @@ class AppLifecycleTest extends TestCase
             WHERE `id` = :aclRoleId
         ', ['aclRoleId' => Uuid::fromHexToBytes($roleId)]);
 
-        $privileges = json_decode($privileges, true);
+        $privileges = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(16, $privileges);
 
@@ -1469,9 +1469,7 @@ class AppLifecycleTest extends TestCase
         $relations = $customFieldSet->getRelations();
         static::assertNotNull($relations);
 
-        $relatedEntities = array_map(function (CustomFieldSetRelationEntity $relation) {
-            return $relation->getEntityName();
-        }, $relations->getElements());
+        $relatedEntities = array_map(fn (CustomFieldSetRelationEntity $relation) => $relation->getEntityName(), $relations->getElements());
         static::assertContains('product', $relatedEntities);
         static::assertContains('customer', $relatedEntities);
 
@@ -1638,7 +1636,7 @@ class AppLifecycleTest extends TestCase
         $firstCmsBlock = $cmsBlocks->filterByProperty('name', 'my-first-block')->first();
         static::assertEquals('my-first-block', $firstCmsBlock->getName());
         static::assertEquals('First block from app', $firstCmsBlock->getLabel());
-        $firstBlockJson = json_encode($firstCmsBlock->getBlock());
+        $firstBlockJson = json_encode($firstCmsBlock->getBlock(), \JSON_THROW_ON_ERROR);
         static::assertIsString($firstBlockJson);
         static::assertJsonStringEqualsJsonFile(__DIR__ . '/_fixtures/cms/expectedFirstCmsBlock.json', $firstBlockJson);
         static::assertEquals(
@@ -1654,7 +1652,7 @@ class AppLifecycleTest extends TestCase
         $secondCmsBlock = $cmsBlocks->filterByProperty('name', 'my-second-block')->first();
         static::assertEquals('my-second-block', $secondCmsBlock->getName());
         static::assertEquals('Second block from app', $secondCmsBlock->getLabel());
-        $cmsBlockJson = json_encode($secondCmsBlock->getBlock());
+        $cmsBlockJson = json_encode($secondCmsBlock->getBlock(), \JSON_THROW_ON_ERROR);
         static::assertIsString($cmsBlockJson);
         static::assertJsonStringEqualsJsonFile(__DIR__ . '/_fixtures/cms/expectedSecondCmsBlock.json', $cmsBlockJson);
         static::assertEquals(
@@ -1726,7 +1724,7 @@ class AppLifecycleTest extends TestCase
         $this->getContainer()->get(Connection::class)->insert('acl_role', [
             'id' => Uuid::fromHexToBytes($aclRoleId),
             'name' => 'aclTest',
-            'privileges' => \json_encode($privileges),
+            'privileges' => \json_encode($privileges, \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
@@ -1892,7 +1890,7 @@ class AppLifecycleTest extends TestCase
         static::assertEquals($appFlowAction['name'], 'telegram.send.message');
         static::assertEquals($appFlowAction['url'], 'https://test-flow.com');
         static::assertEquals($appFlowAction['sw_icon'], 'default-communication-speech-bubbles');
-        $parameters = json_decode($appFlowAction['parameters'], true);
+        $parameters = json_decode((string) $appFlowAction['parameters'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($parameters);
         static::assertEquals(
             [
@@ -1906,7 +1904,7 @@ class AppLifecycleTest extends TestCase
             $parameters
         );
 
-        $config = json_decode($appFlowAction['config'], true);
+        $config = json_decode((string) $appFlowAction['config'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($config);
         static::assertEquals(
             [
@@ -1934,7 +1932,7 @@ class AppLifecycleTest extends TestCase
             $config
         );
 
-        $headers = json_decode($appFlowAction['headers'], true);
+        $headers = json_decode((string) $appFlowAction['headers'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($headers);
         static::assertEquals(
             [
@@ -1948,7 +1946,7 @@ class AppLifecycleTest extends TestCase
             $headers
         );
 
-        $requirements = json_decode($appFlowAction['requirements'], true);
+        $requirements = json_decode((string) $appFlowAction['requirements'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($requirements);
         static::assertEquals(
             [

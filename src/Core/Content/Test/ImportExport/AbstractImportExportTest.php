@@ -58,15 +58,9 @@ abstract class AbstractImportExportTest extends TestCase
 
     final public const TEST_IMAGE = __DIR__ . '/fixtures/shopware-logo.png';
 
-    /**
-     * @var EntityRepository
-     */
-    protected $productRepository;
+    protected EntityRepository $productRepository;
 
-    /**
-     * @var TraceableEventDispatcher
-     */
-    protected $listener;
+    protected TraceableEventDispatcher $listener;
 
     public function setUp(): void
     {

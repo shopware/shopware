@@ -55,7 +55,7 @@ class ProductPageLoaderTest extends TestCase
         /** @phpstan-ignore-next-line $slot */
         $slot = $page->getCmsPage()->getSections()->first()->getBlocks()->first()->getSlots()->first()->getSlot();
 
-        static::assertEquals($reviews, json_decode($slot, true));
+        static::assertEquals($reviews, json_decode((string) $slot, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     /**

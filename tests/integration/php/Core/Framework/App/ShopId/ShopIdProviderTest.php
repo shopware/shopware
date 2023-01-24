@@ -65,7 +65,7 @@ class ShopIdProviderTest extends TestCase
         try {
             $this->shopIdProvider->getShopId();
             static::fail('expected AppUrlChangeDetectedException was not thrown.');
-        } catch (AppUrlChangeDetectedException $e) {
+        } catch (AppUrlChangeDetectedException) {
             // exception is expected
         }
     }
@@ -101,7 +101,7 @@ class ShopIdProviderTest extends TestCase
         try {
             $this->shopIdProvider->getShopId();
             static::fail('expected AppUrlChangeDetectedException was not thrown.');
-        } catch (AppUrlChangeDetectedException $e) {
+        } catch (AppUrlChangeDetectedException) {
             // exception is expected
         }
 

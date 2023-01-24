@@ -47,8 +47,8 @@ class Migration1600778848AddOrderMailsTest extends TestCase
 
             $mail = $mails[$key];
 
-            static::assertTrue(strpos($mail['content_html'], $updated) !== false);
-            static::assertTrue(strpos($mail['content_plain'], $updated) !== false);
+            static::assertStringContainsString($updated, $mail['content_html']);
+            static::assertStringContainsString($updated, $mail['content_plain']);
         }
     }
 
@@ -82,8 +82,8 @@ class Migration1600778848AddOrderMailsTest extends TestCase
 
             $mail = $mails[$key];
 
-            static::assertTrue(strpos($mail['content_html'], $updated) !== false);
-            static::assertTrue(strpos($mail['content_plain'], $updated) !== false);
+            static::assertStringContainsString($updated, $mail['content_html']);
+            static::assertStringContainsString($updated, $mail['content_plain']);
         }
     }
 
@@ -117,8 +117,8 @@ class Migration1600778848AddOrderMailsTest extends TestCase
 
             $mail = $mails[$key];
 
-            static::assertTrue(strpos($mail['content_html'], $updated) !== false);
-            static::assertTrue(strpos($mail['content_plain'], $updated) !== false);
+            static::assertStringContainsString($updated, $mail['content_html']);
+            static::assertStringContainsString($updated, $mail['content_plain']);
         }
     }
 
@@ -150,8 +150,8 @@ class Migration1600778848AddOrderMailsTest extends TestCase
 
             $mail = $mails[$key];
 
-            static::assertTrue(strpos($mail['content_html'], $updated) !== false);
-            static::assertTrue(strpos($mail['content_plain'], $updated) !== false);
+            static::assertStringContainsString($updated, $mail['content_html']);
+            static::assertStringContainsString($updated, $mail['content_plain']);
         }
     }
 

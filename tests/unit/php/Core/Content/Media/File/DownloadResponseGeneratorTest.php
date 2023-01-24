@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace unit\php\Core\Content\Media\File;
+namespace Shopware\Tests\Unit\Core\Content\Media\File;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
@@ -13,7 +13,6 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
@@ -29,32 +28,17 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class DownloadResponseGeneratorTest extends TestCase
 {
-    /**
-     * @var MockObject|MediaService
-     */
-    private $mediaService;
+    private MockObject&MediaService $mediaService;
 
-    /**
-     * @var MockObject|Filesystem
-     */
-    private $privateFilesystem;
+    private Filesystem&MockObject $privateFilesystem;
 
-    /**
-     * @var MockObject|Filesystem
-     */
-    private $publicFilesystem;
+    private Filesystem&MockObject $publicFilesystem;
 
-    /**
-     * @var MockObject|UrlGeneratorInterface
-     */
-    private $urlGenerator;
+    private MockObject&UrlGeneratorInterface $urlGenerator;
 
     private DownloadResponseGenerator $downloadResponseGenerator;
 
-    /**
-     * @var MockObject|SalesChannelContext
-     */
-    private $salesChannelContext;
+    private MockObject&SalesChannelContext $salesChannelContext;
 
     public function setUp(): void
     {
@@ -117,7 +101,7 @@ class DownloadResponseGeneratorTest extends TestCase
             $publicFilesystem,
             $this->urlGenerator,
             $this->mediaService,
-            'php'
+            $strategy ?? 'php'
         );
 
         $media = new MediaEntity();
@@ -129,11 +113,6 @@ class DownloadResponseGeneratorTest extends TestCase
         $streamInterface = $this->createMock(StreamInterface::class);
         $streamInterface->method('detach')->willReturn(fopen('php://temp', 'rb'));
         $this->mediaService->method('loadFileStream')->willReturn($streamInterface);
-
-        if ($strategy) {
-            $property = ReflectionHelper::getProperty(DownloadResponseGenerator::class, 'localPrivateDownloadStrategy');
-            $property->setValue($this->downloadResponseGenerator, $strategy);
-        }
 
         $response = $this->downloadResponseGenerator->getResponse($media, $this->salesChannelContext);
 
@@ -178,10 +157,7 @@ class DownloadResponseGeneratorTest extends TestCase
         return $fileSystem;
     }
 
-    /**
-     * @return Filesystem|MockObject
-     */
-    private function getExternalFilesystemOperator()
+    private function getExternalFilesystemOperator(): Filesystem|MockObject
     {
         $fileSystem = $this->createMock(Filesystem::class);
         $fileSystem->method('temporaryUrl')->willReturn('foobar.txt');

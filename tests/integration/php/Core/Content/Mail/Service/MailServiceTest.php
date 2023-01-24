@@ -66,7 +66,7 @@ class MailServiceTest extends TestCase
             MailBeforeValidateEvent::class,
             function (MailBeforeValidateEvent $event): void {
                 $event->setTemplateData(
-                    array_merge($event->getTemplateData(), ['plugin-value' => true])
+                    [...$event->getTemplateData(), ...['plugin-value' => true]]
                 );
             }
         );

@@ -37,25 +37,13 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CmsControllerTest extends TestCase
 {
-    /**
-     * @var MockObject|EventDispatcher
-     */
-    private $eventDispatcherMock;
+    private MockObject&EventDispatcher $eventDispatcherMock;
 
-    /**
-     * @var MockObject|CmsRoute
-     */
-    private $cmsRouteMock;
+    private MockObject&CmsRoute $cmsRouteMock;
 
-    /**
-     * @var MockObject|CategoryRoute
-     */
-    private $categoryRouteMock;
+    private MockObject&CategoryRoute $categoryRouteMock;
 
-    /**
-     * @var ProductListingRoute|MockObject
-     */
-    private $productListingRouteMock;
+    private MockObject&ProductListingRoute $productListingRouteMock;
 
     private CmsControllerTestClass $controller;
 
@@ -155,8 +143,8 @@ class CmsControllerTest extends TestCase
         $response = $this->controller->filter($ids->get('navigation'), $request, $this->createMock(SalesChannelContext::class));
 
         static::assertEquals(
-            json_encode($testAggregations),
-            json_encode(json_decode($response->getContent() ?: '', true))
+            json_encode($testAggregations, \JSON_THROW_ON_ERROR),
+            json_encode(json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR), \JSON_THROW_ON_ERROR)
         );
 
         static::assertTrue($request->request->get('only-aggregations'));
@@ -173,7 +161,7 @@ class CmsControllerTest extends TestCase
                 'options' => json_encode([
                     $ids->get('group1') => $ids->get('option1'),
                     $ids->get('group2') => $ids->get('option2'),
-                ]),
+                ], \JSON_THROW_ON_ERROR),
             ]
         );
 

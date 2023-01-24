@@ -166,7 +166,7 @@ class SnippetFinderTest extends TestCase
 
         $returns = [];
         foreach ($snippets as $key => $value) {
-            $returns[]['value'] = json_encode([$key => $value]);
+            $returns[]['value'] = json_encode([$key => $value], \JSON_THROW_ON_ERROR);
         }
 
         $connection

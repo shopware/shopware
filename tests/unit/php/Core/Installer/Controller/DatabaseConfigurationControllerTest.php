@@ -30,40 +30,19 @@ class DatabaseConfigurationControllerTest extends TestCase
 {
     use InstallerControllerTestTrait;
 
-    /**
-     * @var Environment&MockObject
-     */
-    private $twig;
+    private MockObject&Environment $twig;
 
-    /**
-     * @var TranslatorInterface&MockObject
-     */
-    private $translator;
+    private MockObject&TranslatorInterface $translator;
 
-    /**
-     * @var BlueGreenDeploymentService&MockObject
-     */
-    private $blueGreenDeploymentService;
+    private MockObject&BlueGreenDeploymentService $blueGreenDeploymentService;
 
-    /**
-     * @var JwtCertificateGenerator&MockObject
-     */
-    private $jwtCertificateGenerator;
+    private MockObject&JwtCertificateGenerator $jwtCertificateGenerator;
 
-    /**
-     * @var SetupDatabaseAdapter&MockObject
-     */
-    private $setupDatabaseAdapter;
+    private MockObject&SetupDatabaseAdapter $setupDatabaseAdapter;
 
-    /**
-     * @var DatabaseConnectionFactory&MockObject
-     */
-    private $connectionFactory;
+    private MockObject&DatabaseConnectionFactory $connectionFactory;
 
-    /**
-     * @var RouterInterface&MockObject
-     */
-    private $router;
+    private MockObject&RouterInterface $router;
 
     private DatabaseConfigurationController $controller;
 

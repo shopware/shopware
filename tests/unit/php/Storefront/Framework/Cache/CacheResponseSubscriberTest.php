@@ -77,7 +77,7 @@ class CacheResponseSubscriberTest extends TestCase
         $event = new ResponseEvent(
             $this->createMock(HttpKernelInterface::class),
             $request,
-            HttpKernelInterface::MASTER_REQUEST,
+            HttpKernelInterface::MAIN_REQUEST,
             $response
         );
 
@@ -119,7 +119,7 @@ class CacheResponseSubscriberTest extends TestCase
         $event = new ResponseEvent(
             $this->createMock(HttpKernelInterface::class),
             $request,
-            HttpKernelInterface::MASTER_REQUEST,
+            HttpKernelInterface::MAIN_REQUEST,
             $response
         );
 
@@ -128,9 +128,7 @@ class CacheResponseSubscriberTest extends TestCase
         if ($hasCookie) {
             static::assertTrue($response->headers->has('set-cookie'));
 
-            $cookies = array_filter($response->headers->getCookies(), function (Cookie $cookie) {
-                return $cookie->getName() === CacheResponseSubscriber::CONTEXT_CACHE_COOKIE;
-            });
+            $cookies = array_filter($response->headers->getCookies(), fn (Cookie $cookie) => $cookie->getName() === CacheResponseSubscriber::CONTEXT_CACHE_COOKIE);
 
             static::assertCount(1, $cookies);
             /** @var Cookie $cookie */
@@ -195,7 +193,7 @@ class CacheResponseSubscriberTest extends TestCase
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, $active);
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST, \json_encode($whitelist));
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST, \json_encode($whitelist, \JSON_THROW_ON_ERROR));
         $request->server->set('REMOTE_ADDR', self::IP);
         $requestStack->push($request);
 
@@ -206,7 +204,7 @@ class CacheResponseSubscriberTest extends TestCase
         $event = new ResponseEvent(
             $this->createMock(HttpKernelInterface::class),
             $request,
-            HttpKernelInterface::MASTER_REQUEST,
+            HttpKernelInterface::MAIN_REQUEST,
             $response
         );
 
@@ -618,7 +616,7 @@ class CacheResponseSubscriberTest extends TestCase
             new ResponseEvent(
                 $this->createMock(HttpKernelInterface::class),
                 $request,
-                HttpKernelInterface::MASTER_REQUEST,
+                HttpKernelInterface::MAIN_REQUEST,
                 $response
             )
         );

@@ -30,7 +30,7 @@ class ExecutorTest extends TestCase
     use GuzzleTestClientBehaviour;
     use AppSystemTestBehaviour;
 
-    public const SCHEMA_LOCATION = '/src/Core/Framework/App/ActionButton/appActionEndpointSchema.json';
+    final public const SCHEMA_LOCATION = '/src/Core/Framework/App/ActionButton/appActionEndpointSchema.json';
 
     private Executor $executor;
 
@@ -186,7 +186,7 @@ class ExecutorTest extends TestCase
         static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
-        $data = json_decode($body, true);
+        $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
 
         $expectedSource = [
             'url' => $shopUrl,
@@ -357,7 +357,7 @@ class ExecutorTest extends TestCase
 
     private function validateRequestSchema(string $body): ValidationResult
     {
-        $requestData = json_decode($body);
+        $requestData = json_decode($body, null, 512, \JSON_THROW_ON_ERROR);
         $validator = new Validator();
         /** @var SchemaResolver $resolver */
         $resolver = $validator->resolver();
@@ -381,7 +381,7 @@ class ExecutorTest extends TestCase
             ],
         ];
 
-        $responseData = (string) json_encode($responseData);
+        $responseData = (string) json_encode($responseData, \JSON_THROW_ON_ERROR);
 
         $this->appendNewResponse(
             new Response(

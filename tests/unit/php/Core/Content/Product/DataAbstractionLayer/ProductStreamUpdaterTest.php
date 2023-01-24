@@ -24,30 +24,15 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 class ProductStreamUpdaterTest extends TestCase
 {
-    /**
-     * @var Connection|MockObject
-     */
-    private $connection;
+    private Connection&MockObject $connection;
 
-    /**
-     * @var ProductDefinition|MockObject
-     */
-    private $productDefinition;
+    private MockObject&ProductDefinition $productDefinition;
 
-    /**
-     * @var EntityRepository|MockObject
-     */
-    private $repository;
+    private MockObject&EntityRepository $repository;
 
-    /**
-     * @var MessageBusInterface|MockObject
-     */
-    private $messageBus;
+    private MockObject&MessageBusInterface $messageBus;
 
-    /**
-     * @var ManyToManyIdFieldUpdater|MockObject
-     */
-    private $manyToManyIdFieldUpdater;
+    private MockObject&ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater;
 
     private ProductStreamUpdater $updater;
 

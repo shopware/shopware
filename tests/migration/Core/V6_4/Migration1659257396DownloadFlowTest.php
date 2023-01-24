@@ -78,7 +78,7 @@ class Migration1659257396DownloadFlowTest extends TestCase
 
         static::assertIsString($ruleLineItemConditionValue);
 
-        $value = json_decode($ruleLineItemConditionValue, true);
+        $value = json_decode($ruleLineItemConditionValue, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertIsArray($value);
         static::assertEquals(LineItemProductStatesRule::OPERATOR_EQ, $value['operator']);
@@ -141,7 +141,7 @@ class Migration1659257396DownloadFlowTest extends TestCase
             ['name' => self::FLOW_NAME]
         );
 
-        $decodedConfig = json_decode($config, true);
+        $decodedConfig = json_decode((string) $config, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($decodedConfig);
         static::assertArrayHasKey('eventName', $decodedConfig);
         static::assertSame('state_enter.order_transaction.state.paid', $decodedConfig['eventName']);

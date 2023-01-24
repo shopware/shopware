@@ -47,40 +47,31 @@ class ProductListingLoaderTest extends TestCase
      */
     private $productListingLoader;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     /**
      * @var SystemConfigService
      */
     private $systemConfigService;
 
-    /**
-     * @var string
-     */
-    private $productId;
+    private ?string $productId = null;
 
-    /**
-     * @var string
-     */
-    private $mainVariantId;
+    private ?string $mainVariantId = null;
 
     /**
      * @var array<string>
      */
-    private $optionIds = [];
+    private array $optionIds = [];
 
     /**
      * @var array<string>
      */
-    private $variantIds = [];
+    private array $variantIds = [];
 
     /**
      * @var array<string>
      */
-    private $groupIds = [];
+    private array $groupIds = [];
 
     protected function setUp(): void
     {

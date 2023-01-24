@@ -63,9 +63,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $registrationsService->expects(static::once())
             ->method('registerApp')
             ->with(
-                static::callback(static function (Manifest $manifest) use ($appDir): bool {
-                    return $manifest->getPath() === $appDir;
-                }),
+                static::callback(static fn (Manifest $manifest): bool => $manifest->getPath() === $appDir),
                 $app->getId(),
                 static::isType('string'),
                 static::isInstanceOf(Context::class)
@@ -126,7 +124,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
 
         try {
             $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
+        } catch (AppUrlChangeDetectedException) {
             $wasThrown = true;
         }
         static::assertTrue($wasThrown);

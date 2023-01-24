@@ -117,13 +117,10 @@ class DoctrineExtensionTest extends TestCase
 /**
  * @internal
  */
-class DummyClass
+class DummyClass implements \Stringable
 {
-    protected string $str;
-
-    public function __construct(string $str)
+    public function __construct(protected string $str)
     {
-        $this->str = $str;
     }
 
     public function __toString(): string

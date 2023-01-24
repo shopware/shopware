@@ -13,19 +13,16 @@ use Psr\Http\Message\RequestInterface;
  */
 class TestAppServer
 {
-    public const TEST_SETUP_SECRET = 's3cr3t';
-    public const CONFIRMATION_URL = 'https://my-app.com/confirm';
-    public const APP_SECRET = 'dont_tell';
-
-    private MockHandler $inner;
+    final public const TEST_SETUP_SECRET = 's3cr3t';
+    final public const CONFIRMATION_URL = 'https://my-app.com/confirm';
+    final public const APP_SECRET = 'dont_tell';
 
     private ?RequestInterface $registrationRequest = null;
 
     private ?RequestInterface $confirmationRequest = null;
 
-    public function __construct(MockHandler $inner)
+    public function __construct(private readonly MockHandler $inner)
     {
-        $this->inner = $inner;
     }
 
     /**
@@ -75,7 +72,7 @@ class TestAppServer
 
         $proof = \hash_hmac('sha256', $shopId . $shopUrl . $appname, self::TEST_SETUP_SECRET);
 
-        return (string) \json_encode(['proof' => $proof, 'secret' => self::APP_SECRET, 'confirmation_url' => self::CONFIRMATION_URL]);
+        return (string) \json_encode(['proof' => $proof, 'secret' => self::APP_SECRET, 'confirmation_url' => self::CONFIRMATION_URL], \JSON_THROW_ON_ERROR);
     }
 
     private function isRegistration(RequestInterface $request): bool

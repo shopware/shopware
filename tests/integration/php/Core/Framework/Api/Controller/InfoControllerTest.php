@@ -4,7 +4,10 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ContextTokenAware;
@@ -67,7 +70,7 @@ class InfoControllerTest extends TestCase
         static::assertNotFalse($content);
         static::assertJson($content);
 
-        $decodedResponse = json_decode($content, true);
+        $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
@@ -153,7 +156,7 @@ class InfoControllerTest extends TestCase
         static::assertNotFalse($content);
         static::assertJson($content);
 
-        $decodedResponse = json_decode($content, true);
+        $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
@@ -214,14 +217,14 @@ class InfoControllerTest extends TestCase
         static::assertNotFalse($content);
         static::assertJson($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
         $expected = [
             [
                 'name' => 'checkout.customer.login',
-                'class' => "Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent",
+                'class' => CustomerLoginEvent::class,
                 'mailAware' => true,
                 'logAware' => false,
                 'salesChannelAware' => true,
@@ -248,7 +251,7 @@ class InfoControllerTest extends TestCase
             ],
             [
                 'name' => 'checkout.order.placed',
-                'class' => "Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent",
+                'class' => CheckoutOrderPlacedEvent::class,
                 'mailAware' => true,
                 'logAware' => false,
                 'salesChannelAware' => true,
@@ -272,7 +275,7 @@ class InfoControllerTest extends TestCase
             ],
             [
                 'name' => 'state_enter.order_delivery.state.shipped_partially',
-                'class' => "Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent",
+                'class' => OrderStateMachineStateChangeEvent::class,
                 'mailAware' => true,
                 'logAware' => false,
                 'salesChannelAware' => true,
@@ -297,9 +300,7 @@ class InfoControllerTest extends TestCase
         ];
 
         foreach ($expected as $event) {
-            $actualEvents = array_values(array_filter($response, function ($x) use ($event) {
-                return $x['name'] === $event['name'];
-            }));
+            $actualEvents = array_values(array_filter($response, fn ($x) => $x['name'] === $event['name']));
             sort($event['aware']);
             sort($actualEvents[0]['aware']);
             static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');
@@ -352,10 +353,10 @@ class InfoControllerTest extends TestCase
 
         $content = $infoController->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
         static::assertNotFalse($content);
-        $config = json_decode($content, true);
+        $config = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('SomeFunctionalityBundle', $config['bundles']);
 
-        $jsFilePath = explode('?', $config['bundles']['SomeFunctionalityBundle']['js'][0])[0];
+        $jsFilePath = explode('?', (string) $config['bundles']['SomeFunctionalityBundle']['js'][0])[0];
         static::assertEquals(
             'bundles/somefunctionality/administration/js/some-functionality-bundle.js',
             $jsFilePath
@@ -400,7 +401,7 @@ class InfoControllerTest extends TestCase
 
         $content = $infoController->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
         static::assertNotFalse($content);
-        $config = json_decode($content, true);
+        $config = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(3, $config['bundles']);
 
         static::assertArrayHasKey('AdminExtensionApiPlugin', $config['bundles']);
@@ -429,7 +430,7 @@ class InfoControllerTest extends TestCase
         static::assertNotFalse($content);
         static::assertJson($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
@@ -446,15 +447,13 @@ class InfoControllerTest extends TestCase
 
         if (!Feature::isActive('v6.5.0.0')) {
             $expected[0]['requirements'] = [
-                "Shopware\Core\Framework\Event\OrderAware",
+                OrderAware::class,
                 'orderAware',
             ];
         }
 
         foreach ($expected as $action) {
-            $actualActions = array_values(array_filter($response, function ($x) use ($action) {
-                return $x['name'] === $action['name'];
-            }));
+            $actualActions = array_values(array_filter($response, fn ($x) => $x['name'] === $action['name']));
             static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');
             static::assertCount(1, $actualActions);
             static::assertEquals($action, $actualActions[0]);
@@ -480,7 +479,7 @@ class InfoControllerTest extends TestCase
         static::assertNotFalse($content);
         static::assertJson($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         $expected = [
             [
@@ -494,9 +493,7 @@ class InfoControllerTest extends TestCase
         ];
 
         foreach ($expected as $action) {
-            $actualActions = array_values(array_filter($response, function ($x) use ($action) {
-                return $x['name'] === $action['name'];
-            }));
+            $actualActions = array_values(array_filter($response, fn ($x) => $x['name'] === $action['name']));
             static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');
             static::assertCount(1, $actualActions);
             static::assertEquals($action, $actualActions[0]);

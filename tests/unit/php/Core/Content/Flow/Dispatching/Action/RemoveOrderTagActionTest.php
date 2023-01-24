@@ -19,17 +19,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class RemoveOrderTagActionTest extends TestCase
 {
-    /**
-     * @var MockObject|EntityRepository
-     */
-    private $repository;
+    private MockObject&EntityRepository $repository;
 
     private RemoveOrderTagAction $action;
 
-    /**
-     * @var MockObject|StorableFlow
-     */
-    private $flow;
+    private MockObject&StorableFlow $flow;
 
     public function setUp(): void
     {
@@ -65,12 +59,10 @@ class RemoveOrderTagActionTest extends TestCase
         $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
 
         $orderId = $this->flow->getStore(OrderAware::ORDER_ID);
-        $withData = array_map(function ($id) use ($orderId) {
-            return [
-                'orderId' => $orderId,
-                'tagId' => $id['id'],
-            ];
-        }, $expected);
+        $withData = array_map(fn ($id) => [
+            'orderId' => $orderId,
+            'tagId' => $id['id'],
+        ], $expected);
 
         $this->repository->expects(static::once())
             ->method('delete')

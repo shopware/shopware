@@ -54,7 +54,7 @@ class Migration1668677456AddAppPrivilegesForIntegrationRolesTest extends TestCas
             'id' => $roleId,
         ]);
 
-        $privileges = \json_decode($privileges, true, 512, \JSON_THROW_ON_ERROR);
+        $privileges = \json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotFalse($privileges);
         static::assertContains('app:read', $privileges);

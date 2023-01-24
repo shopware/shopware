@@ -4978,7 +4978,7 @@ class ThemeFixtures
      */
     public static function getExtractedFields2(): array
     {
-        return array_merge(ThemeFixtures::getExtractedFieldsSub1(), [
+        return [...ThemeFixtures::getExtractedFieldsSub1(), ...[
             'test' => [
                 'extensions' => [
                 ],
@@ -5001,6 +5001,6 @@ class ThemeFixtures
                 'scss' => null,
                 'fullWidth' => null,
             ],
-        ]);
+        ]];
     }
 }

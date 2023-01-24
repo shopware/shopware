@@ -38,15 +38,9 @@ use Symfony\Contracts\Cache\CacheInterface;
  */
 class CachedCategoryRouteTest extends TestCase
 {
-    /**
-     * @var AbstractCategoryRoute&MockObject
-     */
-    private $decorated;
+    private MockObject&AbstractCategoryRoute $decorated;
 
-    /**
-     * @var CacheInterface&MockObject
-     */
-    private $cache;
+    private MockObject&CacheInterface $cache;
 
     private EventDispatcher $eventDispatcher;
 

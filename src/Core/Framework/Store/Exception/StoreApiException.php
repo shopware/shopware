@@ -23,7 +23,13 @@ class StoreApiException extends ShopwareHttpException
 
     public function __construct(ClientException $exception)
     {
-        $data = json_decode($exception->getResponse()->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = [];
+
+        try {
+            $data = json_decode($exception->getResponse()->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+        }
+
         parent::__construct($data['description'] ?? $exception->getMessage());
 
         $this->title = $data['title'] ?? '';

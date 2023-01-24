@@ -344,10 +344,8 @@ class DocumentGeneratorControllerTest extends TestCase
         );
 
         static::assertIsString($this->getBrowser()->getResponse()->getContent());
-        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
-        static::assertNull($response);
     }
 
     public function testDownloadDocuments(): void

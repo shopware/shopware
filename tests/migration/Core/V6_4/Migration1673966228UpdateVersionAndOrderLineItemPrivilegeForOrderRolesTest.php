@@ -53,7 +53,7 @@ class Migration1673966228UpdateVersionAndOrderLineItemPrivilegeForOrderRolesTest
             'id' => $roleId,
         ]);
 
-        $privileges = \json_decode($privileges, true, 512, \JSON_THROW_ON_ERROR);
+        $privileges = \json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotFalse($privileges);
         static::assertContains('order:delete', $privileges);
@@ -76,7 +76,7 @@ class Migration1673966228UpdateVersionAndOrderLineItemPrivilegeForOrderRolesTest
             'id' => $roleId,
         ]);
 
-        $privileges = \json_decode($privileges, true, 512, \JSON_THROW_ON_ERROR);
+        $privileges = \json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotFalse($privileges);
         static::assertContains('order_line_item:delete', $privileges);

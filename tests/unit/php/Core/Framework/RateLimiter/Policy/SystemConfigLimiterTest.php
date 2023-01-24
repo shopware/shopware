@@ -13,7 +13,7 @@ use Symfony\Component\RateLimiter\Storage\CacheStorage;
 /**
  * @internal
  *
- * @phpstan-import-type RateLimiterConfig from \Shopware\Core\Framework\RateLimiter\RateLimiterFactory
+ * @phpstan-import-type RateLimiterConfig from RateLimiterFactory
  *
  * @covers \Shopware\Core\Framework\RateLimiter\Policy\SystemConfigLimiter
  */

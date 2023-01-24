@@ -22,7 +22,7 @@ class CriteriaTest extends TestCase
      */
     public function testStringConvert(Criteria $criteria, string $expected): void
     {
-        static::assertEquals(\json_decode($expected, true), \json_decode((string) $criteria, true));
+        static::assertEquals(\json_decode($expected, true, 512, \JSON_THROW_ON_ERROR), \json_decode((string) $criteria, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function string_convert_provider(): \Generator

@@ -55,15 +55,9 @@ class RegisterRouteTest extends TestCase
     use SalesChannelApiTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     /**
      * @var EntityRepository
@@ -113,7 +107,7 @@ class RegisterRouteTest extends TestCase
                 'customerId' => Uuid::fromHexToBytes($response['id']),
             ]
         );
-        $result = json_decode($result, true, 512, \JSON_THROW_ON_ERROR);
+        $result = json_decode((string) $result, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('domainId', $result);
 
@@ -654,7 +648,7 @@ class RegisterRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode(array_merge($this->getRegistrationData(), ['requestedGroupId' => $this->ids->get('group')]), \JSON_THROW_ON_ERROR)
+                json_encode([...$this->getRegistrationData(), ...['requestedGroupId' => $this->ids->get('group')]], \JSON_THROW_ON_ERROR)
             );
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);

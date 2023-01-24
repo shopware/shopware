@@ -34,8 +34,7 @@ class ScriptFileReader implements ScriptFileReaderInterface
             ->name(self::ALLOWED_FILE_EXTENSIONS)
             ->ignoreUnreadableDirs();
 
-        return array_values(array_map(static fn (\SplFileInfo $file): string // remove scriptDirectory + any leading slashes from pathname
-=> ltrim(mb_substr($file->getPathname(), mb_strlen($scriptDirectory)), '/'), iterator_to_array($finder)));
+        return array_values(array_map(static fn (\SplFileInfo $file): string => ltrim(mb_substr($file->getPathname(), mb_strlen($scriptDirectory)), '/'), iterator_to_array($finder)));
     }
 
     public function getScriptContent(string $name, string $appPath): string

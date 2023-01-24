@@ -84,9 +84,7 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
     {
         $columns = array_filter(
             $this->connection->getSchemaManager()->listTableColumns('product'),
-            static function (Column $column): bool {
-                return \in_array($column->getName(), ['product_feature_set_id', 'featureSet'], true);
-            }
+            static fn (Column $column): bool => \in_array($column->getName(), ['product_feature_set_id', 'featureSet'], true)
         );
 
         foreach ($columns as $column) {
@@ -106,7 +104,7 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         $expectedFeatures = [$expectedFeature];
 
         $actual = $this->fetchDefaultFeatureSet();
-        $actualFeatures = json_decode($actual['features'], true);
+        $actualFeatures = json_decode((string) $actual['features'], true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(\count($expectedFeatures), $actualFeatures);
 
@@ -134,9 +132,7 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         }
         unset($translation);
 
-        $compareByName = static function (array $a, array $b) {
-            return $a['name'] <=> $b['name'];
-        };
+        $compareByName = static fn (array $a, array $b) => $a['name'] <=> $b['name'];
 
         usort($expectedTranslations, $compareByName);
         usort($actual, $compareByName);
@@ -208,13 +204,11 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
             ->listTableDetails($name)
             ->getColumns();
 
-        return array_map(static function (Column $column): array {
-            return self::getColumn(
-                $column->getName(),
-                $column->getType(),
-                $column->getNotnull()
-            );
-        }, $columns);
+        return array_map(static fn (Column $column): array => self::getColumn(
+            $column->getName(),
+            $column->getType(),
+            $column->getNotnull()
+        ), $columns);
     }
 
     /**
@@ -242,9 +236,7 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
     {
         return \count(array_filter(
             $connection->getSchemaManager()->listTableColumns($table),
-            static function (Column $column) use ($columnName): bool {
-                return $column->getName() === $columnName;
-            }
+            static fn (Column $column): bool => $column->getName() === $columnName
         )) > 0;
     }
 }

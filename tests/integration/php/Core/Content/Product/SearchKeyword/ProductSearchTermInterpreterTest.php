@@ -55,9 +55,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $matches = $this->interpreter->interpret($term, $context);
 
-        $keywords = array_map(function (SearchTerm $term) {
-            return $term->getTerm();
-        }, $matches->getTerms());
+        $keywords = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
         sort($expected);
         sort($keywords);
@@ -75,9 +73,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $matches = $this->interpreter->interpret($term, $context);
 
-        $keywords = array_map(function (SearchTerm $term) {
-            return $term->getTerm();
-        }, $matches->getTerms());
+        $keywords = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
         sort($expected);
         sort($keywords);
@@ -134,9 +130,7 @@ class ProductSearchTermInterpreterTest extends TestCase
         ], $context);
 
         $matches = $this->interpreter->interpret($words, $context);
-        $terms = array_map(function (SearchTerm $term) {
-            return $term->getTerm();
-        }, $matches->getTerms());
+        $terms = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
         if (!$andLogic) {
             $flatterTerms = ArrayNormalizer::flatten($matches->getTokenTerms());

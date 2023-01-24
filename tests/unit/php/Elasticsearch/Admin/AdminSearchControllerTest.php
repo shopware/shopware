@@ -95,7 +95,7 @@ class AdminSearchControllerTest extends TestCase
 
         $content = $response->getContent();
         static::assertIsString($content);
-        $content = \json_decode($content, true);
+        $content = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         $data = $content['data'];
 
         static::assertNotEmpty($data['promotion']);

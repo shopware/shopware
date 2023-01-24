@@ -12,10 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
  */
 abstract class AbstractFieldSerializer
 {
-    /**
-     * @var SerializerRegistry
-     */
-    protected $serializerRegistry;
+    protected SerializerRegistry $serializerRegistry;
 
     abstract public function serialize(Config $config, Field $field, $value): iterable;
 

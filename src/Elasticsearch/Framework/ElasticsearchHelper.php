@@ -22,49 +22,13 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 class ElasticsearchHelper
 {
     // max for default configuration
-    public const MAX_SIZE_VALUE = 10000;
-
-    private Client $client;
-
-    private ElasticsearchRegistry $registry;
-
-    private CriteriaParser $parser;
-
-    private bool $searchEnabled;
-
-    private bool $indexingEnabled;
-
-    private string $environment;
-
-    private LoggerInterface $logger;
-
-    private string $prefix;
-
-    private bool $throwException;
+    final public const MAX_SIZE_VALUE = 10000;
 
     /**
      * @internal
      */
-    public function __construct(
-        string $environment,
-        bool $searchEnabled,
-        bool $indexingEnabled,
-        string $prefix,
-        bool $throwException,
-        Client $client,
-        ElasticsearchRegistry $registry,
-        CriteriaParser $parser,
-        LoggerInterface $logger
-    ) {
-        $this->client = $client;
-        $this->registry = $registry;
-        $this->parser = $parser;
-        $this->searchEnabled = $searchEnabled;
-        $this->indexingEnabled = $indexingEnabled;
-        $this->environment = $environment;
-        $this->logger = $logger;
-        $this->prefix = $prefix;
-        $this->throwException = $throwException;
+    public function __construct(private readonly string $environment, private bool $searchEnabled, private bool $indexingEnabled, private readonly string $prefix, private readonly bool $throwException, private readonly Client $client, private readonly ElasticsearchRegistry $registry, private readonly CriteriaParser $parser, private readonly LoggerInterface $logger)
+    {
     }
 
     public function logAndThrowException(\Throwable $exception): bool

@@ -23,24 +23,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class ElasticsearchResetCommand extends Command
 {
-    private ElasticsearchOutdatedIndexDetector $detector;
-
-    private Client $client;
-
-    private Connection $connection;
-
-    private IncrementGatewayRegistry $gatewayRegistry;
-
     /**
      * @internal
      */
-    public function __construct(Client $client, ElasticsearchOutdatedIndexDetector $detector, Connection $connection, IncrementGatewayRegistry $gatewayRegistry)
+    public function __construct(private readonly Client $client, private readonly ElasticsearchOutdatedIndexDetector $detector, private readonly Connection $connection, private readonly IncrementGatewayRegistry $gatewayRegistry)
     {
         parent::__construct();
-        $this->detector = $detector;
-        $this->client = $client;
-        $this->connection = $connection;
-        $this->gatewayRegistry = $gatewayRegistry;
     }
 
     /**
@@ -48,8 +36,6 @@ class ElasticsearchResetCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setDescription('Resets Elasticsearch indexing');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -74,7 +60,7 @@ class ElasticsearchResetCommand extends Command
         try {
             $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
             $gateway->reset('message_queue_stats', ElasticsearchIndexingMessage::class);
-        } catch (IncrementGatewayNotFoundException $exception) {
+        } catch (IncrementGatewayNotFoundException) {
             // In case message_queue pool is disabled
         }
 

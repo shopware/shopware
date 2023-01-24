@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
 use OpenSearchDSL\Search;
@@ -25,24 +26,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 {
-    private Connection $connection;
-
-    private IteratorFactory $factory;
-
-    private EntityRepository $repository;
-
-    private int $indexingBatchSize;
-
-    public function __construct(
-        Connection $connection,
-        IteratorFactory $factory,
-        EntityRepository $repository,
-        int $indexingBatchSize
-    ) {
-        $this->connection = $connection;
-        $this->factory = $factory;
-        $this->repository = $repository;
-        $this->indexingBatchSize = $indexingBatchSize;
+    public function __construct(private readonly Connection $connection, private readonly IteratorFactory $factory, private readonly EntityRepository $repository, private readonly int $indexingBatchSize)
+    {
     }
 
     public function getDecorated(): AbstractAdminIndexer
@@ -105,7 +90,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
     /**
      * @param array<string>|array<int, array<string>> $ids
      *
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      *
      * @return array<int|string, array<string, mixed>>
      */
@@ -145,7 +130,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             $textBoosted = $row['name'] . ' ' . $row['product_number'];
 
             if ($row['custom_search_keywords']) {
-                $row['custom_search_keywords'] = json_decode($row['custom_search_keywords'], true);
+                $row['custom_search_keywords'] = json_decode((string) $row['custom_search_keywords'], true, 512, \JSON_THROW_ON_ERROR);
                 $textBoosted = $textBoosted . ' ' . implode(' ', array_unique(array_merge(...$row['custom_search_keywords'])));
             }
 

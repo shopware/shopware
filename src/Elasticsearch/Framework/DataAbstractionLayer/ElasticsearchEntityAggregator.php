@@ -18,33 +18,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 {
-    public const RESULT_STATE = 'loaded-by-elastic';
-
-    private ElasticsearchHelper $helper;
-
-    private Client $client;
-
-    private EntityAggregatorInterface $decorated;
-
-    private AbstractElasticsearchAggregationHydrator $hydrator;
-
-    private EventDispatcherInterface $eventDispatcher;
+    final public const RESULT_STATE = 'loaded-by-elastic';
 
     /**
      * @internal
      */
-    public function __construct(
-        ElasticsearchHelper $helper,
-        Client $client,
-        EntityAggregatorInterface $decorated,
-        AbstractElasticsearchAggregationHydrator $hydrator,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->helper = $helper;
-        $this->client = $client;
-        $this->decorated = $decorated;
-        $this->hydrator = $hydrator;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly ElasticsearchHelper $helper, private readonly Client $client, private readonly EntityAggregatorInterface $decorated, private readonly AbstractElasticsearchAggregationHydrator $hydrator, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResultCollection

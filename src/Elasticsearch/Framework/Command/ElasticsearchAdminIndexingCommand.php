@@ -26,15 +26,12 @@ final class ElasticsearchAdminIndexingCommand extends Command implements EventSu
 {
     use ConsoleProgressTrait;
 
-    private AdminSearchRegistry $registry;
-
     /**
      * @internal
      */
-    public function __construct(AdminSearchRegistry $registry)
+    public function __construct(private readonly AdminSearchRegistry $registry)
     {
         parent::__construct();
-        $this->registry = $registry;
     }
 
     /**

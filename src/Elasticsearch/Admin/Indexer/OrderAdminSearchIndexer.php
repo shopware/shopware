@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -22,24 +23,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 final class OrderAdminSearchIndexer extends AbstractAdminIndexer
 {
-    private Connection $connection;
-
-    private IteratorFactory $factory;
-
-    private EntityRepository $repository;
-
-    private int $indexingBatchSize;
-
-    public function __construct(
-        Connection $connection,
-        IteratorFactory $factory,
-        EntityRepository $repository,
-        int $indexingBatchSize
-    ) {
-        $this->connection = $connection;
-        $this->factory = $factory;
-        $this->repository = $repository;
-        $this->indexingBatchSize = $indexingBatchSize;
+    public function __construct(private readonly Connection $connection, private readonly IteratorFactory $factory, private readonly EntityRepository $repository, private readonly int $indexingBatchSize)
+    {
     }
 
     public function getDecorated(): AbstractAdminIndexer
@@ -80,7 +65,7 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
     /**
      * @param array<string>|array<int, array<string>> $ids
      *
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      *
      * @return array<int|string, array<string, mixed>>
      */

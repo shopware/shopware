@@ -12,14 +12,11 @@ class ScriptIdQuery implements BuilderInterface
 {
     use ParametersTrait;
 
-    private string $id;
-
     /**
      * @param array<mixed> $parameters
      */
-    public function __construct(string $id, array $parameters = [])
+    public function __construct(private readonly string $id, array $parameters = [])
     {
-        $this->id = $id;
         $this->setParameters($parameters);
     }
 

@@ -26,18 +26,12 @@ class ElasticsearchStatusCommand extends Command
 {
     use ConsoleProgressTrait;
 
-    private Client $client;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Client $client, Connection $connection)
+    public function __construct(private readonly Client $client, private readonly Connection $connection)
     {
         parent::__construct();
-        $this->client = $client;
-        $this->connection = $connection;
     }
 
     /**
@@ -45,8 +39,6 @@ class ElasticsearchStatusCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setDescription('Shows current status of Elasticsearch');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

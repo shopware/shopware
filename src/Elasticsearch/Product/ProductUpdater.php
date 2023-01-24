@@ -17,14 +17,14 @@ class ProductUpdater implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private ElasticsearchIndexer $indexer, private EntityDefinition $definition)
+    public function __construct(private readonly ElasticsearchIndexer $indexer, private readonly EntityDefinition $definition)
     {
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             ProductIndexerEvent::class => 'update',

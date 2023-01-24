@@ -11,14 +11,11 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
  */
 class ElasticsearchLanguageIndexIteratorMessage implements AsyncMessageInterface
 {
-    private string $languageId;
-
     /**
      * @internal
      */
-    public function __construct(string $languageId)
+    public function __construct(private readonly string $languageId)
     {
-        $this->languageId = $languageId;
     }
 
     public function getLanguageId(): string

@@ -23,38 +23,14 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class ElasticsearchEntitySearcher implements EntitySearcherInterface
 {
-    public const MAX_LIMIT = 10000;
-    public const RESULT_STATE = 'loaded-by-elastic';
-
-    private Client $client;
-
-    private EntitySearcherInterface $decorated;
-
-    private ElasticsearchHelper $helper;
-
-    private CriteriaParser $criteriaParser;
-
-    private AbstractElasticsearchSearchHydrator $hydrator;
-
-    private EventDispatcherInterface $eventDispatcher;
+    final public const MAX_LIMIT = 10000;
+    final public const RESULT_STATE = 'loaded-by-elastic';
 
     /**
      * @internal
      */
-    public function __construct(
-        Client $client,
-        EntitySearcherInterface $searcher,
-        ElasticsearchHelper $helper,
-        CriteriaParser $criteriaParser,
-        AbstractElasticsearchSearchHydrator $hydrator,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->client = $client;
-        $this->decorated = $searcher;
-        $this->helper = $helper;
-        $this->criteriaParser = $criteriaParser;
-        $this->hydrator = $hydrator;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly Client $client, private readonly EntitySearcherInterface $decorated, private readonly ElasticsearchHelper $helper, private readonly CriteriaParser $criteriaParser, private readonly AbstractElasticsearchSearchHydrator $hydrator, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult

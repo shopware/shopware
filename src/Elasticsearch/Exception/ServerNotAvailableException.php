@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
  */
 class ServerNotAvailableException extends ShopwareHttpException
 {
-    public const CODE = 'ELASTICSEARCH_SERVER_NOT_AVAILABLE';
+    final public const CODE = 'ELASTICSEARCH_SERVER_NOT_AVAILABLE';
 
     public function __construct()
     {

@@ -26,20 +26,11 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
         'categories.customFields',
     ];
 
-    private Connection $connection;
-
-    private AbstractTokenFilter $tokenFilter;
-
-    private Tokenizer $tokenizer;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, Tokenizer $tokenizer, AbstractTokenFilter $tokenFilter)
+    public function __construct(private readonly Connection $connection, private readonly Tokenizer $tokenizer, private readonly AbstractTokenFilter $tokenFilter)
     {
-        $this->connection = $connection;
-        $this->tokenFilter = $tokenFilter;
-        $this->tokenizer = $tokenizer;
     }
 
     public function build(Criteria $criteria, Context $context): BoolQuery

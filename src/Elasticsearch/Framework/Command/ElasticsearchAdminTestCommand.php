@@ -36,17 +36,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 final class ElasticsearchAdminTestCommand extends Command
 {
-    private AdminSearcher $searcher;
-
     private SymfonyStyle $io;
 
     /**
      * @internal
      */
-    public function __construct(AdminSearcher $searcher)
+    public function __construct(private readonly AdminSearcher $searcher)
     {
         parent::__construct();
-        $this->searcher = $searcher;
     }
 
     /**

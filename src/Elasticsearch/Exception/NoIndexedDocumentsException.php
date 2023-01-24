@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
  */
 class NoIndexedDocumentsException extends ShopwareHttpException
 {
-    public const CODE = 'ELASTICSEARCH_NO_INDEXED_DOCUMENTS';
+    final public const CODE = 'ELASTICSEARCH_NO_INDEXED_DOCUMENTS';
 
     public function __construct(string $entityName)
     {

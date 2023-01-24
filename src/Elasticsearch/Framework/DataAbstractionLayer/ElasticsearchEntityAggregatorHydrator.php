@@ -41,14 +41,11 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  */
 class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggregationHydrator
 {
-    private DefinitionInstanceRegistry $registry;
-
     /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $registry)
+    public function __construct(private readonly DefinitionInstanceRegistry $registry)
     {
-        $this->registry = $registry;
     }
 
     public function getDecorated(): AbstractElasticsearchAggregationHydrator
@@ -134,7 +131,7 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
                 return $this->hydrateRangeAggregation($aggregation, $result);
 
             default:
-                throw new \RuntimeException(sprintf('Provided aggregation of class %s is not supported', \get_class($aggregation)));
+                throw new \RuntimeException(sprintf('Provided aggregation of class %s is not supported', $aggregation::class));
         }
     }
 

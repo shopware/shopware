@@ -10,20 +10,11 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
  */
 class ElasticsearchIndexingMessage implements AsyncMessageInterface
 {
-    private IndexingDto $data;
-
-    private ?IndexerOffset $offset;
-
-    private Context $context;
-
     /**
      * @internal
      */
-    public function __construct(IndexingDto $data, ?IndexerOffset $offset, Context $context)
+    public function __construct(private readonly IndexingDto $data, private readonly ?IndexerOffset $offset, private readonly Context $context)
     {
-        $this->data = $data;
-        $this->offset = $offset;
-        $this->context = $context;
     }
 
     public function getData(): IndexingDto

@@ -14,24 +14,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class ElasticsearchEntityAggregatorSearchEvent extends Event implements ShopwareEvent
 {
-    private Search $search;
-
-    private Context $context;
-
-    private EntityDefinition $definition;
-
-    private Criteria $criteria;
-
-    public function __construct(
-        Search $search,
-        EntityDefinition $definition,
-        Criteria $criteria,
-        Context $context
-    ) {
-        $this->search = $search;
-        $this->context = $context;
-        $this->definition = $definition;
-        $this->criteria = $criteria;
+    public function __construct(private readonly Search $search, private readonly EntityDefinition $definition, private readonly Criteria $criteria, private readonly Context $context)
+    {
     }
 
     public function getSearch(): Search

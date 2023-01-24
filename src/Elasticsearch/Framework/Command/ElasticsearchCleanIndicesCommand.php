@@ -20,20 +20,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class ElasticsearchCleanIndicesCommand extends Command
 {
-    private ElasticsearchOutdatedIndexDetector $outdatedIndexDetector;
-
-    private Client $client;
-
     /**
      * @internal
      */
     public function __construct(
-        Client $client,
-        ElasticsearchOutdatedIndexDetector $indexCleaner
+        private readonly Client $client,
+        private readonly ElasticsearchOutdatedIndexDetector $outdatedIndexDetector
     ) {
         parent::__construct();
-        $this->outdatedIndexDetector = $indexCleaner;
-        $this->client = $client;
     }
 
     /**
@@ -42,8 +36,7 @@ class ElasticsearchCleanIndicesCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Do not ask for confirmation')
-            ->setDescription('Admin command to remove old and unused indices');
+            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Do not ask for confirmation');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -11,26 +11,11 @@ use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
  */
 class ElasticsearchIndexConfigEvent implements ShopwareEvent
 {
-    private string $indexName;
-
-    /**
-     * @var array<mixed>
-     */
-    private array $config;
-
-    private AbstractElasticsearchDefinition $definition;
-
-    private Context $context;
-
     /**
      * @param array<mixed> $config
      */
-    public function __construct(string $indexName, array $config, AbstractElasticsearchDefinition $definition, Context $context)
+    public function __construct(private readonly string $indexName, private array $config, private readonly AbstractElasticsearchDefinition $definition, private readonly Context $context)
     {
-        $this->indexName = $indexName;
-        $this->config = $config;
-        $this->definition = $definition;
-        $this->context = $context;
     }
 
     public function getIndexName(): string

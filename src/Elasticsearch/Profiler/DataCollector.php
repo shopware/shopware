@@ -18,7 +18,7 @@ class DataCollector extends BaseDataCollector
     /**
      * @internal
      */
-    public function __construct(private bool $enabled, private bool $adminEnabled, private ClientProfiler $client, private ClientProfiler $adminClient)
+    public function __construct(private readonly bool $enabled, private readonly bool $adminEnabled, private readonly ClientProfiler $client, private readonly ClientProfiler $adminClient)
     {
     }
 
@@ -76,7 +76,7 @@ class DataCollector extends BaseDataCollector
 
     public function getRequestAmount(): int
     {
-        return \count($this->data['requests']);
+        return is_countable($this->data['requests']) ? \count($this->data['requests']) : 0;
     }
 
     /**

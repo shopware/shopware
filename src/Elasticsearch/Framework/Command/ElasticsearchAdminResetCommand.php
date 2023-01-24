@@ -25,28 +25,16 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class ElasticsearchAdminResetCommand extends Command
 {
-    private Client $client;
-
-    private Connection $connection;
-
-    private IncrementGatewayRegistry $gatewayRegistry;
-
-    private AdminElasticsearchHelper $adminEsHelper;
-
     /**
      * @internal
      */
     public function __construct(
-        Client $client,
-        Connection $connection,
-        IncrementGatewayRegistry $gatewayRegistry,
-        AdminElasticsearchHelper $adminEsHelper
+        private readonly Client $client,
+        private readonly Connection $connection,
+        private readonly IncrementGatewayRegistry $gatewayRegistry,
+        private readonly AdminElasticsearchHelper $adminEsHelper
     ) {
         parent::__construct();
-        $this->client = $client;
-        $this->connection = $connection;
-        $this->gatewayRegistry = $gatewayRegistry;
-        $this->adminEsHelper = $adminEsHelper;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -78,7 +66,7 @@ class ElasticsearchAdminResetCommand extends Command
         try {
             $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
             $gateway->reset('message_queue_stats', AdminSearchIndexingMessage::class);
-        } catch (IncrementGatewayNotFoundException $exception) {
+        } catch (IncrementGatewayNotFoundException) {
             // In case message_queue pool is disabled
         }
 

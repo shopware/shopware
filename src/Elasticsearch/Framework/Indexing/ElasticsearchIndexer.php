@@ -41,18 +41,18 @@ class ElasticsearchIndexer
      * @internal
      */
     public function __construct(
-        private Connection $connection,
-        private ElasticsearchHelper $helper,
-        private ElasticsearchRegistry $registry,
-        private IndexCreator $indexCreator,
-        private IteratorFactory $iteratorFactory,
-        private Client $client,
-        private LoggerInterface $logger,
-        private EntityRepository $currencyRepository,
-        private EntityRepository $languageRepository,
-        private  EventDispatcherInterface $eventDispatcher,
-        private int $indexingBatchSize,
-        private MessageBusInterface $bus
+        private readonly Connection $connection,
+        private readonly ElasticsearchHelper $helper,
+        private readonly ElasticsearchRegistry $registry,
+        private readonly IndexCreator $indexCreator,
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly Client $client,
+        private readonly LoggerInterface $logger,
+        private readonly EntityRepository $currencyRepository,
+        private readonly EntityRepository $languageRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly int $indexingBatchSize,
+        private readonly MessageBusInterface $bus
     ) {
     }
 

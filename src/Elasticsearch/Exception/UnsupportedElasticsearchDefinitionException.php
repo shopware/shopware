@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
  */
 class UnsupportedElasticsearchDefinitionException extends ShopwareHttpException
 {
-    public const CODE = 'ELASTICSEARCH_UNSUPPORTED_DEFINITION';
+    final public const CODE = 'ELASTICSEARCH_UNSUPPORTED_DEFINITION';
 
     public function __construct(string $entity)
     {

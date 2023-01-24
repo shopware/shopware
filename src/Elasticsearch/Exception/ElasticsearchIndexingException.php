@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
  */
 class ElasticsearchIndexingException extends ShopwareHttpException
 {
-    public const CODE = 'ELASTICSEARCH_INDEXING';
+    final public const CODE = 'ELASTICSEARCH_INDEXING';
 
     /**
      * @param array{reason: string}|array{reason: string}[] $items

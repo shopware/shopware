@@ -21,16 +21,16 @@ use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMapping
  */
 class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 {
-    public const KEYWORD_FIELD = [
+    final public const KEYWORD_FIELD = [
         'type' => 'keyword',
         'normalizer' => 'sw_lowercase_normalizer',
     ];
 
-    public const BOOLEAN_FIELD = ['type' => 'boolean'];
+    final public const BOOLEAN_FIELD = ['type' => 'boolean'];
 
-    public const FLOAT_FIELD = ['type' => 'double'];
+    final public const FLOAT_FIELD = ['type' => 'double'];
 
-    public const INT_FIELD = ['type' => 'long'];
+    final public const INT_FIELD = ['type' => 'long'];
 
     private const SEARCH_FIELD = [
         'fields' => [
@@ -39,41 +39,18 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         ],
     ];
 
-    protected ProductDefinition $definition;
-
-    protected EventDispatcherInterface $eventDispatcher;
-
-    /**
-     * @var array<string, string>
-     */
-    private array $customMapping;
-
-    private Connection $connection;
-
     /**
      * @var array<string, string>|null
      */
     private ?array $customFieldsTypes = null;
-
-    private AbstractProductSearchQueryBuilder $searchQueryBuilder;
 
     /**
      * @internal
      *
      * @param array<string, string> $customMapping
      */
-    public function __construct(
-        ProductDefinition $definition,
-        Connection $connection,
-        array $customMapping,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractProductSearchQueryBuilder $searchQueryBuilder
-    ) {
-        $this->definition = $definition;
-        $this->connection = $connection;
-        $this->customMapping = $customMapping;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->searchQueryBuilder = $searchQueryBuilder;
+    public function __construct(protected ProductDefinition $definition, private readonly Connection $connection, private readonly array $customMapping, protected EventDispatcherInterface $eventDispatcher, private readonly AbstractProductSearchQueryBuilder $searchQueryBuilder)
+    {
     }
 
     public function getEntityDefinition(): EntityDefinition
@@ -253,11 +230,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             $categoriesRo = json_decode($item['categoryIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
             $states = json_decode($item['states'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
 
-            $translations = $this->filterToOne(json_decode($item['translation'], true, 512, \JSON_THROW_ON_ERROR));
-            $parentTranslations = $this->filterToOne(json_decode($item['translation_parent'], true, 512, \JSON_THROW_ON_ERROR));
-            $manufacturer = $this->filterToOne(json_decode($item['manufacturer_translation'], true, 512, \JSON_THROW_ON_ERROR));
-            $tags = $this->filterToOne(json_decode($item['tags'], true, 512, \JSON_THROW_ON_ERROR), 'id');
-            $categories = $this->filterToMany(json_decode($item['categories'], true, 512, \JSON_THROW_ON_ERROR));
+            $translations = $this->filterToOne(json_decode((string) $item['translation'], true, 512, \JSON_THROW_ON_ERROR));
+            $parentTranslations = $this->filterToOne(json_decode((string) $item['translation_parent'], true, 512, \JSON_THROW_ON_ERROR));
+            $manufacturer = $this->filterToOne(json_decode((string) $item['manufacturer_translation'], true, 512, \JSON_THROW_ON_ERROR));
+            $tags = $this->filterToOne(json_decode((string) $item['tags'], true, 512, \JSON_THROW_ON_ERROR), 'id');
+            $categories = $this->filterToMany(json_decode((string) $item['categories'], true, 512, \JSON_THROW_ON_ERROR));
 
             $customFields = $this->takeItem('customFields', $context, $translations, $parentTranslations) ?? [];
 
@@ -304,12 +281,10 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'createdAt' => isset($item['createdAt']) ? (new \DateTime($item['createdAt']))->format('c') : null,
                 'optionIds' => $optionIds,
                 'options' => array_values(array_map(fn (string $optionId) => ['id' => $optionId, 'name' => $groups[$optionId]['name'], 'groupId' => $groups[$optionId]['property_group_id'], '_count' => 1], $optionIds)),
-                'categories' => array_values(array_map(function ($category) use ($context) {
-                    return [
-                        'id' => $category[Defaults::LANGUAGE_SYSTEM]['id'],
-                        'name' => $this->takeItem('name', $context, $category) ?? '',
-                    ];
-                }, $categories)),
+                'categories' => array_values(array_map(fn ($category) => [
+                    'id' => $category[Defaults::LANGUAGE_SYSTEM]['id'],
+                    'name' => $this->takeItem('name', $context, $category) ?? '',
+                ], $categories)),
                 'categoriesRo' => array_values(array_map(fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], $categoriesRo)),
                 'properties' => array_values(array_map(fn (string $propertyId) => ['id' => $propertyId, 'name' => $groups[$propertyId]['name'], 'groupId' => $groups[$propertyId]['property_group_id'], '_count' => 1], $propertyIds)),
                 'propertyIds' => $propertyIds,
@@ -323,7 +298,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             ];
 
             if ($item['cheapest_price_accessor']) {
-                $cheapestPriceAccessor = json_decode($item['cheapest_price_accessor'], true, 512, \JSON_THROW_ON_ERROR);
+                $cheapestPriceAccessor = json_decode((string) $item['cheapest_price_accessor'], true, 512, \JSON_THROW_ON_ERROR);
 
                 foreach ($cheapestPriceAccessor as $rule => $cheapestPriceCurrencies) {
                     foreach ($cheapestPriceCurrencies as $currency => $taxes) {
@@ -588,7 +563,7 @@ SQL;
         );
 
         foreach ($options as $optionId => $option) {
-            $translation = $this->filterToOne(json_decode($option['translations'], true));
+            $translation = $this->filterToOne(json_decode($option['translations'], true, 512, \JSON_THROW_ON_ERROR));
 
             $options[(string) $optionId]['name'] = (string) $this->takeItem('name', $context, $translation);
         }

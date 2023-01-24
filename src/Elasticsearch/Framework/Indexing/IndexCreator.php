@@ -14,19 +14,10 @@ use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexCreatedEve
  */
 class IndexCreator
 {
-    private Client $client;
-
     /**
      * @var array<mixed>
      */
-    private array $config;
-
-    /**
-     * @var array<mixed>
-     */
-    private array $mapping;
-
-    private EventDispatcherInterface $eventDispatcher;
+    private readonly array $config;
 
     /**
      * @internal
@@ -34,11 +25,8 @@ class IndexCreator
      * @param array<mixed> $config
      * @param array<mixed> $mapping
      */
-    public function __construct(Client $client, array $config, array $mapping, EventDispatcherInterface $eventDispatcher)
+    public function __construct(private readonly Client $client, array $config, private readonly array $mapping, private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->client = $client;
-        $this->mapping = $mapping;
-
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
                 unset($config['settings']['index']['number_of_shards']);
@@ -50,7 +38,6 @@ class IndexCreator
         }
 
         $this->config = $config;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function createIndex(AbstractElasticsearchDefinition $definition, string $index, string $alias, Context $context): void

@@ -19,17 +19,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class ElasticsearchTestAnalyzerCommand extends Command
 {
-    private Client $client;
-
-    private ?ShopwareStyle $io;
+    private ?ShopwareStyle $io = null;
 
     /**
      * @internal
      */
-    public function __construct(Client $client)
+    public function __construct(private readonly Client $client)
     {
         parent::__construct();
-        $this->client = $client;
     }
 
     /**
@@ -38,8 +35,7 @@ class ElasticsearchTestAnalyzerCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('term', InputArgument::REQUIRED)
-            ->setDescription('Allows to test an elasticsearch analyzer');
+            ->addArgument('term', InputArgument::REQUIRED);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

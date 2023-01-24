@@ -17,15 +17,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class ElasticsearchCreateAliasCommand extends Command
 {
-    private CreateAliasTaskHandler $handler;
-
     /**
      * @internal
      */
-    public function __construct(CreateAliasTaskHandler $handler)
+    public function __construct(private readonly CreateAliasTaskHandler $handler)
     {
         parent::__construct();
-        $this->handler = $handler;
     }
 
     /**
@@ -33,8 +30,6 @@ class ElasticsearchCreateAliasCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setDescription('Dev command to create alias immediately');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

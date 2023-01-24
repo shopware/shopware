@@ -23,10 +23,7 @@ class ElasticsearchExtension extends Extension
         $loader->load('services.xml');
     }
 
-    /**
-     * @return ConfigurationInterface
-     */
-    public function getConfiguration(array $config, ContainerBuilder $container)
+    public function getConfiguration(array $config, ContainerBuilder $container): ConfigurationInterface
     {
         return new Configuration();
     }

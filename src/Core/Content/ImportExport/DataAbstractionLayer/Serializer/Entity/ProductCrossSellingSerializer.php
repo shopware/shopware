@@ -17,14 +17,11 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 class ProductCrossSellingSerializer extends EntitySerializer
 {
-    private EntityRepository $assignedProductsRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $assignedProductsRepository)
+    public function __construct(private readonly EntityRepository $assignedProductsRepository)
     {
-        $this->assignedProductsRepository = $assignedProductsRepository;
     }
 
     /**

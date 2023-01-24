@@ -7,7 +7,7 @@ namespace Shopware\Core\Framework\App\Event;
  */
 class AppUpdatedEvent extends ManifestChangedEvent
 {
-    public const NAME = 'app.updated';
+    final public const NAME = 'app.updated';
 
     public function getName(): string
     {

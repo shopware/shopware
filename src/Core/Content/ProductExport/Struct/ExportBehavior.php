@@ -7,50 +7,8 @@ namespace Shopware\Core\Content\ProductExport\Struct;
  */
 class ExportBehavior
 {
-    /**
-     * @var bool
-     */
-    private $ignoreCache;
-
-    /**
-     * @var bool
-     */
-    private $includeInactive;
-
-    /**
-     * @var bool
-     */
-    private $batchMode;
-
-    /**
-     * @var bool
-     */
-    private $generateHeader;
-
-    /**
-     * @var bool
-     */
-    private $generateFooter;
-
-    /**
-     * @var int
-     */
-    private $offset;
-
-    public function __construct(
-        bool $ignoreCache = false,
-        bool $includeInactive = false,
-        bool $batchMode = false,
-        bool $generateHeader = true,
-        bool $generateFooter = true,
-        int $offset = 0
-    ) {
-        $this->ignoreCache = $ignoreCache;
-        $this->includeInactive = $includeInactive;
-        $this->batchMode = $batchMode;
-        $this->generateHeader = $generateHeader;
-        $this->generateFooter = $generateFooter;
-        $this->offset = $offset;
+    public function __construct(private readonly bool $ignoreCache = false, private readonly bool $includeInactive = false, private readonly bool $batchMode = false, private readonly bool $generateHeader = true, private readonly bool $generateFooter = true, private readonly int $offset = 0)
+    {
     }
 
     public function ignoreCache(): bool

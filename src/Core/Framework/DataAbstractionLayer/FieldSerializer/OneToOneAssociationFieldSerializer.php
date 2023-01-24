@@ -25,7 +25,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
      * @internal
      */
     public function __construct(
-        private WriteCommandExtractor $writeExtractor
+        private readonly WriteCommandExtractor $writeExtractor
     ) {
     }
 
@@ -57,7 +57,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
                     sprintf(
                         'Could not find reference field "%s" in definition "%s"',
                         $referenceField,
-                        \get_class($reference)
+                        $reference::class
                     )
                 );
             }

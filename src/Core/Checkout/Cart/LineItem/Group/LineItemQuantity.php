@@ -7,20 +7,8 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group;
  */
 class LineItemQuantity
 {
-    /**
-     * @var string
-     */
-    private $lineItemId;
-
-    /**
-     * @var int
-     */
-    private $quantity;
-
-    public function __construct(string $lineItemId, int $quantity)
+    public function __construct(private readonly string $lineItemId, private int $quantity)
     {
-        $this->lineItemId = $lineItemId;
-        $this->quantity = $quantity;
     }
 
     /**

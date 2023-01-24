@@ -37,7 +37,7 @@ class ApiAwareFlagTest extends TestCase
 
         $this->getBrowser()->request('GET', $url);
 
-        $data = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $data = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('data', $data, print_r($data, true));
 
         $data = $data['data'];
@@ -65,7 +65,7 @@ class ApiAwareFlagTest extends TestCase
         $browser->setServerParameter('HTTP_ACCEPT', 'application/json');
         $browser->request('GET', $url);
 
-        $data = json_decode($browser->getResponse()->getContent(), true);
+        $data = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('data', $data, print_r($data, true));
 
         $data = $data['data'];
@@ -114,7 +114,7 @@ class ApiAwareFlagTest extends TestCase
         $url = '/store-api/product?associations[cover][]';
 
         $browser->request('GET', $url);
-        $data = json_decode($browser->getResponse()->getContent(), true);
+        $data = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('elements', $data, print_r($data, true));
 
         foreach ($data['elements'] as $product) {

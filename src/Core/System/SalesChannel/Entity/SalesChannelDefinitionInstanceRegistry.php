@@ -13,22 +13,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
 {
     /**
-     * @var string
-     */
-    private $prefix;
-
-    /**
      * @internal
      */
     public function __construct(
-        string $prefix,
+        private readonly string $prefix,
         ContainerInterface $container,
         array $definitionMap,
         array $repositoryMap
     ) {
         parent::__construct($container, $definitionMap, $repositoryMap);
-
-        $this->prefix = $prefix;
     }
 
     /**
@@ -58,15 +51,13 @@ class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
      */
     public function getSalesChannelDefinitions(): array
     {
-        return array_filter($this->getDefinitions(), static function ($definition): bool {
-            return $definition instanceof SalesChannelDefinitionInterface;
-        });
+        return array_filter($this->getDefinitions(), static fn ($definition): bool => $definition instanceof SalesChannelDefinitionInterface);
     }
 
     public function register(EntityDefinition $definition, ?string $serviceId = null): void
     {
         if (!$serviceId) {
-            $serviceId = $this->prefix . \get_class($definition);
+            $serviceId = $this->prefix . $definition::class;
         }
 
         parent::register($definition, $serviceId);

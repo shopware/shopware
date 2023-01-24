@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class BillingZipCodeRule extends ZipCodeRule
 {
-    public const RULE_NAME = 'customerBillingZipCode';
+    final public const RULE_NAME = 'customerBillingZipCode';
 
     public function match(RuleScope $scope): bool
     {

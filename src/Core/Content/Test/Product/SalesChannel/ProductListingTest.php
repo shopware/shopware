@@ -29,40 +29,19 @@ class ProductListingTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    /**
-     * @var string
-     */
-    private $categoryId;
+    private string $categoryId;
 
-    /**
-     * @var ListingTestData
-     */
-    private $testData;
+    private ListingTestData $testData;
 
-    /**
-     * @var string
-     */
-    private $categoryStreamId;
+    private string $categoryStreamId;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var string
-     */
-    private $productIdWidth100;
+    private string $productIdWidth100;
 
-    /**
-     * @var string
-     */
-    private $productIdWidth150;
+    private string $productIdWidth150;
 
-    /**
-     * @var string
-     */
-    private $salesChannelId;
+    private string $salesChannelId;
 
     protected function setUp(): void
     {
@@ -370,9 +349,7 @@ class ProductListingTest extends TestCase
                     'name' => $variantKey,
                     'active' => true,
                     'parentId' => $this->testData->getId($key),
-                    'options' => array_map(static function ($id) {
-                        return ['id' => $id];
-                    }, $combination),
+                    'options' => array_map(static fn ($id) => ['id' => $id], $combination),
                 ];
             }
         }

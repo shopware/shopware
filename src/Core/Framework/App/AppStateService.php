@@ -24,40 +24,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class AppStateService
 {
-    private EntityRepository $appRepo;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private ActiveAppsLoader $activeAppsLoader;
-
-    private TemplateStateService $templateStateService;
-
-    private ScriptPersister $scriptPersister;
-
-    private PaymentMethodStateService $paymentMethodStateService;
-
-    private ScriptExecutor $scriptExecutor;
-
-    private RuleConditionPersister $ruleConditionPersister;
-
-    public function __construct(
-        EntityRepository $appRepo,
-        EventDispatcherInterface $eventDispatcher,
-        ActiveAppsLoader $activeAppsLoader,
-        TemplateStateService $templateStateService,
-        ScriptPersister $scriptPersister,
-        PaymentMethodStateService $paymentMethodStateService,
-        ScriptExecutor $scriptExecutor,
-        RuleConditionPersister $ruleConditionPersister
-    ) {
-        $this->appRepo = $appRepo;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->activeAppsLoader = $activeAppsLoader;
-        $this->templateStateService = $templateStateService;
-        $this->paymentMethodStateService = $paymentMethodStateService;
-        $this->scriptPersister = $scriptPersister;
-        $this->scriptExecutor = $scriptExecutor;
-        $this->ruleConditionPersister = $ruleConditionPersister;
+    public function __construct(private readonly EntityRepository $appRepo, private readonly EventDispatcherInterface $eventDispatcher, private readonly ActiveAppsLoader $activeAppsLoader, private readonly TemplateStateService $templateStateService, private readonly ScriptPersister $scriptPersister, private readonly PaymentMethodStateService $paymentMethodStateService, private readonly ScriptExecutor $scriptExecutor, private readonly RuleConditionPersister $ruleConditionPersister)
+    {
     }
 
     public function activateApp(string $appId, Context $context): void

@@ -23,13 +23,13 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @package customer-order
  */
-class CustomerEntity extends Entity
+class CustomerEntity extends Entity implements \Stringable
 {
     use EntityIdTrait;
     use EntityCustomFieldsTrait;
 
-    public const ACCOUNT_TYPE_PRIVATE = 'private';
-    public const ACCOUNT_TYPE_BUSINESS = 'business';
+    final public const ACCOUNT_TYPE_PRIVATE = 'private';
+    final public const ACCOUNT_TYPE_BUSINESS = 'business';
 
     protected string $groupId;
 
@@ -183,7 +183,7 @@ class CustomerEntity extends Entity
 
     protected ?UserEntity $updatedBy = null;
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getFirstName() . ' ' . $this->getLastName();
     }

@@ -16,17 +16,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 class UserValidationService
 {
     /**
-     * @var EntityRepository
-     */
-    private $userRepo;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $userRepo
-    ) {
-        $this->userRepo = $userRepo;
+    public function __construct(private readonly EntityRepository $userRepo)
+    {
     }
 
     /**

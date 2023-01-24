@@ -37,7 +37,7 @@ class DatabaseConnectionFactory
         $mariaDBRequiredVersion = '10.3.22';
 
         $version = $connection->fetchOne('SELECT VERSION()');
-        if (\mb_stripos($version, 'mariadb') !== false) {
+        if (\mb_stripos((string) $version, 'mariadb') !== false) {
             if (version_compare($version, $mariaDBRequiredVersion, '<')) {
                 throw new DatabaseSetupException(sprintf(
                     'Your database server is running MariaDB %s, but Shopware 6 requires at least MariaDB %s OR MySQL %s',

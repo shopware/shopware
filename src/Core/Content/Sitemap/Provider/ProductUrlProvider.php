@@ -23,39 +23,15 @@ use Symfony\Component\Routing\RouterInterface;
  */
 class ProductUrlProvider extends AbstractUrlProvider
 {
-    public const CHANGE_FREQ = 'hourly';
+    final public const CHANGE_FREQ = 'hourly';
 
     private const CONFIG_HIDE_AFTER_CLOSEOUT = 'core.listing.hideCloseoutProductsWhenOutOfStock';
-
-    private IteratorFactory $iteratorFactory;
-
-    private ConfigHandler $configHandler;
-
-    private Connection $connection;
-
-    private ProductDefinition $definition;
-
-    private RouterInterface $router;
-
-    private SystemConfigService $systemConfigService;
 
     /**
      * @internal
      */
-    public function __construct(
-        ConfigHandler $configHandler,
-        Connection $connection,
-        ProductDefinition $definition,
-        IteratorFactory $iteratorFactory,
-        RouterInterface $router,
-        SystemConfigService $systemConfigService
-    ) {
-        $this->configHandler = $configHandler;
-        $this->connection = $connection;
-        $this->definition = $definition;
-        $this->iteratorFactory = $iteratorFactory;
-        $this->router = $router;
-        $this->systemConfigService = $systemConfigService;
+    public function __construct(private readonly ConfigHandler $configHandler, private readonly Connection $connection, private readonly ProductDefinition $definition, private readonly IteratorFactory $iteratorFactory, private readonly RouterInterface $router, private readonly SystemConfigService $systemConfigService)
+    {
     }
 
     public function getDecorated(): AbstractUrlProvider

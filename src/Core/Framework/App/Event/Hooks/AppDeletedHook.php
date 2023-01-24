@@ -16,9 +16,9 @@ use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
  */
 class AppDeletedHook extends AppLifecycleHook implements AppSpecificHook
 {
-    public const HOOK_NAME = 'app-deleted';
+    final public const HOOK_NAME = 'app-deleted';
 
-    private AppDeletedEvent $event;
+    private readonly AppDeletedEvent $event;
 
     public function __construct(AppDeletedEvent $event)
     {

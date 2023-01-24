@@ -18,7 +18,7 @@ use Shopware\Core\System\NumberRange\NumberRangeDefinition;
  */
 class NumberRangeStateDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'number_range_state';
+    final public const ENTITY_NAME = 'number_range_state';
 
     public function getEntityName(): string
     {

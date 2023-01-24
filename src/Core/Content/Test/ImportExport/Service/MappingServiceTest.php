@@ -120,7 +120,7 @@ class MappingServiceTest extends TestCase
         if (!isset($data['emptyFile']) || $data['emptyFile'] === false) {
             $file = fopen($filePath, 'wb');
             static::assertIsResource($file);
-            fwrite($file, $data['csvHeader']);
+            fwrite($file, (string) $data['csvHeader']);
             fclose($file);
         }
         $uploadedFile = new UploadedFile($filePath, 'test', $data['fileType'] ?? 'text/csv');
@@ -136,13 +136,13 @@ class MappingServiceTest extends TestCase
                 throw $exception;
             }
 
-            static::assertSame($data['expectedErrorClass'], \get_class($exception));
+            static::assertSame($data['expectedErrorClass'], $exception::class);
 
             return;
         }
 
         $testCase = 'test case data: ' . var_export($data, true);
-        static::assertSame(\count($data['expectedMappings']), $guessedMapping->count(), $testCase);
+        static::assertSame(is_countable($data['expectedMappings']) ? \count($data['expectedMappings']) : 0, $guessedMapping->count(), $testCase);
 
         foreach ($data['expectedMappings'] as $mappedKey => $key) {
             $mapping = $guessedMapping->getMapped($mappedKey);

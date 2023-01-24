@@ -38,10 +38,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
      */
     private $thumbnailRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var GenerateThumbnailsHandler
@@ -201,13 +198,9 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $consecutiveUpdateMessageParams = [
             // For UpdateMessage 1
-            ...array_map(function ($entity) {
-                return [$entity, $this->context, true];
-            }, array_values($testEntities2->getElements())),
+            ...array_map(fn ($entity) => [$entity, $this->context, true], array_values($testEntities2->getElements())),
             // For UpdateMessage 2
-            ...array_map(function ($entity) {
-                return [$entity, $this->context, false];
-            }, array_values($testEntities3->getElements())),
+            ...array_map(fn ($entity) => [$entity, $this->context, false], array_values($testEntities3->getElements())),
         ];
 
         $thumbnailServiceMock->expects(static::exactly($testEntities2->count() + $testEntities3->count()))

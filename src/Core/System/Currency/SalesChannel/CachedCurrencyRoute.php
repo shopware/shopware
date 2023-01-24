@@ -19,31 +19,12 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package inventory
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CachedCurrencyRoute extends AbstractCurrencyRoute
 {
-    public const ALL_TAG = 'currency-route';
-
-    private AbstractCurrencyRoute $decorated;
-
-    private CacheInterface $cache;
-
-    private EntityCacheKeyGenerator $generator;
-
-    /**
-     * @var AbstractCacheTracer<CurrencyRouteResponse>
-     */
-    private AbstractCacheTracer $tracer;
-
-    /**
-     * @var array<string>
-     */
-    private array $states;
-
-    private EventDispatcherInterface $dispatcher;
+    final public const ALL_TAG = 'currency-route';
 
     /**
      * @internal
@@ -51,20 +32,8 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
      * @param AbstractCacheTracer<CurrencyRouteResponse> $tracer
      * @param array<string> $states
      */
-    public function __construct(
-        AbstractCurrencyRoute $decorated,
-        CacheInterface $cache,
-        EntityCacheKeyGenerator $generator,
-        AbstractCacheTracer $tracer,
-        EventDispatcherInterface $dispatcher,
-        array $states
-    ) {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
-        $this->generator = $generator;
-        $this->tracer = $tracer;
-        $this->states = $states;
-        $this->dispatcher = $dispatcher;
+    public function __construct(private readonly AbstractCurrencyRoute $decorated, private readonly CacheInterface $cache, private readonly EntityCacheKeyGenerator $generator, private readonly AbstractCacheTracer $tracer, private readonly EventDispatcherInterface $dispatcher, private readonly array $states)
+    {
     }
 
     public static function buildName(string $salesChannelId): string
@@ -79,8 +48,8 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/currency", name="store-api.currency", methods={"GET", "POST"}, defaults={"_entity"="currency"})
      */
+    #[Route(path: '/store-api/currency', name: 'store-api.currency', methods: ['GET', 'POST'], defaults: ['_entity' => 'currency'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): CurrencyRouteResponse
     {
         if ($context->hasState(...$this->states)) {
@@ -95,9 +64,7 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
 
         $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $criteria) {
             $name = self::buildName($context->getSalesChannelId());
-            $response = $this->tracer->trace($name, function () use ($request, $context, $criteria) {
-                return $this->getDecorated()->load($request, $context, $criteria);
-            });
+            $response = $this->tracer->trace($name, fn () => $this->getDecorated()->load($request, $context, $criteria));
 
             $item->tag($this->generateTags($request, $response, $context, $criteria));
 
@@ -121,7 +88,7 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
             return null;
         }
 
-        return self::buildName($context->getSalesChannelId()) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
+        return self::buildName($context->getSalesChannelId()) . '-' . md5((string) JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
     /**

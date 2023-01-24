@@ -26,19 +26,11 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 {
     use RouteScopeCheckTrait;
 
-    private Connection $connection;
-
-    private RouteScopeRegistry $routeScopeRegistry;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        RouteScopeRegistry $routeScopeRegistry
-    ) {
-        $this->connection = $connection;
-        $this->routeScopeRegistry = $routeScopeRegistry;
+    public function __construct(private readonly Connection $connection, private readonly RouteScopeRegistry $routeScopeRegistry)
+    {
     }
 
     public function resolve(Request $request): void
@@ -316,7 +308,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
         $list = [];
         foreach ($permissions as $privileges) {
-            $privileges = json_decode((string) $privileges, true);
+            $privileges = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
             $list = array_merge($list, $privileges);
         }
 
@@ -333,7 +325,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             throw new \RuntimeException(sprintf('No cash rounding for currency "%s" found', $currencyId));
         }
 
-        $rounding = json_decode($rounding['item_rounding'], true);
+        $rounding = json_decode((string) $rounding['item_rounding'], true, 512, \JSON_THROW_ON_ERROR);
 
         return new CashRoundingConfig(
             (int) $rounding['decimals'],
@@ -359,7 +351,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             return null;
         }
 
-        return json_decode($privileges, true);
+        return json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
     }
 
     private function fetchIntegrationPermissions(string $integrationId): array
@@ -375,7 +367,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
         $list = [];
         foreach ($permissions as $privileges) {
-            $privileges = json_decode((string) $privileges, true);
+            $privileges = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
             $list = array_merge($list, $privileges);
         }
 

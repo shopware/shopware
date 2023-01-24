@@ -43,9 +43,7 @@ class CalculatedTaxCollection extends Collection
 
     public function sortByTax(): CalculatedTaxCollection
     {
-        $this->sort(function (CalculatedTax $a, CalculatedTax $b) {
-            return $a->getTaxRate() <=> $b->getTaxRate();
-        });
+        $this->sort(fn (CalculatedTax $a, CalculatedTax $b) => $a->getTaxRate() <=> $b->getTaxRate());
 
         return $this;
     }
@@ -56,9 +54,7 @@ class CalculatedTaxCollection extends Collection
     public function getAmount(): float
     {
         $amounts = $this->map(
-            function (CalculatedTax $calculatedTax) {
-                return $calculatedTax->getTax();
-            }
+            fn (CalculatedTax $calculatedTax) => $calculatedTax->getTax()
         );
 
         return FloatComparator::cast(array_sum($amounts));

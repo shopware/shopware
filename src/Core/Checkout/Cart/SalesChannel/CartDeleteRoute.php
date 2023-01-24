@@ -13,22 +13,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package checkout
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CartDeleteRoute extends AbstractCartDeleteRoute
 {
-    private AbstractCartPersister $cartPersister;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(AbstractCartPersister $cartPersister, EventDispatcherInterface $eventDispatcher)
+    public function __construct(private readonly AbstractCartPersister $cartPersister, private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->cartPersister = $cartPersister;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractCartDeleteRoute
@@ -38,8 +31,8 @@ class CartDeleteRoute extends AbstractCartDeleteRoute
 
     /**
      * @Since("6.3.0.0")
-     * @Route("/store-api/checkout/cart", name="store-api.checkout.cart.delete", methods={"DELETE"})
      */
+    #[Route(path: '/store-api/checkout/cart', name: 'store-api.checkout.cart.delete', methods: ['DELETE'])]
     public function delete(SalesChannelContext $context): NoContentResponse
     {
         $this->cartPersister->delete($context->getToken(), $context);

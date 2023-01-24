@@ -14,22 +14,10 @@ use Symfony\Component\Lock\LockFactory;
 class IncrementRedisStorage extends AbstractIncrementStorage
 {
     /**
-     * @var \Redis|\RedisCluster
-     */
-    private $redis;
-
-    private LockFactory $lockFactory;
-
-    private EntityRepository $numberRangeRepository;
-
-    /**
      * @param \Redis|\RedisCluster $redis
      */
-    public function __construct($redis, LockFactory $lockFactory, EntityRepository $numberRangeRepository)
+    public function __construct(private $redis, private readonly LockFactory $lockFactory, private readonly EntityRepository $numberRangeRepository)
     {
-        $this->redis = $redis;
-        $this->lockFactory = $lockFactory;
-        $this->numberRangeRepository = $numberRangeRepository;
     }
 
     /**

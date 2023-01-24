@@ -13,17 +13,14 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class IsGuestCustomerRule extends Rule
 {
-    public const RULE_NAME = 'customerIsGuest';
-
-    protected bool $isGuest;
+    final public const RULE_NAME = 'customerIsGuest';
 
     /**
      * @internal
      */
-    public function __construct(bool $isGuest = true)
+    public function __construct(protected bool $isGuest = true)
     {
         parent::__construct();
-        $this->isGuest = $isGuest;
     }
 
     public function match(RuleScope $scope): bool

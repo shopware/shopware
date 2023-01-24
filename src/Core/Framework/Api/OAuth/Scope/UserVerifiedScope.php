@@ -9,7 +9,7 @@ use League\OAuth2\Server\Entities\ScopeEntityInterface;
  */
 class UserVerifiedScope implements ScopeEntityInterface
 {
-    public const IDENTIFIER = 'user-verified';
+    final public const IDENTIFIER = 'user-verified';
 
     /**
      * @return string

@@ -10,20 +10,11 @@ use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
  */
 class SnippetValidator implements SnippetValidatorInterface
 {
-    private SnippetFileCollection $deprecatedSnippetFiles;
-
-    private SnippetFileHandler $snippetFileHandler;
-
-    private string $projectDir;
-
     /**
      * @internal
      */
-    public function __construct(SnippetFileCollection $deprecatedSnippetFiles, SnippetFileHandler $snippetFileHandler, string $projectDir)
+    public function __construct(private readonly SnippetFileCollection $deprecatedSnippetFiles, private readonly SnippetFileHandler $snippetFileHandler, private readonly string $projectDir)
     {
-        $this->deprecatedSnippetFiles = $deprecatedSnippetFiles;
-        $this->snippetFileHandler = $snippetFileHandler;
-        $this->projectDir = $projectDir;
     }
 
     /**
@@ -118,7 +109,7 @@ class SnippetValidator implements SnippetValidatorInterface
                 continue;
             }
 
-            $keyPaths = array_merge($keyPaths, $this->getRecursiveArrayKeys($data, $key . '.'));
+            $keyPaths = [...$keyPaths, ...$this->getRecursiveArrayKeys($data, $key . '.')];
         }
 
         return $keyPaths;

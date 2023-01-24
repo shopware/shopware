@@ -16,21 +16,14 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class PromotionCodeOfTypeRule extends Rule
 {
-    public const RULE_NAME = 'promotionCodeOfType';
-
-    protected ?string $promotionCodeType;
-
-    protected string $operator;
+    final public const RULE_NAME = 'promotionCodeOfType';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $promotionCodeType = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?string $promotionCodeType = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->promotionCodeType = $promotionCodeType;
     }
 
     public function match(RuleScope $scope): bool

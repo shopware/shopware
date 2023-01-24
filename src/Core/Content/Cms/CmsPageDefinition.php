@@ -32,7 +32,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class CmsPageDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'cms_page';
+    final public const ENTITY_NAME = 'cms_page';
 
     public function getEntityName(): string
     {

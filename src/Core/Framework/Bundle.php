@@ -96,7 +96,7 @@ abstract class Bundle extends SymfonyBundle
     /**
      * Returns a list of all action event class references of this bundle. The events will be registered inside the `\Shopware\Core\Framework\Event\BusinessEventRegistry`.
      *
-     * @return array<string>
+     * @return array<class-string>
      */
     protected function getActionEventClasses(): array
     {
@@ -143,7 +143,7 @@ abstract class Bundle extends SymfonyBundle
             return;
         }
 
-        $container->addCompilerPass(new BusinessEventRegisterCompilerPass($classes));
+        $container->addCompilerPass(new BusinessEventRegisterCompilerPass($classes), \Symfony\Component\DependencyInjection\Compiler\PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
     }
 
     /**

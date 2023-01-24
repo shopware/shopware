@@ -21,30 +21,24 @@ class VariantListingIndexerTest extends TestCase
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $repository;
+    private EntityRepository $repository;
 
-    /**
-     * @var string
-     */
-    private $productId;
+    private string $productId;
 
     /**
      * @var array<string, string>
      */
-    private $optionIds = [];
+    private array $optionIds = [];
 
     /**
      * @var array<string, string>
      */
-    private $groupIds = [];
+    private array $groupIds = [];
 
     /**
      * @var array<string, string>
      */
-    private $variantIds = [];
+    private array $variantIds = [];
 
     /**
      * @var Connection
@@ -352,9 +346,7 @@ class VariantListingIndexerTest extends TestCase
         );
 
         /** @var array<array<string>> $optionIds */
-        $optionIds = array_map(function ($item) {
-            return json_decode((string) $item['option_ids'], true);
-        }, $listing);
+        $optionIds = array_map(fn ($item) => json_decode((string) $item['option_ids'], true, 512, \JSON_THROW_ON_ERROR), $listing);
 
         if (!empty($optionIds)) {
             $optionIds = array_merge(...$optionIds);

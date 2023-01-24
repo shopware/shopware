@@ -38,47 +38,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class RecalculationService
 {
-    protected EntityRepository $orderRepository;
-
-    protected OrderConverter $orderConverter;
-
-    protected CartService $cartService;
-
-    protected EntityRepository $productRepository;
-
-    protected EntityRepository $orderAddressRepository;
-
-    protected EntityRepository $customerAddressRepository;
-
-    protected Processor $processor;
-
-    private CartRuleLoader $cartRuleLoader;
-
-    private PromotionItemBuilder $promotionItemBuilder;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $orderRepository,
-        OrderConverter $orderConverter,
-        CartService $cartService,
-        EntityRepository $productRepository,
-        EntityRepository $orderAddressRepository,
-        EntityRepository $customerAddressRepository,
-        Processor $processor,
-        CartRuleLoader $cartRuleLoader,
-        PromotionItemBuilder $promotionItemBuilder
-    ) {
-        $this->orderRepository = $orderRepository;
-        $this->orderConverter = $orderConverter;
-        $this->cartService = $cartService;
-        $this->productRepository = $productRepository;
-        $this->orderAddressRepository = $orderAddressRepository;
-        $this->customerAddressRepository = $customerAddressRepository;
-        $this->processor = $processor;
-        $this->cartRuleLoader = $cartRuleLoader;
-        $this->promotionItemBuilder = $promotionItemBuilder;
+    public function __construct(protected EntityRepository $orderRepository, protected OrderConverter $orderConverter, protected CartService $cartService, protected EntityRepository $productRepository, protected EntityRepository $orderAddressRepository, protected EntityRepository $customerAddressRepository, protected Processor $processor, private readonly CartRuleLoader $cartRuleLoader, private readonly PromotionItemBuilder $promotionItemBuilder)
+    {
     }
 
     /**

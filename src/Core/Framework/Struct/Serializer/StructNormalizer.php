@@ -61,7 +61,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         }
 
         if (!$this->isObject($data)) {
-            return array_map([$this, 'denormalize'], $data);
+            return array_map($this->denormalize(...), $data);
         }
 
         /** @var class-string<object> $class */
@@ -69,9 +69,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         unset($data['_class']);
 
         //iterate arguments to resolve other serialized objects
-        $arguments = array_map(function ($argument) {
-            return $this->denormalize($argument);
-        }, $data);
+        $arguments = array_map(fn ($argument) => $this->denormalize($argument), $data);
 
         //create object instance
         return $this->createInstance($class, $arguments);

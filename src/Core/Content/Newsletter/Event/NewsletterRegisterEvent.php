@@ -20,43 +20,12 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class NewsletterRegisterEvent extends Event implements SalesChannelAware, MailAware, NewsletterRecipientAware, UrlAware
 {
-    public const EVENT_NAME = 'newsletter.register';
+    final public const EVENT_NAME = 'newsletter.register';
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private ?MailRecipientStruct $mailRecipientStruct = null;
 
-    /**
-     * @var NewsletterRecipientEntity
-     */
-    private $newsletterRecipient;
-
-    /**
-     * @var MailRecipientStruct|null
-     */
-    private $mailRecipientStruct;
-
-    /**
-     * @var string
-     */
-    private $url;
-
-    /**
-     * @var string
-     */
-    private $salesChannelId;
-
-    public function __construct(
-        Context $context,
-        NewsletterRecipientEntity $newsletterRecipient,
-        string $url,
-        string $salesChannelId
-    ) {
-        $this->context = $context;
-        $this->newsletterRecipient = $newsletterRecipient;
-        $this->url = $url;
-        $this->salesChannelId = $salesChannelId;
+    public function __construct(private readonly Context $context, private readonly NewsletterRecipientEntity $newsletterRecipient, private readonly string $url, private readonly string $salesChannelId)
+    {
     }
 
     public static function getAvailableData(): EventDataCollection

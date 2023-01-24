@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Plugin\PluginDefinition;
  */
 class CustomEntityDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'custom_entity';
+    final public const ENTITY_NAME = 'custom_entity';
 
     public function getCollectionClass(): string
     {

@@ -30,43 +30,11 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'credit_note';
 
-    private DocumentConfigLoader $documentConfigLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private DocumentTemplateRenderer $documentTemplateRenderer;
-
-    private string $rootDir;
-
-    private EntityRepository $orderRepository;
-
-    private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
-
-    private ReferenceInvoiceLoader $referenceInvoiceLoader;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $orderRepository,
-        DocumentConfigLoader $documentConfigLoader,
-        EventDispatcherInterface $eventDispatcher,
-        DocumentTemplateRenderer $documentTemplateRenderer,
-        NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        ReferenceInvoiceLoader $referenceInvoiceLoader,
-        string $rootDir,
-        Connection $connection
-    ) {
-        $this->documentConfigLoader = $documentConfigLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->documentTemplateRenderer = $documentTemplateRenderer;
-        $this->rootDir = $rootDir;
-        $this->orderRepository = $orderRepository;
-        $this->numberRangeValueGenerator = $numberRangeValueGenerator;
-        $this->referenceInvoiceLoader = $referenceInvoiceLoader;
-        $this->connection = $connection;
+    public function __construct(private readonly EntityRepository $orderRepository, private readonly DocumentConfigLoader $documentConfigLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly DocumentTemplateRenderer $documentTemplateRenderer, private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator, private readonly ReferenceInvoiceLoader $referenceInvoiceLoader, private readonly string $rootDir, private readonly Connection $connection)
+    {
     }
 
     public function supports(): string
@@ -80,9 +48,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
         $template = '@Framework/documents/credit_note.html.twig';
 
-        $ids = \array_map(function (DocumentGenerateOperation $operation) {
-            return $operation->getOrderId();
-        }, $operations);
+        $ids = \array_map(fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
 
         if (empty($ids)) {
             return $result;
@@ -102,7 +68,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                     throw new DocumentGenerationException('Can not generate credit note document because no invoice document exists. OrderId: ' . $operation->getOrderId());
                 }
 
-                $documentRefer = json_decode($invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
+                $documentRefer = json_decode((string) $invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
 
                 $referenceInvoiceNumbers[$orderId] = $documentRefer['documentNumber'];
 

@@ -17,20 +17,14 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class ShippingCityRule extends Rule
 {
-    public const RULE_NAME = 'customerShippingCity';
-
-    protected ?string $cityName;
-
-    protected string $operator;
+    final public const RULE_NAME = 'customerShippingCity';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $cityName = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?string $cityName = null)
     {
         parent::__construct();
-        $this->operator = $operator;
-        $this->cityName = $cityName;
     }
 
     public function match(RuleScope $scope): bool

@@ -65,9 +65,7 @@ class DeliveryCollection extends Collection
     public function getShippingCosts(): PriceCollection
     {
         return new PriceCollection(
-            $this->map(function (Delivery $delivery) {
-                return $delivery->getShippingCosts();
-            })
+            $this->map(fn (Delivery $delivery) => $delivery->getShippingCosts())
         );
     }
 

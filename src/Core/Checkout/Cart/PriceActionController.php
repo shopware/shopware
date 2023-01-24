@@ -21,43 +21,21 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package checkout
- *
- * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class PriceActionController extends AbstractController
 {
     /**
-     * @var EntityRepository
-     */
-    private $taxRepository;
-
-    /**
-     * @var NetPriceCalculator
-     */
-    private $netCalculator;
-
-    /**
-     * @var GrossPriceCalculator
-     */
-    private $grossCalculator;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $taxRepository,
-        NetPriceCalculator $netCalculator,
-        GrossPriceCalculator $grossCalculator
-    ) {
-        $this->taxRepository = $taxRepository;
-        $this->netCalculator = $netCalculator;
-        $this->grossCalculator = $grossCalculator;
+    public function __construct(private readonly EntityRepository $taxRepository, private readonly NetPriceCalculator $netCalculator, private readonly GrossPriceCalculator $grossCalculator)
+    {
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("api/_action/calculate-price", name="api.action.calculate-price", methods={"POST"})
      */
+    #[Route(path: 'api/_action/calculate-price', name: 'api.action.calculate-price', methods: ['POST'])]
     public function calculate(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has('price')) {
@@ -88,8 +66,8 @@ class PriceActionController extends AbstractController
 
     /**
      * @Since("6.4.9.0")
-     * @Route("api/_action/calculate-prices", name="api.action.calculate-prices", methods={"POST"})
      */
+    #[Route(path: 'api/_action/calculate-prices', name: 'api.action.calculate-prices', methods: ['POST'])]
     public function calculatePrices(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has('taxId')) {
@@ -144,6 +122,6 @@ class PriceActionController extends AbstractController
 
         $calculated = $calculator->calculate($definition, $config);
 
-        return json_decode(json_encode($calculated, \JSON_PRESERVE_ZERO_FRACTION), true);
+        return json_decode(json_encode($calculated, \JSON_PRESERVE_ZERO_FRACTION), true, 512, \JSON_THROW_ON_ERROR);
     }
 }

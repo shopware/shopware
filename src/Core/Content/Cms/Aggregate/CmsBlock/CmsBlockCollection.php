@@ -28,9 +28,7 @@ class CmsBlockCollection extends EntityCollection
 
     public function filterBySectionPosition(string $position): CmsBlockCollection
     {
-        return $this->filter(function (CmsBlockEntity $entity) use ($position) {
-            return $entity->getSectionPosition() === $position;
-        });
+        return $this->filter(fn (CmsBlockEntity $entity) => $entity->getSectionPosition() === $position);
     }
 
     public function setSlots(CmsSlotCollection $slots): void

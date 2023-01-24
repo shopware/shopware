@@ -18,23 +18,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class PromotionCodeService
 {
-    public const PROMOTION_PATTERN_REGEX = '/(?<prefix>[^%]*)(?<replacement>(%[sd])+)(?<suffix>.*)/';
-    public const CODE_COMPLEXITY_FACTOR = 0.5;
-
-    private EntityRepository $individualCodesRepository;
-
-    private EntityRepository $promotionRepository;
-
-    private Connection $connection;
+    final public const PROMOTION_PATTERN_REGEX = '/(?<prefix>[^%]*)(?<replacement>(%[sd])+)(?<suffix>.*)/';
+    final public const CODE_COMPLEXITY_FACTOR = 0.5;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepository $promotionRepository, EntityRepository $individualCodesRepository, Connection $connection)
+    public function __construct(private readonly EntityRepository $promotionRepository, private readonly EntityRepository $individualCodesRepository, private readonly Connection $connection)
     {
-        $this->promotionRepository = $promotionRepository;
-        $this->individualCodesRepository = $individualCodesRepository;
-        $this->connection = $connection;
     }
 
     public function getFixedCode(): string
@@ -173,12 +164,10 @@ class PromotionCodeService
 
     private function prepareCodeEntities(string $promotionId, array $codes): array
     {
-        return array_values(array_map(static function ($code) use ($promotionId) {
-            return [
-                'promotionId' => $promotionId,
-                'code' => $code,
-            ];
-        }, $codes));
+        return array_values(array_map(static fn ($code) => [
+            'promotionId' => $promotionId,
+            'code' => $code,
+        ], $codes));
     }
 
     private function isComplexEnough(string $pattern, int $amount, int $blacklistCount): bool

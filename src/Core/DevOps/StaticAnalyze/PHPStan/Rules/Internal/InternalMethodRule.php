@@ -18,14 +18,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class InternalMethodRule implements Rule
 {
-    /**
-     * @var ServiceMap
-     */
-    private $serviceMap;
-
-    public function __construct(ServiceMap $symfonyServiceMap)
+    public function __construct(private readonly ServiceMap $serviceMap)
     {
-        $this->serviceMap = $symfonyServiceMap;
     }
 
     public function getNodeType(): string

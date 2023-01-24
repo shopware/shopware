@@ -16,15 +16,17 @@ use League\Flysystem\UrlGeneration\TemporaryUrlGenerator;
 
 /**
  * @internal can be removed when https://github.com/thephpleague/flysystem/pull/1621 is removed
+ *
+ * @package core
  */
 class DecoratedAsyncS3Adapter implements FilesystemAdapter, PublicUrlGenerator, ChecksumProvider, TemporaryUrlGenerator
 {
-    private PathPrefixer $prefixer;
+    private readonly PathPrefixer $prefixer;
 
     public function __construct(
-        private AsyncAwsS3Adapter $inner,
-        private string $bucket,
-        private S3Client $client,
+        private readonly AsyncAwsS3Adapter $inner,
+        private readonly string $bucket,
+        private readonly S3Client $client,
         string $prefix
     ) {
         $this->prefixer = new PathPrefixer($prefix);

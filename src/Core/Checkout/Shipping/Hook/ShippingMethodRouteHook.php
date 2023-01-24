@@ -20,7 +20,7 @@ class ShippingMethodRouteHook extends StoreApiRequestHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'shipping-method-route-request';
+    final public const HOOK_NAME = 'shipping-method-route-request';
 
     /**
      * @internal

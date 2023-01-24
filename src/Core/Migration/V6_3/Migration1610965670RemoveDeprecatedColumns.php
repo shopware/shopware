@@ -37,14 +37,14 @@ class Migration1610965670RemoveDeprecatedColumns extends MigrationStep
             $connection->executeStatement(
                 'DROP TRIGGER `currency_cash_rounding_insert`'
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
 
         try {
             $connection->executeStatement(
                 'DROP TRIGGER `currency_cash_rounding_update`'
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
 
         try {
@@ -52,7 +52,7 @@ class Migration1610965670RemoveDeprecatedColumns extends MigrationStep
                 'ALTER TABLE `currency`
                 DROP COLUMN `decimal_precision`'
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
     }
 
@@ -62,14 +62,14 @@ class Migration1610965670RemoveDeprecatedColumns extends MigrationStep
             $connection->executeStatement(
                 'DROP TRIGGER `product_purchase_prices_insert`'
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
 
         try {
             $connection->executeStatement(
                 'DROP TRIGGER `product_purchase_prices_update`'
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
 
         try {
@@ -77,7 +77,7 @@ class Migration1610965670RemoveDeprecatedColumns extends MigrationStep
                 'ALTER TABLE `product`
                 DROP COLUMN `purchase_price`'
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
     }
 
@@ -88,7 +88,7 @@ class Migration1610965670RemoveDeprecatedColumns extends MigrationStep
                 'ALTER TABLE `customer_wishlist_product`
                 DROP COLUMN `custom_fields`'
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
     }
 }

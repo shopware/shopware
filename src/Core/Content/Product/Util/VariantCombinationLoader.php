@@ -12,14 +12,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class VariantCombinationLoader
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -40,7 +37,7 @@ class VariantCombinationLoader
         $combinations = FetchModeHelper::groupUnique($combinations);
 
         foreach ($combinations as &$combination) {
-            $combination['options'] = json_decode($combination['options'], true);
+            $combination['options'] = json_decode((string) $combination['options'], true, 512, \JSON_THROW_ON_ERROR);
         }
 
         return $combinations;

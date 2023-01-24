@@ -17,14 +17,11 @@ class CurrencyFormatter
      */
     private array $formatter = [];
 
-    private LanguageLocaleCodeProvider $languageLocaleProvider;
-
     /**
      * @internal
      */
-    public function __construct(LanguageLocaleCodeProvider $languageLocaleProvider)
+    public function __construct(private readonly LanguageLocaleCodeProvider $languageLocaleProvider)
     {
-        $this->languageLocaleProvider = $languageLocaleProvider;
     }
 
     /**
@@ -33,7 +30,7 @@ class CurrencyFormatter
      */
     public function formatCurrencyByLanguage(float $price, string $currency, string $languageId, Context $context, ?int $decimals = null): string
     {
-        $decimals = $decimals ?? $context->getRounding()->getDecimals();
+        $decimals ??= $context->getRounding()->getDecimals();
 
         $locale = $this->languageLocaleProvider->getLocaleForLanguageId($languageId);
         $formatter = $this->getFormatter($locale, \NumberFormatter::CURRENCY);

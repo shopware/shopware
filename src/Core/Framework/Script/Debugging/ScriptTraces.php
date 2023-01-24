@@ -63,7 +63,7 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
 
         $took = round(microtime(true) - $time, 3);
 
-        $name = explode('/', $script->getName());
+        $name = explode('/', (string) $script->getName());
         $name = array_pop($name);
 
         $this->add($hook, $name, $took, $debug, $deprecations);
@@ -114,7 +114,7 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
     {
         $count = 0;
         foreach ($this->data as $scripts) {
-            $count += \count($scripts);
+            $count += is_countable($scripts) ? \count($scripts) : 0;
         }
 
         return $count;

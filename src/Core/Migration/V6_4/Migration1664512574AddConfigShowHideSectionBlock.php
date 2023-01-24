@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class Migration1664512574AddConfigShowHideSectionBlock extends MigrationStep
 {

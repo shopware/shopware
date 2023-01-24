@@ -129,17 +129,17 @@ EOF;
         static::assertCount(3, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/data', $fieldException->getPath());
         static::assertEquals('/0', $fieldException->getViolations()->get(0)->getPropertyPath());
 
         $fieldException = $ex->getExceptions()[1];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/data', $fieldException->getPath());
         static::assertEquals('/1', $fieldException->getViolations()->get(0)->getPropertyPath());
 
         $fieldException = $ex->getExceptions()[2];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/data', $fieldException->getPath());
         static::assertEquals('/3', $fieldException->getViolations()->get(0)->getPropertyPath());
     }

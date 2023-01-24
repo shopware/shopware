@@ -20,15 +20,9 @@ class DeactivateAppCommand extends AbstractAppActivationCommand
 {
     private const ACTION = 'deactivate';
 
-    /**
-     * @var AppStateService
-     */
-    private $appStateService;
-
-    public function __construct(EntityRepository $appRepo, AppStateService $appStateService)
+    public function __construct(EntityRepository $appRepo, private readonly AppStateService $appStateService)
     {
         parent::__construct($appRepo, self::ACTION);
-        $this->appStateService = $appStateService;
     }
 
     public function runAction(string $appId, Context $context): void

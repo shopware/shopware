@@ -10,7 +10,7 @@ class WriteProtected extends Flag
     /**
      * @var array<string, bool>
      */
-    private $allowedScopes = [];
+    private array $allowedScopes = [];
 
     public function __construct(string ...$allowedScopes)
     {

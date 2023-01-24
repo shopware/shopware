@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\CashPayment;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
@@ -978,7 +979,7 @@ class Migration1617000878AddTemplateDataToMailTemplateType extends MigrationStep
                         ],
                         'paymentMethod' => [
                             'pluginId' => null,
-                            'handlerIdentifier' => 'Shopware\Core\Checkout\Payment\Cart\PaymentHandler\CashPayment',
+                            'handlerIdentifier' => CashPayment::class,
                             'name' => 'Cash on delivery',
                             'description' => 'Payment upon receipt of goods.',
                             'position' => 1,
@@ -3903,7 +3904,7 @@ class Migration1617000878AddTemplateDataToMailTemplateType extends MigrationStep
                         ],
                         'paymentMethod' => [
                             'pluginId' => null,
-                            'handlerIdentifier' => 'Shopware\Core\Checkout\Payment\Cart\PaymentHandler\CashPayment',
+                            'handlerIdentifier' => CashPayment::class,
                             'name' => 'Cash on delivery',
                             'description' => 'Payment upon receipt of goods.',
                             'position' => 1,

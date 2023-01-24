@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class Migration1669298267AddIconCacheDefaultValue extends MigrationStep
 {
-    public const CONFIG_KEY = 'core.storefrontSettings.iconCache';
+    final public const CONFIG_KEY = 'core.storefrontSettings.iconCache';
 
     public function getCreationTimestamp(): int
     {

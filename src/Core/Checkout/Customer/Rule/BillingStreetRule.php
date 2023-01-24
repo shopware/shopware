@@ -15,20 +15,14 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class BillingStreetRule extends Rule
 {
-    public const RULE_NAME = 'customerBillingStreet';
-
-    protected ?string $streetName = null;
-
-    protected string $operator;
+    final public const RULE_NAME = 'customerBillingStreet';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $streetName = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?string $streetName = null)
     {
         parent::__construct();
-        $this->operator = $operator;
-        $this->streetName = $streetName;
     }
 
     public function match(RuleScope $scope): bool

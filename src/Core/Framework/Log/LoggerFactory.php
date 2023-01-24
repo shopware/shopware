@@ -12,17 +12,11 @@ use Psr\Log\LoggerInterface;
  */
 class LoggerFactory
 {
-    private string $rotatingFilePathPattern = '';
-
-    private int $defaultFileRotationCount;
-
     /**
      * @internal
      */
-    public function __construct(string $rotatingFilePathPattern, int $defaultFileRotationCount = 14)
+    public function __construct(private readonly string $rotatingFilePathPattern, private readonly int $defaultFileRotationCount = 14)
     {
-        $this->rotatingFilePathPattern = $rotatingFilePathPattern;
-        $this->defaultFileRotationCount = $defaultFileRotationCount;
     }
 
     /**

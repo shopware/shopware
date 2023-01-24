@@ -23,9 +23,9 @@ class ScriptEntity extends Entity
 
     protected bool $active;
 
-    protected ?string $appId;
+    protected ?string $appId = null;
 
-    protected ?AppEntity $app;
+    protected ?AppEntity $app = null;
 
     public function getScript(): string
     {

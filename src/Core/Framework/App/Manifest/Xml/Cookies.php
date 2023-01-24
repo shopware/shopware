@@ -9,12 +9,12 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
  */
 class Cookies extends XmlElement
 {
-    public const NAME_TAG = 'snippet-name';
-    public const DESCRIPTION_TAG = 'snippet-description';
-    public const COOKIE_TAG = 'cookie';
-    public const VALUE_TAG = 'value';
-    public const EXPIRATION_TAG = 'expiration';
-    public const ENTRIES_TAG = 'entries';
+    final public const NAME_TAG = 'snippet-name';
+    final public const DESCRIPTION_TAG = 'snippet-description';
+    final public const COOKIE_TAG = 'cookie';
+    final public const VALUE_TAG = 'value';
+    final public const EXPIRATION_TAG = 'expiration';
+    final public const ENTRIES_TAG = 'entries';
 
     /**
      * @var Cookies[]

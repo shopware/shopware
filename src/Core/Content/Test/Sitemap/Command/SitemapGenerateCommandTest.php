@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Sitemap\Command;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Sitemap\Commands\SitemapGenerateCommand;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporter;
@@ -25,7 +26,7 @@ class SitemapGenerateCommandTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    private $exporter;
+    private MockObject&SitemapExporter $exporter;
 
     private SitemapGenerateCommand $command;
 

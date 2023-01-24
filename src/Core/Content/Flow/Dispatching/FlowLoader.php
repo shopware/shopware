@@ -14,14 +14,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  */
 class FlowLoader extends AbstractFlowLoader
 {
-    private Connection $connection;
-
-    private LoggerInterface $logger;
-
-    public function __construct(Connection $connection, LoggerInterface $logger)
+    public function __construct(private readonly Connection $connection, private readonly LoggerInterface $logger)
     {
-        $this->connection = $connection;
-        $this->logger = $logger;
     }
 
     public function getDecorated(): AbstractFlowLoader

@@ -9,38 +9,8 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 class SitemapGenerationResult extends Struct
 {
-    /**
-     * @var bool
-     */
-    private $finish;
-
-    /**
-     * @var string|null
-     */
-    private $provider;
-
-    /**
-     * @var int|null
-     */
-    private $offset;
-
-    /**
-     * @var string|null
-     */
-    private $lastSalesChannelId;
-
-    /**
-     * @var string
-     */
-    private $lastLanguageId;
-
-    public function __construct(bool $finish, ?string $provider, ?int $offset, string $lastSalesChannelId, string $lastLanguageId)
+    public function __construct(private readonly bool $finish, private readonly ?string $provider, private readonly ?int $offset, private readonly ?string $lastSalesChannelId, private readonly string $lastLanguageId)
     {
-        $this->finish = $finish;
-        $this->provider = $provider;
-        $this->offset = $offset;
-        $this->lastSalesChannelId = $lastSalesChannelId;
-        $this->lastLanguageId = $lastLanguageId;
     }
 
     public function isFinish(): bool

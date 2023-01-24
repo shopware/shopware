@@ -57,20 +57,20 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
  */
 class PluginLifecycleService
 {
-    public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
+    final public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
 
     public function __construct(
-        private EntityRepository $pluginRepo,
+        private readonly EntityRepository $pluginRepo,
         private EventDispatcherInterface $eventDispatcher,
-        private KernelPluginCollection $pluginCollection,
+        private readonly KernelPluginCollection $pluginCollection,
         private ContainerInterface $container,
-        private MigrationCollectionLoader $migrationLoader,
-        private AssetService $assetInstaller,
-        private CommandExecutor $executor,
-        private RequirementsValidator $requirementValidator,
-        private CacheItemPoolInterface $restartSignalCachePool,
-        private string $shopwareVersion,
-        private SystemConfigService $systemConfigService,
+        private readonly MigrationCollectionLoader $migrationLoader,
+        private readonly AssetService $assetInstaller,
+        private readonly CommandExecutor $executor,
+        private readonly RequirementsValidator $requirementValidator,
+        private readonly CacheItemPoolInterface $restartSignalCachePool,
+        private readonly string $shopwareVersion,
+        private readonly SystemConfigService $systemConfigService,
         private readonly CustomEntityPersister $customEntityPersister,
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
         private readonly CustomEntityLifecycleService $customEntityLifecycleService
@@ -82,6 +82,7 @@ class PluginLifecycleService
      */
     public function installPlugin(PluginEntity $plugin, Context $shopwareContext): InstallContext
     {
+        $pluginData = [];
         $pluginBaseClass = $this->getPluginBaseClass($plugin->getBaseClass());
         $pluginVersion = $plugin->getVersion();
 
@@ -265,7 +266,7 @@ class PluginLifecycleService
             if ($plugin->getActive()) {
                 try {
                     $this->deactivatePlugin($plugin, $shopwareContext);
-                } catch (\Throwable $deactivateException) {
+                } catch (\Throwable) {
                     $this->updatePluginData(
                         [
                             'id' => $plugin->getId(),
@@ -564,7 +565,7 @@ class PluginLifecycleService
 
         try {
             $newContainer = $kernel->getContainer();
-        } catch (\LogicException $e) {
+        } catch (\LogicException) {
             // If symfony throws an exception when calling getContainer on a not booted kernel and catch it here
             throw new \RuntimeException('Failed to reboot the kernel');
         }
@@ -601,9 +602,7 @@ class PluginLifecycleService
      */
     private function getEntities(array $plugins, Context $context): EntitySearchResult
     {
-        $names = array_map(static function (Plugin $plugin) {
-            return $plugin->getName();
-        }, $plugins);
+        $names = array_map(static fn (Plugin $plugin) => $plugin->getName(), $plugins);
 
         return $this->pluginRepo->search(
             (new Criteria())->addFilter(new EqualsAnyFilter('name', $names)),

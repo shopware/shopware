@@ -20,19 +20,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class ProductConfiguratorLoader
 {
-    private EntityRepository $configuratorRepository;
-
-    private AbstractAvailableCombinationLoader $combinationLoader;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $configuratorRepository,
-        AbstractAvailableCombinationLoader $combinationLoader
-    ) {
-        $this->combinationLoader = $combinationLoader;
-        $this->configuratorRepository = $configuratorRepository;
+    public function __construct(private readonly EntityRepository $configuratorRepository, private readonly AbstractAvailableCombinationLoader $combinationLoader)
+    {
     }
 
     /**
@@ -178,7 +170,7 @@ class ProductConfiguratorLoader
                     }
 
                     if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
-                        return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
+                        return strnatcmp((string) $a->getTranslation('name'), (string) $b->getTranslation('name'));
                     }
 
                     return ($a->getTranslation('position') ?? $a->getPosition() ?? 0) <=> ($b->getTranslation('position') ?? $b->getPosition() ?? 0);

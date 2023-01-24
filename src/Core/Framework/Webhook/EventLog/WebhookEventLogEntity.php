@@ -14,7 +14,7 @@ class WebhookEventLogEntity extends Entity
     use EntityIdTrait;
     use EntityCustomFieldsTrait;
 
-    protected ?string $appName;
+    protected ?string $appName = null;
 
     protected string $webhookName;
 
@@ -22,11 +22,11 @@ class WebhookEventLogEntity extends Entity
 
     protected string $deliveryStatus;
 
-    protected ?int $timestamp;
+    protected ?int $timestamp = null;
 
-    protected ?int $processingTime;
+    protected ?int $processingTime = null;
 
-    protected ?string $appVersion;
+    protected ?string $appVersion = null;
 
     /**
      * @var array<string, mixed>|null
@@ -38,9 +38,9 @@ class WebhookEventLogEntity extends Entity
      */
     protected ?array $responseContent;
 
-    protected ?int $responseStatusCode;
+    protected ?int $responseStatusCode = null;
 
-    protected ?string $responseReasonPhrase;
+    protected ?string $responseReasonPhrase = null;
 
     protected string $url;
 

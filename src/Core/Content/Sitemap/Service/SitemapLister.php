@@ -13,22 +13,10 @@ use Symfony\Component\Asset\Package;
 class SitemapLister implements SitemapListerInterface
 {
     /**
-     * @var FilesystemOperator
-     */
-    private $filesystem;
-
-    /**
-     * @var Package
-     */
-    private $package;
-
-    /**
      * @internal
      */
-    public function __construct(FilesystemOperator $filesystem, Package $package)
+    public function __construct(private readonly FilesystemOperator $filesystem, private readonly Package $package)
     {
-        $this->filesystem = $filesystem;
-        $this->package = $package;
     }
 
     /**

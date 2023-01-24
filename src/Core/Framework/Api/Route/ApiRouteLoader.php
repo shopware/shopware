@@ -15,16 +15,13 @@ use Symfony\Component\Routing\RouteCollection;
  */
 class ApiRouteLoader extends Loader
 {
-    private DefinitionInstanceRegistry $definitionRegistry;
-
     private bool $isLoaded = false;
 
     /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $definitionRegistry)
+    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry)
     {
-        $this->definitionRegistry = $definitionRegistry;
     }
 
     public function load(mixed $resource, ?string $type = null): RouteCollection
@@ -58,9 +55,7 @@ class ApiRouteLoader extends Loader
         $listSuffix = '(\/[0-9a-f]{32}\/(extensions\/)?[a-zA-Z-]+)*\/?$';
 
         $elements = $this->definitionRegistry->getDefinitions();
-        usort($elements, function (EntityDefinition $a, EntityDefinition $b) {
-            return $a->getEntityName() <=> $b->getEntityName();
-        });
+        usort($elements, fn (EntityDefinition $a, EntityDefinition $b) => $a->getEntityName() <=> $b->getEntityName());
 
         foreach ($elements as $definition) {
             $entityName = $definition->getEntityName();

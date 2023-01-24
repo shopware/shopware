@@ -12,9 +12,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package checkout
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class SortedShippingMethodRoute extends AbstractShippingMethodRoute
 {
     /**
@@ -33,8 +32,8 @@ class SortedShippingMethodRoute extends AbstractShippingMethodRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/shipping-method", name="store-api.shipping.method", methods={"GET", "POST"}, defaults={"_entity"="shipping_method"})
      */
+    #[Route(path: '/store-api/shipping-method', name: 'store-api.shipping.method', methods: ['GET', 'POST'], defaults: ['_entity' => 'shipping_method'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
     {
         $response = $this->getDecorated()->load($request, $context, $criteria);

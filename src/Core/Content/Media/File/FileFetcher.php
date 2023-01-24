@@ -19,10 +19,10 @@ class FileFetcher
      * @internal
      */
     public function __construct(
-        private FileUrlValidatorInterface $fileUrlValidator,
-        private bool $enableUrlUploadFeature = true,
-        private bool $enableUrlValidation = true,
-        private int $maxFileSize = 0
+        private readonly FileUrlValidatorInterface $fileUrlValidator,
+        private readonly bool $enableUrlUploadFeature = true,
+        private readonly bool $enableUrlValidation = true,
+        private readonly int $maxFileSize = 0
     ) {
     }
 
@@ -152,7 +152,7 @@ class FileFetcher
 
         try {
             $inputStream = @fopen($url, 'rb', false, $streamContext);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             throw new UploadException("Could not open source stream from {$url}");
         }
 
@@ -172,7 +172,7 @@ class FileFetcher
     {
         try {
             $inputStream = @fopen($filename, 'wb');
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             throw new UploadException("Could not open Stream to write upload data: {$filename}");
         }
 

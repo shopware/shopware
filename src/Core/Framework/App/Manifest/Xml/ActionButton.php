@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Util\XmlReader;
  */
 class ActionButton extends XmlElement
 {
-    public const TRANSLATABLE_FIELDS = ['label'];
+    final public const TRANSLATABLE_FIELDS = ['label'];
 
     /**
      * @var array<string>

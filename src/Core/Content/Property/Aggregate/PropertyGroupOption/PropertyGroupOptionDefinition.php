@@ -32,7 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class PropertyGroupOptionDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'property_group_option';
+    final public const ENTITY_NAME = 'property_group_option';
 
     public function getEntityName(): string
     {

@@ -19,34 +19,12 @@ class StorableFlow
      */
     protected array $config = [];
 
-    protected string $name;
-
-    protected Context $context;
-
-    /**
-     * @var array<string, mixed>
-     */
-    protected array $store = [];
-
-    /**
-     * @var array<string, mixed>
-     */
-    protected array $data = [];
-
     /**
      * @param array<string, mixed> $store
      * @param array<string, mixed> $data
      */
-    public function __construct(
-        string $name,
-        Context $context,
-        array $store = [],
-        array $data = []
-    ) {
-        $this->name = $name;
-        $this->context = $context;
-        $this->data = $data;
-        $this->store = $store;
+    public function __construct(protected string $name, protected Context $context, protected array $store = [], protected array $data = [])
+    {
     }
 
     public function getName(): string
@@ -59,10 +37,7 @@ class StorableFlow
         return $this->context;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function setStore(string $key, $value): void
+    public function setStore(string $key, mixed $value): void
     {
         $this->store[$key] = $value;
     }
@@ -73,11 +48,9 @@ class StorableFlow
     }
 
     /**
-     * @param mixed $default
-     *
      * @return mixed
      */
-    public function getStore(string $key, $default = null)
+    public function getStore(string $key, mixed $default = null)
     {
         return $this->store[$key] ?? $default;
     }
@@ -90,10 +63,7 @@ class StorableFlow
         return $this->store;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function setData(string $key, $value): void
+    public function setData(string $key, mixed $value): void
     {
         $this->data[$key] = $value;
     }
@@ -104,11 +74,9 @@ class StorableFlow
     }
 
     /**
-     * @param mixed $default
-     *
      * @return mixed
      */
-    public function getData(string $key, $default = null)
+    public function getData(string $key, mixed $default = null)
     {
         $value = $this->data[$key] ?? $default;
 

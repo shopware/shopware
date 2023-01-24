@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class DifferentAddressesRule extends Rule
 {
-    public const RULE_NAME = 'customerDifferentAddresses';
+    final public const RULE_NAME = 'customerDifferentAddresses';
 
     /**
      * @var bool

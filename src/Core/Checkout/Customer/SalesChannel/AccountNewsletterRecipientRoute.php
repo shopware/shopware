@@ -14,20 +14,15 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class AccountNewsletterRecipientRoute extends AbstractAccountNewsletterRecipientRoute
 {
-    private SalesChannelRepository $newsletterRecipientRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        SalesChannelRepository $newsletterRecipientRepository
-    ) {
-        $this->newsletterRecipientRepository = $newsletterRecipientRepository;
+    public function __construct(private readonly SalesChannelRepository $newsletterRecipientRepository)
+    {
     }
 
     public function getDecorated(): AbstractAccountNewsletterRecipientRoute
@@ -37,8 +32,8 @@ class AccountNewsletterRecipientRoute extends AbstractAccountNewsletterRecipient
 
     /**
      * @Since("6.4.3.0")
-     * @Route("/store-api/account/newsletter-recipient", name="store-api.newsletter.recipient", methods={"GET", "POST"}, defaults={"_loginRequired"=true, "_entity"="newsletter_recipient"})
      */
+    #[Route(path: '/store-api/account/newsletter-recipient', name: 'store-api.newsletter.recipient', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_entity' => 'newsletter_recipient'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): AccountNewsletterRecipientRouteResponse
     {
         $criteria->addFilter(new EqualsFilter('email', $customer->getEmail()));

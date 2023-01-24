@@ -14,15 +14,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class Migration1591259559AddMissingCurrency extends MigrationStep
 {
-    /**
-     * @var string|null
-     */
-    private $deLanguage = null;
+    private ?string $deLanguage = null;
 
-    /**
-     * @var string|null
-     */
-    private $enLanguage = null;
+    private ?string $enLanguage = null;
 
     public function getCreationTimestamp(): int
     {

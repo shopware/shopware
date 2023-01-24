@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class Migration1598885384RedirectToLatestSeoUrl extends MigrationStep
 {
-    public const CONFIG_KEY = 'core.seo.redirectToCanonicalUrl';
+    final public const CONFIG_KEY = 'core.seo.redirectToCanonicalUrl';
 
     public function getCreationTimestamp(): int
     {

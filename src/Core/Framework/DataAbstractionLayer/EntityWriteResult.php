@@ -11,21 +11,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
  */
 class EntityWriteResult
 {
-    public const OPERATION_INSERT = 'insert';
-    public const OPERATION_UPDATE = 'update';
-    public const OPERATION_DELETE = 'delete';
+    final public const OPERATION_INSERT = 'insert';
+    final public const OPERATION_UPDATE = 'update';
+    final public const OPERATION_DELETE = 'delete';
 
     /**
      * @param array<string, string>|string $primaryKey
      * @param array<string, mixed> $payload
      */
     public function __construct(
-        private array|string $primaryKey,
-        private array $payload,
-        private string $entityName,
+        private readonly array|string $primaryKey,
+        private readonly array $payload,
+        private readonly string $entityName,
         private string $operation,
-        private ?EntityExistence $existence = null,
-        private ?ChangeSet $changeSet = null
+        private readonly ?EntityExistence $existence = null,
+        private readonly ?ChangeSet $changeSet = null
     ) {
         $this->operation = mb_strtolower($operation);
 

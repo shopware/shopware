@@ -33,14 +33,11 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
     private const DEFAULT_PAGE = 1;
     private const FILTER_LANGUAGE = 'filter-language';
 
-    private AbstractProductReviewRoute $productReviewRoute;
-
     /**
      * @internal
      */
-    public function __construct(AbstractProductReviewRoute $productReviewRoute)
+    public function __construct(private readonly AbstractProductReviewRoute $productReviewRoute)
     {
-        $this->productReviewRoute = $productReviewRoute;
     }
 
     public function getType(): string

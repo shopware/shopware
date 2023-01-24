@@ -10,14 +10,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class SalesChannelContextSwitcher
 {
-    private AbstractContextSwitchRoute $contextSwitchRoute;
-
     /**
      * @internal
      */
-    public function __construct(AbstractContextSwitchRoute $contextSwitchRoute)
+    public function __construct(private readonly AbstractContextSwitchRoute $contextSwitchRoute)
     {
-        $this->contextSwitchRoute = $contextSwitchRoute;
     }
 
     public function update(DataBag $data, SalesChannelContext $context): void

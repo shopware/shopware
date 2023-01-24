@@ -15,14 +15,11 @@ use Shopware\Core\Framework\Event\CustomerAware;
  */
 class ChangeCustomerGroupAction extends FlowAction implements DelayableAction
 {
-    private EntityRepository $customerRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $customerRepository)
+    public function __construct(private readonly EntityRepository $customerRepository)
     {
-        $this->customerRepository = $customerRepository;
     }
 
     public static function getName(): string

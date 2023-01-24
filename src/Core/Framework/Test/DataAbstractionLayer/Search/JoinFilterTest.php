@@ -641,10 +641,8 @@ class JoinFilterTest extends TestCase
             ])
         );
 
-        $result = Context::createDefaultContext()->enableInheritance(function (Context $context) use ($criteria) {
-            return $this->getContainer()->get('product.repository')
-                ->searchIds($criteria, $context);
-        });
+        $result = Context::createDefaultContext()->enableInheritance(fn (Context $context) => $this->getContainer()->get('product.repository')
+            ->searchIds($criteria, $context));
 
         static::assertEquals(3, $result->getTotal());
         static::assertTrue($result->has($ids->get('product-2')));
@@ -664,10 +662,8 @@ class JoinFilterTest extends TestCase
             ])
         );
 
-        $result = Context::createDefaultContext()->enableInheritance(function (Context $context) use ($criteria) {
-            return $this->getContainer()->get('product.repository')
-                ->searchIds($criteria, $context);
-        });
+        $result = Context::createDefaultContext()->enableInheritance(fn (Context $context) => $this->getContainer()->get('product.repository')
+            ->searchIds($criteria, $context));
 
         static::assertEquals(3, $result->getTotal());
         static::assertFalse($result->has($ids->get('product-2')));
@@ -689,10 +685,8 @@ class JoinFilterTest extends TestCase
             new EqualsFilter('product.properties.id', $ids->get('yellow'))
         );
 
-        $result = Context::createDefaultContext()->enableInheritance(function (Context $context) use ($criteria) {
-            return $this->getContainer()->get('product.repository')
-                ->searchIds($criteria, $context);
-        });
+        $result = Context::createDefaultContext()->enableInheritance(fn (Context $context) => $this->getContainer()->get('product.repository')
+            ->searchIds($criteria, $context));
 
         static::assertEquals(2, $result->getTotal());
         static::assertFalse($result->has($ids->get('product-2')));

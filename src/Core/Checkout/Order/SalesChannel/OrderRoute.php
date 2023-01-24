@@ -29,18 +29,17 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class OrderRoute extends AbstractOrderRoute
 {
     /**
      * @internal
      */
     public function __construct(
-        private EntityRepository $orderRepository,
-        private EntityRepository $promotionRepository,
-        private  RateLimiter $rateLimiter
+        private readonly EntityRepository $orderRepository,
+        private readonly EntityRepository $promotionRepository,
+        private readonly RateLimiter $rateLimiter
     ) {
     }
 
@@ -51,8 +50,8 @@ class OrderRoute extends AbstractOrderRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route(path="/store-api/order", name="store-api.order", methods={"GET", "POST"}, defaults={"_entity"="order"})
      */
+    #[Route(path: '/store-api/order', name: 'store-api.order', methods: ['GET', 'POST'], defaults: ['_entity' => 'order'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): OrderRouteResponse
     {
         ReplicaConnection::ensurePrimary();
@@ -67,10 +66,8 @@ class OrderRoute extends AbstractOrderRoute
         $criteria->addAssociation('orderCustomer.customer');
 
         /** @var EqualsFilter|null $deepLinkFilter */
-        $deepLinkFilter = \current(array_filter($criteria->getFilters(), static function (Filter $filter) {
-            return \in_array('order.deepLinkCode', $filter->getFields(), true)
-                || \in_array('deepLinkCode', $filter->getFields(), true);
-        })) ?: null;
+        $deepLinkFilter = \current(array_filter($criteria->getFilters(), static fn (Filter $filter) => \in_array('order.deepLinkCode', $filter->getFields(), true)
+            || \in_array('deepLinkCode', $filter->getFields(), true))) ?: null;
 
         if ($context->getCustomer()) {
             $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));
@@ -195,9 +192,7 @@ class OrderRoute extends AbstractOrderRoute
     {
         // Search with deepLinkCode needs updatedAt Filter
         $latestOrderDate = (new \DateTime())->setTimezone(new \DateTimeZone('UTC'))->modify(-abs(30) . ' Day');
-        $orders = $orders->filter(function (OrderEntity $order) use ($latestOrderDate) {
-            return $order->getCreatedAt() > $latestOrderDate || $order->getUpdatedAt() > $latestOrderDate;
-        });
+        $orders = $orders->filter(fn (OrderEntity $order) => $order->getCreatedAt() > $latestOrderDate || $order->getUpdatedAt() > $latestOrderDate);
 
         return $orders;
     }

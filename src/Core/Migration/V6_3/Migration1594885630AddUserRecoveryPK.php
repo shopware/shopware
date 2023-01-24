@@ -25,7 +25,7 @@ class Migration1594885630AddUserRecoveryPK extends MigrationStep
                 ALTER TABLE `user_recovery`
                 ADD PRIMARY KEY (`id`);
             ');
-        } catch (Exception $e) {
+        } catch (Exception) {
             // PK already exists
         }
     }

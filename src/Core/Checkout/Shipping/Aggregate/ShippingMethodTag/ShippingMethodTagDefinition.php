@@ -16,7 +16,7 @@ use Shopware\Core\System\Tag\TagDefinition;
  */
 class ShippingMethodTagDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'shipping_method_tag';
+    final public const ENTITY_NAME = 'shipping_method_tag';
 
     public function getEntityName(): string
     {

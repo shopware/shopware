@@ -68,7 +68,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
             return $field->getDefault();
         }
 
-        $raw = json_decode($value, true);
+        $raw = json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
         $decoded = $raw;
         if (empty($field->getPropertyMapping())) {
             return $raw;
@@ -117,9 +117,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
         $existence = new EntityExistence(null, [], false, false, false, []);
         $fieldPath = $parameters->getPath() . '/' . $field->getPropertyName();
 
-        $propertyKeys = array_map(function (Field $field) {
-            return $field->getPropertyName();
-        }, $field->getPropertyMapping());
+        $propertyKeys = array_map(fn (Field $field) => $field->getPropertyName(), $field->getPropertyMapping());
 
         // If a mapping is defined, you should not send properties that are undefined.
         // Sending undefined fields will throw an UnexpectedFieldException
@@ -174,7 +172,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
 
                 foreach ($encoded as $fieldKey => $fieldValue) {
                     if ($nestedField instanceof JsonField && $fieldValue !== null) {
-                        $fieldValue = json_decode($fieldValue, true);
+                        $fieldValue = json_decode((string) $fieldValue, true, 512, \JSON_THROW_ON_ERROR);
                     }
 
                     $stack->update($fieldKey, $fieldValue);

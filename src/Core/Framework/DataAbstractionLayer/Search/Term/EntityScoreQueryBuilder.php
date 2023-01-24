@@ -119,7 +119,7 @@ class EntityScoreQueryBuilder
                 return false;
             }
 
-            return $flag->isSourceAllowed(\get_class($context->getSource()));
+            return $flag->isSourceAllowed($context->getSource()::class);
         });
 
         if ($fields->count() > 0) {

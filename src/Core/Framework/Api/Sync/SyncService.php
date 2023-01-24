@@ -20,19 +20,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class SyncService implements SyncServiceInterface
 {
-    private EntityWriterInterface $writer;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityWriterInterface $writer,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->writer = $writer;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly EntityWriterInterface $writer, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**

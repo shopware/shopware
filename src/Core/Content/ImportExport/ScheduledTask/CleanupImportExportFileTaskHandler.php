@@ -22,7 +22,7 @@ final class CleanupImportExportFileTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $repository,
-        private DeleteExpiredFilesService $deleteExpiredFilesService
+        private readonly DeleteExpiredFilesService $deleteExpiredFilesService
     ) {
         parent::__construct($repository);
     }

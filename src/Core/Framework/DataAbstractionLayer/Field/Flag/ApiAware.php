@@ -19,7 +19,7 @@ class ApiAware extends Flag
     /**
      * @var array<string, string>
      */
-    private $whitelist = [];
+    private array $whitelist = [];
 
     public function __construct(string ...$protectedSources)
     {

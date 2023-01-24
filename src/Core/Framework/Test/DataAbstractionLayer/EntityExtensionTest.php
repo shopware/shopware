@@ -96,7 +96,7 @@ class EntityExtensionTest extends TestCase
 
         try {
             $this->connection->executeStatement('ALTER TABLE `product` ADD COLUMN my_tax_id binary(16) NULL');
-        } catch (Exception $e) {
+        } catch (Exception) {
         }
 
         $this->connection->beginTransaction();

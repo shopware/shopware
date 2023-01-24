@@ -19,20 +19,11 @@ use Shopware\Core\System\Language\LanguageEntity;
  */
 class CategoryBreadcrumbUpdater
 {
-    private Connection $connection;
-
-    private EntityRepository $categoryRepository;
-
-    private EntityRepository $languageRepository;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, EntityRepository $categoryRepository, EntityRepository $languageRepository)
+    public function __construct(private readonly Connection $connection, private readonly EntityRepository $categoryRepository, private readonly EntityRepository $languageRepository)
     {
-        $this->connection = $connection;
-        $this->categoryRepository = $categoryRepository;
-        $this->languageRepository = $languageRepository;
     }
 
     public function update(array $ids, Context $context): void
@@ -99,7 +90,7 @@ class CategoryBreadcrumbUpdater
         foreach ($ids as $id) {
             try {
                 $path = $this->buildBreadcrumb($id, $categories);
-            } catch (CategoryNotFoundException $e) {
+            } catch (CategoryNotFoundException) {
                 continue;
             }
 
@@ -107,7 +98,7 @@ class CategoryBreadcrumbUpdater
                 'categoryId' => Uuid::fromHexToBytes($id),
                 'versionId' => $versionId,
                 'languageId' => $languageId,
-                'breadcrumb' => json_encode($path),
+                'breadcrumb' => json_encode($path, \JSON_THROW_ON_ERROR),
             ]);
         }
     }

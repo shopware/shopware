@@ -12,16 +12,12 @@ use Shopware\Core\Checkout\Customer\Password\LegacyEncoder\LegacyEncoderInterfac
 class LegacyPasswordVerifier
 {
     /**
-     * @var LegacyEncoderInterface[]
-     */
-    private $encoder;
-
-    /**
      * @internal
+     *
+     * @param LegacyEncoderInterface[] $encoder
      */
-    public function __construct(iterable $encoder)
+    public function __construct(private readonly iterable $encoder)
     {
-        $this->encoder = $encoder;
     }
 
     public function verify(string $password, CustomerEntity $customer): bool

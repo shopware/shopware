@@ -22,48 +22,18 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package content
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CachedLandingPageRoute extends AbstractLandingPageRoute
 {
-    private AbstractLandingPageRoute $decorated;
-
-    private CacheInterface $cache;
-
-    private EntityCacheKeyGenerator $generator;
-
-    /**
-     * @var AbstractCacheTracer<LandingPageRouteResponse>
-     */
-    private AbstractCacheTracer $tracer;
-
-    /**
-     * @var array<string>
-     */
-    private array $states;
-
-    private EventDispatcherInterface $dispatcher;
-
     /**
      * @internal
      *
      * @param AbstractCacheTracer<LandingPageRouteResponse> $tracer
      * @param array<string> $states
      */
-    public function __construct(
-        AbstractLandingPageRoute $decorated,
-        CacheInterface $cache,
-        EntityCacheKeyGenerator $generator,
-        AbstractCacheTracer $tracer,
-        EventDispatcherInterface $dispatcher,
-        array $states
-    ) {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
-        $this->generator = $generator;
-        $this->tracer = $tracer;
-        $this->states = $states;
-        $this->dispatcher = $dispatcher;
+    public function __construct(private readonly AbstractLandingPageRoute $decorated, private readonly CacheInterface $cache, private readonly EntityCacheKeyGenerator $generator, private readonly AbstractCacheTracer $tracer, private readonly EventDispatcherInterface $dispatcher, private readonly array $states)
+    {
     }
 
     public static function buildName(string $id): string
@@ -78,8 +48,8 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/store-api/landing-page/{landingPageId}", name="store-api.landing-page.detail", methods={"POST"})
      */
+    #[Route(path: '/store-api/landing-page/{landingPageId}', name: 'store-api.landing-page.detail', methods: ['POST'])]
     public function load(string $landingPageId, Request $request, SalesChannelContext $context): LandingPageRouteResponse
     {
         if ($context->hasState(...$this->states)) {
@@ -94,9 +64,7 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
 
         $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $landingPageId) {
             $name = self::buildName($landingPageId);
-            $response = $this->tracer->trace($name, function () use ($landingPageId, $request, $context) {
-                return $this->getDecorated()->load($landingPageId, $request, $context);
-            });
+            $response = $this->tracer->trace($name, fn () => $this->getDecorated()->load($landingPageId, $request, $context));
 
             $item->tag($this->generateTags($landingPageId, $response, $request, $context));
 
@@ -108,11 +76,7 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
 
     private function generateKey(string $landingPageId, Request $request, SalesChannelContext $context): ?string
     {
-        $parts = array_merge(
-            $request->query->all(),
-            $request->request->all(),
-            [$this->generator->getSalesChannelContextHash($context, [RuleAreas::LANDING_PAGE_AREA, RuleAreas::PRODUCT_AREA, RuleAreas::CATEGORY_AREA])]
-        );
+        $parts = [...$request->query->all(), ...$request->request->all(), ...[$this->generator->getSalesChannelContextHash($context, [RuleAreas::LANDING_PAGE_AREA, RuleAreas::PRODUCT_AREA, RuleAreas::CATEGORY_AREA])]];
 
         $event = new LandingPageRouteCacheKeyEvent($landingPageId, $parts, $request, $context, null);
         $this->dispatcher->dispatch($event);
@@ -195,10 +159,6 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
 
         $ids = array_values(array_unique(array_filter($ids)));
 
-        return array_merge(
-            array_map([EntityCacheKeyGenerator::class, 'buildProductTag'], $ids),
-            array_map([EntityCacheKeyGenerator::class, 'buildStreamTag'], $streamIds),
-            [EntityCacheKeyGenerator::buildCmsTag($page->getId())]
-        );
+        return [...array_map(EntityCacheKeyGenerator::buildProductTag(...), $ids), ...array_map(EntityCacheKeyGenerator::buildStreamTag(...), $streamIds), ...[EntityCacheKeyGenerator::buildCmsTag($page->getId())]];
     }
 }

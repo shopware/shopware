@@ -16,16 +16,12 @@ class MailHeaderFooterTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (MailHeaderFooterTranslationEntity $mailTemplateTranslation) {
-            return $mailTemplateTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (MailHeaderFooterTranslationEntity $mailTemplateTranslation) => $mailTemplateTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (MailHeaderFooterTranslationEntity $mailTemplateTranslation) use ($id) {
-            return $mailTemplateTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (MailHeaderFooterTranslationEntity $mailTemplateTranslation) => $mailTemplateTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

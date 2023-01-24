@@ -16,11 +16,8 @@ use Shopware\Core\Checkout\Cart\Cart;
  */
 class StatesFacade
 {
-    private Cart $cart;
-
-    public function __construct(Cart $cart)
+    public function __construct(private readonly Cart $cart)
     {
-        $this->cart = $cart;
     }
 
     /**

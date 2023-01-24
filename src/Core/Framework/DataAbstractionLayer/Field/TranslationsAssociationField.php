@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslationsAss
  */
 class TranslationsAssociationField extends OneToManyAssociationField
 {
-    public const PRIORITY = 90;
+    final public const PRIORITY = 90;
 
     public function __construct(
         string $referenceClass,

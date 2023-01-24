@@ -16,7 +16,7 @@ class Migration1624967118updateMailTemplatesWithOptionalSalutation extends Migra
 {
     use UpdateMailTrait;
 
-    public const MAIL_TYPE_DIRS = [
+    final public const MAIL_TYPE_DIRS = [
         'order_confirmation_mail',
         'order_delivery.state.cancelled',
         'order_delivery.state.returned',
@@ -60,15 +60,13 @@ class Migration1624967118updateMailTemplatesWithOptionalSalutation extends Migra
      */
     public static function getUpdates(): array
     {
-        return \array_map(static function (string $mailTypeDirectory): MailUpdate {
-            return new MailUpdate(
-                $mailTypeDirectory,
-                (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/en-plain.html.twig', __DIR__, $mailTypeDirectory)),
-                (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/en-html.html.twig', __DIR__, $mailTypeDirectory)),
-                (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/de-plain.html.twig', __DIR__, $mailTypeDirectory)),
-                (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/de-html.html.twig', __DIR__, $mailTypeDirectory))
-            );
-        }, self::MAIL_TYPE_DIRS);
+        return \array_map(static fn (string $mailTypeDirectory): MailUpdate => new MailUpdate(
+            $mailTypeDirectory,
+            (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/en-plain.html.twig', __DIR__, $mailTypeDirectory)),
+            (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/en-html.html.twig', __DIR__, $mailTypeDirectory)),
+            (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/de-plain.html.twig', __DIR__, $mailTypeDirectory)),
+            (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/de-html.html.twig', __DIR__, $mailTypeDirectory))
+        ), self::MAIL_TYPE_DIRS);
     }
 
     public function updateDestructive(Connection $connection): void

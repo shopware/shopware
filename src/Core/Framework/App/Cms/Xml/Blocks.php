@@ -12,13 +12,10 @@ use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 class Blocks extends XmlElement
 {
     /**
-     * @var Block[]
+     * @param Block[] $blocks
      */
-    protected array $blocks = [];
-
-    private function __construct(array $blocks)
+    private function __construct(protected array $blocks)
     {
-        $this->blocks = $blocks;
     }
 
     public static function fromXml(\DOMElement $element): self

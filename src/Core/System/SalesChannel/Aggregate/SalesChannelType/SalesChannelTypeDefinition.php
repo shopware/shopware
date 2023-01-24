@@ -20,7 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class SalesChannelTypeDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'sales_channel_type';
+    final public const ENTITY_NAME = 'sales_channel_type';
 
     public function getEntityName(): string
     {

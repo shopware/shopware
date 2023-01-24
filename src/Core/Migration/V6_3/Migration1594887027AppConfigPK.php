@@ -25,7 +25,7 @@ class Migration1594887027AppConfigPK extends MigrationStep
                 ALTER TABLE `app_config`
                 ADD PRIMARY KEY (`key`);
             ');
-        } catch (Exception $e) {
+        } catch (Exception) {
             // PK already exists
         }
     }

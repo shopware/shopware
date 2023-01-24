@@ -16,30 +16,15 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @package checkout
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
 {
     /**
-     * @var PaymentService
-     */
-    private $paymentService;
-
-    /**
-     * @var DataValidator
-     */
-    private $dataValidator;
-
-    /**
      * @internal
      */
-    public function __construct(
-        PaymentService $paymentService,
-        DataValidator $dataValidator
-    ) {
-        $this->paymentService = $paymentService;
-        $this->dataValidator = $dataValidator;
+    public function __construct(private readonly PaymentService $paymentService, private readonly DataValidator $dataValidator)
+    {
     }
 
     public function getDecorated(): AbstractHandlePaymentMethodRoute
@@ -49,11 +34,11 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/handle-payment", name="store-api.payment.handle", methods={"GET", "POST"})
      */
+    #[Route(path: '/store-api/handle-payment', name: 'store-api.payment.handle', methods: ['GET', 'POST'])]
     public function load(Request $request, SalesChannelContext $context): HandlePaymentMethodRouteResponse
     {
-        $data = array_merge($request->query->all(), $request->request->all());
+        $data = [...$request->query->all(), ...$request->request->all()];
         $this->dataValidator->validate($data, $this->createDataValidation());
 
         $response = $this->paymentService->handlePaymentByOrder(

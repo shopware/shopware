@@ -75,7 +75,7 @@ class CartDeleteRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(0, $response['price']['totalPrice']);
@@ -114,7 +114,7 @@ class CartDeleteRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -141,7 +141,7 @@ class CartDeleteRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(0, $response['price']['totalPrice']);

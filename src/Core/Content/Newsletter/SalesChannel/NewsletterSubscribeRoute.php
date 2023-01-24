@@ -34,73 +34,48 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @phpstan-type SubscribeRequest array{email: string, storefrontUrl: string, option: string, firstName?: string, lastName?: string, zipCode?: string, city?: string, street?: string, salutationId?: string}
  *
  * @package customer-order
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 {
-    public const STATUS_NOT_SET = 'notSet';
-    public const STATUS_OPT_IN = 'optIn';
-    public const STATUS_OPT_OUT = 'optOut';
-    public const STATUS_DIRECT = 'direct';
+    final public const STATUS_NOT_SET = 'notSet';
+    final public const STATUS_OPT_IN = 'optIn';
+    final public const STATUS_OPT_OUT = 'optOut';
+    final public const STATUS_DIRECT = 'direct';
 
     /**
      * The subscription is directly active and does not need a confirmation.
      */
-    public const OPTION_DIRECT = 'direct';
+    final public const OPTION_DIRECT = 'direct';
 
     /**
      * An email will be send to the provided email addrees containing a link to the /newsletter/confirm route.
      */
-    public const OPTION_SUBSCRIBE = 'subscribe';
+    final public const OPTION_SUBSCRIBE = 'subscribe';
 
     /**
      * The email address will be removed from the newsletter subscriptions.
      */
-    public const OPTION_UNSUBSCRIBE = 'unsubscribe';
+    final public const OPTION_UNSUBSCRIBE = 'unsubscribe';
 
     /**
      * Confirms the newsletter subscription for the provided email address.
      */
-    public const OPTION_CONFIRM_SUBSCRIBE = 'confirmSubscribe';
+    final public const OPTION_CONFIRM_SUBSCRIBE = 'confirmSubscribe';
 
     /**
      * The regex to check if string contains an url
      */
-    public const DOMAIN_NAME_REGEX = '/((https?:\/\/))/';
-
-    private EntityRepository $newsletterRecipientRepository;
-
-    private DataValidator $validator;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private SystemConfigService $systemConfigService;
-
-    private RequestStack $requestStack;
-
-    private RateLimiter $rateLimiter;
+    final public const DOMAIN_NAME_REGEX = '/((https?:\/\/))/';
 
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $newsletterRecipientRepository,
-        DataValidator $validator,
-        EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfigService,
-        RateLimiter $rateLimiter,
-        RequestStack $requestStack
-    ) {
-        $this->newsletterRecipientRepository = $newsletterRecipientRepository;
-        $this->validator = $validator;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->systemConfigService = $systemConfigService;
-        $this->rateLimiter = $rateLimiter;
-        $this->requestStack = $requestStack;
+    public function __construct(private readonly EntityRepository $newsletterRecipientRepository, private readonly DataValidator $validator, private readonly EventDispatcherInterface $eventDispatcher, private readonly SystemConfigService $systemConfigService, private readonly RateLimiter $rateLimiter, private readonly RequestStack $requestStack)
+    {
     }
 
     public function getDecorated(): AbstractNewsletterSubscribeRoute
@@ -110,8 +85,8 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/newsletter/subscribe", name="store-api.newsletter.subscribe", methods={"POST"})
      */
+    #[Route(path: '/store-api/newsletter/subscribe', name: 'store-api.newsletter.subscribe', methods: ['POST'])]
     public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NoContentResponse
     {
         $doubleOptInDomain = $this->systemConfigService->getString(
@@ -293,9 +268,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             return [];
         }
 
-        return array_map(static function (SalesChannelDomainEntity $domainEntity) {
-            return rtrim($domainEntity->getUrl(), '/');
-        }, $salesChannelDomainCollection->getElements());
+        return array_map(static fn (SalesChannelDomainEntity $domainEntity) => rtrim($domainEntity->getUrl(), '/'), $salesChannelDomainCollection->getElements());
     }
 
     /**

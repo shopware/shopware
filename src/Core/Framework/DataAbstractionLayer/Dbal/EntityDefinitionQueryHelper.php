@@ -34,7 +34,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class EntityDefinitionQueryHelper
 {
-    public const HAS_TO_MANY_JOIN = 'has_to_many_join';
+    final public const HAS_TO_MANY_JOIN = 'has_to_many_join';
 
     public static function escape(string $string): string
     {
@@ -297,9 +297,7 @@ class EntityDefinitionQueryHelper
         } elseif ($definition->isVersionAware()) {
             $versionIdField = array_filter(
                 $definition->getPrimaryKeys()->getElements(),
-                function ($f) {
-                    return $f instanceof VersionField || $f instanceof ReferenceVersionField;
-                }
+                fn ($f) => $f instanceof VersionField || $f instanceof ReferenceVersionField
             );
 
             if (!$versionIdField) {
@@ -408,11 +406,9 @@ class EntityDefinitionQueryHelper
 
         $fields = $translationDefinition->getFields();
         if (!empty($partial)) {
-            $fields = $translationDefinition->getFields()->filter(function (Field $field) use ($partial) {
-                return $field->is(PrimaryKey::class)
-                    || isset($partial[$field->getPropertyName()])
-                    || $field instanceof FkField;
-            });
+            $fields = $translationDefinition->getFields()->filter(fn (Field $field) => $field->is(PrimaryKey::class)
+                || isset($partial[$field->getPropertyName()])
+                || $field instanceof FkField);
         }
 
         $inherited = $context->considerInheritance() && $definition->isInheritanceAware();
@@ -509,6 +505,7 @@ class EntityDefinitionQueryHelper
      */
     public static function buildTranslationChain(string $root, Context $context, bool $includeParent): array
     {
+        $chain = [];
         $count = \count($context->getLanguageIdChain()) - 1;
 
         for ($i = $count; $i >= 1; --$i) {

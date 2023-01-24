@@ -18,9 +18,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package customer-order
+ */
 class OrderLineItemDownloadDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'order_line_item_download';
+    final public const ENTITY_NAME = 'order_line_item_download';
 
     public function getEntityName(): string
     {

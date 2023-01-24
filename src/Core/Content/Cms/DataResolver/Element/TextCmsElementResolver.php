@@ -14,14 +14,11 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
  */
 class TextCmsElementResolver extends AbstractCmsElementResolver
 {
-    private HtmlSanitizer $sanitizer;
-
     /**
      * @internal
      */
-    public function __construct(HtmlSanitizer $sanitizer)
+    public function __construct(private readonly HtmlSanitizer $sanitizer)
     {
-        $this->sanitizer = $sanitizer;
     }
 
     public function getType(): string

@@ -14,7 +14,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  */
 class MissingSystemTranslationException extends WriteConstraintViolationException
 {
-    public const VIOLATION_MISSING_SYSTEM_TRANSLATION = 'MISSING-SYSTEM-TRANSLATION';
+    final public const VIOLATION_MISSING_SYSTEM_TRANSLATION = 'MISSING-SYSTEM-TRANSLATION';
 
     public function __construct(string $path = '')
     {

@@ -18,29 +18,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class NewsletterRecipientIndexer extends EntityIndexer
 {
-    public const CUSTOMER_NEWSLETTER_SALES_CHANNELS_UPDATER = 'newsletter_recipients.customer-newsletter-sales-channels';
-
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepository $repository;
-
-    private CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater;
-
-    private EventDispatcherInterface $eventDispatcher;
+    final public const CUSTOMER_NEWSLETTER_SALES_CHANNELS_UPDATER = 'newsletter_recipients.customer-newsletter-sales-channels';
 
     /**
      * @internal
      */
-    public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->customerNewsletterSalesChannelsUpdater = $customerNewsletterSalesChannelsUpdater;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function getName(): string

@@ -13,14 +13,8 @@ use Shopware\Core\Framework\Webhook\Hookable;
  */
 class HookableEntityWrittenEvent implements Hookable
 {
-    /**
-     * @var EntityWrittenEvent
-     */
-    private $event;
-
-    private function __construct(EntityWrittenEvent $event)
+    private function __construct(private readonly EntityWrittenEvent $event)
     {
-        $this->event = $event;
     }
 
     public static function fromWrittenEvent(

@@ -16,8 +16,8 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class PercentagePriceDefinition extends Struct implements PriceDefinitionInterface
 {
-    public const TYPE = 'percentage';
-    public const SORTING_PRIORITY = 50;
+    final public const TYPE = 'percentage';
+    final public const SORTING_PRIORITY = 50;
 
     /**
      * @var float

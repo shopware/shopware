@@ -7,14 +7,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
  */
 class Since extends Flag
 {
-    /**
-     * @var string
-     */
-    private $since;
-
-    public function __construct(string $since)
+    public function __construct(private readonly string $since)
     {
-        $this->since = $since;
     }
 
     public function parse(): \Generator

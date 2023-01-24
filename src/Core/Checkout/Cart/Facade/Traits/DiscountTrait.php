@@ -33,7 +33,7 @@ trait DiscountTrait
      * @example add-absolute-discount/add-absolute-discount.twig Add an absolute discount to the cart.
      * @example add-simple-discount/add-simple-discount.twig Add a relative discount to the cart.
      */
-    public function discount(string $key, string $type, $value, string $label): DiscountFacade
+    public function discount(string $key, string $type, float|PriceCollection $value, string $label): DiscountFacade
     {
         $definition = $this->buildDiscountDefinition($type, $value, $key);
 

@@ -18,20 +18,11 @@ use Symfony\Component\Routing\RouterInterface;
  */
 class ScriptResponseFactoryFacade
 {
-    private RouterInterface $router;
-
-    private ?ScriptController $scriptController;
-
-    private ?SalesChannelContext $salesChannelContext;
-
     /**
      * @internal
      */
-    public function __construct(RouterInterface $router, ?ScriptController $scriptController, ?SalesChannelContext $salesChannelContext)
+    public function __construct(private readonly RouterInterface $router, private readonly ?ScriptController $scriptController, private readonly ?SalesChannelContext $salesChannelContext)
     {
-        $this->router = $router;
-        $this->scriptController = $scriptController;
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     /**

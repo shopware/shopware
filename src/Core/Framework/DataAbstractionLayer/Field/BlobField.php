@@ -9,16 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\BlobFieldSerial
  */
 class BlobField extends Field implements StorageAware
 {
-    /**
-     * @var string
-     */
-    private $storageName;
-
-    public function __construct(string $storageName, string $propertyName)
+    public function __construct(private readonly string $storageName, string $propertyName)
     {
         parent::__construct($propertyName);
-
-        $this->storageName = $storageName;
     }
 
     public function getStorageName(): string

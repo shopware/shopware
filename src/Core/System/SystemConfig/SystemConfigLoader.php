@@ -17,17 +17,11 @@ use function json_decode;
  */
 class SystemConfigLoader extends AbstractSystemConfigLoader
 {
-    protected Connection $connection;
-
-    protected Kernel $kernel;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, Kernel $kernel)
+    public function __construct(protected Connection $connection, protected Kernel $kernel)
     {
-        $this->connection = $connection;
-        $this->kernel = $kernel;
     }
 
     public function getDecorated(): AbstractSystemConfigLoader
@@ -65,7 +59,7 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
             $keys = explode('.', (string) $key);
 
             if ($value !== null) {
-                $value = json_decode($value, true, 512);
+                $value = json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
 
                 if ($value === false || !isset($value[ConfigJsonField::STORAGE_KEY])) {
                     $value = null;
@@ -110,9 +104,7 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
 
     private function filterNotActivatedPlugins(array $configValues): array
     {
-        $notActivatedPlugins = $this->kernel->getPluginLoader()->getPluginInstances()->filter(function (Plugin $plugin) {
-            return !$plugin->isActive();
-        })->all();
+        $notActivatedPlugins = $this->kernel->getPluginLoader()->getPluginInstances()->filter(fn (Plugin $plugin) => !$plugin->isActive())->all();
 
         foreach ($notActivatedPlugins as $plugin) {
             if (isset($configValues[$plugin->getName()])) {

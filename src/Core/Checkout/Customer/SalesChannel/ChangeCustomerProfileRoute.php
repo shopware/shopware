@@ -29,48 +29,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
+#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
 class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 {
     /**
-     * @var EntityRepository
-     */
-    private $customerRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var DataValidator
-     */
-    private $validator;
-
-    /**
-     * @var DataValidationFactoryInterface
-     */
-    private $customerProfileValidationFactory;
-
-    private StoreApiCustomFieldMapper $storeApiCustomFieldMapper;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $customerRepository,
-        EventDispatcherInterface $eventDispatcher,
-        DataValidator $validator,
-        DataValidationFactoryInterface $customerProfileValidationFactory,
-        StoreApiCustomFieldMapper $storeApiCustomFieldMapper
-    ) {
-        $this->customerRepository = $customerRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->validator = $validator;
-        $this->customerProfileValidationFactory = $customerProfileValidationFactory;
-        $this->storeApiCustomFieldMapper = $storeApiCustomFieldMapper;
+    public function __construct(private readonly EntityRepository $customerRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly DataValidator $validator, private readonly DataValidationFactoryInterface $customerProfileValidationFactory, private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper)
+    {
     }
 
     public function getDecorated(): AbstractChangeCustomerProfileRoute
@@ -80,8 +47,8 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route(path="/store-api/account/change-profile", name="store-api.account.change-profile", methods={"POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
+    #[Route(path: '/store-api/account/change-profile', name: 'store-api.account.change-profile', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function change(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         $validation = $this->customerProfileValidationFactory->update($context);

@@ -15,12 +15,12 @@ class ImportExportLogEntity extends Entity
 {
     use EntityIdTrait;
 
-    public const ACTIVITY_IMPORT = 'import';
-    public const ACTIVITY_EXPORT = 'export';
-    public const ACTIVITY_DRYRUN = 'dryrun';
-    public const ACTIVITY_INVALID_RECORDS_EXPORT = 'invalid_records_export';
+    final public const ACTIVITY_IMPORT = 'import';
+    final public const ACTIVITY_EXPORT = 'export';
+    final public const ACTIVITY_DRYRUN = 'dryrun';
+    final public const ACTIVITY_INVALID_RECORDS_EXPORT = 'invalid_records_export';
 
-    public const ACTIVITY_TEMPLATE = 'template';
+    final public const ACTIVITY_TEMPLATE = 'template';
 
     /**
      * @var string

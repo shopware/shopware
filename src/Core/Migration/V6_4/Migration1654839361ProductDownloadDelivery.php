@@ -11,13 +11,15 @@ use Shopware\Core\Migration\Traits\Translations;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class Migration1654839361ProductDownloadDelivery extends MigrationStep
 {
     use ImportTranslationsTrait;
 
-    public const DELIVERY_TIME_NAME_EN = 'Instant download';
-    public const DELIVERY_TIME_NAME_DE = 'Sofort verfügbar';
+    final public const DELIVERY_TIME_NAME_EN = 'Instant download';
+    final public const DELIVERY_TIME_NAME_DE = 'Sofort verfügbar';
 
     public function getCreationTimestamp(): int
     {

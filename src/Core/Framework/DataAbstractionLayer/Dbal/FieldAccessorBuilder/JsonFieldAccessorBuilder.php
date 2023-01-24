@@ -23,7 +23,7 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
     /**
      * @internal
      */
-    public function __construct(private Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
     }
 
@@ -44,13 +44,13 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
         }
 
         // enquote hyphenated json keys in path
-        if (strpos($jsonPath, '-') !== false) {
+        if (str_contains($jsonPath, '-')) {
             $jsonPathParts = explode('.', $jsonPath);
             foreach ($jsonPathParts as $index => $jsonPathPart) {
                 if ($index === 0) {
                     continue;
                 }
-                if (strpos($jsonPathPart, '-') !== false) {
+                if (str_contains($jsonPathPart, '-')) {
                     $jsonPathParts[$index] = sprintf('"%s"', $jsonPathPart);
                 }
             }

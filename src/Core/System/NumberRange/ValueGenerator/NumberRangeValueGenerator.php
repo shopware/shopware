@@ -15,23 +15,11 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 {
-    private ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(
-        ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry,
-        EventDispatcherInterface $eventDispatcher,
-        Connection $connection
-    ) {
-        $this->valueGeneratorPatternRegistry = $valueGeneratorPatternRegistry;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->connection = $connection;
+    public function __construct(private readonly ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry, private readonly EventDispatcherInterface $eventDispatcher, private readonly Connection $connection)
+    {
     }
 
     public function getValue(string $type, Context $context, ?string $salesChannelId, bool $preview = false): string

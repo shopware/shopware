@@ -45,10 +45,7 @@ class ImportExportLogApiTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -87,7 +84,7 @@ class ImportExportLogApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode((string) $response->getContent());
+            $content = json_decode($response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
 
             $expectData = [];
             foreach (array_values($data) as $entry) {

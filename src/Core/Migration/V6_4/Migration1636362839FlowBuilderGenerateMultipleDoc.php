@@ -34,7 +34,7 @@ class Migration1636362839FlowBuilderGenerateMultipleDoc extends MigrationStep
                     'newConfig' => json_encode(
                         [
                             'documentTypes' => [
-                                json_decode($actionGenerateDoc['config'], true),
+                                json_decode((string) $actionGenerateDoc['config'], true, 512, \JSON_THROW_ON_ERROR),
                             ],
                         ],
                         2

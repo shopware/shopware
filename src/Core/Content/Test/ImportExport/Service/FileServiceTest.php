@@ -33,7 +33,7 @@ class FileServiceTest extends TestCase
         $filePath = $fileData['file'];
         $file = fopen($filePath, 'wb');
         static::assertIsResource($file);
-        fwrite($file, $fileData['content']);
+        fwrite($file, (string) $fileData['content']);
         fclose($file);
 
         $uploadedFile = new UploadedFile($filePath, $filePath, $fileData['providedType']);

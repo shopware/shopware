@@ -12,10 +12,10 @@ use Shopware\Core\Framework\Util\FloatComparator;
  */
 class CartPrice extends Struct
 {
-    public const TAX_STATE_GROSS = 'gross';
-    public const TAX_STATE_NET = 'net';
-    public const TAX_STATE_FREE = 'tax-free';
-    public const TAX_STATE_EXTERNAL = 'external';
+    final public const TAX_STATE_GROSS = 'gross';
+    final public const TAX_STATE_NET = 'net';
+    final public const TAX_STATE_FREE = 'tax-free';
+    final public const TAX_STATE_EXTERNAL = 'external';
 
     /**
      * @var float
@@ -67,7 +67,7 @@ class CartPrice extends Struct
         $this->taxRules = $taxRules;
         $this->positionPrice = FloatComparator::cast($positionPrice);
         $this->taxStatus = $taxStatus;
-        $rawTotal = $rawTotal ?? $totalPrice;
+        $rawTotal ??= $totalPrice;
         $this->rawTotal = FloatComparator::cast($rawTotal);
     }
 

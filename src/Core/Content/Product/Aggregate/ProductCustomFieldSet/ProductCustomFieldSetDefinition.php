@@ -17,7 +17,7 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefi
  */
 class ProductCustomFieldSetDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'product_custom_field_set';
+    final public const ENTITY_NAME = 'product_custom_field_set';
 
     public function getEntityName(): string
     {

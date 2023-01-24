@@ -16,17 +16,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class CurrencyPriceCalculator
 {
-    private QuantityPriceCalculator $priceCalculator;
-
-    private PercentageTaxRuleBuilder $percentageTaxRuleBuilder;
-
     /**
      * @internal
      */
-    public function __construct(QuantityPriceCalculator $priceCalculator, PercentageTaxRuleBuilder $percentageTaxRuleBuilder)
+    public function __construct(private readonly QuantityPriceCalculator $priceCalculator, private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder)
     {
-        $this->priceCalculator = $priceCalculator;
-        $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
     public function calculate(PriceCollection $price, CalculatedPriceCollection $prices, SalesChannelContext $context, int $quantity = 1): CalculatedPrice

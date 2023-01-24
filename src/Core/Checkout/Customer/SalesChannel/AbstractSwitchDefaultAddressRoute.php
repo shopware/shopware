@@ -13,8 +13,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 abstract class AbstractSwitchDefaultAddressRoute
 {
-    public const TYPE_BILLING = 'billing';
-    public const TYPE_SHIPPING = 'shipping';
+    final public const TYPE_BILLING = 'billing';
+    final public const TYPE_SHIPPING = 'shipping';
 
     abstract public function getDecorated(): AbstractSwitchDefaultAddressRoute;
 

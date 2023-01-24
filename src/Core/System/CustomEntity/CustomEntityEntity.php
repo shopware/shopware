@@ -18,9 +18,9 @@ class CustomEntityEntity extends Entity
 
     protected bool $storeApiAware;
 
-    protected ?string $appId;
+    protected ?string $appId = null;
 
-    protected ?string $pluginId;
+    protected ?string $pluginId = null;
 
     /**
      * @var array<mixed>

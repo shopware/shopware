@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class LandingPageTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'landing_page_translation';
+    final public const ENTITY_NAME = 'landing_page_translation';
 
     public function getEntityName(): string
     {

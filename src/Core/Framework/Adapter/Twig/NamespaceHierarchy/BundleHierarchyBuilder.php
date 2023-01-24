@@ -11,17 +11,11 @@ use Symfony\Component\HttpKernel\KernelInterface;
  */
 class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface
 {
-    private KernelInterface $kernel;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(KernelInterface $kernel, Connection $connection)
+    public function __construct(private readonly KernelInterface $kernel, private readonly Connection $connection)
     {
-        $this->kernel = $kernel;
-        $this->connection = $connection;
     }
 
     public function buildNamespaceHierarchy(array $namespaceHierarchy): array

@@ -7,27 +7,9 @@ namespace Shopware\Core\Checkout\Cart\Error;
  */
 class GenericCartError extends Error
 {
-    protected string $id;
-
-    protected string $messageKey;
-
-    protected int $level;
-
-    protected bool $blockOrder;
-
-    protected bool $persistent;
-
-    protected array $parameters;
-
-    public function __construct(string $id, string $messageKey, array $parameters, int $level, bool $blockOrder, bool $persistent)
+    public function __construct(protected string $id, protected string $messageKey, protected array $parameters, protected int $level, protected bool $blockOrder, protected bool $persistent)
     {
         parent::__construct();
-        $this->id = $id;
-        $this->messageKey = $messageKey;
-        $this->level = $level;
-        $this->blockOrder = $blockOrder;
-        $this->persistent = $persistent;
-        $this->parameters = $parameters;
     }
 
     public function getId(): string

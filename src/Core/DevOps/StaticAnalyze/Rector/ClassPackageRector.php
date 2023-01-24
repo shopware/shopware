@@ -90,7 +90,7 @@ class Foo{}'
     {
         try {
             $namespace = $node->namespacedName->toString();
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             return null;
         }
 
@@ -109,7 +109,7 @@ class Foo{}'
     {
         try {
             $namespace = $node->namespacedName->toString();
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             return true;
         }
 

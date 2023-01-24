@@ -15,7 +15,7 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
  */
 class CustomerSalutationRule extends Rule
 {
-    public const RULE_NAME = 'customerSalutation';
+    final public const RULE_NAME = 'customerSalutation';
 
     /**
      * @internal

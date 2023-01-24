@@ -20,30 +20,12 @@ final class ContactFormEvent extends Event implements SalesChannelAware, MailAwa
     public const EVENT_NAME = 'contact_form.send';
 
     /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var string
-     */
-    private $salesChannelId;
-
-    /**
-     * @var MailRecipientStruct
-     */
-    private $recipients;
-
-    /**
      * @var array<int|string, mixed>
      */
-    private $contactFormData;
+    private readonly array $contactFormData;
 
-    public function __construct(Context $context, string $salesChannelId, MailRecipientStruct $recipients, DataBag $contactFormData)
+    public function __construct(private readonly Context $context, private readonly string $salesChannelId, private readonly MailRecipientStruct $recipients, DataBag $contactFormData)
     {
-        $this->context = $context;
-        $this->salesChannelId = $salesChannelId;
-        $this->recipients = $recipients;
         $this->contactFormData = $contactFormData->all();
     }
 

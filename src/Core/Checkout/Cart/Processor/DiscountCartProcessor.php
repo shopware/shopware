@@ -24,17 +24,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class DiscountCartProcessor implements CartProcessorInterface
 {
-    private PercentagePriceCalculator $percentageCalculator;
-
-    private CurrencyPriceCalculator $currencyCalculator;
-
     /**
      * @internal
      */
-    public function __construct(PercentagePriceCalculator $percentageCalculator, CurrencyPriceCalculator $currencyCalculator)
+    public function __construct(private readonly PercentagePriceCalculator $percentageCalculator, private readonly CurrencyPriceCalculator $currencyCalculator)
     {
-        $this->percentageCalculator = $percentageCalculator;
-        $this->currencyCalculator = $currencyCalculator;
     }
 
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
@@ -48,7 +42,7 @@ class DiscountCartProcessor implements CartProcessorInterface
 
             try {
                 $price = $this->calculate($definition, $goods, $context);
-            } catch (CartException $e) {
+            } catch (CartException) {
                 $original->remove($item->getId());
                 $toCalculate->addErrors(new IncompleteLineItemError($item->getId(), 'price'));
 

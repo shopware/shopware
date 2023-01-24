@@ -20,7 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class MailHeaderFooterDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'mail_header_footer';
+    final public const ENTITY_NAME = 'mail_header_footer';
 
     public function getEntityName(): string
     {

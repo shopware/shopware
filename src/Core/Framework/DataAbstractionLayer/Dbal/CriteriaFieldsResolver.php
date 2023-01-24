@@ -9,6 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class CriteriaFieldsResolver
 {
@@ -66,7 +68,7 @@ class CriteriaFieldsResolver
 
                 if ($flag instanceof Runtime) {
                     foreach ($flag->getDepends() as $depend) {
-                        $mapped[] = implode('.', \array_merge($accessor, [$depend]));
+                        $mapped[] = implode('.', [...$accessor, ...[$depend]]);
                     }
                 }
 

@@ -121,7 +121,7 @@ class DefinitionValidator
     /**
      * @internal
      */
-    public function __construct(private DefinitionInstanceRegistry $registry, private Connection $connection)
+    public function __construct(private readonly DefinitionInstanceRegistry $registry, private readonly Connection $connection)
     {
         $this->connection->getEventManager()->addEventListener(Events::onSchemaIndexDefinition, new SchemaIndexListener());
     }
@@ -164,9 +164,7 @@ class DefinitionValidator
             }
         }
 
-        $violations = array_filter($violations, function ($vio) {
-            return !empty($vio);
-        });
+        $violations = array_filter($violations, fn ($vio) => !empty($vio));
 
         return $violations;
     }
@@ -215,9 +213,7 @@ class DefinitionValidator
 
         $notices = array_merge_recursive($notices, $namingViolations, $tableViolations);
 
-        return array_filter($notices, function ($vio) {
-            return !empty($vio);
-        });
+        return array_filter($notices, fn ($vio) => !empty($vio));
     }
 
     /**
@@ -236,7 +232,7 @@ class DefinitionValidator
 
             try {
                 $this->registry->getByEntityName($table->getName());
-            } catch (DefinitionNotFoundException $e) {
+            } catch (DefinitionNotFoundException) {
                 $violations[] = sprintf(
                     'Table %s has no configured definition',
                     $table->getName()
@@ -390,7 +386,7 @@ class DefinitionValidator
             }
         }
 
-        return array_merge($properties, $functionViolations);
+        return [...$properties, ...$functionViolations];
     }
 
     /**
@@ -525,9 +521,7 @@ class DefinitionValidator
         $parentDefinition = $translationDefinition->getParentDefinition();
         $translationsAssociationFields = $parentDefinition->getFields()
             ->filterInstance(TranslationsAssociationField::class)
-            ->filter(function (TranslationsAssociationField $f) use ($translationDefinition) {
-                return $f->getReferenceDefinition() === $translationDefinition;
-            })->getElements();
+            ->filter(fn (TranslationsAssociationField $f) => $f->getReferenceDefinition() === $translationDefinition)->getElements();
 
         if (empty($translationsAssociationFields)) {
             $violations[$parentDefinition->getClass()] = sprintf('The parentDefinition `%s` for `%s` should define a `TranslationsAssociationField for `%s`. The parentDefinition could be wrong too.', $parentDefinition->getClass(), $translationDefinition->getClass(), $translationDefinition->getClass());
@@ -543,11 +537,9 @@ class DefinitionValidator
     {
         $translatedFieldsInParent = array_keys($parentDefinition->getFields()->filterInstance(TranslatedField::class)->getElements());
 
-        $translatedFields = array_keys($translationDefinition->getFields()->filter(function (Field $f) {
-            return !$f->is(PrimaryKey::class)
-                && !$f instanceof AssociationField
-                && !\in_array($f->getPropertyName(), ['createdAt', 'updatedAt'], true);
-        })->getElements());
+        $translatedFields = array_keys($translationDefinition->getFields()->filter(fn (Field $f) => !$f->is(PrimaryKey::class)
+            && !$f instanceof AssociationField
+            && !\in_array($f->getPropertyName(), ['createdAt', 'updatedAt'], true))->getElements());
 
         $violations = [];
 
@@ -769,17 +761,13 @@ class DefinitionValidator
         }
 
         if ($definition->isVersionAware() && $reference->isVersionAware()) {
-            $versionField = $mapping->getFields()->filter(function (Field $field) use ($definition) {
-                return $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition() === $definition;
-            })->first();
+            $versionField = $mapping->getFields()->filter(fn (Field $field) => $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition() === $definition)->first();
 
             if (!$versionField) {
                 $violations[$mapping->getClass()][] = sprintf('Missing reference version field for definition %s in mapping definition %s', $definition->getClass(), $mapping->getClass());
             }
 
-            $referenceVersionField = $mapping->getFields()->filter(function (Field $field) use ($reference) {
-                return $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition() === $reference;
-            })->first();
+            $referenceVersionField = $mapping->getFields()->filter(fn (Field $field) => $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition() === $reference)->first();
 
             if (!$referenceVersionField) {
                 $violations[$mapping->getClass()][] = sprintf('Missing reference version field for definition %s in mapping definition %s', $reference->getClass(), $mapping->getClass());
@@ -788,11 +776,9 @@ class DefinitionValidator
 
         $violations = $this->validateForeignKeyOnDeleteBehaviour($definition, $association, $reference, $violations);
 
-        $reverse = $reference->getFields()->filter(function (Field $field) use ($definition, $association) {
-            return $field instanceof ManyToManyAssociationField
-                && $field->getToManyReferenceDefinition() === $definition
-                && $field->getMappingDefinition() === $association->getMappingDefinition();
-        })->first();
+        $reverse = $reference->getFields()->filter(fn (Field $field) => $field instanceof ManyToManyAssociationField
+            && $field->getToManyReferenceDefinition() === $definition
+            && $field->getMappingDefinition() === $association->getMappingDefinition())->first();
 
         if (!$reverse) {
             $violations[$reference->getClass()][] = sprintf('Missing reverse many to many association for original %s.%s', $definition->getClass(), $association->getPropertyName());
@@ -1113,12 +1099,11 @@ class DefinitionValidator
     }
 
     /**
-     * @param OneToManyAssociationField|ManyToManyAssociationField $association
      * @param array<int|string, mixed> $associationViolations
      *
      * @return array<int|string, mixed>
      */
-    private function validateForeignKeyOnDeleteBehaviour(EntityDefinition $definition, AssociationField $association, EntityDefinition $reference, array $associationViolations): array
+    private function validateForeignKeyOnDeleteBehaviour(EntityDefinition $definition, OneToManyAssociationField|ManyToManyAssociationField $association, EntityDefinition $reference, array $associationViolations): array
     {
         $manager = $this->connection->getSchemaManager();
 
@@ -1137,7 +1122,7 @@ class DefinitionValidator
                     ?? $association->getFlag(RestrictDelete::class)
                     ?? $association->getFlag(SetNullOnDelete::class);
 
-                if (\in_array($fk->onDelete(), self::DELETE_FLAG_TO_ACTION_MAPPING[\get_class($deleteFlag)], true)) {
+                if (\in_array($fk->onDelete(), self::DELETE_FLAG_TO_ACTION_MAPPING[$deleteFlag::class], true)) {
                     continue;
                 }
 
@@ -1146,10 +1131,10 @@ class DefinitionValidator
                     . 'because Association "%s" on entity "%s" defined flag "%s", got "%s" instead.',
                     $fk->getName(),
                     $reference->getEntityName(),
-                    self::DELETE_FLAG_TO_ACTION_MAPPING[\get_class($deleteFlag)][0],
+                    self::DELETE_FLAG_TO_ACTION_MAPPING[$deleteFlag::class][0],
                     $association->getPropertyName(),
                     $definition->getEntityName(),
-                    \get_class($deleteFlag),
+                    $deleteFlag::class,
                     $fk->onDelete()
                 );
             }
@@ -1193,16 +1178,12 @@ class DefinitionValidator
         }
 
         // see if this is the owning side
-        $owningSide = $definition->getFields()->filterInstance(FkField::class)->filter(function (FkField $field) use ($reference): bool {
-            return $field->getReferenceDefinition() === $reference;
-        });
+        $owningSide = $definition->getFields()->filterInstance(FkField::class)->filter(fn (FkField $field): bool => $field->getReferenceDefinition() === $reference);
 
         if ($owningSide->count() === 0) {
             return null;
         }
-        $referenceVersionFieldForReference = $definition->getFields()->filterInstance(ReferenceVersionField::class)->filter(function (ReferenceVersionField $field) use ($association): bool {
-            return $field->getVersionReferenceDefinition()->getClass() === $association->getReferenceDefinition()->getClass();
-        });
+        $referenceVersionFieldForReference = $definition->getFields()->filterInstance(ReferenceVersionField::class)->filter(fn (ReferenceVersionField $field): bool => $field->getVersionReferenceDefinition()->getClass() === $association->getReferenceDefinition()->getClass());
 
         if (\count($referenceVersionFieldForReference) > 0) {
             return null;

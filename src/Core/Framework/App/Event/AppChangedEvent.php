@@ -16,20 +16,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 abstract class AppChangedEvent extends Event implements ShopwareEvent, Hookable
 {
-    /**
-     * @var AppEntity
-     */
-    private $app;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    public function __construct(AppEntity $app, Context $context)
+    public function __construct(private readonly AppEntity $app, private readonly Context $context)
     {
-        $this->app = $app;
-        $this->context = $context;
     }
 
     abstract public function getName(): string;

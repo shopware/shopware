@@ -17,7 +17,7 @@ use Shopware\Core\System\Tag\TagDefinition;
  */
 class LandingPageTagDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'landing_page_tag';
+    final public const ENTITY_NAME = 'landing_page_tag';
 
     public function getEntityName(): string
     {

@@ -32,36 +32,16 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class StateMachineRegistry
 {
-    private EntityRepository $stateMachineRepository;
-
-    private EntityRepository $stateMachineStateRepository;
-
-    private EntityRepository $stateMachineHistoryRepository;
-
     /**
      * @var StateMachineEntity[]
      */
     private array $stateMachines;
 
-    private EventDispatcherInterface $eventDispatcher;
-
-    private DefinitionInstanceRegistry $definitionRegistry;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $stateMachineRepository,
-        EntityRepository $stateMachineStateRepository,
-        EntityRepository $stateMachineHistoryRepository,
-        EventDispatcherInterface $eventDispatcher,
-        DefinitionInstanceRegistry $definitionRegistry
-    ) {
-        $this->stateMachineRepository = $stateMachineRepository;
-        $this->stateMachineStateRepository = $stateMachineStateRepository;
-        $this->stateMachineHistoryRepository = $stateMachineHistoryRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->definitionRegistry = $definitionRegistry;
+    public function __construct(private readonly EntityRepository $stateMachineRepository, private readonly EntityRepository $stateMachineStateRepository, private readonly EntityRepository $stateMachineHistoryRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly DefinitionInstanceRegistry $definitionRegistry)
+    {
     }
 
     /**
@@ -143,9 +123,7 @@ class StateMachineRegistry
 
         if (empty($transition->getTransitionName())) {
             $transitions = $this->getAvailableTransitionsById($stateMachine->getTechnicalName(), $fromPlace->getId(), $context);
-            $transitionNames = array_map(function (StateMachineTransitionEntity $transition) {
-                return $transition->getActionName();
-            }, $transitions);
+            $transitionNames = array_map(fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
 
             throw new IllegalTransitionException($fromPlace->getId(), '', $transitionNames);
         }
@@ -157,7 +135,7 @@ class StateMachineRegistry
                 $transition->getTransitionName(),
                 $context
             );
-        } catch (UnnecessaryTransitionException $e) {
+        } catch (UnnecessaryTransitionException) {
             // No transition needed, therefore don't create a history entry and return
             $stateMachineStateCollection = new StateMachineStateCollection();
 
@@ -305,9 +283,7 @@ class StateMachineRegistry
         }
 
         $transitions = $this->getAvailableTransitionsById($stateMachineName, $fromStateId, $context);
-        $transitionNames = array_map(function (StateMachineTransitionEntity $transition) {
-            return $transition->getActionName();
-        }, $transitions);
+        $transitionNames = array_map(fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
 
         throw new IllegalTransitionException(
             $fromStateId,

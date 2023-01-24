@@ -29,10 +29,7 @@ class PromotionIndexerTest extends TestCase
     use IntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     protected function setUp(): void
     {

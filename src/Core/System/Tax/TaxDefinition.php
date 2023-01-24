@@ -26,7 +26,7 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleDefinition;
  */
 class TaxDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'tax';
+    final public const ENTITY_NAME = 'tax';
 
     public function getEntityName(): string
     {

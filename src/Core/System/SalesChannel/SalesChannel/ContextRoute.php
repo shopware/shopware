@@ -9,9 +9,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package core
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class ContextRoute extends AbstractContextRoute
 {
     public function getDecorated(): AbstractContextRoute
@@ -21,8 +20,8 @@ class ContextRoute extends AbstractContextRoute
 
     /**
      * @Since("6.3.0.0")
-     * @Route("/store-api/context", name="store-api.context", methods={"GET"})
      */
+    #[Route(path: '/store-api/context', name: 'store-api.context', methods: ['GET'])]
     public function load(SalesChannelContext $context): ContextLoadRouteResponse
     {
         return new ContextLoadRouteResponse($context);

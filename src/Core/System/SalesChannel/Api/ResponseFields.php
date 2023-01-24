@@ -32,7 +32,7 @@ class ResponseFields
 
         $prefix .= '.';
         foreach ($fields as $property) {
-            if (mb_strpos($property, $prefix) === 0) {
+            if (mb_strpos((string) $property, $prefix) === 0) {
                 return true;
             }
         }

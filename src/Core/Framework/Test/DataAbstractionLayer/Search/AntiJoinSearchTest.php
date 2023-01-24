@@ -440,9 +440,7 @@ class AntiJoinSearchTest extends TestCase
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'tags' => array_map(static function (string $tag) {
-                return ['name' => $tag];
-            }, $tags),
+            'tags' => array_map(static fn (string $tag) => ['name' => $tag], $tags),
         ];
     }
 }

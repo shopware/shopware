@@ -11,7 +11,7 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
  */
 class IndividualStatesRuleTypeFilter implements TaxRuleTypeFilterInterface
 {
-    public const TECHNICAL_NAME = 'individual_states';
+    final public const TECHNICAL_NAME = 'individual_states';
 
     public function match(TaxRuleEntity $taxRuleEntity, ?CustomerEntity $customer, ShippingLocation $shippingLocation): bool
     {

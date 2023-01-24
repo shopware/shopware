@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class LanguageNotFoundException extends ShopwareHttpException
 {
-    public const LANGUAGE_NOT_FOUND_ERROR = 'FRAMEWORK__LANGUAGE_NOT_FOUND';
+    final public const LANGUAGE_NOT_FOUND_ERROR = 'FRAMEWORK__LANGUAGE_NOT_FOUND';
 
     public function __construct($languageId)
     {

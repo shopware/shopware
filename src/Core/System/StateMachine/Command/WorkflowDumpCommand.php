@@ -22,17 +22,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 class WorkflowDumpCommand extends Command
 {
     /**
-     * @var StateMachineRegistry
-     */
-    private $stateMachineRegistry;
-
-    /**
      * @internal
      */
-    public function __construct(StateMachineRegistry $stateMachineRegistry)
+    public function __construct(private readonly StateMachineRegistry $stateMachineRegistry)
     {
         parent::__construct();
-        $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
     protected function configure(): void
@@ -42,7 +36,6 @@ class WorkflowDumpCommand extends Command
                 new InputArgument('name', InputArgument::REQUIRED, 'A state machine name'),
                 new InputOption('label', 'l', InputOption::VALUE_REQUIRED, 'Labels a graph'),
             ])
-            ->setDescription('Dump a workflow')
             ->setHelp(
                 <<<'EOF'
 The <info>%command.name%</info> command dumps the graphical representation of a

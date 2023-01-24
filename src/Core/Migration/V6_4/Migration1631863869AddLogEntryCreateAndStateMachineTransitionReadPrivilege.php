@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  */
 class Migration1631863869AddLogEntryCreateAndStateMachineTransitionReadPrivilege extends MigrationStep
 {
-    public const NEW_PRIVILEGES = [
+    final public const NEW_PRIVILEGES = [
         'order.viewer' => [
             'state_machine_transition:read',
         ],

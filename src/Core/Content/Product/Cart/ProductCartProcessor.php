@@ -33,47 +33,23 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {
-    public const CUSTOM_PRICE = 'customPrice';
+    final public const CUSTOM_PRICE = 'customPrice';
 
-    public const ALLOW_PRODUCT_PRICE_OVERWRITES = 'allowProductPriceOverwrites';
+    final public const ALLOW_PRODUCT_PRICE_OVERWRITES = 'allowProductPriceOverwrites';
 
-    public const ALLOW_PRODUCT_LABEL_OVERWRITES = 'allowProductLabelOverwrites';
+    final public const ALLOW_PRODUCT_LABEL_OVERWRITES = 'allowProductLabelOverwrites';
 
-    public const SKIP_PRODUCT_RECALCULATION = 'skipProductRecalculation';
+    final public const SKIP_PRODUCT_RECALCULATION = 'skipProductRecalculation';
 
-    public const SKIP_PRODUCT_STOCK_VALIDATION = 'skipProductStockValidation';
+    final public const SKIP_PRODUCT_STOCK_VALIDATION = 'skipProductStockValidation';
 
-    public const KEEP_INACTIVE_PRODUCT = 'keepInactiveProduct';
-
-    private ProductGatewayInterface $productGateway;
-
-    private QuantityPriceCalculator $calculator;
-
-    private ProductFeatureBuilder $featureBuilder;
-
-    private AbstractProductPriceCalculator $priceCalculator;
-
-    private EntityCacheKeyGenerator $generator;
-
-    private Connection $connection;
+    final public const KEEP_INACTIVE_PRODUCT = 'keepInactiveProduct';
 
     /**
      * @internal
      */
-    public function __construct(
-        ProductGatewayInterface $productGateway,
-        QuantityPriceCalculator $calculator,
-        ProductFeatureBuilder $featureBuilder,
-        AbstractProductPriceCalculator $priceCalculator,
-        EntityCacheKeyGenerator $generator,
-        Connection $connection
-    ) {
-        $this->productGateway = $productGateway;
-        $this->calculator = $calculator;
-        $this->featureBuilder = $featureBuilder;
-        $this->priceCalculator = $priceCalculator;
-        $this->generator = $generator;
-        $this->connection = $connection;
+    public function __construct(private readonly ProductGatewayInterface $productGateway, private readonly QuantityPriceCalculator $calculator, private readonly ProductFeatureBuilder $featureBuilder, private readonly AbstractProductPriceCalculator $priceCalculator, private readonly EntityCacheKeyGenerator $generator, private readonly Connection $connection)
+    {
     }
 
     public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
@@ -364,7 +340,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'releaseDate' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             'isNew' => $product->isNew(),
             'markAsTopseller' => $product->getMarkAsTopseller(),
-            'purchasePrices' => $purchasePrices ? json_encode($purchasePrices) : null,
+            'purchasePrices' => $purchasePrices ? json_encode($purchasePrices, \JSON_THROW_ON_ERROR) : null,
             'productNumber' => $product->getProductNumber(),
             'manufacturerId' => $product->getManufacturerId(),
             'taxId' => $product->getTaxId(),

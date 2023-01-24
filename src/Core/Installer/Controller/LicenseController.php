@@ -15,17 +15,14 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class LicenseController extends InstallerController
 {
-    private LicenseFetcher $licenseFetcher;
-
-    public function __construct(LicenseFetcher $licenseFetcher)
+    public function __construct(private readonly LicenseFetcher $licenseFetcher)
     {
-        $this->licenseFetcher = $licenseFetcher;
     }
 
     /**
      * @Since("6.4.15.0")
-     * @Route("/installer/license", name="installer.license", methods={"GET", "POST"})
      */
+    #[Route(path: '/installer/license', name: 'installer.license', methods: ['GET', 'POST'])]
     public function license(Request $request): Response
     {
         if ($request->isMethod('POST') && $request->request->get('tos', false)) {

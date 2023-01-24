@@ -32,31 +32,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
 {
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepository $repository;
-
-    private FlowPayloadUpdater $payloadUpdater;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private MessageBusInterface $messageBus;
-
     /**
      * @internal
      */
-    public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        FlowPayloadUpdater $payloadUpdater,
-        EventDispatcherInterface $eventDispatcher,
-        MessageBusInterface $messageBus
-    ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->payloadUpdater = $payloadUpdater;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->messageBus = $messageBus;
+    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly FlowPayloadUpdater $payloadUpdater, private readonly EventDispatcherInterface $eventDispatcher, private readonly MessageBusInterface $messageBus)
+    {
     }
 
     public function getName(): string

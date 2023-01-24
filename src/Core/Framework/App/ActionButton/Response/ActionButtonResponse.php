@@ -11,10 +11,7 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 abstract class ActionButtonResponse extends Struct
 {
-    protected string $actionType;
-
-    public function __construct(string $actionType)
+    public function __construct(protected string $actionType)
     {
-        $this->actionType = $actionType;
     }
 }

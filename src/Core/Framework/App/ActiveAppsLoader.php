@@ -21,14 +21,8 @@ class ActiveAppsLoader implements ResetInterface
      */
     private ?array $activeApps = null;
 
-    private Connection $connection;
-
-    private AbstractAppLoader $appLoader;
-
-    public function __construct(Connection $connection, AbstractAppLoader $appLoader)
+    public function __construct(private readonly Connection $connection, private readonly AbstractAppLoader $appLoader)
     {
-        $this->connection = $connection;
-        $this->appLoader = $appLoader;
     }
 
     /**
@@ -71,13 +65,11 @@ class ActiveAppsLoader implements ResetInterface
                 fwrite(\STDERR, 'Warning: Failed to load apps. Loading apps from local. Message: ' . $e->getMessage() . \PHP_EOL);
             }
 
-            return array_map(function (Manifest $manifest) {
-                return [
-                    'name' => $manifest->getMetadata()->getName(),
-                    'path' => $manifest->getPath(),
-                    'author' => $manifest->getMetadata()->getAuthor(),
-                ];
-            }, $this->appLoader->load());
+            return array_map(fn (Manifest $manifest) => [
+                'name' => $manifest->getMetadata()->getName(),
+                'path' => $manifest->getPath(),
+                'author' => $manifest->getMetadata()->getAuthor(),
+            ], $this->appLoader->load());
         }
     }
 }

@@ -18,17 +18,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class UserCredentialsChangedSubscriber implements EventSubscriberInterface
 {
-    private RefreshTokenRepository $refreshTokenRepository;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(RefreshTokenRepository $refreshTokenRepository, Connection $connection)
+    public function __construct(private readonly RefreshTokenRepository $refreshTokenRepository, private readonly Connection $connection)
     {
-        $this->refreshTokenRepository = $refreshTokenRepository;
-        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array

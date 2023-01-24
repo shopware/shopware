@@ -11,7 +11,7 @@ class ValueGeneratorPatternRegistry
     /**
      * @var AbstractValueGenerator[]
      */
-    private $pattern = [];
+    private array $pattern = [];
 
     /**
      * @internal

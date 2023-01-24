@@ -10,16 +10,10 @@ use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
 class SnippetFixer
 {
     /**
-     * @var SnippetFileHandler
-     */
-    private $snippetFileHandler;
-
-    /**
      * @internal
      */
-    public function __construct(SnippetFileHandler $snippetFileHandler)
+    public function __construct(private readonly SnippetFileHandler $snippetFileHandler)
     {
-        $this->snippetFileHandler = $snippetFileHandler;
     }
 
     public function fix(MissingSnippetCollection $missingSnippetCollection): void

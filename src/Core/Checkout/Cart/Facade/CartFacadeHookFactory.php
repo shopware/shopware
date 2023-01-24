@@ -15,11 +15,8 @@ use Shopware\Core\Framework\Script\Execution\Script;
  */
 class CartFacadeHookFactory extends HookServiceFactory
 {
-    private CartFacadeHelper $helper;
-
-    public function __construct(CartFacadeHelper $helper)
+    public function __construct(private readonly CartFacadeHelper $helper)
     {
-        $this->helper = $helper;
     }
 
     public function factory(Hook $hook, Script $script): CartFacade

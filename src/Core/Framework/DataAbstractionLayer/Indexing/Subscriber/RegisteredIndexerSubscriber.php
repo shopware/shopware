@@ -18,14 +18,14 @@ class RegisteredIndexerSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private IndexerQueuer $indexerQueuer, private EntityIndexerRegistry $indexerRegistry)
+    public function __construct(private readonly IndexerQueuer $indexerQueuer, private readonly EntityIndexerRegistry $indexerRegistry)
     {
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             UpdatePreFinishEvent::class => 'runRegisteredIndexers',

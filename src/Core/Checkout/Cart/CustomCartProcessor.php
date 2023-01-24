@@ -15,16 +15,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class CustomCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {
     /**
-     * @var QuantityPriceCalculator
-     */
-    private $calculator;
-
-    /**
      * @internal
      */
-    public function __construct(QuantityPriceCalculator $calculator)
+    public function __construct(private readonly QuantityPriceCalculator $calculator)
     {
-        $this->calculator = $calculator;
     }
 
     public function collect(

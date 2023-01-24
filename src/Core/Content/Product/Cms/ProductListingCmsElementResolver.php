@@ -19,14 +19,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 {
-    private AbstractProductListingRoute $listingRoute;
-
     /**
      * @internal
      */
-    public function __construct(AbstractProductListingRoute $listingRoute)
+    public function __construct(private readonly AbstractProductListingRoute $listingRoute)
     {
-        $this->listingRoute = $listingRoute;
     }
 
     public function getType(): string
@@ -135,7 +132,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
         $config = $slot->get('config');
 
-        if (isset($config['propertyWhitelist']['value']) && \count($config['propertyWhitelist']['value']) > 0) {
+        if (isset($config['propertyWhitelist']['value']) && (is_countable($config['propertyWhitelist']['value']) ? \count($config['propertyWhitelist']['value']) : 0) > 0) {
             $request->request->set(ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM, $config['propertyWhitelist']['value']);
         }
 
@@ -144,7 +141,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         }
 
         // apply config settings
-        $config = explode(',', $config['filters']['value']);
+        $config = explode(',', (string) $config['filters']['value']);
 
         foreach ($defaults as $filter) {
             if (\in_array($filter, $config, true)) {

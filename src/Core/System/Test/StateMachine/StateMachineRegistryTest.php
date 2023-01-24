@@ -36,30 +36,15 @@ class StateMachineRegistryTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var string
-     */
-    private $stateMachineId;
+    private string $stateMachineId;
 
-    /**
-     * @var string
-     */
-    private $openId;
+    private string $openId;
 
-    /**
-     * @var string
-     */
-    private $inProgressId;
+    private string $inProgressId;
 
-    /**
-     * @var string
-     */
-    private $closedId;
+    private string $closedId;
 
-    /**
-     * @var string
-     */
-    private $stateMachineName;
+    private string $stateMachineName;
 
     /**
      * @var StateMachineRegistry
@@ -71,15 +56,9 @@ class StateMachineRegistryTest extends TestCase
      */
     private $stateMachineRepository;
 
-    /**
-     * @var string
-     */
-    private $stateMachineWithoutInitialId;
+    private string $stateMachineWithoutInitialId;
 
-    /**
-     * @var string
-     */
-    private $stateMachineWithoutInitialName;
+    private string $stateMachineWithoutInitialName;
 
     protected function setUp(): void
     {

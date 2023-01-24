@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class Migration1667208731AddDefaultDeliveryTimeConfigSetting extends MigrationStep
 {

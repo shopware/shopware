@@ -9,14 +9,11 @@ namespace Shopware\Core\Content\Seo;
  */
 class EmptyPathInfoResolver extends AbstractSeoResolver
 {
-    private AbstractSeoResolver $decorated;
-
     /**
      * @internal
      */
-    public function __construct(AbstractSeoResolver $decorated)
+    public function __construct(private readonly AbstractSeoResolver $decorated)
     {
-        $this->decorated = $decorated;
     }
 
     public function getDecorated(): AbstractSeoResolver

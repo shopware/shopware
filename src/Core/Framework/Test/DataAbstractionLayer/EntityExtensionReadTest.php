@@ -389,9 +389,7 @@ class EntityExtensionReadTest extends TestCase
 
         $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
 
-        $variant = $context->enableInheritance(function (Context $context) use ($variantId) {
-            return $this->productRepository->search(new Criteria([$variantId]), $context)->first();
-        });
+        $variant = $context->enableInheritance(fn (Context $context) => $this->productRepository->search(new Criteria([$variantId]), $context)->first());
 
         static::assertTrue($product->hasExtension('oneToOneInherited'));
         /** @var ArrayEntity $extension */

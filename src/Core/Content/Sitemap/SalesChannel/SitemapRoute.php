@@ -15,40 +15,21 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package sales-channel
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class SitemapRoute extends AbstractSitemapRoute
 {
     /**
-     * @var SitemapListerInterface
-     */
-    private $sitemapLister;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
-     * @var SitemapExporterInterface
-     */
-    private $sitemapExporter;
-
-    /**
      * @internal
      */
-    public function __construct(SitemapListerInterface $sitemapLister, SystemConfigService $systemConfigService, SitemapExporterInterface $sitemapExporter)
+    public function __construct(private readonly SitemapListerInterface $sitemapLister, private readonly SystemConfigService $systemConfigService, private readonly SitemapExporterInterface $sitemapExporter)
     {
-        $this->sitemapLister = $sitemapLister;
-        $this->systemConfigService = $systemConfigService;
-        $this->sitemapExporter = $sitemapExporter;
     }
 
     /**
      * @Since("6.3.2.0")
-     * @Route(path="/store-api/sitemap", name="store-api.sitemap", methods={"GET", "POST"})
      */
+    #[Route(path: '/store-api/sitemap', name: 'store-api.sitemap', methods: ['GET', 'POST'])]
     public function load(Request $request, SalesChannelContext $context): SitemapRouteResponse
     {
         $sitemaps = $this->sitemapLister->getSitemaps($context);
@@ -64,7 +45,7 @@ class SitemapRoute extends AbstractSitemapRoute
 
         try {
             $this->generateSitemap($context, true);
-        } catch (AlreadyLockedException $exception) {
+        } catch (AlreadyLockedException) {
             // Silent catch, lock couldn't be acquired. Some other process already generates the sitemap.
         }
 

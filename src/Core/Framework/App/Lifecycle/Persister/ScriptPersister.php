@@ -18,20 +18,8 @@ use Shopware\Core\Framework\Script\ScriptEntity;
  */
 class ScriptPersister
 {
-    private ScriptFileReaderInterface $scriptReader;
-
-    private EntityRepository $scriptRepository;
-
-    private EntityRepository $appRepository;
-
-    public function __construct(
-        ScriptFileReaderInterface $scriptReader,
-        EntityRepository $scriptRepository,
-        EntityRepository $appRepository
-    ) {
-        $this->scriptReader = $scriptReader;
-        $this->scriptRepository = $scriptRepository;
-        $this->appRepository = $appRepository;
+    public function __construct(private readonly ScriptFileReaderInterface $scriptReader, private readonly EntityRepository $scriptRepository, private readonly EntityRepository $appRepository)
+    {
     }
 
     public function updateScripts(string $appId, Context $context): void
@@ -86,9 +74,7 @@ class ScriptPersister
         /** @var array<string> $scripts */
         $scripts = $this->scriptRepository->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(function (string $id) {
-            return ['id' => $id, 'active' => true];
-        }, $scripts);
+        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => true], $scripts);
 
         $this->scriptRepository->update($updateSet, $context);
     }
@@ -103,9 +89,7 @@ class ScriptPersister
         /** @var array<string> $scripts */
         $scripts = $this->scriptRepository->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(function (string $id) {
-            return ['id' => $id, 'active' => false];
-        }, $scripts);
+        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => false], $scripts);
 
         $this->scriptRepository->update($updateSet, $context);
     }
@@ -130,9 +114,7 @@ class ScriptPersister
         $ids = $toBeRemoved->getIds();
 
         if (!empty($ids)) {
-            $ids = array_map(static function (string $id): array {
-                return ['id' => $id];
-            }, array_values($ids));
+            $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
 
             $this->scriptRepository->delete($ids, $context);
         }

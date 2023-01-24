@@ -12,12 +12,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\EntityProtection;
  */
 class ReadProtection extends EntityProtection
 {
-    public const PROTECTION = 'read_protection';
+    final public const PROTECTION = 'read_protection';
 
     /**
      * @var array<string, bool>
      */
-    private $allowedScopes = [];
+    private array $allowedScopes = [];
 
     public function __construct(string ...$allowedScopes)
     {

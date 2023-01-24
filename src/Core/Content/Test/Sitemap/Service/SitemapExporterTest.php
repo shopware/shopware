@@ -167,7 +167,7 @@ class SitemapExporterTest extends TestCase
                     [
                         'id' => Uuid::randomHex(),
                         'languageId' => $domain->getLanguageId(),
-                        'url' => str_replace('http://', 'https://', $domain->getUrl()),
+                        'url' => str_replace('http://', 'https://', (string) $domain->getUrl()),
                         'currencyId' => Defaults::CURRENCY,
                         'snippetSetId' => $domain->getSnippetSetId(),
                     ],
@@ -178,9 +178,7 @@ class SitemapExporterTest extends TestCase
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $this->salesChannelRepository->search($this->storefontSalesChannelCriteria([$this->context->getSalesChannelId()]), $this->context->getContext())->first();
 
-        $languageIds = $salesChannel->getDomains()->map(function (SalesChannelDomainEntity $salesChannelDomain) {
-            return $salesChannelDomain->getLanguageId();
-        });
+        $languageIds = $salesChannel->getDomains()->map(fn (SalesChannelDomainEntity $salesChannelDomain) => $salesChannelDomain->getLanguageId());
 
         $languageIds = array_unique($languageIds);
 

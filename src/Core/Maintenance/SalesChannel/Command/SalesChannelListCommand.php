@@ -30,13 +30,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class SalesChannelListCommand extends Command
 {
-    private EntityRepository $salesChannelRepository;
-
     public function __construct(
-        EntityRepository $salesChannelRepository
+        private readonly EntityRepository $salesChannelRepository
     ) {
-        $this->salesChannelRepository = $salesChannelRepository;
-
         parent::__construct();
     }
 
@@ -89,16 +85,10 @@ class SalesChannelListCommand extends Command
                 $salesChannel->getActive() ? 'active' : 'inactive',
                 $salesChannel->isMaintenance() ? 'on' : 'off',
                 $language->getName(),
-                $languages->map(function (LanguageEntity $language) {
-                    return $language->getName();
-                }),
+                $languages->map(fn (LanguageEntity $language) => $language->getName()),
                 $currency->getName(),
-                $currencies->map(function (CurrencyEntity $currency) {
-                    return $currency->getName();
-                }),
-                $domains->map(function (SalesChannelDomainEntity $domain) {
-                    return $domain->getUrl();
-                }),
+                $currencies->map(fn (CurrencyEntity $currency) => $currency->getName()),
+                $domains->map(fn (SalesChannelDomainEntity $domain) => $domain->getUrl()),
             ];
         }
 
@@ -121,10 +111,7 @@ class SalesChannelListCommand extends Command
             $json[] = $jsonItem;
         }
 
-        $encoded = json_encode($json);
-        if ($encoded === false) {
-            return self::FAILURE;
-        }
+        $encoded = json_encode($json, \JSON_THROW_ON_ERROR);
 
         $output->write($encoded);
 

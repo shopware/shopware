@@ -32,29 +32,16 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 )]
 class SitemapGenerateCommand extends Command
 {
-    private EntityRepository $salesChannelRepository;
-
-    private SitemapExporterInterface $sitemapExporter;
-
-    private AbstractSalesChannelContextFactory $salesChannelContextFactory;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $salesChannelRepository,
-        SitemapExporterInterface $sitemapExporter,
-        AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        EventDispatcherInterface $eventDispatcher
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly SitemapExporterInterface $sitemapExporter,
+        private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
         parent::__construct();
-
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->sitemapExporter = $sitemapExporter;
-        $this->salesChannelContextFactory = $salesChannelContextFactory;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -62,14 +49,7 @@ class SitemapGenerateCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setDescription('Generates sitemaps for a given shop (or all active ones)')
-            ->addOption(
-                'salesChannelId',
-                'i',
-                InputOption::VALUE_OPTIONAL,
-                'Generate sitemap only for for this sales channel'
-            )
+        $this->addOption('salesChannelId', 'i', InputOption::VALUE_OPTIONAL, 'Generate sitemap only for for this sales channel')
             ->addOption(
                 'force',
                 'f',
@@ -97,9 +77,7 @@ class SitemapGenerateCommand extends Command
 
         /** @var SalesChannelEntity $salesChannel */
         foreach ($salesChannels as $salesChannel) {
-            $languageIds = $salesChannel->getDomains()->map(function (SalesChannelDomainEntity $salesChannelDomain) {
-                return $salesChannelDomain->getLanguageId();
-            });
+            $languageIds = $salesChannel->getDomains()->map(fn (SalesChannelDomainEntity $salesChannelDomain) => $salesChannelDomain->getLanguageId());
 
             $languageIds = array_unique($languageIds);
 

@@ -55,13 +55,13 @@ class Migration1607581276AddProductSearchConfigurationDefaults extends Migration
                 'id' => $searchConfigDeId,
                 'and_logic' => 1,
                 'min_search_length' => 2,
-                'excluded_terms' => json_encode($deStopwords),
+                'excluded_terms' => json_encode($deStopwords, \JSON_THROW_ON_ERROR),
             ],
             [
                 'id' => $searchConfigEnId,
                 'and_logic' => 1,
                 'min_search_length' => 2,
-                'excluded_terms' => $enLanguageId ? json_encode($enStopwords) : null,
+                'excluded_terms' => $enLanguageId ? json_encode($enStopwords, \JSON_THROW_ON_ERROR) : null,
             ]
         );
 
@@ -75,10 +75,7 @@ class Migration1607581276AddProductSearchConfigurationDefaults extends Migration
         }
 
         if ($writeResult->hasWrittenGermanTranslations()) {
-            $defaultSearchData = array_merge(
-                $defaultSearchData,
-                $this->getConfigFieldDefaultData($searchConfigDeId, $createdAt)
-            );
+            $defaultSearchData = [...$defaultSearchData, ...$this->getConfigFieldDefaultData($searchConfigDeId, $createdAt)];
         }
 
         $queue = new MultiInsertQueryQueue($connection, 250);

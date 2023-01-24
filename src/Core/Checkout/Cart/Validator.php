@@ -11,16 +11,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class Validator
 {
     /**
-     * @var CartValidatorInterface[]
-     */
-    private $validators;
-
-    /**
      * @internal
+     *
+     * @param CartValidatorInterface[] $validators
      */
-    public function __construct(iterable $validators)
+    public function __construct(private readonly iterable $validators)
     {
-        $this->validators = $validators;
     }
 
     public function validate(Cart $cart, SalesChannelContext $context): array

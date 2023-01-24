@@ -22,8 +22,8 @@ use Symfony\Component\Routing\Annotation\Route;
  * @package merchant-services
  *
  * @internal
- * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class FirstRunWizardController extends AbstractController
 {
     public function __construct(
@@ -34,8 +34,8 @@ class FirstRunWizardController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/store/frw/start", name="api.custom.store.frw.start", methods={"POST"})
      */
+    #[Route(path: '/api/_action/store/frw/start', name: 'api.custom.store.frw.start', methods: ['POST'])]
     public function frwStart(Context $context): JsonResponse
     {
         try {
@@ -49,8 +49,8 @@ class FirstRunWizardController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/store/language-plugins", name="api.custom.store.language-plugins", methods={"GET"})
      */
+    #[Route(path: '/api/_action/store/language-plugins', name: 'api.custom.store.language-plugins', methods: ['GET'])]
     public function getLanguagePluginList(Context $context): JsonResponse
     {
         /** @var PluginCollection $plugins */
@@ -70,8 +70,8 @@ class FirstRunWizardController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/store/demo-data-plugins", name="api.custom.store.demo-data-plugins", methods={"GET"})
      */
+    #[Route(path: '/api/_action/store/demo-data-plugins', name: 'api.custom.store.demo-data-plugins', methods: ['GET'])]
     public function getDemoDataPluginList(Context $context): JsonResponse
     {
         /** @var PluginCollection $plugins */
@@ -91,8 +91,8 @@ class FirstRunWizardController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/store/recommendation-regions", name="api.custom.store.recommendation-regions", methods={"GET"})
      */
+    #[Route(path: '/api/_action/store/recommendation-regions', name: 'api.custom.store.recommendation-regions', methods: ['GET'])]
     public function getRecommendationRegions(Context $context): JsonResponse
     {
         try {
@@ -109,8 +109,8 @@ class FirstRunWizardController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/store/recommendations", name="api.custom.store.recommendations", methods={"GET"})
      */
+    #[Route(path: '/api/_action/store/recommendations', name: 'api.custom.store.recommendations', methods: ['GET'])]
     public function getRecommendations(Request $request, Context $context): JsonResponse
     {
         $region = $request->query->has('region') ? (string) $request->query->get('region') : null;
@@ -133,8 +133,8 @@ class FirstRunWizardController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/store/frw/login", name="api.custom.store.frw.login", methods={"POST"})
      */
+    #[Route(path: '/api/_action/store/frw/login', name: 'api.custom.store.frw.login', methods: ['POST'])]
     public function frwLogin(RequestDataBag $requestDataBag, Context $context): JsonResponse
     {
         $shopwareId = $requestDataBag->get('shopwareId');
@@ -155,8 +155,8 @@ class FirstRunWizardController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/store/license-domains", name="api.custom.store.license-domains", methods={"GET"})
      */
+    #[Route(path: '/api/_action/store/license-domains', name: 'api.custom.store.license-domains', methods: ['GET'])]
     public function getDomainList(Context $context): JsonResponse
     {
         try {
@@ -173,8 +173,8 @@ class FirstRunWizardController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/store/verify-license-domain", name="api.custom.store.verify-license-domain", methods={"POST"})
      */
+    #[Route(path: '/api/_action/store/verify-license-domain', name: 'api.custom.store.verify-license-domain', methods: ['POST'])]
     public function verifyDomain(QueryDataBag $params, Context $context): JsonResponse
     {
         $domain = $params->get('domain') ?? '';
@@ -191,8 +191,8 @@ class FirstRunWizardController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/store/frw/finish", name="api.custom.store.frw.finish", methods={"POST"})
      */
+    #[Route(path: '/api/_action/store/frw/finish', name: 'api.custom.store.frw.finish', methods: ['POST'])]
     public function frwFinish(QueryDataBag $params, Context $context): JsonResponse
     {
         $failed = $params->getBoolean('failed');
@@ -200,7 +200,7 @@ class FirstRunWizardController extends AbstractController
 
         try {
             $this->frwService->upgradeAccessToken($context);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         return new JsonResponse();

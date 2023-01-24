@@ -28,29 +28,16 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class ReinstallAppsStrategy extends AbstractAppUrlChangeStrategy
 {
-    public const STRATEGY_NAME = 'reinstall-apps';
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    final public const STRATEGY_NAME = 'reinstall-apps';
 
     public function __construct(
         AbstractAppLoader $appLoader,
         EntityRepository $appRepository,
         AppRegistrationService $registrationService,
-        SystemConfigService $systemConfigService,
-        EventDispatcherInterface $eventDispatcher
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
         parent::__construct($appLoader, $appRepository, $registrationService);
-
-        $this->systemConfigService = $systemConfigService;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractAppUrlChangeStrategy

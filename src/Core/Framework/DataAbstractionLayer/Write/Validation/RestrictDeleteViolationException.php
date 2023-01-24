@@ -14,7 +14,7 @@ class RestrictDeleteViolationException extends ShopwareHttpException
     /**
      * @var RestrictDeleteViolation[]
      */
-    private $restrictions;
+    private readonly array $restrictions;
 
     /**
      * @param RestrictDeleteViolation[] $restrictions

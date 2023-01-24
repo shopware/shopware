@@ -18,28 +18,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class CustomerSetDefaultBillingAddressEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent
 {
-    public const EVENT_NAME = 'checkout.customer.default.billing.address.event';
+    final public const EVENT_NAME = 'checkout.customer.default.billing.address.event';
 
-    /**
-     * @var CustomerEntity
-     */
-    private $customer;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var string
-     */
-    private $addressId;
-
-    public function __construct(SalesChannelContext $salesChannelContext, CustomerEntity $customer, string $addressId)
+    public function __construct(private readonly SalesChannelContext $salesChannelContext, private readonly CustomerEntity $customer, private string $addressId)
     {
-        $this->customer = $customer;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->addressId = $addressId;
     }
 
     public function getName(): string

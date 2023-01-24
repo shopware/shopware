@@ -11,26 +11,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class ImportExportBeforeImportRowEvent extends Event
 {
-    /**
-     * @var array
-     */
-    private $row;
-
-    /**
-     * @var Config
-     */
-    private $config;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    public function __construct(array $row, Config $config, Context $context)
+    public function __construct(private array $row, private readonly Config $config, private readonly Context $context)
     {
-        $this->row = $row;
-        $this->config = $config;
-        $this->context = $context;
     }
 
     public function getRow(): array

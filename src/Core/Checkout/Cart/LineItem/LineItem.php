@@ -17,27 +17,21 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class LineItem extends Struct
 {
-    public const CREDIT_LINE_ITEM_TYPE = 'credit';
-    public const PRODUCT_LINE_ITEM_TYPE = 'product';
-    public const CUSTOM_LINE_ITEM_TYPE = 'custom';
-    public const PROMOTION_LINE_ITEM_TYPE = 'promotion';
-    public const DISCOUNT_LINE_ITEM = 'discount';
-    public const CONTAINER_LINE_ITEM = 'container';
+    final public const CREDIT_LINE_ITEM_TYPE = 'credit';
+    final public const PRODUCT_LINE_ITEM_TYPE = 'product';
+    final public const CUSTOM_LINE_ITEM_TYPE = 'custom';
+    final public const PROMOTION_LINE_ITEM_TYPE = 'promotion';
+    final public const DISCOUNT_LINE_ITEM = 'discount';
+    final public const CONTAINER_LINE_ITEM = 'container';
 
     /**
      * @var array<mixed>
      */
     protected array $payload = [];
 
-    protected string $id;
-
-    protected ?string $referencedId = null;
-
     protected ?string $label = null;
 
     protected int $quantity;
-
-    protected string $type;
 
     protected ?PriceDefinitionInterface $priceDefinition = null;
 
@@ -88,17 +82,14 @@ class LineItem extends Struct
     /**
      * @throws CartException
      */
-    public function __construct(string $id, string $type, ?string $referencedId = null, int $quantity = 1)
+    public function __construct(protected string $id, protected string $type, protected ?string $referencedId = null, int $quantity = 1)
     {
-        $this->id = $id;
         $this->uniqueIdentifier = Uuid::randomHex();
-        $this->type = $type;
         $this->children = new LineItemCollection();
 
         if ($quantity < 1) {
             throw CartException::invalidQuantity($quantity);
         }
-        $this->referencedId = $referencedId;
         $this->quantity = $quantity;
     }
 

@@ -51,30 +51,10 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class EntityWriteGateway implements EntityWriteGatewayInterface
 {
-    private Connection $connection;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private ExceptionHandlerRegistry $exceptionHandlerRegistry;
-
-    private DefinitionInstanceRegistry $definitionInstanceRegistry;
-
     private ?PrimaryKeyBag $primaryKeyBag = null;
 
-    private int $batchSize;
-
-    public function __construct(
-        int $batchSize,
-        Connection $connection,
-        EventDispatcherInterface $eventDispatcher,
-        ExceptionHandlerRegistry $exceptionHandlerRegistry,
-        DefinitionInstanceRegistry $definitionInstanceRegistry
-    ) {
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->exceptionHandlerRegistry = $exceptionHandlerRegistry;
-        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
-        $this->batchSize = $batchSize;
+    public function __construct(private readonly int $batchSize, private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher, private readonly ExceptionHandlerRegistry $exceptionHandlerRegistry, private readonly DefinitionInstanceRegistry $definitionInstanceRegistry)
+    {
     }
 
     public function prefetchExistences(WriteParameterBag $parameters): void
@@ -455,7 +435,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         foreach ($identifier as $key => $_value) {
             $query->andWhere(EntityDefinitionQueryHelper::escape($key) . ' = ?');
         }
-        $query->setParameters(array_merge($values, array_values($identifier)), $types);
+        $query->setParameters([...$values, ...array_values($identifier)], $types);
 
         RetryableQuery::retryable($this->connection, function () use ($query): void {
             $query->executeStatement();

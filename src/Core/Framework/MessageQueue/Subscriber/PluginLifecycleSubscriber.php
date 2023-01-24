@@ -17,17 +17,11 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
  */
 final class PluginLifecycleSubscriber implements EventSubscriberInterface
 {
-    private TaskRegistry $registry;
-
-    private CacheItemPoolInterface $restartSignalCachePool;
-
     /**
      * @internal
      */
-    public function __construct(TaskRegistry $registry, CacheItemPoolInterface $restartSignalCachePool)
+    public function __construct(private readonly TaskRegistry $registry, private readonly CacheItemPoolInterface $restartSignalCachePool)
     {
-        $this->registry = $registry;
-        $this->restartSignalCachePool = $restartSignalCachePool;
     }
 
     public static function getSubscribedEvents(): array

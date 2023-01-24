@@ -22,44 +22,12 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 class ConfigurationService
 {
     /**
-     * @var iterable
-     */
-    private $bundles;
-
-    /**
-     * @var ConfigReader
-     */
-    private $configReader;
-
-    /**
-     * @var AbstractAppLoader
-     */
-    private $appLoader;
-
-    /**
-     * @var EntityRepository
-     */
-    private $appRepository;
-
-    private SystemConfigService $systemConfigService;
-
-    /**
      * @internal
      *
      * @param BundleInterface[] $bundles
      */
-    public function __construct(
-        iterable $bundles,
-        ConfigReader $configReader,
-        AbstractAppLoader $appLoader,
-        EntityRepository $appRepository,
-        SystemConfigService $systemConfigService
-    ) {
-        $this->bundles = $bundles;
-        $this->configReader = $configReader;
-        $this->appLoader = $appLoader;
-        $this->appRepository = $appRepository;
-        $this->systemConfigService = $systemConfigService;
+    public function __construct(private readonly iterable $bundles, private readonly ConfigReader $configReader, private readonly AbstractAppLoader $appLoader, private readonly EntityRepository $appRepository, private readonly SystemConfigService $systemConfigService)
+    {
     }
 
     /**
@@ -138,7 +106,7 @@ class ConfigurationService
             $this->getConfiguration($domain, $context);
 
             return true;
-        } catch (\InvalidArgumentException | ConfigurationNotFoundException | BundleConfigNotFoundException $e) {
+        } catch (\InvalidArgumentException | ConfigurationNotFoundException | BundleConfigNotFoundException) {
             return false;
         }
     }

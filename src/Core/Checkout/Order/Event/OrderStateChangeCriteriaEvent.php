@@ -10,20 +10,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class OrderStateChangeCriteriaEvent extends Event
 {
-    /**
-     * @var string
-     */
-    private $orderId;
-
-    /**
-     * @var Criteria
-     */
-    private $criteria;
-
-    public function __construct(string $orderId, Criteria $criteria)
+    public function __construct(private readonly string $orderId, private readonly Criteria $criteria)
     {
-        $this->orderId = $orderId;
-        $this->criteria = $criteria;
     }
 
     public function getOrderId(): string

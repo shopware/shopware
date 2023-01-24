@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class PatternAlreadyInUseException extends ShopwareHttpException
 {
-    public const ERROR_CODE = 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE';
+    final public const ERROR_CODE = 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE';
 
     public function __construct()
     {

@@ -17,22 +17,15 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CancelOrderRoute extends AbstractCancelOrderRoute
 {
-    private OrderService $orderService;
-
-    private EntityRepository $orderRepository;
-
     /**
      * @internal
      */
-    public function __construct(OrderService $orderService, EntityRepository $orderRepository)
+    public function __construct(private readonly OrderService $orderService, private readonly EntityRepository $orderRepository)
     {
-        $this->orderService = $orderService;
-        $this->orderRepository = $orderRepository;
     }
 
     public function getDecorated(): AbstractCancelOrderRoute
@@ -41,9 +34,9 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
     }
 
     /**
-    * @Since("6.2.0.0")
-    * @Route(path="/store-api/order/state/cancel", name="store-api.order.state.cancel", methods={"POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
-    */
+     * @Since("6.2.0.0")
+     */
+    #[Route(path: '/store-api/order/state/cancel', name: 'store-api.order.state.cancel', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function cancel(Request $request, SalesChannelContext $context): CancelOrderRouteResponse
     {
         $orderId = $request->get('orderId', null);

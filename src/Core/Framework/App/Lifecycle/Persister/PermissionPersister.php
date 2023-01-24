@@ -14,14 +14,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class PermissionPersister
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -63,7 +57,7 @@ class PermissionPersister
         $this->connection->executeUpdate(
             'UPDATE `acl_role` SET `privileges` = :privileges WHERE id = :id',
             [
-                'privileges' => json_encode($privileges),
+                'privileges' => json_encode($privileges, \JSON_THROW_ON_ERROR),
                 'id' => Uuid::fromHexToBytes($roleId),
             ]
         );

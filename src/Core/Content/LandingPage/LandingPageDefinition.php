@@ -32,7 +32,7 @@ use Shopware\Core\System\Tag\TagDefinition;
  */
 class LandingPageDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'landing_page';
+    final public const ENTITY_NAME = 'landing_page';
 
     public function getEntityName(): string
     {

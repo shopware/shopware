@@ -23,7 +23,7 @@ final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $repository,
-        private EntityRepository $productStreamRepository
+        private readonly EntityRepository $productStreamRepository
     ) {
         parent::__construct($repository);
     }
@@ -39,9 +39,7 @@ final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
 
         /** @var array<string> $streamIds */
         $streamIds = $this->productStreamRepository->searchIds($criteria, $context)->getIds();
-        $data = array_map(function (string $id) {
-            return ['id' => $id];
-        }, $streamIds);
+        $data = array_map(fn (string $id) => ['id' => $id], $streamIds);
 
         $this->productStreamRepository->update($data, $context);
     }

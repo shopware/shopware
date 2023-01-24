@@ -20,7 +20,7 @@ final class GenerateThumbnailsHandler
     /**
      * @internal
      */
-    public function __construct(private ThumbnailService $thumbnailService, private EntityRepository $mediaRepository)
+    public function __construct(private readonly ThumbnailService $thumbnailService, private readonly EntityRepository $mediaRepository)
     {
     }
 

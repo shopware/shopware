@@ -43,15 +43,12 @@ class GenerateMediaTypesCommandTest extends TestCase
      */
     private $urlGenerator;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var array<string>
      */
-    private $initialMediaIds;
+    private array $initialMediaIds;
 
     protected function setUp(): void
     {

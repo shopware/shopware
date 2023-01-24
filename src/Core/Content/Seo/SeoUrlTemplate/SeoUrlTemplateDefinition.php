@@ -21,7 +21,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class SeoUrlTemplateDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'seo_url_template';
+    final public const ENTITY_NAME = 'seo_url_template';
 
     public function getEntityName(): string
     {

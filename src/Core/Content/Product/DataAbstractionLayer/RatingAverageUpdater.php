@@ -12,14 +12,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class RatingAverageUpdater
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function update(array $ids, Context $context): void

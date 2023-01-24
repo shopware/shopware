@@ -21,7 +21,7 @@ class Admin extends XmlElement
      */
     protected array $modules = [];
 
-    protected ?MainModule $mainModule;
+    protected ?MainModule $mainModule = null;
 
     protected ?string $baseAppUrl = null;
 

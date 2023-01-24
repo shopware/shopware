@@ -24,9 +24,7 @@ class ExportInvalidException extends ShopwareHttpException
     {
         $errorMessages = array_merge(
             ...array_map(
-                function (Error $error) {
-                    return $error->getErrorMessages();
-                },
+                fn (Error $error) => $error->getErrorMessages(),
                 $errors
             )
         );

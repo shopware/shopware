@@ -29,13 +29,10 @@ namespace Shopware\Core\Framework\Script\Facade;
  */
 class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
 {
-    private array $items;
+    private readonly ?\Closure $closure;
 
-    private ?\Closure $closure;
-
-    public function __construct(array $items, ?\Closure $closure = null)
+    public function __construct(private array $items, ?\Closure $closure = null)
     {
-        $this->items = $items;
         $this->closure = $closure;
     }
 
@@ -47,7 +44,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
      *
      * @example payload-cases/payload-cases.twig 5 3 Add a new element with key `test` and value 1.
      */
-    public function set($key, $value): void
+    public function set(string|int $key, $value): void
     {
         $this->items[$key] = $value;
         $this->update();
@@ -69,7 +66,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
      *
      * @param string|int $index The index that should be removed.
      */
-    public function removeBy($index): void
+    public function removeBy(string|int $index): void
     {
         unset($this->items[$index]);
         $this->update();
@@ -108,7 +105,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
      *
      * @example payload-cases/payload-cases.twig 13 3 Merge two arrays.
      */
-    public function merge($array): void
+    public function merge(array|\Shopware\Core\Framework\Script\Facade\ArrayFacade $array): void
     {
         if ($array instanceof ArrayFacade) {
             $array = $array->items;
@@ -124,7 +121,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
      *
      * @example payload-cases/payload-cases.twig 17 3 Replace elements in the product payload array.
      */
-    public function replace($array): void
+    public function replace(array|\Shopware\Core\Framework\Script\Facade\ArrayFacade $array): void
     {
         if ($array instanceof ArrayFacade) {
             $array = $array->items;

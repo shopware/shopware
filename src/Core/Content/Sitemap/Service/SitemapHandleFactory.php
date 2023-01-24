@@ -11,14 +11,11 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class SitemapHandleFactory implements SitemapHandleFactoryInterface
 {
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(EventDispatcherInterface $eventDispatcher)
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function create(FilesystemOperator $filesystem, SalesChannelContext $context, ?string $domain = null): SitemapHandleInterface

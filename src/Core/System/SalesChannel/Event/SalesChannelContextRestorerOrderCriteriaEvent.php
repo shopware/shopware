@@ -11,14 +11,8 @@ use Shopware\Core\Framework\Event\NestedEvent;
  */
 class SalesChannelContextRestorerOrderCriteriaEvent extends NestedEvent
 {
-    protected Context $context;
-
-    protected Criteria $criteria;
-
-    public function __construct(Criteria $criteria, Context $context)
+    public function __construct(protected Criteria $criteria, protected Context $context)
     {
-        $this->context = $context;
-        $this->criteria = $criteria;
     }
 
     public function getContext(): Context

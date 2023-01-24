@@ -24,9 +24,9 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        private EntityWriterInterface $writer,
-        private EntityRepository $mailTemplateTypeRepository,
-        private MailTemplateDefinition $mailTemplateDefinition
+        private readonly EntityWriterInterface $writer,
+        private readonly EntityRepository $mailTemplateTypeRepository,
+        private readonly MailTemplateDefinition $mailTemplateDefinition
     ) {
     }
 

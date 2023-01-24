@@ -11,30 +11,10 @@ use Shopware\Core\Framework\Plugin;
  */
 class InstallContext
 {
-    private Plugin $plugin;
-
-    private Context $context;
-
-    private string $currentShopwareVersion;
-
-    private string $currentPluginVersion;
-
-    private MigrationCollection $migrationCollection;
-
     private bool $autoMigrate = true;
 
-    public function __construct(
-        Plugin $plugin,
-        Context $context,
-        string $currentShopwareVersion,
-        string $currentPluginVersion,
-        MigrationCollection $migrationCollection
-    ) {
-        $this->plugin = $plugin;
-        $this->context = $context;
-        $this->currentShopwareVersion = $currentShopwareVersion;
-        $this->currentPluginVersion = $currentPluginVersion;
-        $this->migrationCollection = $migrationCollection;
+    public function __construct(private readonly Plugin $plugin, private readonly Context $context, private readonly string $currentShopwareVersion, private readonly string $currentPluginVersion, private readonly MigrationCollection $migrationCollection)
+    {
     }
 
     public function getPlugin(): Plugin

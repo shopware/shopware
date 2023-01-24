@@ -13,14 +13,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class FirstRunWizardStartedEvent extends Event
 {
-    private FrwState $state;
-
-    private Context $context;
-
-    public function __construct(FrwState $state, Context $context)
+    public function __construct(private readonly FrwState $state, private readonly Context $context)
     {
-        $this->state = $state;
-        $this->context = $context;
     }
 
     public function getState(): FrwState

@@ -17,13 +17,13 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class MailBeforeValidateEvent extends Event implements LogAware, TemplateDataAware, DataAware
 {
-    public const EVENT_NAME = 'mail.before.send';
+    final public const EVENT_NAME = 'mail.before.send';
 
     /**
      * @param array<string, mixed> $data
      * @param array<string, mixed> $templateData
      */
-    public function __construct(private array $data, private Context $context, private array $templateData = [])
+    public function __construct(private array $data, private readonly Context $context, private array $templateData = [])
     {
     }
 

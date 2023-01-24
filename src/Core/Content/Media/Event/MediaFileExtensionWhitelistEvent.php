@@ -9,14 +9,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class MediaFileExtensionWhitelistEvent extends Event
 {
-    /**
-     * @var array
-     */
-    private $whitelist;
-
-    public function __construct(array $whitelist)
+    public function __construct(private array $whitelist)
     {
-        $this->whitelist = $whitelist;
     }
 
     public function getWhitelist()

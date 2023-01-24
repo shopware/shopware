@@ -15,24 +15,10 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ProductGateway implements ProductGatewayInterface
 {
     /**
-     * @var SalesChannelRepository
-     */
-    private $repository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @internal
      */
-    public function __construct(
-        SalesChannelRepository $repository,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->repository = $repository;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly SalesChannelRepository $repository, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function get(array $ids, SalesChannelContext $context): ProductCollection

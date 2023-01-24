@@ -88,7 +88,7 @@ class MergeWishlistProductRouteTest extends TestCase
                     ],
                 ]
             );
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
@@ -112,7 +112,7 @@ class MergeWishlistProductRouteTest extends TestCase
                     ],
                 ]
             );
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
@@ -139,7 +139,7 @@ class MergeWishlistProductRouteTest extends TestCase
                     ],
                 ]
             );
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
@@ -162,7 +162,7 @@ class MergeWishlistProductRouteTest extends TestCase
                     ],
                 ]
             );
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $errors = $response['errors'][0];
         static::assertSame(403, $this->browser->getResponse()->getStatusCode());
         static::assertEquals('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $errors['code']);
@@ -188,7 +188,7 @@ class MergeWishlistProductRouteTest extends TestCase
                     ],
                 ]
             );
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $errors = $response['errors'][0];
         static::assertSame(403, $this->browser->getResponse()->getStatusCode());
         static::assertEquals('CHECKOUT__WISHLIST_IS_NOT_ACTIVATED', $errors['code']);
@@ -212,7 +212,7 @@ class MergeWishlistProductRouteTest extends TestCase
                     ],
                 ]
             );
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
@@ -236,7 +236,7 @@ class MergeWishlistProductRouteTest extends TestCase
                     ],
                 ]
             );
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
@@ -262,7 +262,7 @@ class MergeWishlistProductRouteTest extends TestCase
                     ],
                 ]
             );
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
@@ -286,7 +286,7 @@ class MergeWishlistProductRouteTest extends TestCase
                     ],
                 ]
             );
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
@@ -309,7 +309,7 @@ class MergeWishlistProductRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
@@ -332,7 +332,7 @@ class MergeWishlistProductRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 

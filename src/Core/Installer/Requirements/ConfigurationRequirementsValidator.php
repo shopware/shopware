@@ -18,11 +18,8 @@ class ConfigurationRequirementsValidator implements RequirementsValidatorInterfa
     private const MEMORY_LIMIT_REQUIREMENT = '512M';
     private const OPCACHE_MEMORY_RECOMMENDATION = '256M';
 
-    private IniConfigReader $iniConfigReader;
-
-    public function __construct(IniConfigReader $iniConfigReader)
+    public function __construct(private readonly IniConfigReader $iniConfigReader)
     {
-        $this->iniConfigReader = $iniConfigReader;
     }
 
     public function validateRequirements(RequirementsCheckCollection $checks): RequirementsCheckCollection

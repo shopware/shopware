@@ -34,7 +34,7 @@ class MailStorer extends FlowStorer
                 ];
 
                 $stored[MailAware::MAIL_STRUCT] = $data;
-            } catch (MailEventConfigurationException $e) {
+            } catch (MailEventConfigurationException) {
             }
         }
 

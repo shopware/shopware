@@ -22,7 +22,7 @@ class ScriptReferenceGeneratorCommand extends Command
     /**
      * @param iterable<ScriptReferenceGenerator> $generators
      */
-    public function __construct(private iterable $generators)
+    public function __construct(private readonly iterable $generators)
     {
         parent::__construct();
     }
@@ -46,6 +46,5 @@ class ScriptReferenceGeneratorCommand extends Command
 
     protected function configure(): void
     {
-        $this->setDescription('(Re-)Generate reference documentation for the app scripts feature.');
     }
 }

@@ -20,30 +20,18 @@ use Symfony\Component\Routing\Annotation\Route;
  * @package merchant-services
  *
  * @internal
- * @Route(defaults={"_routeScope"={"api"}, "_acl"={"system.plugin_maintain"}})
  */
+#[Route(defaults: ['_routeScope' => ['api'], '_acl' => ['system.plugin_maintain']])]
 class ExtensionStoreDataController extends AbstractController
 {
-    private AbstractExtensionDataProvider $extensionDataProvider;
-
-    private EntityRepository $languageRepository;
-
-    private EntityRepository $userRepository;
-
-    public function __construct(
-        AbstractExtensionDataProvider $extensionListingProvider,
-        EntityRepository $userRepository,
-        EntityRepository $languageRepository
-    ) {
-        $this->extensionDataProvider = $extensionListingProvider;
-        $this->languageRepository = $languageRepository;
-        $this->userRepository = $userRepository;
+    public function __construct(private readonly AbstractExtensionDataProvider $extensionDataProvider, private readonly EntityRepository $userRepository, private readonly EntityRepository $languageRepository)
+    {
     }
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/_action/extension/installed", name="api.extension.installed", methods={"GET"})
      */
+    #[Route(path: '/api/_action/extension/installed', name: 'api.extension.installed', methods: ['GET'])]
     public function getInstalledExtensions(Context $context): Response
     {
         $context = $this->switchContext($context);

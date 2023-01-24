@@ -23,37 +23,17 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @package core
  */
-#[AsCommand(
-    name: 'app:refresh',
-    description: 'Refreshes an app',
-)]
+#[AsCommand(name: 'app:refresh', description: 'Refreshes an app', aliases: ['app:update'])]
 class RefreshAppCommand extends Command
 {
-    private AppService $appService;
-
-    private AppPrinter $appPrinter;
-
-    private ManifestValidator $manifestValidator;
-
-    public function __construct(AppService $appService, AppPrinter $appPrinter, ManifestValidator $manifestValidator)
+    public function __construct(private readonly AppService $appService, private readonly AppPrinter $appPrinter, private readonly ManifestValidator $manifestValidator)
     {
         parent::__construct();
-
-        $this->appService = $appService;
-        $this->appPrinter = $appPrinter;
-        $this->manifestValidator = $manifestValidator;
     }
 
     protected function configure(): void
     {
-        $this
-            ->setAliases(['app:update'])
-            ->setDescription('Refreshes the installed Apps')
-            ->addArgument(
-                'name',
-                InputArgument::OPTIONAL | InputArgument::IS_ARRAY,
-                'The name of the app'
-            )
+        $this->addArgument('name', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'The name of the app')
             ->addOption(
                 'force',
                 'f',
@@ -94,7 +74,7 @@ class RefreshAppCommand extends Command
         if (!$input->getOption('force')) {
             try {
                 $this->grantPermissions($refreshableApps, $io);
-            } catch (UserAbortedCommandException $e) {
+            } catch (UserAbortedCommandException) {
                 $io->error('Aborting due to user input.');
 
                 return self::FAILURE;

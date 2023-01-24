@@ -106,6 +106,6 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
      */
     public function getAppNames(): array
     {
-        return array_merge(array_keys($this->toBeInstalled), array_keys($this->toBeUpdated), array_keys($this->toBeDeleted));
+        return [...array_keys($this->toBeInstalled), ...array_keys($this->toBeUpdated), ...array_keys($this->toBeDeleted)];
     }
 }

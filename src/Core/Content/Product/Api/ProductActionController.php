@@ -10,29 +10,22 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package inventory
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class ProductActionController extends AbstractController
 {
     /**
-     * @var VariantCombinationLoader
-     */
-    private $combinationLoader;
-
-    /**
      * @internal
      */
-    public function __construct(VariantCombinationLoader $combinationLoader)
+    public function __construct(private readonly VariantCombinationLoader $combinationLoader)
     {
-        $this->combinationLoader = $combinationLoader;
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/product/{productId}/combinations", name="api.action.product.combinations", methods={"GET"})
      */
+    #[Route(path: '/api/_action/product/{productId}/combinations', name: 'api.action.product.combinations', methods: ['GET'])]
     public function getCombinations(string $productId, Context $context): JsonResponse
     {
         return new JsonResponse(

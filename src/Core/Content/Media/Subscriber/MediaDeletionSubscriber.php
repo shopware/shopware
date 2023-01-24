@@ -33,19 +33,19 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 class MediaDeletionSubscriber implements EventSubscriberInterface
 {
-    public const SYNCHRONE_FILE_DELETE = 'synchrone-file-delete';
+    final public const SYNCHRONE_FILE_DELETE = 'synchrone-file-delete';
 
     /**
      * @internal
      */
     public function __construct(
-        private UrlGeneratorInterface $urlGenerator,
-        private EventDispatcherInterface $dispatcher,
-        private EntityRepository $thumbnailRepository,
-        private MessageBusInterface $messageBus,
-        private DeleteFileHandler $deleteFileHandler,
-        private Connection $connection,
-        private EntityRepository $mediaRepository
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly EntityRepository $thumbnailRepository,
+        private readonly MessageBusInterface $messageBus,
+        private readonly DeleteFileHandler $deleteFileHandler,
+        private readonly Connection $connection,
+        private readonly EntityRepository $mediaRepository
     ) {
     }
 
@@ -110,9 +110,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
      */
     private function handleMediaDeletion(array $affected, Context $context): void
     {
-        $media = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($affected) {
-            return $this->mediaRepository->search(new Criteria($affected), $context);
-        });
+        $media = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->mediaRepository->search(new Criteria($affected), $context));
 
         $privatePaths = [];
         $publicPaths = [];
@@ -188,9 +186,9 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
 
         $nested = $this->fetchChildrenIds($children);
 
-        $children = \array_merge($children, $nested);
+        $children = [...$children, ...$nested];
 
-        return \array_merge($ids, $children, $nested);
+        return [...$ids, ...$children, ...$nested];
     }
 
     /**

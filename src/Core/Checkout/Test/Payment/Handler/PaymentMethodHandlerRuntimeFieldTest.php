@@ -24,7 +24,7 @@ class PaymentMethodHandlerRuntimeFieldTest extends TestCase
         $event
             ->method('getEntities')
             ->willReturn($this->getPaymentMethodEntity(
-                \get_class($this->createMock(SynchronousPaymentHandlerInterface::class))
+                $this->createMock(SynchronousPaymentHandlerInterface::class)::class
             ));
 
         (new PaymentHandlerIdentifierSubscriber())->formatHandlerIdentifier($event);
@@ -45,7 +45,7 @@ class PaymentMethodHandlerRuntimeFieldTest extends TestCase
         $event
             ->method('getEntities')
             ->willReturn($this->getPaymentMethodEntity(
-                \get_class($this->createMock(AsynchronousPaymentHandlerInterface::class))
+                $this->createMock(AsynchronousPaymentHandlerInterface::class)::class
             ));
 
         (new PaymentHandlerIdentifierSubscriber())->formatHandlerIdentifier($event);
@@ -66,7 +66,7 @@ class PaymentMethodHandlerRuntimeFieldTest extends TestCase
         $event
             ->method('getEntities')
             ->willReturn($this->getPaymentMethodEntity(
-                \get_class($this->createMock(PreparedPaymentHandlerInterface::class))
+                $this->createMock(PreparedPaymentHandlerInterface::class)::class
             ));
 
         (new PaymentHandlerIdentifierSubscriber())->formatHandlerIdentifier($event);
@@ -87,7 +87,7 @@ class PaymentMethodHandlerRuntimeFieldTest extends TestCase
         $event
             ->method('getEntities')
             ->willReturn($this->getPaymentMethodEntity(
-                \get_class($this->createMock(MultipleTestPaymentHandler::class))
+                $this->createMock(MultipleTestPaymentHandler::class)::class
             ));
 
         (new PaymentHandlerIdentifierSubscriber())->formatHandlerIdentifier($event);

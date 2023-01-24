@@ -17,14 +17,11 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
  */
 class AclCriteriaValidator
 {
-    private DefinitionInstanceRegistry $registry;
-
     /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $registry)
+    public function __construct(private readonly DefinitionInstanceRegistry $registry)
     {
-        $this->registry = $registry;
     }
 
     /**

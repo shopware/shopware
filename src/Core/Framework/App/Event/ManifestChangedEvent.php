@@ -13,14 +13,8 @@ use Shopware\Core\Framework\Context;
  */
 abstract class ManifestChangedEvent extends AppChangedEvent
 {
-    /**
-     * @var Manifest
-     */
-    private $manifest;
-
-    public function __construct(AppEntity $app, Manifest $manifest, Context $context)
+    public function __construct(AppEntity $app, private readonly Manifest $manifest, Context $context)
     {
-        $this->manifest = $manifest;
         parent::__construct($app, $context);
     }
 

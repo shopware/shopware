@@ -24,27 +24,13 @@ class ContactFormValidationFactory implements DataValidationFactoryInterface
     /**
      * The regex to check if string contains an url
      */
-    public const DOMAIN_NAME_REGEX = '/((https?:\/\/))/';
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    final public const DOMAIN_NAME_REGEX = '/((https?:\/\/))/';
 
     /**
      * @internal
      */
-    public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfigService
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->systemConfigService = $systemConfigService;
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly SystemConfigService $systemConfigService)
+    {
     }
 
     public function create(SalesChannelContext $context): DataValidationDefinition

@@ -15,7 +15,7 @@ class InvalidParentAssociationException extends ShopwareHttpException
     {
         parent::__construct(
             'Parent property for {{ definition }} expected to be an ManyToOneAssociationField got {{ fieldDefinition }}',
-            ['definition' => $definition->getEntityName(), 'fieldDefinition' => \get_class($parentField)]
+            ['definition' => $definition->getEntityName(), 'fieldDefinition' => $parentField::class]
         );
     }
 

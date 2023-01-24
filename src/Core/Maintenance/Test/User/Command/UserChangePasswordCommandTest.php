@@ -28,10 +28,7 @@ class UserChangePasswordCommandTest extends TestCase
      */
     private $userRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {

@@ -18,30 +18,21 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class DocumentController extends AbstractController
 {
-    private DocumentGenerator $documentGenerator;
-
-    private DocumentMerger $documentMerger;
-
     /**
      * @internal
      */
-    public function __construct(
-        DocumentGenerator $documentGenerator,
-        DocumentMerger $documentMerger
-    ) {
-        $this->documentGenerator = $documentGenerator;
-        $this->documentMerger = $documentMerger;
+    public function __construct(private readonly DocumentGenerator $documentGenerator, private readonly DocumentMerger $documentMerger)
+    {
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/document/{documentId}/{deepLinkCode}", name="api.action.download.document", methods={"GET"}, defaults={"_acl"={"document.viewer"}})
      */
+    #[Route(path: '/api/_action/document/{documentId}/{deepLinkCode}', name: 'api.action.download.document', methods: ['GET'], defaults: ['_acl' => ['document.viewer']])]
     public function downloadDocument(Request $request, string $documentId, string $deepLinkCode, Context $context): Response
     {
         $download = $request->query->getBoolean('download');
@@ -62,13 +53,8 @@ class DocumentController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route(
-     *     "/api/_action/order/{orderId}/{deepLinkCode}/document/{documentTypeName}/preview",
-     *     name="api.action.document.preview",
-     *     methods={"GET"},
-     *     defaults={"_acl"={"document.viewer"}}
-     * )
      */
+    #[Route(path: '/api/_action/order/{orderId}/{deepLinkCode}/document/{documentTypeName}/preview', name: 'api.action.document.preview', methods: ['GET'], defaults: ['_acl' => ['document.viewer']])]
     public function previewDocument(
         Request $request,
         string $orderId,
@@ -97,8 +83,8 @@ class DocumentController extends AbstractController
 
     /**
      * @Since("6.4.12.0")
-     * @Route("/api/_action/order/document/download", name="api.action.download.documents", methods={"POST"}, defaults={"_acl"={"document.viewer"}})
      */
+    #[Route(path: '/api/_action/order/document/download', name: 'api.action.download.documents', methods: ['POST'], defaults: ['_acl' => ['document.viewer']])]
     public function downloadDocuments(Request $request, Context $context): Response
     {
         $documentIds = $request->get('documentIds', []);

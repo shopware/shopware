@@ -14,44 +14,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class Processor
 {
-    private Validator $validator;
-
-    private AmountCalculator $amountCalculator;
-
-    private TransactionProcessor $transactionProcessor;
-
-    /**
-     * @var iterable<CartProcessorInterface>
-     */
-    private iterable $processors;
-
-    /**
-     * @var iterable<CartDataCollectorInterface>
-     */
-    private iterable $collectors;
-
-    private ScriptExecutor $executor;
-
     /**
      * @internal
      *
      * @param iterable<CartProcessorInterface> $processors
      * @param iterable<CartDataCollectorInterface> $collectors
      */
-    public function __construct(
-        Validator $validator,
-        AmountCalculator $amountCalculator,
-        TransactionProcessor $transactionProcessor,
-        iterable $processors,
-        iterable $collectors,
-        ScriptExecutor $executor
-    ) {
-        $this->validator = $validator;
-        $this->amountCalculator = $amountCalculator;
-        $this->transactionProcessor = $transactionProcessor;
-        $this->processors = $processors;
-        $this->collectors = $collectors;
-        $this->executor = $executor;
+    public function __construct(private readonly Validator $validator, private readonly AmountCalculator $amountCalculator, private readonly TransactionProcessor $transactionProcessor, private readonly iterable $processors, private readonly iterable $collectors, private readonly ScriptExecutor $executor)
+    {
     }
 
     public function process(Cart $original, SalesChannelContext $context, CartBehavior $behavior): Cart

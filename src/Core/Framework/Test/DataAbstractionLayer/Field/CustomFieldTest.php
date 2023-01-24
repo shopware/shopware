@@ -1130,7 +1130,7 @@ class CustomFieldTest extends TestCase
         $repo->create([$entity], Context::createDefaultContext());
 
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
-        $encoded = json_decode(json_encode($first), true);
+        $encoded = json_decode(json_encode($first, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals($dateTime->format(\DateTime::ATOM), $encoded['custom']['date']);
     }
 
@@ -1150,7 +1150,7 @@ class CustomFieldTest extends TestCase
         $repo->create([$entity], Context::createDefaultContext());
 
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
-        $encoded = json_decode(json_encode($first), true);
+        $encoded = json_decode(json_encode($first, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals($dateTime->format(\DateTime::ATOM), $encoded['custom']['json']['date']);
     }
 

@@ -37,7 +37,7 @@ class ScriptStoreApiRouteTest extends TestCase
         $this->browser->request('POST', '/store-api/script/simple-script');
         static::assertNotFalse($this->browser->getResponse()->getContent());
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
         $traces = $this->getScriptTraces();
@@ -58,7 +58,7 @@ class ScriptStoreApiRouteTest extends TestCase
         $this->browser->request('POST', '/store-api/script/simple/script');
         static::assertNotFalse($this->browser->getResponse()->getContent());
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
         $traces = $this->getScriptTraces();
@@ -101,7 +101,7 @@ class ScriptStoreApiRouteTest extends TestCase
 
         $this->browser->request('POST', '/store-api/script/repository-test', $criteria);
         static::assertNotFalse($this->browser->getResponse()->getContent());
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
 
@@ -138,7 +138,7 @@ class ScriptStoreApiRouteTest extends TestCase
 
         $this->browser->request('POST', '/store-api/script/insufficient-permissions');
         static::assertNotFalse($this->browser->getResponse()->getContent());
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_FORBIDDEN, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
@@ -177,7 +177,7 @@ class ScriptStoreApiRouteTest extends TestCase
 
         $this->browser->request('GET', '/store-api/script/cache-script?query-param=1');
         static::assertNotFalse($this->browser->getResponse()->getContent());
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
@@ -195,7 +195,7 @@ class ScriptStoreApiRouteTest extends TestCase
 
         $this->browser->request('GET', '/store-api/script/cache-script?query-param=1');
         static::assertNotFalse($this->browser->getResponse()->getContent());
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
@@ -213,7 +213,7 @@ class ScriptStoreApiRouteTest extends TestCase
 
         $this->browser->request('GET', '/store-api/script/cache-script?query-param=2');
         static::assertNotFalse($this->browser->getResponse()->getContent());
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
@@ -234,7 +234,7 @@ class ScriptStoreApiRouteTest extends TestCase
 
         $this->browser->request('GET', '/store-api/script/cache-script');
         static::assertNotFalse($this->browser->getResponse()->getContent());
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
@@ -250,7 +250,7 @@ class ScriptStoreApiRouteTest extends TestCase
 
         $this->browser->request('GET', '/store-api/script/cache-script');
         static::assertNotFalse($this->browser->getResponse()->getContent());
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
@@ -270,7 +270,7 @@ class ScriptStoreApiRouteTest extends TestCase
 
         $this->browser->request('GET', '/store-api/script/cache-script');
         static::assertNotFalse($this->browser->getResponse()->getContent());
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
@@ -291,7 +291,7 @@ class ScriptStoreApiRouteTest extends TestCase
 
         $this->browser->request('GET', '/store-api/script/cache-script');
         static::assertNotFalse($this->browser->getResponse()->getContent());
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
@@ -307,7 +307,7 @@ class ScriptStoreApiRouteTest extends TestCase
 
         $this->browser->request('GET', '/store-api/script/cache-script');
         static::assertNotFalse($this->browser->getResponse()->getContent());
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
@@ -326,7 +326,7 @@ class ScriptStoreApiRouteTest extends TestCase
 
         $this->browser->request('GET', '/store-api/script/cache-script');
         static::assertNotFalse($this->browser->getResponse()->getContent());
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 

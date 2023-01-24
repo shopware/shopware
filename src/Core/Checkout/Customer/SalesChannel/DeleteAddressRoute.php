@@ -14,9 +14,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class DeleteAddressRoute extends AbstractDeleteAddressRoute
 {
     use CustomerAddressValidationTrait;
@@ -40,9 +39,9 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
     }
 
     /**
-    * @Since("6.3.2.0")
-    * @Route(path="/store-api/account/address/{addressId}", name="store-api.account.address.delete", methods={"DELETE"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
-    */
+     * @Since("6.3.2.0")
+     */
+    #[Route(path: '/store-api/account/address/{addressId}', name: 'store-api.account.address.delete', methods: ['DELETE'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function delete(string $addressId, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {
         $this->validateAddress($addressId, $context, $customer);

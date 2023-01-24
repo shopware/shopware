@@ -17,27 +17,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class PaymentMethodIndexer extends EntityIndexer
 {
-    private IteratorFactory $iteratorFactory;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private EntityRepository $paymentMethodRepository;
-
-    private PaymentDistinguishableNameGenerator $distinguishableNameGenerator;
-
     /**
      * @internal
      */
-    public function __construct(
-        IteratorFactory $iteratorFactory,
-        EventDispatcherInterface $eventDispatcher,
-        EntityRepository $paymentMethodRepository,
-        PaymentDistinguishableNameGenerator $distinguishableNameGenerator
-    ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->distinguishableNameGenerator = $distinguishableNameGenerator;
+    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityRepository $paymentMethodRepository, private readonly PaymentDistinguishableNameGenerator $distinguishableNameGenerator)
+    {
     }
 
     public function getName(): string

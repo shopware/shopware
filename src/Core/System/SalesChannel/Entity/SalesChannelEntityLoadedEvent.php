@@ -13,7 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class SalesChannelEntityLoadedEvent extends EntityLoadedEvent implements ShopwareSalesChannelEvent
 {
-    private SalesChannelContext $salesChannelContext;
+    private readonly SalesChannelContext $salesChannelContext;
 
     /**
      * @param Entity[] $entities

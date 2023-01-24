@@ -21,8 +21,8 @@ class SalesChannelRepositoryFacadeHookFactory extends HookServiceFactory
      * @internal
      */
     public function __construct(
-        private SalesChannelDefinitionInstanceRegistry $registry,
-        private RequestCriteriaBuilder $criteriaBuilder
+        private readonly SalesChannelDefinitionInstanceRegistry $registry,
+        private readonly RequestCriteriaBuilder $criteriaBuilder
     ) {
     }
 

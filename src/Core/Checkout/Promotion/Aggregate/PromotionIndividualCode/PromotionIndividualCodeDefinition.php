@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class PromotionIndividualCodeDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'promotion_individual_code';
+    final public const ENTITY_NAME = 'promotion_individual_code';
 
     public function getEntityName(): string
     {

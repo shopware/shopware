@@ -17,7 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class LandingPageSalesChannelDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'landing_page_sales_channel';
+    final public const ENTITY_NAME = 'landing_page_sales_channel';
 
     public function getEntityName(): string
     {

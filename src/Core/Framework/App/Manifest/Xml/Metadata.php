@@ -11,13 +11,13 @@ use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
  */
 class Metadata extends XmlElement
 {
-    public const TRANSLATABLE_FIELDS = [
+    final public const TRANSLATABLE_FIELDS = [
         'label',
         'description',
         'privacyPolicyExtensions',
     ];
 
-    public const REQUIRED_FIELDS = [
+    final public const REQUIRED_FIELDS = [
         'label',
         'name',
         'author',
@@ -111,6 +111,7 @@ class Metadata extends XmlElement
 
     public function validateTranslations(): ?MissingTranslationError
     {
+        $missingTranslations = [];
         // used locales are valid, see Manifest::createFromXmlFile()
         $usedLocales = array_keys(array_merge($this->getDescription(), $this->getPrivacyPolicyExtensions()));
 

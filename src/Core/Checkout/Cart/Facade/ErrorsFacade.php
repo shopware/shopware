@@ -21,11 +21,8 @@ use Shopware\Core\Checkout\Cart\Error\GenericCartError;
  */
 class ErrorsFacade implements \IteratorAggregate
 {
-    private ErrorCollection $collection;
-
-    public function __construct(ErrorCollection $collection)
+    public function __construct(private readonly ErrorCollection $collection)
     {
-        $this->collection = $collection;
     }
 
     /**

@@ -24,7 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class RuleConditionDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'rule_condition';
+    final public const ENTITY_NAME = 'rule_condition';
 
     public function getEntityName(): string
     {

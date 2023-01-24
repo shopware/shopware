@@ -24,7 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class MediaFolderConfigurationDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'media_folder_configuration';
+    final public const ENTITY_NAME = 'media_folder_configuration';
 
     public function getEntityName(): string
     {

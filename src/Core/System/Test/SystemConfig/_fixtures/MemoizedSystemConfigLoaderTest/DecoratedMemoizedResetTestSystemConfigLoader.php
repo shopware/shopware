@@ -9,11 +9,8 @@ use Shopware\Core\System\SystemConfig\AbstractSystemConfigLoader;
  */
 class DecoratedMemoizedResetTestSystemConfigLoader extends AbstractSystemConfigLoader
 {
-    private AbstractSystemConfigLoader $decorated;
-
-    public function __construct(AbstractSystemConfigLoader $decorated)
+    public function __construct(private readonly AbstractSystemConfigLoader $decorated)
     {
-        $this->decorated = $decorated;
     }
 
     public function getDecorated(): AbstractSystemConfigLoader

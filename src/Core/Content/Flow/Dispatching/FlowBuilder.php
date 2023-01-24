@@ -76,7 +76,7 @@ class FlowBuilder
      */
     private function createNestedAction(array $currentSequence, array $siblingSequences, ArrayStruct $flagBag): Sequence
     {
-        $config = $currentSequence['config'] ? json_decode($currentSequence['config'], true) : [];
+        $config = $currentSequence['config'] ? json_decode((string) $currentSequence['config'], true, 512, \JSON_THROW_ON_ERROR) : [];
 
         $children = $currentSequence['children'];
         if (!empty($children)) {
@@ -125,13 +125,9 @@ class FlowBuilder
             return Sequence::createIF($currentSequence['rule_id'], $currentSequence['flow_id'], $currentSequence['sequence_id'], null, null);
         }
 
-        $trueCases = array_filter($sequenceChildren, function (array $sequence) {
-            return (bool) $sequence['true_case'] === true;
-        });
+        $trueCases = array_filter($sequenceChildren, fn (array $sequence) => (bool) $sequence['true_case'] === true);
 
-        $falseCases = array_filter($sequenceChildren, function (array $sequence) {
-            return (bool) $sequence['true_case'] === false;
-        });
+        $falseCases = array_filter($sequenceChildren, fn (array $sequence) => (bool) $sequence['true_case'] === false);
 
         $trueCaseSequence = null;
         if (!empty($trueCases)) {

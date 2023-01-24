@@ -31,8 +31,8 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator implements R
      * @internal
      */
     public function __construct(
-        private EntityRepository $unitRepository,
-        private QuantityPriceCalculator $calculator
+        private readonly EntityRepository $unitRepository,
+        private readonly QuantityPriceCalculator $calculator
     ) {
     }
 

@@ -14,11 +14,8 @@ class VerifyResponseSignatureMiddleware implements MiddlewareInterface
 {
     private const SHOPWARE_SIGNATURE_HEADER = 'X-Shopware-Signature';
 
-    private OpenSSLVerifier $openSslVerifier;
-
-    public function __construct(OpenSSLVerifier $openSslVerifier)
+    public function __construct(private readonly OpenSSLVerifier $openSslVerifier)
     {
-        $this->openSslVerifier = $openSslVerifier;
     }
 
     public function __invoke(ResponseInterface $response): ResponseInterface

@@ -5,20 +5,17 @@ namespace Shopware\Core\Framework\Api\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class ExpectationFailedException extends ShopwareHttpException
 {
     /**
-     * @var array<string>
+     * @param array<string> $fails
      */
-    private array $fails = [];
-
-    /**
-     * @param array<string> $failedExpectations
-     */
-    public function __construct(array $failedExpectations)
+    public function __construct(private readonly array $fails)
     {
         parent::__construct('API Expectations failed', []);
-        $this->fails = $failedExpectations;
     }
 
     /**

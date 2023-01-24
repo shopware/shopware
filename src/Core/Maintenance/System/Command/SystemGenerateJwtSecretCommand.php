@@ -21,15 +21,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class SystemGenerateJwtSecretCommand extends Command
 {
-    private string $projectDir;
-
-    private JwtCertificateGenerator $jwtCertificateGenerator;
-
-    public function __construct(string $projectDir, JwtCertificateGenerator $jwtCertificateGenerator)
+    public function __construct(private readonly string $projectDir, private readonly JwtCertificateGenerator $jwtCertificateGenerator)
     {
         parent::__construct();
-        $this->projectDir = $projectDir;
-        $this->jwtCertificateGenerator = $jwtCertificateGenerator;
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
@@ -86,7 +80,7 @@ class SystemGenerateJwtSecretCommand extends Command
 
         $this->jwtCertificateGenerator->generate($privateKeyPath, $publicKeyPath, $passphrase);
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     protected function configure(): void

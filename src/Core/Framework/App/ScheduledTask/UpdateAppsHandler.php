@@ -19,7 +19,7 @@ final class UpdateAppsHandler extends ScheduledTaskHandler
     /**
      * @internal
      */
-    public function __construct(EntityRepository $scheduledTaskRepository, private AbstractAppUpdater $appUpdater)
+    public function __construct(EntityRepository $scheduledTaskRepository, private readonly AbstractAppUpdater $appUpdater)
     {
         parent::__construct($scheduledTaskRepository);
     }

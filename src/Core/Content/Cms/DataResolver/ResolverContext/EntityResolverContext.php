@@ -12,22 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class EntityResolverContext extends ResolverContext
 {
-    /**
-     * @var Entity
-     */
-    private $entity;
-
-    /**
-     * @var EntityDefinition
-     */
-    private $definition;
-
-    public function __construct(SalesChannelContext $context, Request $request, EntityDefinition $definition, Entity $entity)
+    public function __construct(SalesChannelContext $context, Request $request, private readonly EntityDefinition $definition, private readonly Entity $entity)
     {
         parent::__construct($context, $request);
-
-        $this->entity = $entity;
-        $this->definition = $definition;
     }
 
     public function getEntity(): Entity

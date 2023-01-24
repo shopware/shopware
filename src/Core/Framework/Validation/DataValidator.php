@@ -13,16 +13,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class DataValidator
 {
     /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    /**
      * @internal
      */
-    public function __construct(ValidatorInterface $validator)
+    public function __construct(private readonly ValidatorInterface $validator)
     {
-        $this->validator = $validator;
     }
 
     public function getViolations(array $data, DataValidationDefinition $definition, string $path = ''): ConstraintViolationList

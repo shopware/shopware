@@ -22,22 +22,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class ResolveAppUrlChangeCommand extends Command
 {
-    /**
-     * @var Resolver
-     */
-    private $appUrlChangeResolver;
-
-    public function __construct(Resolver $appUrlChangeResolverStrategy)
+    public function __construct(private readonly Resolver $appUrlChangeResolver)
     {
         parent::__construct();
-
-        $this->appUrlChangeResolver = $appUrlChangeResolverStrategy;
     }
 
     protected function configure(): void
     {
-        $this->setDescription('Resolve changes in the app url and how the app system should handle it.')
-            ->addArgument('strategy', InputArgument::OPTIONAL, 'The strategy that should be applied');
+        $this->addArgument('strategy', InputArgument::OPTIONAL, 'The strategy that should be applied');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

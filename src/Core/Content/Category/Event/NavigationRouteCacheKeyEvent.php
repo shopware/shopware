@@ -12,21 +12,12 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class NavigationRouteCacheKeyEvent extends StoreApiRouteCacheKeyEvent
 {
-    protected string $active;
-
-    protected string $rootId;
-
-    protected int $depth;
-
     /**
      * @param array<mixed> $parts
      */
-    public function __construct(array $parts, string $active, string $rootId, int $depth, Request $request, SalesChannelContext $context, Criteria $criteria)
+    public function __construct(array $parts, protected string $active, protected string $rootId, protected int $depth, Request $request, SalesChannelContext $context, Criteria $criteria)
     {
         parent::__construct($parts, $request, $context, $criteria);
-        $this->active = $active;
-        $this->rootId = $rootId;
-        $this->depth = $depth;
     }
 
     public function getActive(): string

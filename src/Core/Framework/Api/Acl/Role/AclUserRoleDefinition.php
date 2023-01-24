@@ -17,7 +17,7 @@ use Shopware\Core\System\User\UserDefinition;
  */
 class AclUserRoleDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'acl_user_role';
+    final public const ENTITY_NAME = 'acl_user_role';
 
     public function getEntityName(): string
     {

@@ -17,7 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class CustomerGroupRegistrationSalesChannelDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'customer_group_registration_sales_channels';
+    final public const ENTITY_NAME = 'customer_group_registration_sales_channels';
 
     public function getEntityName(): string
     {

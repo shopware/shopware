@@ -14,35 +14,22 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package sales-channel
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class MailActionController extends AbstractController
 {
-    private AbstractMailService $mailService;
-
-    private StringTemplateRenderer $templateRenderer;
-
-    private AttachmentLoader $attachmentLoader;
-
     /**
      * @internal
      */
-    public function __construct(
-        AbstractMailService $mailService,
-        StringTemplateRenderer $templateRenderer,
-        AttachmentLoader $attachmentLoader
-    ) {
-        $this->mailService = $mailService;
-        $this->templateRenderer = $templateRenderer;
-        $this->attachmentLoader = $attachmentLoader;
+    public function __construct(private readonly AbstractMailService $mailService, private readonly StringTemplateRenderer $templateRenderer, private readonly AttachmentLoader $attachmentLoader)
+    {
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/mail-template/send", name="api.action.mail_template.send", methods={"POST"})
      */
+    #[Route(path: '/api/_action/mail-template/send', name: 'api.action.mail_template.send', methods: ['POST'])]
     public function send(RequestDataBag $post, Context $context): JsonResponse
     {
         $data = $post->all();
@@ -62,8 +49,8 @@ class MailActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/mail-template/validate", name="api.action.mail_template.validate", methods={"POST"})
      */
+    #[Route(path: '/api/_action/mail-template/validate', name: 'api.action.mail_template.validate', methods: ['POST'])]
     public function validate(RequestDataBag $post, Context $context): JsonResponse
     {
         $this->templateRenderer->initialize();
@@ -75,10 +62,11 @@ class MailActionController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/_action/mail-template/build", name="api.action.mail_template.build", methods={"POST"})
      */
+    #[Route(path: '/api/_action/mail-template/build', name: 'api.action.mail_template.build', methods: ['POST'])]
     public function build(RequestDataBag $post, Context $context): JsonResponse
     {
+        $contents = [];
         $data = $post->all();
         $templateData = $data['mailTemplateType']['templateData'];
 

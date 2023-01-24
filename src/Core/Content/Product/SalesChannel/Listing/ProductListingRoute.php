@@ -19,45 +19,16 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package inventory
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class ProductListingRoute extends AbstractProductListingRoute
 {
     /**
-     * @var ProductListingLoader
-     */
-    private $listingLoader;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var EntityRepository
-     */
-    private $categoryRepository;
-
-    /**
-     * @var ProductStreamBuilderInterface
-     */
-    private $productStreamBuilder;
-
-    /**
      * @internal
      */
-    public function __construct(
-        ProductListingLoader $listingLoader,
-        EventDispatcherInterface $eventDispatcher,
-        EntityRepository $categoryRepository,
-        ProductStreamBuilderInterface $productStreamBuilder
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->listingLoader = $listingLoader;
-        $this->categoryRepository = $categoryRepository;
-        $this->productStreamBuilder = $productStreamBuilder;
+    public function __construct(private readonly ProductListingLoader $listingLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityRepository $categoryRepository, private readonly ProductStreamBuilderInterface $productStreamBuilder)
+    {
     }
 
     public function getDecorated(): AbstractProductListingRoute
@@ -67,8 +38,8 @@ class ProductListingRoute extends AbstractProductListingRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/product-listing/{categoryId}", name="store-api.product.listing", methods={"POST"}, defaults={"_entity"="product"})
      */
+    #[Route(path: '/store-api/product-listing/{categoryId}', name: 'store-api.product.listing', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse
     {
         $criteria->addFilter(

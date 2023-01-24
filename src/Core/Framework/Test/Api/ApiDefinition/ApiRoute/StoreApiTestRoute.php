@@ -13,9 +13,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class StoreApiTestRoute extends AbstractStoreApiTestRoute
 {
     public function getDecorated(): AbstractStoreApiTestRoute
@@ -36,8 +35,8 @@ class StoreApiTestRoute extends AbstractStoreApiTestRoute
      *          description="Success"
      *     )
      * )
-     * @Route("/store-api/v{version}/testinternal", name="store-api.test.internal", methods={"GET", "POST"}, defaults={"_loginRequired"=true, "_entity"="test"})
      */
+    #[Route(path: '/store-api/v{version}/testinternal', name: 'store-api.test.internal', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_entity' => 'test'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): Response
     {
         return new Response();

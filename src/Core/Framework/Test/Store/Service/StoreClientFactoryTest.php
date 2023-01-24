@@ -23,7 +23,7 @@ class StoreClientFactoryTest extends TestCase
 
     private const STORE_URI_CONFIG_KEY = 'core.store.apiUri';
 
-    private ?string $originalStoreUri;
+    private ?string $originalStoreUri = null;
 
     /**
      * @before

@@ -9,12 +9,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
  */
 class EntityType implements EventDataType
 {
-    public const TYPE = 'entity';
+    final public const TYPE = 'entity';
 
     /**
      * @var class-string<EntityDefinition>
      */
-    private string $definitionClass;
+    private readonly string $definitionClass;
 
     /**
      * @param class-string<EntityDefinition>|EntityDefinition $definitionClass

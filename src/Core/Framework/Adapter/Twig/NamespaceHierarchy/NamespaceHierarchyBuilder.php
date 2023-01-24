@@ -14,16 +14,12 @@ use Shopware\Core\System\Annotation\Concept\ExtensionPattern\HandlerChain;
 class NamespaceHierarchyBuilder
 {
     /**
-     * @var TemplateNamespaceHierarchyBuilderInterface[]
-     */
-    private $namespaceHierarchyBuilders;
-
-    /**
      * @internal
+     *
+     * @param TemplateNamespaceHierarchyBuilderInterface[] $namespaceHierarchyBuilders
      */
-    public function __construct(iterable $namespaceHierarchyBuilders)
+    public function __construct(private readonly iterable $namespaceHierarchyBuilders)
     {
-        $this->namespaceHierarchyBuilders = $namespaceHierarchyBuilders;
     }
 
     public function buildHierarchy(): array

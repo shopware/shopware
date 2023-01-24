@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class SalesChannelCountryDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'sales_channel_country';
+    final public const ENTITY_NAME = 'sales_channel_country';
 
     public function getEntityName(): string
     {

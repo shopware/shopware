@@ -17,14 +17,8 @@ class SalesChannelContextPermissionsChangedEvent extends NestedEvent implements 
      */
     protected $permissions = [];
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    public function __construct(SalesChannelContext $context, array $permissions)
+    public function __construct(private readonly SalesChannelContext $salesChannelContext, array $permissions)
     {
-        $this->salesChannelContext = $context;
         $this->permissions = $permissions;
     }
 

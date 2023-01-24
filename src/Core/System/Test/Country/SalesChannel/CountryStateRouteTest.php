@@ -19,15 +19,9 @@ class CountryStateRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     protected function setUp(): void
     {
@@ -53,7 +47,7 @@ class CountryStateRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(16, $response['elements']);
         static::assertContains($this->ids->get('countryId'), array_column($response['elements'], 'countryId'));
@@ -73,7 +67,7 @@ class CountryStateRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(16, $response['elements']);
         static::assertArrayNotHasKey('id', $response['elements'][0]);
@@ -91,7 +85,7 @@ class CountryStateRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(2, $response['elements']);
     }

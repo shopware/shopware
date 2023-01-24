@@ -27,7 +27,7 @@ class RuleConfigControllerTest extends TestCase
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
-        $content = json_decode($response->getContent() ?: '', true);
+        $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         $customerGroupRuleName = (new CustomerGroupRule())->getName();
         static::assertArrayHasKey($customerGroupRuleName, $content);

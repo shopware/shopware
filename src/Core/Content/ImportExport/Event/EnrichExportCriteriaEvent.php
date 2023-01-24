@@ -11,20 +11,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class EnrichExportCriteriaEvent extends Event
 {
-    /**
-     * @var Criteria
-     */
-    private $criteria;
-
-    /**
-     * @var ImportExportLogEntity
-     */
-    private $logEntity;
-
-    public function __construct(Criteria $criteria, ImportExportLogEntity $logEntity)
+    public function __construct(private Criteria $criteria, private ImportExportLogEntity $logEntity)
     {
-        $this->criteria = $criteria;
-        $this->logEntity = $logEntity;
     }
 
     public function getCriteria(): Criteria

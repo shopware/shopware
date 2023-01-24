@@ -15,22 +15,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class ListAddressRoute extends AbstractListAddressRoute
 {
-    private EntityRepository $addressRepository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $addressRepository, EventDispatcherInterface $eventDispatcher)
+    public function __construct(private readonly EntityRepository $addressRepository, private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->addressRepository = $addressRepository;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractListAddressRoute
@@ -40,8 +33,8 @@ class ListAddressRoute extends AbstractListAddressRoute
 
     /**
      * @Since("6.3.2.0")
-     * @Route(path="/store-api/account/list-address", name="store-api.account.address.list.get", methods={"GET", "POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true, "_entity"="customer_address"})
      */
+    #[Route(path: '/store-api/account/list-address', name: 'store-api.account.address.list.get', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_entity' => 'customer_address'])]
     public function load(Criteria $criteria, SalesChannelContext $context, CustomerEntity $customer): ListAddressRouteResponse
     {
         $criteria

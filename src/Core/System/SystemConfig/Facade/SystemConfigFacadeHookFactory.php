@@ -16,17 +16,11 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  */
 class SystemConfigFacadeHookFactory extends HookServiceFactory
 {
-    private SystemConfigService $systemConfigService;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(SystemConfigService $systemConfigService, Connection $connection)
+    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly Connection $connection)
     {
-        $this->systemConfigService = $systemConfigService;
-        $this->connection = $connection;
     }
 
     public function getName(): string

@@ -17,34 +17,21 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package checkout
- *
- * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class OrderConverterController extends AbstractController
 {
-    private OrderConverter $orderConverter;
-
-    private AbstractCartPersister $cartPersister;
-
-    private EntityRepository $orderRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        OrderConverter $orderConverter,
-        AbstractCartPersister $cartPersister,
-        EntityRepository $orderRepository
-    ) {
-        $this->orderConverter = $orderConverter;
-        $this->cartPersister = $cartPersister;
-        $this->orderRepository = $orderRepository;
+    public function __construct(private readonly OrderConverter $orderConverter, private readonly AbstractCartPersister $cartPersister, private readonly EntityRepository $orderRepository)
+    {
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/order/{orderId}/convert-to-cart/", name="api.action.order.convert-to-cart", methods={"POST"})
      */
+    #[Route(path: '/api/_action/order/{orderId}/convert-to-cart/', name: 'api.action.order.convert-to-cart', methods: ['POST'])]
     public function convertToCart(string $orderId, Context $context): JsonResponse
     {
         $criteria = (new Criteria([$orderId]))

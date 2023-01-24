@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
  */
 class PromotionPersonaRuleDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'promotion_persona_rule';
+    final public const ENTITY_NAME = 'promotion_persona_rule';
 
     /**
      * This class is used as m:n relation between promotions and persona rules.

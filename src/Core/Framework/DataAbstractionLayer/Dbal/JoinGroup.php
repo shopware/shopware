@@ -16,9 +16,9 @@ class JoinGroup extends Filter
      * @param SingleFieldFilter[] $queries
      */
     public function __construct(
-        private array $queries,
-        private string $path,
-        private string $suffix,
+        private readonly array $queries,
+        private readonly string $path,
+        private readonly string $suffix,
         private string $operator
     ) {
     }

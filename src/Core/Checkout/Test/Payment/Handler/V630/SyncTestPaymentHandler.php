@@ -16,14 +16,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class SyncTestPaymentHandler implements SynchronousPaymentHandlerInterface
 {
-    /**
-     * @var OrderTransactionStateHandler
-     */
-    private $transactionStateHandler;
-
-    public function __construct(OrderTransactionStateHandler $transactionStateHandler)
+    public function __construct(private readonly OrderTransactionStateHandler $transactionStateHandler)
     {
-        $this->transactionStateHandler = $transactionStateHandler;
     }
 
     public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void

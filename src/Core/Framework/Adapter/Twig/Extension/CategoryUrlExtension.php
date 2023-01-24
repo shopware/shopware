@@ -16,29 +16,17 @@ use Twig\TwigFunction;
 class CategoryUrlExtension extends AbstractExtension
 {
     /**
-     * @var AbstractExtension
-     */
-    private $routingExtension;
-
-    /**
-     * @var AbstractCategoryUrlGenerator
-     */
-    private $categoryUrlGenerator;
-
-    /**
      * @internal
      */
-    public function __construct(RoutingExtension $extension, AbstractCategoryUrlGenerator $categoryUrlGenerator)
+    public function __construct(private readonly RoutingExtension $routingExtension, private readonly AbstractCategoryUrlGenerator $categoryUrlGenerator)
     {
-        $this->routingExtension = $extension;
-        $this->categoryUrlGenerator = $categoryUrlGenerator;
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('category_url', [$this, 'getCategoryUrl'], ['needs_context' => true, 'is_safe_callback' => [$this->routingExtension, 'isUrlGenerationSafe']]),
-            new TwigFunction('category_linknewtab', [$this, 'isLinkNewTab']),
+            new TwigFunction('category_url', $this->getCategoryUrl(...), ['needs_context' => true, 'is_safe_callback' => $this->routingExtension->isUrlGenerationSafe(...)]),
+            new TwigFunction('category_linknewtab', $this->isLinkNewTab(...)),
         ];
     }
 

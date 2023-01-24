@@ -40,7 +40,7 @@ class EntityCacheKeyGenerator
             $context->getVersionId(),
             $context->getCurrencyId(),
             $ruleIds,
-        ]));
+        ], \JSON_THROW_ON_ERROR));
     }
 
     public function getCriteriaHash(Criteria $criteria): string
@@ -58,6 +58,6 @@ class EntityCacheKeyGenerator
             $criteria->getGroupFields(),
             $criteria->getAggregations(),
             $criteria->getAssociations(),
-        ]));
+        ], \JSON_THROW_ON_ERROR));
     }
 }

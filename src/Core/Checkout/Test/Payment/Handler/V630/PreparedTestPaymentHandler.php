@@ -19,7 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class PreparedTestPaymentHandler implements PreparedPaymentHandlerInterface
 {
-    public const TEST_STRUCT_CONTENT = ['testValue'];
+    final public const TEST_STRUCT_CONTENT = ['testValue'];
 
     public static ?Struct $preOrderPaymentStruct = null;
 

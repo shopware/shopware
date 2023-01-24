@@ -17,19 +17,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class AddOrderAffiliateAndCampaignCodeAction extends FlowAction implements DelayableAction
 {
-    private Connection $connection;
-
-    private EntityRepository $orderRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        EntityRepository $orderRepository
-    ) {
-        $this->connection = $connection;
-        $this->orderRepository = $orderRepository;
+    public function __construct(private readonly Connection $connection, private readonly EntityRepository $orderRepository)
+    {
     }
 
     public static function getName(): string

@@ -15,13 +15,10 @@ use Shopware\Core\Framework\Context;
 class ManifestValidator
 {
     /**
-     * @var iterable<AbstractManifestValidator>
+     * @param AbstractManifestValidator[] $validators
      */
-    private $validators;
-
-    public function __construct(iterable $validators)
+    public function __construct(private readonly iterable $validators)
     {
-        $this->validators = $validators;
     }
 
     public function validate(Manifest $manifest, Context $context): void

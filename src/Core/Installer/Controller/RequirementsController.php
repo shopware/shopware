@@ -17,29 +17,20 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class RequirementsController extends InstallerController
 {
-    /**
-     * @var iterable|RequirementsValidatorInterface[]
-     */
-    private iterable $validators;
-
-    private JwtCertificateGenerator $jwtCertificateGenerator;
-
-    private string $jwtDir;
+    private readonly string $jwtDir;
 
     /**
      * @param iterable|RequirementsValidatorInterface[] $validators
      */
-    public function __construct(iterable $validators, JwtCertificateGenerator $jwtCertificateGenerator, string $projectDir)
+    public function __construct(private readonly iterable $validators, private readonly JwtCertificateGenerator $jwtCertificateGenerator, string $projectDir)
     {
-        $this->validators = $validators;
-        $this->jwtCertificateGenerator = $jwtCertificateGenerator;
         $this->jwtDir = $projectDir . '/config/jwt';
     }
 
     /**
      * @Since("6.4.15.0")
-     * @Route("/installer/requirements", name="installer.requirements", methods={"GET", "POST"})
      */
+    #[Route(path: '/installer/requirements', name: 'installer.requirements', methods: ['GET', 'POST'])]
     public function requirements(Request $request): Response
     {
         $checks = new RequirementsCheckCollection();

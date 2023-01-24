@@ -57,7 +57,7 @@ class TestKernel extends Kernel
 {
     public function __construct()
     {
-        $urlParams = parse_url($_ENV['DATABASE_URL']);
+        $urlParams = parse_url((string) $_ENV['DATABASE_URL']);
         if ($urlParams === false || !\array_key_exists('user', $urlParams) || !\array_key_exists('pass', $urlParams)) {
             throw new Exception('Could not parse DATABASE_URL');
         }

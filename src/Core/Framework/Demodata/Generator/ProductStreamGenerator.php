@@ -20,7 +20,7 @@ class ProductStreamGenerator implements DemodataGeneratorInterface
     /**
      * @internal
      */
-    public function __construct(private EntityWriterInterface $writer, private ProductStreamDefinition $productStreamDefinition)
+    public function __construct(private readonly EntityWriterInterface $writer, private readonly ProductStreamDefinition $productStreamDefinition)
     {
     }
 

@@ -36,7 +36,7 @@ class Migration1590408550AclResources extends MigrationStep
             $connection->executeStatement(
                 'UPDATE `acl_role` SET `privileges` = :privileges WHERE id = :id',
                 [
-                    'privileges' => json_encode($list),
+                    'privileges' => json_encode($list, \JSON_THROW_ON_ERROR),
                     'id' => Uuid::fromHexToBytes($id),
                 ]
             );
@@ -69,7 +69,7 @@ class Migration1590408550AclResources extends MigrationStep
     {
         try {
             $connection->fetchOne('SELECT 1 FROM ' . $table . ' LIMIT 1');
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
 

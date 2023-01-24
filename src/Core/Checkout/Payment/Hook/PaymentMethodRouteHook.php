@@ -20,7 +20,7 @@ class PaymentMethodRouteHook extends StoreApiRequestHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'payment-method-route-request';
+    final public const HOOK_NAME = 'payment-method-route-request';
 
     /**
      * @internal

@@ -13,12 +13,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CrossSellingRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
-    protected string $productId;
-
-    public function __construct(string $productId, array $tags, Request $request, StoreApiResponse $response, SalesChannelContext $context, ?Criteria $criteria)
+    public function __construct(protected string $productId, array $tags, Request $request, StoreApiResponse $response, SalesChannelContext $context, ?Criteria $criteria)
     {
         parent::__construct($tags, $request, $response, $context, $criteria);
-        $this->productId = $productId;
     }
 
     public function getProductId(): string

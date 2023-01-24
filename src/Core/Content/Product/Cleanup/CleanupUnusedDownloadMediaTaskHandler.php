@@ -11,18 +11,16 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 
 /**
  * @internal
+ *
+ * @package inventory
  */
 final class CleanupUnusedDownloadMediaTaskHandler extends ScheduledTaskHandler
 {
-    private DeleteNotUsedMediaService $deleteMediaService;
-
     public function __construct(
         EntityRepository $repository,
-        DeleteNotUsedMediaService $deleteMediaService
+        private readonly DeleteNotUsedMediaService $deleteMediaService
     ) {
         parent::__construct($repository);
-
-        $this->deleteMediaService = $deleteMediaService;
     }
 
     /**

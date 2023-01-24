@@ -14,19 +14,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class FakeTakeAllRuleMatcher implements LineItemGroupRuleMatcherInterface
 {
-    /**
-     * @var FakeSequenceSupervisor
-     */
-    private $sequenceSupervisor;
+    private int $sequenceCount = 0;
 
-    /**
-     * @var int
-     */
-    private $sequenceCount;
-
-    public function __construct(FakeSequenceSupervisor $sequenceSupervisor)
+    public function __construct(private readonly FakeSequenceSupervisor $sequenceSupervisor)
     {
-        $this->sequenceSupervisor = $sequenceSupervisor;
     }
 
     public function getSequenceCount(): int

@@ -23,10 +23,10 @@ class RulePayloadSubscriber implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        private RulePayloadUpdater $updater,
-        private ScriptTraces $traces,
-        private string $cacheDir,
-        private bool $debug
+        private readonly RulePayloadUpdater $updater,
+        private readonly ScriptTraces $traces,
+        private readonly string $cacheDir,
+        private readonly bool $debug
     ) {
     }
 

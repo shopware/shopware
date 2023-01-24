@@ -31,10 +31,10 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
      * @internal
      */
     public function __construct(
-        private RequestContextResolverInterface $decorated,
-        private SalesChannelContextServiceInterface $contextService,
-        private EventDispatcherInterface $eventDispatcher,
-        private RouteScopeRegistry $routeScopeRegistry
+        private readonly RequestContextResolverInterface $decorated,
+        private readonly SalesChannelContextServiceInterface $contextService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly RouteScopeRegistry $routeScopeRegistry
     ) {
     }
 

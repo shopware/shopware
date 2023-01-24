@@ -25,19 +25,11 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
 {
     use RouteScopeCheckTrait;
 
-    private Connection $connection;
-
-    private RouteScopeRegistry $routeScopeRegistry;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        RouteScopeRegistry $routeScopeRegistry
-    ) {
-        $this->connection = $connection;
-        $this->routeScopeRegistry = $routeScopeRegistry;
+    public function __construct(private readonly Connection $connection, private readonly RouteScopeRegistry $routeScopeRegistry)
+    {
     }
 
     public static function getSubscribedEvents(): array

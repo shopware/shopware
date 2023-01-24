@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -15,10 +16,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package content
  */
+#[AsCommand('cms:page:create')]
 class CreatePageCommand extends Command
 {
-    protected static $defaultName = 'cms:page:create';
-
     /**
      * @var array<string>
      */
@@ -35,10 +35,10 @@ class CreatePageCommand extends Command
     private array $media;
 
     public function __construct(
-        private EntityRepository $cmsPageRepository,
-        private EntityRepository $productRepository,
-        private EntityRepository $categoryRepository,
-        private EntityRepository $mediaRepository
+        private readonly EntityRepository $cmsPageRepository,
+        private readonly EntityRepository $productRepository,
+        private readonly EntityRepository $categoryRepository,
+        private readonly EntityRepository $mediaRepository
     ) {
         parent::__construct();
     }
@@ -110,9 +110,7 @@ class CreatePageCommand extends Command
             return;
         }
 
-        $keys = array_map(function ($id) {
-            return ['id' => $id];
-        }, $pages->getIds());
+        $keys = array_map(fn ($id) => ['id' => $id], $pages->getIds());
 
         $this->cmsPageRepository->delete($keys, $context);
     }

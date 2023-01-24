@@ -15,21 +15,14 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CampaignCodeRule extends Rule
 {
-    public const RULE_NAME = 'customerCampaignCode';
-
-    protected string $operator;
-
-    protected ?string $campaignCode = null;
+    final public const RULE_NAME = 'customerCampaignCode';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $campaignCode = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?string $campaignCode = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->campaignCode = $campaignCode;
     }
 
     public function match(RuleScope $scope): bool

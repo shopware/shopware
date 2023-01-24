@@ -25,27 +25,17 @@ class CmsSlotsDataResolver
     /**
      * @var CmsElementResolverInterface[]
      */
-    private $resolvers;
+    private ?array $resolvers = null;
 
-    /**
-     * @var array
-     */
-    private $repositories;
-
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
+    private ?array $repositories = null;
 
     /**
      * @internal
      *
      * @param CmsElementResolverInterface[] $resolvers
      */
-    public function __construct(iterable $resolvers, array $repositories, DefinitionInstanceRegistry $definitionRegistry)
+    public function __construct(iterable $resolvers, array $repositories, private readonly DefinitionInstanceRegistry $definitionRegistry)
     {
-        $this->definitionRegistry = $definitionRegistry;
-
         foreach ($repositories as $entityName => $repository) {
             $this->repositories[$entityName] = $repository;
         }
@@ -313,9 +303,7 @@ class CmsSlotsDataResolver
                 }
 
                 $ids = $criteria->getIds();
-                $filtered = $entities[$definition]->filter(function (Entity $entity) use ($ids) {
-                    return \in_array($entity->getUniqueIdentifier(), $ids, true);
-                });
+                $filtered = $entities[$definition]->filter(fn (Entity $entity) => \in_array($entity->getUniqueIdentifier(), $ids, true));
 
                 $result->add($key, $filtered);
             }

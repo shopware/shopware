@@ -19,11 +19,8 @@ use Shopware\Core\System\Locale\LocaleEntity;
  */
 class ActionButtonLoader
 {
-    private EntityRepository $actionButtonRepository;
-
-    public function __construct(EntityRepository $actionButtonRepository)
+    public function __construct(private readonly EntityRepository $actionButtonRepository)
     {
-        $this->actionButtonRepository = $actionButtonRepository;
     }
 
     /**

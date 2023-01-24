@@ -27,7 +27,7 @@ class PromotionEntity extends Entity
     use EntityIdTrait;
     use EntityCustomFieldsTrait;
 
-    public const CODE_TYPE_NO_CODE = 'no_code';
+    final public const CODE_TYPE_NO_CODE = 'no_code';
 
     /**
      * @var string|null

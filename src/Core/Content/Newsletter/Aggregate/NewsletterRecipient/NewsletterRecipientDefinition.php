@@ -24,7 +24,7 @@ use Shopware\Core\System\Tag\TagDefinition;
  */
 class NewsletterRecipientDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'newsletter_recipient';
+    final public const ENTITY_NAME = 'newsletter_recipient';
 
     public function getEntityName(): string
     {

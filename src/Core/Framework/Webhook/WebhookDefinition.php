@@ -21,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class WebhookDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'webhook';
+    final public const ENTITY_NAME = 'webhook';
 
     public function getEntityName(): string
     {

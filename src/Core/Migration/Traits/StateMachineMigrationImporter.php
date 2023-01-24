@@ -18,11 +18,8 @@ class StateMachineMigrationImporter
 {
     use ImportTranslationsTrait;
 
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function importStateMachine(StateMachineMigration $stateMachineMigration): StateMachineMigration

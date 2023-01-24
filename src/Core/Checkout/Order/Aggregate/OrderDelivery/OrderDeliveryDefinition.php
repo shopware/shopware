@@ -32,7 +32,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
  */
 class OrderDeliveryDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'order_delivery';
+    final public const ENTITY_NAME = 'order_delivery';
 
     public function getEntityName(): string
     {

@@ -16,23 +16,11 @@ use Shopware\Core\PlatformRequest;
  */
 class BearerTokenValidator implements AuthorizationValidatorInterface
 {
-    private Connection $connection;
-
-    private AuthorizationValidatorInterface $decorated;
-
-    private Configuration $configuration;
-
     /**
      * @internal
      */
-    public function __construct(
-        AuthorizationValidatorInterface $decorated,
-        Connection $connection,
-        Configuration $configuration
-    ) {
-        $this->decorated = $decorated;
-        $this->connection = $connection;
-        $this->configuration = $configuration;
+    public function __construct(private readonly AuthorizationValidatorInterface $decorated, private readonly Connection $connection, private readonly Configuration $configuration)
+    {
     }
 
     /**
@@ -77,7 +65,7 @@ class BearerTokenValidator implements AuthorizationValidatorInterface
             return;
         }
 
-        $lastUpdatedPasswordAt = strtotime($lastUpdatedPasswordAt);
+        $lastUpdatedPasswordAt = strtotime((string) $lastUpdatedPasswordAt);
 
         if ($tokenIssuedAt->getTimestamp() <= $lastUpdatedPasswordAt) {
             throw OAuthServerException::accessDenied('Access token is expired');

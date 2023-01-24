@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
  */
 class Feature
 {
-    public const ALL_MAJOR = 'major';
+    final public const ALL_MAJOR = 'major';
 
     /**
      * @var array<bool>

@@ -15,9 +15,7 @@ class SalesChannelTypeCollection extends EntityCollection
     public function getSalesChannels(): SalesChannelCollection
     {
         return new SalesChannelCollection(
-            $this->fmap(function (SalesChannelTypeEntity $salesChannel) {
-                return $salesChannel->getSalesChannels();
-            })
+            $this->fmap(fn (SalesChannelTypeEntity $salesChannel) => $salesChannel->getSalesChannels())
         );
     }
 

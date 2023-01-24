@@ -9,29 +9,22 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package system-settings
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class ScheduledTaskController extends AbstractController
 {
     /**
-     * @var TaskScheduler
-     */
-    private $taskScheduler;
-
-    /**
      * @internal
      */
-    public function __construct(TaskScheduler $taskScheduler)
+    public function __construct(private readonly TaskScheduler $taskScheduler)
     {
-        $this->taskScheduler = $taskScheduler;
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/scheduled-task/run", name="api.action.scheduled-task.run", methods={"POST"})
      */
+    #[Route(path: '/api/_action/scheduled-task/run', name: 'api.action.scheduled-task.run', methods: ['POST'])]
     public function runScheduledTasks(): JsonResponse
     {
         $this->taskScheduler->queueScheduledTasks();
@@ -41,8 +34,8 @@ class ScheduledTaskController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/scheduled-task/min-run-interval", name="api.action.scheduled-task.min-run-interval", methods={"GET"})
      */
+    #[Route(path: '/api/_action/scheduled-task/min-run-interval', name: 'api.action.scheduled-task.min-run-interval', methods: ['GET'])]
     public function getMinRunInterval(): JsonResponse
     {
         return $this->json(['minRunInterval' => $this->taskScheduler->getMinRunInterval()]);

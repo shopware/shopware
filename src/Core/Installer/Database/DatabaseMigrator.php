@@ -12,17 +12,8 @@ use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
  */
 class DatabaseMigrator
 {
-    private SetupDatabaseAdapter $adapter;
-
-    private MigrationCollectionFactory $migrationFactory;
-
-    private string $version;
-
-    public function __construct(SetupDatabaseAdapter $adapter, MigrationCollectionFactory $migrationFactory, string $version)
+    public function __construct(private readonly SetupDatabaseAdapter $adapter, private readonly MigrationCollectionFactory $migrationFactory, private readonly string $version)
     {
-        $this->adapter = $adapter;
-        $this->migrationFactory = $migrationFactory;
-        $this->version = $version;
     }
 
     /**

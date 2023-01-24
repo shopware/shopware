@@ -38,7 +38,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
     public function __construct(
         DefinitionInstanceRegistry $compositeHandler,
         ValidatorInterface $validator,
-        private RuleConditionRegistry $ruleConditionRegistry
+        private readonly RuleConditionRegistry $ruleConditionRegistry
     ) {
         parent::__construct($validator, $compositeHandler);
     }
@@ -49,7 +49,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true);
+        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($value !== null) {
             if (!\array_key_exists('type', $value)) {

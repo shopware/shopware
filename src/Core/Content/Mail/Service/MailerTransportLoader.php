@@ -19,31 +19,11 @@ use Symfony\Component\Mailer\Transport\Transports;
  */
 class MailerTransportLoader
 {
-    private Transport $envBasedTransport;
-
-    private SystemConfigService $configService;
-
-    private MailAttachmentsBuilder $attachmentsBuilder;
-
-    private FilesystemOperator $filesystem;
-
-    private EntityRepository $documentRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        Transport $envBasedTransport,
-        SystemConfigService $configService,
-        MailAttachmentsBuilder $attachmentsBuilder,
-        FilesystemOperator $filesystem,
-        EntityRepository $documentRepository
-    ) {
-        $this->envBasedTransport = $envBasedTransport;
-        $this->configService = $configService;
-        $this->attachmentsBuilder = $attachmentsBuilder;
-        $this->filesystem = $filesystem;
-        $this->documentRepository = $documentRepository;
+    public function __construct(private readonly Transport $envBasedTransport, private readonly SystemConfigService $configService, private readonly MailAttachmentsBuilder $attachmentsBuilder, private readonly FilesystemOperator $filesystem, private readonly EntityRepository $documentRepository)
+    {
     }
 
     /**
@@ -71,7 +51,7 @@ class MailerTransportLoader
             if ($transportConfig === '') {
                 return $this->createTransportUsingDSN($dsn);
             }
-        } catch (DriverException $e) {
+        } catch (DriverException) {
             // We don't have a database connection right now
             return $this->createTransportUsingDSN($dsn);
         }

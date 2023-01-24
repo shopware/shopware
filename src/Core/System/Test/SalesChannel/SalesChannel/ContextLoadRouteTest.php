@@ -19,15 +19,9 @@ class ContextLoadRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     protected function setUp(): void
     {
@@ -48,7 +42,7 @@ class ContextLoadRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('salesChannel', $response);

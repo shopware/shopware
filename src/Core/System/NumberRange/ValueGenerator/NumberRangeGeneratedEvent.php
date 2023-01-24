@@ -10,40 +10,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class NumberRangeGeneratedEvent extends Event
 {
-    public const NAME = 'number_range.generated';
+    final public const NAME = 'number_range.generated';
 
-    /**
-     * @var string
-     */
-    private $generatedValue;
-
-    /**
-     * @var string
-     */
-    private $type;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var string|null
-     */
-    private $salesChannelId;
-
-    /**
-     * @var bool
-     */
-    private $preview;
-
-    public function __construct(string $generatedValue, string $type, Context $context, ?string $salesChannelId, bool $preview = false)
+    public function __construct(private string $generatedValue, private readonly string $type, private readonly Context $context, private readonly ?string $salesChannelId, private readonly bool $preview = false)
     {
-        $this->generatedValue = $generatedValue;
-        $this->type = $type;
-        $this->context = $context;
-        $this->salesChannelId = $salesChannelId;
-        $this->preview = $preview;
     }
 
     public function getGeneratedValue(): string

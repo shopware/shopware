@@ -11,14 +11,14 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
- * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class MediaFileFetchRedirectTestController extends AbstractController
 {
     /**
      * @Since("6.3.4.1")
-     * @Route("/api/_action/redirect-to-echo", name="api.action.test.redirect-to-echo", defaults={"auth_required"=false}, methods={"GET"})
      */
+    #[Route(path: '/api/_action/redirect-to-echo', name: 'api.action.test.redirect-to-echo', defaults: ['auth_required' => false], methods: ['GET'])]
     public function redirectAction(Request $request): RedirectResponse
     {
         $parameters = $request->query->all();
@@ -32,8 +32,8 @@ class MediaFileFetchRedirectTestController extends AbstractController
 
     /**
      * @Since("6.3.4.1")
-     * @Route("/api/_action/echo-json", name="api.action.test.echo_json", defaults={"auth_required"=false}, methods={"GET"})
      */
+    #[Route(path: '/api/_action/echo-json', name: 'api.action.test.echo_json', defaults: ['auth_required' => false], methods: ['GET'])]
     public function echoJsonAction(Request $request): JsonResponse
     {
         $data = [

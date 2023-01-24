@@ -24,18 +24,18 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package content
- * @Route(defaults={"_routeScope"={"store-api"}})
  *
  * @phpstan-type CategoryMetaInformation array{id: string, level: int, path: string}
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class NavigationRoute extends AbstractNavigationRoute
 {
     /**
      * @internal
      */
     public function __construct(
-        private Connection $connection,
-        private SalesChannelRepository $categoryRepository
+        private readonly Connection $connection,
+        private readonly SalesChannelRepository $categoryRepository
     ) {
     }
 
@@ -46,8 +46,8 @@ class NavigationRoute extends AbstractNavigationRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/navigation/{activeId}/{rootId}", name="store-api.navigation", methods={"GET", "POST"}, defaults={"_entity"="category"})
      */
+    #[Route(path: '/store-api/navigation/{activeId}/{rootId}', name: 'store-api.navigation', methods: ['GET', 'POST'], defaults: ['_entity' => 'category'])]
     public function load(
         string $activeId,
         string $rootId,
@@ -241,7 +241,7 @@ class NavigationRoute extends AbstractNavigationRoute
             }
 
             $parentId = $category->getParentId();
-            $counts[$parentId] = $counts[$parentId] ?? 0;
+            $counts[$parentId] ??= 0;
             ++$counts[$parentId];
         }
         foreach ($levels as $category) {

@@ -12,13 +12,10 @@ use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 class Actions extends XmlElement
 {
     /**
-     * @var Action[]
+     * @param Action[] $actions
      */
-    protected array $actions;
-
-    public function __construct(array $data)
+    public function __construct(protected array $actions)
     {
-        $this->actions = $data;
     }
 
     public static function fromXml(\DOMElement $element): self

@@ -13,13 +13,10 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 class AppConfirmationDeltaProvider
 {
     /**
-     * @var AbstractAppDeltaProvider[]
+     * @param AbstractAppDeltaProvider[] $deltaProviders
      */
-    private iterable $deltaProviders;
-
-    public function __construct(iterable $providers)
+    public function __construct(private readonly iterable $deltaProviders)
     {
-        $this->deltaProviders = $providers;
     }
 
     /**

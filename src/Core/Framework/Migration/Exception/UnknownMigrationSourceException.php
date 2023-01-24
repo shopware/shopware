@@ -13,15 +13,8 @@ if (class_exists(HttpException::class)) {
      */
     class UnknownMigrationSourceExceptionBase extends ShopwareHttpException
     {
-        /**
-         * @var string
-         */
-        private $name;
-
-        public function __construct(string $name)
+        public function __construct(private readonly string $name)
         {
-            $this->name = $name;
-
             parent::__construct(
                 'No source registered for "{{ name }}"',
                 ['name' => $name]
@@ -46,10 +39,7 @@ if (class_exists(HttpException::class)) {
      */
     class UnknownMigrationSourceExceptionBase extends \RuntimeException implements ShopwareException
     {
-        /**
-         * @var string
-         */
-        private $name;
+        private readonly string $name;
 
         public function __construct(string $name)
         {

@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Store\Struct\PermissionStruct;
  */
 class PermissionsDeltaProvider extends AbstractAppDeltaProvider
 {
-    public const DELTA_NAME = 'permissions';
+    final public const DELTA_NAME = 'permissions';
 
     public function getDeltaName(): string
     {
@@ -61,7 +61,7 @@ class PermissionsDeltaProvider extends AbstractAppDeltaProvider
 
         foreach ($appPrivileges as $privilege) {
             if ($this->isCrudPrivilege($privilege)) {
-                $entityAndOperation = explode(':', $privilege);
+                $entityAndOperation = explode(':', (string) $privilege);
                 if (\array_key_exists($entityAndOperation[1], AclRoleDefinition::PRIVILEGE_DEPENDENCE)) {
                     $permissions[] = array_combine(['entity', 'operation'], $entityAndOperation);
 

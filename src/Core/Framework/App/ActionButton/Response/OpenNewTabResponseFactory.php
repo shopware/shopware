@@ -14,11 +14,8 @@ use Shopware\Core\Framework\Context;
  */
 class OpenNewTabResponseFactory implements ActionButtonResponseFactoryInterface
 {
-    private QuerySigner $signer;
-
-    public function __construct(QuerySigner $signer)
+    public function __construct(private readonly QuerySigner $signer)
     {
-        $this->signer = $signer;
     }
 
     public function supports(string $actionType): bool

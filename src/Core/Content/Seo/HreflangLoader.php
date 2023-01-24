@@ -17,8 +17,8 @@ class HreflangLoader implements HreflangLoaderInterface
      * @internal
      */
     public function __construct(
-        private RouterInterface $router,
-        private Connection $connection
+        private readonly RouterInterface $router,
+        private readonly Connection $connection
     ) {
     }
 

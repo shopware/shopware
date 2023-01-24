@@ -27,22 +27,15 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  */
 class MoveShopPermanentlyStrategy extends AbstractAppUrlChangeStrategy
 {
-    public const STRATEGY_NAME = 'move-shop-permanently';
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    final public const STRATEGY_NAME = 'move-shop-permanently';
 
     public function __construct(
         AbstractAppLoader $appLoader,
         EntityRepository $appRepository,
         AppRegistrationService $registrationService,
-        SystemConfigService $systemConfigService
+        private readonly SystemConfigService $systemConfigService
     ) {
         parent::__construct($appLoader, $appRepository, $registrationService);
-
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function getDecorated(): AbstractAppUrlChangeStrategy

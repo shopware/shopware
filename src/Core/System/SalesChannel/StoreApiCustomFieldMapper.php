@@ -11,16 +11,13 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class StoreApiCustomFieldMapper implements ResetInterface
 {
-    private Connection $connection;
-
     private ?array $mapping = null;
 
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function map(string $entity, ParameterBag $bag): array

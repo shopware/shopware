@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Exception\MissingOptionsException;
  */
 class CustomerVatIdentification extends Constraint
 {
-    public const VAT_ID_FORMAT_NOT_CORRECT = '463d3548-1caf-11eb-adc1-0242ac120002';
+    final public const VAT_ID_FORMAT_NOT_CORRECT = '463d3548-1caf-11eb-adc1-0242ac120002';
 
     /**
      * @var string

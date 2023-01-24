@@ -65,7 +65,7 @@ class PaymentControllerTest extends TestCase
         $client->request('GET', '/payment/finalize-transaction');
 
         static::assertIsString($client->getResponse()->getContent());
-        $response = json_decode($client->getResponse()->getContent(), true);
+        $response = json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
     }
@@ -77,7 +77,7 @@ class PaymentControllerTest extends TestCase
         $client->request('GET', '/payment/finalize-transaction?_sw_payment_token=abc');
 
         static::assertIsString($client->getResponse()->getContent());
-        $response = json_decode($client->getResponse()->getContent(), true);
+        $response = json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__INVALID_PAYMENT_TOKEN', $response['errors'][0]['code']);
     }
@@ -92,7 +92,7 @@ class PaymentControllerTest extends TestCase
         $client->request('GET', '/payment/finalize-transaction?_sw_payment_token=' . $token);
 
         static::assertIsString($client->getResponse()->getContent());
-        $response = json_decode($client->getResponse()->getContent(), true);
+        $response = json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__INVALID_PAYMENT_TOKEN', $response['errors'][0]['code']);
     }

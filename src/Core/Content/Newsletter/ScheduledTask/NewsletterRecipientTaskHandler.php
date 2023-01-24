@@ -21,7 +21,7 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
     /**
      * @internal
      */
-    public function __construct(EntityRepository $scheduledTaskRepository, private EntityRepository $newsletterRecipientRepository)
+    public function __construct(EntityRepository $scheduledTaskRepository, private readonly EntityRepository $newsletterRecipientRepository)
     {
         parent::__construct($scheduledTaskRepository);
     }
@@ -35,9 +35,7 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
             return;
         }
 
-        $emailRecipientIds = array_map(function ($id) {
-            return ['id' => $id];
-        }, $emailRecipient->getIds());
+        $emailRecipientIds = array_map(fn ($id) => ['id' => $id], $emailRecipient->getIds());
 
         $this->newsletterRecipientRepository->delete($emailRecipientIds, Context::createDefaultContext());
     }

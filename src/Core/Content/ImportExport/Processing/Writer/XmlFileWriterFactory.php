@@ -10,14 +10,8 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLog
  */
 class XmlFileWriterFactory extends AbstractWriterFactory
 {
-    /**
-     * @var FilesystemOperator
-     */
-    private $filesystem;
-
-    public function __construct(FilesystemOperator $filesystem)
+    public function __construct(private readonly FilesystemOperator $filesystem)
     {
-        $this->filesystem = $filesystem;
     }
 
     public function create(ImportExportLogEntity $logEntity): AbstractWriter

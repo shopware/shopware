@@ -27,31 +27,11 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
 {
     private const ROUTE_NAME = 'frontend.account.customer-group-registration.page';
 
-    private EntityRepository $customerGroupRepository;
-
-    private SeoUrlPersister $persister;
-
-    private SlugifyInterface $slugify;
-
-    private EntityRepository $seoUrlRepository;
-
-    private EntityRepository $languageRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $customerGroupRepository,
-        EntityRepository $seoUrlRepository,
-        EntityRepository $languageRepository,
-        SeoUrlPersister $persister,
-        SlugifyInterface $slugify
-    ) {
-        $this->customerGroupRepository = $customerGroupRepository;
-        $this->seoUrlRepository = $seoUrlRepository;
-        $this->persister = $persister;
-        $this->slugify = $slugify;
-        $this->languageRepository = $languageRepository;
+    public function __construct(private readonly EntityRepository $customerGroupRepository, private readonly EntityRepository $seoUrlRepository, private readonly EntityRepository $languageRepository, private readonly SeoUrlPersister $persister, private readonly SlugifyInterface $slugify)
+    {
     }
 
     public static function getSubscribedEvents(): array
@@ -124,9 +104,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->seoUrlRepository->delete(array_map(function (string $id) {
-            return ['id' => $id];
-        }, $ids), $event->getContext());
+        $this->seoUrlRepository->delete(array_map(fn (string $id) => ['id' => $id], $ids), $event->getContext());
     }
 
     /**

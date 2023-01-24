@@ -14,14 +14,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class ProductLineItemFactory implements LineItemFactoryInterface
 {
-    private PriceDefinitionFactory $priceDefinitionFactory;
-
     /**
      * @internal
      */
-    public function __construct(PriceDefinitionFactory $priceDefinitionFactory)
+    public function __construct(private readonly PriceDefinitionFactory $priceDefinitionFactory)
     {
-        $this->priceDefinitionFactory = $priceDefinitionFactory;
     }
 
     public function supports(string $type): bool

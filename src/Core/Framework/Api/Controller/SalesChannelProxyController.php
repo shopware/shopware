@@ -52,10 +52,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package core
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class SalesChannelProxyController extends AbstractController
 {
     private const CUSTOMER_ID = SalesChannelContextService::CUSTOMER_ID;
@@ -66,82 +65,32 @@ class SalesChannelProxyController extends AbstractController
         ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
     ];
 
-    protected DataValidator $validator;
-
-    protected SalesChannelContextPersister $contextPersister;
-
     protected Processor $processor;
-
-    private KernelInterface $kernel;
-
-    private EntityRepository $salesChannelRepository;
-
-    private SalesChannelRequestContextResolver $requestContextResolver;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private ApiOrderCartService $adminOrderCartService;
-
-    private SalesChannelContextServiceInterface $contextService;
-
-    private AbstractCartOrderRoute $orderRoute;
-
-    private CartService $cartService;
-
-    private Connection $connection;
-
-    private RequestStack $requestStack;
 
     /**
      * @internal
      */
-    public function __construct(
-        KernelInterface $kernel,
-        EntityRepository $salesChannelRepository,
-        DataValidator $validator,
-        SalesChannelContextPersister $contextPersister,
-        SalesChannelRequestContextResolver $requestContextResolver,
-        SalesChannelContextServiceInterface $contextService,
-        EventDispatcherInterface $eventDispatcher,
-        ApiOrderCartService $adminOrderCartService,
-        AbstractCartOrderRoute $orderRoute,
-        CartService $cartService,
-        Connection $connection,
-        RequestStack $requestStack
-    ) {
-        $this->kernel = $kernel;
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->validator = $validator;
-        $this->contextPersister = $contextPersister;
-        $this->requestContextResolver = $requestContextResolver;
-        $this->contextService = $contextService;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->adminOrderCartService = $adminOrderCartService;
-        $this->orderRoute = $orderRoute;
-        $this->cartService = $cartService;
-        $this->connection = $connection;
-        $this->requestStack = $requestStack;
+    public function __construct(private readonly KernelInterface $kernel, private readonly EntityRepository $salesChannelRepository, protected DataValidator $validator, protected SalesChannelContextPersister $contextPersister, private readonly SalesChannelRequestContextResolver $requestContextResolver, private readonly SalesChannelContextServiceInterface $contextService, private readonly EventDispatcherInterface $eventDispatcher, private readonly ApiOrderCartService $adminOrderCartService, private readonly AbstractCartOrderRoute $orderRoute, private readonly CartService $cartService, private readonly Connection $connection, private readonly RequestStack $requestStack)
+    {
     }
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/api/_proxy/store-api/{salesChannelId}/{_path}", name="api.proxy.store-api", requirements={"_path" = ".*"})
      */
+    #[Route(path: '/api/_proxy/store-api/{salesChannelId}/{_path}', name: 'api.proxy.store-api', requirements: ['_path' => '.*'])]
     public function proxy(string $_path, string $salesChannelId, Request $request, Context $context): Response
     {
         $salesChannel = $this->fetchSalesChannel($salesChannelId, $context);
 
         $salesChannelApiRequest = $this->setUpSalesChannelApiRequest($_path, $salesChannelId, $request, $salesChannel);
 
-        return $this->wrapInSalesChannelApiRoute($salesChannelApiRequest, function () use ($salesChannelApiRequest): Response {
-            return $this->kernel->handle($salesChannelApiRequest, HttpKernelInterface::SUB_REQUEST);
-        });
+        return $this->wrapInSalesChannelApiRoute($salesChannelApiRequest, fn (): Response => $this->kernel->handle($salesChannelApiRequest, HttpKernelInterface::SUB_REQUEST));
     }
 
     /**
      * @Since("6.3.4.0")
-     * @Route("/api/_proxy-order/{salesChannelId}", name="api.proxy-order.create")
      */
+    #[Route(path: '/api/_proxy-order/{salesChannelId}', name: 'api.proxy-order.create')]
     public function proxyCreateOrder(string $salesChannelId, Request $request, Context $context, RequestDataBag $data): Response
     {
         $this->fetchSalesChannel($salesChannelId, $context);
@@ -168,8 +117,8 @@ class SalesChannelProxyController extends AbstractController
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/api/_proxy/switch-customer", name="api.proxy.switch-customer", methods={"PATCH"}, defaults={"_acl"={"api_proxy_switch-customer"}})
      */
+    #[Route(path: '/api/_proxy/switch-customer', name: 'api.proxy.switch-customer', methods: ['PATCH'], defaults: ['_acl' => ['api_proxy_switch-customer']])]
     public function assignCustomer(Request $request, Context $context): Response
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
@@ -202,8 +151,8 @@ class SalesChannelProxyController extends AbstractController
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/api/_proxy/modify-shipping-costs", name="api.proxy.modify-shipping-costs", methods={"PATCH"})
      */
+    #[Route(path: '/api/_proxy/modify-shipping-costs', name: 'api.proxy.modify-shipping-costs', methods: ['PATCH'])]
     public function modifyShippingCosts(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
@@ -225,8 +174,8 @@ class SalesChannelProxyController extends AbstractController
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/api/_proxy/disable-automatic-promotions", name="api.proxy.disable-automatic-promotions", methods={"PATCH"})
      */
+    #[Route(path: '/api/_proxy/disable-automatic-promotions', name: 'api.proxy.disable-automatic-promotions', methods: ['PATCH'])]
     public function disableAutomaticPromotions(Request $request): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
@@ -244,8 +193,8 @@ class SalesChannelProxyController extends AbstractController
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/api/_proxy/enable-automatic-promotions", name="api.proxy.enable-automatic-promotions", methods={"PATCH"})
      */
+    #[Route(path: '/api/_proxy/enable-automatic-promotions', name: 'api.proxy.enable-automatic-promotions', methods: ['PATCH'])]
     public function enableAutomaticPromotions(Request $request): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {

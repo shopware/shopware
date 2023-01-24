@@ -12,14 +12,11 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class WebhookCacheClearer implements EventSubscriberInterface, ResetInterface
 {
-    private WebhookDispatcher $dispatcher;
-
     /**
      * @internal
      */
-    public function __construct(WebhookDispatcher $dispatcher)
+    public function __construct(private readonly WebhookDispatcher $dispatcher)
     {
-        $this->dispatcher = $dispatcher;
     }
 
     public static function getSubscribedEvents(): array

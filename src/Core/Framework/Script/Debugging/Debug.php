@@ -9,10 +9,7 @@ class Debug
 {
     protected array $dumps = [];
 
-    /**
-     * @param mixed $value
-     */
-    public function dump($value, ?string $key = null): void
+    public function dump(mixed $value, ?string $key = null): void
     {
         if ($key !== null) {
             $this->dumps[$key] = $value;

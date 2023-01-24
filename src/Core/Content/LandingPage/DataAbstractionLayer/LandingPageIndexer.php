@@ -18,29 +18,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class LandingPageIndexer extends EntityIndexer
 {
-    public const MANY_TO_MANY_ID_FIELD_UPDATER = 'landing_page.many-to-many-id-field';
-
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepository $repository;
-
-    private ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater;
-
-    private EventDispatcherInterface $eventDispatcher;
+    final public const MANY_TO_MANY_ID_FIELD_UPDATER = 'landing_page.many-to-many-id-field';
 
     /**
      * @internal
      */
-    public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function getName(): string

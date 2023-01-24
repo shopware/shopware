@@ -13,11 +13,8 @@ use Shopware\Core\Framework\Event\FlowEventAware;
  */
 class RawFlowEvent implements FlowEventAware
 {
-    protected ?Context $context;
-
-    public function __construct(?Context $context = null)
+    public function __construct(protected ?Context $context = null)
     {
-        $this->context = $context;
     }
 
     public static function getAvailableData(): EventDataCollection

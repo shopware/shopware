@@ -10,13 +10,10 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class RateLimitExceededException extends ShopwareHttpException
 {
-    private int $retryAfter;
+    private readonly int $now;
 
-    private int $now;
-
-    public function __construct(int $retryAfter, ?\Throwable $e = null)
+    public function __construct(private readonly int $retryAfter, ?\Throwable $e = null)
     {
-        $this->retryAfter = $retryAfter;
         $this->now = time();
 
         parent::__construct(

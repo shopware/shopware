@@ -31,7 +31,7 @@ class StringFieldSerializer extends AbstractFieldSerializer
     public function __construct(
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,
-        private HtmlSanitizer $sanitizer
+        private readonly HtmlSanitizer $sanitizer
     ) {
         parent::__construct($validator, $definitionRegistry);
     }

@@ -23,7 +23,7 @@ class BlockTemplateLoader extends AbstractBlockTemplateLoader
             foreach ($templateFiles as $templateFile) {
                 return $templateFile->getContents();
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         throw new AppCmsExtensionException(sprintf('Preview file for block "%s" is missing', $blockName));
@@ -40,7 +40,7 @@ class BlockTemplateLoader extends AbstractBlockTemplateLoader
             foreach ($styleFiles as $styleFile) {
                 return $styleFile->getContents();
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         throw new AppCmsExtensionException(sprintf('Style file for block "%s" is missing', $blockName));

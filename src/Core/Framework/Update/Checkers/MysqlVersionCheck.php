@@ -11,16 +11,10 @@ use Shopware\Core\Framework\Update\Struct\ValidationResult;
 class MysqlVersionCheck implements CheckerInterface
 {
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function supports(string $check): bool

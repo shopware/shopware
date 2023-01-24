@@ -93,6 +93,6 @@ class AvailableCombinationResult extends Struct
         $optionIds = array_values($optionIds);
         sort($optionIds);
 
-        return md5((string) json_encode($optionIds));
+        return md5((string) json_encode($optionIds, \JSON_THROW_ON_ERROR));
     }
 }

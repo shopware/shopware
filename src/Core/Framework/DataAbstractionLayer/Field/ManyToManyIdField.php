@@ -12,7 +12,7 @@ class ManyToManyIdField extends ListField
     public function __construct(
         string $storageName,
         string $propertyName,
-        private string $associationName
+        private readonly string $associationName
     ) {
         parent::__construct($storageName, $propertyName, IdField::class);
         $this->addFlags(new WriteProtected());

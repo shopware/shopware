@@ -25,12 +25,12 @@ class Kernel extends HttpKernel
 {
     use MicroKernelTrait;
 
-    public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
+    final public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
     /**
      * @var string Fallback version if nothing is provided via kernel constructor
      */
-    public const SHOPWARE_FALLBACK_VERSION = '6.5.9999999.9999999-dev';
+    final public const SHOPWARE_FALLBACK_VERSION = '6.5.9999999.9999999-dev';
 
     /**
      * @var Connection|null
@@ -59,8 +59,6 @@ class Kernel extends HttpKernel
 
     private bool $rebooting = false;
 
-    private string $cacheId;
-
     /**
      * {@inheritdoc}
      */
@@ -68,7 +66,7 @@ class Kernel extends HttpKernel
         string $environment,
         bool $debug,
         KernelPluginLoader $pluginLoader,
-        string $cacheId,
+        private string $cacheId,
         ?string $version = self::SHOPWARE_FALLBACK_VERSION,
         ?Connection $connection = null,
         ?string $projectDir = null
@@ -83,7 +81,6 @@ class Kernel extends HttpKernel
         $version = VersionParser::parseShopwareVersion($version);
         $this->shopwareVersion = $version['version'];
         $this->shopwareVersionRevision = $version['revision'];
-        $this->cacheId = $cacheId;
         $this->projectDir = $projectDir;
     }
 
@@ -276,7 +273,7 @@ class Kernel extends HttpKernel
         $activePluginMeta = [];
 
         foreach ($this->pluginLoader->getPluginInstances()->getActives() as $plugin) {
-            $class = \get_class($plugin);
+            $class = $plugin::class;
             $activePluginMeta[$class] = [
                 'name' => $plugin->getName(),
                 'path' => $plugin->getPath(),
@@ -355,7 +352,7 @@ class Kernel extends HttpKernel
                 return;
             }
             $connection->executeQuery(implode(';', $connectionVariables));
-        } catch (\Throwable $_) {
+        } catch (\Throwable) {
         }
     }
 

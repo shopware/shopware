@@ -14,16 +14,8 @@ use Shopware\Core\Framework\Context;
  */
 class AppService
 {
-    private AppLifecycleIterator $appLifecycleIterator;
-
-    private AbstractAppLifecycle $appLifecycle;
-
-    public function __construct(
-        AppLifecycleIterator $appLifecycleIterator,
-        AbstractAppLifecycle $appLifecycle
-    ) {
-        $this->appLifecycleIterator = $appLifecycleIterator;
-        $this->appLifecycle = $appLifecycle;
+    public function __construct(private readonly AppLifecycleIterator $appLifecycleIterator, private readonly AbstractAppLifecycle $appLifecycle)
+    {
     }
 
     /**

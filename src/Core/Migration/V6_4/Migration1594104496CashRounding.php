@@ -138,7 +138,7 @@ CREATE TABLE IF NOT EXISTS `currency_country_rounding` (
 
             $connection->executeStatement(
                 'UPDATE currency SET item_rounding = :rounding, total_rounding = :rounding WHERE id = :id',
-                ['id' => $currency['id'], 'rounding' => json_encode($rounding)]
+                ['id' => $currency['id'], 'rounding' => json_encode($rounding, \JSON_THROW_ON_ERROR)]
             );
         }
 

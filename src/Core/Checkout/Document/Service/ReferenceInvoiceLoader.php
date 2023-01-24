@@ -15,14 +15,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 final class ReferenceInvoiceLoader
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function load(string $orderId, ?string $referenceDocumentId = null): array

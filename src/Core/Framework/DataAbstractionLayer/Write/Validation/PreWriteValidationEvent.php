@@ -16,19 +16,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 class PreWriteValidationEvent extends Event implements ShopwareEvent
 {
     /**
-     * @var WriteContext
+     * @param WriteCommand[] $commands
      */
-    private $writeContext;
-
-    /**
-     * @var WriteCommand[]
-     */
-    private $commands;
-
-    public function __construct(WriteContext $writeContext, array $commands)
+    public function __construct(private readonly WriteContext $writeContext, private readonly array $commands)
     {
-        $this->writeContext = $writeContext;
-        $this->commands = $commands;
     }
 
     public function getContext(): Context
@@ -61,9 +52,7 @@ class PreWriteValidationEvent extends Event implements ShopwareEvent
 
     public function getDeletedPrimaryKeys(string $entity): array
     {
-        return $this->findPrimaryKeys($entity, function (WriteCommand $command) {
-            return $command instanceof DeleteCommand;
-        });
+        return $this->findPrimaryKeys($entity, fn (WriteCommand $command) => $command instanceof DeleteCommand);
     }
 
     private function findPrimaryKeys(string $entity, ?\Closure $closure = null): array

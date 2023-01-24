@@ -83,7 +83,7 @@ class StateMachineGraphvizDumper
 
     private function dotize($id): string
     {
-        return hash('sha1', $id);
+        return hash('sha1', (string) $id);
     }
 
     private function escape(string $string): string

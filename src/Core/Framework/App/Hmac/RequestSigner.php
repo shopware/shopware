@@ -10,9 +10,9 @@ use Psr\Http\Message\ResponseInterface;
  */
 class RequestSigner
 {
-    public const SHOPWARE_APP_SIGNATURE = 'shopware-app-signature';
+    final public const SHOPWARE_APP_SIGNATURE = 'shopware-app-signature';
 
-    public const SHOPWARE_SHOP_SIGNATURE = 'shopware-shop-signature';
+    final public const SHOPWARE_SHOP_SIGNATURE = 'shopware-shop-signature';
 
     public function signRequest(RequestInterface $request, string $secret): RequestInterface
     {

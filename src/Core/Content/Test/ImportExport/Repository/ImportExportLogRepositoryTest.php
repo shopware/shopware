@@ -49,10 +49,7 @@ class ImportExportLogRepositoryTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -175,9 +172,7 @@ class ImportExportLogRepositoryTest extends TestCase
                 }
             }
 
-            $missingPropertyPaths = array_map(function ($property) {
-                return '/' . $property;
-            }, $requiredProperties);
+            $missingPropertyPaths = array_map(fn ($property) => '/' . $property, $requiredProperties);
 
             static::assertEquals($missingPropertyPaths, $foundViolations);
         }
@@ -262,6 +257,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
     public function testImportExportLogUpdatePartial(): void
     {
+        $upsertData = [];
         $origDate = $data = $this->prepareImportExportLogTestData();
         $item = array_pop($data);
         static::assertNotNull($item);

@@ -51,8 +51,8 @@ class Migration1594104496CashRoundingTest extends TestCase
         ];
 
         if ($initial) {
-            $data['item_rounding'] = json_encode($initial);
-            $data['total_rounding'] = json_encode($initial);
+            $data['item_rounding'] = json_encode($initial, \JSON_THROW_ON_ERROR);
+            $data['total_rounding'] = json_encode($initial, \JSON_THROW_ON_ERROR);
         }
 
         $this->connection->insert('currency', $data);
@@ -63,8 +63,8 @@ class Migration1594104496CashRoundingTest extends TestCase
         );
 
         static::assertIsArray($record);
-        static::assertEquals($expected, json_decode($record['item_rounding'], true));
-        static::assertEquals($expected, json_decode($record['total_rounding'], true));
+        static::assertEquals($expected, json_decode((string) $record['item_rounding'], true, 512, \JSON_THROW_ON_ERROR));
+        static::assertEquals($expected, json_decode((string) $record['total_rounding'], true, 512, \JSON_THROW_ON_ERROR));
     }
 
     /**
@@ -96,7 +96,7 @@ class Migration1594104496CashRoundingTest extends TestCase
         if ($decimals) {
             $this->connection->executeStatement('UPDATE currency SET decimal_precision = :decimals', ['decimals' => $decimals]);
         } else {
-            $this->connection->executeStatement('UPDATE currency SET item_rounding = :rounding', ['rounding' => json_encode($rounding)]);
+            $this->connection->executeStatement('UPDATE currency SET item_rounding = :rounding', ['rounding' => json_encode($rounding, \JSON_THROW_ON_ERROR)]);
         }
 
         $record = $this->connection->fetchAssociative(
@@ -105,10 +105,10 @@ class Migration1594104496CashRoundingTest extends TestCase
         );
 
         static::assertIsArray($record);
-        static::assertEquals($expected, json_decode($record['item_rounding'], true));
+        static::assertEquals($expected, json_decode((string) $record['item_rounding'], true, 512, \JSON_THROW_ON_ERROR));
 
         if ($decimals) {
-            static::assertEquals($expected, json_decode($record['total_rounding'], true));
+            static::assertEquals($expected, json_decode((string) $record['total_rounding'], true, 512, \JSON_THROW_ON_ERROR));
         }
     }
 
@@ -154,10 +154,10 @@ class Migration1594104496CashRoundingTest extends TestCase
         static::assertIsArray($order);
         $expected = ['decimals' => 3, 'roundForNet' => true, 'interval' => 0.01];
 
-        $rounding = json_decode($order['item_rounding'], true);
+        $rounding = json_decode((string) $order['item_rounding'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals($expected, $rounding);
 
-        $rounding = json_decode($order['total_rounding'], true);
+        $rounding = json_decode((string) $order['total_rounding'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals($expected, $rounding);
     }
 
@@ -205,7 +205,7 @@ class Migration1594104496CashRoundingTest extends TestCase
     /**
      * @return false|mixed[]
      */
-    private function getTriggerInfo(string $triggerName)
+    private function getTriggerInfo(string $triggerName): false|array
     {
         $database = $this->connection->fetchOne('SELECT DATABASE();');
 

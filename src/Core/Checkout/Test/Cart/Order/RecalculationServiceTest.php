@@ -1244,7 +1244,7 @@ class RecalculationServiceTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        $content = json_decode((string) $response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $versionId = $content['versionId'];
         static::assertEquals($orderId, $content['id']);
         static::assertEquals('order', $content['entity']);
@@ -1360,7 +1360,7 @@ class RecalculationServiceTest extends TestCase
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data)
+            (string) json_encode($data, \JSON_THROW_ON_ERROR)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -1432,7 +1432,7 @@ class RecalculationServiceTest extends TestCase
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data)
+            (string) json_encode($data, \JSON_THROW_ON_ERROR)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -1485,7 +1485,7 @@ class RecalculationServiceTest extends TestCase
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data)
+            (string) json_encode($data, \JSON_THROW_ON_ERROR)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -1505,7 +1505,7 @@ class RecalculationServiceTest extends TestCase
 
         static::assertNotNull($promotionItem);
 
-        $content = json_decode((string) $response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(1, $content['errors']);
 
         $errors = array_values($content['errors']);
@@ -1554,7 +1554,7 @@ class RecalculationServiceTest extends TestCase
 
         static::assertEquals($promotionItem->getPayload()['promotionId'], $promotionId);
 
-        $content = json_decode((string) $response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(1, $content['errors']);
 
         $errors = array_values($content['errors']);

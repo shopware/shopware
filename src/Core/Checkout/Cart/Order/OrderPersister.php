@@ -18,19 +18,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class OrderPersister implements OrderPersisterInterface
 {
-    private EntityRepository $orderRepository;
-
-    private OrderConverter $converter;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $repository,
-        OrderConverter $converter
-    ) {
-        $this->orderRepository = $repository;
-        $this->converter = $converter;
+    public function __construct(private readonly EntityRepository $orderRepository, private readonly OrderConverter $converter)
+    {
     }
 
     /**

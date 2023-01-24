@@ -9,11 +9,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class InvalidateCacheEvent extends Event
 {
-    protected array $keys;
-
-    public function __construct(array $keys)
+    public function __construct(protected array $keys)
     {
-        $this->keys = $keys;
     }
 
     public function getKeys(): array

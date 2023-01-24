@@ -23,7 +23,7 @@ use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
  */
 class SnippetDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'snippet';
+    final public const ENTITY_NAME = 'snippet';
 
     public function getEntityName(): string
     {

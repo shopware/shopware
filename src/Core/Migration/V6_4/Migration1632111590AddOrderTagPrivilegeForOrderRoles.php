@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  */
 class Migration1632111590AddOrderTagPrivilegeForOrderRoles extends MigrationStep
 {
-    public const NEW_PRIVILEGES = [
+    final public const NEW_PRIVILEGES = [
         'order.viewer' => [
             'order_tag:read',
         ],

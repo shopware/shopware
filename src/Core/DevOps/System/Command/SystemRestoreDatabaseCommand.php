@@ -20,15 +20,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class SystemRestoreDatabaseCommand extends Command
 {
-    private string $defaultDirectory;
-
-    private Connection $connection;
-
-    public function __construct(string $defaultDirectory, Connection $connection)
+    public function __construct(private readonly string $defaultDirectory, private readonly Connection $connection)
     {
         parent::__construct();
-        $this->defaultDirectory = $defaultDirectory;
-        $this->connection = $connection;
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int

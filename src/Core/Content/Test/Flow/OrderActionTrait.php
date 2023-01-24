@@ -36,12 +36,12 @@ trait OrderActionTrait
 
     private TestDataCollection $ids;
 
-    private ?EntityRepository $customerRepository;
+    private ?EntityRepository $customerRepository = null;
 
     private function createCustomerAndLogin(?string $email = null, ?string $password = null): void
     {
-        $email = $email ?? (Uuid::randomHex() . '@example.com');
-        $password = $password ?? 'shopware';
+        $email ??= Uuid::randomHex() . '@example.com';
+        $password ??= 'shopware';
         $this->prepareCustomer($password, $email);
 
         $this->login($email, $password);

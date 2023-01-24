@@ -13,30 +13,22 @@ class LocaleTranslationCollection extends EntityCollection
 {
     public function getLocaleIds(): array
     {
-        return $this->fmap(function (LocaleTranslationEntity $localeTranslation) {
-            return $localeTranslation->getLocaleId();
-        });
+        return $this->fmap(fn (LocaleTranslationEntity $localeTranslation) => $localeTranslation->getLocaleId());
     }
 
     public function filterByLocaleId(string $id): self
     {
-        return $this->filter(function (LocaleTranslationEntity $localeTranslation) use ($id) {
-            return $localeTranslation->getLocaleId() === $id;
-        });
+        return $this->filter(fn (LocaleTranslationEntity $localeTranslation) => $localeTranslation->getLocaleId() === $id);
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (LocaleTranslationEntity $localeTranslation) {
-            return $localeTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (LocaleTranslationEntity $localeTranslation) => $localeTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (LocaleTranslationEntity $localeTranslation) use ($id) {
-            return $localeTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (LocaleTranslationEntity $localeTranslation) => $localeTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

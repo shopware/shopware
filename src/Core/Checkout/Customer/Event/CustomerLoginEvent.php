@@ -22,28 +22,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, ContextTokenAware
 {
-    public const EVENT_NAME = 'checkout.customer.login';
+    final public const EVENT_NAME = 'checkout.customer.login';
 
-    /**
-     * @var CustomerEntity
-     */
-    private $customer;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var string
-     */
-    private $contextToken;
-
-    public function __construct(SalesChannelContext $salesChannelContext, CustomerEntity $customer, string $contextToken)
+    public function __construct(private readonly SalesChannelContext $salesChannelContext, private readonly CustomerEntity $customer, private readonly string $contextToken)
     {
-        $this->customer = $customer;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->contextToken = $contextToken;
     }
 
     public function getName(): string

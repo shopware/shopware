@@ -24,23 +24,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class SalesChannelRepositoryFacade
 {
-    private SalesChannelDefinitionInstanceRegistry $registry;
-
-    private RequestCriteriaBuilder $criteriaBuilder;
-
-    private SalesChannelContext $context;
-
     /**
      * @internal
      */
-    public function __construct(
-        SalesChannelDefinitionInstanceRegistry $registry,
-        RequestCriteriaBuilder $criteriaBuilder,
-        SalesChannelContext $context
-    ) {
-        $this->registry = $registry;
-        $this->criteriaBuilder = $criteriaBuilder;
-        $this->context = $context;
+    public function __construct(private readonly SalesChannelDefinitionInstanceRegistry $registry, private readonly RequestCriteriaBuilder $criteriaBuilder, private readonly SalesChannelContext $context)
+    {
     }
 
     /**

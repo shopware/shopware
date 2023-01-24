@@ -23,19 +23,13 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class StorefrontCartSubscriber implements EventSubscriberInterface
 {
-    public const SESSION_KEY_PROMOTION_CODES = 'cart-promotion-codes';
-
-    private CartService $cartService;
-
-    private RequestStack $requestStack;
+    final public const SESSION_KEY_PROMOTION_CODES = 'cart-promotion-codes';
 
     /**
      * @internal
      */
-    public function __construct(CartService $cartService, RequestStack $requestStack)
+    public function __construct(private readonly CartService $cartService, private readonly RequestStack $requestStack)
     {
-        $this->cartService = $cartService;
-        $this->requestStack = $requestStack;
     }
 
     public static function getSubscribedEvents(): array
@@ -139,9 +133,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
 
         $discountId = $lineItem->getPayloadValue('discountId');
 
-        $removeThisDiscounts = $lineItems->filter(static function (LineItem $lineItem) use ($discountId) {
-            return $lineItem->hasPayloadValue('discountId') && $lineItem->getPayloadValue('discountId') === $discountId;
-        });
+        $removeThisDiscounts = $lineItems->filter(static fn (LineItem $lineItem) => $lineItem->hasPayloadValue('discountId') && $lineItem->getPayloadValue('discountId') === $discountId);
 
         foreach ($removeThisDiscounts as $discountItem) {
             $cart->remove($discountItem->getId());
@@ -157,9 +149,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
         }
 
         //filter them by the promotion which discounts should be deleted
-        $lineItems = $lineItems->filter(function (LineItem $promotionLineItem) use ($lineItem) {
-            return $promotionLineItem->getPayloadValue('promotionId') === $lineItem->getPayloadValue('promotionId');
-        });
+        $lineItems = $lineItems->filter(fn (LineItem $promotionLineItem) => $promotionLineItem->getPayloadValue('promotionId') === $lineItem->getPayloadValue('promotionId'));
 
         if ($lineItems->count() < 1) {
             return;

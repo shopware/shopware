@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  */
 class Migration1657027979AddOrderRefundPrivilegeForOrderEditor extends MigrationStep
 {
-    public const NEW_PRIVILEGES = [
+    final public const NEW_PRIVILEGES = [
         'order_refund.viewer' => [
             'order_transaction_capture_refund:read',
         ],

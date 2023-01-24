@@ -14,11 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
  */
 class TemplateStateService
 {
-    private EntityRepository $templateRepo;
-
-    public function __construct(EntityRepository $templateRepo)
+    public function __construct(private readonly EntityRepository $templateRepo)
     {
-        $this->templateRepo = $templateRepo;
     }
 
     public function activateAppTemplates(string $appId, Context $context): void
@@ -30,9 +27,7 @@ class TemplateStateService
         /** @var array<string> $templates */
         $templates = $this->templateRepo->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(function (string $id) {
-            return ['id' => $id, 'active' => true];
-        }, $templates);
+        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => true], $templates);
 
         $this->templateRepo->update($updateSet, $context);
     }
@@ -46,9 +41,7 @@ class TemplateStateService
         /** @var array<string> $templates */
         $templates = $this->templateRepo->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(function (string $id) {
-            return ['id' => $id, 'active' => false];
-        }, $templates);
+        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => false], $templates);
 
         $this->templateRepo->update($updateSet, $context);
     }

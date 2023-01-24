@@ -18,7 +18,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  */
 class CurrencyValidator implements EventSubscriberInterface
 {
-    public const VIOLATION_DELETE_DEFAULT_CURRENCY = 'delete_default_currency_violation';
+    final public const VIOLATION_DELETE_DEFAULT_CURRENCY = 'delete_default_currency_violation';
 
     public static function getSubscribedEvents(): array
     {
@@ -38,7 +38,7 @@ class CurrencyValidator implements EventSubscriberInterface
             }
 
             $pk = $command->getPrimaryKey();
-            $id = mb_strtolower(Uuid::fromBytesToHex($pk['id']));
+            $id = mb_strtolower((string) Uuid::fromBytesToHex($pk['id']));
             if ($id !== Defaults::CURRENCY) {
                 continue;
             }

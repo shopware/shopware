@@ -127,7 +127,7 @@ class Migration1580218617RefactorShippingMethodPrice extends MigrationStep
                     'linked' => false,
                 ],
             ];
-            $currencyPrice = json_encode($currencyPrice);
+            $currencyPrice = json_encode($currencyPrice, \JSON_THROW_ON_ERROR);
 
             $connection->executeStatement(
                 'UPDATE `shipping_method_price` SET `currency_price` = :currencyPrice WHERE `id` = :id',

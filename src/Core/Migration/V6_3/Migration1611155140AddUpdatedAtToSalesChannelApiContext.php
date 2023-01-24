@@ -24,7 +24,7 @@ class Migration1611155140AddUpdatedAtToSalesChannelApiContext extends MigrationS
                 'ALTER TABLE `sales_channel_api_context`
                 ADD COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
     }
 

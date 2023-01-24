@@ -9,7 +9,7 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
  */
 class TaxProvider extends XmlElement
 {
-    public const REQUIRED_FIELDS = [
+    final public const REQUIRED_FIELDS = [
         'identifier',
         'name',
         'processUrl',

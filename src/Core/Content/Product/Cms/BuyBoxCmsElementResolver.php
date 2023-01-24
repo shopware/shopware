@@ -22,19 +22,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
-    private ProductConfiguratorLoader $configuratorLoader;
-
-    private EntityRepository $repository;
-
     /**
      * @internal
      */
-    public function __construct(
-        ProductConfiguratorLoader $configuratorLoader,
-        EntityRepository $repository
-    ) {
-        $this->configuratorLoader = $configuratorLoader;
-        $this->repository = $repository;
+    public function __construct(private readonly ProductConfiguratorLoader $configuratorLoader, private readonly EntityRepository $repository)
+    {
     }
 
     public function getType(): string
@@ -82,6 +74,7 @@ class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
 
     private function createReviewCriteria(SalesChannelContext $context, string $productId): Criteria
     {
+        $reviewFilters = [];
         $criteria = new Criteria();
 
         $reviewFilters[] = new EqualsFilter('status', true);

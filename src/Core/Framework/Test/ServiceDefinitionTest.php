@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -19,8 +18,6 @@ use Symfony\Component\Finder\Finder;
 class ServiceDefinitionTest extends TestCase
 {
     use KernelTestBehaviour;
-
-    private ContainerInterface $container;
 
     public function testEverythingIsInstantiatable(): void
     {
@@ -76,9 +73,8 @@ class ServiceDefinitionTest extends TestCase
         $command->setApplication(new Application(KernelLifecycleManager::getKernel()));
         $commandTester = new CommandTester($command);
 
-        set_error_handler(function (): bool {// ignore symfony deprecations
-            return true;
-        }, \E_USER_DEPRECATED);
+        set_error_handler(fn (): bool // ignore symfony deprecations
+=> true, \E_USER_DEPRECATED);
         $commandTester->execute([]);
         restore_error_handler();
 
@@ -150,7 +146,7 @@ class ServiceDefinitionTest extends TestCase
      */
     private function getLineNumber(string $content, int $position): int
     {
-        list($before) = str_split($content, $position);
+        [$before] = str_split($content, $position);
 
         return mb_strlen($before) - mb_strlen(str_replace(\PHP_EOL, '', $before)) + 1;
     }

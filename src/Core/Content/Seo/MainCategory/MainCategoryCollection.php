@@ -13,9 +13,7 @@ class MainCategoryCollection extends EntityCollection
 {
     public function filterBySalesChannelId(string $id): MainCategoryCollection
     {
-        return $this->filter(static function (MainCategoryEntity $mainCategory) use ($id) {
-            return $mainCategory->getSalesChannelId() === $id;
-        });
+        return $this->filter(static fn (MainCategoryEntity $mainCategory) => $mainCategory->getSalesChannelId() === $id);
     }
 
     public function getApiAlias(): string

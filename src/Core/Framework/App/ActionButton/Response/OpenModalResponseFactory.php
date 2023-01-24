@@ -21,11 +21,8 @@ class OpenModalResponseFactory implements ActionButtonResponseFactoryInterface
         'fullscreen',
     ];
 
-    private QuerySigner $signer;
-
-    public function __construct(QuerySigner $signer)
+    public function __construct(private readonly QuerySigner $signer)
     {
-        $this->signer = $signer;
     }
 
     public function supports(string $actionType): bool

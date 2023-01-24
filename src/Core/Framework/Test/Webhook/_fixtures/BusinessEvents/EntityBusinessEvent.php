@@ -14,14 +14,8 @@ use Shopware\Core\System\Tax\TaxEntity;
  */
 class EntityBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
 {
-    /**
-     * @var TaxEntity
-     */
-    private $tax;
-
-    public function __construct(TaxEntity $tax)
+    public function __construct(private readonly TaxEntity $tax)
     {
-        $this->tax = $tax;
     }
 
     public static function getAvailableData(): EventDataCollection

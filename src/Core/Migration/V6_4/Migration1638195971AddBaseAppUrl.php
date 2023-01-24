@@ -21,7 +21,7 @@ class Migration1638195971AddBaseAppUrl extends MigrationStep
     {
         try {
             $connection->executeStatement('ALTER TABLE `app` ADD `base_app_url` VARCHAR(1024) NULL AFTER `version`');
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // Column already exists
         }
     }

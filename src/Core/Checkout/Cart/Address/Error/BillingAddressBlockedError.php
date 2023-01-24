@@ -11,15 +11,8 @@ class BillingAddressBlockedError extends Error
 {
     private const KEY = 'billing-address-blocked';
 
-    /**
-     * @var string
-     */
-    private $name;
-
-    public function __construct(string $name)
+    public function __construct(private readonly string $name)
     {
-        $this->name = $name;
-
         $this->message = sprintf(
             'Billings to billing address %s are not possible.',
             $name

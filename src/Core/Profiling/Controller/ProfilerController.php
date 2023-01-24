@@ -11,6 +11,8 @@ use Twig\Environment;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class ProfilerController
 {
@@ -18,9 +20,9 @@ class ProfilerController
      * @internal
      */
     public function __construct(
-        private Environment $twig,
-        private Profiler $profiler,
-        private Connection $connection
+        private readonly Environment $twig,
+        private readonly Profiler $profiler,
+        private readonly Connection $connection
     ) {
     }
 
@@ -40,7 +42,7 @@ class ProfilerController
 
         try {
             $collector = $profile->getCollector($panelName);
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException) {
             return new Response('This collector does not exist.');
         }
 
@@ -61,7 +63,7 @@ class ProfilerController
 
         try {
             $results = $this->explain($this->connection, $queryIndex);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             return new Response('This query cannot be explained.');
         }
 

@@ -23,15 +23,9 @@ class ChangePaymentMethodRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     /**
      * @var EntityRepository
@@ -87,7 +81,7 @@ class ChangePaymentMethodRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__INVALID_UUID', $response['errors'][0]['code']);
@@ -96,7 +90,7 @@ class ChangePaymentMethodRouteTest extends TestCase
     public function testChangePayment(): void
     {
         $this->browser->request('GET', '/store-api/account/customer');
-        $customer = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $customer = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame($this->ids->get('payment'), $customer['defaultPaymentMethodId']);
 
@@ -108,12 +102,12 @@ class ChangePaymentMethodRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($response['success']);
 
         $this->browser->request('GET', '/store-api/account/customer');
-        $customer = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $customer = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame($this->ids->get('payment2'), $customer['defaultPaymentMethodId']);
     }

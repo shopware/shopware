@@ -17,7 +17,7 @@ class FetchModeHelper
             return $result;
         }
 
-        list($keyName, $valueName) = array_keys($firstRow);
+        [$keyName, $valueName] = array_keys($firstRow);
 
         return array_combine(
             array_column($result, $keyName),

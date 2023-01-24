@@ -27,44 +27,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package checkout
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CartOrderRoute extends AbstractCartOrderRoute
 {
-    private CartCalculator $cartCalculator;
-
-    private EntityRepository $orderRepository;
-
-    private OrderPersisterInterface $orderPersister;
-
-    private AbstractCartPersister $cartPersister;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private PreparedPaymentService $preparedPaymentService;
-
-    private TaxProviderProcessor $taxProviderProcessor;
-
     /**
      * @internal
      */
-    public function __construct(
-        CartCalculator $cartCalculator,
-        EntityRepository $orderRepository,
-        OrderPersisterInterface $orderPersister,
-        AbstractCartPersister $cartPersister,
-        EventDispatcherInterface $eventDispatcher,
-        PreparedPaymentService $preparedPaymentService,
-        TaxProviderProcessor $taxProviderProcessor
-    ) {
-        $this->cartCalculator = $cartCalculator;
-        $this->orderRepository = $orderRepository;
-        $this->orderPersister = $orderPersister;
-        $this->cartPersister = $cartPersister;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->preparedPaymentService = $preparedPaymentService;
-        $this->taxProviderProcessor = $taxProviderProcessor;
+    public function __construct(private readonly CartCalculator $cartCalculator, private readonly EntityRepository $orderRepository, private readonly OrderPersisterInterface $orderPersister, private readonly AbstractCartPersister $cartPersister, private readonly EventDispatcherInterface $eventDispatcher, private readonly PreparedPaymentService $preparedPaymentService, private readonly TaxProviderProcessor $taxProviderProcessor)
+    {
     }
 
     public function getDecorated(): AbstractCartOrderRoute
@@ -74,8 +45,8 @@ class CartOrderRoute extends AbstractCartOrderRoute
 
     /**
      * @Since("6.3.0.0")
-     * @Route("/store-api/checkout/order", name="store-api.checkout.cart.order", methods={"POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
+    #[Route(path: '/store-api/checkout/order', name: 'store-api.checkout.cart.order', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): CartOrderRouteResponse
     {
         // we use this state in stock updater class, to prevent duplicate available stock updates
@@ -87,13 +58,9 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $this->addCustomerComment($calculatedCart, $data);
         $this->addAffiliateTracking($calculatedCart, $data);
 
-        $preOrderPayment = Profiler::trace('checkout-order::pre-payment', function () use ($calculatedCart, $data, $context) {
-            return $this->preparedPaymentService->handlePreOrderPayment($calculatedCart, $data, $context);
-        });
+        $preOrderPayment = Profiler::trace('checkout-order::pre-payment', fn () => $this->preparedPaymentService->handlePreOrderPayment($calculatedCart, $data, $context));
 
-        $orderId = Profiler::trace('checkout-order::order-persist', function () use ($calculatedCart, $context) {
-            return $this->orderPersister->persist($calculatedCart, $context);
-        });
+        $orderId = Profiler::trace('checkout-order::order-persist', fn () => $this->orderPersister->persist($calculatedCart, $context));
 
         $criteria = new Criteria([$orderId]);
         $criteria->setTitle('order-route::order-loading');
@@ -114,9 +81,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $this->eventDispatcher->dispatch(new CheckoutOrderPlacedCriteriaEvent($criteria, $context));
 
         /** @var OrderEntity|null $orderEntity */
-        $orderEntity = Profiler::trace('checkout-order::order-loading', function () use ($criteria, $context) {
-            return $this->orderRepository->search($criteria, $context->getContext())->first();
-        });
+        $orderEntity = Profiler::trace('checkout-order::order-loading', fn () => $this->orderRepository->search($criteria, $context->getContext())->first());
 
         if (!$orderEntity) {
             throw new InvalidOrderException($orderId);

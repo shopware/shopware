@@ -146,10 +146,7 @@ class Entity extends Struct
         $this->translated = $translated;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function addTranslated(string $key, $value): void
+    public function addTranslated(string $key, mixed $value): void
     {
         $this->translated[$key] = $value;
     }

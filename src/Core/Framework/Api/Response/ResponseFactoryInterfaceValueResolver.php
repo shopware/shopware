@@ -14,7 +14,7 @@ class ResponseFactoryInterfaceValueResolver implements ValueResolverInterface
     /**
      * @internal
      */
-    public function __construct(private ResponseFactoryRegistry $responseTypeRegistry)
+    public function __construct(private readonly ResponseFactoryRegistry $responseTypeRegistry)
     {
     }
 

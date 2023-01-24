@@ -12,8 +12,6 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class SitemapFilterOpenTagEvent extends Event implements ShopwareEvent
 {
-    private SalesChannelContext $salesChannelContext;
-
     private string $openTag = '<?xml version="1.0" encoding="UTF-8"?><urlset %urlsetNamespaces%>';
 
     /**
@@ -23,9 +21,8 @@ class SitemapFilterOpenTagEvent extends Event implements ShopwareEvent
         'xmlns' => 'http://www.sitemaps.org/schemas/sitemap/0.9',
     ];
 
-    public function __construct(SalesChannelContext $salesChannelContext)
+    public function __construct(private readonly SalesChannelContext $salesChannelContext)
     {
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getSalesChannelContext(): SalesChannelContext

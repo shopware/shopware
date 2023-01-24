@@ -26,13 +26,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class SalesChannelCreateCommand extends Command
 {
-    private SalesChannelCreator $salesChannelCreator;
-
     public function __construct(
-        SalesChannelCreator $salesChannelCreator
+        private readonly SalesChannelCreator $salesChannelCreator
     ) {
-        $this->salesChannelCreator = $salesChannelCreator;
-
         parent::__construct();
     }
 

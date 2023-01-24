@@ -21,9 +21,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package core
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class ContextSwitchRoute extends AbstractContextSwitchRoute
 {
     private const SHIPPING_METHOD_ID = SalesChannelContextService::SHIPPING_METHOD_ID;
@@ -46,21 +45,15 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
     protected $validator;
 
     /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @internal
      */
     public function __construct(
         DataValidator $validator,
         SalesChannelContextPersister $contextPersister,
-        EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
         $this->contextPersister = $contextPersister;
         $this->validator = $validator;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractContextSwitchRoute
@@ -70,8 +63,8 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/context", name="store-api.switch-context", methods={"PATCH"})
      */
+    #[Route(path: '/store-api/context', name: 'store-api.switch-context', methods: ['PATCH'])]
     public function switchContext(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {
         $definition = new DataValidationDefinition('context_switch');

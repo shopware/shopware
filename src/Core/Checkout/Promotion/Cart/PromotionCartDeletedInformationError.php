@@ -12,15 +12,9 @@ class PromotionCartDeletedInformationError extends Error
 {
     private const KEY = 'promotion-discount-deleted';
 
-    /**
-     * @var string
-     */
-    private $name;
+    private string $name;
 
-    /**
-     * @var string
-     */
-    private $discountLineItemId;
+    private readonly string $discountLineItemId;
 
     public function __construct(LineItem $discountLineItem)
     {

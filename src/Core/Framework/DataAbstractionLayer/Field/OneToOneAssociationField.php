@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\OneToOneAssocia
  */
 class OneToOneAssociationField extends AssociationField
 {
-    public const PRIORITY = 80;
+    final public const PRIORITY = 80;
 
     /**
      * @var string

@@ -19,31 +19,12 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package system-settings
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CachedCountryStateRoute extends AbstractCountryStateRoute
 {
-    public const ALL_TAG = 'country-state-route';
-
-    private AbstractCountryStateRoute $decorated;
-
-    private CacheInterface $cache;
-
-    private EntityCacheKeyGenerator $generator;
-
-    /**
-     * @var AbstractCacheTracer<CountryStateRouteResponse>
-     */
-    private AbstractCacheTracer $tracer;
-
-    /**
-     * @var array<string>
-     */
-    private array $states;
-
-    private EventDispatcherInterface $dispatcher;
+    final public const ALL_TAG = 'country-state-route';
 
     /**
      * @internal
@@ -51,20 +32,8 @@ class CachedCountryStateRoute extends AbstractCountryStateRoute
      * @param AbstractCacheTracer<CountryStateRouteResponse> $tracer
      * @param array<string> $states
      */
-    public function __construct(
-        AbstractCountryStateRoute $decorated,
-        CacheInterface $cache,
-        EntityCacheKeyGenerator $generator,
-        AbstractCacheTracer $tracer,
-        EventDispatcherInterface $dispatcher,
-        array $states
-    ) {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
-        $this->generator = $generator;
-        $this->tracer = $tracer;
-        $this->states = $states;
-        $this->dispatcher = $dispatcher;
+    public function __construct(private readonly AbstractCountryStateRoute $decorated, private readonly CacheInterface $cache, private readonly EntityCacheKeyGenerator $generator, private readonly AbstractCacheTracer $tracer, private readonly EventDispatcherInterface $dispatcher, private readonly array $states)
+    {
     }
 
     public static function buildName(string $id): string
@@ -79,8 +48,8 @@ class CachedCountryStateRoute extends AbstractCountryStateRoute
 
     /**
      * @Since("6.4.14.0")
-     * @Route("/store-api/country-state/{countryId}", name="store-api.country.state", methods={"GET", "POST"}, defaults={"_entity"="country"})
      */
+    #[Route(path: '/store-api/country-state/{countryId}', name: 'store-api.country.state', methods: ['GET', 'POST'], defaults: ['_entity' => 'country'])]
     public function load(string $countryId, Request $request, Criteria $criteria, SalesChannelContext $context): CountryStateRouteResponse
     {
         if ($context->hasState(...$this->states)) {
@@ -95,9 +64,7 @@ class CachedCountryStateRoute extends AbstractCountryStateRoute
 
         $value = $this->cache->get($key, function (ItemInterface $item) use ($countryId, $request, $criteria, $context) {
             $name = self::buildName($countryId);
-            $response = $this->tracer->trace($name, function () use ($countryId, $request, $criteria, $context) {
-                return $this->getDecorated()->load($countryId, $request, $criteria, $context);
-            });
+            $response = $this->tracer->trace($name, fn () => $this->getDecorated()->load($countryId, $request, $criteria, $context));
 
             $item->tag($this->generateTags($countryId, $request, $response, $context, $criteria));
 

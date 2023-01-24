@@ -12,7 +12,7 @@ class SeoResolverData
     /**
      * @var array<string, mixed>
      */
-    private $entityMap = [];
+    private array $entityMap = [];
 
     public function add(string $entityName, Entity $entity): void
     {

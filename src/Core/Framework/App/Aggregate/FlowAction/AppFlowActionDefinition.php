@@ -29,7 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class AppFlowActionDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'app_flow_action';
+    final public const ENTITY_NAME = 'app_flow_action';
 
     public function getEntityName(): string
     {

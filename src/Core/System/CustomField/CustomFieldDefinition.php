@@ -22,7 +22,7 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefi
  */
 class CustomFieldDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'custom_field';
+    final public const ENTITY_NAME = 'custom_field';
 
     public function getEntityName(): string
     {

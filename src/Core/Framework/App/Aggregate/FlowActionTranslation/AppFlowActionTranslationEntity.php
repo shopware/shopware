@@ -13,11 +13,11 @@ class AppFlowActionTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    protected ?string $label;
+    protected ?string $label = null;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
-    protected ?string $headline;
+    protected ?string $headline = null;
 
     protected string $appFlowActionId;
 

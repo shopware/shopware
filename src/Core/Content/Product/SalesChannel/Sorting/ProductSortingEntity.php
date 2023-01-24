@@ -54,12 +54,10 @@ class ProductSortingEntity extends Entity
 
         $fields = $this->fields;
 
-        usort($fields, function ($a, $b) {
-            return $b['priority'] <=> $a['priority'];
-        });
+        usort($fields, fn ($a, $b) => $b['priority'] <=> $a['priority']);
 
         foreach ($fields as $field) {
-            $direction = mb_strtoupper($field['order']) === FieldSorting::ASCENDING
+            $direction = mb_strtoupper((string) $field['order']) === FieldSorting::ASCENDING
                 ? FieldSorting::ASCENDING
                 : FieldSorting::DESCENDING;
 

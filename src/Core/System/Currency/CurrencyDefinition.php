@@ -35,7 +35,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class CurrencyDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'currency';
+    final public const ENTITY_NAME = 'currency';
 
     public function getEntityName(): string
     {

@@ -13,28 +13,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class CustomerConfirmRegisterUrlEvent extends Event implements ShopwareSalesChannelEvent
 {
-    private string $confirmUrl;
-
-    private SalesChannelContext $salesChannelContext;
-
-    private string $emailHash;
-
-    private ?string $customerHash;
-
-    private CustomerEntity $customer;
-
-    public function __construct(
-        SalesChannelContext $salesChannelContext,
-        string $confirmUrl,
-        string $emailHash,
-        ?string $customerHash,
-        CustomerEntity $customer
-    ) {
-        $this->confirmUrl = $confirmUrl;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->emailHash = $emailHash;
-        $this->customerHash = $customerHash;
-        $this->customer = $customer;
+    public function __construct(private readonly SalesChannelContext $salesChannelContext, private string $confirmUrl, private readonly string $emailHash, private readonly ?string $customerHash, private readonly CustomerEntity $customer)
+    {
     }
 
     public function getConfirmUrl(): string

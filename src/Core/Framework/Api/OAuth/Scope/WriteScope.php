@@ -9,7 +9,7 @@ use League\OAuth2\Server\Entities\ScopeEntityInterface;
  */
 class WriteScope implements ScopeEntityInterface
 {
-    public const IDENTIFIER = 'write';
+    final public const IDENTIFIER = 'write';
 
     /**
      * Get the scope's identifier.

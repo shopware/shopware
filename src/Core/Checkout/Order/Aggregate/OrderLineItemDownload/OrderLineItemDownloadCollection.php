@@ -6,14 +6,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<OrderLineItemDownloadEntity>
+ *
+ * @package customer-order
  */
 class OrderLineItemDownloadCollection extends EntityCollection
 {
     public function filterByOrderLineItemId(string $id): self
     {
-        return $this->filter(function (OrderLineItemDownloadEntity $orderLineItemDownloadEntity) use ($id) {
-            return $orderLineItemDownloadEntity->getOrderLineItemId() === $id;
-        });
+        return $this->filter(fn (OrderLineItemDownloadEntity $orderLineItemDownloadEntity) => $orderLineItemDownloadEntity->getOrderLineItemId() === $id);
     }
 
     public function getApiAlias(): string

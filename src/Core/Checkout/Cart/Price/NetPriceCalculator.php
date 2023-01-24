@@ -16,19 +16,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
  */
 class NetPriceCalculator
 {
-    private TaxCalculator $taxCalculator;
-
-    private CashRounding $priceRounding;
-
     /**
      * @internal
      */
-    public function __construct(
-        TaxCalculator $taxCalculator,
-        CashRounding $priceRounding
-    ) {
-        $this->taxCalculator = $taxCalculator;
-        $this->priceRounding = $priceRounding;
+    public function __construct(private readonly TaxCalculator $taxCalculator, private readonly CashRounding $priceRounding)
+    {
     }
 
     public function calculate(QuantityPriceDefinition $definition, CashRoundingConfig $config): CalculatedPrice

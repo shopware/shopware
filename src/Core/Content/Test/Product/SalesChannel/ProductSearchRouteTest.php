@@ -112,7 +112,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(15, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -138,7 +138,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(0, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
@@ -159,7 +159,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
 
@@ -170,7 +170,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
     }
@@ -223,7 +223,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(2, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -237,7 +237,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(2, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -263,7 +263,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(1, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -277,7 +277,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(1, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -305,7 +305,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(2, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -331,7 +331,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(2, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -345,7 +345,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(1, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -654,7 +654,7 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         /** @var array $entites */
         $entites = $response['elements'];

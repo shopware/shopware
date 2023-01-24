@@ -30,23 +30,11 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 class MappingService extends AbstractMappingService
 {
-    private AbstractFileService $fileService;
-
-    private EntityRepository $profileRepository;
-
-    private DefinitionInstanceRegistry $definitionInstanceRegistry;
-
     /**
      * @internal
      */
-    public function __construct(
-        AbstractFileService $fileService,
-        EntityRepository $profileRepository,
-        DefinitionInstanceRegistry $definitionInstanceRegistry
-    ) {
-        $this->fileService = $fileService;
-        $this->profileRepository = $profileRepository;
-        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
+    public function __construct(private readonly AbstractFileService $fileService, private readonly EntityRepository $profileRepository, private readonly DefinitionInstanceRegistry $definitionInstanceRegistry)
+    {
     }
 
     public function getDecorated(): AbstractMappingService

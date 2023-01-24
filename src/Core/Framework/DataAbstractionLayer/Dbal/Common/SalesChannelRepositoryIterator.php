@@ -12,22 +12,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class SalesChannelRepositoryIterator
 {
-    /**
-     * @var Criteria
-     */
-    private $criteria;
+    private readonly Criteria $criteria;
 
-    /**
-     * @var SalesChannelRepository
-     */
-    private $repository;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
-
-    public function __construct(SalesChannelRepository $repository, SalesChannelContext $context, ?Criteria $criteria = null)
+    public function __construct(private readonly SalesChannelRepository $repository, private readonly SalesChannelContext $context, ?Criteria $criteria = null)
     {
         if ($criteria === null) {
             $criteria = new Criteria();
@@ -36,8 +23,6 @@ class SalesChannelRepositoryIterator
         }
 
         $this->criteria = $criteria;
-        $this->repository = $repository;
-        $this->context = $context;
     }
 
     public function getTotal(): int

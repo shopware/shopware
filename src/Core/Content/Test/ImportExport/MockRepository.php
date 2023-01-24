@@ -26,14 +26,8 @@ class MockRepository extends EntityRepository
 
     public $upsertCalls = 0;
 
-    /**
-     * @var EntityDefinition
-     */
-    private $definition;
-
-    public function __construct(EntityDefinition $definition)
+    public function __construct(private readonly EntityDefinition $definition)
     {
-        $this->definition = $definition;
     }
 
     public function getDefinition(): EntityDefinition

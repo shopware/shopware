@@ -19,32 +19,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class CreateSchemaCommand extends Command
 {
-    /**
-     * @var SchemaGenerator
-     */
-    private $schemaGenerator;
-
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
-
-    /**
-     * @var string
-     */
-    private $dir;
+    private readonly string $dir;
 
     /**
      * @internal
      */
     public function __construct(
-        SchemaGenerator $generator,
-        DefinitionInstanceRegistry $registry,
+        private readonly SchemaGenerator $schemaGenerator,
+        private readonly DefinitionInstanceRegistry $registry,
         string $rootDir
     ) {
         parent::__construct();
-        $this->schemaGenerator = $generator;
-        $this->registry = $registry;
         $this->dir = $rootDir . '/schema/';
     }
 

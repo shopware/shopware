@@ -36,7 +36,7 @@ class EntityForeignKeyResolver
     /**
      * @internal
      */
-    public function __construct(private Connection $connection, private EntityDefinitionQueryHelper $queryHelper)
+    public function __construct(private readonly Connection $connection, private readonly EntityDefinitionQueryHelper $queryHelper)
     {
     }
 
@@ -144,9 +144,7 @@ class EntityForeignKeyResolver
             return [];
         }
 
-        $cascades = $definition->getFields()->filter(static function (Field $field) use ($class): bool {
-            return $field->is($class);
-        });
+        $cascades = $definition->getFields()->filter(static fn (Field $field): bool => $field->is($class));
 
         if ($cascades->count() === 0) {
             return [];

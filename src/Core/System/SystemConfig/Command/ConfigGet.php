@@ -34,17 +34,11 @@ class ConfigGet extends Command
     ];
 
     /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
      * @internal
      */
-    public function __construct(SystemConfigService $systemConfigService)
+    public function __construct(private readonly SystemConfigService $systemConfigService)
     {
         parent::__construct();
-        $this->systemConfigService = $systemConfigService;
     }
 
     protected function configure(): void

@@ -14,9 +14,9 @@ use Symfony\Contracts\Cache\CacheInterface;
  */
 class CachedEntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 {
-    public const CACHE_KEY = 'core_framework_api_entity_schema';
+    final public const CACHE_KEY = 'core_framework_api_entity_schema';
 
-    public function __construct(private EntitySchemaGenerator $innerService, private CacheInterface $cache)
+    public function __construct(private readonly EntitySchemaGenerator $innerService, private readonly CacheInterface $cache)
     {
     }
 
@@ -38,8 +38,6 @@ class CachedEntitySchemaGenerator implements ApiDefinitionGeneratorInterface
      */
     public function getSchema(array $definitions): array
     {
-        return $this->cache->get(self::CACHE_KEY, function () use ($definitions) {
-            return $this->innerService->getSchema($definitions);
-        });
+        return $this->cache->get(self::CACHE_KEY, fn () => $this->innerService->getSchema($definitions));
     }
 }

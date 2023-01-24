@@ -32,7 +32,7 @@ class ScriptApiRouteTest extends TestCase
         $browser->request('POST', '/api/script/simple-script');
 
         static::assertNotFalse($browser->getResponse()->getContent());
-        $response = \json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
 
         $traces = $this->getScriptTraces();
@@ -52,7 +52,7 @@ class ScriptApiRouteTest extends TestCase
         $browser->request('POST', '/api/script/simple/script');
 
         static::assertNotFalse($browser->getResponse()->getContent());
-        $response = \json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
 
         $traces = $this->getScriptTraces();
@@ -72,7 +72,7 @@ class ScriptApiRouteTest extends TestCase
         $browser->request('POST', '/api/script/simple-script');
 
         static::assertNotFalse($browser->getResponse()->getContent());
-        $response = \json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
@@ -121,7 +121,7 @@ class ScriptApiRouteTest extends TestCase
         $browser->request('POST', '/api/script/repository-test', [], [], [], $json);
 
         static::assertNotFalse($browser->getResponse()->getContent());
-        $response = \json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
 
@@ -149,7 +149,7 @@ class ScriptApiRouteTest extends TestCase
         static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
         static::assertNotFalse($browser->getResponse()->getContent());
 
-        $response = \json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
@@ -168,7 +168,7 @@ class ScriptApiRouteTest extends TestCase
         $browser->request('POST', '/api/script/simple-script');
         static::assertNotFalse($browser->getResponse()->getContent());
 
-        $response = \json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), print_r($response, true));
 
         static::assertArrayHasKey('errors', $response);
@@ -190,7 +190,7 @@ class ScriptApiRouteTest extends TestCase
         $browser->request('POST', '/api/script/simple-script');
         static::assertNotFalse($browser->getResponse()->getContent());
 
-        $response = \json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
     }
 
@@ -206,7 +206,7 @@ class ScriptApiRouteTest extends TestCase
 
         $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
-        $json = \json_encode(['productId' => $ids->get('p1')]);
+        $json = \json_encode(['productId' => $ids->get('p1')], \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
         $browser = $this->getBrowser();
@@ -232,7 +232,7 @@ class ScriptApiRouteTest extends TestCase
 
         $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
-        $json = \json_encode(['productId' => $ids->get('p1')]);
+        $json = \json_encode(['productId' => $ids->get('p1')], \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
         $browser = $this->getBrowser();

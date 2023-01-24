@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class NotRule extends Container
 {
-    public const RULE_NAME = 'notContainer';
+    final public const RULE_NAME = 'notContainer';
 
     public function addRule(Rule $rule): void
     {

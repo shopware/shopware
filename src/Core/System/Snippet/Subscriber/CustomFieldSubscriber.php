@@ -19,14 +19,11 @@ class CustomFieldSubscriber implements EventSubscriberInterface
 {
     private const CUSTOM_FIELD_ID_FIELD = 'custom_field_id';
 
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array
@@ -108,7 +105,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
                 'author' => 'System',
                 'customFields' => json_encode([
                     self::CUSTOM_FIELD_ID_FIELD => $writeResult->getPrimaryKey(),
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ];
         }

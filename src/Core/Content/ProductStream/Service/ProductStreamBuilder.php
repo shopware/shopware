@@ -18,22 +18,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser
 class ProductStreamBuilder implements ProductStreamBuilderInterface
 {
     /**
-     * @var EntityRepository
-     */
-    private $repository;
-
-    /**
-     * @var EntityDefinition
-     */
-    private $productDefinition;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $productStreamRepository, EntityDefinition $productDefinition)
+    public function __construct(private readonly EntityRepository $repository, private readonly EntityDefinition $productDefinition)
     {
-        $this->repository = $productStreamRepository;
-        $this->productDefinition = $productDefinition;
     }
 
     public function buildFilters(string $id, Context $context): array

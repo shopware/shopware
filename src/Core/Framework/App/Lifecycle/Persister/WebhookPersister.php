@@ -17,14 +17,8 @@ use Shopware\Core\Framework\Webhook\WebhookEntity;
  */
 class WebhookPersister
 {
-    /**
-     * @var EntityRepository
-     */
-    private $webhookRepository;
-
-    public function __construct(EntityRepository $webhookRepository)
+    public function __construct(private readonly EntityRepository $webhookRepository)
     {
-        $this->webhookRepository = $webhookRepository;
     }
 
     public function updateWebhooks(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void
@@ -89,9 +83,7 @@ class WebhookPersister
             return;
         }
 
-        $ids = array_map(static function (string $id): array {
-            return ['id' => $id];
-        }, array_values($ids));
+        $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
 
         $this->webhookRepository->delete($ids, $context);
     }

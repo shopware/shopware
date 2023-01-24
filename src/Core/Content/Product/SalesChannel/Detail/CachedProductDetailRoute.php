@@ -19,50 +19,19 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package inventory
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CachedProductDetailRoute extends AbstractProductDetailRoute
 {
-    private AbstractProductDetailRoute $decorated;
-
-    private CacheInterface $cache;
-
-    private EntityCacheKeyGenerator $generator;
-
-    /**
-     * @var AbstractCacheTracer<ProductDetailRouteResponse>
-     */
-    private AbstractCacheTracer $tracer;
-
-    /**
-     * @var array<string, string>
-     */
-    private array $states;
-
-    private EventDispatcherInterface $dispatcher;
-
     /**
      * @internal
      *
      * @param AbstractCacheTracer<ProductDetailRouteResponse> $tracer
-     * @param array<string> $states
+     * @param array<string, string> $states
      */
-    public function __construct(
-        AbstractProductDetailRoute $decorated,
-        CacheInterface $cache,
-        EntityCacheKeyGenerator $generator,
-        AbstractCacheTracer $tracer,
-        EventDispatcherInterface $dispatcher,
-        array $states
-    ) {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
-        $this->generator = $generator;
-        $this->tracer = $tracer;
-        $this->states = $states;
-        $this->dispatcher = $dispatcher;
+    public function __construct(private readonly AbstractProductDetailRoute $decorated, private readonly CacheInterface $cache, private readonly EntityCacheKeyGenerator $generator, private readonly AbstractCacheTracer $tracer, private readonly EventDispatcherInterface $dispatcher, private readonly array $states)
+    {
     }
 
     public function getDecorated(): AbstractProductDetailRoute
@@ -72,8 +41,8 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
 
     /**
      * @Since("6.3.2.0")
-     * @Route("/store-api/product/{productId}", name="store-api.product.detail", methods={"POST"}, defaults={"_entity"="product"})
      */
+    #[Route(path: '/store-api/product/{productId}', name: 'store-api.product.detail', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse
     {
         if ($context->hasState(...$this->states)) {
@@ -89,9 +58,7 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
         $value = $this->cache->get($key, function (ItemInterface $item) use ($productId, $request, $context, $criteria) {
             $name = self::buildName($productId);
 
-            $response = $this->tracer->trace($name, function () use ($productId, $request, $context, $criteria) {
-                return $this->getDecorated()->load($productId, $request, $context, $criteria);
-            });
+            $response = $this->tracer->trace($name, fn () => $this->getDecorated()->load($productId, $request, $context, $criteria));
 
             $item->tag($this->generateTags($productId, $request, $response, $context, $criteria));
 

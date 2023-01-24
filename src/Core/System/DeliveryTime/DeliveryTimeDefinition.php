@@ -23,7 +23,7 @@ use Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation\Delivery
  */
 class DeliveryTimeDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'delivery_time';
+    final public const ENTITY_NAME = 'delivery_time';
 
     public function getEntityName(): string
     {

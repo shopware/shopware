@@ -193,13 +193,11 @@ class JoinGroupBuilder
         foreach ($mapped as $groups) {
             unset($groups['operator'], $groups['negated']);
 
-            $paths = array_merge($paths, array_keys($groups));
+            $paths = [...$paths, ...array_keys($groups)];
         }
         $duplicates = array_count_values($paths);
 
-        $duplicates = array_filter($duplicates, function (int $count) {
-            return $count > 1;
-        });
+        $duplicates = array_filter($duplicates, fn (int $count) => $count > 1);
 
         return array_keys($duplicates);
     }

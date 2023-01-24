@@ -63,9 +63,7 @@ class SnippetValidatorTest extends TestCase
             ->willReturn([$secondPath]);
 
         $snippetFileHandler->method('openJsonFile')
-            ->willReturnCallback(function () {
-                return ['foo' => 'bar'];
-            });
+            ->willReturnCallback(fn () => ['foo' => 'bar']);
 
         $snippetValidator = new SnippetValidator(new SnippetFileCollection(), $snippetFileHandler, '');
         $missingSnippets = $snippetValidator->validate();

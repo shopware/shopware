@@ -17,16 +17,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 abstract class FileNameProvider
 {
     /**
-     * @var EntityRepository
-     */
-    private $mediaRepository;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $mediaRepository)
+    public function __construct(private readonly EntityRepository $mediaRepository)
     {
-        $this->mediaRepository = $mediaRepository;
     }
 
     public function provide(

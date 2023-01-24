@@ -23,7 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class ProductPriceDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_price';
+    final public const ENTITY_NAME = 'product_price';
 
     public function getEntityName(): string
     {

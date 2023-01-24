@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class OrderTotalAmountRule extends Rule
 {
-    public const RULE_NAME = 'customerOrderTotalAmount';
+    final public const RULE_NAME = 'customerOrderTotalAmount';
 
     protected string $operator;
 

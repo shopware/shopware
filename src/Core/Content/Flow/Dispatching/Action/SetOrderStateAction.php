@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  */
 class SetOrderStateAction extends FlowAction implements DelayableAction
 {
-    public const FORCE_TRANSITION = 'force_transition';
+    final public const FORCE_TRANSITION = 'force_transition';
 
     private const ORDER = 'order';
 
@@ -32,23 +32,11 @@ class SetOrderStateAction extends FlowAction implements DelayableAction
 
     private const ORDER_TRANSACTION = 'order_transaction';
 
-    private Connection $connection;
-
-    private LoggerInterface $logger;
-
-    private OrderService $orderService;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        LoggerInterface $logger,
-        OrderService $orderService
-    ) {
-        $this->connection = $connection;
-        $this->logger = $logger;
-        $this->orderService = $orderService;
+    public function __construct(private readonly Connection $connection, private readonly LoggerInterface $logger, private readonly OrderService $orderService)
+    {
     }
 
     public static function getName(): string

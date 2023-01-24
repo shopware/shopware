@@ -17,10 +17,7 @@ class CacheTagCollection
         $this->keys = ['all' => true];
     }
 
-    /**
-     * @param string|array $tags
-     */
-    public function add($tags): void
+    public function add(string|array $tags): void
     {
         foreach (array_keys($this->keys) as $trace) {
             if (\is_string($tags)) {

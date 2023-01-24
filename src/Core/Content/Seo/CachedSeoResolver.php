@@ -13,17 +13,11 @@ use Symfony\Contracts\Cache\ItemInterface;
  */
 class CachedSeoResolver extends AbstractSeoResolver
 {
-    private AbstractSeoResolver $decorated;
-
-    private CacheInterface $cache;
-
     /**
      * @internal
      */
-    public function __construct(AbstractSeoResolver $decorated, CacheInterface $cache)
+    public function __construct(private readonly AbstractSeoResolver $decorated, private readonly CacheInterface $cache)
     {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
     }
 
     public function getDecorated(): AbstractSeoResolver

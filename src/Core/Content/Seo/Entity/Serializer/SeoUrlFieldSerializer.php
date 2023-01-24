@@ -22,7 +22,7 @@ class SeoUrlFieldSerializer extends OneToManyAssociationFieldSerializer
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
         );
 
         if (!$field instanceof SeoUrlAssociationField) {

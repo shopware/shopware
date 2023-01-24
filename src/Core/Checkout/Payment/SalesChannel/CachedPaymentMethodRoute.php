@@ -21,30 +21,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package checkout
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
 {
-    public const ALL_TAG = 'payment-method-route';
-
-    private AbstractPaymentMethodRoute $decorated;
-
-    private CacheInterface $cache;
-
-    private EntityCacheKeyGenerator $generator;
-
-    /**
-     * @var AbstractCacheTracer<PaymentMethodRouteResponse>
-     */
-    private AbstractCacheTracer $tracer;
-
-    /**
-     * @var array<string>
-     */
-    private array $states;
-
-    private EventDispatcherInterface $dispatcher;
+    final public const ALL_TAG = 'payment-method-route';
 
     /**
      * @internal
@@ -52,20 +33,8 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
      * @param AbstractCacheTracer<PaymentMethodRouteResponse> $tracer
      * @param array<string> $states
      */
-    public function __construct(
-        AbstractPaymentMethodRoute $decorated,
-        CacheInterface $cache,
-        EntityCacheKeyGenerator $generator,
-        AbstractCacheTracer $tracer,
-        EventDispatcherInterface $dispatcher,
-        array $states
-    ) {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
-        $this->generator = $generator;
-        $this->tracer = $tracer;
-        $this->states = $states;
-        $this->dispatcher = $dispatcher;
+    public function __construct(private readonly AbstractPaymentMethodRoute $decorated, private readonly CacheInterface $cache, private readonly EntityCacheKeyGenerator $generator, private readonly AbstractCacheTracer $tracer, private readonly EventDispatcherInterface $dispatcher, private readonly array $states)
+    {
     }
 
     public function getDecorated(): AbstractPaymentMethodRoute
@@ -75,8 +44,8 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/payment-method", name="store-api.payment.method", methods={"GET", "POST"}, defaults={"_entity"="payment_method"})
      */
+    #[Route(path: '/store-api/payment-method', name: 'store-api.payment.method', methods: ['GET', 'POST'], defaults: ['_entity' => 'payment_method'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
     {
         if ($context->hasState(...$this->states)) {
@@ -92,9 +61,7 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
         $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $criteria) {
             $name = self::buildName($context->getSalesChannelId());
 
-            $response = $this->tracer->trace($name, function () use ($request, $context, $criteria) {
-                return $this->getDecorated()->load($request, $context, $criteria);
-            });
+            $response = $this->tracer->trace($name, fn () => $this->getDecorated()->load($request, $context, $criteria));
 
             $item->tag($this->generateTags($request, $response, $context, $criteria));
 

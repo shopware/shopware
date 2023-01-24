@@ -7,26 +7,8 @@ namespace Shopware\Core\System\Snippet\Files;
  */
 class GenericSnippetFile extends AbstractSnippetFile
 {
-    private string $name;
-
-    private string $path;
-
-    private string $iso;
-
-    private string $author;
-
-    private bool $isBase;
-
-    private string $technicalName;
-
-    public function __construct(string $name, string $path, string $iso, string $author, bool $isBase, string $technicalName)
+    public function __construct(private readonly string $name, private readonly string $path, private readonly string $iso, private readonly string $author, private readonly bool $isBase, private string $technicalName)
     {
-        $this->name = $name;
-        $this->path = $path;
-        $this->iso = $iso;
-        $this->author = $author;
-        $this->isBase = $isBase;
-        $this->technicalName = $technicalName;
     }
 
     public function getName(): string

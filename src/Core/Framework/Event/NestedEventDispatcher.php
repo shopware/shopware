@@ -11,16 +11,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class NestedEventDispatcher implements EventDispatcherInterface
 {
     /**
-     * @var EventDispatcherInterface
-     */
-    private $dispatcher;
-
-    /**
      * @internal
      */
-    public function __construct(EventDispatcherInterface $dispatcher)
+    public function __construct(private readonly EventDispatcherInterface $dispatcher)
     {
-        $this->dispatcher = $dispatcher;
     }
 
     public function dispatch($event, ?string $eventName = null): object

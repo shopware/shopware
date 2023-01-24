@@ -22,34 +22,21 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class DocumentGeneratorController extends AbstractController
 {
-    private DocumentGenerator $documentGenerator;
-
-    private DecoderInterface $serializer;
-
-    private DataValidator $dataValidator;
-
     /**
      * @internal
      */
-    public function __construct(
-        DocumentGenerator $documentGenerator,
-        DecoderInterface $serializer,
-        DataValidator $dataValidator
-    ) {
-        $this->documentGenerator = $documentGenerator;
-        $this->serializer = $serializer;
-        $this->dataValidator = $dataValidator;
+    public function __construct(private readonly DocumentGenerator $documentGenerator, private readonly DecoderInterface $serializer, private readonly DataValidator $dataValidator)
+    {
     }
 
     /**
      * @Since("6.4.12.0")
-     * @Route("/api/_action/order/document/{documentTypeName}/create", name="api.action.document.bulk.create", methods={"POST"}, defaults={"_acl"={"document.viewer"}})
      */
+    #[Route(path: '/api/_action/order/document/{documentTypeName}/create', name: 'api.action.document.bulk.create', methods: ['POST'], defaults: ['_acl' => ['document.viewer']])]
     public function createDocuments(Request $request, string $documentTypeName, Context $context): JsonResponse
     {
         $documents = $this->serializer->decode($request->getContent(), 'json');
@@ -88,8 +75,8 @@ class DocumentGeneratorController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/document/{documentId}/upload", name="api.action.document.upload", methods={"POST"})
      */
+    #[Route(path: '/api/_action/document/{documentId}/upload', name: 'api.action.document.upload', methods: ['POST'])]
     public function uploadToDocument(Request $request, string $documentId, Context $context): JsonResponse
     {
         $documentIdStruct = $this->documentGenerator->upload(

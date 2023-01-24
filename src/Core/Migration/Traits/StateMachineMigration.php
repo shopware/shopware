@@ -9,32 +9,8 @@ namespace Shopware\Core\Migration\Traits;
  */
 class StateMachineMigration
 {
-    private string $technicalName;
-
-    private string $de;
-
-    private string $en;
-
-    private array $states;
-
-    private array $transitions;
-
-    private ?string $initialState;
-
-    public function __construct(
-        string $technicalName,
-        string $de,
-        string $en,
-        array $states = [],
-        array $transitions = [],
-        ?string $initialState = null
-    ) {
-        $this->technicalName = $technicalName;
-        $this->de = $de;
-        $this->en = $en;
-        $this->states = $states;
-        $this->transitions = $transitions;
-        $this->initialState = $initialState;
+    public function __construct(private string $technicalName, private string $de, private string $en, private array $states = [], private array $transitions = [], private ?string $initialState = null)
+    {
     }
 
     public static function state(string $technicalName, string $de, string $en): array

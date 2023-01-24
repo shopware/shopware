@@ -31,10 +31,7 @@ class ProductExportValidatorTest extends TestCase
      */
     private $repository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var SalesChannelContext

@@ -20,36 +20,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package checkout
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CartItemAddRoute extends AbstractCartItemAddRoute
 {
-    private CartCalculator $cartCalculator;
-
-    private AbstractCartPersister $cartPersister;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private LineItemFactoryRegistry $lineItemFactory;
-
-    private RateLimiter $rateLimiter;
-
     /**
      * @internal
      */
-    public function __construct(
-        CartCalculator $cartCalculator,
-        AbstractCartPersister $cartPersister,
-        EventDispatcherInterface $eventDispatcher,
-        LineItemFactoryRegistry $lineItemFactory,
-        RateLimiter $rateLimiter
-    ) {
-        $this->cartCalculator = $cartCalculator;
-        $this->cartPersister = $cartPersister;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->lineItemFactory = $lineItemFactory;
-        $this->rateLimiter = $rateLimiter;
+    public function __construct(private readonly CartCalculator $cartCalculator, private readonly AbstractCartPersister $cartPersister, private readonly EventDispatcherInterface $eventDispatcher, private readonly LineItemFactoryRegistry $lineItemFactory, private readonly RateLimiter $rateLimiter)
+    {
     }
 
     public function getDecorated(): AbstractCartItemAddRoute
@@ -59,10 +38,10 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
 
     /**
      * @Since("6.3.0.0")
-     * @Route("/store-api/checkout/cart/line-item", name="store-api.checkout.cart.add", methods={"POST"})
      *
      * @param array<LineItem> $items
      */
+    #[Route(path: '/store-api/checkout/cart/line-item', name: 'store-api.checkout.cart.add', methods: ['POST'])]
     public function add(Request $request, Cart $cart, SalesChannelContext $context, ?array $items): CartResponse
     {
         if ($items === null) {

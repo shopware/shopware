@@ -19,7 +19,7 @@ trait ItemsRemoveTrait
      *
      * @example remove-product-cases/remove-product-cases.twig 2 3 Add and then remove a product line-item from the cart.
      */
-    public function remove($id): void
+    public function remove(string|ItemFacade $id): void
     {
         if ($id instanceof ItemFacade) {
             $id = $id->getId();

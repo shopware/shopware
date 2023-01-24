@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  */
 class ValueGeneratorPatternDate extends AbstractValueGenerator
 {
-    public const STANDARD_FORMAT = 'Y-m-d';
+    final public const STANDARD_FORMAT = 'Y-m-d';
 
     public function getPatternId(): string
     {

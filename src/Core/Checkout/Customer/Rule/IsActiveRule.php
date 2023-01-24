@@ -13,17 +13,14 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class IsActiveRule extends Rule
 {
-    public const RULE_NAME = 'customerIsActive';
-
-    protected bool $isActive;
+    final public const RULE_NAME = 'customerIsActive';
 
     /**
      * @internal
      */
-    public function __construct(bool $isActive = false)
+    public function __construct(protected bool $isActive = false)
     {
         parent::__construct();
-        $this->isActive = $isActive;
     }
 
     public function match(RuleScope $scope): bool

@@ -16,17 +16,11 @@ use Shopware\Core\System\User\UserDefinition;
  */
 class AppLocaleProvider
 {
-    private EntityRepository $userRepository;
-
-    private LanguageLocaleCodeProvider $languageLocaleProvider;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $userRepository, LanguageLocaleCodeProvider $languageLocaleProvider)
+    public function __construct(private readonly EntityRepository $userRepository, private readonly LanguageLocaleCodeProvider $languageLocaleProvider)
     {
-        $this->userRepository = $userRepository;
-        $this->languageLocaleProvider = $languageLocaleProvider;
     }
 
     public function getLocaleFromContext(Context $context): string

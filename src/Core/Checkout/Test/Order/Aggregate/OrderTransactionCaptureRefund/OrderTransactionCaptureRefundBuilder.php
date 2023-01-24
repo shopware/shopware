@@ -25,13 +25,7 @@ class OrderTransactionCaptureRefundBuilder
 
     protected string $id;
 
-    protected string $captureId;
-
     protected CalculatedPrice $amount;
-
-    protected ?string $externalReference = null;
-
-    protected ?string $reason = null;
 
     protected string $stateId;
 
@@ -40,21 +34,18 @@ class OrderTransactionCaptureRefundBuilder
     public function __construct(
         IdsCollection $ids,
         string $key,
-        string $captureId,
+        protected string $captureId,
         float $amount = 420.69,
         string $state = OrderTransactionCaptureRefundStates::STATE_OPEN,
-        ?string $externalReference = null,
-        ?string $reason = null
+        protected ?string $externalReference = null,
+        protected ?string $reason = null
     ) {
         $this->id = $ids->get($key);
         $this->ids = $ids;
-        $this->captureId = $captureId;
         $this->stateId = $this->getStateMachineState(
             OrderTransactionCaptureRefundStates::STATE_MACHINE,
             $state
         );
-        $this->externalReference = $externalReference;
-        $this->reason = $reason;
 
         $this->amount($amount);
     }

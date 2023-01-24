@@ -10,14 +10,11 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\Abs
  */
 class ValueGeneratorPatternIncrement extends AbstractValueGenerator
 {
-    private AbstractIncrementStorage $incrementConnector;
-
     /**
      * @internal
      */
-    public function __construct(AbstractIncrementStorage $incrementConnector)
+    public function __construct(private readonly AbstractIncrementStorage $incrementConnector)
     {
-        $this->incrementConnector = $incrementConnector;
     }
 
     public function getPatternId(): string

@@ -17,29 +17,20 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
- * @Route(defaults={"_routeScope"={"api"}})
  *
  * @package core
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class ScriptApiRoute
 {
-    private ScriptExecutor $executor;
-
-    private ScriptLoader $loader;
-
-    private ScriptResponseEncoder $scriptResponseEncoder;
-
-    public function __construct(ScriptExecutor $executor, ScriptLoader $loader, ScriptResponseEncoder $scriptResponseEncoder)
+    public function __construct(private readonly ScriptExecutor $executor, private readonly ScriptLoader $loader, private readonly ScriptResponseEncoder $scriptResponseEncoder)
     {
-        $this->executor = $executor;
-        $this->loader = $loader;
-        $this->scriptResponseEncoder = $scriptResponseEncoder;
     }
 
     /**
      * @Since("6.4.9.0")
-     * @Route("/api/script/{hook}", name="api.script_endpoint", methods={"POST"}, requirements={"hook"=".+"})
      */
+    #[Route(path: '/api/script/{hook}', name: 'api.script_endpoint', methods: ['POST'], requirements: ['hook' => '.+'])]
     public function execute(string $hook, Request $request, Context $context): Response
     {
         //  blog/update =>  blog-update

@@ -11,16 +11,13 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class LanguageLocaleCodeProvider implements ResetInterface
 {
-    private LanguageLoaderInterface $languageLoader;
-
     private array $languages = [];
 
     /**
      * @internal
      */
-    public function __construct(LanguageLoaderInterface $languageLoader)
+    public function __construct(private readonly LanguageLoaderInterface $languageLoader)
     {
-        $this->languageLoader = $languageLoader;
     }
 
     public function getLocaleForLanguageId(string $languageId): string

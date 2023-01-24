@@ -9,16 +9,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class ProductExportRenderBodyContextEvent extends Event
 {
-    public const NAME = 'product_export.render.body_context';
+    final public const NAME = 'product_export.render.body_context';
 
-    /**
-     * @var array
-     */
-    private $context;
-
-    public function __construct(array $context)
+    public function __construct(private array $context)
     {
-        $this->context = $context;
     }
 
     public function getContext(): array

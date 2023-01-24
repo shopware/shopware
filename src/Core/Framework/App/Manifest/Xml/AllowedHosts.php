@@ -9,11 +9,8 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
  */
 class AllowedHosts extends XmlElement
 {
-    protected array $allowedHosts;
-
-    private function __construct(array $allowedHosts)
+    private function __construct(protected array $allowedHosts)
     {
-        $this->allowedHosts = $allowedHosts;
     }
 
     public static function fromXml(\DOMElement $element): self

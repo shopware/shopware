@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class LineItemGroupRule extends FilterRule
 {
-    public const RULE_NAME = 'cartLineItemInGroup';
+    final public const RULE_NAME = 'cartLineItemInGroup';
 
     protected string $groupId;
 
@@ -29,7 +29,7 @@ class LineItemGroupRule extends FilterRule
 
     protected string $sorterKey;
 
-    protected ?RuleCollection $rules;
+    protected ?RuleCollection $rules = null;
 
     /**
      * @throws CartException

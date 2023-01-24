@@ -21,8 +21,8 @@ use Shopware\Core\System\User\UserEntity;
  */
 class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
 {
-    public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';
-    public const CONFIG_KEY_STORE_SHOP_SECRET = 'core.store.shopSecret';
+    final public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';
+    final public const CONFIG_KEY_STORE_SHOP_SECRET = 'core.store.shopSecret';
 
     private const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';
     private const SHOPWARE_SHOP_SECRET_HEADER = 'X-Shopware-Shop-Secret';
@@ -62,7 +62,7 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
     {
         try {
             return $this->getTokenFromAdmin($context);
-        } catch (InvalidContextSourceException $e) {
+        } catch (InvalidContextSourceException) {
             return $this->getTokenFromSystem($context);
         }
     }
@@ -72,7 +72,7 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
         $contextSource = $this->ensureAdminApiSource($context);
         $userId = $contextSource->getUserId();
         if ($userId === null) {
-            throw new InvalidContextSourceUserException(\get_class($contextSource));
+            throw new InvalidContextSourceUserException($contextSource::class);
         }
 
         return $this->fetchUserStoreToken(new Criteria([$userId]), $context);
@@ -82,7 +82,7 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
     {
         $contextSource = $context->getSource();
         if (!($contextSource instanceof SystemSource)) {
-            throw new InvalidContextSourceException(SystemSource::class, \get_class($contextSource));
+            throw new InvalidContextSourceException(SystemSource::class, $contextSource::class);
         }
 
         $criteria = new Criteria();

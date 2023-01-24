@@ -10,24 +10,12 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
  */
 class EntityIndexingMessage implements AsyncMessageInterface
 {
-    protected $data;
-
-    protected $offset;
-
     /**
      * @var string
      */
     protected $indexer;
 
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var bool
-     */
-    private $forceQueue;
+    private readonly Context $context;
 
     /**
      * @var array<string>
@@ -37,12 +25,9 @@ class EntityIndexingMessage implements AsyncMessageInterface
     /**
      * @internal
      */
-    public function __construct($data, $offset = null, ?Context $context = null, bool $forceQueue = false)
+    public function __construct(protected $data, protected $offset = null, ?Context $context = null, private readonly bool $forceQueue = false)
     {
-        $this->data = $data;
-        $this->offset = $offset;
         $this->context = $context ?? Context::createDefaultContext();
-        $this->forceQueue = $forceQueue;
     }
 
     public function getData()

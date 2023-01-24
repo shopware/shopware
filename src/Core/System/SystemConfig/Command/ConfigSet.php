@@ -20,17 +20,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ConfigSet extends Command
 {
     /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
      * @internal
      */
-    public function __construct(SystemConfigService $systemConfigService)
+    public function __construct(private readonly SystemConfigService $systemConfigService)
     {
         parent::__construct();
-        $this->systemConfigService = $systemConfigService;
     }
 
     protected function configure(): void
@@ -50,7 +44,7 @@ class ConfigSet extends Command
             $input->getOption('salesChannelId')
         );
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 
     /**
@@ -60,7 +54,7 @@ class ConfigSet extends Command
     {
         $value = $input->getArgument('value');
         if ($input->getOption('json')) {
-            $decodedValue = json_decode($value, true);
+            $decodedValue = json_decode((string) $value, true);
 
             if (json_last_error() === \JSON_ERROR_NONE) {
                 return $decodedValue;

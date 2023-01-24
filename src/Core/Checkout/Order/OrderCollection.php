@@ -20,16 +20,12 @@ class OrderCollection extends EntityCollection
      */
     public function getCurrencyIds(): array
     {
-        return $this->fmap(function (OrderEntity $order) {
-            return $order->getCurrencyId();
-        });
+        return $this->fmap(fn (OrderEntity $order) => $order->getCurrencyId());
     }
 
     public function filterByCurrencyId(string $id): self
     {
-        return $this->filter(function (OrderEntity $order) use ($id) {
-            return $order->getCurrencyId() === $id;
-        });
+        return $this->filter(fn (OrderEntity $order) => $order->getCurrencyId() === $id);
     }
 
     /**
@@ -37,51 +33,39 @@ class OrderCollection extends EntityCollection
      */
     public function getSalesChannelIs(): array
     {
-        return $this->fmap(function (OrderEntity $order) {
-            return $order->getSalesChannelId();
-        });
+        return $this->fmap(fn (OrderEntity $order) => $order->getSalesChannelId());
     }
 
     public function filterBySalesChannelId(string $id): self
     {
-        return $this->filter(function (OrderEntity $order) use ($id) {
-            return $order->getSalesChannelId() === $id;
-        });
+        return $this->filter(fn (OrderEntity $order) => $order->getSalesChannelId() === $id);
     }
 
     public function getOrderCustomers(): CustomerCollection
     {
         return new CustomerCollection(
-            $this->fmap(function (OrderEntity $order) {
-                return $order->getOrderCustomer();
-            })
+            $this->fmap(fn (OrderEntity $order) => $order->getOrderCustomer())
         );
     }
 
     public function getCurrencies(): CurrencyCollection
     {
         return new CurrencyCollection(
-            $this->fmap(function (OrderEntity $order) {
-                return $order->getCurrency();
-            })
+            $this->fmap(fn (OrderEntity $order) => $order->getCurrency())
         );
     }
 
     public function getSalesChannels(): SalesChannelCollection
     {
         return new SalesChannelCollection(
-            $this->fmap(function (OrderEntity $order) {
-                return $order->getSalesChannel();
-            })
+            $this->fmap(fn (OrderEntity $order) => $order->getSalesChannel())
         );
     }
 
     public function getBillingAddress(): OrderAddressCollection
     {
         return new OrderAddressCollection(
-            $this->fmap(function (OrderEntity $order) {
-                return $order->getAddresses();
-            })
+            $this->fmap(fn (OrderEntity $order) => $order->getAddresses())
         );
     }
 

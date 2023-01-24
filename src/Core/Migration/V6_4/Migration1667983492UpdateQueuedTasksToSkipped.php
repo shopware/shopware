@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class Migration1667983492UpdateQueuedTasksToSkipped extends MigrationStep
 {

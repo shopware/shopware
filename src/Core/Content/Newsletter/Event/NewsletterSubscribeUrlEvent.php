@@ -13,32 +13,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class NewsletterSubscribeUrlEvent extends Event implements ShopwareSalesChannelEvent
 {
-    private string $subscribeUrl;
-
-    private SalesChannelContext $salesChannelContext;
-
-    private string $hashedEmail;
-
-    private string $hash;
-
-    private array $data;
-
-    private NewsletterRecipientEntity $recipient;
-
-    public function __construct(
-        SalesChannelContext $salesChannelContext,
-        string $subscribeUrl,
-        string $hashedEmail,
-        string $hash,
-        array $data,
-        NewsletterRecipientEntity $recipient
-    ) {
-        $this->subscribeUrl = $subscribeUrl;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->hashedEmail = $hashedEmail;
-        $this->hash = $hash;
-        $this->data = $data;
-        $this->recipient = $recipient;
+    public function __construct(private readonly SalesChannelContext $salesChannelContext, private string $subscribeUrl, private readonly string $hashedEmail, private readonly string $hash, private readonly array $data, private readonly NewsletterRecipientEntity $recipient)
+    {
     }
 
     public function getSubscribeUrl(): string

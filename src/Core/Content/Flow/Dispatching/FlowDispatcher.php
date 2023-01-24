@@ -21,19 +21,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class FlowDispatcher implements EventDispatcherInterface
 {
-    private EventDispatcherInterface $dispatcher;
-
     private ContainerInterface $container;
 
-    private LoggerInterface $logger;
-
-    private FlowFactory $flowFactory;
-
-    public function __construct(EventDispatcherInterface $dispatcher, LoggerInterface $logger, FlowFactory $flowFactory)
+    public function __construct(private readonly EventDispatcherInterface $dispatcher, private readonly LoggerInterface $logger, private readonly FlowFactory $flowFactory)
     {
-        $this->dispatcher = $dispatcher;
-        $this->logger = $logger;
-        $this->flowFactory = $flowFactory;
     }
 
     public function setContainer(ContainerInterface $container): void
@@ -72,11 +63,9 @@ class FlowDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @param string   $eventName
      * @param callable $listener
-     * @param int      $priority
      */
-    public function addListener($eventName, $listener, $priority = 0): void
+    public function addListener(string $eventName, $listener, int $priority = 0): void
     {
         $this->dispatcher->addListener($eventName, $listener, $priority);
     }
@@ -87,10 +76,9 @@ class FlowDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @param string   $eventName
      * @param callable $listener
      */
-    public function removeListener($eventName, $listener): void
+    public function removeListener(string $eventName, $listener): void
     {
         $this->dispatcher->removeListener($eventName, $listener);
     }
@@ -106,10 +94,9 @@ class FlowDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @param string $eventName
      * @param callable $listener
      */
-    public function getListenerPriority($eventName, $listener): ?int
+    public function getListenerPriority(string $eventName, $listener): ?int
     {
         return $this->dispatcher->getListenerPriority($eventName, $listener);
     }

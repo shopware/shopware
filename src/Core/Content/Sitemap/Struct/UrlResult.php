@@ -10,19 +10,10 @@ use Shopware\Core\Framework\Struct\Struct;
 class UrlResult extends Struct
 {
     /**
-     * @var Url[]
+     * @param Url[] $urls
      */
-    private $urls;
-
-    /**
-     * @var int|null
-     */
-    private $nextOffset;
-
-    public function __construct(array $urls, ?int $nextOffset)
+    public function __construct(private readonly array $urls, private readonly ?int $nextOffset)
     {
-        $this->urls = $urls;
-        $this->nextOffset = $nextOffset;
     }
 
     /**

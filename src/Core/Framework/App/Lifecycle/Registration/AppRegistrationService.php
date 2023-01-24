@@ -23,32 +23,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
  */
 class AppRegistrationService
 {
-    private HandshakeFactory $handshakeFactory;
-
-    private Client $httpClient;
-
-    private EntityRepository $appRepository;
-
-    private string $shopUrl;
-
-    private ShopIdProvider $shopIdProvider;
-
-    private string $shopwareVersion;
-
-    public function __construct(
-        HandshakeFactory $handshakeFactory,
-        Client $httpClient,
-        EntityRepository $appRepository,
-        string $shopUrl,
-        ShopIdProvider $shopIdProvider,
-        string $shopwareVersion
-    ) {
-        $this->handshakeFactory = $handshakeFactory;
-        $this->httpClient = $httpClient;
-        $this->appRepository = $appRepository;
-        $this->shopUrl = $shopUrl;
-        $this->shopIdProvider = $shopIdProvider;
-        $this->shopwareVersion = $shopwareVersion;
+    public function __construct(private readonly HandshakeFactory $handshakeFactory, private readonly Client $httpClient, private readonly EntityRepository $appRepository, private readonly string $shopUrl, private readonly ShopIdProvider $shopIdProvider, private readonly string $shopwareVersion)
+    {
     }
 
     public function registerApp(Manifest $manifest, string $id, string $secretAccessKey, Context $context): void
@@ -69,7 +45,7 @@ class AppRegistrationService
         } catch (RequestException $e) {
             if ($e->hasResponse() && $e->getResponse() !== null) {
                 $response = $e->getResponse();
-                $data = json_decode($response->getBody()->getContents(), true);
+                $data = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
 
                 if (isset($data['error']) && \is_string($data['error'])) {
                     throw new AppRegistrationException($data['error']);
@@ -132,7 +108,7 @@ class AppRegistrationService
      */
     private function parseResponse(AppHandshakeInterface $handshake, ResponseInterface $response): array
     {
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
 
         if (isset($data['error']) && \is_string($data['error'])) {
             throw new AppRegistrationException($data['error']);
@@ -160,7 +136,7 @@ class AppRegistrationService
 
         try {
             $shopId = $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
+        } catch (AppUrlChangeDetectedException) {
             throw new AppRegistrationException(
                 'The app url changed. Please resolve how the apps should handle this change.'
             );
@@ -180,7 +156,7 @@ class AppRegistrationService
      */
     private function signPayload(array $body, string $secret): string
     {
-        return hash_hmac('sha256', (string) json_encode($body), $secret);
+        return hash_hmac('sha256', (string) json_encode($body, \JSON_THROW_ON_ERROR), $secret);
     }
 
     private function getApp(string $id, Context $context): AppEntity

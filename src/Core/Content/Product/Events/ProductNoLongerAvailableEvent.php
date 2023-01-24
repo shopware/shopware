@@ -11,14 +11,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class ProductNoLongerAvailableEvent extends Event implements ShopwareEvent, ProductChangedEventInterface
 {
-    protected array $ids;
-
-    protected Context $context;
-
-    public function __construct(array $ids, Context $context)
+    public function __construct(protected array $ids, protected Context $context)
     {
-        $this->ids = $ids;
-        $this->context = $context;
     }
 
     public function getIds(): array

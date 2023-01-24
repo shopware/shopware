@@ -10,30 +10,12 @@ use Symfony\Contracts\EventDispatcher\Event;
 class SystemConfigChangedEvent extends Event
 {
     /**
-     * @var string
-     */
-    private $key;
-
-    /**
-     * @var string|float|int|bool|array|null
-     */
-    private $value;
-
-    /**
-     * @var string|null
-     */
-    private $salesChannelId;
-
-    /**
      * @internal
      *
      * @param array|bool|float|int|string|null $value
      */
-    public function __construct(string $key, $value, ?string $salesChannelId)
+    public function __construct(private readonly string $key, private $value, private readonly ?string $salesChannelId)
     {
-        $this->key = $key;
-        $this->value = $value;
-        $this->salesChannelId = $salesChannelId;
     }
 
     public function getKey(): string

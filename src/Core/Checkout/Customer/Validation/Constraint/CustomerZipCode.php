@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class CustomerZipCode extends Constraint
 {
-    public const ZIP_CODE_INVALID = 'ZIP_CODE_INVALID';
+    final public const ZIP_CODE_INVALID = 'ZIP_CODE_INVALID';
 
     public ?string $countryId = null;
 

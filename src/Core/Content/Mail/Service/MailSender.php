@@ -15,22 +15,10 @@ use Symfony\Component\Mime\Email;
 class MailSender extends AbstractMailSender
 {
     /**
-     * @var Mailer
-     */
-    private $mailer;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $configService;
-
-    /**
      * @internal
      */
-    public function __construct(Mailer $mailer, SystemConfigService $configService)
+    public function __construct(private readonly Mailer $mailer, private readonly SystemConfigService $configService)
     {
-        $this->mailer = $mailer;
-        $this->configService = $configService;
     }
 
     public function getDecorated(): AbstractMailSender

@@ -16,22 +16,12 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 abstract class ZipCodeRule extends Rule
 {
-    protected string $operator;
-
-    /**
-     * @var array<string>|null
-     */
-    protected ?array $zipCodes;
-
     /**
      * @param array<string>|null $zipCodes
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $zipCodes = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $zipCodes = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->zipCodes = $zipCodes;
     }
 
     public function getConstraints(): array
@@ -70,31 +60,16 @@ abstract class ZipCodeRule extends Rule
 
         $compareZipCode = \is_array($this->zipCodes) ? $this->zipCodes[0] : null;
 
-        switch ($this->operator) {
-            case Rule::OPERATOR_EQ:
-                return !empty($this->getMatches($zipCode));
-
-            case Rule::OPERATOR_NEQ:
-                return empty($this->getMatches($zipCode));
-
-            case self::OPERATOR_GTE:
-                return is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::greaterThanOrEquals((float) $zipCode, (float) $compareZipCode);
-
-            case self::OPERATOR_LTE:
-                return is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::lessThanOrEquals((float) $zipCode, (float) $compareZipCode);
-
-            case self::OPERATOR_GT:
-                return is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::greaterThan((float) $zipCode, (float) $compareZipCode);
-
-            case self::OPERATOR_LT:
-                return is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::lessThan((float) $zipCode, (float) $compareZipCode);
-
-            case self::OPERATOR_EMPTY:
-                return empty($zipCode);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return match ($this->operator) {
+            Rule::OPERATOR_EQ => !empty($this->getMatches($zipCode)),
+            Rule::OPERATOR_NEQ => empty($this->getMatches($zipCode)),
+            self::OPERATOR_GTE => is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::greaterThanOrEquals((float) $zipCode, (float) $compareZipCode),
+            self::OPERATOR_LTE => is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::lessThanOrEquals((float) $zipCode, (float) $compareZipCode),
+            self::OPERATOR_GT => is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::greaterThan((float) $zipCode, (float) $compareZipCode),
+            self::OPERATOR_LT => is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::lessThan((float) $zipCode, (float) $compareZipCode),
+            self::OPERATOR_EMPTY => empty($zipCode),
+            default => throw new UnsupportedOperatorException($this->operator, self::class),
+        };
     }
 
     /**

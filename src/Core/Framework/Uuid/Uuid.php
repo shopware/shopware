@@ -13,7 +13,7 @@ class Uuid
     /**
      * Regular expression pattern for matching a valid UUID of any variant.
      */
-    public const VALID_PATTERN = '^[0-9a-f]{32}$';
+    final public const VALID_PATTERN = '^[0-9a-f]{32}$';
 
     public static function randomHex(): string
     {

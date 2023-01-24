@@ -16,24 +16,8 @@ use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
  */
 class QuerySigner
 {
-    private string $shopUrl;
-
-    private string $shopwareVersion;
-
-    private LocaleProvider $localeProvider;
-
-    private ShopIdProvider $shopIdProvider;
-
-    public function __construct(
-        string $shopUrl,
-        string $shopwareVersion,
-        LocaleProvider $localeProvider,
-        ShopIdProvider $shopIdProvider
-    ) {
-        $this->shopUrl = $shopUrl;
-        $this->shopwareVersion = $shopwareVersion;
-        $this->localeProvider = $localeProvider;
-        $this->shopIdProvider = $shopIdProvider;
+    public function __construct(private readonly string $shopUrl, private readonly string $shopwareVersion, private readonly LocaleProvider $localeProvider, private readonly ShopIdProvider $shopIdProvider)
+    {
     }
 
     public function signUri(string $uri, string $secret, Context $context): UriInterface

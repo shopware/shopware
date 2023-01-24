@@ -13,11 +13,8 @@ use Shopware\Core\Framework\Context;
  */
 class RefundTestPaymentHandler implements RefundPaymentHandlerInterface
 {
-    private OrderTransactionCaptureRefundStateHandler $stateHandler;
-
-    public function __construct(OrderTransactionCaptureRefundStateHandler $stateHandler)
+    public function __construct(private readonly OrderTransactionCaptureRefundStateHandler $stateHandler)
     {
-        $this->stateHandler = $stateHandler;
     }
 
     public function refund(string $refundId, Context $context): void

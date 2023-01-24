@@ -16,10 +16,10 @@ class HookableEventDoc
     private const WRITE_EVENT_DESCRIPTION_TEMPLATE = 'Triggers when a %s is %s';
 
     public function __construct(
-        private string $eventName,
-        private ?string $description,
-        private string $permissions,
-        private ?string $payload
+        private readonly string $eventName,
+        private readonly ?string $description,
+        private readonly string $permissions,
+        private readonly ?string $payload
     ) {
     }
 
@@ -61,7 +61,7 @@ class HookableEventDoc
                 $permissions ? '`' . implode('` `', $permissions) . '`' : '-',
                 json_encode(HookableEventDoc::parsingSimpleEntityWrittenEvent($eventInfo[0], $eventInfo[1]), \JSON_THROW_ON_ERROR)
             );
-        } catch (\JsonException $e) {
+        } catch (\JsonException) {
             throw new \RuntimeException('Can not parsing payload for written event');
         }
     }
@@ -78,7 +78,7 @@ class HookableEventDoc
                 $permissions ? '`' . implode('` `', $permissions) . '`' : '-',
                 json_encode(HookableEventDoc::parsingSimpleBusinessEventPayload($event->getData()), \JSON_THROW_ON_ERROR)
             );
-        } catch (\JsonException $e) {
+        } catch (\JsonException) {
             throw new \RuntimeException('Can not parsing payload for business event');
         }
     }

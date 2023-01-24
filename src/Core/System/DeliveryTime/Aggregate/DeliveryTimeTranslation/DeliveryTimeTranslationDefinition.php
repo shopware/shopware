@@ -15,7 +15,7 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
  */
 class DeliveryTimeTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'delivery_time_translation';
+    final public const ENTITY_NAME = 'delivery_time_translation';
 
     public function getEntityName(): string
     {

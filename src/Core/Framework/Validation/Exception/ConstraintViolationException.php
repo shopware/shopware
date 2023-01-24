@@ -12,22 +12,13 @@ use Symfony\Component\Validator\ConstraintViolationList;
  */
 class ConstraintViolationException extends ShopwareHttpException
 {
-    /**
-     * @var ConstraintViolationList
-     */
-    private $violations;
+    private readonly ConstraintViolationList $violations;
 
-    /**
-     * @var array
-     */
-    private $inputData;
-
-    public function __construct(ConstraintViolationList $violations, array $inputData)
+    public function __construct(ConstraintViolationList $violations, private readonly array $inputData)
     {
         $this->mapErrorCodes($violations);
 
         $this->violations = $violations;
-        $this->inputData = $inputData;
 
         parent::__construct('Caught {{ count }} violation errors.', ['count' => $violations->count()]);
     }

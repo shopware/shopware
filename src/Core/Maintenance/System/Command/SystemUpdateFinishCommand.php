@@ -32,12 +32,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 )]
 class SystemUpdateFinishCommand extends Command
 {
-    private ContainerInterface $container;
-
-    public function __construct(ContainerInterface $container)
+    public function __construct(private readonly ContainerInterface $container)
     {
         parent::__construct();
-        $this->container = $container;
     }
 
     protected function configure(): void

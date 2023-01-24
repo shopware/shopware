@@ -724,12 +724,8 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(2, $oldAddresses);
         static::assertCount(2, $newAddresses);
 
-        $oldAddressIds = $oldAddresses->map(static function (CustomerAddressEntity $address) {
-            return $address->getId();
-        });
-        $newAddressIds = $newAddresses->map(static function (CustomerAddressEntity $address) {
-            return $address->getId();
-        });
+        $oldAddressIds = $oldAddresses->getAddresses()->map(static fn (CustomerAddressEntity $address) => $address->getId());
+        $newAddressIds = $newAddresses->getAddresses()->map(static fn (CustomerAddressEntity $address) => $address->getId());
 
         foreach ($oldAddressIds as $id) {
             static::assertNotContains($id, $newAddressIds);
@@ -936,9 +932,7 @@ class EntityRepositoryTest extends TestCase
             ['id' => Uuid::fromHexToBytes($id)]
         );
         static::assertCount(7, $conditions);
-        $withParent = array_filter($conditions, static function ($condition) {
-            return $condition['parent_id'] !== null;
-        });
+        $withParent = array_filter($conditions, static fn ($condition) => $condition['parent_id'] !== null);
         static::assertCount(6, $withParent);
 
         $newId = Uuid::randomHex();

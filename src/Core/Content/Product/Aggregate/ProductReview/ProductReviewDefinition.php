@@ -28,7 +28,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class ProductReviewDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_review';
+    final public const ENTITY_NAME = 'product_review';
 
     public function getEntityName(): string
     {

@@ -4,17 +4,16 @@ namespace Shopware\Core\Framework\Log;
 
 /**
  * @interal
+ *
+ * @package core
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final class Package
 {
     public const PACKAGE_TRACE_ATTRIBUTE_KEY = 'pTrace';
 
-    public string $package;
-
-    public function __construct(string $package)
+    public function __construct(public string $package)
     {
-        $this->package = $package;
     }
 
     public static function getPackageName(string $class): ?string

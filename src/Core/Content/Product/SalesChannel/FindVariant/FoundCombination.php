@@ -9,17 +9,11 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 class FoundCombination extends Struct
 {
-    protected string $variantId;
-
     /**
-     * @var array<string>
+     * @param string[] $options
      */
-    protected array $options;
-
-    public function __construct(string $variantId, array $options)
+    public function __construct(protected string $variantId, protected array $options)
     {
-        $this->variantId = $variantId;
-        $this->options = $options;
     }
 
     public function getVariantId(): string

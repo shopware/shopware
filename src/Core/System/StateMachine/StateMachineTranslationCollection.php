@@ -15,16 +15,12 @@ class StateMachineTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (StateMachineTranslationEntity $stateMachineTranslation) {
-            return $stateMachineTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (StateMachineTranslationEntity $stateMachineTranslation) => $stateMachineTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (StateMachineTranslationEntity $stateMachineTranslation) use ($id) {
-            return $stateMachineTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (StateMachineTranslationEntity $stateMachineTranslation) => $stateMachineTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

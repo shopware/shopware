@@ -15,11 +15,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 class ProductExportEntity extends Entity
 {
     use EntityIdTrait;
-    public const ENCODING_UTF8 = 'UTF-8';
-    public const ENCODING_ISO88591 = 'ISO-8859-1';
+    final public const ENCODING_UTF8 = 'UTF-8';
+    final public const ENCODING_ISO88591 = 'ISO-8859-1';
 
-    public const FILE_FORMAT_CSV = 'csv';
-    public const FILE_FORMAT_XML = 'xml';
+    final public const FILE_FORMAT_CSV = 'csv';
+    final public const FILE_FORMAT_XML = 'xml';
 
     /**
      * @var string

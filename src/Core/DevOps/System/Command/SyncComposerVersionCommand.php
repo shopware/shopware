@@ -17,15 +17,12 @@ use const PHP_EOL;
 )]
 class SyncComposerVersionCommand extends Command
 {
-    private string $projectDir;
-
     /**
      * @internal
      */
-    public function __construct(string $projectDir)
+    public function __construct(private readonly string $projectDir)
     {
         parent::__construct();
-        $this->projectDir = $projectDir;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

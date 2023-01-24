@@ -9,13 +9,10 @@ use Doctrine\DBAL\Query\QueryBuilder;
  */
 class OffsetQuery implements IterableQuery
 {
-    private QueryBuilder $query;
-
     private int $offset = 0;
 
-    public function __construct(QueryBuilder $query)
+    public function __construct(private readonly QueryBuilder $query)
     {
-        $this->query = $query;
     }
 
     public function fetch(): array

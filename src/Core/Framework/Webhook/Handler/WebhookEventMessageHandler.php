@@ -27,9 +27,9 @@ final class WebhookEventMessageHandler
      * @internal
      */
     public function __construct(
-        private Client $client,
-        private EntityRepository $webhookRepository,
-        private EntityRepository $webhookEventLogRepository
+        private readonly Client $client,
+        private readonly EntityRepository $webhookRepository,
+        private readonly EntityRepository $webhookEventLogRepository
     ) {
     }
 
@@ -44,7 +44,7 @@ final class WebhookEventMessageHandler
         $payload['timestamp'] = $timestamp;
 
         /** @var string $jsonPayload */
-        $jsonPayload = json_encode($payload);
+        $jsonPayload = json_encode($payload, \JSON_THROW_ON_ERROR);
 
         $headers = ['Content-Type' => 'application/json',
             'sw-version' => $shopwareVersion, ];
@@ -88,7 +88,7 @@ final class WebhookEventMessageHandler
                     'processingTime' => time() - $timestamp,
                     'responseContent' => [
                         'headers' => $response->getHeaders(),
-                        'body' => \json_decode($response->getBody()->getContents(), true),
+                        'body' => \json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR),
                     ],
                     'responseStatusCode' => $response->getStatusCode(),
                     'responseReasonPhrase' => $response->getReasonPhrase(),
@@ -118,7 +118,7 @@ final class WebhookEventMessageHandler
                 $payload = array_merge($payload, [
                     'responseContent' => [
                         'headers' => $response->getHeaders(),
-                        'body' => \json_decode($response->getBody()->getContents(), true),
+                        'body' => \json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR),
                     ],
                     'responseStatusCode' => $response->getStatusCode(),
                     'responseReasonPhrase' => $response->getReasonPhrase(),

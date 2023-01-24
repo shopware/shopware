@@ -10,16 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ExpectedArrayException extends ShopwareHttpException implements WriteFieldException
 {
-    /**
-     * @var string
-     */
-    private $path;
-
-    public function __construct(string $path)
+    public function __construct(private readonly string $path)
     {
         parent::__construct('Expected data to be array.');
-
-        $this->path = $path;
     }
 
     public function getErrorCode(): string

@@ -15,7 +15,7 @@ class CustomerNewsletterSalesChannelsUpdater
     /**
      * @internal
      */
-    public function __construct(private Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
     }
 
@@ -122,9 +122,7 @@ SQL;
             $sqlTemplate
         );
 
-        $customerIds = RetryableQuery::retryable($this->connection, function () use ($sql): array {
-            return $this->connection->fetchFirstColumn($sql);
-        });
+        $customerIds = RetryableQuery::retryable($this->connection, fn (): array => $this->connection->fetchFirstColumn($sql));
 
         if (empty($customerIds)) {
             return;
@@ -155,7 +153,7 @@ SQL;
 
             $parameters[] = [
                 'newsletter_ids' => array_keys(
-                    json_decode((string) $customer['newsletter_sales_channel_ids'], true)
+                    json_decode((string) $customer['newsletter_sales_channel_ids'], true, 512, \JSON_THROW_ON_ERROR)
                 ),
                 'email' => $customer['email'],
                 'first_name' => $customer['first_name'],

@@ -26,12 +26,12 @@ use Twig\Loader\ArrayLoader;
  */
 class HooksReferenceGenerator implements ScriptReferenceGenerator
 {
-    public const USE_CASE_DATA_LOADING = 'data_loading';
-    public const USE_CASE_CART_MANIPULATION = 'cart_manipulation';
-    public const USE_CASE_CUSTOM_ENDPOINT = 'custom_endpoint';
-    public const USE_CASE_APP_LIFECYCLE = 'app_lifecycle';
+    final public const USE_CASE_DATA_LOADING = 'data_loading';
+    final public const USE_CASE_CART_MANIPULATION = 'cart_manipulation';
+    final public const USE_CASE_CUSTOM_ENDPOINT = 'custom_endpoint';
+    final public const USE_CASE_APP_LIFECYCLE = 'app_lifecycle';
 
-    public const ALLOWED_USE_CASES = [
+    final public const ALLOWED_USE_CASES = [
         self::USE_CASE_CART_MANIPULATION,
         self::USE_CASE_DATA_LOADING,
         self::USE_CASE_CUSTOM_ENDPOINT,
@@ -41,12 +41,12 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
     private const TEMPLATE_FILE = __DIR__ . '/../../Resources/templates/hook-reference.md.twig';
     private const GENERATED_DOC_FILE = __DIR__ . '/../../Resources/generated/script-hooks-reference.md';
 
-    private DocBlockFactory $docFactory;
+    private readonly DocBlockFactory $docFactory;
 
     public function __construct(
-        private ContainerInterface $container,
-        private Environment $twig,
-        private ServiceReferenceGenerator $serviceReferenceGenerator
+        private readonly ContainerInterface $container,
+        private readonly Environment $twig,
+        private readonly ServiceReferenceGenerator $serviceReferenceGenerator
     ) {
         $this->docFactory = DocBlockFactory::createInstance([
             'hook-use-case' => Generic::class,

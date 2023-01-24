@@ -18,7 +18,7 @@ final class DeleteFileHandler
     /**
      * @internal
      */
-    public function __construct(private FilesystemOperator $filesystemPublic, private FilesystemOperator $filesystemPrivate)
+    public function __construct(private readonly FilesystemOperator $filesystemPublic, private readonly FilesystemOperator $filesystemPrivate)
     {
     }
 
@@ -27,7 +27,7 @@ final class DeleteFileHandler
         foreach ($message->getFiles() as $file) {
             try {
                 $this->getFileSystem($message->getVisibility())->delete($file);
-            } catch (UnableToDeleteFile $e) {
+            } catch (UnableToDeleteFile) {
                 //ignore file is already deleted
             }
         }
@@ -35,13 +35,10 @@ final class DeleteFileHandler
 
     private function getFileSystem(string $visibility): FilesystemOperator
     {
-        switch ($visibility) {
-            case Visibility::PUBLIC:
-                return $this->filesystemPublic;
-            case Visibility::PRIVATE:
-                return $this->filesystemPrivate;
-            default:
-                throw new \RuntimeException('Invalid filesystem visibility.');
-        }
+        return match ($visibility) {
+            Visibility::PUBLIC => $this->filesystemPublic,
+            Visibility::PRIVATE => $this->filesystemPrivate,
+            default => throw new \RuntimeException('Invalid filesystem visibility.'),
+        };
     }
 }

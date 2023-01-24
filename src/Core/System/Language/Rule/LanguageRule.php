@@ -16,26 +16,16 @@ use Shopware\Core\System\Language\LanguageDefinition;
  */
 class LanguageRule extends Rule
 {
-    public const RULE_NAME = 'language';
-
-    /**
-     * @var list<string>|null
-     */
-    protected ?array $languageIds;
-
-    protected string $operator;
+    final public const RULE_NAME = 'language';
 
     /**
      * @internal
      *
      * @param list<string>|null $languageIds
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $languageIds = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $languageIds = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->languageIds = $languageIds;
     }
 
     /**

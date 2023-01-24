@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemsInCartCountRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemsInCartCount';
+    final public const RULE_NAME = 'cartLineItemsInCartCount';
 
     protected int $count;
 

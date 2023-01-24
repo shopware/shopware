@@ -337,7 +337,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
                 $purchasePriceNet,
                 $purchasePriceGross,
                 false
-            ))
+            ), \JSON_THROW_ON_ERROR)
         );
     }
 }

@@ -19,7 +19,7 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
  */
 class CurrencyCountryRoundingDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'currency_country_rounding';
+    final public const ENTITY_NAME = 'currency_country_rounding';
 
     public function since(): ?string
     {

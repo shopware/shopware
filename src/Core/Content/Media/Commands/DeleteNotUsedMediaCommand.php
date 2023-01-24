@@ -22,18 +22,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 class DeleteNotUsedMediaCommand extends Command
 {
     /**
-     * @var DeleteNotUsedMediaService
-     */
-    private $deleteMediaService;
-
-    /**
      * @internal
      */
-    public function __construct(DeleteNotUsedMediaService $deleteMediaService)
+    public function __construct(private readonly DeleteNotUsedMediaService $deleteMediaService)
     {
         parent::__construct();
-
-        $this->deleteMediaService = $deleteMediaService;
     }
 
     /**
@@ -41,14 +34,7 @@ class DeleteNotUsedMediaCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setDescription('Deletes all media files that are never used')
-            ->addOption(
-                'folder-entity',
-                null,
-                InputOption::VALUE_REQUIRED,
-                'Restrict deletion of not used media in default location folders of the provided entity name'
-            );
+        $this->addOption('folder-entity', null, InputOption::VALUE_REQUIRED, 'Restrict deletion of not used media in default location folders of the provided entity name');
     }
 
     /**

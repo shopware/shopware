@@ -24,14 +24,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
 {
-    private EntityRepository $codesRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $codesRepository)
+    public function __construct(private readonly EntityRepository $codesRepository)
     {
-        $this->codesRepository = $codesRepository;
     }
 
     public static function getSubscribedEvents(): array
@@ -60,7 +57,7 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
                 // first try if its an individual
                 // if not, then it might be a global promotion
                 $individualCode = $this->getIndividualCode($code, $event->getContext());
-            } catch (PromotionCodeNotFoundException $ex) {
+            } catch (PromotionCodeNotFoundException) {
                 $individualCode = null;
             }
 

@@ -15,7 +15,7 @@ class ExcludeExceptionHandler extends AbstractHandler
      *
      * @param array<int, string> $excludeExceptionList
      */
-    public function __construct(private HandlerInterface $handler, private array $excludeExceptionList)
+    public function __construct(private readonly HandlerInterface $handler, private readonly array $excludeExceptionList)
     {
         parent::__construct();
     }
@@ -28,7 +28,7 @@ class ExcludeExceptionHandler extends AbstractHandler
         if (
             isset($record['context']['exception'])
             && \is_object($record['context']['exception'])
-            && \in_array(\get_class($record['context']['exception']), $this->excludeExceptionList, true)
+            && \in_array($record['context']['exception']::class, $this->excludeExceptionList, true)
         ) {
             return true;
         }

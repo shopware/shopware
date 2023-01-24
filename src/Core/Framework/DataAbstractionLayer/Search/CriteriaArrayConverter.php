@@ -11,14 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser
  */
 class CriteriaArrayConverter
 {
-    private AggregationParser $aggregationParser;
-
     /**
      * @internal
      */
-    public function __construct(AggregationParser $aggregationParser)
+    public function __construct(private readonly AggregationParser $aggregationParser)
     {
-        $this->aggregationParser = $aggregationParser;
     }
 
     /**
@@ -51,15 +48,11 @@ class CriteriaArrayConverter
         }
 
         if (\count($criteria->getFilters())) {
-            $array['filter'] = array_map(static function (Filter $filter) {
-                return QueryStringParser::toArray($filter);
-            }, $criteria->getFilters());
+            $array['filter'] = array_map(static fn (Filter $filter) => QueryStringParser::toArray($filter), $criteria->getFilters());
         }
 
         if (\count($criteria->getPostFilters())) {
-            $array['post-filter'] = array_map(static function (Filter $filter) {
-                return QueryStringParser::toArray($filter);
-            }, $criteria->getPostFilters());
+            $array['post-filter'] = array_map(static fn (Filter $filter) => QueryStringParser::toArray($filter), $criteria->getPostFilters());
         }
 
         if (\count($criteria->getAssociations())) {
@@ -69,7 +62,7 @@ class CriteriaArrayConverter
         }
 
         if (\count($criteria->getSorting())) {
-            $array['sort'] = json_decode(json_encode($criteria->getSorting(), \JSON_THROW_ON_ERROR), true);
+            $array['sort'] = json_decode(json_encode($criteria->getSorting(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
             foreach ($array['sort'] as &$sort) {
                 $sort['order'] = $sort['direction'];

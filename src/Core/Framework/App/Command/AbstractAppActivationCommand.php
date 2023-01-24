@@ -24,15 +24,9 @@ abstract class AbstractAppActivationCommand extends Command
      */
     protected $appRepo;
 
-    /**
-     * @var string
-     */
-    private $action;
-
-    public function __construct(EntityRepository $appRepo, string $action)
+    public function __construct(EntityRepository $appRepo, private readonly string $action)
     {
         $this->appRepo = $appRepo;
-        $this->action = $action;
 
         parent::__construct();
     }
@@ -66,12 +60,7 @@ abstract class AbstractAppActivationCommand extends Command
 
     protected function configure(): void
     {
-        $this->setDescription(ucfirst($this->action) . ' the app in the folder with the given name')
-            ->addArgument(
-                'name',
-                InputArgument::REQUIRED,
-                'The name of the app, has also to be the name of the folder under
-                which the app can be found under custom/apps'
-            );
+        $this->addArgument('name', InputArgument::REQUIRED, 'The name of the app, has also to be the name of the folder under
+                which the app can be found under custom/apps');
     }
 }

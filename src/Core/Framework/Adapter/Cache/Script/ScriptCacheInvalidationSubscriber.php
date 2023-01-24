@@ -13,11 +13,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class ScriptCacheInvalidationSubscriber implements EventSubscriberInterface
 {
-    private ScriptExecutor $scriptExecutor;
-
-    public function __construct(ScriptExecutor $scriptExecutor)
+    public function __construct(private readonly ScriptExecutor $scriptExecutor)
     {
-        $this->scriptExecutor = $scriptExecutor;
     }
 
     public static function getSubscribedEvents(): array

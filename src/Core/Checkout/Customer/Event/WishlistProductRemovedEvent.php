@@ -11,17 +11,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class WishlistProductRemovedEvent implements ShopwareSalesChannelEvent
 {
-    protected string $wishlistId;
-
-    protected string $productId;
-
-    protected SalesChannelContext $context;
-
-    public function __construct(string $wishlistId, string $productId, SalesChannelContext $context)
+    public function __construct(protected string $wishlistId, protected string $productId, protected SalesChannelContext $context)
     {
-        $this->wishlistId = $wishlistId;
-        $this->productId = $productId;
-        $this->context = $context;
     }
 
     public function getWishlistId(): string

@@ -7,20 +7,8 @@ namespace Shopware\Core\Content\Seo;
  */
 class SeoTemplateReplacementVariable
 {
-    /**
-     * @var string
-     */
-    private $mappedEntityName;
-
-    /**
-     * @var string|null
-     */
-    private $mappedEntityFields;
-
-    public function __construct(string $mappedEntityName, ?string $mappedEntityFields = null)
+    public function __construct(private readonly string $mappedEntityName, private readonly ?string $mappedEntityFields = null)
     {
-        $this->mappedEntityName = $mappedEntityName;
-        $this->mappedEntityFields = $mappedEntityFields;
     }
 
     public function hasMappedFields(): bool

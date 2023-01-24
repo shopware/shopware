@@ -9,7 +9,7 @@ namespace Shopware\Core\Framework\App\ActionButton\Response;
  */
 class OpenModalResponse extends ActionButtonResponse
 {
-    public const ACTION_TYPE = 'openModal';
+    final public const ACTION_TYPE = 'openModal';
 
     /**
      * This is the embedded link that the user want to embed in the iframe after the action has been taken.

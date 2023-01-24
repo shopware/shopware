@@ -16,14 +16,11 @@ use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
  */
 class MessageQueueStatsSubscriber implements EventSubscriberInterface
 {
-    private IncrementGatewayRegistry $gatewayRegistry;
-
     /**
      * @internal
      */
-    public function __construct(IncrementGatewayRegistry $gatewayRegistry)
+    public function __construct(private readonly IncrementGatewayRegistry $gatewayRegistry)
     {
-        $this->gatewayRegistry = $gatewayRegistry;
     }
 
     public static function getSubscribedEvents(): array
@@ -57,7 +54,7 @@ class MessageQueueStatsSubscriber implements EventSubscriberInterface
 
     private function handle(Envelope $envelope, bool $increment): void
     {
-        $name = \get_class($envelope->getMessage());
+        $name = $envelope->getMessage()::class;
 
         $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
 

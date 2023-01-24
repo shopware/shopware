@@ -51,7 +51,7 @@ class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
         );
 
         static::assertIsArray($actionGenerateDocs);
-        $newConfig = json_decode($actionGenerateDocs['config'], true, 512, \JSON_THROW_ON_ERROR);
+        $newConfig = json_decode((string) $actionGenerateDocs['config'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotNull($newConfig['documentTypes']);
     }
 
@@ -59,7 +59,7 @@ class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
     {
         $sequenceId = Uuid::randomHex();
 
-        $this->flowRepository->create(array_merge([[
+        $this->flowRepository->create([...[[
             'name' => 'Create Order',
             'eventName' => TestFlowBusinessEvent::EVENT_NAME,
             'priority' => 10,
@@ -95,6 +95,6 @@ class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
                 ],
             ]),
         ],
-        ]), Context::createDefaultContext());
+        ]], Context::createDefaultContext());
     }
 }

@@ -15,18 +15,12 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class AnnotatePackageHandler extends AbstractHandler
 {
-    private HandlerInterface $handler;
-
-    private RequestStack $requestStack;
-
     /**
      * @internal
      */
-    public function __construct(HandlerInterface $handler, RequestStack $requestStack)
+    public function __construct(private readonly HandlerInterface $handler, private readonly RequestStack $requestStack)
     {
         parent::__construct();
-        $this->handler = $handler;
-        $this->requestStack = $requestStack;
     }
 
     public function handle(array $record): bool
@@ -47,7 +41,7 @@ class AnnotatePackageHandler extends AbstractHandler
                 $packages['entrypoint'] = $package;
             }
 
-            if ($package = Package::getPackageName(\get_class($exception))) {
+            if ($package = Package::getPackageName($exception::class)) {
                 $packages['exception'] = $package;
             }
 
@@ -74,7 +68,7 @@ class AnnotatePackageHandler extends AbstractHandler
             return null;
         }
 
-        [$controllerClass, $_] = explode('::', $controller);
+        [$controllerClass, $_] = explode('::', (string) $controller);
 
         $package = Package::getPackageName($controllerClass);
         // try parent class if no package attribute was found

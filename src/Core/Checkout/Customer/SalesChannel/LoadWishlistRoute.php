@@ -25,37 +25,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package customer-order
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class LoadWishlistRoute extends AbstractLoadWishlistRoute
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private EntityRepository $wishlistRepository;
-
-    private SalesChannelRepository $productRepository;
-
-    private SystemConfigService $systemConfigService;
-
-    private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $wishlistRepository,
-        SalesChannelRepository $productRepository,
-        EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfigService,
-        AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
-    ) {
-        $this->wishlistRepository = $wishlistRepository;
-        $this->productRepository = $productRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->systemConfigService = $systemConfigService;
-        $this->productCloseoutFilterFactory = $productCloseoutFilterFactory;
+    public function __construct(private readonly EntityRepository $wishlistRepository, private readonly SalesChannelRepository $productRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly SystemConfigService $systemConfigService, private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory)
+    {
     }
 
     public function getDecorated(): AbstractLoadWishlistRoute
@@ -64,9 +43,9 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
     }
 
     /**
-    * @Since("6.3.4.0")
-     * @Route("/store-api/customer/wishlist", name="store-api.customer.wishlist.load", methods={"GET", "POST"}, defaults={"_loginRequired"=true, "_entity"="product"})
-    */
+     * @Since("6.3.4.0")
+     */
+    #[Route(path: '/store-api/customer/wishlist', name: 'store-api.customer.wishlist.load', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_entity' => 'product'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): LoadWishlistRouteResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {

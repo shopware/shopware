@@ -10,19 +10,10 @@ use Shopware\Core\Framework\Struct\Struct;
 class CartBehavior extends Struct
 {
     /**
-     * @var array<mixed>
-     */
-    private array $permissions = [];
-
-    private bool $hookAware;
-
-    /**
      * @param array<mixed> $permissions
      */
-    public function __construct(array $permissions = [], bool $hookAware = true)
+    public function __construct(private readonly array $permissions = [], private bool $hookAware = true)
     {
-        $this->permissions = $permissions;
-        $this->hookAware = $hookAware;
     }
 
     public function hasPermission(string $permission): bool

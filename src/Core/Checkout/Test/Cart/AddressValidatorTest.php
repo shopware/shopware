@@ -97,9 +97,7 @@ class AddressValidatorTest extends TestCase
 
         $allSalutationsSet = array_reduce(
             [$salutationId, $billingAddressSalutationId, $shippingAddressSalutationId],
-            static function (bool $carry, ?string $salutationId = null): bool {
-                return $carry && $salutationId !== null;
-            },
+            static fn (bool $carry, ?string $salutationId = null): bool => $carry && $salutationId !== null,
             true
         );
 
@@ -142,10 +140,7 @@ class AddressValidatorTest extends TestCase
         return new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext());
     }
 
-    /**
-     * @return EntityRepository|MockObject
-     */
-    private function getRepositoryMock(?IdSearchResult $result)
+    private function getRepositoryMock(?IdSearchResult $result): EntityRepository&MockObject
     {
         $repository = $this->createMock(EntityRepository::class);
 
@@ -167,10 +162,7 @@ class AddressValidatorTest extends TestCase
         return $country;
     }
 
-    /**
-     * @return MockObject|SalesChannelContext
-     */
-    private function getContextMock(?ShippingLocation $shippingLocation = null)
+    private function getContextMock(?ShippingLocation $shippingLocation = null): MockObject&SalesChannelContext
     {
         $context = $this->createMock(SalesChannelContext::class);
 

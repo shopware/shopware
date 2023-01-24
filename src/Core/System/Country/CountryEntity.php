@@ -127,9 +127,9 @@ class CountryEntity extends Entity
 
     protected bool $checkAdvancedPostalCodePattern;
 
-    protected ?string $advancedPostalCodePattern;
+    protected ?string $advancedPostalCodePattern = null;
 
-    protected ?string $defaultPostalCodePattern;
+    protected ?string $defaultPostalCodePattern = null;
 
     /**
      * @var array<array<string, array<string, string>>>

@@ -33,52 +33,13 @@ use function array_unique;
  */
 class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
-    private EntityRepository $customerRepository;
-
-    private EntityRepository $customerGroupRepository;
-
-    private EntityRepository $addressRepository;
-
-    private EntityRepository $paymentMethodRepository;
-
-    private TaxDetector $taxDetector;
-
-    /**
-     * @var iterable|TaxRuleTypeFilterInterface[]
-     */
-    private $taxRuleTypeFilter;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private EntityRepository $currencyCountryRepository;
-
-    private AbstractBaseContextFactory $baseContextFactory;
-
     /**
      * @internal
      *
      * @param iterable<TaxRuleTypeFilterInterface> $taxRuleTypeFilter
      */
-    public function __construct(
-        EntityRepository $customerRepository,
-        EntityRepository $customerGroupRepository,
-        EntityRepository $addressRepository,
-        EntityRepository $paymentMethodRepository,
-        TaxDetector $taxDetector,
-        iterable $taxRuleTypeFilter,
-        EventDispatcherInterface $eventDispatcher,
-        EntityRepository $currencyCountryRepository,
-        AbstractBaseContextFactory $baseContextFactory
-    ) {
-        $this->customerRepository = $customerRepository;
-        $this->customerGroupRepository = $customerGroupRepository;
-        $this->addressRepository = $addressRepository;
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->taxDetector = $taxDetector;
-        $this->taxRuleTypeFilter = $taxRuleTypeFilter;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->currencyCountryRepository = $currencyCountryRepository;
-        $this->baseContextFactory = $baseContextFactory;
+    public function __construct(private readonly EntityRepository $customerRepository, private readonly EntityRepository $customerGroupRepository, private readonly EntityRepository $addressRepository, private readonly EntityRepository $paymentMethodRepository, private readonly TaxDetector $taxDetector, private readonly iterable $taxRuleTypeFilter, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityRepository $currencyCountryRepository, private readonly AbstractBaseContextFactory $baseContextFactory)
+    {
     }
 
     public function getDecorated(): AbstractSalesChannelContextFactory
@@ -233,6 +194,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
      */
     private function loadCustomer(array $options, Context $context): ?CustomerEntity
     {
+        $addressIds = [];
         $customerId = $options[SalesChannelContextService::CUSTOMER_ID];
 
         $criteria = new Criteria([$customerId]);

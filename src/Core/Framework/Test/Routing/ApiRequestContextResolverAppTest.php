@@ -88,7 +88,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
         static::assertIsString($response->getContent());
         static::assertEquals(403, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $data['errors'][0]['code']);
     }
 
@@ -176,7 +176,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $browser->request('POST', '/api/oauth/token', $authPayload);
 
         static::assertIsString($browser->getResponse()->getContent());
-        $data = json_decode($browser->getResponse()->getContent(), true);
+        $data = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(

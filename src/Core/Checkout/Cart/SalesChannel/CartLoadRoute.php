@@ -17,9 +17,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package checkout
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CartLoadRoute extends AbstractCartLoadRoute
 {
     /**
@@ -40,8 +39,8 @@ class CartLoadRoute extends AbstractCartLoadRoute
 
     /**
      * @Since("6.3.0.0")
-     * @Route("/store-api/checkout/cart", name="store-api.checkout.cart.read", methods={"GET", "POST"})
      */
+    #[Route(path: '/store-api/checkout/cart', name: 'store-api.checkout.cart.read', methods: ['GET', 'POST'])]
     public function load(Request $request, SalesChannelContext $context): CartResponse
     {
         $token = $request->get('token', $context->getToken());
@@ -49,7 +48,7 @@ class CartLoadRoute extends AbstractCartLoadRoute
 
         try {
             $cart = $this->persister->load($token, $context);
-        } catch (CartTokenNotFoundException $e) {
+        } catch (CartTokenNotFoundException) {
             $cart = $this->createNew($token);
         }
 

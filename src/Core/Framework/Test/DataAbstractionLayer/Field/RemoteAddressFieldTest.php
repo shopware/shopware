@@ -65,7 +65,7 @@ class RemoteAddressFieldTest extends TestCase
             )->current();
 
             static::assertTrue(true);
-        } catch (InvalidSerializerFieldException $e) {
+        } catch (InvalidSerializerFieldException) {
             static::fail();
         }
     }

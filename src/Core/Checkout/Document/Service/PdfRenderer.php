@@ -67,7 +67,7 @@ final class PdfRenderer
 
         foreach ($pdf->objects as &$o) {
             if ($o['t'] === 'contents') {
-                $o['c'] = str_replace($search, $replace, $o['c']);
+                $o['c'] = str_replace($search, $replace, (string) $o['c']);
             }
         }
     }

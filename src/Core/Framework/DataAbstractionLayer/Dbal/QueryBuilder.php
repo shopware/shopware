@@ -12,12 +12,9 @@ class QueryBuilder extends DBALQueryBuilder
     /**
      * @var array<string>
      */
-    private $states = [];
+    private array $states = [];
 
-    /**
-     * @var string|null
-     */
-    private $title;
+    private ?string $title = null;
 
     public function addState(string $state): void
     {

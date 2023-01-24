@@ -12,12 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CrossSellingRouteCacheKeyEvent extends StoreApiRouteCacheKeyEvent
 {
-    protected string $productId;
-
-    public function __construct(string $productId, array $parts, Request $request, SalesChannelContext $context, ?Criteria $criteria)
+    public function __construct(protected string $productId, array $parts, Request $request, SalesChannelContext $context, ?Criteria $criteria)
     {
         parent::__construct($parts, $request, $context, $criteria);
-        $this->productId = $productId;
     }
 
     public function getProductId(): string

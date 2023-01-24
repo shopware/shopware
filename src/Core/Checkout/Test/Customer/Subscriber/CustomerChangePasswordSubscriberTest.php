@@ -27,15 +27,9 @@ class CustomerChangePasswordSubscriberTest extends TestCase
     use AdminFunctionalTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     /**
      * @var EntityRepository

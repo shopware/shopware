@@ -14,20 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
  */
 class RepositoryIterator
 {
-    /**
-     * @var Criteria
-     */
-    private $criteria;
+    private readonly Criteria $criteria;
 
-    /**
-     * @var EntityRepository
-     */
-    private $repository;
+    private readonly EntityRepository $repository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private readonly Context $context;
 
     private bool $autoIncrement = false;
 

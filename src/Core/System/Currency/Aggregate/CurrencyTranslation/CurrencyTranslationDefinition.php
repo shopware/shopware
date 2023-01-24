@@ -15,7 +15,7 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
  */
 class CurrencyTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'currency_translation';
+    final public const ENTITY_NAME = 'currency_translation';
 
     public function getEntityName(): string
     {

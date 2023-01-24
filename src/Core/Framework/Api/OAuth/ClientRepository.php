@@ -15,14 +15,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class ClientRepository implements ClientRepositoryInterface
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function validateClient($clientIdentifier, $clientSecret, $grantType): bool
@@ -37,7 +34,7 @@ class ClientRepository implements ClientRepositoryInterface
                 return false;
             }
 
-            return password_verify($clientSecret, $values['secret_access_key']);
+            return password_verify($clientSecret, (string) $values['secret_access_key']);
         }
 
         // @codeCoverageIgnoreStart

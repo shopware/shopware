@@ -11,17 +11,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class OrderPaymentMethodChangedCriteriaEvent extends Event
 {
-    private string $orderId;
-
-    private Criteria $criteria;
-
-    private SalesChannelContext $context;
-
-    public function __construct(string $orderId, Criteria $criteria, SalesChannelContext $context)
+    public function __construct(private readonly string $orderId, private readonly Criteria $criteria, private readonly SalesChannelContext $context)
     {
-        $this->orderId = $orderId;
-        $this->criteria = $criteria;
-        $this->context = $context;
     }
 
     public function getOrderId(): string

@@ -23,7 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class MediaThumbnailDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'media_thumbnail';
+    final public const ENTITY_NAME = 'media_thumbnail';
 
     public function getEntityName(): string
     {

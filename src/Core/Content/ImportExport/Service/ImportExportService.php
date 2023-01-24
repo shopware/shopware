@@ -30,10 +30,10 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class ImportExportService
 {
     public function __construct(
-        private EntityRepository $logRepository,
-        private EntityRepository $userRepository,
-        private EntityRepository $profileRepository,
-        private AbstractFileService $fileService
+        private readonly EntityRepository $logRepository,
+        private readonly EntityRepository $userRepository,
+        private readonly EntityRepository $profileRepository,
+        private readonly AbstractFileService $fileService
     ) {
     }
 
@@ -209,9 +209,7 @@ class ImportExportService
         }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($logEntity): void {
-            $logData = array_filter($logEntity->jsonSerialize(), function ($value) {
-                return $value !== null;
-            });
+            $logData = array_filter($logEntity->jsonSerialize(), fn ($value) => $value !== null);
             $this->logRepository->create([$logData], $context);
         });
 

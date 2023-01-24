@@ -29,12 +29,6 @@ use function json_decode;
  */
 class SystemConfigService
 {
-    private Connection $connection;
-
-    private EntityRepository $systemConfigRepository;
-
-    private ConfigReader $configReader;
-
     /**
      * @var array<string, bool>
      */
@@ -45,25 +39,11 @@ class SystemConfigService
      */
     private array $traces = [];
 
-    private AbstractSystemConfigLoader $loader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        EntityRepository $systemConfigRepository,
-        ConfigReader $configReader,
-        AbstractSystemConfigLoader $loader,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->connection = $connection;
-        $this->systemConfigRepository = $systemConfigRepository;
-        $this->configReader = $configReader;
-        $this->loader = $loader;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly Connection $connection, private readonly EntityRepository $systemConfigRepository, private readonly ConfigReader $configReader, private readonly AbstractSystemConfigLoader $loader, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public static function buildName(string $key): string
@@ -196,7 +176,7 @@ class SystemConfigService
 
         foreach ($configs as [$key, $value]) {
             if ($value !== null) {
-                $value = json_decode($value, true);
+                $value = json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
 
                 if ($value === false || !isset($value[ConfigJsonField::STORAGE_KEY])) {
                     $value = null;
@@ -265,7 +245,7 @@ class SystemConfigService
     {
         try {
             $config = $this->configReader->getConfigFromBundle($bundle);
-        } catch (BundleConfigNotFoundException $e) {
+        } catch (BundleConfigNotFoundException) {
             return;
         }
 
@@ -300,7 +280,7 @@ class SystemConfigService
     {
         try {
             $config = $this->configReader->getConfigFromBundle($bundle);
-        } catch (BundleConfigNotFoundException $e) {
+        } catch (BundleConfigNotFoundException) {
             return;
         }
 
@@ -332,9 +312,7 @@ class SystemConfigService
             return;
         }
 
-        $ids = array_map(static function ($id) {
-            return ['id' => $id];
-        }, $systemConfigIds);
+        $ids = array_map(static fn ($id) => ['id' => $id], $systemConfigIds);
 
         $this->systemConfigRepository->delete($ids, Context::createDefaultContext());
     }

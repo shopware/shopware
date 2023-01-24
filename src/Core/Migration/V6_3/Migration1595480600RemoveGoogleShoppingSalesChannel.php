@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class Migration1595480600RemoveGoogleShoppingSalesChannel extends MigrationStep
 {
-    public const SALES_CHANNEL_TYPE_GOOGLE_SHOPPING = 'eda0a7980ee745fbbb7e58202dcdc04f';
+    final public const SALES_CHANNEL_TYPE_GOOGLE_SHOPPING = 'eda0a7980ee745fbbb7e58202dcdc04f';
 
     public function getCreationTimestamp(): int
     {

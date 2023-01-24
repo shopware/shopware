@@ -10,18 +10,9 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
  */
 class PluginPostDeactivationFailedEvent extends PluginLifecycleEvent
 {
-    private ?\Throwable $exception;
-
-    /**
-     * @var ActivateContext
-     */
-    private $context;
-
-    public function __construct(PluginEntity $plugin, ActivateContext $context, ?\Throwable $exception = null)
+    public function __construct(PluginEntity $plugin, private readonly ActivateContext $context, private readonly ?\Throwable $exception = null)
     {
         parent::__construct($plugin);
-        $this->context = $context;
-        $this->exception = $exception;
     }
 
     public function getContext(): ActivateContext

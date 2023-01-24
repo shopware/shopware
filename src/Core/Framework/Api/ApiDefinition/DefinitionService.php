@@ -17,32 +17,26 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
  */
 class DefinitionService
 {
-    public const API = 'api';
-    public const STORE_API = 'store-api';
+    final public const API = 'api';
+    final public const STORE_API = 'store-api';
 
-    public const TypeJsonApi = 'jsonapi';
-    public const TypeJson = 'json';
+    final public const TypeJsonApi = 'jsonapi';
+    final public const TypeJson = 'json';
 
     /**
      * @var ApiDefinitionGeneratorInterface[]
      */
-    private $generators;
-
-    private SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry;
-
-    private DefinitionInstanceRegistry $definitionRegistry;
+    private readonly array $generators;
 
     /**
      * @internal
      */
     public function __construct(
-        DefinitionInstanceRegistry $definitionRegistry,
-        SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry,
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry,
         ApiDefinitionGeneratorInterface ...$generators
     ) {
         $this->generators = $generators;
-        $this->salesChannelDefinitionRegistry = $salesChannelDefinitionRegistry;
-        $this->definitionRegistry = $definitionRegistry;
     }
 
     /**

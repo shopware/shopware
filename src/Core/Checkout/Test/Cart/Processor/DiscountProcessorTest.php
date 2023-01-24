@@ -36,7 +36,7 @@ class DiscountProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public const DISCOUNT_ID = 'discount-id';
+    final public const DISCOUNT_ID = 'discount-id';
 
     /**
      * @param array<LineItem> $items
@@ -54,9 +54,7 @@ class DiscountProcessorTest extends TestCase
 
         $new = new Cart('after');
         $new->setLineItems(
-            (new LineItemCollection($items))->filter(function (LineItem $item) {
-                return $item->getType() !== LineItem::DISCOUNT_LINE_ITEM;
-            })
+            (new LineItemCollection($items))->filter(fn (LineItem $item) => $item->getType() !== LineItem::DISCOUNT_LINE_ITEM)
         );
 
         $processor->process(new CartDataCollection(), $cart, $new, $context, new CartBehavior());

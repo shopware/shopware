@@ -10,7 +10,7 @@ class Filesystem
     /**
      * @var array<string>
      */
-    private $VCSDirs = [
+    private array $VCSDirs = [
         '.git',
         '.svn',
     ];
@@ -79,7 +79,7 @@ class Filesystem
     {
         try {
             $permission = mb_substr(sprintf('%o', $fileInfo->getPerms()), -4);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // cannot get permissions...
             return;
         }
@@ -97,7 +97,7 @@ class Filesystem
     {
         try {
             $permission = mb_substr(sprintf('%o', $fileInfo->getPerms()), -4);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // cannot get permissions...
             return;
         }

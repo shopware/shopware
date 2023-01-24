@@ -31,14 +31,6 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class SearchKeywordUpdater implements ResetInterface
 {
-    private Connection $connection;
-
-    private EntityRepository $languageRepository;
-
-    private EntityRepository $productRepository;
-
-    private ProductSearchKeywordAnalyzerInterface $analyzer;
-
     /**
      * @var array[]
      */
@@ -47,16 +39,8 @@ class SearchKeywordUpdater implements ResetInterface
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        EntityRepository $languageRepository,
-        EntityRepository $productRepository,
-        ProductSearchKeywordAnalyzerInterface $analyzer
-    ) {
-        $this->connection = $connection;
-        $this->languageRepository = $languageRepository;
-        $this->productRepository = $productRepository;
-        $this->analyzer = $analyzer;
+    public function __construct(private readonly Connection $connection, private readonly EntityRepository $languageRepository, private readonly EntityRepository $productRepository, private readonly ProductSearchKeywordAnalyzerInterface $analyzer)
+    {
     }
 
     public function update(array $ids, Context $context): void
@@ -216,9 +200,7 @@ class SearchKeywordUpdater implements ResetInterface
         foreach ($accessors as $accessor) {
             $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $accessor);
 
-            $fields = array_filter($fields, function (Field $field) {
-                return $field instanceof AssociationField;
-            });
+            $fields = array_filter($fields, fn (Field $field) => $field instanceof AssociationField);
 
             if (empty($fields)) {
                 continue;
@@ -226,9 +208,7 @@ class SearchKeywordUpdater implements ResetInterface
 
             $lastAssociationField = $fields[\count($fields) - 1];
 
-            $path = array_map(function (Field $field) {
-                return $field->getPropertyName();
-            }, $fields);
+            $path = array_map(fn (Field $field) => $field->getPropertyName(), $fields);
 
             $association = implode('.', $path);
             if ($criteria->hasAssociation($association)) {
@@ -272,17 +252,13 @@ class SearchKeywordUpdater implements ResetInterface
 
         $all = $query->executeQuery()->fetchAllAssociative();
 
-        $fields = array_filter($all, function (array $field) use ($languageId) {
-            return $field['language_id'] === $languageId;
-        });
+        $fields = array_filter($all, fn (array $field) => $field['language_id'] === $languageId);
 
         if (!empty($fields)) {
             return $this->config[$languageId] = $fields;
         }
 
-        $fields = array_filter($all, function (array $field) {
-            return $field['language_id'] === Defaults::LANGUAGE_SYSTEM;
-        });
+        $fields = array_filter($all, fn (array $field) => $field['language_id'] === Defaults::LANGUAGE_SYSTEM);
 
         return $this->config[$languageId] = $fields;
     }
@@ -300,9 +276,7 @@ class SearchKeywordUpdater implements ResetInterface
         return array_filter(array_merge(
             [$defaultLanguage],
             $languages->filterByProperty('parentId', null)->getElements(),
-            $languages->filter(function (LanguageEntity $language) {
-                return $language->getParentId() !== null;
-            })->getElements()
+            $languages->filter(fn (LanguageEntity $language) => $language->getParentId() !== null)->getElements()
         ));
     }
 }

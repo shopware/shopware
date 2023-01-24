@@ -21,7 +21,7 @@ class FilesystemFactory
     /**
      * @var AdapterFactoryInterface[]
      */
-    private iterable $adapterFactories;
+    private readonly iterable $adapterFactories;
 
     /**
      * @internal

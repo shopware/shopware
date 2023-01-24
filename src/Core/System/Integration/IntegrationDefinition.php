@@ -25,7 +25,7 @@ use Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDe
  */
 class IntegrationDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'integration';
+    final public const ENTITY_NAME = 'integration';
 
     public function getEntityName(): string
     {

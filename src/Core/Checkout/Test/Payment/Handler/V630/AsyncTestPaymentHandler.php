@@ -18,16 +18,10 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class AsyncTestPaymentHandler implements AsynchronousPaymentHandlerInterface
 {
-    public const REDIRECT_URL = 'https://shopware.com';
+    final public const REDIRECT_URL = 'https://shopware.com';
 
-    /**
-     * @var OrderTransactionStateHandler
-     */
-    private $transactionStateHandler;
-
-    public function __construct(OrderTransactionStateHandler $transactionStateHandler)
+    public function __construct(private readonly OrderTransactionStateHandler $transactionStateHandler)
     {
-        $this->transactionStateHandler = $transactionStateHandler;
     }
 
     public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse

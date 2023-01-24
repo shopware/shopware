@@ -44,7 +44,7 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
 
     private function getHandlerIdentifier(Entity $entity): string
     {
-        $explodedHandlerIdentifier = explode('\\', $entity->get('handlerIdentifier'));
+        $explodedHandlerIdentifier = explode('\\', (string) $entity->get('handlerIdentifier'));
 
         if (\count($explodedHandlerIdentifier) < 2) {
             return $entity->get('handlerIdentifier');
@@ -85,7 +85,7 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
 
     private function getShortName(Entity $entity): string
     {
-        $explodedHandlerIdentifier = explode('\\', $entity->get('handlerIdentifier'));
+        $explodedHandlerIdentifier = explode('\\', (string) $entity->get('handlerIdentifier'));
 
         $last = $explodedHandlerIdentifier[\count($explodedHandlerIdentifier) - 1];
 

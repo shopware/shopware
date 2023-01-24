@@ -13,22 +13,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class CustomerWishlistLoaderCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    public const EVENT_NAME = 'checkout.customer.customer_wishlist_loader_criteria';
+    final public const EVENT_NAME = 'checkout.customer.customer_wishlist_loader_criteria';
 
-    /**
-     * @var Criteria
-     */
-    private $criteria;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
-
-    public function __construct(Criteria $criteria, SalesChannelContext $context)
+    public function __construct(private readonly Criteria $criteria, private readonly SalesChannelContext $context)
     {
-        $this->criteria = $criteria;
-        $this->context = $context;
     }
 
     public function getName(): string

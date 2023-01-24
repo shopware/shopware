@@ -133,7 +133,7 @@ class CustomerValueResolverTest extends TestCase
 
         try {
             return $this->accountService->login($email, $this->salesChannelContext, $isGuest);
-        } catch (BadCredentialsException $e) {
+        } catch (BadCredentialsException) {
             // nth
         }
 

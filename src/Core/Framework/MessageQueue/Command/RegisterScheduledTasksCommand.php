@@ -18,24 +18,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 class RegisterScheduledTasksCommand extends Command
 {
     /**
-     * @var TaskRegistry
-     */
-    private $taskRegistry;
-
-    /**
      * @internal
      */
-    public function __construct(TaskRegistry $taskRegistry)
+    public function __construct(private readonly TaskRegistry $taskRegistry)
     {
         parent::__construct();
-
-        $this->taskRegistry = $taskRegistry;
     }
 
     protected function configure(): void
     {
-        $this
-            ->setDescription('Registers all available scheduled tasks.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
  */
 class PromotionDiscountRuleDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'promotion_discount_rule';
+    final public const ENTITY_NAME = 'promotion_discount_rule';
 
     public function getEntityName(): string
     {

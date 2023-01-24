@@ -14,14 +14,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class CartCalculator
 {
-    /**
-     * @var CartRuleLoader
-     */
-    private $cartRuleLoader;
-
-    public function __construct(CartRuleLoader $cartRuleLoader)
+    public function __construct(private readonly CartRuleLoader $cartRuleLoader)
     {
-        $this->cartRuleLoader = $cartRuleLoader;
     }
 
     public function calculate(Cart $cart, SalesChannelContext $context): Cart

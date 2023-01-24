@@ -12,23 +12,11 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 abstract class DocumentOrderEvent extends Event
 {
-    private OrderCollection $orders;
-
-    /**
-     * @var DocumentGenerateOperation[]
-     */
-    private array $operations;
-
-    private Context $context;
-
     /**
      * @param DocumentGenerateOperation[] $operations
      */
-    public function __construct(OrderCollection $orders, Context $context, array $operations = [])
+    public function __construct(private readonly OrderCollection $orders, private readonly Context $context, private readonly array $operations = [])
     {
-        $this->orders = $orders;
-        $this->context = $context;
-        $this->operations = $operations;
     }
 
     /**

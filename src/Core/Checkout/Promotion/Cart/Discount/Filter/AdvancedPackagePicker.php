@@ -11,16 +11,10 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 class AdvancedPackagePicker
 {
     /**
-     * @var FilterServiceRegistry
-     */
-    private $registry;
-
-    /**
      * @internal
      */
-    public function __construct(FilterServiceRegistry $registry)
+    public function __construct(private readonly FilterServiceRegistry $registry)
     {
-        $this->registry = $registry;
     }
 
     public function pickItems(DiscountLineItem $discount, DiscountPackageCollection $scopePackages): DiscountPackageCollection

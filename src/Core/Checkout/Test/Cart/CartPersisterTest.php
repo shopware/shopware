@@ -272,12 +272,8 @@ class CartPersisterTest extends TestCase
         $connection->expects(static::once())
             ->method('prepare')
             ->with(
-                static::callback(function (string $sql) use ($beginOfSql): bool {
-                    return \str_starts_with(\trim($sql), $beginOfSql);
-                })
+                static::callback(fn (string $sql): bool => \str_starts_with(\trim($sql), $beginOfSql))
             )
-            ->willReturnCallback(function (string $sql): Statement {
-                return $this->getContainer()->get(Connection::class)->prepare($sql);
-            });
+            ->willReturnCallback(fn (string $sql): Statement => $this->getContainer()->get(Connection::class)->prepare($sql));
     }
 }

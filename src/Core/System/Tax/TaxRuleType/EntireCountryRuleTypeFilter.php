@@ -11,7 +11,7 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
  */
 class EntireCountryRuleTypeFilter implements TaxRuleTypeFilterInterface
 {
-    public const TECHNICAL_NAME = 'entire_country';
+    final public const TECHNICAL_NAME = 'entire_country';
 
     public function match(TaxRuleEntity $taxRuleEntity, ?CustomerEntity $customer, ShippingLocation $shippingLocation): bool
     {

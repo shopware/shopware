@@ -21,17 +21,11 @@ class StoreSessionExpiredMiddleware implements MiddlewareInterface
 {
     private const STORE_TOKEN_EXPIRED = 'ShopwarePlatformException-1';
 
-    private RequestStack $requestStack;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, RequestStack $requestStack)
+    public function __construct(private readonly Connection $connection, private readonly RequestStack $requestStack)
     {
-        $this->connection = $connection;
-        $this->requestStack = $requestStack;
     }
 
     public function __invoke(ResponseInterface $response): ResponseInterface

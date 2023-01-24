@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ConfigJsonField
  */
 class ConfigJsonField extends JsonField
 {
-    public const STORAGE_KEY = '_value';
+    final public const STORAGE_KEY = '_value';
 
     public function __construct(string $storageName, string $propertyName, array $propertyMapping = [])
     {

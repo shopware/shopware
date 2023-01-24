@@ -20,21 +20,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class CreateMigrationCommand extends Command
 {
-    private string $coreDir;
-
-    private KernelPluginCollection $kernelPluginCollection;
-
-    private string $shopwareVersion;
-
     /**
      * @internal
      */
-    public function __construct(KernelPluginCollection $kernelPluginCollection, string $coreDir, string $shopwareVersion)
+    public function __construct(private readonly KernelPluginCollection $kernelPluginCollection, private readonly string $coreDir, private readonly string $shopwareVersion)
     {
         parent::__construct();
-        $this->coreDir = $coreDir;
-        $this->kernelPluginCollection = $kernelPluginCollection;
-        $this->shopwareVersion = $shopwareVersion;
     }
 
     protected function configure(): void
@@ -58,7 +49,7 @@ class CreateMigrationCommand extends Command
         $namespace = (string) $input->getArgument('namespace');
         $name = $input->getOption('name') ?? '';
 
-        if (!preg_match('/^[a-zA-Z0-9\_]*$/', $name)) {
+        if (!preg_match('/^[a-zA-Z0-9\_]*$/', (string) $name)) {
             throw new \InvalidArgumentException('Migrationname contains forbidden characters!');
         }
 
@@ -81,18 +72,14 @@ class CreateMigrationCommand extends Command
 
         $pluginName = $input->getOption('plugin');
         if ($pluginName) {
-            $pluginBundles = array_filter($this->kernelPluginCollection->all(), static function (Plugin $value) use ($pluginName) {
-                return mb_strpos($value->getName(), $pluginName) === 0;
-            });
+            $pluginBundles = array_filter($this->kernelPluginCollection->all(), static fn (Plugin $value) => mb_strpos($value->getName(), (string) $pluginName) === 0);
 
             if (\count($pluginBundles) === 0) {
                 throw new \RuntimeException(sprintf('Plugin "%s" could not be found.', $pluginName));
             }
 
             if (\count($pluginBundles) > 1) {
-                $pluginBundles = array_filter($pluginBundles, static function (Plugin $value) use ($pluginName) {
-                    return $pluginName === $value->getName();
-                });
+                $pluginBundles = array_filter($pluginBundles, static fn (Plugin $value) => $pluginName === $value->getName());
 
                 if (\count($pluginBundles) > 1) {
                     throw new \RuntimeException(

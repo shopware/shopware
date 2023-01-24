@@ -57,64 +57,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
+#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
 class RegisterRoute extends AbstractRegisterRoute
 {
-    protected Connection $connection;
-
-    private EntityRepository $customerRepository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
-
-    private DataValidationFactoryInterface $addressValidationFactory;
-
-    private DataValidator $validator;
-
-    private DataValidationFactoryInterface $accountValidationFactory;
-
-    private SystemConfigService $systemConfigService;
-
-    private SalesChannelContextPersister $contextPersister;
-
-    private SalesChannelRepository $countryRepository;
-
-    private SalesChannelContextServiceInterface $contextService;
-
-    private StoreApiCustomFieldMapper $customFieldMapper;
-
     /**
      * @internal
      */
-    public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        DataValidator $validator,
-        DataValidationFactoryInterface $accountValidationFactory,
-        DataValidationFactoryInterface $addressValidationFactory,
-        SystemConfigService $systemConfigService,
-        EntityRepository $customerRepository,
-        SalesChannelContextPersister $contextPersister,
-        SalesChannelRepository $countryRepository,
-        Connection $connection,
-        SalesChannelContextServiceInterface $contextService,
-        StoreApiCustomFieldMapper $customFieldMapper
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->numberRangeValueGenerator = $numberRangeValueGenerator;
-        $this->validator = $validator;
-        $this->accountValidationFactory = $accountValidationFactory;
-        $this->addressValidationFactory = $addressValidationFactory;
-        $this->systemConfigService = $systemConfigService;
-        $this->customerRepository = $customerRepository;
-        $this->contextPersister = $contextPersister;
-        $this->countryRepository = $countryRepository;
-        $this->connection = $connection;
-        $this->contextService = $contextService;
-        $this->customFieldMapper = $customFieldMapper;
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator, private readonly DataValidator $validator, private readonly DataValidationFactoryInterface $accountValidationFactory, private readonly DataValidationFactoryInterface $addressValidationFactory, private readonly SystemConfigService $systemConfigService, private readonly EntityRepository $customerRepository, private readonly SalesChannelContextPersister $contextPersister, private readonly SalesChannelRepository $countryRepository, protected Connection $connection, private readonly SalesChannelContextServiceInterface $contextService, private readonly StoreApiCustomFieldMapper $customFieldMapper)
+    {
     }
 
     public function getDecorated(): AbstractRegisterRoute
@@ -124,8 +75,8 @@ class RegisterRoute extends AbstractRegisterRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/account/register", name="store-api.account.register", methods={"POST"})
      */
+    #[Route(path: '/store-api/account/register', name: 'store-api.account.register', methods: ['POST'])]
     public function register(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true, ?DataValidationDefinition $additionalValidationDefinitions = null): CustomerResponse
     {
         $isGuest = $data->getBoolean('guest');
@@ -356,9 +307,7 @@ class RegisterRoute extends AbstractRegisterRoute
         /** @var SalesChannelDomainCollection $salesChannelDomainCollection */
         $salesChannelDomainCollection = $context->getSalesChannel()->getDomains();
 
-        return array_map(static function (SalesChannelDomainEntity $domainEntity) {
-            return rtrim($domainEntity->getUrl(), '/');
-        }, $salesChannelDomainCollection->getElements());
+        return array_map(static fn (SalesChannelDomainEntity $domainEntity) => rtrim($domainEntity->getUrl(), '/'), $salesChannelDomainCollection->getElements());
     }
 
     private function getBirthday(DataBag $data): ?\DateTimeInterface

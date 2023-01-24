@@ -12,11 +12,8 @@ use Symfony\Component\RateLimiter\Policy\NoLimiter;
  */
 class NoLimitRateLimiterFactory extends RateLimiterFactory
 {
-    private RateLimiterFactory $rateLimiterFactory;
-
-    public function __construct(RateLimiterFactory $rateLimiterFactory)
+    public function __construct(private readonly RateLimiterFactory $rateLimiterFactory)
     {
-        $this->rateLimiterFactory = $rateLimiterFactory;
     }
 
     public function create(?string $key = null): LimiterInterface

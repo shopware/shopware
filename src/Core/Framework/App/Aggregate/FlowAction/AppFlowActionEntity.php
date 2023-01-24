@@ -23,13 +23,13 @@ class AppFlowActionEntity extends Entity
 
     protected string $name;
 
-    protected ?string $badge;
+    protected ?string $badge = null;
 
     protected string $label;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
-    protected ?string $headline;
+    protected ?string $headline = null;
 
     /**
      * @var array<string, mixed>
@@ -53,9 +53,9 @@ class AppFlowActionEntity extends Entity
 
     protected ?string $iconRaw = null;
 
-    protected ?string $icon;
+    protected ?string $icon = null;
 
-    protected ?string $swIcon;
+    protected ?string $swIcon = null;
 
     protected string $url;
 

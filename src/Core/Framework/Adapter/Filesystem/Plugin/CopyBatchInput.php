@@ -13,15 +13,10 @@ class CopyBatchInput
     private $sourceFile;
 
     /**
-     * @var array<string>
-     */
-    private $targetFiles;
-
-    /**
      * @param string|resource $sourceFile
      * @param array<string>        $targetFiles
      */
-    public function __construct($sourceFile, array $targetFiles)
+    public function __construct($sourceFile, private readonly array $targetFiles)
     {
         if (!\is_resource($sourceFile) && !\is_string($sourceFile)) {
             throw new \InvalidArgumentException(sprintf(
@@ -30,7 +25,6 @@ class CopyBatchInput
             ));
         }
         $this->sourceFile = $sourceFile;
-        $this->targetFiles = $targetFiles;
     }
 
     /**

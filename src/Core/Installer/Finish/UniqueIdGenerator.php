@@ -9,7 +9,7 @@ namespace Shopware\Core\Installer\Finish;
  */
 class UniqueIdGenerator
 {
-    private string $cacheFilePath;
+    private readonly string $cacheFilePath;
 
     public function __construct(string $projectDir)
     {

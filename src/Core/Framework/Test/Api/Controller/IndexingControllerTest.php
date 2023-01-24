@@ -28,7 +28,7 @@ class IndexingControllerTest extends TestCase
             ['offset' => 0]
         );
         $response = $this->getBrowser()->getResponse();
-        $response = json_decode($response->getContent(), true);
+        $response = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($response['finish']);
     }
@@ -54,7 +54,7 @@ class IndexingControllerTest extends TestCase
         $indexer = new IndexingController($registry, $this->getContainer()->get('messenger.bus.shopware'));
 
         $response = $indexer->iterate('product.indexer', new Request([], ['offset' => $offset]));
-        $response = json_decode($response->getContent(), true);
+        $response = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($offset === 100) {
             static::assertTrue($response['finish']);

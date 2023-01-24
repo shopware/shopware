@@ -54,7 +54,7 @@ class VersionFieldSerializer implements FieldSerializerInterface
     {
         try {
             return Uuid::fromBytesToHex($value);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return null;
         }
     }

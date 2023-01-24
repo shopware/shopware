@@ -15,16 +15,12 @@ class ProductStreamTranslationCollection extends EntityCollection
      */
     public function getProductStreamIds(): array
     {
-        return $this->fmap(function (ProductStreamTranslationEntity $productStreamTranslation) {
-            return $productStreamTranslation->getProductStreamId();
-        });
+        return $this->fmap(fn (ProductStreamTranslationEntity $productStreamTranslation) => $productStreamTranslation->getProductStreamId());
     }
 
     public function filterByProductStreamId(string $id): self
     {
-        return $this->filter(function (ProductStreamTranslationEntity $productStreamTranslation) use ($id) {
-            return $productStreamTranslation->getProductStreamId() === $id;
-        });
+        return $this->filter(fn (ProductStreamTranslationEntity $productStreamTranslation) => $productStreamTranslation->getProductStreamId() === $id);
     }
 
     /**
@@ -32,16 +28,12 @@ class ProductStreamTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (ProductStreamTranslationEntity $productStreamTranslation) {
-            return $productStreamTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (ProductStreamTranslationEntity $productStreamTranslation) => $productStreamTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (ProductStreamTranslationEntity $productStreamTranslation) use ($id) {
-            return $productStreamTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (ProductStreamTranslationEntity $productStreamTranslation) => $productStreamTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

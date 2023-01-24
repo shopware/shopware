@@ -14,26 +14,16 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class PaymentMethodRule extends Rule
 {
-    public const RULE_NAME = 'paymentMethod';
-
-    /**
-     * @var list<string>
-     */
-    protected array $paymentMethodIds;
-
-    protected string $operator;
+    final public const RULE_NAME = 'paymentMethod';
 
     /**
      * @param list<string> $paymentMethodIds
      *
      * @internal
      */
-    public function __construct(string $operator = RULE::OPERATOR_EQ, array $paymentMethodIds = [])
+    public function __construct(protected string $operator = RULE::OPERATOR_EQ, protected array $paymentMethodIds = [])
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->paymentMethodIds = $paymentMethodIds;
     }
 
     public function match(RuleScope $scope): bool

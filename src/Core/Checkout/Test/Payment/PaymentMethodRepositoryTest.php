@@ -185,7 +185,7 @@ class PaymentMethodRepositoryTest extends TestCase
         try {
             $this->paymentRepository->delete([$primaryKey], $defaultContext);
             static::fail('this should not be reached');
-        } catch (PluginPaymentMethodsDeleteRestrictionException $e) {
+        } catch (PluginPaymentMethodsDeleteRestrictionException) {
         }
 
         $criteria = new Criteria([$this->paymentMethodId]);

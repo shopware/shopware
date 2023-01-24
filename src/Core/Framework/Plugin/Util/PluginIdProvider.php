@@ -15,7 +15,7 @@ class PluginIdProvider
     /**
      * @internal
      */
-    public function __construct(private EntityRepository $pluginRepo)
+    public function __construct(private readonly EntityRepository $pluginRepo)
     {
     }
 

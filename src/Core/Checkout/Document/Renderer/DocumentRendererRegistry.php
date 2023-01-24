@@ -11,16 +11,12 @@ use Shopware\Core\Framework\Context;
 final class DocumentRendererRegistry
 {
     /**
-     * @var iterable|AbstractDocumentRenderer[]
-     */
-    protected $documentRenderers;
-
-    /**
      * @internal
+     *
+     * @param AbstractDocumentRenderer[] $documentRenderers
      */
-    public function __construct(iterable $documentRenderers)
+    public function __construct(protected iterable $documentRenderers)
     {
-        $this->documentRenderers = $documentRenderers;
     }
 
     public function render(string $documentType, array $operations, Context $context, DocumentRendererConfig $rendererConfig): RendererResult

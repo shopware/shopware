@@ -22,15 +22,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class SalesChannelUpdateDomainCommand extends Command
 {
-    private EntityRepository $salesChannelDomainRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $salesChannelDomainRepository)
+    public function __construct(private readonly EntityRepository $salesChannelDomainRepository)
     {
         parent::__construct();
-        $this->salesChannelDomainRepository = $salesChannelDomainRepository;
     }
 
     protected function configure(): void

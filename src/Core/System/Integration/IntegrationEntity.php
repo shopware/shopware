@@ -56,7 +56,7 @@ class IntegrationEntity extends Entity
      */
     protected $writeAccess;
 
-    protected ?\DateTimeInterface $deletedAt;
+    protected ?\DateTimeInterface $deletedAt = null;
 
     public function getLabel(): string
     {

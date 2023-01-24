@@ -12,22 +12,15 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package sales-channel
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class SeoUrlRoute extends AbstractSeoUrlRoute
 {
     /**
-     * @var SalesChannelRepository
-     */
-    private $salesChannelRepository;
-
-    /**
      * @internal
      */
-    public function __construct(SalesChannelRepository $salesChannelRepository)
+    public function __construct(private readonly SalesChannelRepository $salesChannelRepository)
     {
-        $this->salesChannelRepository = $salesChannelRepository;
     }
 
     public function getDecorated(): AbstractSeoUrlRoute
@@ -37,8 +30,8 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/seo-url", name="store-api.seo.url", methods={"GET", "POST"}, defaults={"_entity"="seo_url"})
      */
+    #[Route(path: '/store-api/seo-url', name: 'store-api.seo.url', methods: ['GET', 'POST'], defaults: ['_entity' => 'seo_url'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SeoUrlRouteResponse
     {
         return new SeoUrlRouteResponse($this->salesChannelRepository->search($criteria, $context));

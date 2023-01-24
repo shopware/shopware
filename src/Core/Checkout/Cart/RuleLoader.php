@@ -18,11 +18,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  */
 class RuleLoader extends AbstractRuleLoader
 {
-    private EntityRepository $repository;
-
-    public function __construct(EntityRepository $repository)
+    public function __construct(private readonly EntityRepository $repository)
     {
-        $this->repository = $repository;
     }
 
     public function getDecorated(): AbstractRuleLoader

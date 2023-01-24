@@ -68,9 +68,7 @@ class Migration1600349343AddDeliveryStateTransitions extends MigrationStep
             'id' => $stateMachineId,
         ]);
 
-        $reopenStates = array_filter($allStates, static function (array $state) {
-            return $state['action_name'] === 'reopen';
-        });
+        $reopenStates = array_filter($allStates, static fn (array $state) => $state['action_name'] === 'reopen');
 
         $missingStates = array_filter($allStates, static function (array $state) use ($reopenStates) {
             if (\in_array($state['to_state_id'], array_column($reopenStates, 'from_state_id'), true)) {

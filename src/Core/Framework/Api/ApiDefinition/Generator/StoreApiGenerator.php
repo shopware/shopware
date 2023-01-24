@@ -22,7 +22,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
  */
 class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 {
-    public const FORMAT = 'openapi-3';
+    final public const FORMAT = 'openapi-3';
     private const OPERATION_KEYS = [
         'get',
         'post',
@@ -31,13 +31,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         'delete',
     ];
 
-    private OpenApiSchemaBuilder $openApiBuilder;
-
-    private OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder;
-
-    private string $schemaPath;
-
-    private BundleSchemaPathCollection $bundleSchemaPathCollection;
+    private readonly string $schemaPath;
 
     /**
      * @param array{Framework: array{path: string}} $bundles
@@ -45,15 +39,12 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      * @internal
      */
     public function __construct(
-        OpenApiSchemaBuilder $openApiBuilder,
-        OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
+        private readonly OpenApiSchemaBuilder $openApiBuilder,
+        private readonly OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
         array $bundles,
-        BundleSchemaPathCollection $bundleSchemaPathCollection
+        private readonly BundleSchemaPathCollection $bundleSchemaPathCollection
     ) {
-        $this->openApiBuilder = $openApiBuilder;
-        $this->definitionSchemaBuilder = $definitionSchemaBuilder;
         $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/StoreApi';
-        $this->bundleSchemaPathCollection = $bundleSchemaPathCollection;
     }
 
     public function supports(string $format, string $api): bool
@@ -89,8 +80,8 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $this->addGeneralInformation($openApi);
         $this->addContentTypeParameter($openApi);
 
-        $data = json_decode($openApi->toJson(), true);
-        $data['paths'] = $data['paths'] ?? [];
+        $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+        $data['paths'] ??= [];
 
         $schemaPaths = [$this->schemaPath];
         $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api));

@@ -21,17 +21,8 @@ class CustomEntitySchemaUpdater
 {
     private const COMMENT = 'custom-entity-element';
 
-    private Connection $connection;
-
-    private LockFactory $lockFactory;
-
-    private SchemaUpdater $schemaUpdater;
-
-    public function __construct(Connection $connection, LockFactory $lockFactory, SchemaUpdater $schemaUpdater)
+    public function __construct(private readonly Connection $connection, private readonly LockFactory $lockFactory, private readonly SchemaUpdater $schemaUpdater)
     {
-        $this->connection = $connection;
-        $this->lockFactory = $lockFactory;
-        $this->schemaUpdater = $schemaUpdater;
     }
 
     public function update(): void

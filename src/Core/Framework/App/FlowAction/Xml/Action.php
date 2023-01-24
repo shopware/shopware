@@ -62,12 +62,8 @@ class Action extends XmlElement
             'url' => $this->meta->getUrl(),
             'delayable' => $this->meta->getDelayable(),
             'parameters' => $this->normalizeParameters(),
-            'config' => array_map(function ($config) {
-                return $config->jsonSerialize();
-            }, $this->config->getConfig()),
-            'headers' => array_map(function ($header) {
-                return $header->jsonSerialize();
-            }, $this->headers->getParameters()),
+            'config' => array_map(fn ($config) => $config->jsonSerialize(), $this->config->getConfig()),
+            'headers' => array_map(fn ($header) => $header->jsonSerialize(), $this->headers->getParameters()),
             'requirements' => $this->meta->getRequirements(),
             'label' => $this->meta->getLabel(),
             'description' => $this->meta->getDescription(),
@@ -86,17 +82,15 @@ class Action extends XmlElement
     private function normalizeParameters(): array
     {
         /** @var array<string, mixed> $parameters */
-        $parameters = array_map(function ($parameter) {
-            return $parameter->jsonSerialize();
-        }, $this->parameters->getParameters());
+        $parameters = array_map(fn ($parameter) => $parameter->jsonSerialize(), $this->parameters->getParameters());
 
         /** @var string $parameters */
-        $parameters = json_encode($parameters);
+        $parameters = json_encode($parameters, \JSON_THROW_ON_ERROR);
 
         /** @var string $parameters */
         $parameters = \preg_replace('/\\\\([a-zA-Z])/', '$1', $parameters);
 
-        return json_decode($parameters, true);
+        return json_decode($parameters, true, 512, \JSON_THROW_ON_ERROR);
     }
 
     /**

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class ProductSortingTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'product_sorting_translation';
+    final public const ENTITY_NAME = 'product_sorting_translation';
 
     public function getEntityName(): string
     {

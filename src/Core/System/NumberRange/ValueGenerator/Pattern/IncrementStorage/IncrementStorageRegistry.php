@@ -14,17 +14,14 @@ class IncrementStorageRegistry
      */
     private array $storages;
 
-    private string $configuredStorage;
-
     /**
      * @internal
      *
      * @param AbstractIncrementStorage[] $storages
      */
-    public function __construct(iterable $storages, string $configuredStorage)
+    public function __construct(iterable $storages, private readonly string $configuredStorage)
     {
         $this->storages = $storages instanceof \Traversable ? iterator_to_array($storages) : $storages;
-        $this->configuredStorage = $configuredStorage;
     }
 
     public function getStorage(?string $storage = null): AbstractIncrementStorage

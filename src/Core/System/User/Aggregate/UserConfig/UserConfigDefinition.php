@@ -18,7 +18,7 @@ use Shopware\Core\System\User\UserDefinition;
  */
 class UserConfigDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'user_config';
+    final public const ENTITY_NAME = 'user_config';
 
     public function getEntityName(): string
     {

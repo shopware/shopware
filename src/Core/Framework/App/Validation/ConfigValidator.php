@@ -23,14 +23,8 @@ class ConfigValidator extends AbstractManifestValidator
         'sw-snippet-field',
     ];
 
-    /**
-     * @var ConfigReader
-     */
-    private $configReader;
-
-    public function __construct(ConfigReader $configReader)
+    public function __construct(private readonly ConfigReader $configReader)
     {
-        $this->configReader = $configReader;
     }
 
     public function validate(Manifest $manifest, ?Context $context): ErrorCollection

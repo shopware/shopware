@@ -18,7 +18,7 @@ class JsonUpdateCommand extends UpdateCommand
      */
     public function __construct(
         EntityDefinition $definition,
-        private string $storageName,
+        private readonly string $storageName,
         array $payload,
         array $primaryKey,
         EntityExistence $existence,

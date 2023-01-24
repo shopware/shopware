@@ -26,7 +26,7 @@ class Migration1586334003AddParentIdToProductProfile extends MigrationStep
 
         if ($productProfileId) {
             $mapping = $this->getProductMapping();
-            $connection->update('import_export_profile', ['mapping' => json_encode($mapping)], ['id' => $productProfileId]);
+            $connection->update('import_export_profile', ['mapping' => json_encode($mapping, \JSON_THROW_ON_ERROR)], ['id' => $productProfileId]);
         }
     }
 

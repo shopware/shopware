@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class PaymentMethodTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'payment_method_translation';
+    final public const ENTITY_NAME = 'payment_method_translation';
 
     public function getEntityName(): string
     {

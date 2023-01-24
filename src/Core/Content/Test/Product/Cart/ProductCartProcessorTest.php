@@ -38,13 +38,13 @@ class ProductCartProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public const TEST_LANGUAGE_LOCALE_CODE = 'sw-AG';
-    public const TEST_LANGUAGE_ID = 'cc72c24b82684d72a4ce91054da264bf';
-    public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
-    public const CUSTOM_FIELD_ID = '24c8b3e8cacc4bf2a743b8c5a7522a33';
-    public const PURCHASE_STEP_QUANTITY_ERROR_KEY = 'purchase-steps-quantity';
-    public const MIN_ORDER_QUANTITY_ERROR_KEY = 'min-order-quantity';
-    public const PRODUCT_STOCK_REACHED_ERROR_KEY = 'product-stock-reached';
+    final public const TEST_LANGUAGE_LOCALE_CODE = 'sw-AG';
+    final public const TEST_LANGUAGE_ID = 'cc72c24b82684d72a4ce91054da264bf';
+    final public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
+    final public const CUSTOM_FIELD_ID = '24c8b3e8cacc4bf2a743b8c5a7522a33';
+    final public const PURCHASE_STEP_QUANTITY_ERROR_KEY = 'purchase-steps-quantity';
+    final public const MIN_ORDER_QUANTITY_ERROR_KEY = 'min-order-quantity';
+    final public const PRODUCT_STOCK_REACHED_ERROR_KEY = 'product-stock-reached';
 
     private IdsCollection $ids;
 
@@ -290,7 +290,7 @@ class ProductCartProcessorTest extends TestCase
 
         static::assertInstanceOf(LineItem::class, $lineItem);
         $payload = $lineItem->getPayload();
-        $purchasePrices = json_decode($payload['purchasePrices']);
+        $purchasePrices = json_decode((string) $payload['purchasePrices'], null, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Defaults::CURRENCY, $purchasePrices->currencyId);
         static::assertSame(7.5, $purchasePrices->gross);
         static::assertSame(5, $purchasePrices->net);
@@ -324,9 +324,9 @@ class ProductCartProcessorTest extends TestCase
             $this->createCustomField([]);
         }
 
-        $this->createProduct(array_merge([
+        $this->createProduct([...[
             'featureSet' => $this->createFeatureSet([$testedFeature]),
-        ], $productData));
+        ], ...$productData]);
 
         $cart = $this->getProductCart();
         $lineItem = $cart->get($this->ids->get('product'));

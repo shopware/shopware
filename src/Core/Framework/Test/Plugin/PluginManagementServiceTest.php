@@ -41,10 +41,7 @@ class PluginManagementServiceTest extends TestCase
      */
     private $filesystem;
 
-    /**
-     * @var string
-     */
-    private $cacheDir;
+    private string $cacheDir;
 
     protected function setUp(): void
     {

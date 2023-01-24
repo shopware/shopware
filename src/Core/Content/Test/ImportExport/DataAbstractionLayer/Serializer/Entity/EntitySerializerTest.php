@@ -194,7 +194,7 @@ class EntitySerializerTest extends TestCase
  */
 class TestExtensionDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'test_extension';
+    final public const ENTITY_NAME = 'test_extension';
 
     public function getEntityName(): string
     {

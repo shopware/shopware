@@ -10,15 +10,9 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
  */
 class PluginPreUninstallEvent extends PluginLifecycleEvent
 {
-    /**
-     * @var UninstallContext
-     */
-    private $context;
-
-    public function __construct(PluginEntity $plugin, UninstallContext $context)
+    public function __construct(PluginEntity $plugin, private readonly UninstallContext $context)
     {
         parent::__construct($plugin);
-        $this->context = $context;
     }
 
     public function getContext(): UninstallContext

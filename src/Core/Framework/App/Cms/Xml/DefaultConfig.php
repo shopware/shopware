@@ -11,17 +11,17 @@ use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
  */
 class DefaultConfig extends XmlElement
 {
-    protected ?string $marginTop;
+    protected ?string $marginTop = null;
 
-    protected ?string $marginRight;
+    protected ?string $marginRight = null;
 
-    protected ?string $marginBottom;
+    protected ?string $marginBottom = null;
 
-    protected ?string $marginLeft;
+    protected ?string $marginLeft = null;
 
-    protected ?string $sizingMode;
+    protected ?string $sizingMode = null;
 
-    protected ?string $backgroundColor;
+    protected ?string $backgroundColor = null;
 
     private function __construct(array $defaultConfig)
     {

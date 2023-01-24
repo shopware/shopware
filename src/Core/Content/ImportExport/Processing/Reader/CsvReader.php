@@ -11,45 +11,15 @@ class CsvReader extends AbstractReader
 {
     private const BOM_UTF8 = "\xEF\xBB\xBF";
 
-    /**
-     * @var string
-     */
-    private $delimiter;
+    private int $offset = 0;
 
-    /**
-     * @var string
-     */
-    private $enclosure;
-
-    /**
-     * @var string
-     */
-    private $escape;
-
-    /**
-     * @var bool
-     */
-    private $withHeader;
-
-    /**
-     * @var int
-     */
-    private $offset = 0;
-
-    /**
-     * @var array
-     */
-    private $header = [];
+    private array $header = [];
 
     /**
      * @internal
      */
-    public function __construct(string $delimiter = ';', string $enclosure = '"', string $escape = '\\', bool $withHeader = true)
+    public function __construct(private string $delimiter = ';', private string $enclosure = '"', private string $escape = '\\', private bool $withHeader = true)
     {
-        $this->delimiter = $delimiter;
-        $this->enclosure = $enclosure;
-        $this->escape = $escape;
-        $this->withHeader = $withHeader;
     }
 
     public function read(Config $config, $resource, int $offset): iterable

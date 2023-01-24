@@ -49,15 +49,13 @@ class FlowTemplateConfigFieldSerializer extends JsonFieldSerializer
 
         $sequences = $value['sequences'];
 
-        $value['sequences'] = array_map(function ($item) {
-            return array_merge([
-                'parentId' => null,
-                'ruleId' => null,
-                'position' => 1,
-                'displayGroup' => 1,
-                'trueCase' => 0,
-            ], $item);
-        }, $sequences);
+        $value['sequences'] = array_map(fn ($item) => array_merge([
+            'parentId' => null,
+            'ruleId' => null,
+            'position' => 1,
+            'displayGroup' => 1,
+            'trueCase' => 0,
+        ], $item), $sequences);
 
         yield $field->getStorageName() => JsonFieldSerializer::encodeJson($value);
     }

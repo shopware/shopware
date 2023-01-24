@@ -21,28 +21,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class CustomerChangedPaymentMethodEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware
 {
-    public const EVENT_NAME = 'checkout.customer.changed-payment-method';
+    final public const EVENT_NAME = 'checkout.customer.changed-payment-method';
 
-    /**
-     * @var CustomerEntity
-     */
-    private $customer;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var RequestDataBag
-     */
-    private $requestDataBag;
-
-    public function __construct(SalesChannelContext $salesChannelContext, CustomerEntity $customer, RequestDataBag $requestDataBag)
+    public function __construct(private readonly SalesChannelContext $salesChannelContext, private readonly CustomerEntity $customer, private readonly RequestDataBag $requestDataBag)
     {
-        $this->customer = $customer;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->requestDataBag = $requestDataBag;
     }
 
     public function getName(): string

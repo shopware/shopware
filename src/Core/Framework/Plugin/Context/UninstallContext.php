@@ -11,21 +11,15 @@ use Shopware\Core\Framework\Plugin;
  */
 class UninstallContext extends InstallContext
 {
-    /**
-     * @var bool
-     */
-    private $keepUserData;
-
     public function __construct(
         Plugin $plugin,
         Context $context,
         string $currentShopwareVersion,
         string $currentPluginVersion,
         MigrationCollection $migrationCollection,
-        bool $keepUserData
+        private readonly bool $keepUserData
     ) {
         parent::__construct($plugin, $context, $currentShopwareVersion, $currentPluginVersion, $migrationCollection);
-        $this->keepUserData = $keepUserData;
     }
 
     /**

@@ -17,23 +17,10 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 abstract class Plugin extends Bundle
 {
     /**
-     * @var bool
-     */
-    private $active;
-
-    /**
-     * @var string
-     */
-    private $basePath;
-
-    /**
      * @internal
      */
-    final public function __construct(bool $active, string $basePath, ?string $projectDir = null)
+    final public function __construct(private readonly bool $active, private string $basePath, ?string $projectDir = null)
     {
-        $this->active = $active;
-        $this->basePath = $basePath;
-
         if ($projectDir && mb_strpos($this->basePath, '/') !== 0) {
             $this->basePath = rtrim($projectDir, '/') . '/' . $this->basePath;
         }

@@ -20,19 +20,16 @@ class SetOrderCustomFieldAction extends FlowAction implements DelayableAction
 {
     use CustomFieldActionTrait;
 
-    private Connection $connection;
-
-    private EntityRepository $orderRepository;
+    private readonly Connection $connection;
 
     /**
      * @internal
      */
     public function __construct(
         Connection $connection,
-        EntityRepository $orderRepository
+        private readonly EntityRepository $orderRepository
     ) {
         $this->connection = $connection;
-        $this->orderRepository = $orderRepository;
     }
 
     public static function getName(): string

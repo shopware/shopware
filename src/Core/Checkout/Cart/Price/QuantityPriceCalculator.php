@@ -14,19 +14,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class QuantityPriceCalculator
 {
-    private GrossPriceCalculator $grossPriceCalculator;
-
-    private NetPriceCalculator $netPriceCalculator;
-
     /**
      * @internal
      */
-    public function __construct(
-        GrossPriceCalculator $grossPriceCalculator,
-        NetPriceCalculator $netPriceCalculator
-    ) {
-        $this->grossPriceCalculator = $grossPriceCalculator;
-        $this->netPriceCalculator = $netPriceCalculator;
+    public function __construct(private readonly GrossPriceCalculator $grossPriceCalculator, private readonly NetPriceCalculator $netPriceCalculator)
+    {
     }
 
     public function calculate(QuantityPriceDefinition $definition, SalesChannelContext $context): CalculatedPrice

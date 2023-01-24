@@ -27,16 +27,14 @@ class ChangelogCreateCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private ChangelogGenerator $generator)
+    public function __construct(private readonly ChangelogGenerator $generator)
     {
         parent::__construct();
     }
 
     protected function configure(): void
     {
-        $this
-            ->setDescription('Create a changelog markdown file in `/changelog/_unreleased`')
-            ->addArgument('title', InputArgument::OPTIONAL, 'A short meaningful title of the change.')
+        $this->addArgument('title', InputArgument::OPTIONAL, 'A short meaningful title of the change.')
             ->addArgument('issue', InputArgument::OPTIONAL, 'The corresponding Jira ticket key. Can be the key of a single ticket or the key of an epic.')
             ->addOption('date', null, InputOption::VALUE_OPTIONAL, 'The date in `YYYY-MM-DD` format which indicates the creation date of the change. Default is current date.')
             ->addOption('flag', null, InputOption::VALUE_OPTIONAL, 'Feature Flag ID')
@@ -46,10 +44,7 @@ class ChangelogCreateCommand extends Command
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Use the --dry-run argument to preview the changelog content and prevent actually writing to file.');
     }
 
-    /**
-     * @return int
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $IOHelper = new SymfonyStyle($input, $output);
         $IOHelper->title('Create a changelog markdown file');

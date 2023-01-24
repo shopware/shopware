@@ -11,14 +11,8 @@ use Shopware\Core\Kernel;
  */
 class InstanceService
 {
-    private string $shopwareVersion;
-
-    private ?string $instanceId;
-
-    public function __construct(string $shopwareVersion, ?string $instanceId)
+    public function __construct(private readonly string $shopwareVersion, private readonly ?string $instanceId)
     {
-        $this->shopwareVersion = $shopwareVersion;
-        $this->instanceId = $instanceId;
     }
 
     public function getShopwareVersion(): string

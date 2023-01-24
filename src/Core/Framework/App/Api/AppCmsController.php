@@ -18,24 +18,19 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal
  *
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package core
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class AppCmsController extends AbstractController
 {
-    private EntityRepository $cmsBlockRepository;
-
-    public function __construct(
-        EntityRepository $cmsBlockRepository
-    ) {
-        $this->cmsBlockRepository = $cmsBlockRepository;
+    public function __construct(private readonly EntityRepository $cmsBlockRepository)
+    {
     }
 
     /**
      * @Since("6.4.4.0")
-     * @Route("api/app-system/cms/blocks", name="api.app_system.cms.blocks", methods={"GET"})
      */
+    #[Route(path: 'api/app-system/cms/blocks', name: 'api.app_system.cms.blocks', methods: ['GET'])]
     public function getBlocks(Context $context): Response
     {
         $criteria = new Criteria();

@@ -17,18 +17,14 @@ class PropertyGroupOptionTranslationCollection extends EntityCollection
     public function getPropertyGroupOptionIds(): array
     {
         /** @var list<string> $ids */
-        $ids = $this->fmap(function (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) {
-            return $propertyGroupOptionTranslation->getPropertyGroupOptionId();
-        });
+        $ids = $this->fmap(fn (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) => $propertyGroupOptionTranslation->getPropertyGroupOptionId());
 
         return $ids;
     }
 
     public function filterByPropertyGroupOptionId(string $id): self
     {
-        return $this->filter(function (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) use ($id) {
-            return $propertyGroupOptionTranslation->getPropertyGroupOptionId() === $id;
-        });
+        return $this->filter(fn (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) => $propertyGroupOptionTranslation->getPropertyGroupOptionId() === $id);
     }
 
     /**
@@ -37,18 +33,14 @@ class PropertyGroupOptionTranslationCollection extends EntityCollection
     public function getLanguageIds(): array
     {
         /** @var list<string> $ids */
-        $ids = $this->fmap(function (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) {
-            return $propertyGroupOptionTranslation->getLanguageId();
-        });
+        $ids = $this->fmap(fn (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) => $propertyGroupOptionTranslation->getLanguageId());
 
         return $ids;
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) use ($id) {
-            return $propertyGroupOptionTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) => $propertyGroupOptionTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

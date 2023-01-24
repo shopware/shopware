@@ -14,13 +14,10 @@ use Shopware\Core\Framework\Context;
 class ActionButtonResponseFactory
 {
     /**
-     * @var ActionButtonResponseFactoryInterface[]
+     * @param ActionButtonResponseFactoryInterface[] $factories
      */
-    private iterable $factories;
-
-    public function __construct(iterable $factories)
+    public function __construct(private readonly iterable $factories)
     {
-        $this->factories = $factories;
     }
 
     public function createFromResponse(AppAction $action, string $actionType, array $payload, Context $context): ActionButtonResponse

@@ -30,7 +30,7 @@ use Shopware\Core\System\StateMachine\StateMachineDefinition;
  */
 class StateMachineStateDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'state_machine_state';
+    final public const ENTITY_NAME = 'state_machine_state';
 
     public function getEntityName(): string
     {

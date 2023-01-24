@@ -22,7 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class AppPaymentMethodDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'app_payment_method';
+    final public const ENTITY_NAME = 'app_payment_method';
 
     public function getEntityName(): string
     {

@@ -18,16 +18,16 @@ class ArrayIncrementer extends AbstractIncrementer
 
     public function increment(string $cluster, string $key): void
     {
-        $this->logs[$cluster] = $this->logs[$cluster] ?? [];
+        $this->logs[$cluster] ??= [];
 
-        $this->logs[$cluster][$key] = $this->logs[$cluster][$key] ?? 0;
+        $this->logs[$cluster][$key] ??= 0;
 
         ++$this->logs[$cluster][$key];
     }
 
     public function decrement(string $cluster, string $key): void
     {
-        $this->logs[$cluster] = $this->logs[$cluster] ?? [];
+        $this->logs[$cluster] ??= [];
 
         if (!\array_key_exists($key, $this->logs[$cluster]) || $this->logs[$cluster][$key] === 0) {
             return;

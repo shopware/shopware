@@ -19,13 +19,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class ProductVisibilityDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_visibility';
+    final public const ENTITY_NAME = 'product_visibility';
 
-    public const VISIBILITY_LINK = 10;
+    final public const VISIBILITY_LINK = 10;
 
-    public const VISIBILITY_SEARCH = 20;
+    final public const VISIBILITY_SEARCH = 20;
 
-    public const VISIBILITY_ALL = 30;
+    final public const VISIBILITY_ALL = 30;
 
     public function getEntityName(): string
     {

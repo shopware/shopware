@@ -12,14 +12,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class CreateCustomAppsDir implements EventSubscriberInterface
 {
-    private string $appDir;
-
     /**
      * @internal
      */
-    public function __construct(string $appDir)
+    public function __construct(private readonly string $appDir)
     {
-        $this->appDir = $appDir;
     }
 
     public static function getSubscribedEvents(): array

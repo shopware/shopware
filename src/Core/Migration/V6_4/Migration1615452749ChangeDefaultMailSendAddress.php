@@ -28,7 +28,7 @@ class Migration1615452749ChangeDefaultMailSendAddress extends MigrationStep
 
         foreach ($basicMails as $basicMail) {
             if (isset($basicMail['configuration_value']) && \is_string($basicMail['configuration_value'])) {
-                $configValue = json_decode($basicMail['configuration_value'], true);
+                $configValue = json_decode($basicMail['configuration_value'], true, 512, \JSON_THROW_ON_ERROR);
                 if (isset($configValue['_value']) && $configValue['_value'] === 'doNotReply@localhost') {
                     $connection->executeStatement(
                         'UPDATE system_config SET configuration_value = :defaultMail WHERE id = :id',

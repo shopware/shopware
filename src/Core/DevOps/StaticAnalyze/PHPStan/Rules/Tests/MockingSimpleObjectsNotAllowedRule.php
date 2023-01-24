@@ -45,11 +45,8 @@ class MockingSimpleObjectsNotAllowedRule implements Rule
 
     private const MOCK_METHODS = ['createMock', 'createMockObject', 'createStub', 'createPartialMock', 'createConfiguredMock', 'createTestProxy'];
 
-    private ReflectionProvider $reflectionProvider;
-
-    public function __construct(ReflectionProvider $reflectionProvider)
+    public function __construct(private readonly ReflectionProvider $reflectionProvider)
     {
-        $this->reflectionProvider = $reflectionProvider;
     }
 
     public function getNodeType(): string

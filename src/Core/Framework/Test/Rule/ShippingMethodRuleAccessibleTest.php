@@ -20,20 +20,14 @@ class ShippingMethodRuleAccessibleTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $ruleRepository;
+    private EntityRepository $ruleRepository;
 
     /**
-     * @var array
+     * @var array<array<string, mixed>>
      */
-    private $rule;
+    private array $rule = [];
 
-    /**
-     * @var string
-     */
-    private $ruleId;
+    private string $ruleId;
 
     public function setUp(): void
     {

@@ -7,14 +7,11 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
  */
 class Tokenizer implements TokenizerInterface
 {
-    private int $tokenMinimumLength;
-
     /**
      * @internal
      */
-    public function __construct(int $tokenMinimumLength)
+    public function __construct(private readonly int $tokenMinimumLength)
     {
-        $this->tokenMinimumLength = $tokenMinimumLength;
     }
 
     public function tokenize(string $string): array

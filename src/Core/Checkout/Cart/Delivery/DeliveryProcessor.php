@@ -18,11 +18,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {
-    public const MANUAL_SHIPPING_COSTS = 'manualShippingCosts';
+    final public const MANUAL_SHIPPING_COSTS = 'manualShippingCosts';
 
-    public const SKIP_DELIVERY_PRICE_RECALCULATION = 'skipDeliveryPriceRecalculation';
+    final public const SKIP_DELIVERY_PRICE_RECALCULATION = 'skipDeliveryPriceRecalculation';
 
-    public const SKIP_DELIVERY_TAX_RECALCULATION = 'skipDeliveryTaxRecalculation';
+    final public const SKIP_DELIVERY_TAX_RECALCULATION = 'skipDeliveryTaxRecalculation';
 
     /**
      * @var DeliveryBuilder

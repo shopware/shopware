@@ -23,38 +23,23 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class DatabaseConfigurationController extends InstallerController
 {
-    private TranslatorInterface $translator;
-
-    private BlueGreenDeploymentService $blueGreenDeploymentService;
-
-    private JwtCertificateGenerator $jwtCertificateGenerator;
-
-    private SetupDatabaseAdapter $setupDatabaseAdapter;
-
-    private DatabaseConnectionFactory $connectionFactory;
-
-    private string $jwtDir;
+    private readonly string $jwtDir;
 
     public function __construct(
-        TranslatorInterface $translator,
-        BlueGreenDeploymentService $blueGreenDeploymentService,
-        JwtCertificateGenerator $jwtCertificateGenerator,
-        SetupDatabaseAdapter $setupDatabaseAdapter,
-        DatabaseConnectionFactory $connectionFactory,
+        private readonly TranslatorInterface $translator,
+        private readonly BlueGreenDeploymentService $blueGreenDeploymentService,
+        private readonly JwtCertificateGenerator $jwtCertificateGenerator,
+        private readonly SetupDatabaseAdapter $setupDatabaseAdapter,
+        private readonly DatabaseConnectionFactory $connectionFactory,
         string $projectDir
     ) {
-        $this->translator = $translator;
-        $this->blueGreenDeploymentService = $blueGreenDeploymentService;
-        $this->jwtCertificateGenerator = $jwtCertificateGenerator;
-        $this->setupDatabaseAdapter = $setupDatabaseAdapter;
-        $this->connectionFactory = $connectionFactory;
         $this->jwtDir = $projectDir . '/config/jwt';
     }
 
     /**
      * @Since("6.4.15.0")
-     * @Route("/installer/database-configuration", name="installer.database-configuration", methods={"POST", "GET"})
      */
+    #[Route(path: '/installer/database-configuration', name: 'installer.database-configuration', methods: ['POST', 'GET'])]
     public function databaseConfiguration(Request $request): Response
     {
         $session = $request->getSession();
@@ -120,15 +105,15 @@ class DatabaseConfigurationController extends InstallerController
 
     /**
      * @Since("6.4.15.0")
-     * @Route("/installer/database-information", name="installer.database-information", methods={"POST"})
      */
+    #[Route(path: '/installer/database-information', name: 'installer.database-information', methods: ['POST'])]
     public function databaseInformation(Request $request): JsonResponse
     {
         $connectionInfo = (new DatabaseConnectionInformation())->assign($request->request->all());
 
         try {
             $connection = $this->connectionFactory->getConnection($connectionInfo, true);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return new JsonResponse();
         }
 

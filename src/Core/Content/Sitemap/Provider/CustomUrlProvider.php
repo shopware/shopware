@@ -13,14 +13,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class CustomUrlProvider extends AbstractUrlProvider
 {
-    private ConfigHandler $configHandler;
-
     /**
      * @internal
      */
-    public function __construct(ConfigHandler $configHandler)
+    public function __construct(private readonly ConfigHandler $configHandler)
     {
-        $this->configHandler = $configHandler;
     }
 
     public function getDecorated(): AbstractUrlProvider

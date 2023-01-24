@@ -19,12 +19,6 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class CustomerSerializer extends EntitySerializer implements ResetInterface
 {
-    private EntityRepository $customerGroupRepository;
-
-    private EntityRepository $paymentMethodRepository;
-
-    private EntityRepository $salesChannelRepository;
-
     /**
      * @var array<string>|null[]
      */
@@ -43,14 +37,8 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $customerGroupRepository,
-        EntityRepository $paymentMethodRepository,
-        EntityRepository $salesChannelRepository
-    ) {
-        $this->customerGroupRepository = $customerGroupRepository;
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->salesChannelRepository = $salesChannelRepository;
+    public function __construct(private readonly EntityRepository $customerGroupRepository, private readonly EntityRepository $paymentMethodRepository, private readonly EntityRepository $salesChannelRepository)
+    {
     }
 
     /**

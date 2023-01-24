@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class StoreApiRouteScope extends AbstractRouteScope implements SalesChannelContextRouteScopeDependant
 {
-    public const ID = DefinitionService::STORE_API;
+    final public const ID = DefinitionService::STORE_API;
 
     /**
      * @var array<string>

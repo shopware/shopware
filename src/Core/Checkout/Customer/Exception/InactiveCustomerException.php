@@ -21,7 +21,7 @@ class InactiveCustomerException extends CustomerOptinNotCompletedException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
         );
 
         return 'CHECKOUT__CUSTOMER_IS_INACTIVE';
@@ -31,7 +31,7 @@ class InactiveCustomerException extends CustomerOptinNotCompletedException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
         );
 
         return Response::HTTP_UNAUTHORIZED;
@@ -41,7 +41,7 @@ class InactiveCustomerException extends CustomerOptinNotCompletedException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
         );
 
         return 'account.inactiveAccountAlert';

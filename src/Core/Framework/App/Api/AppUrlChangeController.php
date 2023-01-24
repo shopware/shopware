@@ -19,28 +19,19 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  *
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package core
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class AppUrlChangeController extends AbstractController
 {
-    private Resolver $appUrlChangeResolver;
-
-    private ShopIdProvider $shopIdProvider;
-
-    public function __construct(
-        Resolver $appUrlChangeResolverStrategy,
-        ShopIdProvider $shopIdProvider
-    ) {
-        $this->appUrlChangeResolver = $appUrlChangeResolverStrategy;
-        $this->shopIdProvider = $shopIdProvider;
+    public function __construct(private readonly Resolver $appUrlChangeResolver, private readonly ShopIdProvider $shopIdProvider)
+    {
     }
 
     /**
      * @Since("6.3.3.0")
-     * @Route("api/app-system/app-url-change/strategies", name="api.app_system.app-url-change-strategies", methods={"GET"})
      */
+    #[Route(path: 'api/app-system/app-url-change/strategies', name: 'api.app_system.app-url-change-strategies', methods: ['GET'])]
     public function getAvailableStrategies(): JsonResponse
     {
         return new JsonResponse(
@@ -50,8 +41,8 @@ class AppUrlChangeController extends AbstractController
 
     /**
      * @Since("6.3.3.0")
-     * @Route("api/app-system/app-url-change/resolve", name="api.app_system.app-url-change-resolve", methods={"POST"})
      */
+    #[Route(path: 'api/app-system/app-url-change/resolve', name: 'api.app_system.app-url-change-resolve', methods: ['POST'])]
     public function resolve(Request $request, Context $context): Response
     {
         $strategy = $request->get('strategy');
@@ -71,8 +62,8 @@ class AppUrlChangeController extends AbstractController
 
     /**
      * @Since("6.3.3.0")
-     * @Route("api/app-system/app-url-change/url-difference", name="api.app_system.app-url-difference", methods={"GET"})
      */
+    #[Route(path: 'api/app-system/app-url-change/url-difference', name: 'api.app_system.app-url-difference', methods: ['GET'])]
     public function getUrlDifference(): Response
     {
         try {

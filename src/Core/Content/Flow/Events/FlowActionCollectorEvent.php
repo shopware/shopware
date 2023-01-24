@@ -11,14 +11,8 @@ use Shopware\Core\Framework\Event\NestedEvent;
  */
 class FlowActionCollectorEvent extends NestedEvent
 {
-    private FlowActionCollectorResponse $flowActionCollectorResponse;
-
-    private Context $context;
-
-    public function __construct(FlowActionCollectorResponse $flowActionCollectorResponse, Context $context)
+    public function __construct(private readonly FlowActionCollectorResponse $flowActionCollectorResponse, private readonly Context $context)
     {
-        $this->flowActionCollectorResponse = $flowActionCollectorResponse;
-        $this->context = $context;
     }
 
     public function getContext(): Context

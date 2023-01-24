@@ -15,7 +15,7 @@ use Shopware\Core\Profiling\Doctrine\DebugStack;
  */
 class NullConnection extends Connection
 {
-    public const EXCEPTION_MESSAGE = 'Write operations are not supported when using executeQuery.';
+    final public const EXCEPTION_MESSAGE = 'Write operations are not supported when using executeQuery.';
 
     private Connection $originalConnection;
 

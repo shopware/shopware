@@ -15,21 +15,14 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemTotalPriceRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemTotalPrice';
-
-    protected ?float $amount;
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartLineItemTotalPrice';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?float $amount = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->amount = $amount;
     }
 
     /**

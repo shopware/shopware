@@ -62,14 +62,8 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
 ###< shopware/storefront ###
 EOT;
 
-    private string $projectDir;
-
-    private UniqueIdGenerator $idGenerator;
-
-    public function __construct(string $projectDir, UniqueIdGenerator $idGenerator)
+    public function __construct(private readonly string $projectDir, private readonly UniqueIdGenerator $idGenerator)
     {
-        $this->projectDir = $projectDir;
-        $this->idGenerator = $idGenerator;
     }
 
     /**

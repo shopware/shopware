@@ -19,7 +19,7 @@ trait ItemsHasTrait
      *
      * @return bool Returns true if the given line-item or a line-item with the given id already exists in the collection, false otherwise.
      */
-    public function has($id): bool
+    public function has(string|ItemFacade $id): bool
     {
         if (\is_string($id)) {
             return $this->getItems()->has($id);

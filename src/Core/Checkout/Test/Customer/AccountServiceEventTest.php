@@ -45,10 +45,7 @@ class AccountServiceEventTest extends TestCase
      */
     private $customerRepository;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     /**
      * @var LoginRoute
@@ -98,7 +95,7 @@ class AccountServiceEventTest extends TestCase
 
         try {
             $this->loginRoute->login($dataBag->toRequestDataBag(), $this->salesChannelContext);
-        } catch (BadCredentialsException $e) {
+        } catch (BadCredentialsException) {
             // nth
         }
         static::assertFalse($eventDidRun, 'Event "' . CustomerBeforeLoginEvent::class . '" did run');
@@ -107,7 +104,7 @@ class AccountServiceEventTest extends TestCase
 
         try {
             $this->accountService->login('', $this->salesChannelContext);
-        } catch (BadCredentialsException $e) {
+        } catch (BadCredentialsException) {
             // nth
         }
         static::assertFalse($eventDidRun, 'Event "' . CustomerBeforeLoginEvent::class . '" did run');

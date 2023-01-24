@@ -12,13 +12,10 @@ use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 class Parameters extends XmlElement
 {
     /**
-     * @var Parameter[]
+     * @param Parameter[] $parameters
      */
-    protected array $parameters;
-
-    public function __construct(array $data)
+    public function __construct(protected array $parameters)
     {
-        $this->parameters = $data;
     }
 
     /**

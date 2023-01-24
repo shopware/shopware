@@ -28,12 +28,12 @@ class ProductSubscriber implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        private AbstractProductVariationBuilder $productVariationBuilder,
-        private AbstractProductPriceCalculator $calculator,
-        private AbstractPropertyGroupSorter $propertyGroupSorter,
-        private AbstractProductMaxPurchaseCalculator $maxPurchaseCalculator,
-        private AbstractIsNewDetector $isNewDetector,
-        private SystemConfigService $systemConfigService
+        private readonly AbstractProductVariationBuilder $productVariationBuilder,
+        private readonly AbstractProductPriceCalculator $calculator,
+        private readonly AbstractPropertyGroupSorter $propertyGroupSorter,
+        private readonly AbstractProductMaxPurchaseCalculator $maxPurchaseCalculator,
+        private readonly AbstractIsNewDetector $isNewDetector,
+        private readonly SystemConfigService $systemConfigService
     ) {
     }
 

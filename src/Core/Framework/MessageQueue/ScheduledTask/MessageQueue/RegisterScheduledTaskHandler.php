@@ -18,7 +18,7 @@ class RegisterScheduledTaskHandler
     /**
      * @internal
      */
-    public function __construct(private TaskRegistry $registry)
+    public function __construct(private readonly TaskRegistry $registry)
     {
     }
 

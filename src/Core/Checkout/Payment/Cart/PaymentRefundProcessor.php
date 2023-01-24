@@ -21,23 +21,11 @@ class PaymentRefundProcessor
 {
     private const TABLE_ALIAS = 'refund';
 
-    private Connection $connection;
-
-    private OrderTransactionCaptureRefundStateHandler $stateHandler;
-
-    private PaymentHandlerRegistry $paymentHandlerRegistry;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        OrderTransactionCaptureRefundStateHandler $stateHandler,
-        PaymentHandlerRegistry $paymentHandlerRegistry
-    ) {
-        $this->connection = $connection;
-        $this->stateHandler = $stateHandler;
-        $this->paymentHandlerRegistry = $paymentHandlerRegistry;
+    public function __construct(private readonly Connection $connection, private readonly OrderTransactionCaptureRefundStateHandler $stateHandler, private readonly PaymentHandlerRegistry $paymentHandlerRegistry)
+    {
     }
 
     public function processRefund(string $refundId, Context $context): void

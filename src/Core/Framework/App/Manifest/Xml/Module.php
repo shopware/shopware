@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Util\XmlReader;
  */
 class Module extends XmlElement
 {
-    public const TRANSLATABLE_FIELDS = ['label'];
+    final public const TRANSLATABLE_FIELDS = ['label'];
 
     /**
      * @var array<string, string>

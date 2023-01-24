@@ -49,10 +49,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
      */
     private $contextFactory;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    private SalesChannelContext $context;
 
     /**
      * @var EntityRepository

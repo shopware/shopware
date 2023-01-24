@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class StateMachineTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'state_machine_translation';
+    final public const ENTITY_NAME = 'state_machine_translation';
 
     public function getEntityName(): string
     {

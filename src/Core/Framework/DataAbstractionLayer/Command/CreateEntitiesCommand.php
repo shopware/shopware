@@ -19,33 +19,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class CreateEntitiesCommand extends Command
 {
-    /**
-     * @var EntityGenerator
-     */
-    private $entityGenerator;
-
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
-
-    /**
-     * @var string
-     */
-    private $dir;
+    private readonly string $dir;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityGenerator $entityGenerator,
-        DefinitionInstanceRegistry $registry,
+        private readonly EntityGenerator $entityGenerator,
+        private readonly DefinitionInstanceRegistry $registry,
         string $rootDir
     ) {
         parent::__construct();
-        $this->registry = $registry;
         $this->dir = $rootDir . '/../schema/';
-        $this->entityGenerator = $entityGenerator;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

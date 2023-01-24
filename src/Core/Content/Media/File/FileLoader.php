@@ -17,34 +17,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
  */
 class FileLoader
 {
-    private FilesystemOperator $filesystemPublic;
-
-    private FilesystemOperator $filesystemPrivate;
-
-    private UrlGeneratorInterface $urlGenerator;
-
-    private FileNameValidator $fileNameValidator;
-
-    private EntityRepository $mediaRepository;
-
-    private StreamFactoryInterface $streamFactory;
+    private readonly FileNameValidator $fileNameValidator;
 
     /**
      * @internal
      */
     public function __construct(
-        FilesystemOperator $filesystemPublic,
-        FilesystemOperator $filesystemPrivate,
-        UrlGeneratorInterface $urlGenerator,
-        EntityRepository $mediaRepository,
-        StreamFactoryInterface $streamFactory
+        private readonly FilesystemOperator $filesystemPublic,
+        private readonly FilesystemOperator $filesystemPrivate,
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly EntityRepository $mediaRepository,
+        private readonly StreamFactoryInterface $streamFactory
     ) {
-        $this->filesystemPublic = $filesystemPublic;
-        $this->filesystemPrivate = $filesystemPrivate;
-        $this->urlGenerator = $urlGenerator;
         $this->fileNameValidator = new FileNameValidator();
-        $this->mediaRepository = $mediaRepository;
-        $this->streamFactory = $streamFactory;
     }
 
     public function loadMediaFile(string $mediaId, Context $context): string

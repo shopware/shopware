@@ -57,11 +57,11 @@ class AppPaymentMethodEntity extends Entity
      */
     protected $finalizeUrl;
 
-    protected ?string $validateUrl;
+    protected ?string $validateUrl = null;
 
-    protected ?string $captureUrl;
+    protected ?string $captureUrl = null;
 
-    protected ?string $refundUrl;
+    protected ?string $refundUrl = null;
 
     /**
      * @var string|null

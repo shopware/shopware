@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\System\User\UserEntity;
 
@@ -12,7 +14,7 @@ use Shopware\Core\System\User\UserEntity;
  */
 class TestCollectionWithToOneRelationship extends SerializationFixture
 {
-    public function getInput()
+    public function getInput(): EntityCollection|Entity
     {
         $mediaCollection = new MediaCollection();
         $userId = '6f51622eb3814c75ae0263cece27ce72';

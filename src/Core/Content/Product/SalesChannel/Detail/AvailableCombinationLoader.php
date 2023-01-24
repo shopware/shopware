@@ -13,14 +13,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function getDecorated(): AbstractAvailableCombinationLoader
@@ -60,7 +57,7 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
         $result = new AvailableCombinationResult();
 
         foreach ($combinations as $combination) {
-            $options = json_decode($combination['options'], true);
+            $options = json_decode((string) $combination['options'], true, 512, \JSON_THROW_ON_ERROR);
 
             if (!$options) {
                 continue;

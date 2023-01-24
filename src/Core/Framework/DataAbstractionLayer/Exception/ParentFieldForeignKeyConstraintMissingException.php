@@ -18,7 +18,7 @@ class ParentFieldForeignKeyConstraintMissingException extends ShopwareHttpExcept
             [
                 'definition' => $definition->getEntityName(),
                 'propertyName' => $parentField->getPropertyName(),
-                'propertyClass' => \get_class($parentField),
+                'propertyClass' => $parentField::class,
             ]
         );
     }

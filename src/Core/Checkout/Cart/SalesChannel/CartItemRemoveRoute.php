@@ -18,25 +18,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package checkout
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private CartCalculator $cartCalculator;
-
-    private AbstractCartPersister $cartPersister;
-
     /**
      * @internal
      */
-    public function __construct(EventDispatcherInterface $eventDispatcher, CartCalculator $cartCalculator, AbstractCartPersister $cartPersister)
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly CartCalculator $cartCalculator, private readonly AbstractCartPersister $cartPersister)
     {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartCalculator = $cartCalculator;
-        $this->cartPersister = $cartPersister;
     }
 
     public function getDecorated(): AbstractCartItemRemoveRoute
@@ -46,8 +36,8 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
 
     /**
      * @Since("6.3.0.0")
-     * @Route("/store-api/checkout/cart/line-item", name="store-api.checkout.cart.remove-item", methods={"DELETE"})
      */
+    #[Route(path: '/store-api/checkout/cart/line-item', name: 'store-api.checkout.cart.remove-item', methods: ['DELETE'])]
     public function remove(Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {
         $ids = $request->get('ids');

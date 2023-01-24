@@ -24,24 +24,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class MailAttachmentsBuilder
 {
-    private MediaService $mediaService;
-
-    private EntityRepository $mediaRepository;
-
-    private DocumentGenerator $documentGenerator;
-
-    private Connection $connection;
-
-    public function __construct(
-        MediaService $mediaService,
-        EntityRepository $mediaRepository,
-        DocumentGenerator $documentGenerator,
-        Connection $connection
-    ) {
-        $this->mediaService = $mediaService;
-        $this->mediaRepository = $mediaRepository;
-        $this->documentGenerator = $documentGenerator;
-        $this->connection = $connection;
+    public function __construct(private readonly MediaService $mediaService, private readonly EntityRepository $mediaRepository, private readonly DocumentGenerator $documentGenerator, private readonly Connection $connection)
+    {
     }
 
     /**

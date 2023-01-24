@@ -39,9 +39,9 @@ class DocsAppEventCommand extends Command
      * @internal
      */
     public function __construct(
-        private BusinessEventCollector $businessEventCollector,
-        private HookableEventCollector $hookableEventCollector,
-        private Environment $twig
+        private readonly BusinessEventCollector $businessEventCollector,
+        private readonly HookableEventCollector $hookableEventCollector,
+        private readonly Environment $twig
     ) {
         parent::__construct();
     }
@@ -96,8 +96,6 @@ class DocsAppEventCommand extends Command
 
     protected function configure(): void
     {
-        $this
-            ->setDescription('Generates documentation for all events that can be registered as webhook');
     }
 
     /**

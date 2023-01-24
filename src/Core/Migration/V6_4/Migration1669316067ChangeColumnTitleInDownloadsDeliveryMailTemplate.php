@@ -10,6 +10,8 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class Migration1669316067ChangeColumnTitleInDownloadsDeliveryMailTemplate extends MigrationStep
 {

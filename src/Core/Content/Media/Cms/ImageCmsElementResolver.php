@@ -19,16 +19,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
  */
 class ImageCmsElementResolver extends AbstractCmsElementResolver
 {
-    public const CMS_DEFAULT_ASSETS_PATH = '/bundles/storefront/assets/default/cms/';
-
-    private AbstractDefaultMediaResolver $mediaResolver;
+    final public const CMS_DEFAULT_ASSETS_PATH = '/bundles/storefront/assets/default/cms/';
 
     /**
      * @internal
      */
-    public function __construct(AbstractDefaultMediaResolver $mediaResolver)
+    public function __construct(private readonly AbstractDefaultMediaResolver $mediaResolver)
     {
-        $this->mediaResolver = $mediaResolver;
     }
 
     public function getType(): string

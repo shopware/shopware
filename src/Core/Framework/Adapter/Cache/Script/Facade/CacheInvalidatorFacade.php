@@ -12,14 +12,11 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
  **/
 class CacheInvalidatorFacade
 {
-    private CacheInvalidator $cacheInvalidator;
-
     /**
      * @internal
      */
-    public function __construct(CacheInvalidator $cacheInvalidator)
+    public function __construct(private readonly CacheInvalidator $cacheInvalidator)
     {
-        $this->cacheInvalidator = $cacheInvalidator;
     }
 
     /**

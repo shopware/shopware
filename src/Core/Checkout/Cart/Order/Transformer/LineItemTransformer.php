@@ -83,17 +83,13 @@ class LineItemTransformer
 
         $downloads = $lineItem->getExtensionOfType(OrderConverter::ORIGINAL_DOWNLOADS, OrderLineItemDownloadCollection::class);
         if ($downloads instanceof OrderLineItemDownloadCollection) {
-            $data['downloads'] = array_values($downloads->map(function (OrderLineItemDownloadEntity $download): array {
-                return ['id' => $download->getId()];
-            }));
+            $data['downloads'] = array_values($downloads->map(fn (OrderLineItemDownloadEntity $download): array => ['id' => $download->getId()]));
         }
 
-        $output[$lineItem->getId()] = array_filter($data, function ($value) {
-            return $value !== null;
-        });
+        $output[$lineItem->getId()] = array_filter($data, fn ($value) => $value !== null);
 
         if ($lineItem->hasChildren()) {
-            $output = array_merge($output, self::transformCollection($lineItem->getChildren(), $id));
+            $output = [...$output, ...self::transformCollection($lineItem->getChildren(), $id)];
         }
 
         return $output;

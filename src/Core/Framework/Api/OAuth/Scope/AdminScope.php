@@ -9,7 +9,7 @@ use League\OAuth2\Server\Entities\ScopeEntityInterface;
  */
 class AdminScope implements ScopeEntityInterface
 {
-    public const IDENTIFIER = 'admin';
+    final public const IDENTIFIER = 'admin';
 
     /**
      * @return string

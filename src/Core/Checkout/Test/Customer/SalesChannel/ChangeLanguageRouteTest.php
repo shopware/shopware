@@ -22,15 +22,9 @@ class ChangeLanguageRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     protected function setUp(): void
     {
@@ -52,7 +46,7 @@ class ChangeLanguageRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
@@ -87,7 +81,7 @@ class ChangeLanguageRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('success', $response);
 
@@ -113,7 +107,7 @@ class ChangeLanguageRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals('The "language" entity with id "' . $languageId . '" does not exist.', $response['errors'][0]['detail']);

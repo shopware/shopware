@@ -78,7 +78,7 @@ class PasswordFieldTest extends TestCase
 
         $payload = iterator_to_array($payload);
         static::assertNotEquals($kvPair->getValue(), $payload['password']);
-        static::assertTrue(password_verify($kvPair->getValue(), $payload['password']));
+        static::assertTrue(password_verify((string) $kvPair->getValue(), (string) $payload['password']));
     }
 
     public function testValueIsRequiredOnInsert(): void

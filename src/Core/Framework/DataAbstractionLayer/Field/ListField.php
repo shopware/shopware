@@ -30,7 +30,7 @@ class ListField extends JsonField
     public function __construct(
         string $storageName,
         string $propertyName,
-        private ?string $fieldType = null
+        private readonly ?string $fieldType = null
     ) {
         parent::__construct($storageName, $propertyName);
     }

@@ -22,14 +22,14 @@ class AclAnnotationValidator implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::CONTROLLER => [

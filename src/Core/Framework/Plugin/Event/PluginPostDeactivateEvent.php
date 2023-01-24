@@ -10,15 +10,9 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
  */
 class PluginPostDeactivateEvent extends PluginLifecycleEvent
 {
-    /**
-     * @var DeactivateContext
-     */
-    private $context;
-
-    public function __construct(PluginEntity $plugin, DeactivateContext $context)
+    public function __construct(PluginEntity $plugin, private readonly DeactivateContext $context)
     {
         parent::__construct($plugin);
-        $this->context = $context;
     }
 
     public function getContext(): DeactivateContext

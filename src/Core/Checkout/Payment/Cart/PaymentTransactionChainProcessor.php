@@ -28,35 +28,11 @@ use Symfony\Component\Routing\RouterInterface;
  */
 class PaymentTransactionChainProcessor
 {
-    private TokenFactoryInterfaceV2 $tokenFactory;
-
-    private EntityRepository $orderRepository;
-
-    private RouterInterface $router;
-
-    private PaymentHandlerRegistry $paymentHandlerRegistry;
-
-    private SystemConfigService $systemConfigService;
-
-    private InitialStateIdLoader $initialStateIdLoader;
-
     /**
      * @internal
      */
-    public function __construct(
-        TokenFactoryInterfaceV2 $tokenFactory,
-        EntityRepository $orderRepository,
-        RouterInterface $router,
-        PaymentHandlerRegistry $paymentHandlerRegistry,
-        SystemConfigService $systemConfigService,
-        InitialStateIdLoader $initialStateIdLoader
-    ) {
-        $this->tokenFactory = $tokenFactory;
-        $this->orderRepository = $orderRepository;
-        $this->router = $router;
-        $this->paymentHandlerRegistry = $paymentHandlerRegistry;
-        $this->systemConfigService = $systemConfigService;
-        $this->initialStateIdLoader = $initialStateIdLoader;
+    public function __construct(private readonly TokenFactoryInterfaceV2 $tokenFactory, private readonly EntityRepository $orderRepository, private readonly RouterInterface $router, private readonly PaymentHandlerRegistry $paymentHandlerRegistry, private readonly SystemConfigService $systemConfigService, private readonly InitialStateIdLoader $initialStateIdLoader)
+    {
     }
 
     /**

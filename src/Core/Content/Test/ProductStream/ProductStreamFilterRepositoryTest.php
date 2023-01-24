@@ -25,15 +25,9 @@ class ProductStreamFilterRepositoryTest extends TestCase
      */
     private $repository;
 
-    /**
-     * @var string
-     */
-    private $streamId;
+    private string $streamId;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var EntityRepository

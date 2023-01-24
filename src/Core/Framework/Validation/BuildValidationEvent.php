@@ -13,17 +13,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class BuildValidationEvent extends Event implements ShopwareEvent, GenericEvent
 {
-    private DataValidationDefinition $definition;
-
-    private Context $context;
-
-    private DataBag $data;
-
-    public function __construct(DataValidationDefinition $definition, DataBag $data, Context $context)
+    public function __construct(private readonly DataValidationDefinition $definition, private readonly DataBag $data, private readonly Context $context)
     {
-        $this->definition = $definition;
-        $this->context = $context;
-        $this->data = $data;
     }
 
     public function getName(): string

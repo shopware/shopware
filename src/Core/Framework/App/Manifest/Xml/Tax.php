@@ -4,20 +4,16 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 class Tax extends XmlElement
 {
     /**
-     * @var TaxProvider[]
-     */
-    protected array $taxProviders = [];
-
-    /**
      * @param array<TaxProvider> $taxProviders
      */
-    private function __construct(array $taxProviders)
+    private function __construct(protected array $taxProviders)
     {
-        $this->taxProviders = $taxProviders;
     }
 
     public static function fromXml(\DOMElement $element): self

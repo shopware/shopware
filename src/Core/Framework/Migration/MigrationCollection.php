@@ -17,27 +17,11 @@ class MigrationCollection
      */
     private ?array $migrationSteps = null;
 
-    private MigrationSource $migrationSource;
-
-    private Connection $connection;
-
-    private MigrationRuntime $migrationRuntime;
-
-    private ?LoggerInterface $logger = null;
-
     /**
      * @internal
      */
-    public function __construct(
-        MigrationSource $migrationSource,
-        MigrationRuntime $migrationRuntime,
-        Connection $connection,
-        ?LoggerInterface $logger = null
-    ) {
-        $this->migrationSource = $migrationSource;
-        $this->connection = $connection;
-        $this->migrationRuntime = $migrationRuntime;
-        $this->logger = $logger;
+    public function __construct(private readonly MigrationSource $migrationSource, private readonly MigrationRuntime $migrationRuntime, private readonly Connection $connection, private readonly ?LoggerInterface $logger = null)
+    {
     }
 
     public function getName(): string

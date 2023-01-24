@@ -13,7 +13,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  */
 class MissingTranslationLanguageException extends WriteConstraintViolationException
 {
-    public const VIOLATION_MISSING_TRANSLATION_LANGUAGE = 'MISSING-TRANSLATION-LANGUAGE';
+    final public const VIOLATION_MISSING_TRANSLATION_LANGUAGE = 'MISSING-TRANSLATION-LANGUAGE';
 
     public function __construct(string $path, int $translationIndex)
     {

@@ -142,9 +142,7 @@ class ProductUrlProviderTest extends TestCase
 
         $urlResult = $this->getProductUrlProvider()->getUrls($this->salesChannelContext, 3);
         $host = $this->getHost($this->salesChannelContext);
-        $locations = array_map(function ($url) use ($host) {
-            return $host . '/' . $url->getLoc();
-        }, $urlResult->getUrls());
+        $locations = array_map(fn ($url) => $host . '/' . $url->getLoc(), $urlResult->getUrls());
 
         foreach ($products as $product) {
             $urlGenerate = $this->getComparisonUrl($product['id']);

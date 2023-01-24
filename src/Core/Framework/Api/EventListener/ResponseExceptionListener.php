@@ -14,14 +14,11 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 class ResponseExceptionListener implements EventSubscriberInterface
 {
-    private bool $debug;
-
     /**
      * @internal
      */
-    public function __construct(bool $debug = false)
+    public function __construct(private readonly bool $debug = false)
     {
-        $this->debug = $debug;
     }
 
     public static function getSubscribedEvents(): array

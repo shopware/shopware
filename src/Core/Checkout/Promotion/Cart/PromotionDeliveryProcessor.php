@@ -15,25 +15,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class PromotionDeliveryProcessor implements CartProcessorInterface
 {
-    public const SKIP_DELIVERY_RECALCULATION = 'skipDeliveryRecalculation';
-
-    /**
-     * @var PromotionDeliveryCalculator
-     */
-    private $calculator;
-
-    /**
-     * @var LineItemGroupBuilder
-     */
-    private $groupBuilder;
+    final public const SKIP_DELIVERY_RECALCULATION = 'skipDeliveryRecalculation';
 
     /**
      * @internal
      */
-    public function __construct(PromotionDeliveryCalculator $calculator, LineItemGroupBuilder $groupBuilder)
+    public function __construct(private readonly PromotionDeliveryCalculator $calculator, private readonly LineItemGroupBuilder $groupBuilder)
     {
-        $this->calculator = $calculator;
-        $this->groupBuilder = $groupBuilder;
     }
 
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void

@@ -39,44 +39,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
+#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
 class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRoute
 {
-    private EntityRepository $customerRepository;
-
-    private EntityRepository $customerRecoveryRepository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private DataValidator $validator;
-
-    private RequestStack $requestStack;
-
-    private RateLimiter $rateLimiter;
-
-    private SystemConfigService $systemConfigService;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $customerRepository,
-        EntityRepository $customerRecoveryRepository,
-        EventDispatcherInterface $eventDispatcher,
-        DataValidator $validator,
-        SystemConfigService $systemConfigService,
-        RequestStack $requestStack,
-        RateLimiter $rateLimiter
-    ) {
-        $this->customerRepository = $customerRepository;
-        $this->customerRecoveryRepository = $customerRecoveryRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->validator = $validator;
-        $this->systemConfigService = $systemConfigService;
-        $this->requestStack = $requestStack;
-        $this->rateLimiter = $rateLimiter;
+    public function __construct(private readonly EntityRepository $customerRepository, private readonly EntityRepository $customerRecoveryRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly DataValidator $validator, private readonly SystemConfigService $systemConfigService, private readonly RequestStack $requestStack, private readonly RateLimiter $rateLimiter)
+    {
     }
 
     public function getDecorated(): AbstractSendPasswordRecoveryMailRoute
@@ -86,8 +57,8 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
 
     /**
      * @Since("6.2.0.0")
-     * @Route(path="/store-api/account/recovery-password", name="store-api.account.recovery.send.mail", methods={"POST"})
      */
+    #[Route(path: '/store-api/account/recovery-password', name: 'store-api.account.recovery.send.mail', methods: ['POST'])]
     public function sendRecoveryMail(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true): SuccessResponse
     {
         $this->validateRecoverEmail($data, $context, $validateStorefrontUrl);
@@ -152,9 +123,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
 
     private function getDomainUrls(SalesChannelContext $context): array
     {
-        return array_map(static function (SalesChannelDomainEntity $domainEntity) {
-            return rtrim($domainEntity->getUrl(), '/');
-        }, $context->getSalesChannel()->getDomains()->getElements());
+        return array_map(static fn (SalesChannelDomainEntity $domainEntity) => rtrim($domainEntity->getUrl(), '/'), $context->getSalesChannel()->getDomains()->getElements());
     }
 
     private function dispatchValidationEvent(DataValidationDefinition $definition, DataBag $data, Context $context): void
@@ -198,7 +167,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $compareValue, $equalityValidation->message);
+        $message = str_replace('{{ compared_value }}', $compareValue, (string) $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));

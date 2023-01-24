@@ -12,15 +12,9 @@ use Shopware\Core\Checkout\Order\OrderEntity;
  */
 class AsyncPayPayload extends SyncPayPayload
 {
-    protected string $returnUrl;
-
-    protected array $requestData;
-
-    public function __construct(OrderTransactionEntity $orderTransaction, OrderEntity $order, string $returnUrl, array $requestData)
+    public function __construct(OrderTransactionEntity $orderTransaction, OrderEntity $order, protected string $returnUrl, protected array $requestData)
     {
         parent::__construct($orderTransaction, $order);
-        $this->returnUrl = $returnUrl;
-        $this->requestData = $requestData;
     }
 
     public function getReturnUrl(): string

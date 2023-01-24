@@ -38,7 +38,7 @@ class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase
 
         $this->previousSqlMode = $con->fetchOne('SELECT @@sql_mode');
 
-        $current = array_filter(explode(',', $this->previousSqlMode));
+        $current = array_filter(explode(',', (string) $this->previousSqlMode));
 
         if (!\in_array('STRICT_ALL_TABLES', $current, true)) {
             $current[] = 'STRICT_ALL_TABLES';

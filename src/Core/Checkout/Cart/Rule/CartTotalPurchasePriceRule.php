@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CartTotalPurchasePriceRule extends Rule
 {
-    public const RULE_NAME = 'cartTotalPurchasePrice';
+    final public const RULE_NAME = 'cartTotalPurchasePrice';
 
     protected string $operator = Rule::OPERATOR_EQ;
 
@@ -36,7 +36,7 @@ class CartTotalPurchasePriceRule extends Rule
                 continue;
             }
 
-            $purchasePrice = json_decode($purchasePricePayload, true);
+            $purchasePrice = json_decode((string) $purchasePricePayload, true, 512, \JSON_THROW_ON_ERROR);
 
             $total += ($purchasePrice[$this->type] ?? 0.0) * $lineItem->getQuantity();
         }

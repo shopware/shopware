@@ -16,14 +16,11 @@ use Twig\Node\Node;
  */
 class TwigVariableParser
 {
-    private Environment $twig;
-
     /**
      * @internal
      */
-    public function __construct(Environment $twig)
+    public function __construct(private readonly Environment $twig)
     {
-        $this->twig = $twig;
     }
 
     public function parse(string $template): array

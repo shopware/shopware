@@ -20,7 +20,7 @@ final class CleanupWebhookEventLogTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $repository,
-        private WebhookCleanup $webhookCleanup
+        private readonly WebhookCleanup $webhookCleanup
     ) {
         parent::__construct($repository);
     }

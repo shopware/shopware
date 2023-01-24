@@ -35,32 +35,17 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 )]
 class ImportEntityCommand extends Command
 {
-    private ImportExportService $initiationService;
-
-    private EntityRepository $profileRepository;
-
-    private ImportExportFactory $importExportFactory;
-
-    private Connection $connection;
-
-    private FilesystemOperator $filesystem;
-
     /**
      * @internal
      */
     public function __construct(
-        ImportExportService $initiationService,
-        EntityRepository $profileRepository,
-        ImportExportFactory $importExportFactory,
-        Connection $connection,
-        FilesystemOperator $filesystem
+        private readonly ImportExportService $initiationService,
+        private readonly EntityRepository $profileRepository,
+        private readonly ImportExportFactory $importExportFactory,
+        private readonly Connection $connection,
+        private readonly FilesystemOperator $filesystem
     ) {
         parent::__construct();
-        $this->initiationService = $initiationService;
-        $this->profileRepository = $profileRepository;
-        $this->importExportFactory = $importExportFactory;
-        $this->connection = $connection;
-        $this->filesystem = $filesystem;
     }
 
     protected function configure(): void
@@ -96,13 +81,13 @@ class ImportEntityCommand extends Command
 
         try {
             $expireDate = new \DateTimeImmutable($expireDateString);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new \InvalidArgumentException(
                 sprintf('"%s" is not a valid date. Please use format Y-m-d', $expireDateString)
             );
         }
 
-        $file = new UploadedFile($filePath, basename($filePath), $profile->getFileType());
+        $file = new UploadedFile($filePath, basename((string) $filePath), $profile->getFileType());
 
         $doRollback = $rollbackOnError && !$dryRun;
         if ($doRollback) {

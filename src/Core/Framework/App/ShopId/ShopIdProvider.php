@@ -17,16 +17,10 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  */
 class ShopIdProvider
 {
-    public const SHOP_ID_SYSTEM_CONFIG_KEY = 'core.app.shopId';
+    final public const SHOP_ID_SYSTEM_CONFIG_KEY = 'core.app.shopId';
 
-    private SystemConfigService $systemConfigService;
-
-    private EntityRepository $appRepository;
-
-    public function __construct(SystemConfigService $systemConfigService, EntityRepository $appRepository)
+    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly EntityRepository $appRepository)
     {
-        $this->systemConfigService = $systemConfigService;
-        $this->appRepository = $appRepository;
     }
 
     /**

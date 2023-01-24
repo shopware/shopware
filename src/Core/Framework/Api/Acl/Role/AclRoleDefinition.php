@@ -27,20 +27,20 @@ use Shopware\Core\System\User\UserDefinition;
  */
 class AclRoleDefinition extends EntityDefinition
 {
-    public const PRIVILEGE_READ = 'read';
-    public const PRIVILEGE_CREATE = 'create';
-    public const PRIVILEGE_UPDATE = 'update';
-    public const PRIVILEGE_DELETE = 'delete';
+    final public const PRIVILEGE_READ = 'read';
+    final public const PRIVILEGE_CREATE = 'create';
+    final public const PRIVILEGE_UPDATE = 'update';
+    final public const PRIVILEGE_DELETE = 'delete';
 
-    public const PRIVILEGE_DEPENDENCE = [
+    final public const PRIVILEGE_DEPENDENCE = [
         AclRoleDefinition::PRIVILEGE_READ => [],
         AclRoleDefinition::PRIVILEGE_CREATE => [AclRoleDefinition::PRIVILEGE_READ],
         AclRoleDefinition::PRIVILEGE_UPDATE => [AclRoleDefinition::PRIVILEGE_READ],
         AclRoleDefinition::PRIVILEGE_DELETE => [AclRoleDefinition::PRIVILEGE_READ],
     ];
 
-    public const ENTITY_NAME = 'acl_role';
-    public const ALL_ROLE_KEY = 'all';
+    final public const ENTITY_NAME = 'acl_role';
+    final public const ALL_ROLE_KEY = 'all';
 
     public function getEntityName(): string
     {

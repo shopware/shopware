@@ -30,33 +30,13 @@ use Twig\Loader\ArrayLoader;
  */
 class SeoUrlGenerator
 {
-    public const ESCAPE_SLUGIFY = 'slugifyurlencode';
-
-    private RouterInterface $router;
-
-    private Environment $twig;
-
-    private DefinitionInstanceRegistry $definitionRegistry;
-
-    private RequestStack $requestStack;
-
-    private TwigVariableParser $twigVariableParser;
+    final public const ESCAPE_SLUGIFY = 'slugifyurlencode';
 
     /**
      * @internal
      */
-    public function __construct(
-        DefinitionInstanceRegistry $definitionRegistry,
-        RouterInterface $router,
-        RequestStack $requestStack,
-        Environment $environment,
-        TwigVariableParser $twigVariableParser
-    ) {
-        $this->definitionRegistry = $definitionRegistry;
-        $this->router = $router;
-        $this->requestStack = $requestStack;
-        $this->twig = $environment;
-        $this->twigVariableParser = $twigVariableParser;
+    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly RouterInterface $router, private readonly RequestStack $requestStack, private readonly Environment $twig, private readonly TwigVariableParser $twigVariableParser)
+    {
     }
 
     /**
@@ -79,9 +59,7 @@ class SeoUrlGenerator
         $criteria->setLimit(50);
 
         /** @var RepositoryIterator $iterator */
-        $iterator = $context->enableInheritance(static function (Context $context) use ($repository, $criteria) {
-            return new RepositoryIterator($repository, $context, $criteria);
-        });
+        $iterator = $context->enableInheritance(static fn (Context $context) => new RepositoryIterator($repository, $context, $criteria));
 
         $this->setTwigTemplate($config, $template);
 

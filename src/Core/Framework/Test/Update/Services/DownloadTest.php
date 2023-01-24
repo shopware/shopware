@@ -33,7 +33,7 @@ class DownloadTest extends TestCase
         try {
             stream_wrapper_restore('file');
             self::$restored = true;
-        } catch (\Throwable $exception) {
+        } catch (\Throwable) {
             // nth
         }
 

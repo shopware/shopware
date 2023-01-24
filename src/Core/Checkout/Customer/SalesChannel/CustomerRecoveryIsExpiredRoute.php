@@ -24,29 +24,16 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
- *
  * @package customer-order
  */
+#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
 class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRoute
 {
-    private EntityRepository $customerRecoveryRepository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private DataValidator $validator;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $customerRecoveryRepository,
-        EventDispatcherInterface $eventDispatcher,
-        DataValidator $validator
-    ) {
-        $this->customerRecoveryRepository = $customerRecoveryRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->validator = $validator;
+    public function __construct(private readonly EntityRepository $customerRecoveryRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly DataValidator $validator)
+    {
     }
 
     public function getDecorated(): AbstractResetPasswordRoute
@@ -56,8 +43,8 @@ class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRo
 
     /**
      * @Since("6.4.14.0")
-     * @Route(path="/store-api/account/customer-recovery-is-expired", name="store-api.account.customer.recovery.is.expired", methods={"POST"})
      */
+    #[Route(path: '/store-api/account/customer-recovery-is-expired', name: 'store-api.account.customer.recovery.is.expired', methods: ['POST'])]
     public function load(RequestDataBag $data, SalesChannelContext $context): CustomerRecoveryIsExpiredResponse
     {
         $this->validateHash($data, $context);

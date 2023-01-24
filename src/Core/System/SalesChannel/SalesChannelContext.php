@@ -74,11 +74,6 @@ class SalesChannelContext extends Struct
     protected $shippingLocation;
 
     /**
-     * @var array<string, string[]>
-     */
-    protected array $areaRuleIds;
-
-    /**
      * @var mixed[]
      */
     protected $permissions = [];
@@ -94,21 +89,6 @@ class SalesChannelContext extends Struct
     protected $context;
 
     /**
-     * @var CashRoundingConfig
-     */
-    private $itemRounding;
-
-    /**
-     * @var CashRoundingConfig
-     */
-    private $totalRounding;
-
-    /**
-     * @var string|null
-     */
-    private $domainId;
-
-    /**
      * @internal
      *
      * @param array<string, string[]> $areaRuleIds
@@ -116,7 +96,7 @@ class SalesChannelContext extends Struct
     public function __construct(
         Context $baseContext,
         string $token,
-        ?string $domainId,
+        private ?string $domainId,
         SalesChannelEntity $salesChannel,
         CurrencyEntity $currency,
         CustomerGroupEntity $currentCustomerGroup,
@@ -125,9 +105,9 @@ class SalesChannelContext extends Struct
         ShippingMethodEntity $shippingMethod,
         ShippingLocation $shippingLocation,
         ?CustomerEntity $customer,
-        CashRoundingConfig $itemRounding,
-        CashRoundingConfig $totalRounding,
-        array $areaRuleIds = []
+        private CashRoundingConfig $itemRounding,
+        private CashRoundingConfig $totalRounding,
+        protected array $areaRuleIds = []
     ) {
         $this->currentCustomerGroup = $currentCustomerGroup;
         $this->currency = $currency;
@@ -137,12 +117,8 @@ class SalesChannelContext extends Struct
         $this->paymentMethod = $paymentMethod;
         $this->shippingMethod = $shippingMethod;
         $this->shippingLocation = $shippingLocation;
-        $this->areaRuleIds = $areaRuleIds;
         $this->token = $token;
         $this->context = $baseContext;
-        $this->itemRounding = $itemRounding;
-        $this->totalRounding = $totalRounding;
-        $this->domainId = $domainId;
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity

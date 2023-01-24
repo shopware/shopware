@@ -14,17 +14,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class ApiOrderCartService
 {
-    protected CartService $cartService;
-
-    protected SalesChannelContextPersister $contextPersister;
-
     /**
      * @internal
      */
-    public function __construct(CartService $cartService, SalesChannelContextPersister $contextPersister)
+    public function __construct(protected CartService $cartService, protected SalesChannelContextPersister $contextPersister)
     {
-        $this->cartService = $cartService;
-        $this->contextPersister = $contextPersister;
     }
 
     public function updateShippingCosts(CalculatedPrice $calculatedPrice, SalesChannelContext $context): Cart

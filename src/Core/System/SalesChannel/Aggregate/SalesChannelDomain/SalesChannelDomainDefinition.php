@@ -26,7 +26,7 @@ use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
  */
 class SalesChannelDomainDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'sales_channel_domain';
+    final public const ENTITY_NAME = 'sales_channel_domain';
 
     public function getEntityName(): string
     {

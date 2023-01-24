@@ -20,29 +20,8 @@ use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
  */
 class ExtensionDownloader
 {
-    /**
-     * @var EntityRepository
-     */
-    private $pluginRepository;
-
-    /**
-     * @var StoreClient
-     */
-    private $storeClient;
-
-    /**
-     * @var PluginManagementService
-     */
-    private $pluginManagementService;
-
-    public function __construct(
-        EntityRepository $pluginRepository,
-        StoreClient $storeClient,
-        PluginManagementService $pluginManagementService
-    ) {
-        $this->pluginRepository = $pluginRepository;
-        $this->storeClient = $storeClient;
-        $this->pluginManagementService = $pluginManagementService;
+    public function __construct(private readonly EntityRepository $pluginRepository, private readonly StoreClient $storeClient, private readonly PluginManagementService $pluginManagementService)
+    {
     }
 
     public function download(string $technicalName, Context $context): PluginDownloadDataStruct

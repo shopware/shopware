@@ -46,7 +46,7 @@ class OrderLineItemEntity extends Entity
     /**
      * @internal
      */
-    protected ?string $promotionId;
+    protected ?string $promotionId = null;
 
     /**
      * @var int
@@ -167,7 +167,7 @@ class OrderLineItemEntity extends Entity
     /**
      * @internal
      */
-    protected ?PromotionEntity $promotion;
+    protected ?PromotionEntity $promotion = null;
 
     public function getOrderId(): string
     {

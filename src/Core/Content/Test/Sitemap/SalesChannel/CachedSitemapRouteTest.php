@@ -160,11 +160,8 @@ class SitemapRouteCounter extends AbstractSitemapRoute
 {
     protected $count = 0;
 
-    private AbstractSitemapRoute $decorated;
-
-    public function __construct(AbstractSitemapRoute $decorated)
+    public function __construct(private readonly AbstractSitemapRoute $decorated)
     {
-        $this->decorated = $decorated;
     }
 
     public function getCount(): int

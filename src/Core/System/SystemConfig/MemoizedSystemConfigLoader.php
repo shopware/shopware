@@ -9,19 +9,11 @@ use Shopware\Core\System\SystemConfig\Store\MemoizedSystemConfigStore;
  */
 class MemoizedSystemConfigLoader extends AbstractSystemConfigLoader
 {
-    private AbstractSystemConfigLoader $decorated;
-
-    private MemoizedSystemConfigStore $memoizedSystemConfigStore;
-
     /**
      * @internal
      */
-    public function __construct(
-        AbstractSystemConfigLoader $decorated,
-        MemoizedSystemConfigStore $memoizedSystemConfigStore
-    ) {
-        $this->decorated = $decorated;
-        $this->memoizedSystemConfigStore = $memoizedSystemConfigStore;
+    public function __construct(private readonly AbstractSystemConfigLoader $decorated, private readonly MemoizedSystemConfigStore $memoizedSystemConfigStore)
+    {
     }
 
     public function getDecorated(): AbstractSystemConfigLoader

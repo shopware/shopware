@@ -16,14 +16,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class RouteEventSubscriber implements EventSubscriberInterface
 {
-    private EventDispatcherInterface $dispatcher;
-
     /**
      * @internal
      */
-    public function __construct(EventDispatcherInterface $dispatcher)
+    public function __construct(private readonly EventDispatcherInterface $dispatcher)
     {
-        $this->dispatcher = $dispatcher;
     }
 
     public static function getSubscribedEvents(): array

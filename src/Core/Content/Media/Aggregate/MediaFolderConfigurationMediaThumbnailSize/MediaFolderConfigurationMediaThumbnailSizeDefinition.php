@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
  */
 class MediaFolderConfigurationMediaThumbnailSizeDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'media_folder_configuration_media_thumbnail_size';
+    final public const ENTITY_NAME = 'media_folder_configuration_media_thumbnail_size';
 
     public function getEntityName(): string
     {

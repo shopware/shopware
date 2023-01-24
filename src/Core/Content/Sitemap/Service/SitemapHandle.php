@@ -22,12 +22,6 @@ class SitemapHandle implements SitemapHandleInterface
      */
     private array $tmpFiles = [];
 
-    private FilesystemOperator $filesystem;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private SalesChannelContext $context;
-
     /**
      * @var resource
      */
@@ -43,15 +37,12 @@ class SitemapHandle implements SitemapHandleInterface
      * @internal
      */
     public function __construct(
-        FilesystemOperator $filesystem,
-        SalesChannelContext $context,
-        EventDispatcherInterface $eventDispatcher,
+        private readonly FilesystemOperator $filesystem,
+        private readonly SalesChannelContext $context,
+        private readonly EventDispatcherInterface $eventDispatcher,
         ?string $domain = null
     ) {
         $this->setDomainName($domain);
-        $this->filesystem = $filesystem;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->context = $context;
 
         $filePath = $this->getTmpFilePath($context);
         $this->openGzip($filePath);
@@ -146,7 +137,7 @@ class SitemapHandle implements SitemapHandleInterface
     {
         try {
             $files = $this->filesystem->listContents($this->getPath($this->context));
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             // Folder does not exists
             return;
         }

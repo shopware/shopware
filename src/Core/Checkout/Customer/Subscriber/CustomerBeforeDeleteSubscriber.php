@@ -22,29 +22,17 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
 {
-    private EntityRepository $customerRepository;
-
-    private SalesChannelContextServiceInterface $salesChannelContextService;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $customerRepository,
-        SalesChannelContextServiceInterface $salesChannelContextService,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->customerRepository = $customerRepository;
-        $this->salesChannelContextService = $salesChannelContextService;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly EntityRepository $customerRepository, private readonly SalesChannelContextServiceInterface $salesChannelContextService, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**
      * @return array<string, string>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             BeforeDeleteEvent::class => 'beforeDelete',

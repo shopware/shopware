@@ -20,8 +20,8 @@ class TagGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        private EntityWriterInterface $writer,
-        private TagDefinition $tagDefinition
+        private readonly EntityWriterInterface $writer,
+        private readonly TagDefinition $tagDefinition
     ) {
     }
 

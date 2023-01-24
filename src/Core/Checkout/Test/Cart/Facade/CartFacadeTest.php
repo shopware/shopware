@@ -448,9 +448,9 @@ class ExpectedPrice extends CalculatedPrice
 {
     public function __construct(float $unitPrice, ?float $totalPrice = null, ?CalculatedTaxCollection $calculatedTaxes = null, ?TaxRuleCollection $taxRules = null, int $quantity = 1)
     {
-        $totalPrice = $totalPrice ?? $unitPrice;
-        $calculatedTaxes = $calculatedTaxes ?? new CalculatedTaxCollection([]);
-        $taxRules = $taxRules ?? new TaxRuleCollection([]);
+        $totalPrice ??= $unitPrice;
+        $calculatedTaxes ??= new CalculatedTaxCollection([]);
+        $taxRules ??= new TaxRuleCollection([]);
 
         parent::__construct($unitPrice, $totalPrice, $calculatedTaxes, $taxRules, $quantity);
     }

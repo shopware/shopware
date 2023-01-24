@@ -9,16 +9,12 @@ namespace Shopware\Core\Framework\Routing;
 class RouteScopeRegistry
 {
     /**
-     * @var AbstractRouteScope[]
-     */
-    private $routeScopes;
-
-    /**
      * @internal
+     *
+     * @param AbstractRouteScope[] $routeScopes
      */
-    public function __construct(iterable $routeScopes)
+    public function __construct(private readonly iterable $routeScopes)
     {
-        $this->routeScopes = $routeScopes;
     }
 
     /**

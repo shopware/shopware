@@ -56,7 +56,7 @@ use Shopware\Core\System\CustomEntity\Schema\DynamicEntityDefinition;
  */
 class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 {
-    public const FORMAT = 'entity-schema';
+    final public const FORMAT = 'entity-schema';
 
     public function supports(string $format, string $api): bool
     {
@@ -307,7 +307,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 return ['type' => 'boolean', 'flags' => $flags];
 
             default:
-                return ['type' => \get_class($field), 'flags' => $flags];
+                return ['type' => $field::class, 'flags' => $flags];
         }
     }
 

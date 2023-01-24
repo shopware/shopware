@@ -25,7 +25,7 @@ class Migration1594886106AddDocumentBaseConfigSalesChannelPK extends MigrationSt
                 ALTER TABLE `document_base_config_sales_channel`
                 ADD PRIMARY KEY (`id`);
             ');
-        } catch (Exception $e) {
+        } catch (Exception) {
             // PK already exists
         }
     }

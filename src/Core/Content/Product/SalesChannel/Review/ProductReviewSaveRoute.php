@@ -30,33 +30,16 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package inventory
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 {
-    private EntityRepository $repository;
-
-    private DataValidator $validator;
-
-    private SystemConfigService $config;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $reviewRepository,
-        DataValidator $validator,
-        SystemConfigService $config,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->repository = $reviewRepository;
-        $this->validator = $validator;
-        $this->config = $config;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly EntityRepository $repository, private readonly DataValidator $validator, private readonly SystemConfigService $config, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function getDecorated(): AbstractProductReviewSaveRoute
@@ -66,8 +49,8 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 
     /**
      * @Since("6.3.2.0")
-     * @Route("/store-api/product/{productId}/review", name="store-api.product-review.save", methods={"POST"}, defaults={"_loginRequired"=true})
      */
+    #[Route(path: '/store-api/product/{productId}/review', name: 'store-api.product-review.save', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function save(string $productId, RequestDataBag $data, SalesChannelContext $context): NoContentResponse
     {
         $this->checkReviewsActive($context);

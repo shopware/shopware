@@ -22,7 +22,7 @@ class Migration1592466717AddKeywordIndex extends MigrationStep
     {
         try {
             $connection->executeStatement('ALTER TABLE `product_search_keyword` ADD INDEX `idx.product_search_keyword.keyword_language` (`keyword`, `language_id`);');
-        } catch (Exception $e) {
+        } catch (Exception) {
             // index already exists
         }
     }

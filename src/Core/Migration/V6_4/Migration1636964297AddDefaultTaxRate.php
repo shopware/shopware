@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class Migration1636964297AddDefaultTaxRate extends MigrationStep
 {
-    public const CONFIG_KEY = 'core.tax.defaultTaxRate';
+    final public const CONFIG_KEY = 'core.tax.defaultTaxRate';
 
     public function getCreationTimestamp(): int
     {
@@ -32,7 +32,7 @@ class Migration1636964297AddDefaultTaxRate extends MigrationStep
             $connection->insert('system_config', [
                 'id' => Uuid::randomBytes(),
                 'configuration_key' => self::CONFIG_KEY,
-                'configuration_value' => json_encode(['_value' => Uuid::fromBytesToHex($id)]),
+                'configuration_value' => json_encode(['_value' => Uuid::fromBytesToHex($id)], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }

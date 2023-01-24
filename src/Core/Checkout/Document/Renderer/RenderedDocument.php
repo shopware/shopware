@@ -10,34 +10,10 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 final class RenderedDocument extends Struct
 {
-    private string $number;
-
-    private string $html;
-
-    private string $name;
-
     private string $content;
 
-    private string $fileExtension;
-
-    private ?string $contentType;
-
-    private array $config;
-
-    public function __construct(
-        string $html = '',
-        string $number = '',
-        string $name = '',
-        string $fileExtension = FileTypes::PDF,
-        array $config = [],
-        ?string $contentType = 'application/pdf'
-    ) {
-        $this->html = $html;
-        $this->number = $number;
-        $this->name = $name;
-        $this->fileExtension = $fileExtension;
-        $this->contentType = $contentType;
-        $this->config = $config;
+    public function __construct(private readonly string $html = '', private readonly string $number = '', private string $name = '', private readonly string $fileExtension = FileTypes::PDF, private readonly array $config = [], private ?string $contentType = 'application/pdf')
+    {
     }
 
     public function getNumber(): string

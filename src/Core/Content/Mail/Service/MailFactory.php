@@ -15,16 +15,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class MailFactory extends AbstractMailFactory
 {
     /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    /**
      * @internal
      */
-    public function __construct(ValidatorInterface $validator)
+    public function __construct(private readonly ValidatorInterface $validator)
     {
-        $this->validator = $validator;
     }
 
     /**

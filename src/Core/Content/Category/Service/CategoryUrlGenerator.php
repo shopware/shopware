@@ -14,16 +14,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
 {
     /**
-     * @var SeoUrlPlaceholderHandlerInterface
-     */
-    private $seoUrlReplacer;
-
-    /**
      * @internal
      */
-    public function __construct(SeoUrlPlaceholderHandlerInterface $seoUrlReplacer)
+    public function __construct(private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer)
     {
-        $this->seoUrlReplacer = $seoUrlReplacer;
     }
 
     public function getDecorated(): AbstractCategoryUrlGenerator

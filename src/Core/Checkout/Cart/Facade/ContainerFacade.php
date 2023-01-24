@@ -35,11 +35,7 @@ class ContainerFacade extends ItemFacade
     use ItemsCountTrait;
     use ItemsIteratorTrait;
 
-    private LineItem $item;
-
-    private CartFacadeHelper $helper;
-
-    private SalesChannelContext $context;
+    private readonly LineItem $item;
 
     /**
      * @internal

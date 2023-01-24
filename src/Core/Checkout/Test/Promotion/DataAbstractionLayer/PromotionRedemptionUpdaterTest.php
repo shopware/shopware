@@ -114,7 +114,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
             ['id' => Uuid::fromHexToBytes($voucherA)]
         );
 
-        $expected_json = json_encode([$this->ids->get('customer') => 1]);
+        $expected_json = json_encode([$this->ids->get('customer') => 1], \JSON_THROW_ON_ERROR);
         static::assertIsString($expected_json);
 
         static::assertCount(1, $promotions);
@@ -152,14 +152,14 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $actualVoucherA = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherA') ? $promotions[0] : $promotions[1];
         static::assertNotEmpty($actualVoucherA);
         static::assertEquals('1', $actualVoucherA['order_count']);
-        $customerCount = json_decode($actualVoucherA['orders_per_customer_count'], true);
+        $customerCount = json_decode((string) $actualVoucherA['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals(1, $customerCount[$this->ids->get('customer')]);
 
         $actualVoucherB = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherB') ? $promotions[0] : $promotions[1];
         static::assertNotEmpty($actualVoucherB);
         // VoucherB is used twice, it's mean group by works
         static::assertEquals('2', $actualVoucherB['order_count']);
-        $customerCount = json_decode($actualVoucherB['orders_per_customer_count'], true);
+        $customerCount = json_decode((string) $actualVoucherB['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals(2, $customerCount[$this->ids->get('customer')]);
     }
 

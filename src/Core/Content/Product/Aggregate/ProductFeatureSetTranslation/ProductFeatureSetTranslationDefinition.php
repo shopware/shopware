@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class ProductFeatureSetTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = ProductFeatureSetDefinition::ENTITY_NAME . '_translation';
+    final public const ENTITY_NAME = ProductFeatureSetDefinition::ENTITY_NAME . '_translation';
 
     public function getCollectionClass(): string
     {

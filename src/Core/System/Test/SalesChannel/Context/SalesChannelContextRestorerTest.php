@@ -64,7 +64,7 @@ class SalesChannelContextRestorerTest extends TestCase
         $this->events = [];
 
         $this->callbackFn = function (Event $event): void {
-            $this->events[\get_class($event)] = $event;
+            $this->events[$event::class] = $event;
         };
 
         /** @var AbstractSalesChannelContextFactory $contextFactory */

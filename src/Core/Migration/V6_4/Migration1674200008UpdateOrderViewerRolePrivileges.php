@@ -8,11 +8,13 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @package core
  */
 #[Package('core')]
 class Migration1674200008UpdateOrderViewerRolePrivileges extends MigrationStep
 {
-    public const NEW_PRIVILEGES = [
+    final public const NEW_PRIVILEGES = [
         'order.viewer' => [
             'media_default_folder:read',
         ],

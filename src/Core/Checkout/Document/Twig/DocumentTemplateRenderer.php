@@ -21,31 +21,11 @@ use Twig\Error\SyntaxError;
  */
 class DocumentTemplateRenderer
 {
-    private TemplateFinder $templateFinder;
-
-    private Environment $twig;
-
-    private Translator $translator;
-
-    private AbstractSalesChannelContextFactory $contextFactory;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(
-        TemplateFinder $templateFinder,
-        Environment $twig,
-        Translator $translator,
-        AbstractSalesChannelContextFactory $contextFactory,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->templateFinder = $templateFinder;
-        $this->twig = $twig;
-        $this->translator = $translator;
-        $this->contextFactory = $contextFactory;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly TemplateFinder $templateFinder, private readonly Environment $twig, private readonly Translator $translator, private readonly AbstractSalesChannelContextFactory $contextFactory, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**

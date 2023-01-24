@@ -14,14 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
  */
 class DeleteExpiredFilesService
 {
-    /**
-     * @var EntityRepository
-     */
-    private $fileRepository;
-
-    public function __construct(EntityRepository $fileRepository)
+    public function __construct(private readonly EntityRepository $fileRepository)
     {
-        $this->fileRepository = $fileRepository;
     }
 
     public function countFiles(Context $context): int
@@ -38,9 +32,7 @@ class DeleteExpiredFilesService
         $criteria = $this->buildCriteria();
 
         $ids = $this->fileRepository->searchIds($criteria, $context)->getIds();
-        $ids = array_map(function ($id) {
-            return ['id' => $id];
-        }, $ids);
+        $ids = array_map(fn ($id) => ['id' => $id], $ids);
         $this->fileRepository->delete($ids, $context);
     }
 

@@ -140,7 +140,7 @@ class AdditionalPermissionValidationTest extends TestCase
                     $results = Yaml::parse($jsArray);
 
                     $additionalPermission = array_merge($additionalPermission, $results);
-                } catch (\Exception $exception) {
+                } catch (\Exception) {
                 }
             }
         }

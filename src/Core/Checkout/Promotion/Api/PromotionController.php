@@ -14,28 +14,21 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package checkout
- *
- * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class PromotionController extends AbstractController
 {
     /**
-     * @var PromotionCodeService
-     */
-    private $codeService;
-
-    /**
      * @internal
      */
-    public function __construct(PromotionCodeService $codeService)
+    public function __construct(private readonly PromotionCodeService $codeService)
     {
-        $this->codeService = $codeService;
     }
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/_action/promotion/codes/generate-fixed", name="api.action.promotion.codes.generate-fixed", methods={"GET"}, defaults={"_acl"={"promotion.editor"}})
      */
+    #[Route(path: '/api/_action/promotion/codes/generate-fixed', name: 'api.action.promotion.codes.generate-fixed', methods: ['GET'], defaults: ['_acl' => ['promotion.editor']])]
     public function generateFixedCode(): Response
     {
         return new JsonResponse($this->codeService->getFixedCode());
@@ -43,8 +36,8 @@ class PromotionController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/_action/promotion/codes/generate-individual", name="api.action.promotion.codes.generate-individual", methods={"GET"}, defaults={"_acl"={"promotion.editor"}})
      */
+    #[Route(path: '/api/_action/promotion/codes/generate-individual', name: 'api.action.promotion.codes.generate-individual', methods: ['GET'], defaults: ['_acl' => ['promotion.editor']])]
     public function generateIndividualCodes(Request $request): Response
     {
         $codePattern = (string) $request->query->get('codePattern');
@@ -58,8 +51,8 @@ class PromotionController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/_action/promotion/codes/replace-individual", name="api.action.promotion.codes.replace-individual", methods={"PATCH"}, defaults={"_acl"={"promotion.editor"}})
      */
+    #[Route(path: '/api/_action/promotion/codes/replace-individual', name: 'api.action.promotion.codes.replace-individual', methods: ['PATCH'], defaults: ['_acl' => ['promotion.editor']])]
     public function replaceIndividualCodes(Request $request, Context $context): Response
     {
         $promotionId = (string) $request->request->get('promotionId');
@@ -73,8 +66,8 @@ class PromotionController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/_action/promotion/codes/add-individual", name="api.action.promotion.codes.add-individual", methods={"POST"}, defaults={"_acl"={"promotion.editor"}})
      */
+    #[Route(path: '/api/_action/promotion/codes/add-individual', name: 'api.action.promotion.codes.add-individual', methods: ['POST'], defaults: ['_acl' => ['promotion.editor']])]
     public function addIndividualCodes(Request $request, Context $context): Response
     {
         $promotionId = (string) $request->request->get('promotionId');
@@ -87,8 +80,8 @@ class PromotionController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/_action/promotion/codes/preview", name="api.action.promotion.codes.preview", methods={"GET"}, defaults={"_acl"={"promotion.editor"}})
      */
+    #[Route(path: '/api/_action/promotion/codes/preview', name: 'api.action.promotion.codes.preview', methods: ['GET'], defaults: ['_acl' => ['promotion.editor']])]
     public function getCodePreview(Request $request): Response
     {
         $codePattern = (string) $request->query->get('codePattern');

@@ -20,19 +20,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class ProductFeatureBuilder
 {
-    private EntityRepository $customFieldRepository;
-
-    private LanguageLocaleCodeProvider $languageLocaleProvider;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $customFieldRepository,
-        LanguageLocaleCodeProvider $languageLocaleProvider
-    ) {
-        $this->customFieldRepository = $customFieldRepository;
-        $this->languageLocaleProvider = $languageLocaleProvider;
+    public function __construct(private readonly EntityRepository $customFieldRepository, private readonly LanguageLocaleCodeProvider $languageLocaleProvider)
+    {
     }
 
     public function prepare(iterable $lineItems, CartDataCollection $data, SalesChannelContext $context): void
@@ -72,9 +64,7 @@ class ProductFeatureBuilder
             return $features;
         }
 
-        usort($sorted, static function (array $a, array $b) {
-            return $a['position'] <=> $b['position'];
-        });
+        usort($sorted, static fn (array $a, array $b) => $a['position'] <=> $b['position']);
 
         foreach ($sorted as $feature) {
             if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE) {

@@ -16,14 +16,11 @@ use function array_filter;
  */
 class CustomerEmailUniqueValidator extends ConstraintValidator
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function validate(mixed $value, Constraint $constraint): void

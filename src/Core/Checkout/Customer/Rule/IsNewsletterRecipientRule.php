@@ -15,17 +15,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class IsNewsletterRecipientRule extends Rule
 {
-    public const RULE_NAME = 'customerIsNewsletterRecipient';
-
-    protected bool $isNewsletterRecipient;
+    final public const RULE_NAME = 'customerIsNewsletterRecipient';
 
     /**
      * @internal
      */
-    public function __construct(bool $isNewsletterRecipient = true)
+    public function __construct(protected bool $isNewsletterRecipient = true)
     {
         parent::__construct();
-        $this->isNewsletterRecipient = $isNewsletterRecipient;
     }
 
     public function match(RuleScope $scope): bool

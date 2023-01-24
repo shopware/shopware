@@ -23,20 +23,17 @@ abstract class KernelPluginLoader extends Bundle
      */
     protected $pluginInfos = [];
 
-    private ClassLoader $classLoader;
+    private readonly KernelPluginCollection $pluginInstances;
 
-    private KernelPluginCollection $pluginInstances;
-
-    private string $pluginDir;
+    private readonly string $pluginDir;
 
     private bool $initialized = false;
 
     /**
      * @internal
      */
-    public function __construct(ClassLoader $classLoader, ?string $pluginDir = null)
+    public function __construct(private readonly ClassLoader $classLoader, ?string $pluginDir = null)
     {
-        $this->classLoader = $classLoader;
         $this->pluginDir = $pluginDir ?? 'custom/plugins';
         $this->pluginInstances = new KernelPluginCollection();
     }
@@ -134,7 +131,7 @@ abstract class KernelPluginLoader extends Bundle
          * Register every plugin in the di container, enable autowire and set public
          */
         foreach ($this->pluginInstances->getActives() as $plugin) {
-            $class = \get_class($plugin);
+            $class = $plugin::class;
 
             $definition = new Definition();
             if ($container->hasDefinition($class)) {
@@ -285,7 +282,7 @@ abstract class KernelPluginLoader extends Bundle
             $plugin = new $className((bool) $pluginData['active'], $pluginData['path'], $projectDir);
 
             if (!$plugin instanceof Plugin) {
-                $reason = sprintf('Plugin class "%s" must extend "%s"', \get_class($plugin), Plugin::class);
+                $reason = sprintf('Plugin class "%s" must extend "%s"', $plugin::class, Plugin::class);
 
                 throw new KernelPluginLoaderException($pluginData['name'], $reason);
             }

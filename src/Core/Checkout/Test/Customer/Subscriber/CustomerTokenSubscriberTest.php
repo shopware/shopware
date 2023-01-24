@@ -69,7 +69,7 @@ class CustomerTokenSubscriberTest extends TestCase
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
             ],
-            json_decode($this->connection->fetchOne('SELECT payload FROM sales_channel_api_context WHERE token = "test"'), true)
+            json_decode((string) $this->connection->fetchOne('SELECT payload FROM sales_channel_api_context WHERE token = "test"'), true, 512, \JSON_THROW_ON_ERROR)
         );
     }
 
@@ -116,7 +116,7 @@ class CustomerTokenSubscriberTest extends TestCase
             [
                 'customerId' => '1234',
             ],
-            json_decode($this->connection->fetchOne('SELECT payload FROM sales_channel_api_context WHERE token = ?', [$newToken]), true)
+            json_decode((string) $this->connection->fetchOne('SELECT payload FROM sales_channel_api_context WHERE token = ?', [$newToken]), true, 512, \JSON_THROW_ON_ERROR)
         );
     }
 

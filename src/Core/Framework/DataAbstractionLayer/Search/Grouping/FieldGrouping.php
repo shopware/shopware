@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
  */
 class FieldGrouping implements CriteriaPartInterface
 {
-    public function __construct(private string $field)
+    public function __construct(private readonly string $field)
     {
     }
 

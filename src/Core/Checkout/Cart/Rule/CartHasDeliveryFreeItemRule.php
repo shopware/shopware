@@ -14,18 +14,14 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CartHasDeliveryFreeItemRule extends Rule
 {
-    public const RULE_NAME = 'cartHasDeliveryFreeItem';
-
-    protected bool $allowed;
+    final public const RULE_NAME = 'cartHasDeliveryFreeItem';
 
     /**
      * @internal
      */
-    public function __construct(bool $allowed = true)
+    public function __construct(protected bool $allowed = true)
     {
         parent::__construct();
-
-        $this->allowed = $allowed;
     }
 
     public function match(RuleScope $scope): bool

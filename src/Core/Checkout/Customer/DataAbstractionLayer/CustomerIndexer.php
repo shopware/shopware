@@ -19,36 +19,16 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class CustomerIndexer extends EntityIndexer
 {
-    public const MANY_TO_MANY_ID_FIELD_UPDATER = 'customer.many-to-many-id-field';
-    public const NEWSLETTER_SALES_CHANNELS_UPDATER = 'customer.newsletter-sales-channels';
+    final public const MANY_TO_MANY_ID_FIELD_UPDATER = 'customer.many-to-many-id-field';
+    final public const NEWSLETTER_SALES_CHANNELS_UPDATER = 'customer.newsletter-sales-channels';
 
     private const PRIMARY_KEYS_WITH_PROPERTY_CHANGE = ['email', 'firstName', 'lastName'];
-
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepository $repository;
-
-    private ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater;
-
-    private CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater;
-
-    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @internal
      */
-    public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
-        CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
-        $this->customerNewsletterSalesChannelsUpdater = $customerNewsletterSalesChannelsUpdater;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater, private readonly CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function getName(): string

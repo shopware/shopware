@@ -112,7 +112,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $payload = json_decode($body, true);
+        $payload = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $payload);
         static::assertArrayHasKey('eventId', $payload['source']);
         unset($payload['timestamp'], $payload['source']['eventId']);
@@ -178,7 +178,7 @@ class WebhookDispatcherTest extends TestCase
             /** @var Request $request */
             $request = $historyEntry['request'];
 
-            $payload = json_decode($request->getBody()->getContents(), true);
+            $payload = json_decode($request->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
             static::assertArrayHasKey('timestamp', $payload);
             static::assertArrayHasKey('eventId', $payload['source']);
             unset($payload['timestamp'], $payload['source']['eventId']);
@@ -276,7 +276,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $payload = json_decode($body, true);
+        $payload = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         $actualUpdatedFields = $payload['data']['payload'][0]['updatedFields'];
         static::assertArrayHasKey('timestamp', $payload);
         static::assertArrayHasKey('eventId', $payload['source']);
@@ -476,7 +476,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $data = json_decode($body, true);
+        $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['source']['eventId']);
@@ -708,7 +708,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $data = json_decode($body, true);
+        $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals('Max', $data['data']['payload']['customer']['firstName']);
         static::assertEquals('Mustermann', $data['data']['payload']['customer']['lastName']);
         static::assertArrayHasKey('timestamp', $data);
@@ -933,7 +933,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $data = json_decode($body, true);
+        $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['source']['eventId']);
@@ -1077,7 +1077,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $data = json_decode($body, true);
+        $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['source']['eventId']);
@@ -1166,7 +1166,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $data = json_decode($body, true);
+        $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['source']['eventId']);
@@ -1252,7 +1252,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $data = json_decode($body, true);
+        $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['source']['eventId']);

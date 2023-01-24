@@ -20,14 +20,11 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
  */
 class CustomerZipCodeValidator extends ConstraintValidator
 {
-    private EntityRepository $countryRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $countryRepository)
+    public function __construct(private readonly EntityRepository $countryRepository)
     {
-        $this->countryRepository = $countryRepository;
     }
 
     /**
@@ -71,7 +68,7 @@ class CustomerZipCodeValidator extends ConstraintValidator
 
         $caseSensitive = $constraint->caseSensitiveCheck ? '' : 'i';
 
-        if (preg_match("/^{$pattern}$/" . $caseSensitive, $value, $matches) === 1) {
+        if (preg_match("/^{$pattern}$/" . $caseSensitive, (string) $value, $matches) === 1) {
             return;
         }
 

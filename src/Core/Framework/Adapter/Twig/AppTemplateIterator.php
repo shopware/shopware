@@ -15,22 +15,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 class AppTemplateIterator implements \IteratorAggregate
 {
     /**
-     * @var \IteratorAggregate
-     */
-    private $templateIterator;
-
-    /**
-     * @var EntityRepository
-     */
-    private $templateRepository;
-
-    /**
      * @internal
      */
-    public function __construct(\IteratorAggregate $templateIterator, EntityRepository $templateRepository)
+    public function __construct(private readonly \IteratorAggregate $templateIterator, private readonly EntityRepository $templateRepository)
     {
-        $this->templateIterator = $templateIterator;
-        $this->templateRepository = $templateRepository;
     }
 
     public function getIterator(): \Traversable

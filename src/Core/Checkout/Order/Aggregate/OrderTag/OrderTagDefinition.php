@@ -18,7 +18,7 @@ use Shopware\Core\System\Tag\TagDefinition;
  */
 class OrderTagDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'order_tag';
+    final public const ENTITY_NAME = 'order_tag';
 
     public function getEntityName(): string
     {

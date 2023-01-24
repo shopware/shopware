@@ -12,14 +12,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class SalesChannelContextCreatedEvent extends Event implements ShopwareSalesChannelEvent
 {
-    private SalesChannelContext $salesChannelContext;
-
-    private string $usedToken;
-
-    public function __construct(SalesChannelContext $salesChannelContext, string $usedToken)
+    public function __construct(private readonly SalesChannelContext $salesChannelContext, private readonly string $usedToken)
     {
-        $this->salesChannelContext = $salesChannelContext;
-        $this->usedToken = $usedToken;
     }
 
     public function getSalesChannelContext(): SalesChannelContext

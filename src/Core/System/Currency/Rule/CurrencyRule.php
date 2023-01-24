@@ -14,26 +14,16 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
  */
 class CurrencyRule extends Rule
 {
-    public const RULE_NAME = 'currency';
-
-    /**
-     * @var list<string>|null
-     */
-    protected ?array $currencyIds;
-
-    protected string $operator;
+    final public const RULE_NAME = 'currency';
 
     /**
      * @internal
      *
      * @param list<string>|null $currencyIds
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $currencyIds = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $currencyIds = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->currencyIds = $currencyIds;
     }
 
     public function match(RuleScope $scope): bool

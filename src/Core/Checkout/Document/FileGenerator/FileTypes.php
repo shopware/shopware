@@ -7,5 +7,5 @@ namespace Shopware\Core\Checkout\Document\FileGenerator;
  */
 class FileTypes
 {
-    public const PDF = 'pdf';
+    final public const PDF = 'pdf';
 }

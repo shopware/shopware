@@ -19,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class CustomerWishlistProductDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'customer_wishlist_product';
+    final public const ENTITY_NAME = 'customer_wishlist_product';
 
     public function getEntityName(): string
     {

@@ -13,12 +13,11 @@ use function dechex;
 use function explode;
 use function implode;
 use function str_replace;
-use function strpos;
 use function strtolower;
 use function strtoupper;
 use function substr;
 
-if (class_exists('\Doctrine\DBAL\Schema\AbstractAsset', false)) {
+if (class_exists('\\' . \Doctrine\DBAL\Schema\AbstractAsset::class, false)) {
     return;
 }
 
@@ -166,7 +165,7 @@ abstract class AbstractAsset
             $name = $this->trimQuotes($name);
         }
 
-        if (strpos($name, '.') !== false) {
+        if (str_contains($name, '.')) {
             $parts = explode('.', $name, 2);
             $this->_namespace = $parts[0];
             $name = $parts[1];
@@ -214,9 +213,7 @@ abstract class AbstractAsset
      */
     protected function _generateIdentifierName($columnNames, $prefix = '', $maxSize = 30)
     {
-        $hash = implode('', array_map(static function ($column) {
-            return dechex(crc32($column));
-        }, $columnNames));
+        $hash = implode('', array_map(static fn ($column) => dechex(crc32((string) $column)), $columnNames));
 
         return strtoupper(substr($prefix . '_' . $hash, 0, $maxSize));
     }

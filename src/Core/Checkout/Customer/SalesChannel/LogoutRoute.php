@@ -18,44 +18,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class LogoutRoute extends AbstractLogoutRoute
 {
     /**
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfig;
-
-    /**
-     * @var CartService
-     */
-    private $cartService;
-
-    /**
      * @internal
      */
-    public function __construct(
-        SalesChannelContextPersister $contextPersister,
-        EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfig,
-        CartService $cartService
-    ) {
-        $this->contextPersister = $contextPersister;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->systemConfig = $systemConfig;
-        $this->cartService = $cartService;
+    public function __construct(private readonly SalesChannelContextPersister $contextPersister, private readonly EventDispatcherInterface $eventDispatcher, private readonly SystemConfigService $systemConfig, private readonly CartService $cartService)
+    {
     }
 
     public function getDecorated(): AbstractLogoutRoute
@@ -65,8 +36,8 @@ class LogoutRoute extends AbstractLogoutRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route(path="/store-api/account/logout", name="store-api.account.logout", methods={"POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
+    #[Route(path: '/store-api/account/logout', name: 'store-api.account.logout', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function logout(SalesChannelContext $context, RequestDataBag $data): ContextTokenResponse
     {
         /** @var CustomerEntity $customer */

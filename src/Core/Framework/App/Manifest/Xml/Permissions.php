@@ -148,11 +148,9 @@ class Permissions extends XmlElement
 
         $privilegeValues = [];
         foreach ($grantedPrivileges as $resource => $privileges) {
-            $newPrivileges = array_map(static function (string $privilege) use ($resource): string {
-                return $resource . ':' . $privilege;
-            }, $privileges);
+            $newPrivileges = array_map(static fn (string $privilege): string => $resource . ':' . $privilege, $privileges);
 
-            $privilegeValues = array_merge($privilegeValues, $newPrivileges);
+            $privilegeValues = [...$privilegeValues, ...$newPrivileges];
         }
 
         return array_merge($privilegeValues, $this->additionalPrivileges);

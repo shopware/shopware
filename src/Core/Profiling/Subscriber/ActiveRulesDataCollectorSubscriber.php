@@ -22,16 +22,13 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implements EventSubscriberInterface, ResetInterface
 {
-    private EntityRepository $ruleRepository;
-
     /**
      * @var array<string>
      */
     private array $ruleIds = [];
 
-    public function __construct(EntityRepository $ruleRepository)
+    public function __construct(private readonly EntityRepository $ruleRepository)
     {
-        $this->ruleRepository = $ruleRepository;
     }
 
     public static function getSubscribedEvents(): array
@@ -50,7 +47,7 @@ class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implement
     /**
      * @return array<string, RuleEntity>|Data<string, RuleEntity>
      */
-    public function getData()
+    public function getData(): array|Data
     {
         return $this->data;
     }

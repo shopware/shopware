@@ -13,20 +13,16 @@ use League\Flysystem\StorageAttributes;
  */
 class PrefixFilesystem implements FilesystemOperator
 {
-    protected FilesystemOperator $filesystem;
-
-    private string $prefix;
+    private readonly string $prefix;
 
     /**
      * @internal
      */
-    public function __construct(FilesystemOperator $filesystem, string $prefix)
+    public function __construct(protected FilesystemOperator $filesystem, string $prefix)
     {
         if (empty($prefix)) {
             throw new \InvalidArgumentException('The prefix must not be empty.');
         }
-
-        $this->filesystem = $filesystem;
         $this->prefix = trim($prefix, '/') . '/';
     }
 

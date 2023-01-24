@@ -14,16 +14,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class CreditCartProcessor implements CartProcessorInterface
 {
     /**
-     * @var AbsolutePriceCalculator
-     */
-    private $calculator;
-
-    /**
      * @internal
      */
-    public function __construct(AbsolutePriceCalculator $absolutePriceCalculator)
+    public function __construct(private readonly AbsolutePriceCalculator $calculator)
     {
-        $this->calculator = $absolutePriceCalculator;
     }
 
     public function process(

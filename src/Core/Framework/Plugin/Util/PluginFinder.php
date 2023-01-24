@@ -18,20 +18,14 @@ use Symfony\Component\Finder\Finder;
  */
 class PluginFinder
 {
-    public const COMPOSER_TYPE = 'shopware-platform-plugin';
+    final public const COMPOSER_TYPE = 'shopware-platform-plugin';
     private const SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER = 'shopware-plugin-class';
-
-    /**
-     * @var PackageProvider
-     */
-    private $packageProvider;
 
     /**
      * @internal
      */
-    public function __construct(PackageProvider $packageProvider)
+    public function __construct(private readonly PackageProvider $packageProvider)
     {
-        $this->packageProvider = $packageProvider;
     }
 
     /**
@@ -87,7 +81,7 @@ class PluginFinder
                     'composerPackage' => $package,
                 ]);
             }
-        } catch (DirectoryNotFoundException $e) {
+        } catch (DirectoryNotFoundException) {
         }
 
         return $plugins;

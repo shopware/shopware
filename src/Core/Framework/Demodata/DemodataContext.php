@@ -31,11 +31,11 @@ class DemodataContext
     private array $timings;
 
     public function __construct(
-        private Context $context,
-        private Generator $faker,
-        private string $projectDir,
-        private SymfonyStyle $console,
-        private DefinitionInstanceRegistry $registry
+        private readonly Context $context,
+        private readonly Generator $faker,
+        private readonly string $projectDir,
+        private readonly SymfonyStyle $console,
+        private readonly DefinitionInstanceRegistry $registry
     ) {
     }
 

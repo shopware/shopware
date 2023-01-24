@@ -20,18 +20,12 @@ class Sitemap extends Struct
     protected $created;
 
     /**
-     * @var int
-     */
-    private $urlCount;
-
-    /**
      * @throws \Exception
      */
-    public function __construct(string $filename, int $urlCount, ?\DateTimeInterface $created = null)
+    public function __construct(string $filename, private int $urlCount, ?\DateTimeInterface $created = null)
     {
         $this->filename = $filename;
         $this->created = $created ?: new \DateTime('NOW', new \DateTimeZone('UTC'));
-        $this->urlCount = $urlCount;
     }
 
     public function getFilename(): string

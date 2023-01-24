@@ -28,24 +28,11 @@ class StoreApiResponseHook extends FunctionHook implements SalesChannelContextAw
     use ScriptResponseAwareTrait;
     use StoppableHookTrait;
 
-    public const FUNCTION_NAME = 'response';
+    final public const FUNCTION_NAME = 'response';
 
-    private array $request;
-
-    private array $query;
-
-    private SalesChannelContext $salesChannelContext;
-
-    private string $name;
-
-    public function __construct(string $name, array $request, array $query, SalesChannelContext $salesChannelContext)
+    public function __construct(private readonly string $name, private readonly array $request, private readonly array $query, private readonly SalesChannelContext $salesChannelContext)
     {
-        $this->request = $request;
-        $this->query = $query;
-        $this->salesChannelContext = $salesChannelContext;
-
         parent::__construct($salesChannelContext->getContext());
-        $this->name = $name;
     }
 
     public function getRequest(): array

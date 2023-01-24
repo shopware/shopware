@@ -36,17 +36,17 @@ class MailService extends AbstractMailService
      * @internal
      */
     public function __construct(
-        private DataValidator $dataValidator,
-        private StringTemplateRenderer $templateRenderer,
-        private AbstractMailFactory $mailFactory,
-        private AbstractMailSender $mailSender,
-        private EntityRepository $mediaRepository,
-        private SalesChannelDefinition $salesChannelDefinition,
-        private EntityRepository $salesChannelRepository,
-        private SystemConfigService $systemConfigService,
-        private EventDispatcherInterface $eventDispatcher,
-        private UrlGeneratorInterface $urlGenerator,
-        private LoggerInterface $logger
+        private readonly DataValidator $dataValidator,
+        private readonly StringTemplateRenderer $templateRenderer,
+        private readonly AbstractMailFactory $mailFactory,
+        private readonly AbstractMailSender $mailSender,
+        private readonly EntityRepository $mediaRepository,
+        private readonly SalesChannelDefinition $salesChannelDefinition,
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly LoggerInterface $logger
     ) {
     }
 
@@ -206,7 +206,7 @@ class MailService extends AbstractMailService
     {
         $senderEmail = $data['senderEmail'] ?? null;
 
-        if ($senderEmail !== null && trim($senderEmail) !== '') {
+        if ($senderEmail !== null && trim((string) $senderEmail) !== '') {
             return $senderEmail;
         }
 

@@ -10,15 +10,9 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
  */
 class PluginPreUpdateEvent extends PluginLifecycleEvent
 {
-    /**
-     * @var UpdateContext
-     */
-    private $context;
-
-    public function __construct(PluginEntity $plugin, UpdateContext $context)
+    public function __construct(PluginEntity $plugin, private readonly UpdateContext $context)
     {
         parent::__construct($plugin);
-        $this->context = $context;
     }
 
     public function getContext(): UpdateContext

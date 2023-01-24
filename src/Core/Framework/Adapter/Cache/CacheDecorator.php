@@ -19,8 +19,8 @@ class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
      * @internal
      */
     public function __construct(
-        private TagAwareCacheInterface&TagAwareAdapterInterface $decorated,
-        private CacheTagCollection $collection
+        private readonly TagAwareCacheInterface&TagAwareAdapterInterface $decorated,
+        private readonly CacheTagCollection $collection
     ) {
     }
 

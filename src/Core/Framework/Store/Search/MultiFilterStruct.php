@@ -18,9 +18,7 @@ class MultiFilterStruct extends FilterStruct
     {
         $queries = $data['queries'];
 
-        $data['queries'] = array_map(function (array $query): FilterStruct {
-            return FilterStruct::fromArray($query);
-        }, $queries);
+        $data['queries'] = array_map(fn (array $query): FilterStruct => FilterStruct::fromArray($query), $queries);
 
         $filter = new MultiFilterStruct();
         $filter->assign($data);

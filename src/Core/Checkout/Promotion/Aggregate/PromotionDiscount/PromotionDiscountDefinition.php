@@ -25,7 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class PromotionDiscountDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'promotion_discount';
+    final public const ENTITY_NAME = 'promotion_discount';
 
     public function getEntityName(): string
     {

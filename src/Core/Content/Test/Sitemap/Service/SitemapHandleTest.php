@@ -20,10 +20,7 @@ class SitemapHandleTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @var SitemapHandle
-     */
-    private $handle;
+    private ?SitemapHandle $handle = null;
 
     public function testWriteWithoutFinish(): void
     {

@@ -26,30 +26,18 @@ use Symfony\Component\Routing\Annotation\Route;
  * @package merchant-services
  *
  * @internal
- * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class StoreController extends AbstractController
 {
-    private StoreClient $storeClient;
-
-    private AbstractExtensionDataProvider $extensionDataProvider;
-
-    private EntityRepository $userRepository;
-
-    public function __construct(
-        StoreClient $storeClient,
-        EntityRepository $userRepository,
-        AbstractExtensionDataProvider $extensionDataProvider
-    ) {
-        $this->storeClient = $storeClient;
-        $this->userRepository = $userRepository;
-        $this->extensionDataProvider = $extensionDataProvider;
+    public function __construct(private readonly StoreClient $storeClient, private readonly EntityRepository $userRepository, private readonly AbstractExtensionDataProvider $extensionDataProvider)
+    {
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/store/login", name="api.custom.store.login", methods={"POST"})
      */
+    #[Route(path: '/api/_action/store/login', name: 'api.custom.store.login', methods: ['POST'])]
     public function login(Request $request, Context $context): JsonResponse
     {
         $shopwareId = $request->request->get('shopwareId');
@@ -70,8 +58,8 @@ class StoreController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/store/checklogin", name="api.custom.store.checklogin", methods={"POST"})
      */
+    #[Route(path: '/api/_action/store/checklogin', name: 'api.custom.store.checklogin', methods: ['POST'])]
     public function checkLogin(Context $context): Response
     {
         try {
@@ -83,7 +71,7 @@ class StoreController extends AbstractController
             return new JsonResponse([
                 'userInfo' => $userInfo,
             ]);
-        } catch (StoreTokenMissingException|ClientException $exception) {
+        } catch (StoreTokenMissingException|ClientException) {
             return new JsonResponse([
                 'userInfo' => null,
             ]);
@@ -92,8 +80,8 @@ class StoreController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/store/logout", name="api.custom.store.logout", methods={"POST"})
      */
+    #[Route(path: '/api/_action/store/logout', name: 'api.custom.store.logout', methods: ['POST'])]
     public function logout(Context $context): Response
     {
         $context->scope(Context::SYSTEM_SCOPE, function ($context): void {
@@ -105,8 +93,8 @@ class StoreController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/store/updates", name="api.custom.store.updates", methods={"GET"})
      */
+    #[Route(path: '/api/_action/store/updates', name: 'api.custom.store.updates', methods: ['GET'])]
     public function getUpdateList(Context $context): JsonResponse
     {
         $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
@@ -125,8 +113,8 @@ class StoreController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/store/license-violations", name="api.custom.store.license-violations", methods={"POST"})
      */
+    #[Route(path: '/api/_action/store/license-violations', name: 'api.custom.store.license-violations', methods: ['POST'])]
     public function getLicenseViolations(Request $request, Context $context): JsonResponse
     {
         $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
@@ -156,15 +144,15 @@ class StoreController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/store/plugin/search", name="api.action.store.plugin.search", methods={"POST"})
      */
+    #[Route(path: '/api/_action/store/plugin/search', name: 'api.action.store.plugin.search', methods: ['POST'])]
     public function searchPlugins(Request $request, Context $context): Response
     {
         $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
 
         try {
             $this->storeClient->checkForViolations($context, $extensions, $request->getHost());
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         return new JsonResponse([
@@ -178,12 +166,12 @@ class StoreController extends AbstractController
         $contextSource = $context->getSource();
 
         if (!$contextSource instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($contextSource));
+            throw new InvalidContextSourceException(AdminApiSource::class, $contextSource::class);
         }
 
         $userId = $contextSource->getUserId();
         if ($userId === null) {
-            throw new InvalidContextSourceUserException(\get_class($contextSource));
+            throw new InvalidContextSourceUserException($contextSource::class);
         }
 
         /** @var UserEntity|null $user */

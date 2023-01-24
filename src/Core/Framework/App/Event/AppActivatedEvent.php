@@ -7,7 +7,7 @@ namespace Shopware\Core\Framework\App\Event;
  */
 class AppActivatedEvent extends AppChangedEvent
 {
-    public const NAME = 'app.activated';
+    final public const NAME = 'app.activated';
 
     public function getName(): string
     {

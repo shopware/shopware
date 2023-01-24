@@ -26,7 +26,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class HookableEventCollector
 {
-    public const HOOKABLE_ENTITIES = [
+    final public const HOOKABLE_ENTITIES = [
         ProductDefinition::ENTITY_NAME,
         ProductPriceDefinition::ENTITY_NAME,
         CategoryDefinition::ENTITY_NAME,
@@ -42,26 +42,12 @@ class HookableEventCollector
     private const PRIVILEGES = 'privileges';
 
     /**
-     * @var BusinessEventCollector
-     */
-    private $businessEventCollector;
-
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
-
-    /**
      * @var string[][][]
      */
-    private $hookableEventNamesWithPrivileges = [];
+    private array $hookableEventNamesWithPrivileges = [];
 
-    public function __construct(
-        BusinessEventCollector $businessEventCollector,
-        DefinitionInstanceRegistry $definitionRegistry
-    ) {
-        $this->businessEventCollector = $businessEventCollector;
-        $this->definitionRegistry = $definitionRegistry;
+    public function __construct(private readonly BusinessEventCollector $businessEventCollector, private readonly DefinitionInstanceRegistry $definitionRegistry)
+    {
     }
 
     public function getHookableEventNamesWithPrivileges(Context $context): array
@@ -115,9 +101,7 @@ class HookableEventCollector
     private function getHookableEventNames(): array
     {
         return array_reduce(array_values(
-            array_map(static function ($hookableEvent) {
-                return [$hookableEvent => [self::PRIVILEGES => []]];
-            }, Hookable::HOOKABLE_EVENTS)
+            array_map(static fn ($hookableEvent) => [$hookableEvent => [self::PRIVILEGES => []]], Hookable::HOOKABLE_EVENTS)
         ), 'array_merge', []);
     }
 

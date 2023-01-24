@@ -25,26 +25,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ProductExportGenerateCommand extends Command
 {
     /**
-     * @var AbstractSalesChannelContextFactory
-     */
-    private $salesChannelContextFactory;
-
-    /**
-     * @var ProductExporterInterface
-     */
-    private $productExportService;
-
-    /**
      * @internal
      */
     public function __construct(
-        AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        ProductExporterInterface $productExportService
+        private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        private readonly ProductExporterInterface $productExportService
     ) {
         parent::__construct();
-
-        $this->salesChannelContextFactory = $salesChannelContextFactory;
-        $this->productExportService = $productExportService;
     }
 
     protected function configure(): void

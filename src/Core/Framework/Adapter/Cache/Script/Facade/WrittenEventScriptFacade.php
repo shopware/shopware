@@ -9,11 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
  */
 class WrittenEventScriptFacade
 {
-    private EntityWrittenContainerEvent $containerEvent;
-
-    public function __construct(EntityWrittenContainerEvent $containerEvent)
+    public function __construct(private readonly EntityWrittenContainerEvent $containerEvent)
     {
-        $this->containerEvent = $containerEvent;
     }
 
     /**

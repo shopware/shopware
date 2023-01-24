@@ -21,7 +21,7 @@ final class ImportExportHandler
     /**
      * @internal
      */
-    public function __construct(private MessageBusInterface $messageBus, private ImportExportFactory $importExportFactory)
+    public function __construct(private readonly MessageBusInterface $messageBus, private readonly ImportExportFactory $importExportFactory)
     {
     }
 

@@ -15,26 +15,16 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemInCategoryRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemInCategory';
-
-    /**
-     * @var list<string>
-     */
-    protected array $categoryIds;
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartLineItemInCategory';
 
     /**
      * @internal
      *
      * @param list<string> $categoryIds
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, array $categoryIds = [])
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected array $categoryIds = [])
     {
         parent::__construct();
-
-        $this->categoryIds = $categoryIds;
-        $this->operator = $operator;
     }
 
     public function match(RuleScope $scope): bool

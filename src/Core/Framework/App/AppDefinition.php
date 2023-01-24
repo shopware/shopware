@@ -46,7 +46,7 @@ use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
  */
 class AppDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'app';
+    final public const ENTITY_NAME = 'app';
 
     public function getEntityName(): string
     {

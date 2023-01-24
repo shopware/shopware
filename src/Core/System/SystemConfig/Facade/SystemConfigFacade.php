@@ -19,25 +19,13 @@ class SystemConfigFacade
 {
     private const PRIVILEGE = 'system_config:read';
 
-    private SystemConfigService $systemConfigService;
-
-    private Connection $connection;
-
-    private ?ScriptAppInformation $scriptAppInformation;
-
-    private ?string $salesChannelId;
-
     private array $appData = [];
 
     /**
      * @internal
      */
-    public function __construct(SystemConfigService $systemConfigService, Connection $connection, ?ScriptAppInformation $scriptAppInformation, ?string $salesChannelId)
+    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly Connection $connection, private readonly ?ScriptAppInformation $scriptAppInformation, private readonly ?string $salesChannelId)
     {
-        $this->systemConfigService = $systemConfigService;
-        $this->connection = $connection;
-        $this->salesChannelId = $salesChannelId;
-        $this->scriptAppInformation = $scriptAppInformation;
     }
 
     /**
@@ -111,6 +99,6 @@ class SystemConfigFacade
             throw new \RuntimeException(sprintf('Privileges for app with id "%s" not found.', $appId));
         }
 
-        return $this->appData[$appId] = json_decode($privileges, true);
+        return $this->appData[$appId] = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
     }
 }

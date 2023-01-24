@@ -7,6 +7,7 @@ use PHPUnit\Runner\AfterTestHook;
 use PHPUnit\Runner\BeforeTestHook;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Tests\Unit\Core\Test\FeatureFlagExtensionTest;
 
 /**
  * @package core
@@ -17,9 +18,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
  */
 class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
 {
-    private AnnotationReader $annotationReader;
-
-    private string $namespacePrefix;
+    private readonly AnnotationReader $annotationReader;
 
     /**
      * @var array<mixed>|null
@@ -31,13 +30,9 @@ class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
      */
     private ?array $savedServerVars = null;
 
-    private bool $testMode;
-
-    public function __construct(string $namespacePrefix = 'Shopware\\Tests\\', bool $testMode = false)
+    public function __construct(private readonly string $namespacePrefix = 'Shopware\\Tests\\', private readonly bool $testMode = false)
     {
         $this->annotationReader = new AnnotationReader();
-        $this->namespacePrefix = $namespacePrefix;
-        $this->testMode = $testMode;
     }
 
     public function executeBeforeTest(string $test): void
@@ -52,7 +47,7 @@ class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
         $method = $matches[2];
 
         // do not run when this class is unit tested
-        if (!$this->testMode && $class === 'Shopware\Tests\Unit\Core\Test\FeatureFlagExtensionTest') {
+        if (!$this->testMode && $class === FeatureFlagExtensionTest::class) {
             // @codeCoverageIgnoreStart
             return;
             // @codeCoverageIgnoreEnd
@@ -107,7 +102,7 @@ class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
         $class = $matches[1];
 
         // do not run when this class is unit tested
-        if (!$this->testMode && $class === 'Shopware\Tests\Unit\Core\Test\FeatureFlagExtensionTest') {
+        if (!$this->testMode && $class === FeatureFlagExtensionTest::class) {
             // @codeCoverageIgnoreStart
             return;
             // @codeCoverageIgnoreEnd

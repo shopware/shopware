@@ -17,28 +17,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class TestEvent extends Event implements FlowEventAware
 {
-    public const EVENT_NAME = 'test.event';
+    final public const EVENT_NAME = 'test.event';
 
-    /**
-     * @var CustomerEntity
-     */
-    private $customer;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var OrderEntity
-     */
-    private $order;
-
-    public function __construct(Context $context, CustomerEntity $customer, OrderEntity $order)
+    public function __construct(private readonly Context $context, private readonly CustomerEntity $customer, private readonly OrderEntity $order)
     {
-        $this->customer = $customer;
-        $this->context = $context;
-        $this->order = $order;
     }
 
     public function getName(): string

@@ -18,8 +18,6 @@ class PaymentHandlerRegistry
      */
     private array $handlers = [];
 
-    private Connection $connection;
-
     /**
      * @internal
      *
@@ -33,10 +31,8 @@ class PaymentHandlerRegistry
         ServiceProviderInterface $asyncHandlers,
         ServiceProviderInterface $preparedHandlers,
         ServiceProviderInterface $refundHandlers,
-        Connection $connection
+        private readonly Connection $connection
     ) {
-        $this->connection = $connection;
-
         foreach (\array_keys($syncHandlers->getProvidedServices()) as $serviceId) {
             $handler = $syncHandlers->get($serviceId);
             $this->handlers[(string) $serviceId] = $handler;

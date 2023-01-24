@@ -19,28 +19,13 @@ class AccessToken implements AccessTokenEntityInterface
     use AccessTokenTrait;
 
     /**
-     * @var ClientEntityInterface
-     */
-    private $client;
-
-    /**
-     * @var string
-     */
-    private $userIdentifier;
-
-    /**
-     * @var ScopeEntityInterface[]
-     */
-    private $scopes;
-
-    /**
      * @internal
+     *
+     * @param string $userIdentifier
+     * @param ScopeEntityInterface[] $scopes
      */
-    public function __construct(ClientEntityInterface $clientEntity, array $scopes, $userIdentifier = null)
+    public function __construct(private ClientEntityInterface $client, private array $scopes, private $userIdentifier = null)
     {
-        $this->client = $clientEntity;
-        $this->scopes = $scopes;
-        $this->userIdentifier = $userIdentifier;
     }
 
     public function getClient(): ClientEntityInterface
@@ -48,10 +33,7 @@ class AccessToken implements AccessTokenEntityInterface
         return $this->client;
     }
 
-    /**
-     * @return string|int
-     */
-    public function getUserIdentifier()
+    public function getUserIdentifier(): string|int
     {
         return $this->userIdentifier;
     }

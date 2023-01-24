@@ -19,34 +19,14 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class PromotionIndexer extends EntityIndexer
 {
-    public const EXCLUSION_UPDATER = 'promotion.exclusion';
-    public const REDEMPTION_UPDATER = 'promotion.redemption';
-
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepository $repository;
-
-    private PromotionExclusionUpdater $exclusionUpdater;
-
-    private PromotionRedemptionUpdater $redemptionUpdater;
-
-    private EventDispatcherInterface $eventDispatcher;
+    final public const EXCLUSION_UPDATER = 'promotion.exclusion';
+    final public const REDEMPTION_UPDATER = 'promotion.redemption';
 
     /**
      * @internal
      */
-    public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        PromotionExclusionUpdater $exclusionUpdater,
-        PromotionRedemptionUpdater $redemptionUpdater,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->exclusionUpdater = $exclusionUpdater;
-        $this->redemptionUpdater = $redemptionUpdater;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly PromotionExclusionUpdater $exclusionUpdater, private readonly PromotionRedemptionUpdater $redemptionUpdater, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function getName(): string

@@ -91,7 +91,7 @@ class ChangelogParserTest extends TestCase
         static::assertIsArray($lines);
 
         /** @var array<string> $templateLines */
-        $templateLines = explode(\PHP_EOL, $logEntry->toTemplate());
+        $templateLines = explode(\PHP_EOL, (string) $logEntry->toTemplate());
 
         foreach ($lines as $index => $line) {
             static::assertSame(trim($line), trim($templateLines[$index]));

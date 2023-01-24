@@ -40,10 +40,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var BuyBoxCmsElementResolver
-     */
-    private $buyBoxResolver;
+    private BuyBoxCmsElementResolver $buyBoxResolver;
 
     protected function setUp(): void
     {

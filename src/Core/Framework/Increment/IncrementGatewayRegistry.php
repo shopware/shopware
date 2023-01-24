@@ -11,17 +11,14 @@ use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundExceptio
  */
 class IncrementGatewayRegistry
 {
-    public const MESSAGE_QUEUE_POOL = 'message_queue';
-    public const USER_ACTIVITY_POOL = 'user_activity';
+    final public const MESSAGE_QUEUE_POOL = 'message_queue';
+    final public const USER_ACTIVITY_POOL = 'user_activity';
 
     /**
-     * @var AbstractIncrementer[]
+     * @param AbstractIncrementer[] $gateways
      */
-    private iterable $gateways;
-
-    public function __construct(iterable $gateways)
+    public function __construct(private readonly iterable $gateways)
     {
-        $this->gateways = $gateways;
     }
 
     public function get(string $pool): AbstractIncrementer

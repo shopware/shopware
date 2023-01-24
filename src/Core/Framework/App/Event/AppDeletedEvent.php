@@ -13,19 +13,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class AppDeletedEvent extends Event implements ShopwareEvent, Hookable
 {
-    public const NAME = 'app.deleted';
+    final public const NAME = 'app.deleted';
 
-    private string $appId;
-
-    private Context $context;
-
-    private bool $keepUserData;
-
-    public function __construct(string $appId, Context $context, bool $keepUserData = false)
+    public function __construct(private readonly string $appId, private readonly Context $context, private readonly bool $keepUserData = false)
     {
-        $this->appId = $appId;
-        $this->context = $context;
-        $this->keepUserData = $keepUserData;
     }
 
     public function getAppId(): string

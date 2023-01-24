@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class SalesChannelCurrencyDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'sales_channel_currency';
+    final public const ENTITY_NAME = 'sales_channel_currency';
 
     public function getEntityName(): string
     {

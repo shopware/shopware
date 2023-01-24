@@ -88,7 +88,7 @@ class OrderRepositoryTest extends TestCase
         $orderId = Uuid::randomHex();
         $defaultContext = Context::createDefaultContext();
         $orderData = $this->getOrderData($orderId, $defaultContext);
-        $orderData = \json_decode(\json_encode($orderData, \JSON_THROW_ON_ERROR), true);
+        $orderData = \json_decode(\json_encode($orderData, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         unset($orderData[0]['lineItems'][0]['price']['calculatedTaxes']);
 
@@ -96,7 +96,7 @@ class OrderRepositoryTest extends TestCase
 
         try {
             $this->orderRepository->create($orderData, $defaultContext);
-        } catch (WriteException $e) {
+        } catch (WriteException) {
             $wasThrown = true;
         }
 

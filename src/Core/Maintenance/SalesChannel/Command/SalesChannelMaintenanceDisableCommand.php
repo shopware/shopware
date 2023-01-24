@@ -15,7 +15,5 @@ use Symfony\Component\Console\Attribute\AsCommand;
 )]
 class SalesChannelMaintenanceDisableCommand extends SalesChannelMaintenanceEnableCommand
 {
-    protected static $defaultName = 'sales-channel:maintenance:disable';
-
     protected $setMaintenanceMode = false;
 }

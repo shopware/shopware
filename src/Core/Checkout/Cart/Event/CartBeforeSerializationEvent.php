@@ -10,20 +10,11 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class CartBeforeSerializationEvent extends Event
 {
-    protected Cart $cart;
-
-    /**
-     * @var array<mixed>
-     */
-    private array $customFieldAllowList;
-
     /**
      * @param array<mixed> $customFieldAllowList
      */
-    public function __construct(Cart $cart, array $customFieldAllowList)
+    public function __construct(protected Cart $cart, private array $customFieldAllowList)
     {
-        $this->cart = $cart;
-        $this->customFieldAllowList = $customFieldAllowList;
     }
 
     public function getCart(): Cart

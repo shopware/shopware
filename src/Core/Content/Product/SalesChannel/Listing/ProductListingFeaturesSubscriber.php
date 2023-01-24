@@ -48,35 +48,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 {
-    public const DEFAULT_SEARCH_SORT = 'score';
+    final public const DEFAULT_SEARCH_SORT = 'score';
 
-    public const PROPERTY_GROUP_IDS_REQUEST_PARAM = 'property-whitelist';
-
-    private EntityRepository $optionRepository;
-
-    private EntityRepository $sortingRepository;
-
-    private Connection $connection;
-
-    private SystemConfigService $systemConfigService;
-
-    private EventDispatcherInterface $dispatcher;
+    final public const PROPERTY_GROUP_IDS_REQUEST_PARAM = 'property-whitelist';
 
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        EntityRepository $optionRepository,
-        EntityRepository $productSortingRepository,
-        SystemConfigService $systemConfigService,
-        EventDispatcherInterface $dispatcher
-    ) {
-        $this->optionRepository = $optionRepository;
-        $this->sortingRepository = $productSortingRepository;
-        $this->connection = $connection;
-        $this->systemConfigService = $systemConfigService;
-        $this->dispatcher = $dispatcher;
+    public function __construct(private readonly Connection $connection, private readonly EntityRepository $optionRepository, private readonly EntityRepository $sortingRepository, private readonly SystemConfigService $systemConfigService, private readonly EventDispatcherInterface $dispatcher)
+    {
     }
 
     public static function getSubscribedEvents(): array
@@ -349,7 +329,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $options = $options ? $options->getKeys() : [];
         $properties = $properties ? $properties->getKeys() : [];
 
-        return array_unique(array_filter(array_merge($options, $properties)));
+        return array_unique(array_filter([...$options, ...$properties]));
     }
 
     private function groupOptionAggregations(ProductListingResultEvent $event): void

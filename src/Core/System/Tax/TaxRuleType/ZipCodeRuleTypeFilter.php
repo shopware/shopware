@@ -11,7 +11,7 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
  */
 class ZipCodeRuleTypeFilter implements TaxRuleTypeFilterInterface
 {
-    public const TECHNICAL_NAME = 'zip_code';
+    final public const TECHNICAL_NAME = 'zip_code';
 
     public function match(TaxRuleEntity $taxRuleEntity, ?CustomerEntity $customer, ShippingLocation $shippingLocation): bool
     {

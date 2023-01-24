@@ -12,30 +12,22 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package system-settings
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class UserValidationController extends AbstractController
 {
     /**
-     * @var UserValidationService
-     */
-    private $userValidationService;
-
-    /**
      * @internal
      */
-    public function __construct(
-        UserValidationService $userValidationService
-    ) {
-        $this->userValidationService = $userValidationService;
+    public function __construct(private readonly UserValidationService $userValidationService)
+    {
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("api/_action/user/check-email-unique", name="api.action.check-email-unique", methods={"POST"})
      */
+    #[Route(path: 'api/_action/user/check-email-unique', name: 'api.action.check-email-unique', methods: ['POST'])]
     public function isEmailUnique(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has('email')) {
@@ -56,8 +48,8 @@ class UserValidationController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("api/_action/user/check-username-unique", name="api.action.check-username-unique", methods={"POST"})
      */
+    #[Route(path: 'api/_action/user/check-username-unique', name: 'api.action.check-username-unique', methods: ['POST'])]
     public function isUsernameUnique(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has('username')) {

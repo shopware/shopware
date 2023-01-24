@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class TrueRule extends Rule
 {
-    public const RULE_NAME = 'true';
+    final public const RULE_NAME = 'true';
 
     public function match(RuleScope $matchContext): bool
     {

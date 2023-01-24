@@ -15,17 +15,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class ChildCountUpdater
 {
-    private DefinitionInstanceRegistry $registry;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
+    public function __construct(private readonly DefinitionInstanceRegistry $registry, private readonly Connection $connection)
     {
-        $this->registry = $registry;
-        $this->connection = $connection;
     }
 
     /**

@@ -20,7 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class MainCategoryDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'main_category';
+    final public const ENTITY_NAME = 'main_category';
 
     public function getEntityName(): string
     {

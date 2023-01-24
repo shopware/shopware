@@ -15,21 +15,14 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class AffiliateCodeRule extends Rule
 {
-    public const RULE_NAME = 'customerAffiliateCode';
-
-    protected string $operator;
-
-    protected ?string $affiliateCode = null;
+    final public const RULE_NAME = 'customerAffiliateCode';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $affiliateCode = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?string $affiliateCode = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->affiliateCode = $affiliateCode;
     }
 
     public function match(RuleScope $scope): bool

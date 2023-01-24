@@ -63,7 +63,7 @@ class Migration1659257296GenerateFlowTemplateDataFromEventAction extends Migrati
                         'displayGroup' => 1,
                     ],
                 ],
-            ]);
+            ], \JSON_THROW_ON_ERROR);
 
             $flowTemplates[] = $flowTemplate;
         }

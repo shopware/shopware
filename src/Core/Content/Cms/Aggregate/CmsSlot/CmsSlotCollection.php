@@ -13,7 +13,7 @@ class CmsSlotCollection extends EntityCollection
     /**
      * @var CmsSlotEntity[]|null indexed by slot name
      */
-    private $slotCache;
+    private ?array $slotCache = null;
 
     /**
      * @param string        $key

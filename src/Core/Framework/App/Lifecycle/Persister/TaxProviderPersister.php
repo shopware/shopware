@@ -16,14 +16,11 @@ use Shopware\Core\System\TaxProvider\TaxProviderEntity;
  */
 class TaxProviderPersister
 {
-    private EntityRepository $taxProviderRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $taxProviderRepository)
+    public function __construct(private readonly EntityRepository $taxProviderRepository)
     {
-        $this->taxProviderRepository = $taxProviderRepository;
     }
 
     public function updateTaxProviders(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void

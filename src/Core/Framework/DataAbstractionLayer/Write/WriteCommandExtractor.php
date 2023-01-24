@@ -58,8 +58,8 @@ class WriteCommandExtractor
      * @internal
      */
     public function __construct(
-        private EntityWriteGatewayInterface $entityExistenceGateway,
-        private DefinitionInstanceRegistry $definitionRegistry
+        private readonly EntityWriteGatewayInterface $entityExistenceGateway,
+        private readonly DefinitionInstanceRegistry $definitionRegistry
     ) {
     }
 
@@ -216,9 +216,7 @@ class WriteCommandExtractor
         }
 
         // call map with child associations only
-        $children = array_filter($fields, static function (Field $field) {
-            return $field instanceof ChildrenAssociationField;
-        });
+        $children = array_filter($fields, static fn (Field $field) => $field instanceof ChildrenAssociationField);
 
         if (\count($children) > 0) {
             $this->map($children, $rawData, $existence, $parameters);
@@ -504,9 +502,7 @@ class WriteCommandExtractor
 
         $primaryKeys = $definition->getPrimaryKeys()->getElements();
 
-        $references = array_filter($fields, static function (Field $field) {
-            return $field instanceof ManyToOneAssociationField;
-        });
+        $references = array_filter($fields, static fn (Field $field) => $field instanceof ManyToOneAssociationField);
 
         foreach ($primaryKeys as $primaryKey) {
             if (!$primaryKey instanceof FkField) {
@@ -519,9 +515,7 @@ class WriteCommandExtractor
             }
         }
 
-        usort($primaryKeys, static function (Field $a, Field $b) {
-            return $b->getExtractPriority() <=> $a->getExtractPriority();
-        });
+        usort($primaryKeys, static fn (Field $a, Field $b) => $b->getExtractPriority() <=> $a->getExtractPriority());
 
         return $this->fieldsForPrimaryKeyMapping[$definition->getEntityName()] = $primaryKeys;
     }

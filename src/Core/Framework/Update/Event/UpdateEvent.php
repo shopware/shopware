@@ -10,14 +10,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 abstract class UpdateEvent extends Event
 {
-    /**
-     * @var Context
-     */
-    private $context;
-
-    public function __construct(Context $context)
+    public function __construct(private readonly Context $context)
     {
-        $this->context = $context;
     }
 
     public function getContext(): Context

@@ -15,12 +15,12 @@ class CriteriaCollection implements \IteratorAggregate
     /**
      * @var array<string, array<string, Criteria>>
      */
-    private $elements = [];
+    private array $elements = [];
 
     /**
      * @var bool[]
      */
-    private $keys = [];
+    private array $keys = [];
 
     public function add(string $key, string $definition, Criteria $criteria): void
     {

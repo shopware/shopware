@@ -39,33 +39,13 @@ class ExtensionLoader
 {
     private const DEFAULT_LOCALE = 'en_GB';
 
-    private ?EntityRepository $themeRepository;
-
     /**
      * @var array<string>|null
      */
     private ?array $installedThemeNames = null;
 
-    private AbstractAppLoader $appLoader;
-
-    private ConfigurationService $configurationService;
-
-    private LocaleProvider $localeProvider;
-
-    private LanguageLocaleCodeProvider $languageLocaleProvider;
-
-    public function __construct(
-        ?EntityRepository $themeRepository,
-        AbstractAppLoader $appLoader,
-        ConfigurationService $configurationService,
-        LocaleProvider $localeProvider,
-        LanguageLocaleCodeProvider $languageLocaleProvider
-    ) {
-        $this->themeRepository = $themeRepository;
-        $this->appLoader = $appLoader;
-        $this->configurationService = $configurationService;
-        $this->localeProvider = $localeProvider;
-        $this->languageLocaleProvider = $languageLocaleProvider;
+    public function __construct(private readonly ?EntityRepository $themeRepository, private readonly AbstractAppLoader $appLoader, private readonly ConfigurationService $configurationService, private readonly LocaleProvider $localeProvider, private readonly LanguageLocaleCodeProvider $languageLocaleProvider)
+    {
     }
 
     /**
@@ -170,9 +150,7 @@ class ExtensionLoader
         $codes = array_values($this->languageLocaleProvider->getLocalesForLanguageIds($languageIds));
         sort($codes);
 
-        return array_map(static function (string $locale): string {
-            return str_replace('-', '_', $locale);
-        }, $codes);
+        return array_map(static fn (string $locale): string => str_replace('-', '_', $locale), $codes);
     }
 
     private function loadFromPlugin(Context $context, PluginEntity $plugin): ExtensionStruct
@@ -387,18 +365,14 @@ class ExtensionLoader
     private function makeLanguagesArray(AppTranslationCollection $translations): array
     {
         $languageIds = array_map(
-            static function ($translation) {
-                return $translation->getLanguageId();
-            },
+            static fn ($translation) => $translation->getLanguageId(),
             $translations->getElements()
         );
 
         $translationLocales = $this->getLocalesCodesFromLanguageIds($languageIds);
 
         return array_map(
-            static function ($translationLocale) {
-                return ['name' => $translationLocale];
-            },
+            static fn ($translationLocale) => ['name' => $translationLocale],
             $translationLocales
         );
     }

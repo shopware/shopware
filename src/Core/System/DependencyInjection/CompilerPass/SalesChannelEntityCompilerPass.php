@@ -91,7 +91,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
             try {
                 $repository = $container->getDefinition($repositoryId);
                 $repository->setPublic(true);
-            } catch (ServiceNotFoundException $exception) {
+            } catch (ServiceNotFoundException) {
                 $repository = new Definition(
                     SalesChannelRepository::class,
                     [

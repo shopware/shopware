@@ -15,36 +15,23 @@ use Twig\Environment;
 
 /**
  * @package sales-channel
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class StoreApiInfoController
 {
-    protected DefinitionService $definitionService;
-
-    private Environment $twig;
-
-    /**
-     * @var array{administration?: string}
-     */
-    private $cspTemplates;
-
     /**
      * @internal
      *
      * @param array{administration?: string} $cspTemplates
      */
-    public function __construct(DefinitionService $definitionService, Environment $twig, array $cspTemplates)
+    public function __construct(protected DefinitionService $definitionService, private readonly Environment $twig, private readonly array $cspTemplates)
     {
-        $this->definitionService = $definitionService;
-        $this->twig = $twig;
-        $this->cspTemplates = $cspTemplates;
     }
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.openapi3", methods={"GET"})
      */
+    #[Route(path: '/store-api/_info/openapi3.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'store-api.info.openapi3', methods: ['GET'])]
     public function info(Request $request): JsonResponse
     {
         $apiType = $request->query->getAlpha('type', DefinitionService::TypeJsonApi);
@@ -61,8 +48,8 @@ class StoreApiInfoController
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.open-api-schema", methods={"GET"})
      */
+    #[Route(path: '/store-api/_info/open-api-schema.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'store-api.info.open-api-schema', methods: ['GET'])]
     public function openApiSchema(): JsonResponse
     {
         $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT, DefinitionService::STORE_API);
@@ -72,8 +59,8 @@ class StoreApiInfoController
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.swagger", methods={"GET"})
      */
+    #[Route(path: '/store-api/_info/swagger.html', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'store-api.info.swagger', methods: ['GET'])]
     public function infoHtml(Request $request): Response
     {
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);

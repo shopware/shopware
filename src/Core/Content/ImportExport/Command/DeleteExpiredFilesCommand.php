@@ -20,23 +20,15 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class DeleteExpiredFilesCommand extends Command
 {
     /**
-     * @var DeleteExpiredFilesService
-     */
-    private $deleteExpiredFilesService;
-
-    /**
      * @internal
      */
-    public function __construct(DeleteExpiredFilesService $deleteExpiredFilesService)
+    public function __construct(private readonly DeleteExpiredFilesService $deleteExpiredFilesService)
     {
         parent::__construct();
-        $this->deleteExpiredFilesService = $deleteExpiredFilesService;
     }
 
     protected function configure(): void
     {
-        $this
-            ->setDescription('Deletes all expired import/export files');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

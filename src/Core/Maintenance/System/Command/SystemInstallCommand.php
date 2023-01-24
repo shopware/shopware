@@ -27,9 +27,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 class SystemInstallCommand extends Command
 {
     public function __construct(
-        private string $projectDir,
-        private SetupDatabaseAdapter $setupDatabaseAdapter,
-        private DatabaseConnectionFactory $databaseConnectionFactory
+        private readonly string $projectDir,
+        private readonly SetupDatabaseAdapter $setupDatabaseAdapter,
+        private readonly DatabaseConnectionFactory $databaseConnectionFactory
     ) {
         parent::__construct();
     }

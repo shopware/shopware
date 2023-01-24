@@ -16,23 +16,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class AmountCalculator
 {
-    private CashRounding $rounding;
-
-    private PercentageTaxRuleBuilder $taxRuleBuilder;
-
-    private TaxCalculator $taxCalculator;
-
     /**
      * @internal
      */
-    public function __construct(
-        CashRounding $rounding,
-        PercentageTaxRuleBuilder $taxRuleBuilder,
-        TaxCalculator $taxCalculator
-    ) {
-        $this->rounding = $rounding;
-        $this->taxRuleBuilder = $taxRuleBuilder;
-        $this->taxCalculator = $taxCalculator;
+    public function __construct(private readonly CashRounding $rounding, private readonly PercentageTaxRuleBuilder $taxRuleBuilder, private readonly TaxCalculator $taxCalculator)
+    {
     }
 
     public function calculate(PriceCollection $prices, PriceCollection $shippingCosts, SalesChannelContext $context): CartPrice

@@ -21,17 +21,17 @@ class FlowSequenceEntity extends Entity
 
     protected ?FlowEntity $flow = null;
 
-    protected ?string $parentId;
+    protected ?string $parentId = null;
 
     protected ?FlowSequenceEntity $parent = null;
 
     protected ?FlowSequenceCollection $children = null;
 
-    protected ?string $ruleId;
+    protected ?string $ruleId = null;
 
     protected ?RuleEntity $rule = null;
 
-    protected ?string $actionName;
+    protected ?string $actionName = null;
 
     protected array $config;
 

@@ -9,11 +9,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class SeoUrlUpdateEvent extends Event
 {
-    protected array $seoUrls;
-
-    public function __construct(array $seoUrls)
+    public function __construct(protected array $seoUrls)
     {
-        $this->seoUrls = $seoUrls;
     }
 
     public function getSeoUrls(): array

@@ -16,21 +16,18 @@ use Symfony\Component\Routing\Annotation\Route;
  * @package merchant-services
  *
  * @internal
- * @Route(defaults={"_routeScope"={"api"}, "_acl"={"system.plugin_maintain"}})
  */
+#[Route(defaults: ['_routeScope' => ['api'], '_acl' => ['system.plugin_maintain']])]
 class ExtensionStoreLicensesController extends AbstractController
 {
-    private AbstractExtensionStoreLicensesService $extensionStoreLicensesService;
-
-    public function __construct(AbstractExtensionStoreLicensesService $extensionStoreLicensesService)
+    public function __construct(private readonly AbstractExtensionStoreLicensesService $extensionStoreLicensesService)
     {
-        $this->extensionStoreLicensesService = $extensionStoreLicensesService;
     }
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/license/cancel/{licenseId}", name="api.license.cancel", methods={"DELETE"})
      */
+    #[Route(path: '/api/license/cancel/{licenseId}', name: 'api.license.cancel', methods: ['DELETE'])]
     public function cancelSubscription(int $licenseId, Context $context): JsonResponse
     {
         $this->extensionStoreLicensesService->cancelSubscription($licenseId, $context);
@@ -40,8 +37,8 @@ class ExtensionStoreLicensesController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/license/rate/{extensionId}", name="api.license.rate", methods={"POST"})
      */
+    #[Route(path: '/api/license/rate/{extensionId}', name: 'api.license.rate', methods: ['POST'])]
     public function rateLicensedExtension(int $extensionId, Request $request, Context $context): JsonResponse
     {
         $this->extensionStoreLicensesService->rateLicensedExtension(

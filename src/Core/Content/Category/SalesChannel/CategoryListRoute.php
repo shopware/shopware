@@ -11,21 +11,15 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package content
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CategoryListRoute extends AbstractCategoryListRoute
 {
     /**
-     * @var SalesChannelRepository
-     */
-    private $categoryRepository;
-
-    /**
      * @internal
      */
-    public function __construct(SalesChannelRepository $categoryRepository)
+    public function __construct(private readonly SalesChannelRepository $categoryRepository)
     {
-        $this->categoryRepository = $categoryRepository;
     }
 
     public function getDecorated(): AbstractCategoryListRoute
@@ -35,8 +29,8 @@ class CategoryListRoute extends AbstractCategoryListRoute
 
     /**
      * @Since("6.3.2.0")
-     * @Route("/store-api/category", name="store-api.category.search", methods={"GET", "POST"}, defaults={"_entity"="category"})
      */
+    #[Route(path: '/store-api/category', name: 'store-api.category.search', methods: ['GET', 'POST'], defaults: ['_entity' => 'category'])]
     public function load(Criteria $criteria, SalesChannelContext $context): CategoryListRouteResponse
     {
         return new CategoryListRouteResponse($this->categoryRepository->search($criteria, $context));

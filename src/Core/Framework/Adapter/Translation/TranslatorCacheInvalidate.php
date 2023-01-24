@@ -17,17 +17,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class TranslatorCacheInvalidate implements EventSubscriberInterface
 {
-    private Connection $connection;
-
-    private CacheInvalidator $cacheInvalidator;
-
     /**
      * @internal
      */
-    public function __construct(CacheInvalidator $cacheInvalidator, Connection $connection)
+    public function __construct(private readonly CacheInvalidator $cacheInvalidator, private readonly Connection $connection)
     {
-        $this->connection = $connection;
-        $this->cacheInvalidator = $cacheInvalidator;
     }
 
     public static function getSubscribedEvents(): array
@@ -67,9 +61,7 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
     {
         $snippetSetIds = array_unique($snippetSetIds);
 
-        $snippetSetCacheKeys = array_map(function (string $setId) {
-            return 'translation.catalog.' . $setId;
-        }, $snippetSetIds);
+        $snippetSetCacheKeys = array_map(fn (string $setId) => 'translation.catalog.' . $setId, $snippetSetIds);
 
         $this->cacheInvalidator->invalidate($snippetSetCacheKeys, true);
     }

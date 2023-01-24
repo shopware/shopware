@@ -15,16 +15,10 @@ use Twig\TwigFilter;
 class CurrencyFilter extends AbstractExtension
 {
     /**
-     * @var CurrencyFormatter
-     */
-    private $currencyFormatter;
-
-    /**
      * @internal
      */
-    public function __construct(CurrencyFormatter $currencyFormatter)
+    public function __construct(private readonly CurrencyFormatter $currencyFormatter)
     {
-        $this->currencyFormatter = $currencyFormatter;
     }
 
     /**
@@ -33,7 +27,7 @@ class CurrencyFilter extends AbstractExtension
     public function getFilters()
     {
         return [
-            new TwigFilter('currency', [$this, 'formatCurrency'], ['needs_context' => true]),
+            new TwigFilter('currency', $this->formatCurrency(...), ['needs_context' => true]),
         ];
     }
 

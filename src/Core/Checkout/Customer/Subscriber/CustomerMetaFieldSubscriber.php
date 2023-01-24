@@ -20,14 +20,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class CustomerMetaFieldSubscriber implements EventSubscriberInterface
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array

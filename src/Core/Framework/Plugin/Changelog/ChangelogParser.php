@@ -55,11 +55,11 @@ class ChangelogParser
 
     private function parseTitle($line): string
     {
-        return mb_strtolower(trim(mb_substr($line, 1)));
+        return mb_strtolower(trim(mb_substr((string) $line, 1)));
     }
 
     private function parseItem($line): string
     {
-        return trim(mb_substr($line, 1));
+        return trim(mb_substr((string) $line, 1));
     }
 }

@@ -15,12 +15,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class CreditOrderLineItemListener implements EventSubscriberInterface
 {
-    public const ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE = 'order:create:discount';
+    final public const ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE = 'order:create:discount';
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [CommandAclValidationEvent::class => 'validate'];
     }

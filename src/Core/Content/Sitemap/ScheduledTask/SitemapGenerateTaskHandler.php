@@ -31,10 +31,10 @@ final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        private EntityRepository $salesChannelRepository,
-        private  SystemConfigService $systemConfigService,
-        private MessageBusInterface $messageBus,
-        private EventDispatcherInterface $eventDispatcher
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly MessageBusInterface $messageBus,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
         parent::__construct($scheduledTaskRepository);
     }
@@ -70,9 +70,7 @@ final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
                 continue;
             }
 
-            $languageIds = $salesChannel->getDomains()->map(function (SalesChannelDomainEntity $salesChannelDomain) {
-                return $salesChannelDomain->getLanguageId();
-            });
+            $languageIds = $salesChannel->getDomains()->map(fn (SalesChannelDomainEntity $salesChannelDomain) => $salesChannelDomain->getLanguageId());
 
             $languageIds = array_unique($languageIds);
 

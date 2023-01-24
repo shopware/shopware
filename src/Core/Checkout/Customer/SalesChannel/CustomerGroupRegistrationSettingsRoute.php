@@ -13,22 +13,15 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegistrationSettingsRoute
 {
     /**
-     * @var EntityRepository
-     */
-    private $customerGroupRepository;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $customerGroupRepository)
+    public function __construct(private readonly EntityRepository $customerGroupRepository)
     {
-        $this->customerGroupRepository = $customerGroupRepository;
     }
 
     public function getDecorated(): AbstractCustomerGroupRegistrationSettingsRoute
@@ -38,8 +31,8 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
 
     /**
      * @Since("6.3.1.0")
-     * @Route(path="/store-api/customer-group-registration/config/{customerGroupId}", name="store-api.customer-group-registration.config", methods={"GET"})
      */
+    #[Route(path: '/store-api/customer-group-registration/config/{customerGroupId}', name: 'store-api.customer-group-registration.config', methods: ['GET'])]
     public function load(string $customerGroupId, SalesChannelContext $context): CustomerGroupRegistrationSettingsRouteResponse
     {
         $criteria = new Criteria([$customerGroupId]);

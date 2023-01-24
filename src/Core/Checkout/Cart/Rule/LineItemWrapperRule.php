@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class LineItemWrapperRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemWrapper';
+    final public const RULE_NAME = 'cartLineItemWrapper';
 
     protected Container $container;
 

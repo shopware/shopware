@@ -15,11 +15,8 @@ use Symfony\Component\Messenger\Transport\TransportInterface;
  */
 class DoctrineTransportFactory implements TransportFactoryInterface
 {
-    private DBALConnection $connection;
-
-    public function __construct(DBALConnection $connection)
+    public function __construct(private readonly DBALConnection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -42,6 +39,6 @@ class DoctrineTransportFactory implements TransportFactoryInterface
      */
     public function supports(string $dsn, array $options): bool
     {
-        return strpos($dsn, 'doctrine://') === 0;
+        return str_starts_with($dsn, 'doctrine://');
     }
 }

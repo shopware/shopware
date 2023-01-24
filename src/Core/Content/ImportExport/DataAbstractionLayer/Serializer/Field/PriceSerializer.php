@@ -23,16 +23,10 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 class PriceSerializer extends FieldSerializer
 {
     /**
-     * @var EntityRepository
-     */
-    private $currencyRepository;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $currencyRepository)
+    public function __construct(private readonly EntityRepository $currencyRepository)
     {
-        $this->currencyRepository = $currencyRepository;
     }
 
     public function serialize(Config $config, Field $entity, $prices): iterable

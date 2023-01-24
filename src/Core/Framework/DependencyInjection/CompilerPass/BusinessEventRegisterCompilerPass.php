@@ -12,13 +12,10 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 class BusinessEventRegisterCompilerPass implements CompilerPassInterface
 {
     /**
-     * @var class-string[]
+     * @param class-string[] $classes
      */
-    private array $classes;
-
-    public function __construct(array $classes)
+    public function __construct(private readonly array $classes)
     {
-        $this->classes = $classes;
     }
 
     public function process(ContainerBuilder $container): void

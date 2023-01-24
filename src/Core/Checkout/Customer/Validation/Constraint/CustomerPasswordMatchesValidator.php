@@ -12,14 +12,11 @@ use Symfony\Component\Validator\ConstraintValidator;
  */
 class CustomerPasswordMatchesValidator extends ConstraintValidator
 {
-    private AccountService $accountService;
-
     /**
      * @internal
      */
-    public function __construct(AccountService $accountService)
+    public function __construct(private readonly AccountService $accountService)
     {
-        $this->accountService = $accountService;
     }
 
     public function validate(mixed $password, Constraint $constraint): void
@@ -36,7 +33,7 @@ class CustomerPasswordMatchesValidator extends ConstraintValidator
             $this->accountService->getCustomerByLogin($email, (string) $password, $constraint->getContext());
 
             return;
-        } catch (BadCredentialsException $exception) {
+        } catch (BadCredentialsException) {
             $this->context->buildViolation($constraint->message)
                 ->setCode(CustomerPasswordMatches::CUSTOMER_PASSWORD_NOT_CORRECT)
                 ->addViolation();

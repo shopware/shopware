@@ -16,7 +16,7 @@ use Shopware\Core\System\Integration\IntegrationDefinition;
  */
 class IntegrationRoleDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'integration_role';
+    final public const ENTITY_NAME = 'integration_role';
 
     public function getEntityName(): string
     {

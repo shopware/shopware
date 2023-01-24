@@ -14,11 +14,8 @@ use Shopware\Core\Framework\Script\Execution\Script;
  */
 class CacheInvalidatorFacadeHookFactory extends HookServiceFactory
 {
-    private CacheInvalidator $cacheInvalidator;
-
-    public function __construct(CacheInvalidator $cacheInvalidator)
+    public function __construct(private readonly CacheInvalidator $cacheInvalidator)
     {
-        $this->cacheInvalidator = $cacheInvalidator;
     }
 
     public function factory(Hook $hook, Script $script): CacheInvalidatorFacade

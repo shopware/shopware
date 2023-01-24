@@ -22,14 +22,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
  */
 class CategoryBreadcrumbBuilder
 {
-    private EntityRepository $categoryRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $categoryRepository)
+    public function __construct(private readonly EntityRepository $categoryRepository)
     {
-        $this->categoryRepository = $categoryRepository;
     }
 
     /**
@@ -118,9 +115,7 @@ class CategoryBreadcrumbBuilder
             $context->getSalesChannel()->getFooterCategoryId(),
         ]);
 
-        return new OrFilter(array_map(static function (string $id) {
-            return new ContainsFilter('path', '|' . $id . '|');
-        }, $ids));
+        return new OrFilter(array_map(static fn (string $id) => new ContainsFilter('path', '|' . $id . '|'), $ids));
     }
 
     private function getMainCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity

@@ -16,7 +16,7 @@ class EntityProtectionCollection extends Collection
      */
     public function add($element): void
     {
-        $this->set(\get_class($element), $element);
+        $this->set($element::class, $element);
     }
 
     /**
@@ -25,7 +25,7 @@ class EntityProtectionCollection extends Collection
      */
     public function set($key, $element): void
     {
-        parent::set(\get_class($element), $element);
+        parent::set($element::class, $element);
     }
 
     public function getApiAlias(): string

@@ -14,20 +14,16 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CartPositionPriceRule extends Rule
 {
-    public const RULE_NAME = 'cartPositionPrice';
+    final public const RULE_NAME = 'cartPositionPrice';
 
     protected float $amount;
-
-    protected string $operator;
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self:: OPERATOR_EQ, ?float $amount = null)
+    public function __construct(protected string $operator = self:: OPERATOR_EQ, ?float $amount = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
         $this->amount = (float) $amount;
     }
 

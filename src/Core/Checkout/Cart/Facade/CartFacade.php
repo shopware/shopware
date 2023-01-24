@@ -34,15 +34,12 @@ class CartFacade
     use ItemsCountTrait;
     use ContainerFactoryTrait;
 
-    private Cart $cart;
-
     /**
      * @internal
      */
-    public function __construct(CartFacadeHelper $helper, Cart $cart, SalesChannelContext $context)
+    public function __construct(CartFacadeHelper $helper, private Cart $cart, SalesChannelContext $context)
     {
         $this->helper = $helper;
-        $this->cart = $cart;
         $this->context = $context;
     }
 
@@ -82,9 +79,7 @@ class CartFacade
             throw new \LogicException('Cart behavior missing. The instanced cart was never calculated');
         }
 
-        $this->cart = $behavior->disableHooks(function () use ($behavior) {
-            return $this->helper->calculate($this->cart, $behavior, $this->context);
-        });
+        $this->cart = $behavior->disableHooks(fn () => $this->helper->calculate($this->cart, $behavior, $this->context));
     }
 
     /**

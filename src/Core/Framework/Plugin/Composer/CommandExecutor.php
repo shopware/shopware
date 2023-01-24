@@ -13,12 +13,12 @@ use Symfony\Component\Console\Output\BufferedOutput;
  */
 class CommandExecutor
 {
-    private Application $application;
+    private readonly Application $application;
 
     /**
      * @internal
      */
-    public function __construct(private string $projectDir)
+    public function __construct(private readonly string $projectDir)
     {
         $this->application = new Application();
         $this->application->setAutoExit(false);

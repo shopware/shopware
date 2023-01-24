@@ -23,7 +23,7 @@ use Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation\TaxRuleTypeTransla
  */
 class TaxRuleTypeDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'tax_rule_type';
+    final public const ENTITY_NAME = 'tax_rule_type';
 
     public function getEntityName(): string
     {

@@ -21,15 +21,15 @@ class BuildBreadcrumbExtension extends AbstractExtension
      * @internal
      */
     public function __construct(
-        private CategoryBreadcrumbBuilder $categoryBreadcrumbBuilder,
-        private EntityRepository $categoryRepository
+        private readonly CategoryBreadcrumbBuilder $categoryBreadcrumbBuilder,
+        private readonly EntityRepository $categoryRepository
     ) {
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('sw_breadcrumb_full', [$this, 'getFullBreadcrumb'], ['needs_context' => true]),
+            new TwigFunction('sw_breadcrumb_full', $this->getFullBreadcrumb(...), ['needs_context' => true]),
         ];
     }
 

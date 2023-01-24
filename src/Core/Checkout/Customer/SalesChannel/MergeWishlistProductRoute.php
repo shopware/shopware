@@ -23,37 +23,16 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package customer-order
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 {
-    private EntityRepository $wishlistRepository;
-
-    private SalesChannelRepository $productRepository;
-
-    private SystemConfigService $systemConfigService;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $wishlistRepository,
-        SalesChannelRepository $productRepository,
-        SystemConfigService $systemConfigService,
-        EventDispatcherInterface $eventDispatcher,
-        Connection $connection
-    ) {
-        $this->wishlistRepository = $wishlistRepository;
-        $this->productRepository = $productRepository;
-        $this->systemConfigService = $systemConfigService;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->connection = $connection;
+    public function __construct(private readonly EntityRepository $wishlistRepository, private readonly SalesChannelRepository $productRepository, private readonly SystemConfigService $systemConfigService, private readonly EventDispatcherInterface $eventDispatcher, private readonly Connection $connection)
+    {
     }
 
     public function getDecorated(): AbstractMergeWishlistProductRoute
@@ -62,9 +41,9 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
     }
 
     /**
-    * @Since("6.3.4.0")
-     * @Route("/store-api/customer/wishlist/merge", name="store-api.customer.wishlist.merge", methods={"POST"}, defaults={"_loginRequired"=true})
-    */
+     * @Since("6.3.4.0")
+     */
+    #[Route(path: '/store-api/customer/wishlist/merge', name: 'store-api.customer.wishlist.merge', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function merge(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {

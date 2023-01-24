@@ -12,14 +12,10 @@ use Symfony\Component\HttpFoundation\Response;
 class ApiConversionException extends ShopwareHttpException
 {
     /**
-     * @var array<string, \Throwable[]>
+     * @param array<string, \Throwable[]> $exceptions
      */
-    private $exceptions;
-
-    public function __construct(array $exceptions = [])
+    public function __construct(private array $exceptions = [])
     {
-        $this->exceptions = $exceptions;
-
         parent::__construct('Api Version conversion failed, got {{ numberOfFailures }} failure(s).', ['numberOfFailures' => \count($exceptions)]);
     }
 

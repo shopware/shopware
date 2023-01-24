@@ -13,12 +13,8 @@ use Shopware\Core\Framework\Store\Struct\ReviewStruct;
  */
 class ExtensionStoreLicensesService extends AbstractExtensionStoreLicensesService
 {
-    private StoreClient $client;
-
-    public function __construct(
-        StoreClient $client
-    ) {
-        $this->client = $client;
+    public function __construct(private readonly StoreClient $client)
+    {
     }
 
     public function cancelSubscription(int $licenseId, Context $context): void

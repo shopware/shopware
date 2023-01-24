@@ -20,23 +20,11 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class SeoUrlPersister
 {
-    private Connection $connection;
-
-    private EntityRepository $seoUrlRepository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        EntityRepository $seoUrlRepository,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->connection = $connection;
-        $this->seoUrlRepository = $seoUrlRepository;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly Connection $connection, private readonly EntityRepository $seoUrlRepository, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**
@@ -64,7 +52,7 @@ class SeoUrlPersister
             $updates[] = $seoUrl;
 
             $fk = $seoUrl['foreignKey'];
-            $salesChannelId = $seoUrl['salesChannelId'] = $seoUrl['salesChannelId'] ?? null;
+            $salesChannelId = $seoUrl['salesChannelId'] ??= null;
 
             // skip duplicates
             if (isset($processed[$fk][$salesChannelId])) {
@@ -101,7 +89,7 @@ class SeoUrlPersister
             $insert['foreign_key'] = Uuid::fromHexToBytes($fk);
 
             $insert['path_info'] = $seoUrl['pathInfo'];
-            $insert['seo_path_info'] = ltrim($seoUrl['seoPathInfo'], '/');
+            $insert['seo_path_info'] = ltrim((string) $seoUrl['seoPathInfo'], '/');
 
             $insert['route_name'] = $routeName;
             $insert['is_canonical'] = ($seoUrl['isCanonical'] ?? true) ? 1 : null;

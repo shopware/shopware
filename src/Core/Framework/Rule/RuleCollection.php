@@ -51,9 +51,7 @@ class RuleCollection extends Collection
         return new self(
             array_filter(
                 $this->flat,
-                function (Rule $rule) use ($class) {
-                    return $rule instanceof $class;
-                }
+                fn (Rule $rule) => $rule instanceof $class
             )
         );
     }
@@ -73,7 +71,7 @@ class RuleCollection extends Collection
 
     private function addMeta(Rule $rule): void
     {
-        $this->classes[\get_class($rule)] = true;
+        $this->classes[$rule::class] = true;
 
         $this->flat[] = $rule;
 

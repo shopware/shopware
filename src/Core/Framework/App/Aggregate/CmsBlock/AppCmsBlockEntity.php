@@ -51,7 +51,7 @@ class AppCmsBlockEntity extends Entity
      */
     protected $translations;
 
-    protected ?string $label;
+    protected ?string $label = null;
 
     public function getAppId(): string
     {

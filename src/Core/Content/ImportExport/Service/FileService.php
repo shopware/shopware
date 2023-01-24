@@ -19,21 +19,15 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 class FileService extends AbstractFileService
 {
-    private FilesystemOperator $filesystem;
-
-    private EntityRepository $fileRepository;
-
-    private CsvFileWriter $writer;
+    private readonly CsvFileWriter $writer;
 
     /**
      * @internal
      */
     public function __construct(
-        FilesystemOperator $filesystem,
-        EntityRepository $fileRepository
+        private readonly FilesystemOperator $filesystem,
+        private readonly EntityRepository $fileRepository
     ) {
-        $this->filesystem = $filesystem;
-        $this->fileRepository = $fileRepository;
         $this->writer = new CsvFileWriter($filesystem);
     }
 
@@ -48,7 +42,7 @@ class FileService extends AbstractFileService
     public function storeFile(Context $context, \DateTimeInterface $expireDate, ?string $sourcePath, ?string $originalFileName, string $activity, ?string $path = null): ImportExportFileEntity
     {
         $id = Uuid::randomHex();
-        $path = $path ?? $activity . '/' . ImportExportFileEntity::buildPath($id);
+        $path ??= $activity . '/' . ImportExportFileEntity::buildPath($id);
         if (!empty($sourcePath)) {
             if (!is_readable($sourcePath)) {
                 throw new FileNotReadableException($sourcePath);

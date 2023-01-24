@@ -21,36 +21,12 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannelAware, CustomerAware, MailAware, ConfirmUrlAware
 {
-    public const EVENT_NAME = 'checkout.customer.double_opt_in_registration';
+    final public const EVENT_NAME = 'checkout.customer.double_opt_in_registration';
 
-    /**
-     * @var CustomerEntity
-     */
-    private $customer;
+    private ?MailRecipientStruct $mailRecipientStruct = null;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var string
-     */
-    private $confirmUrl;
-
-    /**
-     * @var MailRecipientStruct
-     */
-    private $mailRecipientStruct;
-
-    public function __construct(
-        CustomerEntity $customer,
-        SalesChannelContext $salesChannelContext,
-        string $confirmUrl
-    ) {
-        $this->customer = $customer;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->confirmUrl = $confirmUrl;
+    public function __construct(private readonly CustomerEntity $customer, private readonly SalesChannelContext $salesChannelContext, private readonly string $confirmUrl)
+    {
     }
 
     public static function getAvailableData(): EventDataCollection

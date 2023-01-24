@@ -14,7 +14,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @package content
@@ -25,35 +24,16 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class GenerateMediaTypesCommand extends Command
 {
-    /**
-     * @var SymfonyStyle
-     */
-    private $io;
+    private ShopwareStyle $io;
 
-    /**
-     * @var TypeDetector
-     */
-    private $typeDetector;
-
-    /**
-     * @var EntityRepository
-     */
-    private $mediaRepository;
-
-    /**
-     * @var int
-     */
-    private $batchSize;
+    private ?int $batchSize = null;
 
     /**
      * @internal
      */
-    public function __construct(TypeDetector $typeDetector, EntityRepository $mediaRepository)
+    public function __construct(private readonly TypeDetector $typeDetector, private readonly EntityRepository $mediaRepository)
     {
         parent::__construct();
-
-        $this->typeDetector = $typeDetector;
-        $this->mediaRepository = $mediaRepository;
     }
 
     /**
@@ -61,9 +41,7 @@ class GenerateMediaTypesCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setDescription('Generates the media type for all media entities')
-            ->addOption('batch-size', 'b', InputOption::VALUE_REQUIRED, 'Batch Size')
+        $this->addOption('batch-size', 'b', InputOption::VALUE_REQUIRED, 'Batch Size')
         ;
     }
 

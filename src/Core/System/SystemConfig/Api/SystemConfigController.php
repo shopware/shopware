@@ -14,35 +14,22 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package system-settings
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class SystemConfigController extends AbstractController
 {
     /**
-     * @var ConfigurationService
-     */
-    private $configurationService;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfig;
-
-    /**
      * @internal
      */
-    public function __construct(ConfigurationService $configurationService, SystemConfigService $systemConfig)
+    public function __construct(private readonly ConfigurationService $configurationService, private readonly SystemConfigService $systemConfig)
     {
-        $this->configurationService = $configurationService;
-        $this->systemConfig = $systemConfig;
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/system-config/check", name="api.action.core.system-config.check", methods={"GET"}, defaults={"_acl"={"system_config:read"}})
      */
+    #[Route(path: '/api/_action/system-config/check', name: 'api.action.core.system-config.check', methods: ['GET'], defaults: ['_acl' => ['system_config:read']])]
     public function checkConfiguration(Request $request, Context $context): JsonResponse
     {
         $domain = (string) $request->query->get('domain');
@@ -56,8 +43,8 @@ class SystemConfigController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/system-config/schema", name="api.action.core.system-config", methods={"GET"})
      */
+    #[Route(path: '/api/_action/system-config/schema', name: 'api.action.core.system-config', methods: ['GET'])]
     public function getConfiguration(Request $request, Context $context): JsonResponse
     {
         $domain = (string) $request->query->get('domain');
@@ -71,8 +58,8 @@ class SystemConfigController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/system-config", name="api.action.core.system-config.value", methods={"GET"}, defaults={"_acl"={"system_config:read"}})
      */
+    #[Route(path: '/api/_action/system-config', name: 'api.action.core.system-config.value', methods: ['GET'], defaults: ['_acl' => ['system_config:read']])]
     public function getConfigurationValues(Request $request): JsonResponse
     {
         $domain = (string) $request->query->get('domain');
@@ -97,8 +84,8 @@ class SystemConfigController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/system-config", name="api.action.core.save.system-config", methods={"POST"}, defaults={"_acl"={"system_config:update", "system_config:create", "system_config:delete"}})
      */
+    #[Route(path: '/api/_action/system-config', name: 'api.action.core.save.system-config', methods: ['POST'], defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']])]
     public function saveConfiguration(Request $request): JsonResponse
     {
         $salesChannelId = $request->query->get('salesChannelId');
@@ -114,8 +101,8 @@ class SystemConfigController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/system-config/batch", name="api.action.core.save.system-config.batch", methods={"POST"}, defaults={"_acl"={"system_config:update", "system_config:create", "system_config:delete"}})
      */
+    #[Route(path: '/api/_action/system-config/batch', name: 'api.action.core.save.system-config.batch', methods: ['POST'], defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']])]
     public function batchSaveConfiguration(Request $request): JsonResponse
     {
         /**

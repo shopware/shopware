@@ -26,13 +26,9 @@ use Symfony\Component\Console\Question\Question;
 )]
 class UserChangePasswordCommand extends Command
 {
-    private EntityRepository $userRepository;
-
-    public function __construct(EntityRepository $userRepository)
+    public function __construct(private readonly EntityRepository $userRepository)
     {
         parent::__construct();
-
-        $this->userRepository = $userRepository;
     }
 
     protected function configure(): void

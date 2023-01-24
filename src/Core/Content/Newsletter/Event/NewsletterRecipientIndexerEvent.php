@@ -10,17 +10,8 @@ use Shopware\Core\Framework\Event\NestedEvent;
  */
 class NewsletterRecipientIndexerEvent extends NestedEvent
 {
-    private Context $context;
-
-    private array $ids;
-
-    private array $skip;
-
-    public function __construct(array $ids, Context $context, array $skip = [])
+    public function __construct(private readonly array $ids, private readonly Context $context, private readonly array $skip = [])
     {
-        $this->context = $context;
-        $this->ids = $ids;
-        $this->skip = $skip;
     }
 
     public function getContext(): Context

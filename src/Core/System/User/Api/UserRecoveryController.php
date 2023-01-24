@@ -12,31 +12,22 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package system-settings
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class UserRecoveryController extends AbstractController
 {
-    private UserRecoveryService $userRecoveryService;
-
-    private RateLimiter $rateLimiter;
-
     /**
      * @internal
      */
-    public function __construct(
-        UserRecoveryService $userRecoveryService,
-        RateLimiter $rateLimiter
-    ) {
-        $this->userRecoveryService = $userRecoveryService;
-        $this->rateLimiter = $rateLimiter;
+    public function __construct(private readonly UserRecoveryService $userRecoveryService, private readonly RateLimiter $rateLimiter)
+    {
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/user/user-recovery", defaults={"auth_required"=false}, name="api.action.user.user-recovery", methods={"POST"})
      */
+    #[Route(path: '/api/_action/user/user-recovery', defaults: ['auth_required' => false], name: 'api.action.user.user-recovery', methods: ['POST'])]
     public function createUserRecovery(Request $request, Context $context): Response
     {
         $email = (string) $request->request->get('email');
@@ -53,8 +44,8 @@ class UserRecoveryController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/user/user-recovery/hash", defaults={"auth_required"=false}, name="api.action.user.user-recovery.hash", methods={"GET"})
      */
+    #[Route(path: '/api/_action/user/user-recovery/hash', defaults: ['auth_required' => false], name: 'api.action.user.user-recovery.hash', methods: ['GET'])]
     public function checkUserRecovery(Request $request, Context $context): Response
     {
         $hash = (string) $request->query->get('hash');
@@ -68,8 +59,8 @@ class UserRecoveryController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/user/user-recovery/password", defaults={"auth_required"=false}, name="api.action.user.user-recovery.password", methods={"PATCH"})
      */
+    #[Route(path: '/api/_action/user/user-recovery/password', defaults: ['auth_required' => false], name: 'api.action.user.user-recovery.password', methods: ['PATCH'])]
     public function updateUserPassword(Request $request, Context $context): Response
     {
         $hash = (string) $request->request->get('hash');

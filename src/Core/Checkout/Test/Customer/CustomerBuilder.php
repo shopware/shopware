@@ -27,8 +27,6 @@ class CustomerBuilder
 
     public string $id;
 
-    protected string $customerNumber;
-
     protected string $firstName;
 
     protected string $lastName;
@@ -45,8 +43,6 @@ class CustomerBuilder
 
     protected string $defaultPaymentMethodId;
 
-    protected string $salesChannelId;
-
     protected array $addresses = [];
 
     protected array $group = [];
@@ -57,19 +53,17 @@ class CustomerBuilder
 
     public function __construct(
         IdsCollection $ids,
-        string $customerNumber,
-        string $salesChannelId = TestDefaults::SALES_CHANNEL,
+        protected string $customerNumber,
+        protected string $salesChannelId = TestDefaults::SALES_CHANNEL,
         string $customerGroup = 'customer-group',
         string $billingAddress = 'default-address',
         string $shippingAddress = 'default-address'
     ) {
         $this->ids = $ids;
-        $this->customerNumber = $customerNumber;
         $this->id = $ids->create($customerNumber);
         $this->firstName = 'Max';
         $this->lastName = 'Mustermann';
         $this->email = 'max@mustermann.com';
-        $this->salesChannelId = $salesChannelId;
         $this->salutation = self::salutation($ids);
 
         $this->customerGroup($customerGroup);

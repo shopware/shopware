@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
  */
 class PromotionPersonaCustomerDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'promotion_persona_customer';
+    final public const ENTITY_NAME = 'promotion_persona_customer';
 
     /**
      * This class is used as m:n relation between promotions and customers.

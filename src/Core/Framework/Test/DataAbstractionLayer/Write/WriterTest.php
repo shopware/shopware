@@ -713,7 +713,7 @@ class WriterTest extends TestCase
             $productRepository->create([], $context);
             $productRepository->upsert([], $context);
             $productRepository->update([], $context);
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException) {
             $exceptionThrown = true;
         }
 

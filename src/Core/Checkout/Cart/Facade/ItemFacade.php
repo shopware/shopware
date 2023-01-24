@@ -19,20 +19,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class ItemFacade
 {
-    private LineItem $item;
-
-    private CartFacadeHelper $helper;
-
-    private SalesChannelContext $context;
-
     /**
      * @internal
      */
-    public function __construct(LineItem $item, CartFacadeHelper $helper, SalesChannelContext $context)
+    public function __construct(private readonly LineItem $item, private readonly CartFacadeHelper $helper, private readonly SalesChannelContext $context)
     {
-        $this->item = $item;
-        $this->helper = $helper;
-        $this->context = $context;
     }
 
     /**

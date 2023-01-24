@@ -32,11 +32,6 @@ class Filter extends Struct
     protected $filter;
 
     /**
-     * @var int|float|string|bool|array|null
-     */
-    protected $values;
-
-    /**
      * @var bool
      */
     protected $exclude;
@@ -44,13 +39,12 @@ class Filter extends Struct
     /**
      * @param int|float|string|bool|array|null $values
      */
-    public function __construct(string $name, bool $filtered, array $aggregations, DALFilter $filter, $values, bool $exclude = true)
+    public function __construct(string $name, bool $filtered, array $aggregations, DALFilter $filter, protected $values, bool $exclude = true)
     {
         $this->name = $name;
         $this->filtered = $filtered;
         $this->aggregations = $aggregations;
         $this->filter = $filter;
-        $this->values = $values;
         $this->exclude = $exclude;
     }
 

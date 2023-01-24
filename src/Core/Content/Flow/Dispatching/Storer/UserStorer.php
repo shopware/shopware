@@ -14,14 +14,11 @@ use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
  */
 class UserStorer extends FlowStorer
 {
-    private EntityRepository $userRecoveryRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $userRecoveryRepository)
+    public function __construct(private readonly EntityRepository $userRecoveryRepository)
     {
-        $this->userRecoveryRepository = $userRecoveryRepository;
     }
 
     public function store(FlowEventAware $event, array $stored): array
@@ -43,7 +40,7 @@ class UserStorer extends FlowStorer
 
         $storable->lazy(
             UserAware::USER_RECOVERY,
-            [$this, 'load'],
+            $this->load(...),
             [$storable->getStore(UserAware::USER_RECOVERY_ID), $storable->getContext()]
         );
     }
@@ -53,7 +50,7 @@ class UserStorer extends FlowStorer
      */
     public function load(array $args): ?UserRecoveryEntity
     {
-        list($id, $context) = $args;
+        [$id, $context] = $args;
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('user');

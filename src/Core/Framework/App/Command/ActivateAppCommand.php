@@ -20,15 +20,8 @@ class ActivateAppCommand extends AbstractAppActivationCommand
 {
     private const ACTION = 'activate';
 
-    /**
-     * @var AppStateService
-     */
-    private $appStateService;
-
-    public function __construct(EntityRepository $appRepo, AppStateService $appStateService)
+    public function __construct(EntityRepository $appRepo, private readonly AppStateService $appStateService)
     {
-        $this->appStateService = $appStateService;
-
         parent::__construct($appRepo, self::ACTION);
     }
 

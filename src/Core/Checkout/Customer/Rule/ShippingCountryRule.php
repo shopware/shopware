@@ -16,25 +16,16 @@ use Shopware\Core\System\Country\CountryDefinition;
  */
 class ShippingCountryRule extends Rule
 {
-    public const RULE_NAME = 'customerShippingCountry';
-
-    /**
-     * @var list<string>|null
-     */
-    protected ?array $countryIds;
-
-    protected string $operator;
+    final public const RULE_NAME = 'customerShippingCountry';
 
     /**
      * @internal
      *
      * @param list<string>|null $countryIds
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $countryIds = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $countryIds = null)
     {
         parent::__construct();
-        $this->operator = $operator;
-        $this->countryIds = $countryIds;
     }
 
     /**

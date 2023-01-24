@@ -12,20 +12,11 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class WriteCommandExceptionEvent extends Event implements ShopwareEvent
 {
-    private \Throwable $exception;
-
     /**
-     * @var WriteCommand[]
+     * @param WriteCommand[] $commands
      */
-    private array $commands;
-
-    private Context $context;
-
-    public function __construct(\Throwable $exception, array $commands, Context $context)
+    public function __construct(private readonly \Throwable $exception, private readonly array $commands, private readonly Context $context)
     {
-        $this->exception = $exception;
-        $this->commands = $commands;
-        $this->context = $context;
     }
 
     public function getException(): \Throwable

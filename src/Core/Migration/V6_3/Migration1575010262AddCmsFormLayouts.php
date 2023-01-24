@@ -36,6 +36,7 @@ class Migration1575010262AddCmsFormLayouts extends MigrationStep
 
     private function addDefaultContactFormLayout(Connection $connection, string $formType, string $formTypeDe): void
     {
+        $slotTranslations = [];
         $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         $languageDe = $this->getLanguageDeId($connection);
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);

@@ -24,7 +24,7 @@ class DemodataCompilerPass implements CompilerPassInterface
                 }
 
                 $default = $tag['option-default'] ?? 0;
-                $description = $tag['option-description'] ?? \ucfirst($name) . ' count';
+                $description = $tag['option-description'] ?? \ucfirst((string) $name) . ' count';
 
                 $demodataCommand->addMethodCall('addDefault', [
                     $name,

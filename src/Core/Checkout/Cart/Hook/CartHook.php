@@ -22,19 +22,16 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
  */
 class CartHook extends Hook implements CartAware
 {
-    public const HOOK_NAME = 'cart';
+    final public const HOOK_NAME = 'cart';
 
-    private Cart $cart;
-
-    private SalesChannelContext $salesChannelContext;
+    private readonly SalesChannelContext $salesChannelContext;
 
     /**
      * @internal
      */
-    public function __construct(Cart $cart, SalesChannelContext $context)
+    public function __construct(private readonly Cart $cart, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
-        $this->cart = $cart;
         $this->salesChannelContext = $context;
     }
 

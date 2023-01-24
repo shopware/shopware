@@ -12,7 +12,7 @@ class AppScriptConditionTranslationEntity extends TranslationEntity
 {
     protected ?string $name = null;
 
-    protected ?AppScriptConditionEntity $appScriptCondition;
+    protected ?AppScriptConditionEntity $appScriptCondition = null;
 
     protected string $appScriptConditionId;
 

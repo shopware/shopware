@@ -33,7 +33,7 @@ class Migration1671003201RemoveDeprecatedColumns extends MigrationStep
     {
         try {
             $connection->executeStatement('ALTER TABLE `user_access_key` DROP COLUMN `write_access`');
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
     }
 
@@ -43,14 +43,14 @@ class Migration1671003201RemoveDeprecatedColumns extends MigrationStep
             $connection->executeStatement(
                 'DROP TRIGGER IF EXISTS country_tax_free_insert;'
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
 
         try {
             $connection->executeStatement(
                 'DROP TRIGGER IF EXISTS country_tax_free_update;'
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
 
         try {
@@ -59,7 +59,7 @@ class Migration1671003201RemoveDeprecatedColumns extends MigrationStep
             DROP COLUMN `tax_free`,
             DROP COLUMN `company_tax_free`;
         ');
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
     }
 
@@ -67,7 +67,7 @@ class Migration1671003201RemoveDeprecatedColumns extends MigrationStep
     {
         try {
             $connection->executeStatement('ALTER TABLE `app_action_button` DROP COLUMN `open_new_tab`');
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
     }
 }

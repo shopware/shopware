@@ -17,26 +17,16 @@ use Shopware\Core\System\Tax\TaxDefinition;
  */
 class LineItemTaxationRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemTaxation';
-
-    /**
-     * @var list<string>
-     */
-    protected array $taxIds;
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartLineItemTaxation';
 
     /**
      * @internal
      *
      * @param list<string> $taxIds
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, array $taxIds = [])
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected array $taxIds = [])
     {
         parent::__construct();
-
-        $this->taxIds = $taxIds;
-        $this->operator = $operator;
     }
 
     public function match(RuleScope $scope): bool

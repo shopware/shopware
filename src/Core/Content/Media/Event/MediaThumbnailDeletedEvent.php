@@ -11,22 +11,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class MediaThumbnailDeletedEvent extends Event
 {
-    public const EVENT_NAME = 'media_thumbnail.after_delete';
+    final public const EVENT_NAME = 'media_thumbnail.after_delete';
 
-    /**
-     * @var MediaThumbnailCollection
-     */
-    private $thumbnails;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    public function __construct(MediaThumbnailCollection $thumbnails, Context $context)
+    public function __construct(private readonly MediaThumbnailCollection $thumbnails, private readonly Context $context)
     {
-        $this->thumbnails = $thumbnails;
-        $this->context = $context;
     }
 
     public function getThumbnails(): MediaThumbnailCollection

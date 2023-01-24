@@ -13,12 +13,12 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CustomerCreatedByAdminRule extends Rule
 {
-    public const RULE_NAME = 'customerCreatedByAdmin';
+    final public const RULE_NAME = 'customerCreatedByAdmin';
 
     /**
      * @internal
      */
-    public function __construct(private bool $shouldCustomerBeCreatedByAdmin = true)
+    public function __construct(private readonly bool $shouldCustomerBeCreatedByAdmin = true)
     {
         parent::__construct();
     }

@@ -28,44 +28,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
+#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
 class ChangePasswordRoute extends AbstractChangePasswordRoute
 {
     /**
-     * @var EntityRepository
-     */
-    private $customerRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
-     * @var DataValidator
-     */
-    private $validator;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $customerRepository,
-        EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfigService,
-        DataValidator $validator
-    ) {
-        $this->customerRepository = $customerRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->systemConfigService = $systemConfigService;
-        $this->validator = $validator;
+    public function __construct(private readonly EntityRepository $customerRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly SystemConfigService $systemConfigService, private readonly DataValidator $validator)
+    {
     }
 
     public function getDecorated(): AbstractChangePasswordRoute
@@ -75,8 +46,8 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route(path="/store-api/account/change-password", name="store-api.account.change-password", methods={"POST"}, defaults={"_loginRequired"=true})
      */
+    #[Route(path: '/store-api/account/change-password', name: 'store-api.account.change-password', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): ContextTokenResponse
     {
         $this->validatePasswordFields($requestDataBag, $context);
@@ -149,7 +120,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $compareValue, $equalityValidation->message);
+        $message = str_replace('{{ compared_value }}', $compareValue, (string) $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));

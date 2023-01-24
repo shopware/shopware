@@ -28,8 +28,8 @@ class FeatureFlagExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('feature', [$this, 'feature']),
-            new TwigFunction('getAllFeatures', [$this, 'getAll']),
+            new TwigFunction('feature', $this->feature(...)),
+            new TwigFunction('getAllFeatures', $this->getAll(...)),
         ];
     }
 

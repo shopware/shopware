@@ -32,29 +32,19 @@ class PromotionCollector implements CartDataCollectorInterface
 {
     use PromotionCartInformationTrait;
 
-    public const SKIP_PROMOTION = 'skipPromotion';
-    public const SKIP_AUTOMATIC_PROMOTIONS = 'skipAutomaticPromotions';
-
-    private PromotionGatewayInterface $gateway;
-
-    private PromotionItemBuilder $itemBuilder;
-
-    private HtmlSanitizer $htmlSanitizer;
+    final public const SKIP_PROMOTION = 'skipPromotion';
+    final public const SKIP_AUTOMATIC_PROMOTIONS = 'skipAutomaticPromotions';
 
     /**
      * @var string[]
      */
-    private array $requiredDalAssociations;
+    private readonly array $requiredDalAssociations;
 
     /**
      * @internal
      */
-    public function __construct(PromotionGatewayInterface $gateway, PromotionItemBuilder $itemBuilder, HtmlSanitizer $htmlSanitizer)
+    public function __construct(private readonly PromotionGatewayInterface $gateway, private readonly PromotionItemBuilder $itemBuilder, private readonly HtmlSanitizer $htmlSanitizer)
     {
-        $this->gateway = $gateway;
-        $this->itemBuilder = $itemBuilder;
-        $this->htmlSanitizer = $htmlSanitizer;
-
         $this->requiredDalAssociations = [
             'personaRules',
             'personaCustomers',
@@ -391,7 +381,7 @@ class PromotionCollector implements CartDataCollectorInterface
                 return null;
             })->first();
 
-            if ($originalCodeItem && \count($originalCodeItem->getExtensions()) > 0) {
+            if ($originalCodeItem && (is_countable($originalCodeItem->getExtensions()) ? \count($originalCodeItem->getExtensions()) : 0) > 0) {
                 $discountItem->setExtensions($originalCodeItem->getExtensions());
             }
 

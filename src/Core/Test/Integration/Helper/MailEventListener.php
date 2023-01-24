@@ -12,11 +12,8 @@ class MailEventListener
 {
     private array $events = [];
 
-    private array $mapping;
-
-    public function __construct(array $mapping)
+    public function __construct(private readonly array $mapping)
     {
-        $this->mapping = $mapping;
     }
 
     public function __invoke(FlowSendMailActionEvent $event): void

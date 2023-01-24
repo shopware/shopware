@@ -28,16 +28,9 @@ class SalesChannelMaintenanceEnableCommand extends Command
      */
     protected $setMaintenanceMode = true;
 
-    /**
-     * @var EntityRepository
-     */
-    private $salesChannelRepository;
-
     public function __construct(
-        EntityRepository $salesChannelRepository
+        private readonly EntityRepository $salesChannelRepository
     ) {
-        $this->salesChannelRepository = $salesChannelRepository;
-
         parent::__construct();
     }
 
@@ -81,12 +74,10 @@ class SalesChannelMaintenanceEnableCommand extends Command
             return self::SUCCESS;
         }
 
-        $update = array_map(function (string $id) {
-            return [
-                'id' => $id,
-                'maintenance' => $this->setMaintenanceMode,
-            ];
-        }, $salesChannelIds);
+        $update = array_map(fn (string $id) => [
+            'id' => $id,
+            'maintenance' => $this->setMaintenanceMode,
+        ], $salesChannelIds);
 
         $this->salesChannelRepository->update($update, $context);
 

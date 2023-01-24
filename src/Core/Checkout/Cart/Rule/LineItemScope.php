@@ -11,12 +11,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class LineItemScope extends CheckoutRuleScope
 {
-    protected LineItem $lineItem;
-
-    public function __construct(LineItem $lineItem, SalesChannelContext $context)
+    public function __construct(protected LineItem $lineItem, SalesChannelContext $context)
     {
         parent::__construct($context);
-        $this->lineItem = $lineItem;
     }
 
     public function getLineItem(): LineItem

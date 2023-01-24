@@ -15,25 +15,16 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CustomerNumberRule extends Rule
 {
-    public const RULE_NAME = 'customerCustomerNumber';
-
-    /**
-     * @var list<string>|null
-     */
-    protected ?array $numbers = null;
-
-    protected string $operator;
+    final public const RULE_NAME = 'customerCustomerNumber';
 
     /**
      * @internal
      *
      * @param list<string>|null $numbers
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $numbers = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $numbers = null)
     {
         parent::__construct();
-        $this->operator = $operator;
-        $this->numbers = $numbers;
     }
 
     public function match(RuleScope $scope): bool

@@ -44,10 +44,7 @@ class XmlFileWriter extends AbstractFileWriter
         }
     }
 
-    /**
-     * @param bool|float|int|string $scalar
-     */
-    private function toString($scalar): string
+    private function toString(bool|float|int|string $scalar): string
     {
         if (\is_bool($scalar)) {
             return $scalar ? '1' : '0';

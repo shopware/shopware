@@ -81,7 +81,7 @@ use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinitio
  */
 class LanguageDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'language';
+    final public const ENTITY_NAME = 'language';
 
     public function getEntityName(): string
     {

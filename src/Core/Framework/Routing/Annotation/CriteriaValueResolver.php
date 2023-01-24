@@ -19,7 +19,7 @@ class CriteriaValueResolver implements ValueResolverInterface
     /**
      * @internal
      */
-    public function __construct(private DefinitionInstanceRegistry $registry, private RequestCriteriaBuilder $criteriaBuilder)
+    public function __construct(private readonly DefinitionInstanceRegistry $registry, private readonly RequestCriteriaBuilder $criteriaBuilder)
     {
     }
 

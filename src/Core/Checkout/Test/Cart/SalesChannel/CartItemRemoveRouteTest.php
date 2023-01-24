@@ -84,7 +84,7 @@ class CartItemRemoveRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(105, $response['price']['totalPrice']);
@@ -105,7 +105,7 @@ class CartItemRemoveRouteTest extends TestCase
                 ])
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('CHECKOUT__CART_LINE_ITEM_NOT_REMOVABLE', $response['errors'][0]['code']);
     }
@@ -132,7 +132,7 @@ class CartItemRemoveRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -153,7 +153,7 @@ class CartItemRemoveRouteTest extends TestCase
                 ])
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(0, $response['lineItems']);
         static::assertSame(0, $response['price']['totalPrice']);
@@ -204,7 +204,7 @@ class CartItemRemoveRouteTest extends TestCase
                 ])
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(0, $response['lineItems']);
         static::assertSame(0, $response['price']['totalPrice']);

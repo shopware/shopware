@@ -28,7 +28,7 @@ class Migration1610974673DropProductListingPriceTrigger extends MigrationStep
             $connection->executeStatement(
                 'DROP TRIGGER `product_listing_price_update`'
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
     }
 }

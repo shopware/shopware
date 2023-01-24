@@ -54,7 +54,7 @@ class Migration1603293043FixCurrencyTypo extends MigrationStep
             if ($enSwedishCurrencyTranslationUnchanged === false) {
                 return;
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return;
         }
 

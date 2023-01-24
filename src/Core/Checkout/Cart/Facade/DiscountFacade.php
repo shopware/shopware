@@ -17,14 +17,11 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
  */
 class DiscountFacade
 {
-    private LineItem $item;
-
     /**
      * @internal
      */
-    public function __construct(LineItem $item)
+    public function __construct(private readonly LineItem $item)
     {
-        $this->item = $item;
     }
 
     /**

@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Product\Cleanup;
 
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
+/**
+ * @package inventory
+ */
 class CleanupUnusedDownloadMediaTask extends ScheduledTask
 {
     public static function getTaskName(): string

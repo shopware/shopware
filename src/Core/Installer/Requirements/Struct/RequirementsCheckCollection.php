@@ -30,9 +30,7 @@ class RequirementsCheckCollection extends Collection
 
     public function hasError(): bool
     {
-        return $this->filter(static function (RequirementCheck $check): bool {
-            return $check->getStatus() === RequirementCheck::STATUS_ERROR;
-        })->first() !== null;
+        return $this->filter(static fn (RequirementCheck $check): bool => $check->getStatus() === RequirementCheck::STATUS_ERROR)->first() !== null;
     }
 
     public function hasPathError(): bool

@@ -10,26 +10,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class ImportExportBeforeExportRecordEvent extends Event
 {
-    /**
-     * @var Config
-     */
-    private $config;
-
-    /**
-     * @var array
-     */
-    private $record;
-
-    /**
-     * @var array
-     */
-    private $originalRecord;
-
-    public function __construct(Config $config, array $record, array $originalRecord)
+    public function __construct(private readonly Config $config, private array $record, private readonly array $originalRecord)
     {
-        $this->config = $config;
-        $this->record = $record;
-        $this->originalRecord = $originalRecord;
     }
 
     public function getRecord(): array

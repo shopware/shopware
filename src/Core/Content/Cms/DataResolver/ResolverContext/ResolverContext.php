@@ -10,20 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ResolverContext
 {
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
-
-    /**
-     * @var Request
-     */
-    private $request;
-
-    public function __construct(SalesChannelContext $context, Request $request)
+    public function __construct(private readonly SalesChannelContext $context, private readonly Request $request)
     {
-        $this->context = $context;
-        $this->request = $request;
     }
 
     public function getSalesChannelContext(): SalesChannelContext

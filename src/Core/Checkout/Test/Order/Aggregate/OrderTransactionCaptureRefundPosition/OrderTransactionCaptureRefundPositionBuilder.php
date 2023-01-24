@@ -20,31 +20,19 @@ class OrderTransactionCaptureRefundPositionBuilder
 
     protected string $id;
 
-    protected string $refundId;
-
-    protected ?string $orderLineItemId = null;
-
     protected CalculatedPrice $amount;
-
-    protected ?string $externalReference = null;
-
-    protected ?string $reason = null;
 
     public function __construct(
         IdsCollection $ids,
         string $key,
-        string $refundId,
+        protected string $refundId,
         float $amount = 420.69,
-        ?string $externalReference = null,
-        ?string $reason = null,
-        ?string $orderLineItemId = null
+        protected ?string $externalReference = null,
+        protected ?string $reason = null,
+        protected ?string $orderLineItemId = null
     ) {
         $this->id = $ids->get($key);
         $this->ids = $ids;
-        $this->refundId = $refundId;
-        $this->externalReference = $externalReference;
-        $this->reason = $reason;
-        $this->orderLineItemId = $orderLineItemId;
 
         $this->amount($amount);
 

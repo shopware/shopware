@@ -12,20 +12,11 @@ use Symfony\Contracts\Cache\ItemInterface;
  */
 class FlysystemLastModifiedVersionStrategy implements VersionStrategyInterface
 {
-    private FilesystemOperator $filesystem;
-
-    private TagAwareAdapterInterface $cacheAdapter;
-
-    private string $cacheTag;
-
     /**
      * @internal
      */
-    public function __construct(string $cacheTag, FilesystemOperator $filesystem, TagAwareAdapterInterface $cacheAdapter)
+    public function __construct(private readonly string $cacheTag, private readonly FilesystemOperator $filesystem, private readonly TagAwareAdapterInterface $cacheAdapter)
     {
-        $this->filesystem = $filesystem;
-        $this->cacheAdapter = $cacheAdapter;
-        $this->cacheTag = $cacheTag;
     }
 
     public function getVersion(string $path): string

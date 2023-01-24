@@ -13,23 +13,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class StoreApiRouteCacheTagsEvent extends Event
 {
-    protected array $tags;
-
-    protected Request $request;
-
-    protected SalesChannelContext $context;
-
-    protected ?Criteria $criteria;
-
-    private StoreApiResponse $response;
-
-    public function __construct(array $tags, Request $request, StoreApiResponse $response, SalesChannelContext $context, ?Criteria $criteria)
+    public function __construct(protected array $tags, protected Request $request, private readonly StoreApiResponse $response, protected SalesChannelContext $context, protected ?Criteria $criteria)
     {
-        $this->tags = $tags;
-        $this->request = $request;
-        $this->context = $context;
-        $this->criteria = $criteria;
-        $this->response = $response;
     }
 
     public function getTags(): array

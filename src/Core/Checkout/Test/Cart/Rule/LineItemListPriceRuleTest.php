@@ -292,9 +292,9 @@ class LineItemListPriceRuleTest extends TestCase
     {
         $ids = new TestDataCollection();
 
-        $itemRounding = json_encode(new CashRoundingConfig(2, 0.01, true));
+        $itemRounding = json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR);
         static::assertNotFalse($itemRounding);
-        $totalRounding = json_encode(new CashRoundingConfig(2, 0.01, true));
+        $totalRounding = json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR);
         static::assertNotFalse($totalRounding);
 
         $currency = [
@@ -305,8 +305,8 @@ class LineItemListPriceRuleTest extends TestCase
             'isoCode' => 'US',
             'decimalPrecision' => 2,
             'shortName' => 'dollar',
-            'itemRounding' => json_decode($itemRounding, true),
-            'totalRounding' => json_decode($totalRounding, true),
+            'itemRounding' => json_decode($itemRounding, true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode($totalRounding, true, 512, \JSON_THROW_ON_ERROR),
         ];
 
         $this->getContainer()->get('currency.repository')
@@ -421,7 +421,7 @@ class LineItemListPriceRuleTest extends TestCase
     private function createLineItemWithListPrice(?float $listPriceAmount): LineItem
     {
         $listPrice = $listPriceAmount === null ? null : ListPrice::createFromUnitPrice(400, $listPriceAmount);
-        $listPriceAmount = $listPriceAmount ?? 99.99;
+        $listPriceAmount ??= 99.99;
 
         return $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $listPriceAmount, $listPrice);
     }

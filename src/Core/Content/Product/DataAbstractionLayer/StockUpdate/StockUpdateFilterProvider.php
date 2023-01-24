@@ -12,18 +12,12 @@ use Shopware\Core\Framework\Context;
 final class StockUpdateFilterProvider
 {
     /**
-     * @var AbstractStockUpdateFilter[]
-     */
-    private iterable $filters;
-
-    /**
      * @internal
      *
      * @param AbstractStockUpdateFilter[] $filters
      */
-    public function __construct(iterable $filters)
+    public function __construct(private readonly iterable $filters)
     {
-        $this->filters = $filters;
     }
 
     /**

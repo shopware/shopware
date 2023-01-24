@@ -10,37 +10,28 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
  */
 class DiscountLineItem
 {
-    private string $label;
-
-    private PriceDefinitionInterface $priceDefinition;
-
     /**
      * @var array<mixed>
      */
     private array $payload;
 
-    private ?string $code;
+    private readonly string $scope;
 
-    private string $scope;
+    private readonly string $type;
 
-    private string $type;
+    private readonly string $filterSorterKey;
 
-    private string $filterSorterKey;
+    private readonly string $filterApplierKey;
 
-    private string $filterApplierKey;
+    private readonly string $filterUsageKey;
 
-    private string $filterUsageKey;
-
-    private string $filterPickerKey;
+    private readonly string $filterPickerKey;
 
     /**
      * @param array<mixed> $payload
      */
-    public function __construct(string $label, PriceDefinitionInterface $priceDefinition, array $payload, ?string $code)
+    public function __construct(private readonly string $label, private readonly PriceDefinitionInterface $priceDefinition, array $payload, private readonly ?string $code)
     {
-        $this->label = $label;
-        $this->priceDefinition = $priceDefinition;
-        $this->code = $code;
         $this->scope = $payload['discountScope'];
         $this->type = $payload['discountType'];
         $this->payload = $payload;
@@ -99,7 +90,7 @@ class DiscountLineItem
      *
      * @return string|array<mixed>
      */
-    public function getPayloadValue(string $key)
+    public function getPayloadValue(string $key): string|array
     {
         if (!$this->hasPayloadValue($key)) {
             throw CartException::payloadKeyNotFound($key, (string) $this->getCode());

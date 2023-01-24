@@ -16,14 +16,8 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
  */
 class HookableValidator extends AbstractManifestValidator
 {
-    /**
-     * @var HookableEventCollector
-     */
-    private $hookableEventCollector;
-
-    public function __construct(HookableEventCollector $hookableEventCollector)
+    public function __construct(private readonly HookableEventCollector $hookableEventCollector)
     {
-        $this->hookableEventCollector = $hookableEventCollector;
     }
 
     public function validate(Manifest $manifest, Context $context): ErrorCollection

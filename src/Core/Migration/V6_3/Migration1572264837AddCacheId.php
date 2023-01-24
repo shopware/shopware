@@ -25,7 +25,7 @@ class Migration1572264837AddCacheId extends MigrationStep
 
         try {
             $connection->executeStatement('ALTER TABLE app_config ADD PRIMARY KEY (`key`)');
-        } catch (Exception $e) {
+        } catch (Exception) {
             // PK already exists
         }
 

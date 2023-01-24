@@ -36,43 +36,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class PaymentService
 {
-    private PaymentTransactionChainProcessor $paymentProcessor;
-
-    private TokenFactoryInterfaceV2 $tokenFactory;
-
-    private PaymentHandlerRegistry $paymentHandlerRegistry;
-
-    private EntityRepository $orderTransactionRepository;
-
-    private OrderTransactionStateHandler $transactionStateHandler;
-
-    private LoggerInterface $logger;
-
-    private EntityRepository $orderRepository;
-
-    private SalesChannelContextServiceInterface $contextService;
-
     /**
      * @internal
      */
-    public function __construct(
-        PaymentTransactionChainProcessor $paymentProcessor,
-        TokenFactoryInterfaceV2 $tokenFactory,
-        PaymentHandlerRegistry $paymentHandlerRegistry,
-        EntityRepository $orderTransactionRepository,
-        OrderTransactionStateHandler $transactionStateHandler,
-        LoggerInterface $logger,
-        EntityRepository $orderRepository,
-        SalesChannelContextServiceInterface $contextService
-    ) {
-        $this->paymentProcessor = $paymentProcessor;
-        $this->tokenFactory = $tokenFactory;
-        $this->paymentHandlerRegistry = $paymentHandlerRegistry;
-        $this->orderTransactionRepository = $orderTransactionRepository;
-        $this->transactionStateHandler = $transactionStateHandler;
-        $this->logger = $logger;
-        $this->orderRepository = $orderRepository;
-        $this->contextService = $contextService;
+    public function __construct(private readonly PaymentTransactionChainProcessor $paymentProcessor, private readonly TokenFactoryInterfaceV2 $tokenFactory, private readonly PaymentHandlerRegistry $paymentHandlerRegistry, private readonly EntityRepository $orderTransactionRepository, private readonly OrderTransactionStateHandler $transactionStateHandler, private readonly LoggerInterface $logger, private readonly EntityRepository $orderRepository, private readonly SalesChannelContextServiceInterface $contextService)
+    {
     }
 
     /**

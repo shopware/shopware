@@ -17,17 +17,17 @@ class AppScriptConditionEntity extends Entity
 
     protected string $appId;
 
-    protected ?AppEntity $app;
+    protected ?AppEntity $app = null;
 
     protected string $identifier;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
     protected bool $active;
 
-    protected ?string $group;
+    protected ?string $group = null;
 
-    protected ?string $script;
+    protected ?string $script = null;
 
     /**
      * @internal

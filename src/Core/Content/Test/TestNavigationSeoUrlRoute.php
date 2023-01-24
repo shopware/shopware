@@ -16,23 +16,18 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class TestNavigationSeoUrlRoute implements SeoUrlRouteInterface
 {
-    public const ROUTE_NAME = 'test.navigation.page';
-    public const DEFAULT_TEMPLATE = '{{ id }}';
+    final public const ROUTE_NAME = 'test.navigation.page';
+    final public const DEFAULT_TEMPLATE = '{{ id }}';
 
-    private CategoryDefinition $categoryDefinition;
-
-    public function __construct(CategoryDefinition $categoryDefinition)
+    public function __construct(private readonly CategoryDefinition $categoryDefinition)
     {
-        $this->categoryDefinition = $categoryDefinition;
     }
 
-    /**
-     * @Route("/test/{navigationId}", name="test.navigation.page", options={"seo"=true}, methods={"GET"})
-     */
+    #[Route(path: '/test/{navigationId}', name: 'test.navigation.page', options: ['seo' => true], methods: ['GET'])]
     public function route(): Response
     {
         return new Response();

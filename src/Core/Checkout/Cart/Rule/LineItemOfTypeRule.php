@@ -14,20 +14,16 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemOfTypeRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemOfType';
+    final public const RULE_NAME = 'cartLineItemOfType';
 
     protected string $lineItemType;
-
-    protected string $operator;
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $lineItemType = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, ?string $lineItemType = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
         $this->lineItemType = (string) $lineItemType;
     }
 

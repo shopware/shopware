@@ -22,27 +22,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class MediaFolderConfigurationIndexer extends EntityIndexer
 {
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepository $repository;
-
-    private Connection $connection;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        Connection $connection,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function getName(): string

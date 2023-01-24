@@ -24,9 +24,7 @@ class RefundPayload implements PaymentPayloadInterface
 
     protected OrderTransactionCaptureRefundEntity $refund;
 
-    protected OrderEntity $order;
-
-    public function __construct(OrderTransactionCaptureRefundEntity $refund, OrderEntity $order)
+    public function __construct(OrderTransactionCaptureRefundEntity $refund, protected OrderEntity $order)
     {
         if ($refund->getTransactionCapture() && $refund->getTransactionCapture()->getTransaction()) {
             $transaction = $this->removeApp($refund->getTransactionCapture()->getTransaction());
@@ -34,7 +32,6 @@ class RefundPayload implements PaymentPayloadInterface
         }
 
         $this->refund = $refund;
-        $this->order = $order;
     }
 
     public function getOrderTransaction(): OrderTransactionEntity

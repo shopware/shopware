@@ -24,6 +24,7 @@ class OpenApiPathBuilder
      */
     public function getPathActions(EntityDefinition $definition, string $path): array
     {
+        $paths = [];
         $paths[$path] = new PathItem([
             'path' => $path,
         ]);

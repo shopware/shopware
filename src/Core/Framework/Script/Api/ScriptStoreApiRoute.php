@@ -15,38 +15,22 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
- * @Route(defaults={"_routeScope"={"store-api"}})
  *
  * @package core
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class ScriptStoreApiRoute
 {
-    public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
+    final public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
 
-    private ScriptExecutor $executor;
-
-    private ScriptResponseEncoder $scriptResponseEncoder;
-
-    private TagAwareAdapterInterface $cache;
-
-    private LoggerInterface $logger;
-
-    public function __construct(
-        ScriptExecutor $executor,
-        ScriptResponseEncoder $scriptResponseEncoder,
-        TagAwareAdapterInterface $cache,
-        LoggerInterface $logger
-    ) {
-        $this->executor = $executor;
-        $this->scriptResponseEncoder = $scriptResponseEncoder;
-        $this->cache = $cache;
-        $this->logger = $logger;
+    public function __construct(private readonly ScriptExecutor $executor, private readonly ScriptResponseEncoder $scriptResponseEncoder, private readonly TagAwareAdapterInterface $cache, private readonly LoggerInterface $logger)
+    {
     }
 
     /**
      * @Since("6.4.9.0")
-     * @Route("/store-api/script/{hook}", name="store-api.script_endpoint", methods={"GET", "POST"}, requirements={"hook"=".+"})
      */
+    #[Route(path: '/store-api/script/{hook}', name: 'store-api.script_endpoint', methods: ['GET', 'POST'], requirements: ['hook' => '.+'])]
     public function execute(string $hook, Request $request, SalesChannelContext $context): Response
     {
         //  blog/update =>  blog-update

@@ -35,10 +35,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
      */
     private $deleteMediaCommand;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {

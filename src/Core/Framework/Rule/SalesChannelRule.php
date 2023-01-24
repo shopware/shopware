@@ -9,26 +9,16 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class SalesChannelRule extends Rule
 {
-    public const RULE_NAME = 'salesChannel';
-
-    /**
-     * @var list<string>|null
-     */
-    protected ?array $salesChannelIds;
-
-    protected string $operator;
+    final public const RULE_NAME = 'salesChannel';
 
     /**
      * @internal
      *
      * @param list<string>|null $salesChannelIds
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $salesChannelIds = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $salesChannelIds = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->salesChannelIds = $salesChannelIds;
     }
 
     public function match(RuleScope $scope): bool

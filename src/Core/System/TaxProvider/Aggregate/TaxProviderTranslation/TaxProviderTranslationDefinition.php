@@ -15,7 +15,7 @@ use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
  */
 class TaxProviderTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'tax_provider_translation';
+    final public const ENTITY_NAME = 'tax_provider_translation';
 
     public function getEntityName(): string
     {

@@ -25,7 +25,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class ProductExportDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_export';
+    final public const ENTITY_NAME = 'product_export';
 
     public function getEntityName(): string
     {

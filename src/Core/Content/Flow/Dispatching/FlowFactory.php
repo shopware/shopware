@@ -14,16 +14,10 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 class FlowFactory
 {
     /**
-     * @var FlowStorer[]
-     */
-    private iterable $storer;
-
-    /**
      * @param FlowStorer[] $storer
      */
-    public function __construct($storer)
+    public function __construct(private $storer)
     {
-        $this->storer = $storer;
     }
 
     public function create(FlowEventAware $event): StorableFlow

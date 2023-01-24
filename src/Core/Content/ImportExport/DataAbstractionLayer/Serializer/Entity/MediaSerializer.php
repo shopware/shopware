@@ -38,10 +38,10 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
      * @internal
      */
     public function __construct(
-        private MediaService $mediaService,
-        private FileSaver $fileSaver,
-        private EntityRepository $mediaFolderRepository,
-        private EntityRepository $mediaRepository
+        private readonly MediaService $mediaService,
+        private readonly FileSaver $fileSaver,
+        private readonly EntityRepository $mediaFolderRepository,
+        private readonly EntityRepository $mediaRepository
     ) {
     }
 
@@ -87,12 +87,11 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
 
         if ($isNew || $media->getUrl() !== $url) {
             $entityName = $config->get('sourceEntity') ?? $definition->getEntityName();
-            $deserialized['mediaFolderId'] = $deserialized['mediaFolderId']
-                ?? $this->getMediaFolderId($deserialized['id'] ?? null, $entityName);
+            $deserialized['mediaFolderId'] ??= $this->getMediaFolderId($deserialized['id'] ?? null, $entityName);
 
-            $deserialized['id'] = $deserialized['id'] ?? Uuid::randomHex();
+            $deserialized['id'] ??= Uuid::randomHex();
 
-            $parsed = parse_url($url);
+            $parsed = parse_url((string) $url);
             if (!$parsed) {
                 throw new \RuntimeException('Error parsing media URL: ' . $url);
             }
@@ -128,7 +127,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             MediaEvents::MEDIA_WRITTEN_EVENT => 'persistMedia',
@@ -216,7 +215,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
             if ($file !== null && $file->getFileSize() > 0) {
                 return $file;
             }
-        } catch (\Throwable $throwable) {
+        } catch (\Throwable) {
         }
 
         return null;

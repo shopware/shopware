@@ -11,15 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class SearchRequestException extends ShopwareHttpException
 {
-    /**
-     * @var array
-     */
-    private $exceptions;
-
-    public function __construct(array $exceptions = [])
+    public function __construct(private array $exceptions = [])
     {
-        $this->exceptions = $exceptions;
-
         parent::__construct('Mapping failed, got {{ numberOfFailures }} failure(s).', ['numberOfFailures' => \count($exceptions)]);
     }
 

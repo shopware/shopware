@@ -192,9 +192,7 @@ class MediaRepositoryTest extends TestCase
             $this->context
         );
         $mediaRepository = $this->mediaRepository;
-        $media = $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($mediaId, $mediaRepository) {
-            return $mediaRepository->search(new Criteria([$mediaId]), $context);
-        });
+        $media = $this->context->scope(Context::USER_SCOPE, fn (Context $context) => $mediaRepository->search(new Criteria([$mediaId]), $context));
 
         static::assertInstanceOf(EntitySearchResult::class, $media);
         static::assertEquals(0, $media->count());
@@ -519,7 +517,7 @@ class MediaRepositoryTest extends TestCase
         try {
             $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
             static::fail('asserted DeleteRestrictViolationException');
-        } catch (RestrictDeleteViolationException $e) {
+        } catch (RestrictDeleteViolationException) {
             // ignore asserted exception
         }
 

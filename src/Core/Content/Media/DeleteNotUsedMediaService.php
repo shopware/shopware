@@ -19,25 +19,13 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
  */
 class DeleteNotUsedMediaService
 {
-    public const RESTRICT_DEFAULT_FOLDER_ENTITIES_EXTENSION = 'restrict-default-folder-entities';
-
-    /**
-     * @var EntityRepository
-     */
-    private $mediaRepo;
-
-    /**
-     * @var EntityRepository
-     */
-    private $defaultFolderRepo;
+    final public const RESTRICT_DEFAULT_FOLDER_ENTITIES_EXTENSION = 'restrict-default-folder-entities';
 
     /**
      * @internal
      */
-    public function __construct(EntityRepository $mediaRepo, EntityRepository $defaultFolderRepo)
+    public function __construct(private readonly EntityRepository $mediaRepo, private readonly EntityRepository $defaultFolderRepo)
     {
-        $this->mediaRepo = $mediaRepo;
-        $this->defaultFolderRepo = $defaultFolderRepo;
     }
 
     public function countNotUsedMedia(Context $context): int
@@ -54,9 +42,7 @@ class DeleteNotUsedMediaService
         $criteria = $this->createFilterForNotUsedMedia($context);
 
         $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
-        $ids = array_map(static function ($id) {
-            return ['id' => $id];
-        }, $ids);
+        $ids = array_map(static fn ($id) => ['id' => $id], $ids);
         $this->mediaRepo->delete($ids, $context);
     }
 

@@ -22,20 +22,17 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class AclWriteValidator implements EventSubscriberInterface
 {
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(EventDispatcherInterface $eventDispatcher)
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [PreWriteValidationEvent::class => 'preValidate'];
     }

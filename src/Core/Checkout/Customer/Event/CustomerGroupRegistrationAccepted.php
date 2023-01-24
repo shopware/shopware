@@ -21,37 +21,13 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class CustomerGroupRegistrationAccepted extends Event implements SalesChannelAware, CustomerAware, MailAware, CustomerGroupAware
 {
-    public const EVENT_NAME = 'customer.group.registration.accepted';
-
-    /**
-     * @var CustomerEntity
-     */
-    private $customer;
-
-    /**
-     * @var CustomerGroupEntity
-     */
-    private $customerGroup;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var MailRecipientStruct|null
-     */
-    private $mailRecipientStruct;
+    final public const EVENT_NAME = 'customer.group.registration.accepted';
 
     /**
      * @internal
      */
-    public function __construct(CustomerEntity $customer, CustomerGroupEntity $customerGroup, Context $context, ?MailRecipientStruct $mailRecipientStruct = null)
+    public function __construct(private readonly CustomerEntity $customer, private readonly CustomerGroupEntity $customerGroup, private readonly Context $context, private readonly ?MailRecipientStruct $mailRecipientStruct = null)
     {
-        $this->customer = $customer;
-        $this->customerGroup = $customerGroup;
-        $this->context = $context;
-        $this->mailRecipientStruct = $mailRecipientStruct;
     }
 
     public static function getAvailableData(): EventDataCollection

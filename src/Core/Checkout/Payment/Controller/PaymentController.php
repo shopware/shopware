@@ -28,33 +28,17 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PaymentController extends AbstractController
 {
-    private PaymentService $paymentService;
-
-    private OrderConverter $orderConverter;
-
-    private TokenFactoryInterfaceV2 $tokenFactoryInterfaceV2;
-
-    private EntityRepository $orderRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        PaymentService $paymentService,
-        OrderConverter $orderConverter,
-        TokenFactoryInterfaceV2 $tokenFactoryInterfaceV2,
-        EntityRepository $orderRepository
-    ) {
-        $this->paymentService = $paymentService;
-        $this->orderConverter = $orderConverter;
-        $this->tokenFactoryInterfaceV2 = $tokenFactoryInterfaceV2;
-        $this->orderRepository = $orderRepository;
+    public function __construct(private readonly PaymentService $paymentService, private readonly OrderConverter $orderConverter, private readonly TokenFactoryInterfaceV2 $tokenFactoryInterfaceV2, private readonly EntityRepository $orderRepository)
+    {
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/payment/finalize-transaction", name="payment.finalize.transaction", methods={"GET", "POST"})
      */
+    #[Route(path: '/payment/finalize-transaction', name: 'payment.finalize.transaction', methods: ['GET', 'POST'])]
     public function finalizeTransaction(Request $request): Response
     {
         $paymentToken = $request->get('_sw_payment_token');

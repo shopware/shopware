@@ -20,17 +20,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class DataAbstractionLayerValidateCommand extends Command
 {
     /**
-     * @var DefinitionValidator
-     */
-    private $validator;
-
-    /**
      * @internal
      */
-    public function __construct(DefinitionValidator $validator)
+    public function __construct(private readonly DefinitionValidator $validator)
     {
         parent::__construct();
-        $this->validator = $validator;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -56,7 +50,7 @@ class DataAbstractionLayerValidateCommand extends Command
 
         $count = 0;
         foreach ($notices as $definition => $matches) {
-            $count += \count($matches);
+            $count += is_countable($matches) ? \count($matches) : 0;
             $io->section($definition);
             $io->listing($matches);
             $io->newLine();
@@ -77,7 +71,7 @@ class DataAbstractionLayerValidateCommand extends Command
 
         $count = 0;
         foreach ($violations as $definition => $matches) {
-            $count += \count($matches);
+            $count += is_countable($matches) ? \count($matches) : 0;
             $io->section($definition);
             $io->listing($matches);
             $io->newLine();

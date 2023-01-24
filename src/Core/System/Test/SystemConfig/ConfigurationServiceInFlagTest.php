@@ -34,10 +34,7 @@ class ConfigurationServiceInFlagTest extends TestCase
         'FEATURE_NEXT_102',
     ];
 
-    /**
-     * @var ConfigurationService
-     */
-    private $configurationService;
+    private ConfigurationService $configurationService;
 
     private static string $featureAllValue;
 

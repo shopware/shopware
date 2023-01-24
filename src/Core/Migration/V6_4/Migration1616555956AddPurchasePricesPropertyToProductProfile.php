@@ -25,7 +25,7 @@ class Migration1616555956AddPurchasePricesPropertyToProductProfile extends Migra
         )->fetchOne();
         if ($id) {
             $productMappingProfile = require __DIR__ . '/../Fixtures/import-export-profiles/ProductMappingProfile.php';
-            $connection->update('import_export_profile', ['mapping' => json_encode($productMappingProfile)], ['id' => $id]);
+            $connection->update('import_export_profile', ['mapping' => json_encode($productMappingProfile, \JSON_THROW_ON_ERROR)], ['id' => $id]);
         }
     }
 

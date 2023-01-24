@@ -6,6 +6,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package customer-order
+ */
 abstract class AbstractDownloadRoute
 {
     abstract public function getDecorated(): AbstractDownloadRoute;

@@ -21,21 +21,12 @@ use Symfony\Component\HttpKernel\KernelInterface;
 )]
 class AssetInstallCommand extends Command
 {
-    private KernelInterface $kernel;
-
-    private AssetService $assetService;
-
-    private ActiveAppsLoader $activeAppsLoader;
-
     /**
      * @internal
      */
-    public function __construct(KernelInterface $kernel, AssetService $assetService, ActiveAppsLoader $activeAppsLoader)
+    public function __construct(private readonly KernelInterface $kernel, private readonly AssetService $assetService, private readonly ActiveAppsLoader $activeAppsLoader)
     {
         parent::__construct();
-        $this->kernel = $kernel;
-        $this->assetService = $assetService;
-        $this->activeAppsLoader = $activeAppsLoader;
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int

@@ -18,10 +18,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package checkout
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class StateMachineActionController extends AbstractController
 {
     /**
@@ -30,25 +29,19 @@ class StateMachineActionController extends AbstractController
     protected $stateMachineRegistry;
 
     /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionInstanceRegistry;
-
-    /**
      * @internal
      */
     public function __construct(
         StateMachineRegistry $stateMachineRegistry,
-        DefinitionInstanceRegistry $definitionInstanceRegistry
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry
     ) {
         $this->stateMachineRegistry = $stateMachineRegistry;
-        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/state-machine/{entityName}/{entityId}/state", name="api.state_machine.states", methods={"GET"})
      */
+    #[Route(path: '/api/_action/state-machine/{entityName}/{entityId}/state', name: 'api.state_machine.states', methods: ['GET'])]
     public function getAvailableTransitions(
         Request $request,
         Context $context,
@@ -89,8 +82,8 @@ class StateMachineActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/state-machine/{entityName}/{entityId}/state/{transition}", name="api.state_machine.transition_state", methods={"POST"})
      */
+    #[Route(path: '/api/_action/state-machine/{entityName}/{entityId}/state/{transition}', name: 'api.state_machine.transition_state', methods: ['POST'])]
     public function transitionState(
         Request $request,
         Context $context,

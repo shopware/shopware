@@ -10,14 +10,8 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
  */
 class DeleteFileMessage implements AsyncMessageInterface
 {
-    private array $files;
-
-    private string $visibility;
-
-    public function __construct(array $files = [], string $visibility = Visibility::PUBLIC)
+    public function __construct(private array $files = [], private string $visibility = Visibility::PUBLIC)
     {
-        $this->files = $files;
-        $this->visibility = $visibility;
     }
 
     public function getFiles(): array

@@ -31,12 +31,12 @@ class SitemapExporter implements SitemapExporterInterface
      * @param iterable<AbstractUrlProvider> $urlProvider
      */
     public function __construct(
-        private iterable $urlProvider,
-        private CacheItemPoolInterface $cache,
-        private int $batchSize,
-        private FilesystemOperator $filesystem,
-        private SitemapHandleFactoryInterface $sitemapHandleFactory,
-        private EventDispatcherInterface $dispatcher
+        private readonly iterable $urlProvider,
+        private readonly CacheItemPoolInterface $cache,
+        private readonly int $batchSize,
+        private readonly FilesystemOperator $filesystem,
+        private readonly SitemapHandleFactoryInterface $sitemapHandleFactory,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 

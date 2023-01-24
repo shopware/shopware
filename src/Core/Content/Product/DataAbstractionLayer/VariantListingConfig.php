@@ -9,23 +9,11 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 class VariantListingConfig extends Struct
 {
-    protected ?bool $displayParent;
-
-    protected ?string $mainVariantId;
-
-    /**
-     * @var array<string, string>|null
-     */
-    protected ?array $configuratorGroupConfig;
-
     /**
      * @param array<string, string>|null $configuratorGroupConfig
      */
-    public function __construct(?bool $displayParent, ?string $mainVariantId, ?array $configuratorGroupConfig)
+    public function __construct(protected ?bool $displayParent, protected ?string $mainVariantId, protected ?array $configuratorGroupConfig)
     {
-        $this->displayParent = $displayParent;
-        $this->mainVariantId = $mainVariantId;
-        $this->configuratorGroupConfig = $configuratorGroupConfig;
     }
 
     public function getDisplayParent(): ?bool

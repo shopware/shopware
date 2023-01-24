@@ -12,23 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
  */
 class PipeFactory extends AbstractPipeFactory
 {
-    private DefinitionInstanceRegistry $definitionInstanceRegistry;
-
-    private SerializerRegistry $serializerRegistry;
-
-    private PrimaryKeyResolver $primaryKeyResolver;
-
     /**
      * @internal
      */
-    public function __construct(
-        DefinitionInstanceRegistry $definitionInstanceRegistry,
-        SerializerRegistry $serializerRegistry,
-        PrimaryKeyResolver $primaryKeyResolver
-    ) {
-        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
-        $this->serializerRegistry = $serializerRegistry;
-        $this->primaryKeyResolver = $primaryKeyResolver;
+    public function __construct(private readonly DefinitionInstanceRegistry $definitionInstanceRegistry, private readonly SerializerRegistry $serializerRegistry, private readonly PrimaryKeyResolver $primaryKeyResolver)
+    {
     }
 
     public function create(ImportExportLogEntity $logEntity): AbstractPipe

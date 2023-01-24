@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ScriptExecutionFailedException extends ShopwareHttpException
 {
-    private ?\Throwable $rootException;
+    private readonly ?\Throwable $rootException;
 
     public function __construct(string $hook, string $scriptName, \Throwable $previous)
     {

@@ -21,30 +21,15 @@ class ChangePasswordRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var string
-     */
-    private $email;
+    private string $email;
 
-    /**
-     * @var string
-     */
-    private $contextToken;
+    private string $contextToken;
 
-    /**
-     * @var string
-     */
-    private $customerId;
+    private string $customerId;
 
     protected function setUp(): void
     {
@@ -86,7 +71,7 @@ class ChangePasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('VIOLATION::IS_BLANK_ERROR', $response['errors'][0]['code']);
@@ -104,7 +89,7 @@ class ChangePasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT', $response['errors'][0]['code']);
@@ -125,7 +110,7 @@ class ChangePasswordRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        $responseContent = json_decode((string) $response->getContent(), true);
+        $responseContent = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayNotHasKey('errors', $responseContent);
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
@@ -143,7 +128,7 @@ class ChangePasswordRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        $responseContent = json_decode((string) $response->getContent(), true);
+        $responseContent = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayNotHasKey('errors', $responseContent);
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';

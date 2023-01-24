@@ -34,9 +34,7 @@ class SeoUrlTwigFactory
         $coreExtension->setEscaper(
             SeoUrlGenerator::ESCAPE_SLUGIFY,
             // Do not remove $_twig, although it is marked as unused. It somehow important
-            static function ($_twig, $string) use ($slugify) {
-                return rawurlencode($slugify->slugify($string));
-            }
+            static fn ($_twig, $string) => rawurlencode($slugify->slugify($string))
         );
 
         foreach ($twigExtensions as $twigExtension) {

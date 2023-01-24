@@ -60,9 +60,6 @@ final class RangeAggregation extends Aggregation
 
     /**
      * Build a range dynamic key using $from and $to bound
-     *
-     * @param ?float $from
-     * @param ?float $to
      */
     protected function buildRangeKey(?float $from = null, ?float $to = null): string
     {

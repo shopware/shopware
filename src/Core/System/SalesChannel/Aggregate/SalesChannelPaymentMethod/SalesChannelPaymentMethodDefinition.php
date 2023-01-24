@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class SalesChannelPaymentMethodDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'sales_channel_payment_method';
+    final public const ENTITY_NAME = 'sales_channel_payment_method';
 
     public function getEntityName(): string
     {

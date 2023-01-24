@@ -39,7 +39,7 @@ class AuthControllerTest extends TestCase
         static::assertEquals(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         static::assertNotFalse($client->getResponse()->getContent());
-        $response = \json_decode($client->getResponse()->getContent(), true);
+        $response = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
@@ -66,7 +66,7 @@ class AuthControllerTest extends TestCase
         static::assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
 
         static::assertNotFalse($client->getResponse()->getContent());
-        $response = \json_decode($client->getResponse()->getContent(), true);
+        $response = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
@@ -86,7 +86,7 @@ class AuthControllerTest extends TestCase
         static::assertEquals(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
 
         static::assertNotFalse($client->getResponse()->getContent());
-        $response = \json_decode($client->getResponse()->getContent(), true);
+        $response = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
@@ -110,7 +110,7 @@ class AuthControllerTest extends TestCase
         static::assertEquals(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
         static::assertNotFalse($client->getResponse()->getContent());
 
-        $response = \json_decode($client->getResponse()->getContent(), true);
+        $response = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
@@ -129,7 +129,7 @@ class AuthControllerTest extends TestCase
         );
 
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
-        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayNotHasKey('errors', $response);
     }
@@ -147,7 +147,7 @@ class AuthControllerTest extends TestCase
         $client->request('POST', '/api/oauth/token', $refreshPayload);
         static::assertNotFalse($client->getResponse()->getContent());
 
-        $response = \json_decode($client->getResponse()->getContent(), true);
+        $response = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
             Response::HTTP_UNAUTHORIZED,
@@ -176,7 +176,7 @@ class AuthControllerTest extends TestCase
         $client->request('POST', '/api/oauth/token', $authPayload);
         static::assertNotFalse($client->getResponse()->getContent());
 
-        $oldRefreshToken = \json_decode($client->getResponse()->getContent(), true)['refresh_token'];
+        $oldRefreshToken = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['refresh_token'];
 
         $refreshPayload = [
             'grant_type' => 'refresh_token',
@@ -191,7 +191,7 @@ class AuthControllerTest extends TestCase
         $client->request('POST', '/api/oauth/token', $refreshPayload);
         static::assertNotFalse($client->getResponse()->getContent());
 
-        $response = \json_decode($client->getResponse()->getContent(), true);
+        $response = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
             Response::HTTP_UNAUTHORIZED,
@@ -241,7 +241,7 @@ class AuthControllerTest extends TestCase
         $client->request('POST', '/api/oauth/token', $authPayload);
         static::assertNotFalse($client->getResponse()->getContent());
 
-        $data = \json_decode($client->getResponse()->getContent(), true);
+        $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey(
             'access_token',
@@ -265,7 +265,7 @@ class AuthControllerTest extends TestCase
 
         $client->request('POST', '/api/oauth/token', $refreshPayload);
         static::assertNotFalse($client->getResponse()->getContent());
-        $data = \json_decode($client->getResponse()->getContent(), true);
+        $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey(
             'access_token',
             $data,
@@ -293,7 +293,7 @@ class AuthControllerTest extends TestCase
 
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
 
-        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayNotHasKey('errors', $response);
     }
 
@@ -314,7 +314,7 @@ class AuthControllerTest extends TestCase
         $client->request('POST', '/api/oauth/token', $authPayload);
         static::assertNotFalse($client->getResponse()->getContent());
 
-        $data = \json_decode($client->getResponse()->getContent(), true);
+        $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $parsedAccessToken = $jwtTokenParser->parse($data['access_token']);
         static::assertInstanceOf(UnencryptedToken::class, $parsedAccessToken);
         $accessTokenScopes = $parsedAccessToken->claims()->get('scopes');
@@ -339,7 +339,7 @@ class AuthControllerTest extends TestCase
         $client->request('POST', '/api/oauth/token', $authPayload);
         static::assertNotFalse($client->getResponse()->getContent());
 
-        $data = \json_decode($client->getResponse()->getContent(), true);
+        $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $parsedAccessToken = $jwtTokenParser->parse($data['access_token']);
         static::assertInstanceOf(UnencryptedToken::class, $parsedAccessToken);
         $accessTokenScopes = $parsedAccessToken->claims()->get('scopes');
@@ -364,7 +364,7 @@ class AuthControllerTest extends TestCase
         $client->request('POST', '/api/oauth/token', $authPayload);
         static::assertNotFalse($client->getResponse()->getContent());
 
-        $data = \json_decode($client->getResponse()->getContent(), true);
+        $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $refreshPayload = [
             'grant_type' => 'refresh_token',
@@ -376,7 +376,7 @@ class AuthControllerTest extends TestCase
         $client->request('POST', '/api/oauth/token', $refreshPayload);
         static::assertNotFalse($client->getResponse()->getContent());
 
-        $data = \json_decode($client->getResponse()->getContent(), true);
+        $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $parsedAccessToken = $jwtTokenParser->parse($data['access_token']);
         static::assertInstanceOf(UnencryptedToken::class, $parsedAccessToken);
         $scopes = $parsedAccessToken->claims()->get('scopes');
@@ -401,7 +401,7 @@ class AuthControllerTest extends TestCase
         $client->request('POST', '/api/oauth/token', $authPayload);
         static::assertNotFalse($client->getResponse()->getContent());
 
-        $data = \json_decode($client->getResponse()->getContent(), true);
+        $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $parsedOldAccessToken = $jwtTokenParser->parse($data['access_token']);
         static::assertInstanceOf(UnencryptedToken::class, $parsedOldAccessToken);
         $oldAccessTokenScopes = $parsedOldAccessToken->claims()->get('scopes');
@@ -417,7 +417,7 @@ class AuthControllerTest extends TestCase
         $client->request('POST', '/api/oauth/token', $refreshPayload);
         static::assertNotFalse($client->getResponse()->getContent());
 
-        $data = \json_decode($client->getResponse()->getContent(), true);
+        $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $parsedNewAccessToken = $jwtTokenParser->parse($data['access_token']);
         static::assertInstanceOf(UnencryptedToken::class, $parsedNewAccessToken);
         $newAccessTokenScopes = $parsedNewAccessToken->claims()->get('scopes');
@@ -442,7 +442,7 @@ class AuthControllerTest extends TestCase
         $client->request('POST', '/api/oauth/token', $authPayload);
         static::assertNotFalse($client->getResponse()->getContent());
 
-        $data = \json_decode($client->getResponse()->getContent(), true);
+        $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $parsedOldAccessToken = $jwtTokenParser->parse($data['access_token']);
         static::assertInstanceOf(UnencryptedToken::class, $parsedOldAccessToken);
         $oldAccessTokenScopes = $parsedOldAccessToken->claims()->get('scopes');
@@ -456,7 +456,7 @@ class AuthControllerTest extends TestCase
         $client->request('POST', '/api/oauth/token', $refreshPayload);
         static::assertNotFalse($client->getResponse()->getContent());
 
-        $data = \json_decode($client->getResponse()->getContent(), true);
+        $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $parsedNewAccessToken = $jwtTokenParser->parse($data['access_token']);
         static::assertInstanceOf(UnencryptedToken::class, $parsedNewAccessToken);
         $newAccessTokenScopes = $parsedNewAccessToken->claims()->get('scopes');
@@ -491,7 +491,7 @@ class AuthControllerTest extends TestCase
 
         $client->request('POST', '/api/oauth/token', $authPayload);
         static::assertNotFalse($client->getResponse()->getContent());
-        $data = \json_decode($client->getResponse()->getContent(), true);
+        $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey(
             'access_token',
@@ -606,7 +606,7 @@ class AuthControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
-        $data = \json_decode($content, true);
+        $data = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey(
             'access_token',
@@ -673,7 +673,7 @@ class AuthControllerTest extends TestCase
         static::assertNotFalse($browser->getResponse()->getContent());
 
         static::assertEquals(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
-        $token = \json_decode($browser->getResponse()->getContent(), true);
+        $token = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($accessToken = $token['access_token']);
 

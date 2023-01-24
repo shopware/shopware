@@ -11,15 +11,8 @@ use Shopware\Core\System\User\UserDefinition;
  */
 class CreatedByField extends FkField
 {
-    /**
-     * @var array
-     */
-    private $allowedWriteScopes;
-
-    public function __construct(array $allowedWriteScopes = [Context::SYSTEM_SCOPE])
+    public function __construct(private readonly array $allowedWriteScopes = [Context::SYSTEM_SCOPE])
     {
-        $this->allowedWriteScopes = $allowedWriteScopes;
-
         parent::__construct('created_by_id', 'createdById', UserDefinition::class);
     }
 

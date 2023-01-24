@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class InvalidTemplateException extends ShopwareHttpException
 {
-    public const ERROR_CODE = 'FRAMEWORK__INVALID_SEO_TEMPLATE';
+    final public const ERROR_CODE = 'FRAMEWORK__INVALID_SEO_TEMPLATE';
 
     public function __construct(string $message)
     {

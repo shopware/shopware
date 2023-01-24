@@ -14,12 +14,12 @@ class SerializerRegistry
     /**
      * @var AbstractEntitySerializer[]
      */
-    private $entitySerializers;
+    private readonly array $entitySerializers;
 
     /**
      * @var AbstractFieldSerializer[]
      */
-    private $fieldSerializers;
+    private readonly array $fieldSerializers;
 
     /**
      * @internal

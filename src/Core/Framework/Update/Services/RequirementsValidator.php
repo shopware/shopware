@@ -11,16 +11,12 @@ use Shopware\Core\Framework\Update\Struct\Version;
 class RequirementsValidator
 {
     /**
-     * @var CheckerInterface[]
-     */
-    private $checkers;
-
-    /**
      * @internal
+     *
+     * @param CheckerInterface[] $checkers
      */
-    public function __construct(iterable $checkers)
+    public function __construct(private readonly iterable $checkers)
     {
-        $this->checkers = $checkers;
     }
 
     public function validate(Version $version): array

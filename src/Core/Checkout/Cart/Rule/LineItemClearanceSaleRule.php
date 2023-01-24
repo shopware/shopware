@@ -14,18 +14,14 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemClearanceSaleRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemClearanceSale';
-
-    protected bool $clearanceSale;
+    final public const RULE_NAME = 'cartLineItemClearanceSale';
 
     /**
      * @internal
      */
-    public function __construct(bool $clearanceSale = false)
+    public function __construct(protected bool $clearanceSale = false)
     {
         parent::__construct();
-
-        $this->clearanceSale = $clearanceSale;
     }
 
     /**

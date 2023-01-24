@@ -14,8 +14,5 @@ interface CheckerInterface
 
     public function supports(string $check): bool;
 
-    /**
-     * @param int|string|array $values
-     */
-    public function check($values): ValidationResult;
+    public function check(int|string|array $values): ValidationResult;
 }

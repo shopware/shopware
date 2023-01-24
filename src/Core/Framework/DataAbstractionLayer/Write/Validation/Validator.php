@@ -13,19 +13,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class Validator
 {
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
+    private array $data = [];
 
-    /**
-     * @var array
-     */
-    private $data = [];
-
-    public function __construct(ValidatorInterface $validator)
+    public function __construct(private readonly ValidatorInterface $validator)
     {
-        $this->validator = $validator;
     }
 
     /**

@@ -19,38 +19,17 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package content
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CategoryRoute extends AbstractCategoryRoute
 {
-    public const HOME = 'home';
-
-    /**
-     * @var SalesChannelRepository
-     */
-    private $categoryRepository;
-
-    /**
-     * @var SalesChannelCmsPageLoaderInterface
-     */
-    private $cmsPageLoader;
-
-    /**
-     * @var CategoryDefinition
-     */
-    private $categoryDefinition;
+    final public const HOME = 'home';
 
     /**
      * @internal
      */
-    public function __construct(
-        SalesChannelRepository $categoryRepository,
-        SalesChannelCmsPageLoaderInterface $cmsPageLoader,
-        CategoryDefinition $categoryDefinition
-    ) {
-        $this->categoryRepository = $categoryRepository;
-        $this->cmsPageLoader = $cmsPageLoader;
-        $this->categoryDefinition = $categoryDefinition;
+    public function __construct(private readonly SalesChannelRepository $categoryRepository, private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader, private readonly CategoryDefinition $categoryDefinition)
+    {
     }
 
     public function getDecorated(): AbstractCategoryRoute
@@ -60,8 +39,8 @@ class CategoryRoute extends AbstractCategoryRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/category/{navigationId}", name="store-api.category.detail", methods={"GET","POST"})
      */
+    #[Route(path: '/store-api/category/{navigationId}', name: 'store-api.category.detail', methods: ['GET', 'POST'])]
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {
         if ($navigationId === self::HOME) {

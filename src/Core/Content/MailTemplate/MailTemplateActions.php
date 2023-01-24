@@ -7,5 +7,5 @@ namespace Shopware\Core\Content\MailTemplate;
  */
 class MailTemplateActions
 {
-    public const MAIL_TEMPLATE_MAIL_SEND_ACTION = 'action.mail.send';
+    final public const MAIL_TEMPLATE_MAIL_SEND_ACTION = 'action.mail.send';
 }

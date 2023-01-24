@@ -38,7 +38,7 @@ class RuleConditionRegistry
     {
         try {
             $this->getRuleInstance($name);
-        } catch (InvalidConditionException $exception) {
+        } catch (InvalidConditionException) {
             return false;
         }
 
@@ -59,7 +59,7 @@ class RuleConditionRegistry
      */
     public function getRuleClass(string $name): string
     {
-        return \get_class($this->getRuleInstance($name));
+        return $this->getRuleInstance($name)::class;
     }
 
     /**

@@ -439,16 +439,12 @@ class DynamicFieldFactory
      */
     private static function getOnDeleteFlag(array $field): Flag
     {
-        switch ($field['onDelete']) {
-            case AssociationField::CASCADE:
-                return new CascadeDelete();
-            case AssociationField::SET_NULL:
-                return new SetNullOnDelete();
-            case AssociationField::RESTRICT:
-                return new RestrictDelete();
-            default:
-                throw new \RuntimeException(\sprintf('onDelete property %s are not supported on field %s', $field['onDelete'], $field['name']));
-        }
+        return match ($field['onDelete']) {
+            AssociationField::CASCADE => new CascadeDelete(),
+            AssociationField::SET_NULL => new SetNullOnDelete(),
+            AssociationField::RESTRICT => new RestrictDelete(),
+            default => throw new \RuntimeException(\sprintf('onDelete property %s are not supported on field %s', $field['onDelete'], $field['name'])),
+        };
     }
 
     private static function getExtension(EntityDefinition $reference): ?DalExtension

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class AlwaysValidRule extends Rule
 {
-    public const RULE_NAME = 'alwaysValid';
+    final public const RULE_NAME = 'alwaysValid';
 
     public function match(RuleScope $scope): bool
     {

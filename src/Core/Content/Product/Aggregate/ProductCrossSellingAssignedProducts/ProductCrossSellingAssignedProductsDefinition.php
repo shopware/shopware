@@ -19,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class ProductCrossSellingAssignedProductsDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_cross_selling_assigned_products';
+    final public const ENTITY_NAME = 'product_cross_selling_assigned_products';
 
     public function getEntityName(): string
     {

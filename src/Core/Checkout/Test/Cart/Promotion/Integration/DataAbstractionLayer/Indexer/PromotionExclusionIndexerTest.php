@@ -25,10 +25,7 @@ class PromotionExclusionIndexerTest extends TestCase
      */
     private $promotionRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var EventDispatcherInterface

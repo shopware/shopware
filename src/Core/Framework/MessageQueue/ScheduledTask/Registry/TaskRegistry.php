@@ -18,28 +18,13 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  */
 class TaskRegistry
 {
-    private EntityRepository $scheduledTaskRepository;
-
-    /**
-     * @var iterable<ScheduledTask>
-     */
-    private iterable $tasks;
-
-    private ParameterBagInterface $parameterBag;
-
     /**
      * @internal
      *
      * @param iterable<int, ScheduledTask> $tasks
      */
-    public function __construct(
-        iterable $tasks,
-        EntityRepository $scheduledTaskRepository,
-        ParameterBagInterface $parameterBag
-    ) {
-        $this->tasks = $tasks;
-        $this->scheduledTaskRepository = $scheduledTaskRepository;
-        $this->parameterBag = $parameterBag;
+    public function __construct(private readonly iterable $tasks, private readonly EntityRepository $scheduledTaskRepository, private readonly ParameterBagInterface $parameterBag)
+    {
     }
 
     public function registerTasks(): void
@@ -61,9 +46,7 @@ class TaskRegistry
 
         $deletedIds = array_column($deletionPayload, 'id');
 
-        $alreadyRegisteredTasks = $alreadyRegisteredTasks->filter(function (ScheduledTaskEntity $scheduledTask) use ($deletedIds) {
-            return !\in_array($scheduledTask->getId(), $deletedIds, true);
-        });
+        $alreadyRegisteredTasks = $alreadyRegisteredTasks->filter(fn (ScheduledTaskEntity $scheduledTask) => !\in_array($scheduledTask->getId(), $deletedIds, true));
 
         $this->updateTaskStatus($alreadyRegisteredTasks, $context);
     }
@@ -74,7 +57,7 @@ class TaskRegistry
             if (!$task instanceof ScheduledTask) {
                 throw new \RuntimeException(sprintf(
                     'Tried to register "%s" as scheduled task, but class does not extend ScheduledTask',
-                    \get_class($task)
+                    $task::class
                 ));
             }
 
@@ -88,12 +71,12 @@ class TaskRegistry
                 $this->scheduledTaskRepository->create([
                     [
                         'name' => $task::getTaskName(),
-                        'scheduledTaskClass' => \get_class($task),
+                        'scheduledTaskClass' => $task::class,
                         'runInterval' => $task::getDefaultInterval(),
                         'status' => $validTask ? ScheduledTaskDefinition::STATUS_SCHEDULED : ScheduledTaskDefinition::STATUS_SKIPPED,
                     ],
                 ], Context::createDefaultContext());
-            } catch (UniqueConstraintViolationException $e) {
+            } catch (UniqueConstraintViolationException) {
                 // this can happen if the function runs multiple times simultaneously
                 // we just care that the task is registered afterward so we can safely ignore the error
             }
@@ -126,16 +109,14 @@ class TaskRegistry
     ): bool {
         return \count(
             $alreadyScheduledTasks
-                ->filter(function (ScheduledTaskEntity $registeredTask) use ($task) {
-                    return $registeredTask->getScheduledTaskClass() === \get_class($task);
-                })
+                ->filter(fn (ScheduledTaskEntity $registeredTask) => $registeredTask->getScheduledTaskClass() === $task::class)
         ) > 0;
     }
 
     private function taskClassStillAvailable(ScheduledTaskEntity $registeredTask): bool
     {
         foreach ($this->tasks as $task) {
-            if ($registeredTask->getScheduledTaskClass() === \get_class($task)) {
+            if ($registeredTask->getScheduledTaskClass() === $task::class) {
                 return true;
             }
         }

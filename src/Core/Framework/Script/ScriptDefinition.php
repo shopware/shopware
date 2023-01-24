@@ -22,7 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class ScriptDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'script';
+    final public const ENTITY_NAME = 'script';
 
     public function getEntityName(): string
     {

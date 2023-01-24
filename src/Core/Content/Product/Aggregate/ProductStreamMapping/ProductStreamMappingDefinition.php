@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
  */
 class ProductStreamMappingDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'product_stream_mapping';
+    final public const ENTITY_NAME = 'product_stream_mapping';
 
     public function getEntityName(): string
     {

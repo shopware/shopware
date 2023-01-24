@@ -34,7 +34,7 @@ class EntityWriteResultFactory
     /**
      * @internal
      */
-    public function __construct(private DefinitionInstanceRegistry $registry, private Connection $connection)
+    public function __construct(private readonly DefinitionInstanceRegistry $registry, private readonly Connection $connection)
     {
     }
 
@@ -69,9 +69,7 @@ class EntityWriteResultFactory
                 continue;
             }
 
-            $ids = array_map(function (EntityWriteResult $result) {
-                return $result->getPrimaryKey();
-            }, $result);
+            $ids = array_map(fn (EntityWriteResult $result) => $result->getPrimaryKey(), $result);
 
             if (empty($ids)) {
                 continue;
@@ -175,9 +173,7 @@ class EntityWriteResultFactory
 
         $primaryKeys = $this->getPrimaryKeysOfFkField($definition, $ids, $fkField);
 
-        $mapped = array_map(function ($id) {
-            return ['id' => $id];
-        }, $primaryKeys);
+        $mapped = array_map(fn ($id) => ['id' => $id], $primaryKeys);
 
         // recursion call for nested sub entities (order_delivery_position > order_delivery > order)
         $nested = $this->resolveParents($parent, $mapped);
@@ -194,16 +190,12 @@ class EntityWriteResultFactory
         $deleted = [];
         $updated = [];
         foreach ($identifiers as $entityName => $writeResults) {
-            $deletedEntities = array_filter($writeResults, function (EntityWriteResult $result): bool {
-                return $result->getOperation() === EntityWriteResult::OPERATION_DELETE;
-            });
+            $deletedEntities = array_filter($writeResults, fn (EntityWriteResult $result): bool => $result->getOperation() === EntityWriteResult::OPERATION_DELETE);
             if (!empty($deletedEntities)) {
                 $deleted[$entityName] = $deletedEntities;
             }
 
-            $updatedEntities = array_filter($writeResults, function (EntityWriteResult $result): bool {
-                return \in_array($result->getOperation(), [EntityWriteResult::OPERATION_INSERT, EntityWriteResult::OPERATION_UPDATE], true);
-            });
+            $updatedEntities = array_filter($writeResults, fn (EntityWriteResult $result): bool => \in_array($result->getOperation(), [EntityWriteResult::OPERATION_INSERT, EntityWriteResult::OPERATION_UPDATE], true));
 
             if (!empty($updatedEntities)) {
                 $updated[$entityName] = $updatedEntities;
@@ -215,9 +207,7 @@ class EntityWriteResultFactory
 
     private function resolveMappingParents(EntityDefinition $definition, array $rawData): array
     {
-        $fkFields = $definition->getFields()->filter(function (Field $field) {
-            return $field instanceof FkField && !$field instanceof ReferenceVersionField;
-        });
+        $fkFields = $definition->getFields()->filter(fn (Field $field) => $field instanceof FkField && !$field instanceof ReferenceVersionField);
 
         $mapping = [];
 
@@ -228,9 +218,7 @@ class EntityWriteResultFactory
             $entity = $fkField->getReferenceDefinition()->getEntityName();
             $mapping[$entity] = array_merge($mapping[$entity] ?? [], $primaryKeys);
 
-            $mapped = array_map(function ($id) {
-                return ['id' => $id];
-            }, $primaryKeys);
+            $mapped = array_map(fn ($id) => ['id' => $id], $primaryKeys);
 
             // after resolving the mapping entities - we resolve the parent for related entity (maybe inherited for products, or sub domain entities)
             $nested = $this->resolveParents($fkField->getReferenceDefinition(), $mapped);
@@ -266,10 +254,9 @@ class EntityWriteResultFactory
     }
 
     /**
-     * @param string|array          $primaryKey
      * @param EntityWriteResult[][] $results
      */
-    private function hasResult(string $entity, $primaryKey, array $results): bool
+    private function hasResult(string $entity, string|array $primaryKey, array $results): bool
     {
         if (!isset($results[$entity])) {
             return false;
@@ -307,9 +294,7 @@ class EntityWriteResultFactory
             }
 
             $primaryKeys = $definition->getPrimaryKeys()
-                ->filter(static function (Field $field) {
-                    return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
-                });
+                ->filter(static fn (Field $field) => !$field instanceof VersionField && !$field instanceof ReferenceVersionField);
 
             $identifiers[$definition->getEntityName()] = [];
 
@@ -387,10 +372,7 @@ class EntityWriteResultFactory
         return $identifiers;
     }
 
-    /**
-     * @return array|string
-     */
-    private function getCommandPrimaryKey(WriteCommand $command, FieldCollection $fields)
+    private function getCommandPrimaryKey(WriteCommand $command, FieldCollection $fields): array|string
     {
         $primaryKey = $command->getPrimaryKey();
 
@@ -503,9 +485,7 @@ class EntityWriteResultFactory
 
             /* @var Field|StorageAware $primaryKey */
             if (!isset($rawData[$property])) {
-                $required = $definition->getPrimaryKeys()->filter(function (Field $field) {
-                    return !$field instanceof ReferenceVersionField && !$field instanceof VersionField;
-                });
+                $required = $definition->getPrimaryKeys()->filter(fn (Field $field) => !$field instanceof ReferenceVersionField && !$field instanceof VersionField);
 
                 throw new IncompletePrimaryKeyException($required->getKeys());
             }

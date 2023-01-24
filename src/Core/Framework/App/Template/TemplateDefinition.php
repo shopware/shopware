@@ -22,7 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class TemplateDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'app_template';
+    final public const ENTITY_NAME = 'app_template';
 
     public function getEntityName(): string
     {

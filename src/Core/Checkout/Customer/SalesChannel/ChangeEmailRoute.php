@@ -27,37 +27,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
+#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
 class ChangeEmailRoute extends AbstractChangeEmailRoute
 {
     /**
-     * @var EntityRepository
-     */
-    private $customerRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var DataValidator
-     */
-    private $validator;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $customerRepository,
-        EventDispatcherInterface $eventDispatcher,
-        DataValidator $validator
-    ) {
-        $this->customerRepository = $customerRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->validator = $validator;
+    public function __construct(private readonly EntityRepository $customerRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly DataValidator $validator)
+    {
     }
 
     public function getDecorated(): AbstractChangeEmailRoute
@@ -67,8 +45,8 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route(path="/store-api/account/change-email", name="store-api.account.change-email", methods={"POST"}, defaults={"_loginRequired"=true})
      */
+    #[Route(path: '/store-api/account/change-email', name: 'store-api.account.change-email', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         $this->validateEmail($requestDataBag, $context);
@@ -143,7 +121,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $compareValue, $equalityValidation->message);
+        $message = str_replace('{{ compared_value }}', $compareValue, (string) $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));

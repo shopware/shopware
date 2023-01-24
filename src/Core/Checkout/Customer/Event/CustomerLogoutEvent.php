@@ -20,22 +20,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class CustomerLogoutEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware
 {
-    public const EVENT_NAME = 'checkout.customer.logout';
+    final public const EVENT_NAME = 'checkout.customer.logout';
 
-    /**
-     * @var CustomerEntity
-     */
-    private $customer;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    public function __construct(SalesChannelContext $salesChannelContext, CustomerEntity $customer)
+    public function __construct(private readonly SalesChannelContext $salesChannelContext, private readonly CustomerEntity $customer)
     {
-        $this->customer = $customer;
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getName(): string

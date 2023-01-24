@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 class DocumentGenerationResult extends Struct
 {
-    private DocumentIdCollection $success;
+    private readonly DocumentIdCollection $success;
 
     /**
      * @var \Throwable[]
@@ -56,13 +56,11 @@ class DocumentGenerationResult extends Struct
         }
 
         return [
-            'data' => $this->success->map(function (DocumentIdStruct $documentIdStruct) {
-                return [
-                    'documentId' => $documentIdStruct->getId(),
-                    'documentMediaId' => $documentIdStruct->getMediaId(),
-                    'documentDeepLink' => $documentIdStruct->getDeepLinkCode(),
-                ];
-            }),
+            'data' => $this->success->map(fn (DocumentIdStruct $documentIdStruct) => [
+                'documentId' => $documentIdStruct->getId(),
+                'documentMediaId' => $documentIdStruct->getMediaId(),
+                'documentDeepLink' => $documentIdStruct->getDeepLinkCode(),
+            ]),
             'errors' => $errors,
         ];
     }

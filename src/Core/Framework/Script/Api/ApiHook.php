@@ -25,16 +25,10 @@ class ApiHook extends Hook implements StoppableHook
     use StoppableHookTrait;
     use ScriptResponseAwareTrait;
 
-    public const HOOK_NAME = 'api-{hook}';
+    final public const HOOK_NAME = 'api-{hook}';
 
-    private array $request;
-
-    private string $name;
-
-    public function __construct(string $name, array $request, Context $context)
+    public function __construct(private readonly string $name, private readonly array $request, Context $context)
     {
-        $this->request = $request;
-        $this->name = $name;
         parent::__construct($context);
     }
 

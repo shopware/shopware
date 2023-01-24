@@ -21,7 +21,7 @@ class ApiCriteriaValidator
     /**
      * @internal
      */
-    public function __construct(private DefinitionInstanceRegistry $registry)
+    public function __construct(private readonly DefinitionInstanceRegistry $registry)
     {
     }
 
@@ -44,7 +44,7 @@ class ApiCriteriaValidator
                     throw new ApiProtectionException($accessor);
                 }
 
-                if (!$flag->isSourceAllowed(\get_class($context->getSource()))) {
+                if (!$flag->isSourceAllowed($context->getSource()::class)) {
                     throw new ApiProtectionException($accessor);
                 }
 

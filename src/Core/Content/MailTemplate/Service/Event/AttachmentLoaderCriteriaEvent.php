@@ -10,13 +10,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class AttachmentLoaderCriteriaEvent extends Event
 {
-    public const EVENT_NAME = 'mail.after.create.message';
+    final public const EVENT_NAME = 'mail.after.create.message';
 
-    private Criteria $criteria;
-
-    public function __construct(Criteria $criteria)
+    public function __construct(private readonly Criteria $criteria)
     {
-        $this->criteria = $criteria;
     }
 
     public function getCriteria(): Criteria

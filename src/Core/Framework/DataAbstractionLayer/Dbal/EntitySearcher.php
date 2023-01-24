@@ -27,9 +27,9 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 class EntitySearcher implements EntitySearcherInterface
 {
     public function __construct(
-        private Connection $connection,
-        private EntityDefinitionQueryHelper $queryHelper,
-        private CriteriaQueryBuilder $criteriaQueryBuilder
+        private readonly Connection $connection,
+        private readonly EntityDefinitionQueryHelper $queryHelper,
+        private readonly CriteriaQueryBuilder $criteriaQueryBuilder
     ) {
     }
 

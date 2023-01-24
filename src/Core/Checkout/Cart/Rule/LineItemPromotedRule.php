@@ -13,18 +13,14 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemPromotedRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemPromoted';
-
-    protected bool $isPromoted;
+    final public const RULE_NAME = 'cartLineItemPromoted';
 
     /**
      * @internal
      */
-    public function __construct(bool $isPromoted = false)
+    public function __construct(protected bool $isPromoted = false)
     {
         parent::__construct();
-
-        $this->isPromoted = $isPromoted;
     }
 
     public function match(RuleScope $scope): bool

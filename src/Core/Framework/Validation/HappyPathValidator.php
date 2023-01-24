@@ -27,14 +27,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class HappyPathValidator implements ValidatorInterface
 {
-    private ValidatorInterface $inner;
-
     /**
      * @internal
      */
-    public function __construct(ValidatorInterface $inner)
+    public function __construct(private readonly ValidatorInterface $inner)
     {
-        $this->inner = $inner;
     }
 
     /**
@@ -155,7 +152,7 @@ class HappyPathValidator implements ValidatorInterface
                 $types = (array) $constraint->type;
 
                 foreach ($types as $type) {
-                    $type = strtolower($type);
+                    $type = strtolower((string) $type);
                     $type = $type === 'boolean' ? 'bool' : $type;
                     $isFunction = 'is_' . $type;
                     $ctypeFunction = 'ctype_' . $type;
@@ -217,7 +214,7 @@ class HappyPathValidator implements ValidatorInterface
                     $existsInArrayAccess = $value instanceof \ArrayAccess && $value->offsetExists($field);
 
                     if ($existsInArray || $existsInArrayAccess) {
-                        if (\count($fieldConstraint->constraints) > 0) {
+                        if ((is_countable($fieldConstraint->constraints) ? \count($fieldConstraint->constraints) : 0) > 0) {
                             /** @var array|\ArrayAccess<string|int,mixed> $value */
                             if (!$this->validateConstraint($value[$field], $fieldConstraint->constraints)) {
                                 return false;

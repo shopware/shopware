@@ -19,50 +19,19 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package inventory
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 {
-    private AbstractProductCrossSellingRoute $decorated;
-
-    private CacheInterface $cache;
-
-    private EntityCacheKeyGenerator $generator;
-
-    /**
-     * @var AbstractCacheTracer<ProductCrossSellingRouteResponse>
-     */
-    private AbstractCacheTracer $tracer;
-
-    /**
-     * @var array<string>
-     */
-    private array $states;
-
-    private EventDispatcherInterface $dispatcher;
-
     /**
      * @internal
      *
      * @param AbstractCacheTracer<ProductCrossSellingRouteResponse> $tracer
      * @param array<string> $states
      */
-    public function __construct(
-        AbstractProductCrossSellingRoute $decorated,
-        CacheInterface $cache,
-        EntityCacheKeyGenerator $generator,
-        AbstractCacheTracer $tracer,
-        EventDispatcherInterface $dispatcher,
-        array $states
-    ) {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
-        $this->generator = $generator;
-        $this->tracer = $tracer;
-        $this->states = $states;
-        $this->dispatcher = $dispatcher;
+    public function __construct(private readonly AbstractProductCrossSellingRoute $decorated, private readonly CacheInterface $cache, private readonly EntityCacheKeyGenerator $generator, private readonly AbstractCacheTracer $tracer, private readonly EventDispatcherInterface $dispatcher, private readonly array $states)
+    {
     }
 
     public function getDecorated(): AbstractProductCrossSellingRoute
@@ -77,8 +46,8 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
     /**
      * @Since("6.3.2.0")
-     * @Route("/store-api/product/{productId}/cross-selling", name="store-api.product.cross-selling", methods={"POST"}, defaults={"_entity"="product"})
      */
+    #[Route(path: '/store-api/product/{productId}/cross-selling', name: 'store-api.product.cross-selling', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse
     {
         if ($context->hasState(...$this->states)) {
@@ -94,9 +63,7 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $value = $this->cache->get($key, function (ItemInterface $item) use ($productId, $request, $context, $criteria) {
             $name = self::buildName($productId);
 
-            $response = $this->tracer->trace($name, function () use ($productId, $request, $context, $criteria) {
-                return $this->getDecorated()->load($productId, $request, $context, $criteria);
-            });
+            $response = $this->tracer->trace($name, fn () => $this->getDecorated()->load($productId, $request, $context, $criteria));
 
             $item->tag($this->generateTags($productId, $request, $response, $context, $criteria));
 
@@ -154,7 +121,7 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $ids = array_unique(array_filter($ids));
 
-        return array_map([EntityCacheKeyGenerator::class, 'buildStreamTag'], $ids);
+        return array_map(EntityCacheKeyGenerator::buildStreamTag(...), $ids);
     }
 
     /**
@@ -165,11 +132,11 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $ids = [];
 
         foreach ($response->getResult() as $element) {
-            $ids = array_merge($ids, $element->getProducts()->getIds());
+            $ids = [...$ids, ...$element->getProducts()->getIds()];
         }
 
         $ids = array_unique(array_filter($ids));
 
-        return array_map([EntityCacheKeyGenerator::class, 'buildProductTag'], $ids);
+        return array_map(EntityCacheKeyGenerator::buildProductTag(...), $ids);
     }
 }

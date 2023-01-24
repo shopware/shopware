@@ -192,7 +192,7 @@ SQL;
             'id' => Uuid::randomBytes(),
             'event_name' => 'customer.recovery.request',
             'action_name' => 'action.mail.send',
-            'config' => json_encode(['mail_template_type_id' => $mailTemplateTypeId]),
+            'config' => json_encode(['mail_template_type_id' => $mailTemplateTypeId], \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

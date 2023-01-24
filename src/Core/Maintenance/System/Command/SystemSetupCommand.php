@@ -29,18 +29,9 @@ use Symfony\Component\Dotenv\Command\DotenvDumpCommand;
 )]
 class SystemSetupCommand extends Command
 {
-    private string $projectDir;
-
-    private JwtCertificateGenerator $jwtCertificateGenerator;
-
-    private DotenvDumpCommand $dumpEnvCommand;
-
-    public function __construct(string $projectDir, JwtCertificateGenerator $jwtCertificateGenerator, DotenvDumpCommand $dumpEnvCommand)
+    public function __construct(private readonly string $projectDir, private readonly JwtCertificateGenerator $jwtCertificateGenerator, private readonly DotenvDumpCommand $dumpEnvCommand)
     {
         parent::__construct();
-        $this->projectDir = $projectDir;
-        $this->jwtCertificateGenerator = $jwtCertificateGenerator;
-        $this->dumpEnvCommand = $dumpEnvCommand;
     }
 
     protected function configure(): void
@@ -79,7 +70,7 @@ class SystemSetupCommand extends Command
         /** @var array<string, string> $env */
         $env = [
             'APP_ENV' => $input->getOption('app-env'),
-            'APP_URL' => trim($input->getOption('app-url')), /* @phpstan-ignore-line */
+            'APP_URL' => trim((string) $input->getOption('app-url')),
             'DATABASE_URL' => $input->getOption('database-url'),
             'OPENSEARCH_URL' => $input->getOption('es-hosts'),
             'SHOPWARE_ES_ENABLED' => $input->getOption('es-enabled'),
@@ -129,7 +120,7 @@ class SystemSetupCommand extends Command
         if (!$input->getOption('force') && file_exists($this->projectDir . '/.env')) {
             $io->comment('Instance has already been set-up. To start over, please delete your .env file.');
 
-            return 0;
+            return Command::SUCCESS;
         }
 
         if (!$input->isInteractive()) {
@@ -140,7 +131,7 @@ class SystemSetupCommand extends Command
 
             $this->createEnvFile($input, $io, $env);
 
-            return 0;
+            return Command::SUCCESS;
         }
 
         $io->section('Application information');
@@ -177,7 +168,7 @@ class SystemSetupCommand extends Command
         do {
             try {
                 $exception = null;
-                $env = array_merge($env, $this->getDsn($input, $io));
+                $env = [...$env, ...$this->getDsn($input, $io)];
             } catch (\Throwable $e) {
                 $exception = $e;
                 $io->error($exception->getMessage());
@@ -190,7 +181,7 @@ class SystemSetupCommand extends Command
 
         $this->createEnvFile($input, $io, $env);
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**
@@ -221,7 +212,7 @@ class SystemSetupCommand extends Command
         $dsnWithoutDb = sprintf(
             'mysql://%s:%s@%s:%d',
             $dbUser,
-            rawurlencode($dbPass),
+            rawurlencode((string) $dbPass),
             $dbHost,
             $dbPort
         );

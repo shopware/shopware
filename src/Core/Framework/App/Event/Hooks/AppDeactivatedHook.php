@@ -16,9 +16,9 @@ use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
  */
 class AppDeactivatedHook extends AppLifecycleHook implements AppSpecificHook
 {
-    public const HOOK_NAME = 'app-deactivated';
+    final public const HOOK_NAME = 'app-deactivated';
 
-    private AppDeactivatedEvent $event;
+    private readonly AppDeactivatedEvent $event;
 
     public function __construct(AppDeactivatedEvent $event)
     {

@@ -17,9 +17,9 @@ abstract class RequirementCheck extends Struct
 
     private const ALLOWED_STATUS = [self::STATUS_SUCCESS, self::STATUS_ERROR, self::STATUS_WARNING];
 
-    private string $name;
+    private readonly string $name;
 
-    private string $status;
+    private readonly string $status;
 
     public function __construct(string $name, string $status)
     {

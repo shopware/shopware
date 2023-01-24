@@ -7,36 +7,8 @@ namespace Shopware\Core\System\StateMachine;
  */
 class Transition
 {
-    /**
-     * @var string
-     */
-    private $entityName;
-
-    /**
-     * @var string
-     */
-    private $entityId;
-
-    /**
-     * @var string
-     */
-    private $transitionName;
-
-    /**
-     * @var string
-     */
-    private $stateFieldName;
-
-    public function __construct(
-        string $entityName,
-        string $entityId,
-        string $transitionName,
-        string $stateFieldName
-    ) {
-        $this->entityName = $entityName;
-        $this->entityId = $entityId;
-        $this->transitionName = $transitionName;
-        $this->stateFieldName = $stateFieldName;
+    public function __construct(private readonly string $entityName, private readonly string $entityId, private readonly string $transitionName, private readonly string $stateFieldName)
+    {
     }
 
     public function getEntityId(): string

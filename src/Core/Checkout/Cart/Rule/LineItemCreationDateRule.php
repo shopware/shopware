@@ -15,21 +15,14 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemCreationDateRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemCreationDate';
-
-    protected ?string $lineItemCreationDate;
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartLineItemCreationDate';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $lineItemCreationDate = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?string $lineItemCreationDate = null)
     {
         parent::__construct();
-
-        $this->lineItemCreationDate = $lineItemCreationDate;
-        $this->operator = $operator;
     }
 
     public function getConstraints(): array
@@ -48,7 +41,7 @@ class LineItemCreationDateRule extends Rule
 
         try {
             $ruleValue = $this->buildDate($this->lineItemCreationDate);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
 
@@ -90,7 +83,7 @@ class LineItemCreationDateRule extends Rule
             }
 
             $itemCreated = $this->buildDate($itemCreatedString);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
 

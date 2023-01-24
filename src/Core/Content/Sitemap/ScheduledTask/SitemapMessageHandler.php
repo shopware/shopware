@@ -22,10 +22,10 @@ final class SitemapMessageHandler
      * @internal
      */
     public function __construct(
-        private AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        private SitemapExporterInterface $sitemapExporter,
-        private LoggerInterface $logger,
-        private  SystemConfigService $systemConfigService,
+        private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        private readonly SitemapExporterInterface $sitemapExporter,
+        private readonly LoggerInterface $logger,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 

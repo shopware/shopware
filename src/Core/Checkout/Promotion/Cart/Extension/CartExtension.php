@@ -13,7 +13,7 @@ class CartExtension extends Struct
      * this is the key that should be
      * used for the cart extension
      */
-    public const KEY = 'cart-promotions';
+    final public const KEY = 'cart-promotions';
 
     /**
      * @var array<string>

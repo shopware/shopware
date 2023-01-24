@@ -13,11 +13,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final class CleanupOldCacheFoldersHandler
 {
-    private CacheClearer $cacheClearer;
-
-    public function __construct(CacheClearer $cacheClearer)
+    public function __construct(private readonly CacheClearer $cacheClearer)
     {
-        $this->cacheClearer = $cacheClearer;
     }
 
     public function __invoke(CleanupOldCacheFolders $message): void

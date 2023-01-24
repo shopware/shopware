@@ -73,9 +73,7 @@ class LineItemQuantitySplitterTest extends TestCase
         $qtyCalc
             ->expects(static::exactly($expects))
             ->method('calculate')
-            ->willReturnCallback(function (QuantityPriceDefinition $definition, SalesChannelContext $context) {
-                return $this->getContainer()->get(QuantityPriceCalculator::class)->calculate($definition, $context);
-            });
+            ->willReturnCallback(fn (QuantityPriceDefinition $definition, SalesChannelContext $context) => $this->getContainer()->get(QuantityPriceCalculator::class)->calculate($definition, $context));
 
         return new LineItemQuantitySplitter($qtyCalc);
     }

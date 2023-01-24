@@ -22,29 +22,16 @@ class StoreApiHook extends InterfaceHook implements SalesChannelContextAware
 {
     use ScriptResponseAwareTrait;
 
-    public const HOOK_NAME = 'store-api-{hook}';
+    final public const HOOK_NAME = 'store-api-{hook}';
 
-    public const FUNCTIONS = [
+    final public const FUNCTIONS = [
         StoreApiCacheKeyHook::FUNCTION_NAME => StoreApiCacheKeyHook::class,
         StoreApiResponseHook::FUNCTION_NAME => StoreApiResponseHook::class,
     ];
 
-    private array $request;
-
-    private array $query;
-
-    private SalesChannelContext $salesChannelContext;
-
-    private string $script;
-
-    public function __construct(string $name, array $request, array $query, SalesChannelContext $salesChannelContext)
+    public function __construct(private readonly string $script, private readonly array $request, private readonly array $query, private readonly SalesChannelContext $salesChannelContext)
     {
-        $this->request = $request;
-        $this->query = $query;
-        $this->salesChannelContext = $salesChannelContext;
-
         parent::__construct($salesChannelContext->getContext());
-        $this->script = $name;
     }
 
     public function getRequest(): array
@@ -74,7 +61,7 @@ class StoreApiHook extends InterfaceHook implements SalesChannelContextAware
     public function getFunction(string $name): FunctionHook
     {
         if (!\array_key_exists($name, self::FUNCTIONS)) {
-            throw HookMethodException::functionDoesNotExistInInterfaceHook(__CLASS__, $name);
+            throw HookMethodException::functionDoesNotExistInInterfaceHook(self::class, $name);
         }
 
         $functionHook = self::FUNCTIONS[$name];

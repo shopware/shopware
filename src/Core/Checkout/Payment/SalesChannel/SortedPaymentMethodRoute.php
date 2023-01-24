@@ -12,9 +12,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package checkout
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class SortedPaymentMethodRoute extends AbstractPaymentMethodRoute
 {
     /**
@@ -33,8 +32,8 @@ class SortedPaymentMethodRoute extends AbstractPaymentMethodRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/payment-method", name="store-api.payment.method", methods={"GET", "POST"}, defaults={"_entity"="payment_method"})
      */
+    #[Route(path: '/store-api/payment-method', name: 'store-api.payment.method', methods: ['GET', 'POST'], defaults: ['_entity' => 'payment_method'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
     {
         $response = $this->getDecorated()->load($request, $context, $criteria);

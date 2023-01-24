@@ -23,7 +23,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
  */
 class ProductSearchConfigDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_search_config';
+    final public const ENTITY_NAME = 'product_search_config';
 
     public function getEntityName(): string
     {

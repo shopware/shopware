@@ -15,20 +15,8 @@ use Shopware\Core\Framework\Script\Execution\Script;
  */
 class RepositoryWriterFacadeHookFactory extends HookServiceFactory
 {
-    private DefinitionInstanceRegistry $registry;
-
-    private AppContextCreator $appContextCreator;
-
-    private SyncService $syncService;
-
-    public function __construct(
-        DefinitionInstanceRegistry $registry,
-        AppContextCreator $appContextCreator,
-        SyncService $syncService
-    ) {
-        $this->registry = $registry;
-        $this->appContextCreator = $appContextCreator;
-        $this->syncService = $syncService;
+    public function __construct(private readonly DefinitionInstanceRegistry $registry, private readonly AppContextCreator $appContextCreator, private readonly SyncService $syncService)
+    {
     }
 
     public function factory(Hook $hook, Script $script): RepositoryWriterFacade

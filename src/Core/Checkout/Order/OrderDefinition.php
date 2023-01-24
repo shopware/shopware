@@ -52,7 +52,7 @@ use Shopware\Core\System\User\UserDefinition;
  */
 class OrderDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'order';
+    final public const ENTITY_NAME = 'order';
 
     public function getEntityName(): string
     {

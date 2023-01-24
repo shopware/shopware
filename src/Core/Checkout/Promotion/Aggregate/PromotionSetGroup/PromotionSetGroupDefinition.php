@@ -22,7 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class PromotionSetGroupDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'promotion_setgroup';
+    final public const ENTITY_NAME = 'promotion_setgroup';
 
     public function getEntityName(): string
     {

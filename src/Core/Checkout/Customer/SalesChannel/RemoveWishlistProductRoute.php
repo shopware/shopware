@@ -21,42 +21,16 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package customer-order
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
 {
     /**
-     * @var EntityRepository
-     */
-    private $wishlistRepository;
-
-    /**
-     * @var EntityRepository
-     */
-    private $productRepository;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $wishlistRepository,
-        EntityRepository $productRepository,
-        SystemConfigService $systemConfigService,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->wishlistRepository = $wishlistRepository;
-        $this->productRepository = $productRepository;
-        $this->systemConfigService = $systemConfigService;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly EntityRepository $wishlistRepository, private readonly EntityRepository $productRepository, private readonly SystemConfigService $systemConfigService, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function getDecorated(): AbstractRemoveWishlistProductRoute
@@ -65,9 +39,9 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
     }
 
     /**
-    * @Since("6.3.4.0")
-    * @Route("/store-api/customer/wishlist/delete/{productId}", name="store-api.customer.wishlist.delete", methods={"DELETE"}, defaults={"_loginRequired"=true})
-    */
+     * @Since("6.3.4.0")
+     */
+    #[Route(path: '/store-api/customer/wishlist/delete/{productId}', name: 'store-api.customer.wishlist.delete', methods: ['DELETE'], defaults: ['_loginRequired' => true])]
     public function delete(string $productId, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {

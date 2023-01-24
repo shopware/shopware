@@ -24,7 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
  */
 class VersionCommitDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'version_commit';
+    final public const ENTITY_NAME = 'version_commit';
 
     public function getEntityName(): string
     {

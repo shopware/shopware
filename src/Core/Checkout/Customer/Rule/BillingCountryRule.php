@@ -15,25 +15,16 @@ use Shopware\Core\System\Country\CountryDefinition;
  */
 class BillingCountryRule extends Rule
 {
-    public const RULE_NAME = 'customerBillingCountry';
-
-    /**
-     * @var list<string>|null
-     */
-    protected ?array $countryIds;
-
-    protected string $operator;
+    final public const RULE_NAME = 'customerBillingCountry';
 
     /**
      * @internal
      *
      * @param list<string>|null $countryIds
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $countryIds = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $countryIds = null)
     {
         parent::__construct();
-        $this->operator = $operator;
-        $this->countryIds = $countryIds;
     }
 
     public function match(RuleScope $scope): bool

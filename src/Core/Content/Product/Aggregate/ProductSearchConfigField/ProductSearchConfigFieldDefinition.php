@@ -20,7 +20,7 @@ use Shopware\Core\System\CustomField\CustomFieldDefinition;
  */
 class ProductSearchConfigFieldDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_search_config_field';
+    final public const ENTITY_NAME = 'product_search_config_field';
 
     public function getEntityName(): string
     {

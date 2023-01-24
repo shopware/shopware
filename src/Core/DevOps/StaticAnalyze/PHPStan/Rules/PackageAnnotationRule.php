@@ -21,7 +21,7 @@ class PackageAnnotationRule implements Rule
     /**
      * @internal
      */
-    public const PRODUCT_AREA_MAPPING = [
+    final public const PRODUCT_AREA_MAPPING = [
         'core' => [
             '/Shopware\\\\Core\\\\Framework\\\\(Adapter|Api|App|Changelog|DataAbstractionLayer|Demodata|DependencyInjection)\\\\/',
             '/Shopware\\\\Core\\\\Framework\\\\(Increment|Log|MessageQueue|Migration|Parameter|Plugin|RateLimiter|Script|Routing|Struct|Util|Uuid|Validation|Webhook)\\\\/',

@@ -37,7 +37,7 @@ class IntegrationControllerTest extends TestCase
             'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
         ];
 
-        $client->request('POST', '/api/integration', [], [], [], \json_encode($data));
+        $client->request('POST', '/api/integration', [], [], [], \json_encode($data, \JSON_THROW_ON_ERROR));
 
         $response = $client->getResponse();
 
@@ -55,7 +55,7 @@ class IntegrationControllerTest extends TestCase
             'admin' => true,
         ];
 
-        $client->request('POST', '/api/integration', [], [], [], \json_encode($data));
+        $client->request('POST', '/api/integration', [], [], [], \json_encode($data, \JSON_THROW_ON_ERROR));
 
         $response = $client->getResponse();
 
@@ -113,7 +113,7 @@ class IntegrationControllerTest extends TestCase
             'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
         ];
 
-        $client->request('POST', '/api/integration', [], [], [], \json_encode($data));
+        $client->request('POST', '/api/integration', [], [], [], \json_encode($data, \JSON_THROW_ON_ERROR));
 
         $response = $client->getResponse();
 
@@ -131,7 +131,7 @@ class IntegrationControllerTest extends TestCase
             'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
         ];
 
-        $client->request('POST', '/api/integration', [], [], [], \json_encode($data));
+        $client->request('POST', '/api/integration', [], [], [], \json_encode($data, \JSON_THROW_ON_ERROR));
 
         $response = $client->getResponse();
 
@@ -150,7 +150,7 @@ class IntegrationControllerTest extends TestCase
             'admin' => true,
         ];
 
-        $client->request('POST', '/api/integration', [], [], [], \json_encode($data));
+        $client->request('POST', '/api/integration', [], [], [], \json_encode($data, \JSON_THROW_ON_ERROR));
 
         $response = $client->getResponse();
 

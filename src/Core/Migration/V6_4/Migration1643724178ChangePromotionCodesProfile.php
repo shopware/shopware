@@ -26,7 +26,7 @@ class Migration1643724178ChangePromotionCodesProfile extends MigrationStep
 
         if ($id) {
             $mapping = $this->getMapping();
-            $connection->update('import_export_profile', ['mapping' => json_encode($mapping)], ['id' => $id]);
+            $connection->update('import_export_profile', ['mapping' => json_encode($mapping, \JSON_THROW_ON_ERROR)], ['id' => $id]);
         }
     }
 

@@ -13,20 +13,11 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class CartMergedEvent extends Event implements ShopwareSalesChannelEvent
 {
-    protected Cart $cart;
-
-    protected SalesChannelContext $context;
-
-    protected Cart $previousCart;
-
     /**
      * @internal
      */
-    public function __construct(Cart $cart, SalesChannelContext $context, Cart $previousCart)
+    public function __construct(protected Cart $cart, protected SalesChannelContext $context, protected Cart $previousCart)
     {
-        $this->cart = $cart;
-        $this->context = $context;
-        $this->previousCart = $previousCart;
     }
 
     public function getCart(): Cart

@@ -14,13 +14,10 @@ use Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException;
  */
 class DiscountPackage
 {
-    private LineItemQuantityCollection $metaItems;
-
     private LineItemFlatCollection $cartItems;
 
-    public function __construct(LineItemQuantityCollection $items)
+    public function __construct(private LineItemQuantityCollection $metaItems)
     {
-        $this->metaItems = $items;
         $this->cartItems = new LineItemFlatCollection();
     }
 

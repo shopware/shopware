@@ -9,23 +9,11 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 class FlowActionDefinition extends Struct
 {
-    protected string $name;
-
-    /**
-     * @var array<string>
-     */
-    protected array $requirements;
-
-    protected bool $delayable;
-
     /**
      * @param array<string> $requirements
      */
-    public function __construct(string $name, array $requirements, bool $delayable = false)
+    public function __construct(protected string $name, protected array $requirements, protected bool $delayable = false)
     {
-        $this->name = $name;
-        $this->requirements = $requirements;
-        $this->delayable = $delayable;
     }
 
     public function getName(): string

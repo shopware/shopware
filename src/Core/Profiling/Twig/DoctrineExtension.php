@@ -25,9 +25,9 @@ class DoctrineExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('doctrine_prettify_sql', [$this, 'prettifySql'], ['is_safe' => ['html']]),
-            new TwigFilter('doctrine_format_sql', [$this, 'formatSql'], ['is_safe' => ['html']]),
-            new TwigFilter('doctrine_replace_query_parameters', [$this, 'replaceQueryParameters']),
+            new TwigFilter('doctrine_prettify_sql', $this->prettifySql(...), ['is_safe' => ['html']]),
+            new TwigFilter('doctrine_format_sql', $this->formatSql(...), ['is_safe' => ['html']]),
+            new TwigFilter('doctrine_replace_query_parameters', $this->replaceQueryParameters(...)),
         ];
     }
 
@@ -63,7 +63,7 @@ class DoctrineExtension extends AbstractExtension
                 break;
 
             case \is_object($result) && method_exists($result, '__toString'):
-                $result = addslashes($result->__toString());
+                $result = addslashes((string) $result->__toString());
 
                 break;
 
@@ -86,7 +86,7 @@ class DoctrineExtension extends AbstractExtension
      *
      * @param array<mixed>|Data $parameters
      */
-    public function replaceQueryParameters(string $query, $parameters = []): string
+    public function replaceQueryParameters(string $query, array|Data $parameters = []): string
     {
         if ($parameters instanceof Data) {
             $parameters = $parameters->getValue(true);

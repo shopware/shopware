@@ -24,7 +24,7 @@ use function sprintf;
  */
 class ChangelogProcessor
 {
-    private ?string $platformRoot;
+    private ?string $platformRoot = null;
 
     /**
      * @param array<string, FeatureFlagConfig> $featureFlags
@@ -33,7 +33,7 @@ class ChangelogProcessor
         protected ChangelogParser $parser,
         protected ValidatorInterface $validator,
         protected Filesystem $filesystem,
-        private string $projectDir,
+        private readonly string $projectDir,
         protected array $featureFlags
     ) {
     }
@@ -137,9 +137,7 @@ class ChangelogProcessor
                 /** @var \Countable&\IteratorAggregate<ConstraintViolation> $issues */
                 $issues = $this->validator->validate($definition);
                 if ($issues->count()) {
-                    $messages = array_map(static function (ConstraintViolation $violation) {
-                        return $violation->getMessage();
-                    }, iterator_to_array($issues));
+                    $messages = array_map(static fn (ConstraintViolation $violation) => $violation->getMessage(), iterator_to_array($issues));
 
                     throw new \InvalidArgumentException(sprintf('Invalid file at path: %s, errors: %s', $file->getRealPath(), implode(', ', $messages)));
                 }
@@ -170,7 +168,7 @@ class ChangelogProcessor
     {
         if (!isset($this->platformRoot)) {
             $platformRoot = $this->projectDir;
-            $composerJson = json_decode((string) file_get_contents($this->projectDir . '/composer.json'), true);
+            $composerJson = json_decode((string) file_get_contents($this->projectDir . '/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
 
             if ($composerJson === null || $composerJson['name'] !== 'shopware/platform') {
                 $platformRoot .= '/platform';

@@ -20,8 +20,8 @@ class ProductManufacturerGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        private EntityWriterInterface $writer,
-        private ProductManufacturerDefinition $productManufacturerDefinition
+        private readonly EntityWriterInterface $writer,
+        private readonly ProductManufacturerDefinition $productManufacturerDefinition
     ) {
     }
 

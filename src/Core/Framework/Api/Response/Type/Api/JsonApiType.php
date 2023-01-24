@@ -23,22 +23,10 @@ use Symfony\Component\HttpFoundation\Response;
 class JsonApiType extends JsonFactoryBase
 {
     /**
-     * @var JsonApiEncoder
-     */
-    private $serializer;
-
-    /**
-     * @var StructEncoder
-     */
-    private $structEncoder;
-
-    /**
      * @internal
      */
-    public function __construct(JsonApiEncoder $serializer, StructEncoder $structEncoder)
+    public function __construct(private readonly JsonApiEncoder $serializer, private readonly StructEncoder $structEncoder)
     {
-        $this->serializer = $serializer;
-        $this->structEncoder = $structEncoder;
     }
 
     public function supports(string $contentType, ContextSource $origin): bool

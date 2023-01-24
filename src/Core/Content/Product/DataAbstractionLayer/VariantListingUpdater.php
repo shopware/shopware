@@ -13,14 +13,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class VariantListingUpdater
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -144,7 +141,7 @@ class VariantListingUpdater
 
         $listingConfiguration = [];
         foreach ($configuration as $config) {
-            $config['config'] = $config['config'] === null ? [] : json_decode($config['config'], true);
+            $config['config'] = $config['config'] === null ? [] : json_decode((string) $config['config'], true, 512, \JSON_THROW_ON_ERROR);
 
             $groups = [];
             foreach ($config['config'] as $group) {

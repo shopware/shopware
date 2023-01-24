@@ -20,15 +20,9 @@ class CustomerRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     protected function setUp(): void
     {
@@ -50,7 +44,7 @@ class CustomerRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
@@ -87,7 +81,7 @@ class CustomerRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame($id, $response['id']);
     }
@@ -106,7 +100,7 @@ class CustomerRouteTest extends TestCase
         $contextToken = $registerResponse->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertNotEmpty($contextToken);
 
-        list('id' => $id, 'email' => $email) = json_decode((string) $registerResponse->getContent(), true);
+        ['id' => $id, 'email' => $email] = json_decode((string) $registerResponse->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
@@ -118,7 +112,7 @@ class CustomerRouteTest extends TestCase
                 ]
             );
 
-        $customerResponse = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $customerResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame($id, $customerResponse['id']);
         static::assertSame($email, $customerResponse['email']);

@@ -27,15 +27,9 @@ class ShippingMethodRepositoryTest extends TestCase
      */
     private $shippingRepository;
 
-    /**
-     * @var string
-     */
-    private $shippingMethodId;
+    private string $shippingMethodId;
 
-    /**
-     * @var string
-     */
-    private $ruleId;
+    private string $ruleId;
 
     public function setUp(): void
     {

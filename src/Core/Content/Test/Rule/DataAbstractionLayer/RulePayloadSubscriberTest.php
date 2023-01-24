@@ -34,20 +34,11 @@ class RulePayloadSubscriberTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var RulePayloadSubscriber
-     */
-    private $rulePayloadSubscriber;
+    private RulePayloadSubscriber $rulePayloadSubscriber;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var RulePayloadUpdater|MockObject
-     */
-    private $updater;
+    private MockObject&RulePayloadUpdater $updater;
 
     /**
      * @var RuleDefinition

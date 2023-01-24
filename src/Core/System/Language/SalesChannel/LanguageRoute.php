@@ -11,23 +11,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package system-settings
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class LanguageRoute extends AbstractLanguageRoute
 {
     /**
-     * @var SalesChannelRepository
-     */
-    private $repository;
-
-    /**
      * @internal
      */
-    public function __construct(SalesChannelRepository $repository)
+    public function __construct(private readonly SalesChannelRepository $repository)
     {
-        $this->repository = $repository;
     }
 
     public function getDecorated(): AbstractLanguageRoute
@@ -37,8 +30,8 @@ class LanguageRoute extends AbstractLanguageRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/language", name="store-api.language", methods={"GET", "POST"}, defaults={"_entity"="language"})
      */
+    #[Route(path: '/store-api/language', name: 'store-api.language', methods: ['GET', 'POST'], defaults: ['_entity' => 'language'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): LanguageRouteResponse
     {
         $criteria->addAssociation('translationCode');

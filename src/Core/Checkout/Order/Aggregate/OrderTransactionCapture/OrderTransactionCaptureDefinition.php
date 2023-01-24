@@ -26,7 +26,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
  */
 class OrderTransactionCaptureDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'order_transaction_capture';
+    final public const ENTITY_NAME = 'order_transaction_capture';
 
     public function getEntityName(): string
     {

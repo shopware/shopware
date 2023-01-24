@@ -17,15 +17,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class CategorySubscriber implements EventSubscriberInterface
 {
-    private SystemConfigService $systemConfigService;
-
     /**
      * @internal
      */
-    public function __construct(
-        SystemConfigService $systemConfigService
-    ) {
-        $this->systemConfigService = $systemConfigService;
+    public function __construct(private readonly SystemConfigService $systemConfigService)
+    {
     }
 
     public static function getSubscribedEvents(): array

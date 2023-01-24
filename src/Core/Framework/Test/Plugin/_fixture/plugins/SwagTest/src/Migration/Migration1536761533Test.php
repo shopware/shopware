@@ -11,9 +11,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class Migration1536761533Test extends MigrationStep
 {
-    public const TEST_SYSTEM_CONFIG_KEY = 'swag_test_counter';
+    final public const TEST_SYSTEM_CONFIG_KEY = 'swag_test_counter';
 
-    public const TIMESTAMP = 1536761533;
+    final public const TIMESTAMP = 1536761533;
 
     public function getCreationTimestamp(): int
     {

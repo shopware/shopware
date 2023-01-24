@@ -39,8 +39,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class FirstRunWizardService
 {
-    public const USER_CONFIG_KEY_FRW_USER_TOKEN = 'core.frw.userToken';
-    public const USER_CONFIG_VALUE_FRW_USER_TOKEN = 'frwUserToken';
+    final public const USER_CONFIG_KEY_FRW_USER_TOKEN = 'core.frw.userToken';
+    final public const USER_CONFIG_VALUE_FRW_USER_TOKEN = 'frwUserToken';
 
     private const TRACKING_EVENT_FRW_STARTED = 'First Run Wizard started';
     private const TRACKING_EVENT_FRW_FINISHED = 'First Run Wizard finished';
@@ -289,7 +289,7 @@ class FirstRunWizardService
     {
         try {
             $this->filesystem->write($validationRequest->getFileName(), $validationRequest->getContent());
-        } catch (UnableToWriteFile $e) {
+        } catch (UnableToWriteFile) {
             throw new LicenseDomainVerificationException($domain);
         }
     }

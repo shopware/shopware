@@ -16,22 +16,15 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
  */
 class BundleConfigGenerator implements BundleConfigGeneratorInterface
 {
-    private Kernel $kernel;
-
-    private ActiveAppsLoader $activeAppsLoader;
-
-    private string $projectDir;
+    private readonly string $projectDir;
 
     /**
      * @internal
      */
     public function __construct(
-        Kernel $kernel,
-        ActiveAppsLoader $activeAppsLoader
+        private readonly Kernel $kernel,
+        private readonly ActiveAppsLoader $activeAppsLoader
     ) {
-        $this->kernel = $kernel;
-        $this->activeAppsLoader = $activeAppsLoader;
-
         $projectDir = $this->kernel->getContainer()->getParameter('kernel.project_dir');
         if (!\is_string($projectDir)) {
             throw new \RuntimeException('Container parameter "kernel.project_dir" needs to be a string');
@@ -170,8 +163,6 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
     {
         $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
 
-        return array_map(static function (Plugin $plugin) {
-            return $plugin->getName();
-        }, $activePlugins);
+        return array_map(static fn (Plugin $plugin) => $plugin->getName(), $activePlugins);
     }
 }

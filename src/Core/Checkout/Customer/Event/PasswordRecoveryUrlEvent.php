@@ -13,28 +13,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class PasswordRecoveryUrlEvent extends Event implements ShopwareSalesChannelEvent
 {
-    private string $recoveryUrl;
-
-    private SalesChannelContext $salesChannelContext;
-
-    private string $hash;
-
-    private string $storefrontUrl;
-
-    private CustomerRecoveryEntity $customerRecovery;
-
-    public function __construct(
-        SalesChannelContext $salesChannelContext,
-        string $recoveryUrl,
-        string $hash,
-        string $storefrontUrl,
-        CustomerRecoveryEntity $customerRecovery
-    ) {
-        $this->recoveryUrl = $recoveryUrl;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->hash = $hash;
-        $this->storefrontUrl = $storefrontUrl;
-        $this->customerRecovery = $customerRecovery;
+    public function __construct(private readonly SalesChannelContext $salesChannelContext, private string $recoveryUrl, private readonly string $hash, private readonly string $storefrontUrl, private readonly CustomerRecoveryEntity $customerRecovery)
+    {
     }
 
     public function getRecoveryUrl(): string

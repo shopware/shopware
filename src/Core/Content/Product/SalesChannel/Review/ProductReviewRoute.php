@@ -13,23 +13,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package inventory
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class ProductReviewRoute extends AbstractProductReviewRoute
 {
     /**
-     * @var EntityRepository
-     */
-    private $repository;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $repository)
+    public function __construct(private readonly EntityRepository $repository)
     {
-        $this->repository = $repository;
     }
 
     public function getDecorated(): AbstractProductReviewRoute
@@ -39,8 +32,8 @@ class ProductReviewRoute extends AbstractProductReviewRoute
 
     /**
      * @Since("6.3.2.0")
-     * @Route("/store-api/product/{productId}/reviews", name="store-api.product-review.list", methods={"POST"}, defaults={"_entity"="product_review"})
      */
+    #[Route(path: '/store-api/product/{productId}/reviews', name: 'store-api.product-review.list', methods: ['POST'], defaults: ['_entity' => 'product_review'])]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
     {
         $active = new MultiFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('status', true)]);

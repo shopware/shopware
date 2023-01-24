@@ -11,11 +11,8 @@ use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
  */
 class Config extends XmlElement
 {
-    protected array $items = [];
-
-    private function __construct(array $items)
+    private function __construct(protected array $items)
     {
-        $this->items = $items;
     }
 
     public function toArray(string $defaultLocale): array

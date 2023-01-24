@@ -9,22 +9,10 @@ use Shopware\Core\Framework\Context;
  */
 class BusinessEventCollectorEvent extends NestedEvent
 {
-    public const NAME = 'collect.business-events';
+    final public const NAME = 'collect.business-events';
 
-    /**
-     * @var BusinessEventCollectorResponse
-     */
-    private $events;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    public function __construct(BusinessEventCollectorResponse $events, Context $context)
+    public function __construct(private readonly BusinessEventCollectorResponse $events, private readonly Context $context)
     {
-        $this->events = $events;
-        $this->context = $context;
     }
 
     public function getCollection(): BusinessEventCollectorResponse

@@ -21,14 +21,11 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
  */
 class JsonEntityEncoder
 {
-    private NormalizerInterface $serializer;
-
     /**
      * @internal
      */
-    public function __construct(NormalizerInterface $serializer)
+    public function __construct(private readonly NormalizerInterface $serializer)
     {
-        $this->serializer = $serializer;
     }
 
     /**

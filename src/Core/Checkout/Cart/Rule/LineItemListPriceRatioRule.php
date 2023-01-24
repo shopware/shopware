@@ -17,21 +17,14 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemListPriceRatioRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemListPriceRatio';
-
-    protected ?float $amount;
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartLineItemListPriceRatio';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?float $amount = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->amount = $amount;
     }
 
     public function match(RuleScope $scope): bool

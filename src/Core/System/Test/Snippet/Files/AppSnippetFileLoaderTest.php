@@ -19,10 +19,7 @@ class AppSnippetFileLoaderTest extends TestCase
     use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
 
-    /**
-     * @var SnippetFileLoader
-     */
-    private $snippetFileLoader;
+    private SnippetFileLoader $snippetFileLoader;
 
     public function setUp(): void
     {

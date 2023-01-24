@@ -195,16 +195,12 @@ class ProcessorTest extends TestCase
         static::assertInstanceOf(CalculatedPrice::class, $creditLineItem->getPrice());
         static::assertCount(2, $creditCalculatedTaxes = $creditLineItem->getPrice()->getCalculatedTaxes()->getElements());
 
-        $calculatedTaxForCustomItem = array_filter($creditCalculatedTaxes, function (CalculatedTax $tax) use ($taxForCustomItem) {
-            return (int) $tax->getTaxRate() === $taxForCustomItem;
-        });
+        $calculatedTaxForCustomItem = array_filter($creditCalculatedTaxes, fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForCustomItem);
 
         static::assertNotEmpty($calculatedTaxForCustomItem);
         static::assertCount(1, $calculatedTaxForCustomItem);
 
-        $calculatedTaxForProductItem = array_filter($creditCalculatedTaxes, function (CalculatedTax $tax) use ($taxForProductItem) {
-            return (int) $tax->getTaxRate() === $taxForProductItem;
-        });
+        $calculatedTaxForProductItem = array_filter($creditCalculatedTaxes, fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForProductItem);
 
         static::assertNotEmpty($calculatedTaxForProductItem);
         static::assertCount(1, $calculatedTaxForProductItem);
@@ -292,16 +288,12 @@ class ProcessorTest extends TestCase
         static::assertInstanceOf(Delivery::class, $delivery);
         static::assertCount(2, $shippingCalculatedTaxes = $delivery->getShippingCosts()->getCalculatedTaxes()->getElements());
 
-        $calculatedTaxForCustomItem = array_filter($shippingCalculatedTaxes, function (CalculatedTax $tax) use ($taxForCustomItem) {
-            return (int) $tax->getTaxRate() === $taxForCustomItem;
-        });
+        $calculatedTaxForCustomItem = array_filter($shippingCalculatedTaxes, fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForCustomItem);
 
         static::assertNotEmpty($calculatedTaxForCustomItem);
         static::assertCount(1, $calculatedTaxForCustomItem);
 
-        $calculatedTaxForProductItem = array_filter($shippingCalculatedTaxes, function (CalculatedTax $tax) use ($taxForProductItem) {
-            return (int) $tax->getTaxRate() === $taxForProductItem;
-        });
+        $calculatedTaxForProductItem = array_filter($shippingCalculatedTaxes, fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForProductItem);
 
         static::assertNotEmpty($calculatedTaxForProductItem);
         static::assertCount(1, $calculatedTaxForProductItem);

@@ -20,7 +20,7 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private UrlGeneratorInterface $urlGenerator)
+    public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
     {
     }
 

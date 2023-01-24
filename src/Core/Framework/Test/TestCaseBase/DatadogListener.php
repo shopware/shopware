@@ -52,7 +52,7 @@ class DatadogListener implements TestListener
             return;
         }
 
-        $key = \get_class($test);
+        $key = $test::class;
 
         if (!class_exists($key)) {
             return;
@@ -82,9 +82,9 @@ class DatadogListener implements TestListener
         $this->failedTests[] = [
             'ddsource' => 'phpunit',
             'ddtags' => 'phpunit,test:failed',
-            'message' => sprintf('Test %s:%s failed with error: %s', \get_class($test), $test->getName(), $e->getMessage()),
+            'message' => sprintf('Test %s:%s failed with error: %s', $test::class, $test->getName(), $e->getMessage()),
             'service' => 'PHPUnit',
-            'test-description' => \get_class($test),
+            'test-description' => $test::class,
             'test-duration' => $time,
         ];
     }

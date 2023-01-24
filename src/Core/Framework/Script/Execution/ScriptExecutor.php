@@ -29,31 +29,11 @@ class ScriptExecutor
 {
     public static bool $isInScriptExecutionContext = false;
 
-    private LoggerInterface $logger;
-
-    private ScriptLoader $loader;
-
-    private ScriptTraces $traces;
-
-    private ContainerInterface $container;
-
-    private TranslationExtension $translationExtension;
-
     /**
      * @internal
      */
-    public function __construct(
-        ScriptLoader $loader,
-        LoggerInterface $logger,
-        ScriptTraces $traces,
-        ContainerInterface $container,
-        TranslationExtension $translationExtension
-    ) {
-        $this->logger = $logger;
-        $this->loader = $loader;
-        $this->traces = $traces;
-        $this->container = $container;
-        $this->translationExtension = $translationExtension;
+    public function __construct(private readonly ScriptLoader $loader, private readonly LoggerInterface $logger, private readonly ScriptTraces $traces, private readonly ContainerInterface $container, private readonly TranslationExtension $translationExtension)
+    {
     }
 
     public function execute(Hook $hook): void
@@ -65,7 +45,7 @@ class ScriptExecutor
         if ($hook instanceof InterfaceHook) {
             throw new \RuntimeException(sprintf(
                 'Tried to execute InterfaceHook "%s", butInterfaceHooks should not be executed, execute the functions of the hook instead',
-                \get_class($hook)
+                $hook::class
             ));
         }
 

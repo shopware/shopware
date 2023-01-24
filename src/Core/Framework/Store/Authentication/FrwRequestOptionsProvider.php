@@ -39,7 +39,7 @@ class FrwRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
     private function getFrwUserToken(Context $context): ?string
     {
         if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
+            throw new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class);
         }
 
         /** @var AdminApiSource $contextSource */

@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class PropertyGroupOptionTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'property_group_option_translation';
+    final public const ENTITY_NAME = 'property_group_option_translation';
 
     public function getEntityName(): string
     {

@@ -13,18 +13,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class NavigationRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
-    protected string $active;
-
-    protected string $rootId;
-
-    protected int $depth;
-
-    public function __construct(array $tags, string $active, string $rootId, int $depth, Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria)
+    public function __construct(array $tags, protected string $active, protected string $rootId, protected int $depth, Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria)
     {
         parent::__construct($tags, $request, $response, $context, $criteria);
-        $this->active = $active;
-        $this->rootId = $rootId;
-        $this->depth = $depth;
     }
 
     public function getActive(): string

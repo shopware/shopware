@@ -22,25 +22,10 @@ class CustomerRegisterEvent extends Event implements SalesChannelAware, Shopware
 {
     public const EVENT_NAME = 'checkout.customer.register';
 
-    /**
-     * @var CustomerEntity
-     */
-    private $customer;
+    private ?MailRecipientStruct $mailRecipientStruct = null;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var MailRecipientStruct|null
-     */
-    private $mailRecipientStruct;
-
-    public function __construct(SalesChannelContext $salesChannelContext, CustomerEntity $customer)
+    public function __construct(private readonly SalesChannelContext $salesChannelContext, private readonly CustomerEntity $customer)
     {
-        $this->customer = $customer;
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getName(): string

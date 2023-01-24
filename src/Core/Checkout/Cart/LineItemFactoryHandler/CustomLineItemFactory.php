@@ -15,17 +15,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class CustomLineItemFactory implements LineItemFactoryInterface
 {
-    private PriceDefinitionFactory $priceDefinitionFactory;
-
-    private EntityRepository $mediaRepository;
-
     /**
      * @internal
      */
-    public function __construct(PriceDefinitionFactory $priceDefinitionFactory, EntityRepository $mediaRepository)
+    public function __construct(private readonly PriceDefinitionFactory $priceDefinitionFactory, private readonly EntityRepository $mediaRepository)
     {
-        $this->priceDefinitionFactory = $priceDefinitionFactory;
-        $this->mediaRepository = $mediaRepository;
     }
 
     public function supports(string $type): bool

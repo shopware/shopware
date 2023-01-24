@@ -20,24 +20,8 @@ use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
  */
 class AppUpdater extends AbstractAppUpdater
 {
-    private AbstractExtensionDataProvider $extensionDataProvider;
-
-    private EntityRepository $appRepo;
-
-    private ExtensionDownloader $downloader;
-
-    private AbstractStoreAppLifecycleService $appLifecycle;
-
-    public function __construct(
-        AbstractExtensionDataProvider $extensionDataProvider,
-        EntityRepository $appRepo,
-        ExtensionDownloader $downloader,
-        AbstractStoreAppLifecycleService $appLifecycle
-    ) {
-        $this->extensionDataProvider = $extensionDataProvider;
-        $this->appRepo = $appRepo;
-        $this->downloader = $downloader;
-        $this->appLifecycle = $appLifecycle;
+    public function __construct(private readonly AbstractExtensionDataProvider $extensionDataProvider, private readonly EntityRepository $appRepo, private readonly ExtensionDownloader $downloader, private readonly AbstractStoreAppLifecycleService $appLifecycle)
+    {
     }
 
     public function updateApps(Context $context): void
@@ -68,7 +52,7 @@ class AppUpdater extends AbstractAppUpdater
 
             try {
                 $this->appLifecycle->updateExtension($app->getName(), false, $context);
-            } catch (ExtensionUpdateRequiresConsentAffirmationException $exception) {
+            } catch (ExtensionUpdateRequiresConsentAffirmationException) {
                 //nth
             }
         }

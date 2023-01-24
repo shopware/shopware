@@ -15,14 +15,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class FormCmsElementResolver extends AbstractCmsElementResolver
 {
-    private AbstractSalutationRoute $salutationRoute;
-
     /**
      * @internal
      */
-    public function __construct(AbstractSalutationRoute $salutationRoute)
+    public function __construct(private readonly AbstractSalutationRoute $salutationRoute)
     {
-        $this->salutationRoute = $salutationRoute;
     }
 
     public function getType(): string
@@ -41,9 +38,7 @@ class FormCmsElementResolver extends AbstractCmsElementResolver
 
         $salutations = $this->salutationRoute->load(new Request(), $context, new Criteria())->getSalutations();
 
-        $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
-            return $b->getSalutationKey() <=> $a->getSalutationKey();
-        });
+        $salutations->sort(fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
 
         $slot->setData($salutations);
     }

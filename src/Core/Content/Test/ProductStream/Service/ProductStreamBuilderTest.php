@@ -45,10 +45,7 @@ class ProductStreamBuilderTest extends TestCase
      */
     private $productRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var SalesChannelContext

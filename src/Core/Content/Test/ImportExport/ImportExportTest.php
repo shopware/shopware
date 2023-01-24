@@ -248,9 +248,7 @@ class ImportExportTest extends AbstractImportExportTest
         $csvColumns = explode(';', $firstLine);
 
         $sortedMappings = $profile['mapping'];
-        usort($sortedMappings, function ($firstMapping, $secondMapping) {
-            return $firstMapping['position'] - $secondMapping['position'];
-        });
+        usort($sortedMappings, fn ($firstMapping, $secondMapping) => $firstMapping['position'] - $secondMapping['position']);
 
         foreach ($sortedMappings as $index => $mapping) {
             static::assertSame(
@@ -860,9 +858,7 @@ class ImportExportTest extends AbstractImportExportTest
 
         $importExportService->method('getProgress')
             ->willReturnCallback(
-                static function () use ($logEntity) {
-                    return new Progress($logEntity->getId(), $logEntity->getState());
-                }
+                static fn () => new Progress($logEntity->getId(), $logEntity->getState())
             );
 
         $logEntity->setState(Progress::STATE_SUCCEEDED);

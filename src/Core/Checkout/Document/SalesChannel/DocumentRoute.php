@@ -15,19 +15,15 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 final class DocumentRoute extends AbstractDocumentRoute
 {
-    private DocumentGenerator $documentGenerator;
-
     /**
      * @internal
      */
-    public function __construct(DocumentGenerator $documentGenerator)
+    public function __construct(private readonly DocumentGenerator $documentGenerator)
     {
-        $this->documentGenerator = $documentGenerator;
     }
 
     public function getDecorated(): AbstractDocumentRoute
@@ -37,8 +33,8 @@ final class DocumentRoute extends AbstractDocumentRoute
 
     /**
      * @Since("6.4.12.0")
-     * @Route("/store-api/document/download/{documentId}/{deepLinkCode}", name="store-api.document.download", methods={"GET", "POST"}, defaults={"_acl"={"document.viewer"}, "_loginRequired"=true, "_loginRequiredAllowGuest"=true, "_entity"="document"})
      */
+    #[Route(path: '/store-api/document/download/{documentId}/{deepLinkCode}', name: 'store-api.document.download', methods: ['GET', 'POST'], defaults: ['_acl' => ['document.viewer'], '_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_entity' => 'document'])]
     public function download(string $documentId, Request $request, SalesChannelContext $context, string $deepLinkCode = ''): Response
     {
         if ($context->getCustomer() === null || ($context->getCustomer()->getGuest() && $deepLinkCode === '')) {

@@ -27,7 +27,7 @@ abstract class AbstractStoreRequestOptionsProvider
     {
         $contextSource = $context->getSource();
         if (!($contextSource instanceof AdminApiSource)) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($contextSource));
+            throw new InvalidContextSourceException(AdminApiSource::class, $contextSource::class);
         }
 
         return $contextSource;

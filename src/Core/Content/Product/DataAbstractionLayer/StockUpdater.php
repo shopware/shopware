@@ -36,9 +36,9 @@ class StockUpdater implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        private Connection $connection,
-        private EventDispatcherInterface $dispatcher,
-        private StockUpdateFilterProvider $stockUpdateFilter
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly StockUpdateFilterProvider $stockUpdateFilter
     ) {
     }
 
@@ -47,7 +47,7 @@ class StockUpdater implements EventSubscriberInterface
      *
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             CheckoutOrderPlacedEvent::class => 'orderPlaced',

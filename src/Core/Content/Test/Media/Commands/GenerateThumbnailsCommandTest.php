@@ -52,15 +52,12 @@ class GenerateThumbnailsCommandTest extends TestCase
      */
     private $urlGenerator;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var array<string>
      */
-    private $initialMediaIds;
+    private array $initialMediaIds;
 
     protected function setUp(): void
     {
@@ -149,7 +146,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
-            if (strpos((string) $updatedMedia->getMimeType(), 'image') === 0) {
+            if (str_starts_with((string) $updatedMedia->getMimeType(), 'image')) {
                 $thumbnails = $updatedMedia->getThumbnails();
                 static::assertNotNull($thumbnails);
                 static::assertEquals(
@@ -287,7 +284,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $output = new BufferedOutput();
 
-        $affectedMediaIds = array_merge(array_combine($this->initialMediaIds, $this->initialMediaIds), $newMedia->getIds());
+        $affectedMediaIds = [...array_combine($this->initialMediaIds, $this->initialMediaIds), ...$newMedia->getIds()];
 
         $expectedMessageStrict = new UpdateThumbnailsMessage();
         $expectedMessageStrict->withContext($this->context);
@@ -308,9 +305,7 @@ class GenerateThumbnailsCommandTest extends TestCase
                 [$expectedMessageNonStrict, static::anything()],
                 [$expectedMessageStrict, static::anything()],
             )
-            ->willReturnCallback(function ($m, $s) {
-                return Envelope::wrap($m, $s);
-            });
+            ->willReturnCallback(fn ($m, $s) => Envelope::wrap($m, $s));
 
         $command = new GenerateThumbnailsCommand(
             $this->getContainer()->get(ThumbnailService::class),

@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraint;
  */
 class LineItemProductStatesRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemProductStates';
+    final public const RULE_NAME = 'cartLineItemProductStates';
 
     protected string $productState;
 

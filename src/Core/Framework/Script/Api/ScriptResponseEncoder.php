@@ -13,14 +13,11 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ScriptResponseEncoder
 {
-    private StructEncoder $structEncoder;
-
     /**
      * @internal
      */
-    public function __construct(StructEncoder $structEncoder)
+    public function __construct(private readonly StructEncoder $structEncoder)
     {
-        $this->structEncoder = $structEncoder;
     }
 
     public function encodeToSymfonyResponse(ScriptResponse $scriptResponse, ResponseFields $responseFields, string $apiAlias): Response

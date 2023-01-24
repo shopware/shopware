@@ -28,9 +28,9 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        private EntityRepository $attributeSetRepository,
-        private Connection $connection,
-        private DefinitionInstanceRegistry $definitionRegistry
+        private readonly EntityRepository $attributeSetRepository,
+        private readonly Connection $connection,
+        private readonly DefinitionInstanceRegistry $definitionRegistry
     ) {
     }
 
@@ -99,80 +99,65 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
         $name = $context->getFaker()->unique()->words(3, true);
         $type = $types[array_rand($types)];
 
-        switch ($type) {
-            case CustomFieldTypes::INT:
-                $config = [
-                    'componentName' => 'sw-field',
-                    'type' => 'number',
-                    'numberType' => 'int',
-                    'customFieldType' => 'number',
-                    'label' => [
-                        'en-GB' => $name,
-                    ],
-                    'placeholder' => [
-                        'en-GB' => 'Type a number...',
-                    ],
-                    'customFieldPosition' => 1,
-                ];
-
-                break;
-            case CustomFieldTypes::FLOAT:
-                $config = [
-                    'componentName' => 'sw-field',
-                    'type' => 'number',
-                    'numberType' => 'float',
-                    'customFieldType' => 'number',
-                    'label' => [
-                        'en-GB' => $name,
-                    ],
-                    'placeholder' => [
-                        'en-GB' => 'Type a floating point number...',
-                    ],
-                    'customFieldPosition' => 1,
-                ];
-
-                break;
-            case CustomFieldTypes::DATETIME:
-                $config = [
-                    'componentName' => 'sw-field',
-                    'type' => 'date',
-                    'dateType' => 'datetime',
-                    'customFieldType' => 'date',
-                    'label' => [
-                        'en-GB' => $name,
-                    ],
-                    'customFieldPosition' => 1,
-                ];
-
-                break;
-            case CustomFieldTypes::BOOL:
-                $config = [
-                    'componentName' => 'sw-field',
-                    'type' => 'checkbox',
-                    'customFieldType' => 'checkbox',
-                    'label' => [
-                        'en-GB' => $name,
-                    ],
-                    'customFieldPosition' => 1,
-                ];
-
-                break;
-            default:
-                $config = [
-                    'componentName' => 'sw-field',
-                    'type' => 'text',
-                    'customFieldType' => 'text',
-                    'label' => [
-                        'en-GB' => $name,
-                    ],
-                    'placeholder' => [
-                        'en-GB' => 'Type a text...',
-                    ],
-                    'customFieldPosition' => 1,
-                ];
-
-                break;
-        }
+        $config = match ($type) {
+            CustomFieldTypes::INT => [
+                'componentName' => 'sw-field',
+                'type' => 'number',
+                'numberType' => 'int',
+                'customFieldType' => 'number',
+                'label' => [
+                    'en-GB' => $name,
+                ],
+                'placeholder' => [
+                    'en-GB' => 'Type a number...',
+                ],
+                'customFieldPosition' => 1,
+            ],
+            CustomFieldTypes::FLOAT => [
+                'componentName' => 'sw-field',
+                'type' => 'number',
+                'numberType' => 'float',
+                'customFieldType' => 'number',
+                'label' => [
+                    'en-GB' => $name,
+                ],
+                'placeholder' => [
+                    'en-GB' => 'Type a floating point number...',
+                ],
+                'customFieldPosition' => 1,
+            ],
+            CustomFieldTypes::DATETIME => [
+                'componentName' => 'sw-field',
+                'type' => 'date',
+                'dateType' => 'datetime',
+                'customFieldType' => 'date',
+                'label' => [
+                    'en-GB' => $name,
+                ],
+                'customFieldPosition' => 1,
+            ],
+            CustomFieldTypes::BOOL => [
+                'componentName' => 'sw-field',
+                'type' => 'checkbox',
+                'customFieldType' => 'checkbox',
+                'label' => [
+                    'en-GB' => $name,
+                ],
+                'customFieldPosition' => 1,
+            ],
+            default => [
+                'componentName' => 'sw-field',
+                'type' => 'text',
+                'customFieldType' => 'text',
+                'label' => [
+                    'en-GB' => $name,
+                ],
+                'placeholder' => [
+                    'en-GB' => 'Type a text...',
+                ],
+                'customFieldPosition' => 1,
+            ],
+        };
 
         \assert(\is_string($name));
 
@@ -190,9 +175,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
     private function generateCustomFieldSet(array $options, DemodataContext $context): void
     {
         $relationNames = array_keys($options['relations']);
-        $relations = array_map(static function ($rel) {
-            return ['id' => Uuid::randomHex(), 'entityName' => $rel];
-        }, $relationNames);
+        $relations = array_map(static fn ($rel) => ['id' => Uuid::randomHex(), 'entityName' => $rel], $relationNames);
 
         $attributeCount = random_int(1, 5);
         $attributes = [];
@@ -250,22 +233,12 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
      */
     private function randomCustomFieldValue(string $type, Generator $faker)
     {
-        switch ($type) {
-            case CustomFieldTypes::BOOL:
-                return (bool) random_int(0, 1);
-
-            case CustomFieldTypes::FLOAT:
-                return $faker->randomFloat();
-
-            case CustomFieldTypes::INT:
-                return random_int(-1000000, 1000000);
-
-            case CustomFieldTypes::DATETIME:
-                return $faker->dateTime();
-
-            case CustomFieldTypes::TEXT:
-            default:
-                return $faker->text();
-        }
+        return match ($type) {
+            CustomFieldTypes::BOOL => (bool) random_int(0, 1),
+            CustomFieldTypes::FLOAT => $faker->randomFloat(),
+            CustomFieldTypes::INT => random_int(-1000000, 1000000),
+            CustomFieldTypes::DATETIME => $faker->dateTime(),
+            default => $faker->text(),
+        };
     }
 }

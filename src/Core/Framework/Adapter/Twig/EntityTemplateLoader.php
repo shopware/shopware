@@ -23,17 +23,11 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
      */
     private array $databaseTemplateCache = [];
 
-    private Connection $connection;
-
-    private string $environment;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, string $environment)
+    public function __construct(private readonly Connection $connection, private readonly string $environment)
     {
-        $this->connection = $connection;
-        $this->environment = $environment;
     }
 
     public static function getSubscribedEvents(): array

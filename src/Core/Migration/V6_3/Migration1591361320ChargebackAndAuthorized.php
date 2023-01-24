@@ -87,7 +87,7 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
-        } catch (UniqueConstraintViolationException $e) {
+        } catch (UniqueConstraintViolationException) {
             // don't add states if they already exist
             return;
         }

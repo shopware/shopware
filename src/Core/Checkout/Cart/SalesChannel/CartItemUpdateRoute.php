@@ -17,28 +17,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package checkout
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
 {
-    private AbstractCartPersister $cartPersister;
-
-    private CartCalculator $cartCalculator;
-
-    private LineItemFactoryRegistry $lineItemFactory;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(AbstractCartPersister $cartPersister, CartCalculator $cartCalculator, LineItemFactoryRegistry $lineItemFactory, EventDispatcherInterface $eventDispatcher)
+    public function __construct(private readonly AbstractCartPersister $cartPersister, private readonly CartCalculator $cartCalculator, private readonly LineItemFactoryRegistry $lineItemFactory, private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->cartPersister = $cartPersister;
-        $this->cartCalculator = $cartCalculator;
-        $this->lineItemFactory = $lineItemFactory;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractCartItemUpdateRoute
@@ -48,8 +35,8 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
 
     /**
      * @Since("6.3.0.0")
-     * @Route("/store-api/checkout/cart/line-item", name="store-api.checkout.cart.update-lineitem", methods={"PATCH"})
      */
+    #[Route(path: '/store-api/checkout/cart/line-item', name: 'store-api.checkout.cart.update-lineitem', methods: ['PATCH'])]
     public function change(Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {
         $itemsToUpdate = $request->request->all('items');

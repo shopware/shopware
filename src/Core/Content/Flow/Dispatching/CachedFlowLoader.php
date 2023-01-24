@@ -16,26 +16,18 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInterface, ResetInterface
 {
-    public const KEY = 'flow-loader';
+    final public const KEY = 'flow-loader';
 
     private array $flows = [];
 
-    private AbstractFlowLoader $decorated;
-
-    private CacheInterface $cache;
-
-    public function __construct(
-        AbstractFlowLoader $decorated,
-        CacheInterface $cache
-    ) {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
+    public function __construct(private readonly AbstractFlowLoader $decorated, private readonly CacheInterface $cache)
+    {
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             FlowEvents::FLOW_WRITTEN_EVENT => 'invalidate',

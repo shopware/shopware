@@ -14,16 +14,10 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 class BundleSchemaPathCollection
 {
     /**
-     * @var iterable<Bundle>
+     * @param iterable<Bundle> $bundles
      */
-    private iterable $bundles;
-
-    /**
-     * @param iterable<Bundle> $plugins
-     */
-    public function __construct(iterable $plugins)
+    public function __construct(private readonly iterable $bundles)
     {
-        $this->bundles = $plugins;
     }
 
     /**

@@ -73,7 +73,7 @@ class StateMachineActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
         static::assertIsString($response);
-        $response = json_decode($response, true);
+        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(Response::HTTP_NOT_FOUND, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
@@ -90,7 +90,7 @@ class StateMachineActionControllerTest extends TestCase
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
         $response = $this->getBrowser()->getResponse()->getContent();
         static::assertIsString($response);
-        $response = json_decode($response, true);
+        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(2, $response['transitions']);
         static::assertEquals('cancel', $response['transitions'][0]['actionName']);
@@ -108,7 +108,7 @@ class StateMachineActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
         static::assertIsString($response);
-        $response = json_decode($response, true);
+        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
         $actionUrl = $response['transitions'][0]['url'];
         $transitionTechnicalName = $response['transitions'][0]['technicalName'];
@@ -117,7 +117,7 @@ class StateMachineActionControllerTest extends TestCase
 
         $responseString = $this->getBrowser()->getResponse()->getContent();
         static::assertIsString($responseString);
-        $response = json_decode($responseString, true);
+        $response = json_decode($responseString, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
             Response::HTTP_OK,
@@ -161,7 +161,7 @@ class StateMachineActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
         static::assertIsString($response);
-        $response = json_decode($response, true);
+        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);

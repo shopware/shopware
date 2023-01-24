@@ -24,33 +24,17 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class ProductSerializer extends EntitySerializer
 {
-    public const VISIBILITY_MAPPING = [
+    final public const VISIBILITY_MAPPING = [
         ProductVisibilityDefinition::VISIBILITY_ALL => 'all',
         ProductVisibilityDefinition::VISIBILITY_LINK => 'link',
         ProductVisibilityDefinition::VISIBILITY_SEARCH => 'search',
     ];
 
-    private EntityRepository $visibilityRepository;
-
-    private EntityRepository $salesChannelRepository;
-
-    private EntityRepository $productMediaRepository;
-
-    private EntityRepository $productConfiguratorSettingRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $visibilityRepository,
-        EntityRepository $salesChannelRepository,
-        EntityRepository $productMediaRepository,
-        EntityRepository $productConfiguratorSettingRepository
-    ) {
-        $this->visibilityRepository = $visibilityRepository;
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->productMediaRepository = $productMediaRepository;
-        $this->productConfiguratorSettingRepository = $productConfiguratorSettingRepository;
+    public function __construct(private readonly EntityRepository $visibilityRepository, private readonly EntityRepository $salesChannelRepository, private readonly EntityRepository $productMediaRepository, private readonly EntityRepository $productConfiguratorSettingRepository)
+    {
     }
 
     /**
@@ -84,7 +68,7 @@ class ProductSerializer extends EntitySerializer
             $visibility = $visibility instanceof ProductVisibilityEntity
                 ? $visibility->jsonSerialize()
                 : $visibility;
-            $groups[$visibility['visibility']] = $groups[$visibility['visibility']] ?? [];
+            $groups[$visibility['visibility']] ??= [];
             $groups[$visibility['visibility']][] = $visibility['salesChannelId'];
         }
 
@@ -125,7 +109,7 @@ class ProductSerializer extends EntitySerializer
                 continue;
             }
 
-            $ids = array_filter(explode('|', $entity['visibilities'][$key]));
+            $ids = array_filter(explode('|', (string) $entity['visibilities'][$key]));
 
             $ids = $this->convertSalesChannelNamesToIds($ids);
 
@@ -280,7 +264,7 @@ class ProductSerializer extends EntitySerializer
         }
 
         $productMedias = [];
-        $urls = explode('|', $entity['media']);
+        $urls = explode('|', (string) $entity['media']);
 
         $productMediaField = $definition->getField('media');
 

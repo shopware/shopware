@@ -23,35 +23,20 @@ final class ReviewFormEvent extends Event implements SalesChannelAware, MailAwar
 {
     public const EVENT_NAME = 'review_form.send';
 
-    private Context $context;
-
-    private string $salesChannelId;
-
-    private MailRecipientStruct $recipients;
-
     /**
      * @var array<int|string, mixed>
      */
-    private array $reviewFormData;
-
-    private string $productId;
-
-    private string $customerId;
+    private readonly array $reviewFormData;
 
     public function __construct(
-        Context $context,
-        string $salesChannelId,
-        MailRecipientStruct $recipients,
+        private readonly Context $context,
+        private readonly string $salesChannelId,
+        private readonly MailRecipientStruct $recipients,
         DataBag $reviewFormData,
-        string $productId,
-        string $customerId
+        private readonly string $productId,
+        private readonly string $customerId
     ) {
-        $this->context = $context;
-        $this->salesChannelId = $salesChannelId;
-        $this->recipients = $recipients;
         $this->reviewFormData = $reviewFormData->all();
-        $this->productId = $productId;
-        $this->customerId = $customerId;
     }
 
     public static function getAvailableData(): EventDataCollection

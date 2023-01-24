@@ -12,8 +12,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  */
 class SimpleShopwareHttpException extends ShopwareHttpException
 {
-    public const EXCEPTION_CODE = 'FRAMEWORK__TEST_EXCEPTION';
-    public const EXCEPTION_MESSAGE = 'this is param 1: {{ paramOne }} and this is param 2: {{ paramTwo }}';
+    final public const EXCEPTION_CODE = 'FRAMEWORK__TEST_EXCEPTION';
+    final public const EXCEPTION_MESSAGE = 'this is param 1: {{ paramOne }} and this is param 2: {{ paramTwo }}';
 
     public function __construct(array $params)
     {
@@ -42,7 +42,7 @@ class ErrorResponseFactoryTest extends TestCase
 
         $errorResponseFactory = new ErrorResponseFactory();
         $response = $errorResponseFactory->getResponseFromException(new Exception($exceptionDetail, 5), false);
-        $responseBody = json_decode($response->getContent(), true);
+        $responseBody = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(500, $response->getStatusCode());
         static::assertEquals([
@@ -64,7 +64,7 @@ class ErrorResponseFactoryTest extends TestCase
         $errorResponseFactory = new ErrorResponseFactory();
         $response = $errorResponseFactory->getResponseFromException(new HttpException(418, $exceptionDetail), false);
 
-        $responseBody = json_decode($response->getContent(), true);
+        $responseBody = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(418, $response->getStatusCode());
         static::assertEquals([
@@ -86,13 +86,13 @@ class ErrorResponseFactoryTest extends TestCase
         $errorResponseFactory = new ErrorResponseFactory();
         $response = $errorResponseFactory->getResponseFromException(new HttpException(418, $exceptionDetail, new HttpException(500, 'im nested')), true);
 
-        $responseBody = json_decode($response->getContent(), true);
+        $responseBody = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $meta = $responseBody['errors'][0]['meta'];
         unset($meta['previous'][0]['meta']);
 
         static::assertNotNull($meta);
-        static::count(1, $meta['previous']);
+        static::count();
         static::assertEquals([
             [
                 'code' => '0',
@@ -124,7 +124,7 @@ class ErrorResponseFactoryTest extends TestCase
         $simpleHttpException = new SimpleShopwareHttpException($params);
         $errorResponseFactory = new ErrorResponseFactory();
         $response = $errorResponseFactory->getResponseFromException($simpleHttpException);
-        $responseBody = json_decode($response->getContent(), true);
+        $responseBody = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(418, $response->getStatusCode());
         static::assertEquals([
@@ -193,7 +193,7 @@ class ErrorResponseFactoryTest extends TestCase
         $response = $errorResponseFactory->getResponseFromException($writeException);
         $convertedShopwareHttpException = $errorResponseFactory->getErrorsFromException($simpleShopwareHttpException)[0];
 
-        $responseBody = json_decode($response->getContent(), true);
+        $responseBody = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(4, $responseBody['errors']);
         static::assertEquals([
@@ -228,7 +228,7 @@ class ErrorResponseFactoryTest extends TestCase
 
         $factory = new ErrorResponseFactory();
         $response = $factory->getResponseFromException($exception);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $json);
         static::assertArrayHasKey(0, $json['errors']);

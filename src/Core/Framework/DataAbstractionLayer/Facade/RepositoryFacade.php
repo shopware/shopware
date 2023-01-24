@@ -22,27 +22,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
  */
 class RepositoryFacade
 {
-    private DefinitionInstanceRegistry $registry;
-
-    private RequestCriteriaBuilder $criteriaBuilder;
-
-    private AclCriteriaValidator $criteriaValidator;
-
-    private Context $context;
-
     /**
      * @internal
      */
-    public function __construct(
-        DefinitionInstanceRegistry $registry,
-        RequestCriteriaBuilder $criteriaBuilder,
-        AclCriteriaValidator $criteriaValidator,
-        Context $context
-    ) {
-        $this->registry = $registry;
-        $this->criteriaBuilder = $criteriaBuilder;
-        $this->criteriaValidator = $criteriaValidator;
-        $this->context = $context;
+    public function __construct(private readonly DefinitionInstanceRegistry $registry, private readonly RequestCriteriaBuilder $criteriaBuilder, private readonly AclCriteriaValidator $criteriaValidator, private readonly Context $context)
+    {
     }
 
     /**

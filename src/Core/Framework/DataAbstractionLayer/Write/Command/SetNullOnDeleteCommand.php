@@ -22,7 +22,7 @@ class SetNullOnDeleteCommand extends UpdateCommand
         array $primaryKey,
         EntityExistence $existence,
         string $path,
-        private bool $enforcedByConstraint
+        private readonly bool $enforcedByConstraint
     ) {
         parent::__construct($definition, $payload, $primaryKey, $existence, $path);
     }

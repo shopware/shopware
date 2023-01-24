@@ -13,28 +13,16 @@ use Twig\TwigFunction;
 class RawUrlFunctionExtension extends AbstractExtension
 {
     /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
-     * @var RequestStack
-     */
-    private $stack;
-
-    /**
      * @internal
      */
-    public function __construct(RouterInterface $router, RequestStack $stack)
+    public function __construct(private readonly RouterInterface $router, private readonly RequestStack $stack)
     {
-        $this->router = $router;
-        $this->stack = $stack;
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('rawUrl', [$this, 'rawUrl']),
+            new TwigFunction('rawUrl', $this->rawUrl(...)),
         ];
     }
 

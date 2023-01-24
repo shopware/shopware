@@ -43,18 +43,18 @@ use function array_filter;
  */
 class EntityReader implements EntityReaderInterface
 {
-    public const INTERNAL_MAPPING_STORAGE = 'internal_mapping_storage';
-    public const FOREIGN_KEYS = 'foreignKeys';
-    public const MANY_TO_MANY_LIMIT_QUERY = 'many_to_many_limit_query';
+    final public const INTERNAL_MAPPING_STORAGE = 'internal_mapping_storage';
+    final public const FOREIGN_KEYS = 'foreignKeys';
+    final public const MANY_TO_MANY_LIMIT_QUERY = 'many_to_many_limit_query';
 
     public function __construct(
-        private Connection $connection,
-        private EntityHydrator $hydrator,
-        private EntityDefinitionQueryHelper $queryHelper,
-        private SqlQueryParser $parser,
-        private CriteriaQueryBuilder $criteriaQueryBuilder,
-        private LoggerInterface $logger,
-        private CriteriaFieldsResolver $criteriaFieldsResolver
+        private readonly Connection $connection,
+        private readonly EntityHydrator $hydrator,
+        private readonly EntityDefinitionQueryHelper $queryHelper,
+        private readonly SqlQueryParser $parser,
+        private readonly CriteriaQueryBuilder $criteriaQueryBuilder,
+        private readonly LoggerInterface $logger,
+        private readonly CriteriaFieldsResolver $criteriaFieldsResolver
     ) {
     }
 
@@ -470,11 +470,9 @@ class EntityReader implements EntityReaderInterface
         $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
 
         if ($isInheritanceAware) {
-            $parentIds = array_values(array_filter($collection->map(function (Entity $entity) {
-                return $entity->get('parentId');
-            })));
+            $parentIds = array_values(array_filter($collection->map(fn (Entity $entity) => $entity->get('parentId'))));
 
-            $ids = array_unique(array_merge($ids, $parentIds));
+            $ids = array_unique([...$ids, ...$parentIds]);
         }
 
         $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
@@ -575,11 +573,9 @@ class EntityReader implements EntityReaderInterface
         $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
 
         if ($isInheritanceAware) {
-            $parentIds = array_values(array_filter($collection->map(function (Entity $entity) {
-                return $entity->get('parentId');
-            })));
+            $parentIds = array_values(array_filter($collection->map(fn (Entity $entity) => $entity->get('parentId'))));
 
-            $ids = array_unique(array_merge($ids, $parentIds));
+            $ids = array_unique([...$ids, ...$parentIds]);
         }
 
         $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
@@ -805,7 +801,7 @@ class EntityReader implements EntityReaderInterface
 
         $ids = [];
         foreach ($mapping as &$row) {
-            $row = array_filter(explode(',', $row));
+            $row = array_filter(explode(',', (string) $row));
             foreach ($row as $id) {
                 $ids[] = $id;
             }
@@ -920,7 +916,7 @@ class EntityReader implements EntityReaderInterface
             --$i;
 
             // Strip the ASC/DESC at the end of the sort
-            $query->addSelect(\sprintf('%s as sort_%s', substr($sorting, 0, -4), $i));
+            $query->addSelect(\sprintf('%s as sort_%s', substr((string) $sorting, 0, -4), $i));
         }
 
         $root = EntityDefinitionQueryHelper::escape($definition->getEntityName());
@@ -952,9 +948,7 @@ class EntityReader implements EntityReaderInterface
         $wrapper->andWhere($root . '.id IN (:rootIds)');
 
         $bytes = $collection->map(
-            function (Entity $entity) {
-                return Uuid::fromHexToBytes($entity->getUniqueIdentifier());
-            }
+            fn (Entity $entity) => Uuid::fromHexToBytes($entity->getUniqueIdentifier())
         );
 
         if ($definition->isInheritanceAware() && $context->considerInheritance()) {

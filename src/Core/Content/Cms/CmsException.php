@@ -10,8 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CmsException extends HttpException
 {
-    public const DELETION_OF_DEFAULT_CODE = 'CONTENT__DELETION_DEFAULT_CMS_PAGE';
-    public const OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE = 'CONTENT__DELETION_OVERALL_DEFAULT_CMS_PAGE';
+    final public const DELETION_OF_DEFAULT_CODE = 'CONTENT__DELETION_DEFAULT_CMS_PAGE';
+    final public const OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE = 'CONTENT__DELETION_OVERALL_DEFAULT_CMS_PAGE';
 
     /**
      * @param array<string> $cmsPages

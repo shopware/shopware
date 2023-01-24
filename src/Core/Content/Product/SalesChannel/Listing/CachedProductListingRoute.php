@@ -19,50 +19,19 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package inventory
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CachedProductListingRoute extends AbstractProductListingRoute
 {
-    private AbstractProductListingRoute $decorated;
-
-    private CacheInterface $cache;
-
-    private EntityCacheKeyGenerator $generator;
-
-    /**
-     * @var AbstractCacheTracer<ProductListingRouteResponse>
-     */
-    private AbstractCacheTracer $tracer;
-
-    /**
-     * @var array<string>
-     */
-    private array $states;
-
-    private EventDispatcherInterface $dispatcher;
-
     /**
      * @internal
      *
      * @param AbstractCacheTracer<ProductListingRouteResponse> $tracer
      * @param array<string> $states
      */
-    public function __construct(
-        AbstractProductListingRoute $decorated,
-        CacheInterface $cache,
-        EntityCacheKeyGenerator $generator,
-        AbstractCacheTracer $tracer,
-        EventDispatcherInterface $dispatcher,
-        array $states
-    ) {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
-        $this->generator = $generator;
-        $this->tracer = $tracer;
-        $this->states = $states;
-        $this->dispatcher = $dispatcher;
+    public function __construct(private readonly AbstractProductListingRoute $decorated, private readonly CacheInterface $cache, private readonly EntityCacheKeyGenerator $generator, private readonly AbstractCacheTracer $tracer, private readonly EventDispatcherInterface $dispatcher, private readonly array $states)
+    {
     }
 
     public function getDecorated(): AbstractProductListingRoute
@@ -72,8 +41,8 @@ class CachedProductListingRoute extends AbstractProductListingRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/product-listing/{categoryId}", name="store-api.product.listing", methods={"POST"}, defaults={"_entity"="product"})
      */
+    #[Route(path: '/store-api/product-listing/{categoryId}', name: 'store-api.product.listing', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse
     {
         if ($context->hasState(...$this->states)) {
@@ -89,9 +58,7 @@ class CachedProductListingRoute extends AbstractProductListingRoute
         $value = $this->cache->get($key, function (ItemInterface $item) use ($categoryId, $request, $context, $criteria) {
             $name = self::buildName($categoryId);
 
-            $response = $this->tracer->trace($name, function () use ($categoryId, $request, $context, $criteria) {
-                return $this->getDecorated()->load($categoryId, $request, $context, $criteria);
-            });
+            $response = $this->tracer->trace($name, fn () => $this->getDecorated()->load($categoryId, $request, $context, $criteria));
 
             $item->tag($this->generateTags($categoryId, $request, $response, $context, $criteria));
 

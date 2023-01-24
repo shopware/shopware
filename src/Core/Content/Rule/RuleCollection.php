@@ -37,18 +37,14 @@ class RuleCollection extends EntityCollection
     public function filterForContext(): self
     {
         return $this->filter(
-            function (RuleEntity $rule) {
-                return !$rule->getAreas() || !\in_array(RuleAreas::FLOW_CONDITION_AREA, $rule->getAreas(), true);
-            }
+            fn (RuleEntity $rule) => !$rule->getAreas() || !\in_array(RuleAreas::FLOW_CONDITION_AREA, $rule->getAreas(), true)
         );
     }
 
     public function filterForFlow(): self
     {
         return $this->filter(
-            function (RuleEntity $rule) {
-                return $rule->getAreas() && \in_array(RuleAreas::FLOW_AREA, $rule->getAreas(), true);
-            }
+            fn (RuleEntity $rule) => $rule->getAreas() && \in_array(RuleAreas::FLOW_AREA, $rule->getAreas(), true)
         );
     }
 
@@ -70,9 +66,7 @@ class RuleCollection extends EntityCollection
 
     public function sortByPriority(): void
     {
-        $this->sort(function (RuleEntity $a, RuleEntity $b) {
-            return $b->getPriority() <=> $a->getPriority();
-        });
+        $this->sort(fn (RuleEntity $a, RuleEntity $b) => $b->getPriority() <=> $a->getPriority());
     }
 
     public function equals(RuleCollection $rules): bool

@@ -10,14 +10,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 abstract class PluginLifecycleEvent extends Event
 {
-    /**
-     * @var PluginEntity
-     */
-    private $plugin;
-
-    public function __construct(PluginEntity $plugin)
+    public function __construct(private readonly PluginEntity $plugin)
     {
-        $this->plugin = $plugin;
     }
 
     public function getPlugin(): PluginEntity

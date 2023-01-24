@@ -246,9 +246,7 @@ class ProductSearchFilterOutOfStockTest extends TestCase
                     'name' => $variantKey,
                     'active' => true,
                     'parentId' => $this->testData->getId($key),
-                    'options' => array_map(static function ($id) {
-                        return ['id' => $id];
-                    }, $combination),
+                    'options' => array_map(static fn ($id) => ['id' => $id], $combination),
                 ];
             }
         }

@@ -20,19 +20,16 @@ class SetCustomerCustomFieldAction extends FlowAction implements DelayableAction
 {
     use CustomFieldActionTrait;
 
-    private Connection $connection;
-
-    private EntityRepository $customerRepository;
+    private readonly Connection $connection;
 
     /**
      * @internal
      */
     public function __construct(
         Connection $connection,
-        EntityRepository $customerRepository
+        private readonly EntityRepository $customerRepository
     ) {
         $this->connection = $connection;
-        $this->customerRepository = $customerRepository;
     }
 
     public static function getName(): string

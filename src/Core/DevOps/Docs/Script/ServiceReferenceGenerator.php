@@ -25,31 +25,31 @@ use Twig\Loader\ArrayLoader;
  */
 class ServiceReferenceGenerator implements ScriptReferenceGenerator
 {
-    public const GROUP_DATA_LOADING = 'data_loading';
-    public const GROUP_CART_MANIPULATION = 'cart_manipulation';
-    public const GROUP_CUSTOM_ENDPOINT = 'custom_endpoint';
-    public const GROUP_MISCELLANEOUS = 'miscellaneous';
+    final public const GROUP_DATA_LOADING = 'data_loading';
+    final public const GROUP_CART_MANIPULATION = 'cart_manipulation';
+    final public const GROUP_CUSTOM_ENDPOINT = 'custom_endpoint';
+    final public const GROUP_MISCELLANEOUS = 'miscellaneous';
 
-    public const GROUPS = [
+    final public const GROUPS = [
         self::GROUP_DATA_LOADING => 'data-loading-script-services-reference.md',
         self::GROUP_CART_MANIPULATION => 'cart-manipulation-script-services-reference.md',
         self::GROUP_CUSTOM_ENDPOINT => 'custom-endpoint-script-services-reference.md',
         self::GROUP_MISCELLANEOUS => 'miscellaneous-script-services-reference.md',
     ];
 
-    public const GITHUB_BASE_LINK = 'https://github.com/shopware/platform/blob/trunk';
+    final public const GITHUB_BASE_LINK = 'https://github.com/shopware/platform/blob/trunk';
 
     private const TEMPLATE_FILE = __DIR__ . '/../../Resources/templates/service-reference.md.twig';
     private const GENERATED_DOC_FILE = __DIR__ . '/../../Resources/generated/';
 
-    private DocBlockFactory $docFactory;
+    private readonly DocBlockFactory $docFactory;
 
     /**
      * @var array<string, string>
      */
     private array $injectedServices = [];
 
-    public function __construct(private Environment $twig, private string $projectDir)
+    public function __construct(private readonly Environment $twig, private readonly string $projectDir)
     {
         $this->docFactory = DocBlockFactory::createInstance([
             'script-service' => Generic::class,
@@ -475,6 +475,6 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             $file->next();
         }
 
-        return trim($content);
+        return trim((string) $content);
     }
 }

@@ -20,7 +20,7 @@ final class DeleteUnusedGuestCustomerHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        private DeleteUnusedGuestCustomerService $unusedGuestCustomerService
+        private readonly DeleteUnusedGuestCustomerService $unusedGuestCustomerService
     ) {
         parent::__construct($scheduledTaskRepository);
     }

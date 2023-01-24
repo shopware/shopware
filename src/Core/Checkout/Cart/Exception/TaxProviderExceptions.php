@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
  */
 class TaxProviderExceptions extends ShopwareHttpException
 {
-    public const ERROR_CODE = 'CHECKOUT__TAX_PROVIDER_EXCEPTION';
+    final public const ERROR_CODE = 'CHECKOUT__TAX_PROVIDER_EXCEPTION';
 
     private const DEFAULT_TEMPLATE = 'There was an error while calculating taxes';
     private const MESSAGE_TEMPLATE = 'There were %d errors while fetching taxes from providers: ' . \PHP_EOL . '%s';

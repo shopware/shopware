@@ -76,7 +76,7 @@ class StoreDownloadCommand extends Command
             if ($plugin->getUpgradeVersion()) {
                 $this->pluginLifecycleService->updatePlugin($plugin, $context);
             }
-        } catch (PluginNotFoundException $e) {
+        } catch (PluginNotFoundException) {
             // don't update plugins that are not installed
         }
 
@@ -106,7 +106,7 @@ class StoreDownloadCommand extends Command
     {
         try {
             $plugin = $this->getPluginFromInput($pluginName, $context);
-        } catch (PluginNotFoundException $e) {
+        } catch (PluginNotFoundException) {
             // plugins no installed can still be downloaded
             return;
         }

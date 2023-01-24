@@ -13,34 +13,11 @@ use Shopware\Core\Framework\Context;
  */
 class MailAttachmentsConfig
 {
-    private Context $context;
-
-    private MailTemplateEntity $mailTemplate;
-
-    private MailSendSubscriberConfig $extension;
-
-    /**
-     * @var mixed[]
-     */
-    private array $eventConfig;
-
-    private ?string $orderId;
-
     /**
      * @param mixed[] $eventConfig
      */
-    public function __construct(
-        Context $context,
-        MailTemplateEntity $mailTemplate,
-        MailSendSubscriberConfig $extension,
-        array $eventConfig,
-        ?string $orderId
-    ) {
-        $this->context = $context;
-        $this->mailTemplate = $mailTemplate;
-        $this->extension = $extension;
-        $this->eventConfig = $eventConfig;
-        $this->orderId = $orderId;
+    public function __construct(private Context $context, private MailTemplateEntity $mailTemplate, private MailSendSubscriberConfig $extension, private array $eventConfig, private ?string $orderId)
+    {
     }
 
     public function getContext(): Context

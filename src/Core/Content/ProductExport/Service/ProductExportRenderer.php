@@ -23,28 +23,10 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ProductExportRenderer implements ProductExportRendererInterface
 {
     /**
-     * @var StringTemplateRenderer
-     */
-    private $templateRenderer;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var SeoUrlPlaceholderHandlerInterface
-     */
-    private $seoUrlPlaceholderHandler;
-
-    /**
      * @internal
      */
-    public function __construct(StringTemplateRenderer $templateRenderer, EventDispatcherInterface $eventDispatcher, SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler)
+    public function __construct(private readonly StringTemplateRenderer $templateRenderer, private readonly EventDispatcherInterface $eventDispatcher, private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler)
     {
-        $this->templateRenderer = $templateRenderer;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
     }
 
     public function renderHeader(

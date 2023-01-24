@@ -47,16 +47,12 @@ class ErrorCollection extends Collection
 
     public function getPersistent(): self
     {
-        return $this->filter(function (Error $error) {
-            return $error->isPersistent();
-        });
+        return $this->filter(fn (Error $error) => $error->isPersistent());
     }
 
     public function filterByErrorLevel(int $errorLevel): array
     {
-        return $this->fmap(static function (Error $error) use ($errorLevel): ?Error {
-            return $errorLevel === $error->getLevel() ? $error : null;
-        });
+        return $this->fmap(static fn (Error $error): ?Error => $errorLevel === $error->getLevel() ? $error : null);
     }
 
     public function hasLevel(int $errorLevel): bool

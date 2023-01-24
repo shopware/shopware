@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  */
 class Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountry extends MigrationStep
 {
-    public const PATTERNS = [
+    final public const PATTERNS = [
         'AC' => '[Aa][Ss][Cc][Nn]\\s{0,1}[1][Zz][Zz]',
         'AD' => 'AD[1-7]0\\d',
         'AF' => '\\d{4}',

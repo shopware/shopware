@@ -41,19 +41,13 @@ class MigrationCommand extends Command
     protected $shopwareVersion;
 
     /**
-     * @var TagAwareAdapterInterface
-     */
-    private $cache;
-
-    /**
      * @internal
      */
-    public function __construct(MigrationCollectionLoader $loader, TagAwareAdapterInterface $cache, string $shopwareVersion)
+    public function __construct(MigrationCollectionLoader $loader, private readonly TagAwareAdapterInterface $cache, string $shopwareVersion)
     {
         parent::__construct();
 
         $this->loader = $loader;
-        $this->cache = $cache;
         $this->shopwareVersion = $shopwareVersion;
     }
 

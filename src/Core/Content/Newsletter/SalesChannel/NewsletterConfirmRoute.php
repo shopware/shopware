@@ -22,38 +22,16 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package customer-order
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
 {
     /**
-     * @var EntityRepository
-     */
-    private $newsletterRecipientRepository;
-
-    /**
-     * @var DataValidator
-     */
-    private $validator;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $newsletterRecipientRepository,
-        DataValidator $validator,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->newsletterRecipientRepository = $newsletterRecipientRepository;
-        $this->validator = $validator;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly EntityRepository $newsletterRecipientRepository, private readonly DataValidator $validator, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function getDecorated(): AbstractNewsletterConfirmRoute
@@ -63,8 +41,8 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/newsletter/confirm", name="store-api.newsletter.confirm", methods={"POST"})
      */
+    #[Route(path: '/store-api/newsletter/confirm', name: 'store-api.newsletter.confirm', methods: ['POST'])]
     public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): NoContentResponse
     {
         $recipient = $this->getNewsletterRecipient('hash', $dataBag->get('hash', ''), $context->getContext());

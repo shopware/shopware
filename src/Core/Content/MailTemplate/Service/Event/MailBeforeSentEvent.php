@@ -19,12 +19,12 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class MailBeforeSentEvent extends Event implements LogAware, DataAware, MessageAware
 {
-    public const EVENT_NAME = 'mail.after.create.message';
+    final public const EVENT_NAME = 'mail.after.create.message';
 
     /**
      * @param array<string, mixed> $data
      */
-    public function __construct(private array $data, private Email $message, private Context $context, private ?string $eventName = null)
+    public function __construct(private readonly array $data, private readonly Email $message, private readonly Context $context, private readonly ?string $eventName = null)
     {
     }
 

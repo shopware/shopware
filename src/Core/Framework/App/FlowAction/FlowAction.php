@@ -15,14 +15,8 @@ class FlowAction
 {
     private const XSD_FILE = __DIR__ . '/Schema/flow-action-1.0.xsd';
 
-    private string $path;
-
-    private ?Actions $actions;
-
-    private function __construct(string $path, ?Actions $actions)
+    private function __construct(private string $path, private readonly ?Actions $actions)
     {
-        $this->path = $path;
-        $this->actions = $actions;
     }
 
     public static function createFromXmlFile(string $xmlFile): self

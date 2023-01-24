@@ -433,7 +433,7 @@ class CartServiceTest extends TestCase
             ];
 
             $salesChannelRepository->update([$data], $context);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             //ignore if domain already exists
         }
     }

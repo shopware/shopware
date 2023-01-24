@@ -19,7 +19,7 @@ class SchemaIndexListener
         $event->preventDefault();
         $data = $event->getTableIndex();
 
-        $name = str_replace('.', '__', $data['name']);
+        $name = str_replace('.', '__', (string) $data['name']);
         $event->setIndex(new Index($name, $data['columns'], $data['unique'], $data['primary'], $data['flags'], $data['options']));
     }
 }

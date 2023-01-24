@@ -36,48 +36,8 @@ use function array_unique;
  */
 class BaseContextFactory extends AbstractBaseContextFactory
 {
-    private EntityRepository $salesChannelRepository;
-
-    private EntityRepository $currencyRepository;
-
-    private EntityRepository $customerGroupRepository;
-
-    private EntityRepository $countryRepository;
-
-    private EntityRepository $taxRepository;
-
-    private EntityRepository $paymentMethodRepository;
-
-    private EntityRepository $shippingMethodRepository;
-
-    private Connection $connection;
-
-    private EntityRepository $countryStateRepository;
-
-    private EntityRepository $currencyCountryRepository;
-
-    public function __construct(
-        EntityRepository $salesChannelRepository,
-        EntityRepository $currencyRepository,
-        EntityRepository $customerGroupRepository,
-        EntityRepository $countryRepository,
-        EntityRepository $taxRepository,
-        EntityRepository $paymentMethodRepository,
-        EntityRepository $shippingMethodRepository,
-        Connection $connection,
-        EntityRepository $countryStateRepository,
-        EntityRepository $currencyCountryRepository
-    ) {
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->currencyRepository = $currencyRepository;
-        $this->countryRepository = $countryRepository;
-        $this->taxRepository = $taxRepository;
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->shippingMethodRepository = $shippingMethodRepository;
-        $this->connection = $connection;
-        $this->countryStateRepository = $countryStateRepository;
-        $this->currencyCountryRepository = $currencyCountryRepository;
-        $this->customerGroupRepository = $customerGroupRepository;
+    public function __construct(private readonly EntityRepository $salesChannelRepository, private readonly EntityRepository $currencyRepository, private readonly EntityRepository $customerGroupRepository, private readonly EntityRepository $countryRepository, private readonly EntityRepository $taxRepository, private readonly EntityRepository $paymentMethodRepository, private readonly EntityRepository $shippingMethodRepository, private readonly Connection $connection, private readonly EntityRepository $countryStateRepository, private readonly EntityRepository $currencyCountryRepository)
+    {
     }
 
     public function getDecorated(): AbstractBaseContextFactory
@@ -260,7 +220,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
         }
 
         //explode all available languages for the provided sales channel
-        $languageIds = $data['sales_channel_language_ids'] ? explode(',', $data['sales_channel_language_ids']) : [];
+        $languageIds = $data['sales_channel_language_ids'] ? explode(',', (string) $data['sales_channel_language_ids']) : [];
         $languageIds = array_keys(array_flip($languageIds));
 
         //check which language should be used in the current request (request header set, or context already contains a language - stored in `sales_channel_api_context`)

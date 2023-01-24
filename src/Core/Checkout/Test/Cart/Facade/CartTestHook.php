@@ -17,22 +17,16 @@ class CartTestHook extends Hook implements CartAware
 {
     use SalesChannelContextAwareTrait;
 
-    private string $name;
-
     private static array $serviceIds;
-
-    private Cart $cart;
 
     /**
      * @param array<string> $serviceIds
      */
-    public function __construct(string $name, Cart $cart, SalesChannelContext $context, array $data = [], array $serviceIds = [])
+    public function __construct(private readonly string $name, private readonly Cart $cart, SalesChannelContext $context, array $data = [], array $serviceIds = [])
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->name = $name;
         self::$serviceIds = $serviceIds;
-        $this->cart = $cart;
 
         foreach ($data as $key => $value) {
             $this->$key = $value;

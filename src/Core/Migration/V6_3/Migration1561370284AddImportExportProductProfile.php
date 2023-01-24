@@ -53,7 +53,7 @@ class Migration1561370284AddImportExportProductProfile extends MigrationStep
             'file_type' => 'text/csv',
             'delimiter' => ';',
             'enclosure' => '"',
-            'mapping' => json_encode($mapping),
+            'mapping' => json_encode($mapping, \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ApiRouteScope extends AbstractRouteScope implements ApiContextRouteScopeDependant
 {
-    public const ID = 'api';
+    final public const ID = 'api';
 
     /**
      * @var array<string>

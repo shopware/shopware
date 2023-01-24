@@ -16,16 +16,12 @@ class ProductManufacturerTranslationCollection extends EntityCollection
      */
     public function getProductManufacturerIds(): array
     {
-        return $this->fmap(function (ProductManufacturerTranslationEntity $productManufacturerTranslation) {
-            return $productManufacturerTranslation->getProductManufacturerId();
-        });
+        return $this->fmap(fn (ProductManufacturerTranslationEntity $productManufacturerTranslation) => $productManufacturerTranslation->getProductManufacturerId());
     }
 
     public function filterByProductManufacturerId(string $id): self
     {
-        return $this->filter(function (ProductManufacturerTranslationEntity $productManufacturerTranslation) use ($id) {
-            return $productManufacturerTranslation->getProductManufacturerId() === $id;
-        });
+        return $this->filter(fn (ProductManufacturerTranslationEntity $productManufacturerTranslation) => $productManufacturerTranslation->getProductManufacturerId() === $id);
     }
 
     /**
@@ -33,16 +29,12 @@ class ProductManufacturerTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (ProductManufacturerTranslationEntity $productManufacturerTranslation) {
-            return $productManufacturerTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (ProductManufacturerTranslationEntity $productManufacturerTranslation) => $productManufacturerTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (ProductManufacturerTranslationEntity $productManufacturerTranslation) use ($id) {
-            return $productManufacturerTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (ProductManufacturerTranslationEntity $productManufacturerTranslation) => $productManufacturerTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

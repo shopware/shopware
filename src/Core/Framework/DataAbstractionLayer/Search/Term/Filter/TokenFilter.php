@@ -25,7 +25,7 @@ class TokenFilter extends AbstractTokenFilter implements ResetInterface
     /**
      * @internal
      */
-    public function __construct(private Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
     }
 
@@ -126,7 +126,7 @@ class TokenFilter extends AbstractTokenFilter implements ResetInterface
         }
 
         return $this->config[$languageId] = [
-            'excluded_terms' => \is_string($config['excluded_terms']) ? array_flip(json_decode($config['excluded_terms'], true)) : [],
+            'excluded_terms' => \is_string($config['excluded_terms']) ? array_flip(json_decode($config['excluded_terms'], true, 512, \JSON_THROW_ON_ERROR)) : [],
             'min_search_length' => (int) ($config['min_search_length'] ?? self::DEFAULT_MIN_SEARCH_TERM_LENGTH),
         ];
     }

@@ -21,7 +21,7 @@ class TaxProviderRegistry
     {
         /** @var AbstractTaxProvider $provider */
         foreach ($providers as $provider) {
-            $identifier = \get_class($provider);
+            $identifier = $provider::class;
 
             if (!$this->has($identifier)) {
                 $this->providers[$identifier] = $provider;

@@ -130,9 +130,7 @@ class Entity extends XmlElement
     private static function parseChild(\DOMElement $child, array $values): array
     {
         if ($child->tagName === 'fields') {
-            $values[$child->tagName] = self::parseChildNodes($child, static function (\DOMElement $element): Field {
-                return FieldFactory::createFromXml($element);
-            });
+            $values[$child->tagName] = self::parseChildNodes($child, static fn (\DOMElement $element): Field => FieldFactory::createFromXml($element));
 
             return $values;
         }

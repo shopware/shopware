@@ -76,7 +76,7 @@ class FieldSerializer extends AbstractFieldSerializer
         } elseif ($field instanceof BoolField) {
             yield $key => $value === true ? '1' : '0';
         } elseif ($field instanceof JsonField) {
-            yield $key => $value === null ? null : json_encode($value);
+            yield $key => $value === null ? null : json_encode($value, \JSON_THROW_ON_ERROR);
         } else {
             $value = $value === null ? $value : (string) $value;
             yield $key => $value;
@@ -110,7 +110,7 @@ class FieldSerializer extends AbstractFieldSerializer
 
                         return ['id' => $id];
                     },
-                    explode('|', $value)
+                    explode('|', (string) $value)
                 )
             );
         }
@@ -131,7 +131,7 @@ class FieldSerializer extends AbstractFieldSerializer
 
                         return $id;
                     },
-                    explode('|', $value)
+                    explode('|', (string) $value)
                 )
             );
         }
@@ -159,7 +159,7 @@ class FieldSerializer extends AbstractFieldSerializer
         }
 
         if ($field instanceof JsonField) {
-            return json_decode((string) $value, true);
+            return json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
         }
 
         if ($field instanceof IntField) {

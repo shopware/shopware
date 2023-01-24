@@ -21,12 +21,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class ProductFeatureSetDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_feature_set';
+    final public const ENTITY_NAME = 'product_feature_set';
 
-    public const TYPE_PRODUCT_ATTRIBUTE = 'product';
-    public const TYPE_PRODUCT_PROPERTY = 'property';
-    public const TYPE_PRODUCT_CUSTOM_FIELD = 'customField';
-    public const TYPE_PRODUCT_REFERENCE_PRICE = 'referencePrice';
+    final public const TYPE_PRODUCT_ATTRIBUTE = 'product';
+    final public const TYPE_PRODUCT_PROPERTY = 'property';
+    final public const TYPE_PRODUCT_CUSTOM_FIELD = 'customField';
+    final public const TYPE_PRODUCT_REFERENCE_PRICE = 'referencePrice';
 
     public function getEntityName(): string
     {

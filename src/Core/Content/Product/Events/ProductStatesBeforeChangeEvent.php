@@ -7,22 +7,16 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package inventory
+ */
 class ProductStatesBeforeChangeEvent extends Event implements ShopwareEvent
 {
     /**
-     * @var UpdatedStates[]
-     */
-    protected array $updatedStates;
-
-    protected Context $context;
-
-    /**
      * @param UpdatedStates[] $updatedStates
      */
-    public function __construct(array $updatedStates, Context $context)
+    public function __construct(protected array $updatedStates, protected Context $context)
     {
-        $this->updatedStates = $updatedStates;
-        $this->context = $context;
     }
 
     /**

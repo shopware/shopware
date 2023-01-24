@@ -31,14 +31,14 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
     /**
      * @internal
      */
-    public function __construct(private EntityRepository $categoryRepository, private SyncServiceInterface $syncService)
+    public function __construct(private readonly EntityRepository $categoryRepository, private readonly SyncServiceInterface $syncService)
     {
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             ImportExportBeforeImportRecordEvent::class => 'categoryPathsToAssignment',
@@ -55,7 +55,7 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
         }
 
         $result = [];
-        $categoriesPaths = explode('|', $row['category_paths']);
+        $categoriesPaths = explode('|', (string) $row['category_paths']);
         $newCategoriesPayload = [];
 
         foreach ($categoriesPaths as $path) {

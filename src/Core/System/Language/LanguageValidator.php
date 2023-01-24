@@ -26,22 +26,19 @@ use Symfony\Component\Validator\ConstraintViolationList;
  */
 class LanguageValidator implements EventSubscriberInterface
 {
-    public const VIOLATION_PARENT_HAS_PARENT = 'parent_has_parent_violation';
+    final public const VIOLATION_PARENT_HAS_PARENT = 'parent_has_parent_violation';
 
-    public const VIOLATION_CODE_REQUIRED_FOR_ROOT_LANGUAGE = 'code_required_for_root_language';
+    final public const VIOLATION_CODE_REQUIRED_FOR_ROOT_LANGUAGE = 'code_required_for_root_language';
 
-    public const VIOLATION_DELETE_DEFAULT_LANGUAGE = 'delete_default_language_violation';
+    final public const VIOLATION_DELETE_DEFAULT_LANGUAGE = 'delete_default_language_violation';
 
-    public const VIOLATION_DEFAULT_LANGUAGE_PARENT = 'default_language_parent_violation';
-
-    private Connection $connection;
+    final public const VIOLATION_DEFAULT_LANGUAGE_PARENT = 'default_language_parent_violation';
 
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array

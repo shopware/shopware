@@ -26,7 +26,7 @@ use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTr
  */
 class SalutationDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'salutation';
+    final public const ENTITY_NAME = 'salutation';
 
     public function getEntityName(): string
     {

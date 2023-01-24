@@ -9,11 +9,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  */
 class RedisIncrementer extends AbstractIncrementer
 {
-    private \Redis $redis;
-
-    public function __construct(\Redis $redis)
+    public function __construct(private readonly \Redis $redis)
     {
-        $this->redis = $redis;
     }
 
     public function getDecorated(): AbstractIncrementer

@@ -20,10 +20,10 @@ class RepositoryFacadeHookFactory extends HookServiceFactory
      * @internal
      */
     public function __construct(
-        private DefinitionInstanceRegistry $registry,
-        private AppContextCreator $appContextCreator,
-        private RequestCriteriaBuilder $criteriaBuilder,
-        private AclCriteriaValidator $criteriaValidator
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly AppContextCreator $appContextCreator,
+        private readonly RequestCriteriaBuilder $criteriaBuilder,
+        private readonly AclCriteriaValidator $criteriaValidator
     ) {
     }
 

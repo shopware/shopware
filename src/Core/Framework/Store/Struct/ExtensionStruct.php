@@ -13,10 +13,10 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 class ExtensionStruct extends Struct
 {
-    public const EXTENSION_TYPE_APP = 'app';
-    public const EXTENSION_TYPE_PLUGIN = 'plugin';
-    public const SOURCE_LOCAL = 'local';
-    public const SOURCE_STORE = 'store';
+    final public const EXTENSION_TYPE_APP = 'app';
+    final public const EXTENSION_TYPE_PLUGIN = 'plugin';
+    final public const SOURCE_LOCAL = 'local';
+    final public const SOURCE_STORE = 'store';
 
     protected ?int $id = null;
 

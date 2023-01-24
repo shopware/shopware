@@ -14,17 +14,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class CheapestPriceUpdater
 {
-    private Connection $connection;
-
-    private AbstractCheapestPriceQuantitySelector $quantitySelector;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, AbstractCheapestPriceQuantitySelector $quantitySelector)
+    public function __construct(private readonly Connection $connection, private readonly AbstractCheapestPriceQuantitySelector $quantitySelector)
     {
-        $this->connection = $connection;
-        $this->quantitySelector = $quantitySelector;
     }
 
     /**
@@ -200,7 +194,7 @@ class CheapestPriceUpdater
         $grouped = [];
         /** @var array<string, mixed> $row */
         foreach ($data as $row) {
-            $row['price'] = json_decode($row['price'], true);
+            $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
             $grouped[$row['parent_id']][$row['variant_id']][$row['rule_id']] = $row;
         }
 
@@ -237,7 +231,7 @@ class CheapestPriceUpdater
                 continue;
             }
 
-            $row['price'] = json_decode($row['price'], true);
+            $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
             $row['price'] = $this->normalizePrices($row['price']);
             if ($row['child_count'] > 0) {
                 $grouped[$row['parent_id']]['default'] = $row;

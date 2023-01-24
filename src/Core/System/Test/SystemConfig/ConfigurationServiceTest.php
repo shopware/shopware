@@ -24,10 +24,7 @@ class ConfigurationServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var ConfigurationService
-     */
-    private $configurationService;
+    private ConfigurationService $configurationService;
 
     protected function setUp(): void
     {

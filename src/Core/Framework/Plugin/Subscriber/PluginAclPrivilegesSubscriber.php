@@ -16,14 +16,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class PluginAclPrivilegesSubscriber implements EventSubscriberInterface
 {
-    private KernelPluginCollection $plugins;
-
     /**
      * @internal
      */
-    public function __construct(KernelPluginCollection $plugins)
+    public function __construct(private readonly KernelPluginCollection $plugins)
     {
-        $this->plugins = $plugins;
     }
 
     public static function getSubscribedEvents(): array

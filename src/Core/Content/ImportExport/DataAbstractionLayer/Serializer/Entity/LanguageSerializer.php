@@ -18,16 +18,13 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class LanguageSerializer extends EntitySerializer implements ResetInterface
 {
-    private EntityRepository $languageRepository;
-
     private array $cacheLanguages = [];
 
     /**
      * @internal
      */
-    public function __construct(EntityRepository $languageRepository)
+    public function __construct(private readonly EntityRepository $languageRepository)
     {
-        $this->languageRepository = $languageRepository;
     }
 
     /**

@@ -12,7 +12,7 @@ class SearchTerm
     /**
      * @internal
      */
-    public function __construct(private string $term, private float $score = 1.0)
+    public function __construct(private readonly string $term, private readonly float $score = 1.0)
     {
     }
 

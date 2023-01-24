@@ -166,7 +166,7 @@ class AggregationParser
             return $data;
         }
 
-        throw new InvalidAggregationQueryException(sprintf('The aggregation of type "%s" is not supported.', \get_class($aggregation)));
+        throw new InvalidAggregationQueryException(sprintf('The aggregation of type "%s" is not supported.', $aggregation::class));
     }
 
     private function parseAggregation(int $index, EntityDefinition $definition, array $aggregation, SearchRequestException $exceptions): ?Aggregation
@@ -280,7 +280,7 @@ class AggregationParser
                     $order = $sort['order'] ?? FieldSorting::ASCENDING;
                     $naturalSorting = $sort['naturalSorting'] ?? false;
 
-                    if (strcasecmp($order, 'desc') === 0) {
+                    if (strcasecmp((string) $order, 'desc') === 0) {
                         $order = FieldSorting::DESCENDING;
                     } else {
                         $order = FieldSorting::ASCENDING;
@@ -308,7 +308,7 @@ class AggregationParser
                     $order = $sort['order'] ?? FieldSorting::ASCENDING;
                     $naturalSorting = $sort['naturalSorting'] ?? false;
 
-                    if (strcasecmp($order, 'desc') === 0) {
+                    if (strcasecmp((string) $order, 'desc') === 0) {
                         $order = FieldSorting::DESCENDING;
                     } else {
                         $order = FieldSorting::ASCENDING;

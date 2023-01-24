@@ -20,9 +20,7 @@ class AdminUiXmlSchemaValidator
     public function validateConfigurations(AdminUiEntity $adminUiEntity, Entity $entity): void
     {
         $entityFields = \array_map(
-            function ($arr) {
-                return $arr->getName();
-            },
+            fn ($arr) => $arr->getName(),
             $entity->getFields()
         );
         $this->validateListingConfiguration(

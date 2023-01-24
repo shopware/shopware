@@ -13,11 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ProductListingRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
-    protected string $categoryId;
-
-    public function __construct(array $tags, string $categoryId, Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria)
+    public function __construct(array $tags, protected string $categoryId, Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria)
     {
-        $this->categoryId = $categoryId;
         parent::__construct($tags, $request, $response, $context, $criteria);
     }
 

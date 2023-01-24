@@ -22,7 +22,7 @@ class Migration1629700169AddEnqueueIndex extends MigrationStep
     {
         try {
             $connection->executeStatement('ALTER TABLE `enqueue` ADD INDEX `delivery_id` (`delivery_id`);');
-        } catch (Exception $e) {
+        } catch (Exception) {
             // index already exists
         }
     }

@@ -30,22 +30,13 @@ class ExpectationSubscriber implements EventSubscriberInterface
         'shopware/storefront',
     ];
 
-    private string $shopwareVersion;
-
-    /**
-     * @var list<PluginData>
-     */
-    private array $plugins;
-
     /**
      * @internal
      *
      * @param list<PluginData> $plugins
      */
-    public function __construct(string $shopwareVersion, array $plugins)
+    public function __construct(private readonly string $shopwareVersion, private readonly array $plugins)
     {
-        $this->shopwareVersion = $shopwareVersion;
-        $this->plugins = $plugins;
     }
 
     public static function getSubscribedEvents(): array
@@ -108,7 +99,7 @@ class ExpectationSubscriber implements EventSubscriberInterface
             } else {
                 try {
                     $installedVersion = InstalledVersions::getPrettyVersion($name);
-                } catch (\OutOfBoundsException $e) {
+                } catch (\OutOfBoundsException) {
                     $fails[] = sprintf('Requested package: %s is not available', $name);
 
                     continue;

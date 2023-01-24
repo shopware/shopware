@@ -13,14 +13,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class LineItemQuantitySplitter
 {
-    private QuantityPriceCalculator $quantityPriceCalculator;
-
     /**
      * @internal
      */
-    public function __construct(QuantityPriceCalculator $quantityPriceCalculator)
+    public function __construct(private readonly QuantityPriceCalculator $quantityPriceCalculator)
     {
-        $this->quantityPriceCalculator = $quantityPriceCalculator;
     }
 
     /**

@@ -13,16 +13,10 @@ use Shopware\Core\Framework\Context;
 class Resolver
 {
     /**
-     * @var iterable|AbstractAppUrlChangeStrategy[]
-     */
-    private $strategies;
-
-    /**
      * @param AbstractAppUrlChangeStrategy[] $strategies
      */
-    public function __construct(iterable $strategies)
+    public function __construct(private readonly iterable $strategies)
     {
-        $this->strategies = $strategies;
     }
 
     public function resolve(string $strategyName, Context $context): void

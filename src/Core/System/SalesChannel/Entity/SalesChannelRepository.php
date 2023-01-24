@@ -30,35 +30,11 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class SalesChannelRepository
 {
-    private EntityDefinition $definition;
-
-    private EntityReaderInterface $reader;
-
-    private EntitySearcherInterface $searcher;
-
-    private EntityAggregatorInterface $aggregator;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private EntityLoadedEventFactory $eventFactory;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityDefinition $definition,
-        EntityReaderInterface $reader,
-        EntitySearcherInterface $searcher,
-        EntityAggregatorInterface $aggregator,
-        EventDispatcherInterface $eventDispatcher,
-        EntityLoadedEventFactory $eventFactory
-    ) {
-        $this->definition = $definition;
-        $this->reader = $reader;
-        $this->searcher = $searcher;
-        $this->aggregator = $aggregator;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->eventFactory = $eventFactory;
+    public function __construct(private readonly EntityDefinition $definition, private readonly EntityReaderInterface $reader, private readonly EntitySearcherInterface $searcher, private readonly EntityAggregatorInterface $aggregator, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityLoadedEventFactory $eventFactory)
+    {
     }
 
     /**
@@ -200,7 +176,7 @@ class SalesChannelRepository
             $definition = $cur['definition'];
             $criteria = $cur['criteria'];
 
-            if (isset($processed[\get_class($definition)])) {
+            if (isset($processed[$definition::class])) {
                 continue;
             }
 
@@ -213,7 +189,7 @@ class SalesChannelRepository
                 $this->eventDispatcher->dispatch($event, $eventName);
             }
 
-            $processed[\get_class($definition)] = true;
+            $processed[$definition::class] = true;
 
             foreach ($criteria->getAssociations() as $associationName => $associationCriteria) {
                 // find definition

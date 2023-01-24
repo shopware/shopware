@@ -18,25 +18,16 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class BillingStateRule extends Rule
 {
-    public const RULE_NAME = 'customerBillingState';
-
-    /**
-     * @var list<string>|null
-     */
-    protected ?array $stateIds;
-
-    protected string $operator;
+    final public const RULE_NAME = 'customerBillingState';
 
     /**
      * @internal
      *
      * @param list<string>|null $stateIds
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $stateIds = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $stateIds = null)
     {
         parent::__construct();
-        $this->operator = $operator;
-        $this->stateIds = $stateIds;
     }
 
     /**

@@ -22,9 +22,9 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        private EntityWriterInterface $writer,
-        private ProductReviewDefinition $productReviewDefinition,
-        private Connection $connection
+        private readonly EntityWriterInterface $writer,
+        private readonly ProductReviewDefinition $productReviewDefinition,
+        private readonly Connection $connection
     ) {
     }
 

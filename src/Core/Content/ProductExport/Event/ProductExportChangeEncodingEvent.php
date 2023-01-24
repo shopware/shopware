@@ -10,28 +10,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class ProductExportChangeEncodingEvent extends Event
 {
-    public const NAME = 'product_export.change_encoding';
+    final public const NAME = 'product_export.change_encoding';
 
-    /**
-     * @var ProductExportEntity
-     */
-    private $productExportEntity;
-
-    /**
-     * @var string
-     */
-    private $content;
-
-    /**
-     * @var string
-     */
-    private $encodedContent;
-
-    public function __construct(ProductExportEntity $productExportEntity, string $content, string $encodedContent)
+    public function __construct(private readonly ProductExportEntity $productExportEntity, private readonly string $content, private string $encodedContent)
     {
-        $this->productExportEntity = $productExportEntity;
-        $this->content = $content;
-        $this->encodedContent = $encodedContent;
     }
 
     public function getProductExportEntity(): ProductExportEntity

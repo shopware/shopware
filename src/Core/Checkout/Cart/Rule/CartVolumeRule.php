@@ -16,21 +16,14 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CartVolumeRule extends Rule
 {
-    public const RULE_NAME = 'cartVolume';
-
-    protected ?float $volume;
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartVolume';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?float $volume = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?float $volume = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->volume = $volume;
     }
 
     public function match(RuleScope $scope): bool

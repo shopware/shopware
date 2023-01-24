@@ -39,11 +39,11 @@ class RuleGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        private EntityRepository $ruleRepository,
-        private EntityWriterInterface $writer,
-        private EntityRepository $paymentMethodRepository,
-        private EntityRepository $shippingMethodRepository,
-        private RuleDefinition $ruleDefinition
+        private readonly EntityRepository $ruleRepository,
+        private readonly EntityWriterInterface $writer,
+        private readonly EntityRepository $paymentMethodRepository,
+        private readonly EntityRepository $shippingMethodRepository,
+        private readonly RuleDefinition $ruleDefinition
     ) {
     }
 

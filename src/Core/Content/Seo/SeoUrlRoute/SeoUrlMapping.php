@@ -9,32 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
  */
 class SeoUrlMapping
 {
-    /**
-     * @var Entity
-     */
-    private $entity;
-
-    /**
-     * @var array
-     */
-    private $infoPathContext;
-
-    /**
-     * @var array
-     */
-    private $seoPathInfoContext;
-
-    /**
-     * @var string|null
-     */
-    private $error;
-
-    public function __construct(Entity $entity, array $infoPathContext, array $seoPathInfoContext, ?string $error = null)
+    public function __construct(private readonly Entity $entity, private readonly array $infoPathContext, private readonly array $seoPathInfoContext, private readonly ?string $error = null)
     {
-        $this->entity = $entity;
-        $this->infoPathContext = $infoPathContext;
-        $this->seoPathInfoContext = $seoPathInfoContext;
-        $this->error = $error;
     }
 
     public function getEntity(): Entity

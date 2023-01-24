@@ -22,25 +22,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 class DumpSchemaCommand extends Command
 {
     /**
-     * @var DefinitionService
-     */
-    private $definitionService;
-
-    /**
      * @internal
      */
-    public function __construct(DefinitionService $definitionService)
+    public function __construct(private readonly DefinitionService $definitionService)
     {
         parent::__construct();
-
-        $this->definitionService = $definitionService;
     }
 
     protected function configure(): void
     {
-        $this
-            ->setDescription('Dumps the api definition to a json file.')
-            ->addArgument('outfile', InputArgument::REQUIRED, 'Path to the output file. "-" writes to stdout.')
+        $this->addArgument('outfile', InputArgument::REQUIRED, 'Path to the output file. "-" writes to stdout.')
             ->addOption(
                 'schema-format',
                 's',

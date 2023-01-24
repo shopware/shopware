@@ -15,22 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
  */
 class AppLifecycleIterator
 {
-    /**
-     * @var EntityRepository
-     */
-    private $appRepository;
-
-    /**
-     * @var AbstractAppLoader
-     */
-    private $appLoader;
-
-    public function __construct(
-        EntityRepository $appRepository,
-        AbstractAppLoader $appLoader
-    ) {
-        $this->appRepository = $appRepository;
-        $this->appLoader = $appLoader;
+    public function __construct(private readonly EntityRepository $appRepository, private readonly AbstractAppLoader $appLoader)
+    {
     }
 
     /**

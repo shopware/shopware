@@ -15,20 +15,16 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class GoodsCountRule extends FilterRule
 {
-    public const RULE_NAME = 'cartGoodsCount';
+    final public const RULE_NAME = 'cartGoodsCount';
 
     protected int $count;
-
-    protected string $operator;
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?int $count = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, ?int $count = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
         $this->count = (int) $count;
     }
 

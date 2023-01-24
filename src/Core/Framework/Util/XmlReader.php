@@ -128,11 +128,9 @@ abstract class XmlReader
     }
 
     /**
-     * @param mixed $value
-     *
      * @return mixed
      */
-    public static function phpize($value)
+    public static function phpize(mixed $value)
     {
         $value = XmlUtils::phpize($value);
 
@@ -142,7 +140,7 @@ abstract class XmlReader
 
         try {
             return json_decode($value, true, 512, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
+        } catch (\JsonException) {
             // do nothing, return unparsed value
         }
 

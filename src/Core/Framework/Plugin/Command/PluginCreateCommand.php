@@ -84,17 +84,11 @@ EOL;
 EOL;
 
     /**
-     * @var string
-     */
-    private $projectDir;
-
-    /**
      * @internal
      */
-    public function __construct(string $projectDir)
+    public function __construct(private readonly string $projectDir)
     {
         parent::__construct();
-        $this->projectDir = $projectDir;
     }
 
     /**
@@ -104,8 +98,7 @@ EOL;
     {
         $this
             ->addArgument('name', InputArgument::OPTIONAL)
-            ->addOption('create-config', 'c', InputOption::VALUE_NONE, 'Create config.xml')
-            ->setDescription('Creates a plugin skeleton');
+            ->addOption('create-config', 'c', InputOption::VALUE_NONE, 'Create config.xml');
     }
 
     /**
@@ -120,7 +113,7 @@ EOL;
             $name = $this->getHelper('question')->ask($input, $output, $question);
         }
 
-        $name = ucfirst($name);
+        $name = ucfirst((string) $name);
 
         $directory = $this->projectDir . '/custom/plugins/' . $name;
 

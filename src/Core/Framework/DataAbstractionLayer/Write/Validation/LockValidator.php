@@ -18,12 +18,12 @@ use Symfony\Component\Validator\ConstraintViolationList;
  */
 class LockValidator implements EventSubscriberInterface
 {
-    public const VIOLATION_LOCKED = 'FRAMEWORK__ENTITY_IS_LOCKED';
+    final public const VIOLATION_LOCKED = 'FRAMEWORK__ENTITY_IS_LOCKED';
 
     /**
      * @internal
      */
-    public function __construct(private Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
     }
 

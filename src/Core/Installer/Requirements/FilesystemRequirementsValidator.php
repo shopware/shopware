@@ -21,11 +21,8 @@ class FilesystemRequirementsValidator implements RequirementsValidatorInterface
         'config/jwt/',
     ];
 
-    private string $projectDir;
-
-    public function __construct(string $projectDir)
+    public function __construct(private readonly string $projectDir)
     {
-        $this->projectDir = $projectDir;
     }
 
     public function validateRequirements(RequirementsCheckCollection $checks): RequirementsCheckCollection

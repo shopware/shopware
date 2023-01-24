@@ -12,31 +12,23 @@ use Symfony\Component\HttpKernel\Attribute\Cache;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package checkout
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class NumberRangeController extends AbstractController
 {
     /**
-     * @var NumberRangeValueGeneratorInterface
-     */
-    private $valueGenerator;
-
-    /**
      * @internal
      */
-    public function __construct(
-        NumberRangeValueGeneratorInterface $valueGenerator
-    ) {
-        $this->valueGenerator = $valueGenerator;
+    public function __construct(private readonly NumberRangeValueGeneratorInterface $valueGenerator)
+    {
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/number-range/reserve/{type}/{saleschannel?}", name="api.action.number-range.reserve", methods={"GET"})
      */
     #[Cache(mustRevalidate: true)]
+    #[Route(path: '/api/_action/number-range/reserve/{type}/{saleschannel?}', name: 'api.action.number-range.reserve', methods: ['GET'])]
     public function reserve(string $type, ?string $saleschannel, Context $context, Request $request): JsonResponse
     {
         $generatedNumber = $this->valueGenerator->getValue($type, $context, $saleschannel, $request->query->getBoolean('preview'));
@@ -48,9 +40,9 @@ class NumberRangeController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/number-range/preview-pattern/{type}", defaults={"type"="default"}, name="api.action.number-range.preview-pattern", methods={"GET"})
      */
     #[Cache(mustRevalidate: true)]
+    #[Route(path: '/api/_action/number-range/preview-pattern/{type}', defaults: ['type' => 'default'], name: 'api.action.number-range.preview-pattern', methods: ['GET'])]
     public function previewPattern(string $type, Request $request): JsonResponse
     {
         $generatedNumber = $this->valueGenerator->previewPattern(

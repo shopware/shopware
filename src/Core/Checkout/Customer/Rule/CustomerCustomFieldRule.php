@@ -17,28 +17,18 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class CustomerCustomFieldRule extends Rule
 {
-    public const RULE_NAME = 'customerCustomField';
+    final public const RULE_NAME = 'customerCustomField';
 
-    protected string $operator;
-
-    /**
-     * @var array<string, string>
-     */
-    protected array $renderedField;
-
-    protected string|int|bool|null|float $renderedFieldValue;
+    protected string|int|bool|null|float $renderedFieldValue = null;
 
     /**
      * @param array<string, string> $renderedField
      *
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, array $renderedField = [])
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected array $renderedField = [])
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->renderedField = $renderedField;
     }
 
     /**
@@ -99,22 +89,15 @@ class CustomerCustomFieldRule extends Rule
             return false;
         }
 
-        switch ($this->operator) {
-            case self::OPERATOR_NEQ:
-                return $actual !== $expected;
-            case self::OPERATOR_GTE:
-                return $actual >= $expected;
-            case self::OPERATOR_LTE:
-                return $actual <= $expected;
-            case self::OPERATOR_EQ:
-                return $actual === $expected;
-            case self::OPERATOR_GT:
-                return $actual > $expected;
-            case self::OPERATOR_LT:
-                return $actual < $expected;
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return match ($this->operator) {
+            self::OPERATOR_NEQ => $actual !== $expected,
+            self::OPERATOR_GTE => $actual >= $expected,
+            self::OPERATOR_LTE => $actual <= $expected,
+            self::OPERATOR_EQ => $actual === $expected,
+            self::OPERATOR_GT => $actual > $expected,
+            self::OPERATOR_LT => $actual < $expected,
+            default => throw new UnsupportedOperatorException($this->operator, self::class),
+        };
     }
 
     /**

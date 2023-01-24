@@ -17,10 +17,7 @@ class LineItemGroupPriceAscSorterTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;
 
-    /**
-     * @var LineItemGroupSorterInterface
-     */
-    private $sorter;
+    private LineItemGroupSorterInterface $sorter;
 
     protected function setUp(): void
     {

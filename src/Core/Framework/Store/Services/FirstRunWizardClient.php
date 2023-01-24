@@ -126,6 +126,7 @@ class FirstRunWizardClient
      */
     public function getRecommendations(?string $region, ?string $category, Context $context): array
     {
+        $query = [];
         $query['market'] = $region;
         $query['category'] = $category;
 

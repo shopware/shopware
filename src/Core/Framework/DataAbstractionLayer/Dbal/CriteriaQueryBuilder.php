@@ -24,50 +24,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpret
  */
 class CriteriaQueryBuilder
 {
-    /**
-     * @var SqlQueryParser
-     */
-    private $parser;
-
-    /***
-     * @var EntityDefinitionQueryHelper
-     */
-    private $helper;
-
-    /**
-     * @var SearchTermInterpreter
-     */
-    private $interpreter;
-
-    /**
-     * @var EntityScoreQueryBuilder
-     */
-    private $scoreBuilder;
-
-    /**
-     * @var JoinGroupBuilder
-     */
-    private $joinGrouper;
-
-    /**
-     * @var CriteriaPartResolver
-     */
-    private $criteriaPartResolver;
-
     public function __construct(
-        SqlQueryParser $parser,
-        EntityDefinitionQueryHelper $helper,
-        SearchTermInterpreter $interpreter,
-        EntityScoreQueryBuilder $scoreBuilder,
-        JoinGroupBuilder $joinGrouper,
-        CriteriaPartResolver $criteriaPartResolver
+        private readonly SqlQueryParser $parser,
+        /***
+         * @var EntityDefinitionQueryHelper
+         */
+        private readonly EntityDefinitionQueryHelper $helper,
+        private readonly SearchTermInterpreter $interpreter,
+        private readonly EntityScoreQueryBuilder $scoreBuilder,
+        private readonly JoinGroupBuilder $joinGrouper,
+        private readonly CriteriaPartResolver $criteriaPartResolver
     ) {
-        $this->parser = $parser;
-        $this->helper = $helper;
-        $this->interpreter = $interpreter;
-        $this->scoreBuilder = $scoreBuilder;
-        $this->joinGrouper = $joinGrouper;
-        $this->criteriaPartResolver = $criteriaPartResolver;
     }
 
     public function build(QueryBuilder $query, EntityDefinition $definition, Criteria $criteria, Context $context, array $paths = []): QueryBuilder
@@ -208,9 +175,7 @@ class CriteriaQueryBuilder
             $criteria->addSorting(new FieldSorting('_score', FieldSorting::DESCENDING));
         }
 
-        $minScore = array_map(function (ScoreQuery $query) {
-            return $query->getScore();
-        }, $criteria->getQueries());
+        $minScore = array_map(fn (ScoreQuery $query) => $query->getScore(), $criteria->getQueries());
 
         $minScore = min($minScore);
 

@@ -25,39 +25,22 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package sales-channel
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class ProductExportController extends AbstractController
 {
-    private EntityRepository $salesChannelDomainRepository;
-
-    private EntityRepository $salesChannelRepository;
-
-    private ProductExportGeneratorInterface $productExportGenerator;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $salesChannelDomainRepository,
-        EntityRepository $salesChannelRepository,
-        ProductExportGeneratorInterface $productExportGenerator,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->salesChannelDomainRepository = $salesChannelDomainRepository;
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->productExportGenerator = $productExportGenerator;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly EntityRepository $salesChannelDomainRepository, private readonly EntityRepository $salesChannelRepository, private readonly ProductExportGeneratorInterface $productExportGenerator, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**
      * @Since("6.1.0.0")
-     * @Route("/api/_action/product-export/validate", name="api.action.product_export.validate", methods={"POST"})
      */
+    #[Route(path: '/api/_action/product-export/validate', name: 'api.action.product_export.validate', methods: ['POST'])]
     public function validate(RequestDataBag $dataBag, Context $context): JsonResponse
     {
         $result = $this->generateExportPreview($dataBag, $context);
@@ -66,9 +49,7 @@ class ProductExportController extends AbstractController
             $errors = $result->getErrors();
             $errorMessages = array_merge(
                 ...array_map(
-                    function (Error $error) {
-                        return $error->getErrorMessages();
-                    },
+                    fn (Error $error) => $error->getErrorMessages(),
                     $errors
                 )
             );
@@ -90,8 +71,8 @@ class ProductExportController extends AbstractController
 
     /**
      * @Since("6.1.0.0")
-     * @Route("/api/_action/product-export/preview", name="api.action.product_export.preview", methods={"POST"})
      */
+    #[Route(path: '/api/_action/product-export/preview', name: 'api.action.product_export.preview', methods: ['POST'])]
     public function preview(RequestDataBag $dataBag, Context $context): JsonResponse
     {
         $result = $this->generateExportPreview($dataBag, $context);
@@ -100,9 +81,7 @@ class ProductExportController extends AbstractController
             $errors = $result->getErrors();
             $errorMessages = array_merge(
                 ...array_map(
-                    function (Error $error) {
-                        return $error->getErrorMessages();
-                    },
+                    fn (Error $error) => $error->getErrorMessages(),
                     $errors
                 )
             );

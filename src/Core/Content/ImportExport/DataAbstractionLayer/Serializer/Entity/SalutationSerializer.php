@@ -17,8 +17,6 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class SalutationSerializer extends EntitySerializer implements ResetInterface
 {
-    private EntityRepository $salutationRepository;
-
     /**
      * @var array<string>|null[]
      */
@@ -27,9 +25,8 @@ class SalutationSerializer extends EntitySerializer implements ResetInterface
     /**
      * @internal
      */
-    public function __construct(EntityRepository $salutationRepository)
+    public function __construct(private readonly EntityRepository $salutationRepository)
     {
-        $this->salutationRepository = $salutationRepository;
     }
 
     /**

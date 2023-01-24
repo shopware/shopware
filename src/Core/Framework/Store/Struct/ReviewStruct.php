@@ -13,8 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ReviewStruct extends StoreStruct
 {
-    public const MAX_RATING = 5;
-    public const MIN_RATING = 1;
+    final public const MAX_RATING = 5;
+    final public const MIN_RATING = 1;
 
     /**
      * @var int

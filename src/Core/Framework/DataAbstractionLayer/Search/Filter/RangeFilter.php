@@ -9,13 +9,13 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
  */
 class RangeFilter extends SingleFieldFilter
 {
-    public const LTE = 'lte';
+    final public const LTE = 'lte';
 
-    public const LT = 'lt';
+    final public const LT = 'lt';
 
-    public const GTE = 'gte';
+    final public const GTE = 'gte';
 
-    public const GT = 'gt';
+    final public const GT = 'gt';
 
     /**
      * @example
@@ -31,7 +31,7 @@ class RangeFilter extends SingleFieldFilter
      *
      * @param array<string, float|int|string> $parameters
      */
-    public function __construct(private string $field, private array $parameters = [])
+    public function __construct(private readonly string $field, private readonly array $parameters = [])
     {
     }
 

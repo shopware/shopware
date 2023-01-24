@@ -11,14 +11,8 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
  */
 class EntityLoadedContainerEvent extends NestedEvent
 {
-    private Context $context;
-
-    private array $events;
-
-    public function __construct(Context $context, array $events)
+    public function __construct(private readonly Context $context, private readonly array $events)
     {
-        $this->context = $context;
-        $this->events = $events;
     }
 
     public function getContext(): Context

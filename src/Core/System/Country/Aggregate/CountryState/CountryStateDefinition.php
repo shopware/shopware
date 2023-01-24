@@ -28,7 +28,7 @@ use Shopware\Core\System\Country\CountryDefinition;
  */
 class CountryStateDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'country_state';
+    final public const ENTITY_NAME = 'country_state';
 
     public function getEntityName(): string
     {

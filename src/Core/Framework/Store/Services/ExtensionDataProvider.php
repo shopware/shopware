@@ -20,31 +20,15 @@ use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
  */
 class ExtensionDataProvider extends AbstractExtensionDataProvider
 {
-    public const HEADER_NAME_TOTAL_COUNT = 'SW-Meta-Total';
+    final public const HEADER_NAME_TOTAL_COUNT = 'SW-Meta-Total';
 
-    private ExtensionLoader $extensionLoader;
-
-    private EntityRepository $appRepository;
-
-    private EntityRepository $pluginRepository;
-
-    private ExtensionListingLoader $extensionListingLoader;
-
-    public function __construct(
-        ExtensionLoader $extensionLoader,
-        EntityRepository $appRepository,
-        EntityRepository $pluginRepository,
-        ExtensionListingLoader $extensionListingLoader
-    ) {
-        $this->extensionLoader = $extensionLoader;
-        $this->appRepository = $appRepository;
-        $this->pluginRepository = $pluginRepository;
-        $this->extensionListingLoader = $extensionListingLoader;
+    public function __construct(private readonly ExtensionLoader $extensionLoader, private readonly EntityRepository $appRepository, private readonly EntityRepository $pluginRepository, private readonly ExtensionListingLoader $extensionListingLoader)
+    {
     }
 
     public function getInstalledExtensions(Context $context, bool $loadCloudExtensions = true, ?Criteria $searchCriteria = null): ExtensionCollection
     {
-        $criteria = $searchCriteria ? $searchCriteria : new Criteria();
+        $criteria = $searchCriteria ?: new Criteria();
         $criteria->addAssociation('translations');
 
         /** @var AppCollection $installedApps */

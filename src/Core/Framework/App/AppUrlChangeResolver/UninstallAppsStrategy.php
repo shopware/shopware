@@ -23,22 +23,10 @@ use Shopware\Storefront\Theme\ThemeAppLifecycleHandler;
  */
 class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
 {
-    public const STRATEGY_NAME = 'uninstall-apps';
+    final public const STRATEGY_NAME = 'uninstall-apps';
 
-    private SystemConfigService $systemConfigService;
-
-    private EntityRepository $appRepository;
-
-    private ?ThemeAppLifecycleHandler $themeLifecycleHandler;
-
-    public function __construct(
-        EntityRepository $appRepository,
-        SystemConfigService $systemConfigService,
-        ?ThemeAppLifecycleHandler $themeLifecycleHandler
-    ) {
-        $this->systemConfigService = $systemConfigService;
-        $this->appRepository = $appRepository;
-        $this->themeLifecycleHandler = $themeLifecycleHandler;
+    public function __construct(private readonly EntityRepository $appRepository, private readonly SystemConfigService $systemConfigService, private readonly ?ThemeAppLifecycleHandler $themeLifecycleHandler)
+    {
     }
 
     public function getDecorated(): AbstractAppUrlChangeStrategy

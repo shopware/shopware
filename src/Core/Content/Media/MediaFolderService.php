@@ -17,31 +17,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class MediaFolderService
 {
     /**
-     * @var EntityRepository
-     */
-    private $mediaRepo;
-
-    /**
-     * @var EntityRepository
-     */
-    private $mediaFolderRepo;
-
-    /**
-     * @var EntityRepository
-     */
-    private $mediaFolderConfigRepo;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $mediaRepo,
-        EntityRepository $mediaFolderRepo,
-        EntityRepository $mediaFolderConfigRepo
-    ) {
-        $this->mediaRepo = $mediaRepo;
-        $this->mediaFolderRepo = $mediaFolderRepo;
-        $this->mediaFolderConfigRepo = $mediaFolderConfigRepo;
+    public function __construct(private readonly EntityRepository $mediaRepo, private readonly EntityRepository $mediaFolderRepo, private readonly EntityRepository $mediaFolderConfigRepo)
+    {
     }
 
     public function dissolve(string $folderId, Context $context): void

@@ -22,31 +22,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class MediaIndexer extends EntityIndexer
 {
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepository $repository;
-
-    private Connection $connection;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private EntityRepository $thumbnailRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        EntityRepository $thumbnailRepository,
-        Connection $connection,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->thumbnailRepository = $thumbnailRepository;
+    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly EntityRepository $thumbnailRepository, private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function getName(): string

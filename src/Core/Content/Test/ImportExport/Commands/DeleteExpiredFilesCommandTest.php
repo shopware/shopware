@@ -35,15 +35,9 @@ class DeleteExpiredFilesCommandTest extends TestCase
      */
     private $deleteExpiredFilesCommand;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
+    private Filesystem $filesystem;
 
     protected function setUp(): void
     {

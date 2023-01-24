@@ -11,21 +11,12 @@ use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
  */
 class MockSnippetFile extends AbstractSnippetFile
 {
-    private string $name;
+    private readonly string $iso;
 
-    private bool $isBase;
-
-    private string $iso;
-
-    private string $technicalName;
-
-    public function __construct(string $name, ?string $iso = null, string $content = '{}', bool $isBase = true, string $technicalName = 'mock')
+    public function __construct(private readonly string $name, ?string $iso = null, string $content = '{}', private readonly bool $isBase = true, private readonly string $technicalName = 'mock')
     {
-        $this->name = $name;
         $this->iso = $iso ?? $name;
-        $this->isBase = $isBase;
         file_put_contents($this->getPath(), $content);
-        $this->technicalName = $technicalName;
     }
 
     public static function cleanup(): void

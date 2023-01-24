@@ -22,33 +22,13 @@ use Symfony\Component\Routing\RouterInterface;
  */
 class CategoryUrlProvider extends AbstractUrlProvider
 {
-    public const CHANGE_FREQ = 'daily';
-
-    private ConfigHandler $configHandler;
-
-    private Connection $connection;
-
-    private IteratorFactory $iteratorFactory;
-
-    private CategoryDefinition $definition;
-
-    private RouterInterface $router;
+    final public const CHANGE_FREQ = 'daily';
 
     /**
      * @internal
      */
-    public function __construct(
-        ConfigHandler $configHandler,
-        Connection $connection,
-        CategoryDefinition $definition,
-        IteratorFactory $iteratorFactory,
-        RouterInterface $router
-    ) {
-        $this->configHandler = $configHandler;
-        $this->connection = $connection;
-        $this->definition = $definition;
-        $this->iteratorFactory = $iteratorFactory;
-        $this->router = $router;
+    public function __construct(private readonly ConfigHandler $configHandler, private readonly Connection $connection, private readonly CategoryDefinition $definition, private readonly IteratorFactory $iteratorFactory, private readonly RouterInterface $router)
+    {
     }
 
     public function getDecorated(): AbstractUrlProvider

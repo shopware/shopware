@@ -13,10 +13,7 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
  */
 class ConfigReaderTest extends TestCase
 {
-    /**
-     * @var ConfigReader
-     */
-    private $configReader;
+    private ConfigReader $configReader;
 
     protected function setUp(): void
     {

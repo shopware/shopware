@@ -13,15 +13,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
  */
 class PaymentDistinguishableNameGenerator
 {
-    private EntityRepository $paymentMethodRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $paymentMethodRepository
-    ) {
-        $this->paymentMethodRepository = $paymentMethodRepository;
+    public function __construct(private readonly EntityRepository $paymentMethodRepository)
+    {
     }
 
     public function generateDistinguishablePaymentNames(Context $context): void

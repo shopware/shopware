@@ -24,59 +24,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package content
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class ContactFormRoute extends AbstractContactFormRoute
 {
-    private DataValidationFactoryInterface $contactFormValidationFactory;
-
-    private DataValidator $validator;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private SystemConfigService $systemConfigService;
-
-    private EntityRepository $cmsSlotRepository;
-
-    private EntityRepository $salutationRepository;
-
-    private EntityRepository $categoryRepository;
-
-    private EntityRepository $landingPageRepository;
-
-    private EntityRepository $productRepository;
-
-    private RequestStack $requestStack;
-
-    private RateLimiter $rateLimiter;
-
     /**
      * @internal
      */
-    public function __construct(
-        DataValidationFactoryInterface $contactFormValidationFactory,
-        DataValidator $validator,
-        EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfigService,
-        EntityRepository $cmsSlotRepository,
-        EntityRepository $salutationRepository,
-        EntityRepository $categoryRepository,
-        EntityRepository $landingPageRepository,
-        EntityRepository $productRepository,
-        RequestStack $requestStack,
-        RateLimiter $rateLimiter
-    ) {
-        $this->contactFormValidationFactory = $contactFormValidationFactory;
-        $this->validator = $validator;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->systemConfigService = $systemConfigService;
-        $this->cmsSlotRepository = $cmsSlotRepository;
-        $this->salutationRepository = $salutationRepository;
-        $this->categoryRepository = $categoryRepository;
-        $this->landingPageRepository = $landingPageRepository;
-        $this->productRepository = $productRepository;
-        $this->requestStack = $requestStack;
-        $this->rateLimiter = $rateLimiter;
+    public function __construct(private readonly DataValidationFactoryInterface $contactFormValidationFactory, private readonly DataValidator $validator, private readonly EventDispatcherInterface $eventDispatcher, private readonly SystemConfigService $systemConfigService, private readonly EntityRepository $cmsSlotRepository, private readonly EntityRepository $salutationRepository, private readonly EntityRepository $categoryRepository, private readonly EntityRepository $landingPageRepository, private readonly EntityRepository $productRepository, private readonly RequestStack $requestStack, private readonly RateLimiter $rateLimiter)
+    {
     }
 
     public function getDecorated(): AbstractContactFormRoute
@@ -86,8 +42,8 @@ class ContactFormRoute extends AbstractContactFormRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/contact-form", name="store-api.contact.form", methods={"POST"})
      */
+    #[Route(path: '/store-api/contact-form', name: 'store-api.contact.form', methods: ['POST'])]
     public function load(RequestDataBag $data, SalesChannelContext $context): ContactFormRouteResponse
     {
         $this->validateContactForm($data, $context);
@@ -149,23 +105,17 @@ class ContactFormRoute extends AbstractContactFormRoute
      */
     private function getSlotConfig(string $slotId, string $navigationId, SalesChannelContext $context, ?string $entityName = null): array
     {
+        $mailConfigs = [];
         $mailConfigs['receivers'] = [];
         $mailConfigs['message'] = '';
 
         $criteria = new Criteria([$navigationId]);
 
-        switch ($entityName) {
-            case ProductDefinition::ENTITY_NAME:
-                $entity = $this->productRepository->search($criteria, $context->getContext())->first();
-
-                break;
-            case LandingPageDefinition::ENTITY_NAME:
-                $entity = $this->landingPageRepository->search($criteria, $context->getContext())->first();
-
-                break;
-            default:
-                $entity = $this->categoryRepository->search($criteria, $context->getContext())->first();
-        }
+        $entity = match ($entityName) {
+            ProductDefinition::ENTITY_NAME => $this->productRepository->search($criteria, $context->getContext())->first(),
+            LandingPageDefinition::ENTITY_NAME => $this->landingPageRepository->search($criteria, $context->getContext())->first(),
+            default => $this->categoryRepository->search($criteria, $context->getContext())->first(),
+        };
 
         if (!$entity) {
             return $mailConfigs;
@@ -186,6 +136,7 @@ class ContactFormRoute extends AbstractContactFormRoute
      */
     private function getMailConfigs(SalesChannelContext $context, ?string $slotId = null, ?string $navigationId = null, ?string $entityName = null): array
     {
+        $mailConfigs = [];
         $mailConfigs['receivers'] = [];
         $mailConfigs['message'] = '';
 

@@ -38,10 +38,10 @@ class StoreApiSeoResolver implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        private SalesChannelRepository $salesChannelRepository,
-        private DefinitionInstanceRegistry $definitionInstanceRegistry,
-        private SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionInstanceRegistry,
-        private SeoUrlRouteRegistry $seoUrlRouteRegistry
+        private readonly SalesChannelRepository $salesChannelRepository,
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionInstanceRegistry,
+        private readonly SeoUrlRouteRegistry $seoUrlRouteRegistry
     ) {
     }
 
@@ -126,9 +126,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
                 continue;
             }
 
-            $routes = array_map(static function (SeoUrlRouteConfigRoute $seoUrlRoute) {
-                return $seoUrlRoute->getConfig()->getRouteName();
-            }, $routes);
+            $routes = array_map(static fn (SeoUrlRouteConfigRoute $seoUrlRoute) => $seoUrlRoute->getConfig()->getRouteName(), $routes);
 
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('isCanonical', true));

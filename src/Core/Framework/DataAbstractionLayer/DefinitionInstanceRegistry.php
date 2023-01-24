@@ -80,7 +80,7 @@ class DefinitionInstanceRegistry
     {
         try {
             return $this->get($key);
-        } catch (DefinitionNotFoundException $e) {
+        } catch (DefinitionNotFoundException) {
             return $this->getByEntityName($key);
         }
     }
@@ -109,9 +109,7 @@ class DefinitionInstanceRegistry
      */
     public function getDefinitions(): array
     {
-        return array_map(function (string $name): EntityDefinition {
-            return $this->get($name);
-        }, $this->definitions);
+        return array_map(fn (string $name): EntityDefinition => $this->get($name), $this->definitions);
     }
 
     public function getSerializer(string $serializerClass): FieldSerializerInterface
@@ -145,7 +143,7 @@ class DefinitionInstanceRegistry
     {
         $map = $this->loadClassMapping();
 
-        $source = \get_class($entity);
+        $source = $entity::class;
 
         return $map[$source] ?? null;
     }
@@ -153,7 +151,7 @@ class DefinitionInstanceRegistry
     public function register(EntityDefinition $definition, ?string $serviceId = null): void
     {
         if (!$serviceId) {
-            $serviceId = \get_class($definition);
+            $serviceId = $definition::class;
         }
 
         if (!$this->container->has($serviceId)) {
@@ -194,7 +192,7 @@ class DefinitionInstanceRegistry
                 $class = $definition->getEntityClass();
 
                 $this->entityClassMapping[$class] = $definition;
-            } catch (\Throwable $e) {
+            } catch (\Throwable) {
             }
         }
 

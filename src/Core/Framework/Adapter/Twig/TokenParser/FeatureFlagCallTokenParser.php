@@ -23,7 +23,7 @@ class FeatureFlagCallTokenParser extends AbstractTokenParser
         $stream->next();
 
         // Parse the body of the tag inside
-        $body = $this->parser->subparse([$this, 'decideBlockEnd'], true);
+        $body = $this->parser->subparse($this->decideBlockEnd(...), true);
 
         // We read until the string of the end of the block. But we need to parse the end tag as well, so the parser is on clean state again.
         $stream->next();

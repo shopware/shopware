@@ -29,45 +29,16 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package inventory
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private EntityRepository $crossSellingRepository;
-
-    private ProductStreamBuilderInterface $productStreamBuilder;
-
-    private SalesChannelRepository $productRepository;
-
-    private SystemConfigService $systemConfigService;
-
-    private ProductListingLoader $listingLoader;
-
-    private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $crossSellingRepository,
-        EventDispatcherInterface $eventDispatcher,
-        ProductStreamBuilderInterface $productStreamBuilder,
-        SalesChannelRepository $productRepository,
-        SystemConfigService $systemConfigService,
-        ProductListingLoader $listingLoader,
-        AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->crossSellingRepository = $crossSellingRepository;
-        $this->productStreamBuilder = $productStreamBuilder;
-        $this->productRepository = $productRepository;
-        $this->systemConfigService = $systemConfigService;
-        $this->listingLoader = $listingLoader;
-        $this->productCloseoutFilterFactory = $productCloseoutFilterFactory;
+    public function __construct(private readonly EntityRepository $crossSellingRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly ProductStreamBuilderInterface $productStreamBuilder, private readonly SalesChannelRepository $productRepository, private readonly SystemConfigService $systemConfigService, private readonly ProductListingLoader $listingLoader, private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory)
+    {
     }
 
     public function getDecorated(): AbstractProductCrossSellingRoute
@@ -77,8 +48,8 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
     /**
      * @Since("6.3.2.0")
-     * @Route("/store-api/product/{productId}/cross-selling", name="store-api.product.cross-selling", methods={"POST"}, defaults={"_entity"="product"})
      */
+    #[Route(path: '/store-api/product/{productId}/cross-selling', name: 'store-api.product.cross-selling', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse
     {
         $crossSellings = $this->loadCrossSellings($productId, $context);

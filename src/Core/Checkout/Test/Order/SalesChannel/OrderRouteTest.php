@@ -99,9 +99,7 @@ class OrderRouteTest extends TestCase
             'id' => TestDefaults::SALES_CHANNEL,
             'languages' => [],
             'countryId' => $this->defaultCountryId,
-            'countries' => \array_map(static function (CountryEntity $country) {
-                return ['id' => $country->getId()];
-            }, $validCountries),
+            'countries' => \array_map(static fn (CountryEntity $country) => ['id' => $country->getId()], $validCountries),
         ]);
 
         $this->assignSalesChannelContext($this->browser);
@@ -126,7 +124,7 @@ class OrderRouteTest extends TestCase
                 \json_encode([
                     'email' => $this->email,
                     'password' => $this->password,
-                ]) ?: ''
+                ], \JSON_THROW_ON_ERROR) ?: ''
             );
 
         $response = $this->browser->getResponse();
@@ -165,7 +163,7 @@ class OrderRouteTest extends TestCase
                 $this->requestCriteriaBuilder->toArray($criteria)
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('orders', $response);
         static::assertArrayHasKey('elements', $response['orders']);
@@ -210,7 +208,7 @@ class OrderRouteTest extends TestCase
                 )
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('orders', $response);
         static::assertArrayHasKey('elements', $response['orders']);
@@ -288,7 +286,7 @@ class OrderRouteTest extends TestCase
                 $this->requestCriteriaBuilder->toArray($criteria)
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('orders', $response);
         static::assertArrayHasKey('elements', $response['orders']);
@@ -309,7 +307,7 @@ class OrderRouteTest extends TestCase
                 $this->requestCriteriaBuilder->toArray($criteria)
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('orders', $response);
         static::assertArrayHasKey('elements', $response['orders']);
@@ -330,7 +328,7 @@ class OrderRouteTest extends TestCase
                 $this->requestCriteriaBuilder->toArray($criteria)
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('orders', $response);
         static::assertArrayHasKey('elements', $response['orders']);
@@ -353,11 +351,12 @@ class OrderRouteTest extends TestCase
                     array_merge(
                         $this->requestCriteriaBuilder->toArray($criteria),
                         ['checkPromotion' => true]
-                    )
+                    ),
+                    \JSON_THROW_ON_ERROR
                 ) ?: ''
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('orders', $response);
         static::assertArrayHasKey('elements', $response['orders']);
@@ -381,10 +380,10 @@ class OrderRouteTest extends TestCase
                 \json_encode([
                     'orderId' => $this->orderId,
                     'paymentMethodId' => $this->defaultPaymentMethodId,
-                ]) ?: ''
+                ], \JSON_THROW_ON_ERROR) ?: ''
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
@@ -421,9 +420,7 @@ class OrderRouteTest extends TestCase
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $defaultPaymentMethodId = $this->defaultPaymentMethodId;
-        $newPaymentMethodId = $this->getValidPaymentMethods()->filter(function (PaymentMethodEntity $paymentMethod) use ($defaultPaymentMethodId) {
-            return $paymentMethod->getId() !== $defaultPaymentMethodId;
-        })->first()->getId();
+        $newPaymentMethodId = $this->getValidPaymentMethods()->filter(fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getId() !== $defaultPaymentMethodId)->first()->getId();
 
         $this->browser
             ->request(
@@ -435,10 +432,10 @@ class OrderRouteTest extends TestCase
                 \json_encode([
                     'orderId' => $this->orderId,
                     'paymentMethodId' => $newPaymentMethodId,
-                ]) ?: ''
+                ], \JSON_THROW_ON_ERROR) ?: ''
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
@@ -472,10 +469,10 @@ class OrderRouteTest extends TestCase
                 \json_encode([
                     'orderId' => $this->orderId,
                     'paymentMethodId' => $this->defaultPaymentMethodId,
-                ]) ?: ''
+                ], \JSON_THROW_ON_ERROR) ?: ''
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
@@ -497,10 +494,10 @@ class OrderRouteTest extends TestCase
                 \json_encode([
                     'orderId' => $this->orderId,
                     'paymentMethodId' => Uuid::randomHex(),
-                ]) ?: ''
+                ], \JSON_THROW_ON_ERROR) ?: ''
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -516,10 +513,10 @@ class OrderRouteTest extends TestCase
                 ['CONTENT_TYPE' => 'application/json'],
                 \json_encode([
                     'orderId' => $this->orderId,
-                ]) ?: ''
+                ], \JSON_THROW_ON_ERROR) ?: ''
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('technicalName', $response);
         static::assertEquals('cancelled', $response['technicalName']);
@@ -557,7 +554,7 @@ class OrderRouteTest extends TestCase
                 $this->requestCriteriaBuilder->toArray(new Criteria())
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('orders', $response);
         static::assertArrayHasKey('elements', $response['orders']);
@@ -573,9 +570,7 @@ class OrderRouteTest extends TestCase
         $ids = new IdsCollection();
 
         // get non default country id
-        $countryId = $this->getValidCountries()->filter(function (CountryEntity $country) {
-            return $country->getId() !== $this->defaultCountryId;
-        })->first()->getId();
+        $countryId = $this->getValidCountries()->filter(fn (CountryEntity $country) => $country->getId() !== $this->defaultCountryId)->first()->getId();
 
         // create rule for that country now, so it is set in the order
         $ruleId = Uuid::randomHex();
@@ -623,7 +618,7 @@ class OrderRouteTest extends TestCase
             ]) ?: ''
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(0, $response['errors']);
 
@@ -636,7 +631,7 @@ class OrderRouteTest extends TestCase
             \json_encode([]) ?: ''
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayNotHasKey('errors', $response);
 
@@ -669,10 +664,10 @@ class OrderRouteTest extends TestCase
             \json_encode([
                 'orderId' => $orderId,
                 'paymentMethodId' => $paymentId,
-            ]) ?: ''
+            ], \JSON_THROW_ON_ERROR) ?: ''
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals('CHECKOUT__UNKNOWN_PAYMENT_METHOD', $response['errors'][0]['code']);

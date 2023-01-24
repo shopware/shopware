@@ -30,42 +30,10 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 class AccountService
 {
     /**
-     * @var EntityRepository
-     */
-    private $customerRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var LegacyPasswordVerifier
-     */
-    private $legacyPasswordVerifier;
-
-    /**
-     * @var AbstractSwitchDefaultAddressRoute
-     */
-    private $switchDefaultAddressRoute;
-
-    private CartRestorer $restorer;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $customerRepository,
-        EventDispatcherInterface $eventDispatcher,
-        LegacyPasswordVerifier $legacyPasswordVerifier,
-        AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute,
-        CartRestorer $restorer
-    ) {
-        $this->customerRepository = $customerRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->legacyPasswordVerifier = $legacyPasswordVerifier;
-        $this->switchDefaultAddressRoute = $switchDefaultAddressRoute;
-        $this->restorer = $restorer;
+    public function __construct(private readonly EntityRepository $customerRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly LegacyPasswordVerifier $legacyPasswordVerifier, private readonly AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute, private readonly CartRestorer $restorer)
+    {
     }
 
     /**
@@ -262,9 +230,7 @@ class AccountService
         // for guest accounts, real customer accounts should only occur once, otherwise the
         // wrong password will be validated
         if ($result->count() > 1) {
-            $result->sort(function (CustomerEntity $a, CustomerEntity $b) {
-                return ($a->getCreatedAt() <=> $b->getCreatedAt()) * -1;
-            });
+            $result->sort(fn (CustomerEntity $a, CustomerEntity $b) => ($a->getCreatedAt() <=> $b->getCreatedAt()) * -1);
         }
 
         return $result->first();

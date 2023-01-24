@@ -9,10 +9,7 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
  */
 class DeleteFileMessage implements AsyncMessageInterface
 {
-    /**
-     * @var array
-     */
-    private $files = [];
+    private array $files = [];
 
     public function getFiles(): array
     {

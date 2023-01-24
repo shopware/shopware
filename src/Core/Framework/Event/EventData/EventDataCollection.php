@@ -10,7 +10,7 @@ class EventDataCollection
     /**
      * @var array<string, array<string, mixed>>
      */
-    private $data = [];
+    private array $data = [];
 
     public function add(string $name, EventDataType $type): self
     {

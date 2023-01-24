@@ -14,28 +14,21 @@ use Twig\Environment;
  * @package customer-order
  *
  * @internal
- *
- * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class CustomSnippetFormatController
 {
-    private KernelPluginCollection $plugins;
-
-    private Environment $twig;
-
     /**
      * @internal
      */
-    public function __construct(KernelPluginCollection $plugins, Environment $twig)
+    public function __construct(private readonly KernelPluginCollection $plugins, private readonly Environment $twig)
     {
-        $this->plugins = $plugins;
-        $this->twig = $twig;
     }
 
     /**
      * @Since("6.4.18.0")
-     * @Route("/api/_action/custom-snippet", name="api.action.custom-snippet", methods={"GET"})
      */
+    #[Route(path: '/api/_action/custom-snippet', name: 'api.action.custom-snippet', methods: ['GET'])]
     public function snippets(): JsonResponse
     {
         $coreSnippets = $this->getCoreSnippets();
@@ -43,14 +36,14 @@ class CustomSnippetFormatController
         // NEXT-24122 - Allow app to define address formatting snippet
 
         return new JsonResponse([
-            'data' => array_values(array_unique(array_merge($coreSnippets, $pluginSnippets))),
+            'data' => array_values(array_unique([...$coreSnippets, ...$pluginSnippets])),
         ]);
     }
 
     /**
      * @Since("6.4.18.0")
-     * @Route("/api/_action/custom-snippet/render", name="api.action.custom-snippet.render", methods={"POST"})
      */
+    #[Route(path: '/api/_action/custom-snippet/render', name: 'api.action.custom-snippet.render', methods: ['POST'])]
     public function render(Request $request): JsonResponse
     {
         $format = $request->get('format') ?? [];
@@ -86,7 +79,7 @@ class CustomSnippetFormatController
                 continue;
             }
 
-            $snippets = array_merge($snippets, $this->getSnippetsFromDir($snippetDir));
+            $snippets = [...$snippets, ...$this->getSnippetsFromDir($snippetDir)];
         }
 
         return $snippets;
@@ -105,9 +98,7 @@ class CustomSnippetFormatController
             ->notName('render.html.twig')
             ->ignoreUnreadableDirs();
 
-        $snippets = array_values(array_map(static function (\SplFileInfo $file) use ($directory): string {
-            return ltrim(mb_substr(str_replace('.html.twig', '', $file->getPathname()), mb_strlen($directory)), '/');
-        }, iterator_to_array($finder)));
+        $snippets = array_values(array_map(static fn (\SplFileInfo $file): string => ltrim(mb_substr(str_replace('.html.twig', '', $file->getPathname()), mb_strlen($directory)), '/'), iterator_to_array($finder)));
 
         return $snippets;
     }

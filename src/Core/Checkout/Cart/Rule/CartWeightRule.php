@@ -14,20 +14,16 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CartWeightRule extends Rule
 {
-    public const RULE_NAME = 'cartWeight';
+    final public const RULE_NAME = 'cartWeight';
 
     protected float $weight;
-
-    protected string $operator;
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?float $weight = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, ?float $weight = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
         $this->weight = (float) $weight;
     }
 

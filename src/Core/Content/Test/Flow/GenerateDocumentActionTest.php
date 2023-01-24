@@ -314,7 +314,7 @@ class GenerateDocumentActionTest extends TestCase
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            json_encode($data) ?: ''
+            json_encode($data, \JSON_THROW_ON_ERROR) ?: ''
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -341,7 +341,7 @@ class GenerateDocumentActionTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $content = json_decode($response->getContent() ?: '', true);
+        $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
         $versionId = $content['versionId'];
         static::assertEquals($orderId, $content['id']);
         static::assertEquals('order', $content['entity']);
@@ -527,7 +527,7 @@ class GenerateDocumentActionTest extends TestCase
  */
 class CustomDocRenderer extends AbstractDocumentRenderer
 {
-    public const TYPE = 'customDoc';
+    final public const TYPE = 'customDoc';
 
     public function supports(): string
     {

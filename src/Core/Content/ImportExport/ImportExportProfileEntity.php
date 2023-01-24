@@ -13,9 +13,9 @@ class ImportExportProfileEntity extends Entity
 {
     use EntityIdTrait;
 
-    public const TYPE_IMPORT = 'import';
-    public const TYPE_EXPORT = 'export';
-    public const TYPE_IMPORT_EXPORT = 'import-export';
+    final public const TYPE_IMPORT = 'import';
+    final public const TYPE_EXPORT = 'export';
+    final public const TYPE_IMPORT_EXPORT = 'import-export';
 
     /**
      * @var string|null

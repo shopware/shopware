@@ -11,14 +11,11 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  */
 class DefaultMediaResolver extends AbstractDefaultMediaResolver
 {
-    private FilesystemOperator $filesystem;
-
     /**
      * @internal
      */
-    public function __construct(FilesystemOperator $filesystem)
+    public function __construct(private readonly FilesystemOperator $filesystem)
     {
-        $this->filesystem = $filesystem;
     }
 
     public function getDecorated(): AbstractDefaultMediaResolver

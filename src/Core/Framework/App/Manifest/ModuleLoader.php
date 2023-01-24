@@ -21,20 +21,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
  */
 class ModuleLoader
 {
-    private EntityRepository $appRepository;
-
-    private ShopIdProvider $shopIdProvider;
-
-    private QuerySigner $querySigner;
-
-    public function __construct(
-        EntityRepository $appRepository,
-        ShopIdProvider $shopIdProvider,
-        QuerySigner $signer
-    ) {
-        $this->appRepository = $appRepository;
-        $this->shopIdProvider = $shopIdProvider;
-        $this->querySigner = $signer;
+    public function __construct(private readonly EntityRepository $appRepository, private readonly ShopIdProvider $shopIdProvider, private readonly QuerySigner $querySigner)
+    {
     }
 
     public function loadModules(Context $context): array
@@ -61,7 +49,7 @@ class ModuleLoader
     {
         try {
             $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
+        } catch (AppUrlChangeDetectedException) {
             return [];
         }
 

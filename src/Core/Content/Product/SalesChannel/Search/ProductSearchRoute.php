@@ -20,27 +20,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package system-settings
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class ProductSearchRoute extends AbstractProductSearchRoute
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private ProductSearchBuilderInterface $searchBuilder;
-
-    private ProductListingLoader $productListingLoader;
-
     /**
      * @internal
      */
-    public function __construct(
-        ProductSearchBuilderInterface $searchBuilder,
-        EventDispatcherInterface $eventDispatcher,
-        ProductListingLoader $productListingLoader
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->searchBuilder = $searchBuilder;
-        $this->productListingLoader = $productListingLoader;
+    public function __construct(private readonly ProductSearchBuilderInterface $searchBuilder, private readonly EventDispatcherInterface $eventDispatcher, private readonly ProductListingLoader $productListingLoader)
+    {
     }
 
     public function getDecorated(): AbstractProductSearchRoute
@@ -50,8 +38,8 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/search", name="store-api.search", methods={"POST"}, defaults={"_entity"="product"})
      */
+    #[Route(path: '/store-api/search', name: 'store-api.search', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
     {
         if (!$request->get('search')) {

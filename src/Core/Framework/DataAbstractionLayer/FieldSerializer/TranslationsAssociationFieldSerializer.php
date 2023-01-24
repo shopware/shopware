@@ -28,7 +28,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
      * @internal
      */
     public function __construct(
-        private WriteCommandExtractor $writeExtractor
+        private readonly WriteCommandExtractor $writeExtractor
     ) {
     }
 
@@ -65,7 +65,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
                 sprintf(
                     'Could not find language field "%s" in definition "%s"',
                     $field->getLanguageField(),
-                    \get_class($referenceDefinition)
+                    $referenceDefinition::class
                 )
             );
         }
@@ -108,7 +108,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 
             // See above for Supported formats
             $languageId = $keyValue;
-            if (is_numeric($languageId) && $languageId >= 0 && $languageId < \count($value)) {
+            if (is_numeric($languageId) && $languageId >= 0 && $languageId < (is_countable($value) ? \count($value) : 0)) {
                 // languageId is a property of $subResources. Also see formats above
                 if (isset($subResources[$languagePropName])) {
                     $languageId = $subResources[$languagePropName];

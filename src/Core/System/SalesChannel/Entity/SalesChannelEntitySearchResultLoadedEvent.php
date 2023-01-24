@@ -13,15 +13,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class SalesChannelEntitySearchResultLoadedEvent extends EntitySearchResultLoadedEvent implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    public function __construct(EntityDefinition $definition, EntitySearchResult $result, SalesChannelContext $salesChannelContext)
+    public function __construct(EntityDefinition $definition, EntitySearchResult $result, private readonly SalesChannelContext $salesChannelContext)
     {
         parent::__construct($definition, $result);
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getName(): string

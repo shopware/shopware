@@ -10,15 +10,9 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
  */
 class GenerateThumbnailsMessage implements AsyncMessageInterface
 {
-    /**
-     * @var array
-     */
-    private $mediaIds = [];
+    private array $mediaIds = [];
 
-    /**
-     * @var string
-     */
-    private $contextData;
+    private string $contextData;
 
     public function getMediaIds(): array
     {

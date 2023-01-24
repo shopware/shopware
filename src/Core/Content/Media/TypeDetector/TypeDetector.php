@@ -16,16 +16,12 @@ use Shopware\Core\System\Annotation\Concept\ExtensionPattern\HandlerChain;
 class TypeDetector implements TypeDetectorInterface
 {
     /**
-     * @var TypeDetectorInterface[]
-     */
-    private $typeDetector;
-
-    /**
      * @internal
+     *
+     * @param TypeDetectorInterface[] $typeDetector
      */
-    public function __construct(iterable $typeDetector)
+    public function __construct(private readonly iterable $typeDetector)
     {
-        $this->typeDetector = $typeDetector;
     }
 
     public function detect(MediaFile $mediaFile, ?MediaType $previouslyDetectedType = null): MediaType

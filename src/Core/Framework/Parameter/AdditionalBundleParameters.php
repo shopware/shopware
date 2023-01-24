@@ -10,26 +10,8 @@ use Shopware\Core\Framework\Plugin\KernelPluginCollection;
  */
 final class AdditionalBundleParameters
 {
-    /**
-     * @var ClassLoader
-     */
-    private $classLoader;
-
-    /**
-     * @var KernelPluginCollection
-     */
-    private $pluginInstances;
-
-    /**
-     * @var array
-     */
-    private $kernelParameters;
-
-    public function __construct(ClassLoader $classLoader, KernelPluginCollection $pluginInstances, array $kernelParameters)
+    public function __construct(private ClassLoader $classLoader, private KernelPluginCollection $pluginInstances, private array $kernelParameters)
     {
-        $this->classLoader = $classLoader;
-        $this->pluginInstances = $pluginInstances;
-        $this->kernelParameters = $kernelParameters;
     }
 
     public function getClassLoader(): ClassLoader

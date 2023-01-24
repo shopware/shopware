@@ -30,10 +30,7 @@ class SalutationSerializerTest extends TestCase
      */
     private $salutationRepository;
 
-    /**
-     * @var SalutationSerializer
-     */
-    private $serializer;
+    private SalutationSerializer $serializer;
 
     public function setUp(): void
     {

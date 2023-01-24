@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 class AccountNewsletterRecipientResult extends Struct
 {
-    public const UNDEFINED = 'undefined';
+    final public const UNDEFINED = 'undefined';
 
     protected string $status;
 

@@ -26,60 +26,8 @@ class Manifest
 {
     private const XSD_FILE = __DIR__ . '/Schema/manifest-2.0.xsd';
 
-    private string $path;
-
-    private Metadata $metadata;
-
-    private ?Setup $setup;
-
-    private ?Admin $admin;
-
-    private ?Permissions $permissions;
-
-    private ?AllowedHosts $allowedHosts;
-
-    private ?CustomFields $customFields;
-
-    private ?Webhooks $webhooks;
-
-    private ?Cookies $cookies;
-
-    private ?Payments $payments;
-
-    private ?RuleConditions $ruleConditions;
-
-    private ?Storefront $storefront;
-
-    private ?Tax $tax;
-
-    private function __construct(
-        string $path,
-        Metadata $metadata,
-        ?Setup $setup,
-        ?Admin $admin,
-        ?Permissions $permissions,
-        ?AllowedHosts $allowedHosts,
-        ?CustomFields $customFields,
-        ?Webhooks $webhooks,
-        ?Cookies $cookies,
-        ?Payments $payments,
-        ?RuleConditions $ruleConditions,
-        ?Storefront $storefront,
-        ?Tax $tax
-    ) {
-        $this->path = $path;
-        $this->metadata = $metadata;
-        $this->setup = $setup;
-        $this->admin = $admin;
-        $this->permissions = $permissions;
-        $this->allowedHosts = $allowedHosts;
-        $this->customFields = $customFields;
-        $this->webhooks = $webhooks;
-        $this->cookies = $cookies;
-        $this->payments = $payments;
-        $this->ruleConditions = $ruleConditions;
-        $this->storefront = $storefront;
-        $this->tax = $tax;
+    private function __construct(private string $path, private readonly Metadata $metadata, private readonly ?Setup $setup, private readonly ?Admin $admin, private ?Permissions $permissions, private readonly ?AllowedHosts $allowedHosts, private readonly ?CustomFields $customFields, private readonly ?Webhooks $webhooks, private readonly ?Cookies $cookies, private readonly ?Payments $payments, private readonly ?RuleConditions $ruleConditions, private readonly ?Storefront $storefront, private readonly ?Tax $tax)
+    {
     }
 
     public static function createFromXmlFile(string $xmlFile): self

@@ -9,38 +9,8 @@ use Shopware\Core\Content\Rule\RuleCollection;
  */
 class LineItemGroupDefinition
 {
-    /**
-     * @var string
-     */
-    private $id;
-
-    /**
-     * @var string
-     */
-    private $packagerKey;
-
-    /**
-     * @var float
-     */
-    private $value;
-
-    /**
-     * @var string
-     */
-    private $sorterKey;
-
-    /**
-     * @var RuleCollection
-     */
-    private $rules;
-
-    public function __construct(string $id, string $packagerKey, float $value, string $sorterKey, RuleCollection $rules)
+    public function __construct(private readonly string $id, private readonly string $packagerKey, private readonly float $value, private readonly string $sorterKey, private readonly RuleCollection $rules)
     {
-        $this->id = $id;
-        $this->packagerKey = $packagerKey;
-        $this->value = $value;
-        $this->sorterKey = $sorterKey;
-        $this->rules = $rules;
     }
 
     public function getId(): string

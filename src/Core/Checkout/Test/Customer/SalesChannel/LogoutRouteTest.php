@@ -59,7 +59,7 @@ class LogoutRouteTest extends TestCase
             );
 
         static::assertIsString($this->browser->getResponse()->getContent());
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
@@ -116,7 +116,7 @@ class LogoutRouteTest extends TestCase
             );
 
         static::assertIsString($this->browser->getResponse()->getContent());
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -338,7 +338,7 @@ class LogoutRouteTest extends TestCase
             );
 
         static::assertIsString($this->browser->getResponse()->getContent());
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
     }

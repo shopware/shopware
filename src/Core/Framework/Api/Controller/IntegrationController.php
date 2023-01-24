@@ -15,30 +15,22 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package system-settings
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class IntegrationController extends AbstractController
 {
     /**
-     * @var EntityRepository
-     */
-    private $integrationRepository;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $integrationRepository
-    ) {
-        $this->integrationRepository = $integrationRepository;
+    public function __construct(private readonly EntityRepository $integrationRepository)
+    {
     }
 
     /**
      * @Since("6.4.1.0")
-     * @Route("/api/integration", name="api.integration.create", methods={"POST"}, defaults={"_acl"={"integration:create"}})
      */
+    #[Route(path: '/api/integration', name: 'api.integration.create', methods: ['POST'], defaults: ['_acl' => ['integration:create']])]
     public function upsertIntegration(?string $integrationId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
         /** @var AdminApiSource $source */
@@ -59,9 +51,7 @@ class IntegrationController extends AbstractController
         }
         $data['id'] = $integrationId ?: $data['id'];
 
-        $events = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data) {
-            return $this->integrationRepository->upsert([$data], $context);
-        });
+        $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->integrationRepository->upsert([$data], $context));
 
         $event = $events->getEventByEntityName(IntegrationDefinition::ENTITY_NAME);
 
@@ -73,8 +63,8 @@ class IntegrationController extends AbstractController
 
     /**
      * @Since("6.4.1.0")
-     * @Route("/api/integration/{integrationId}", name="api.integration.update", methods={"PATCH"}, defaults={"_acl"={"integration:update"}})
      */
+    #[Route(path: '/api/integration/{integrationId}', name: 'api.integration.update', methods: ['PATCH'], defaults: ['_acl' => ['integration:update']])]
     public function updateIntegration(?string $integrationId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
         return $this->upsertIntegration($integrationId, $request, $context, $factory);

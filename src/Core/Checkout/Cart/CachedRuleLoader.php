@@ -11,19 +11,13 @@ use Symfony\Contracts\Cache\CacheInterface;
  */
 class CachedRuleLoader extends AbstractRuleLoader
 {
-    public const CACHE_KEY = 'cart_rules';
-
-    private AbstractRuleLoader $decorated;
-
-    private CacheInterface $cache;
+    final public const CACHE_KEY = 'cart_rules';
 
     /**
      * @internal
      */
-    public function __construct(AbstractRuleLoader $decorated, CacheInterface $cache)
+    public function __construct(private readonly AbstractRuleLoader $decorated, private readonly CacheInterface $cache)
     {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
     }
 
     public function getDecorated(): AbstractRuleLoader
@@ -33,8 +27,6 @@ class CachedRuleLoader extends AbstractRuleLoader
 
     public function load(Context $context): RuleCollection
     {
-        return $this->cache->get(self::CACHE_KEY, function () use ($context): RuleCollection {
-            return $this->decorated->load($context);
-        });
+        return $this->cache->get(self::CACHE_KEY, fn (): RuleCollection => $this->decorated->load($context));
     }
 }

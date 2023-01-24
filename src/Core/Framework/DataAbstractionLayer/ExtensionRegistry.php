@@ -16,7 +16,7 @@ class ExtensionRegistry
      *
      * @param iterable<EntityExtension> $extensions
      */
-    public function __construct(private iterable $extensions)
+    public function __construct(private readonly iterable $extensions)
     {
     }
 

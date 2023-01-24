@@ -23,22 +23,13 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class CartFacadeHelper implements ResetInterface
 {
-    private LineItemFactoryRegistry $factory;
-
-    private Processor $processor;
-
-    private Connection $connection;
-
     private array $currencies = [];
 
     /**
      * @internal
      */
-    public function __construct(LineItemFactoryRegistry $factory, Processor $processor, Connection $connection)
+    public function __construct(private readonly LineItemFactoryRegistry $factory, private readonly Processor $processor, private readonly Connection $connection)
     {
-        $this->factory = $factory;
-        $this->processor = $processor;
-        $this->connection = $connection;
     }
 
     public function product(string $productId, int $quantity, SalesChannelContext $context): LineItem

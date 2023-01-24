@@ -48,17 +48,17 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class OrderConverter
 {
-    public const CART_CONVERTED_TO_ORDER_EVENT = 'cart.convertedToOrder.event';
+    final public const CART_CONVERTED_TO_ORDER_EVENT = 'cart.convertedToOrder.event';
 
-    public const CART_TYPE = 'recalculation';
+    final public const CART_TYPE = 'recalculation';
 
-    public const ORIGINAL_ID = 'originalId';
+    final public const ORIGINAL_ID = 'originalId';
 
-    public const ORIGINAL_ORDER_NUMBER = 'originalOrderNumber';
+    final public const ORIGINAL_ORDER_NUMBER = 'originalOrderNumber';
 
-    public const ORIGINAL_DOWNLOADS = 'originalDownloads';
+    final public const ORIGINAL_DOWNLOADS = 'originalDownloads';
 
-    public const ADMIN_EDIT_ORDER_PERMISSIONS = [
+    final public const ADMIN_EDIT_ORDER_PERMISSIONS = [
         ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
         ProductCartProcessor::SKIP_PRODUCT_RECALCULATION => true,
         DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true,
@@ -68,43 +68,11 @@ class OrderConverter
         ProductCartProcessor::KEEP_INACTIVE_PRODUCT => true,
     ];
 
-    protected EntityRepository $customerRepository;
-
-    protected AbstractSalesChannelContextFactory $salesChannelContextFactory;
-
-    protected EventDispatcherInterface $eventDispatcher;
-
-    private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
-
-    private OrderDefinition $orderDefinition;
-
-    private EntityRepository $orderAddressRepository;
-
-    private InitialStateIdLoader $initialStateIdLoader;
-
-    private LineItemDownloadLoader $downloadLoader;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $customerRepository,
-        AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        EventDispatcherInterface $eventDispatcher,
-        NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        OrderDefinition $orderDefinition,
-        EntityRepository $orderAddressRepository,
-        InitialStateIdLoader $initialStateIdLoader,
-        LineItemDownloadLoader $downloadLoader
-    ) {
-        $this->customerRepository = $customerRepository;
-        $this->salesChannelContextFactory = $salesChannelContextFactory;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->numberRangeValueGenerator = $numberRangeValueGenerator;
-        $this->orderDefinition = $orderDefinition;
-        $this->orderAddressRepository = $orderAddressRepository;
-        $this->initialStateIdLoader = $initialStateIdLoader;
-        $this->downloadLoader = $downloadLoader;
+    public function __construct(protected EntityRepository $customerRepository, protected AbstractSalesChannelContextFactory $salesChannelContextFactory, protected EventDispatcherInterface $eventDispatcher, private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator, private readonly OrderDefinition $orderDefinition, private readonly EntityRepository $orderAddressRepository, private readonly InitialStateIdLoader $initialStateIdLoader, private readonly LineItemDownloadLoader $downloadLoader)
+    {
     }
 
     /**

@@ -17,9 +17,9 @@ use Shopware\Core\Framework\Script\Execution\Hook;
  */
 class CacheInvalidationHook extends Hook
 {
-    public const HOOK_NAME = 'cache-invalidation';
+    final public const HOOK_NAME = 'cache-invalidation';
 
-    private WrittenEventScriptFacade $event;
+    private readonly WrittenEventScriptFacade $event;
 
     public function __construct(EntityWrittenContainerEvent $event)
     {

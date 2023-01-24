@@ -22,19 +22,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class TreeUpdater
 {
-    private DefinitionInstanceRegistry $registry;
-
-    private Connection $connection;
-
     private ?Statement $updateEntityStatement = null;
 
     /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
+    public function __construct(private readonly DefinitionInstanceRegistry $registry, private readonly Connection $connection)
     {
-        $this->registry = $registry;
-        $this->connection = $connection;
     }
 
     /**
@@ -88,6 +82,7 @@ class TreeUpdater
 
     private function updateRecursive(array $entity, EntityDefinition $definition, Context $context): array
     {
+        $ids = [];
         $ids[] = $this->updateTree($entity, $definition, $context);
         foreach ($this->getChildren($entity, $definition, $context) as $child) {
             $child['parent'] = $entity;
@@ -161,7 +156,7 @@ class TreeUpdater
 
         try {
             $path[] = Uuid::fromBytesToHex($parent[$field->getPathField()]);
-        } catch (InvalidUuidException | InvalidUuidLengthException $e) {
+        } catch (InvalidUuidException | InvalidUuidLengthException) {
             $path[] = $parent[$field->getPathField()];
         }
 
@@ -397,7 +392,7 @@ class TreeUpdater
         $entity['path'] = '';
         if ($parent !== null) {
             $path = $parent['path'] ?? '';
-            $path = array_filter(explode('|', $path));
+            $path = array_filter(explode('|', (string) $path));
             $path[] = Uuid::fromBytesToHex($parent['id']);
             $entity['path'] = '|' . implode('|', $path) . '|';
         }

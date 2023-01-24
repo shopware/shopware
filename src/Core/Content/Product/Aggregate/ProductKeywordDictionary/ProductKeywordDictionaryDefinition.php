@@ -19,7 +19,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
  */
 class ProductKeywordDictionaryDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_keyword_dictionary';
+    final public const ENTITY_NAME = 'product_keyword_dictionary';
 
     public function getEntityName(): string
     {

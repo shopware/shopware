@@ -10,16 +10,10 @@ use Shopware\Core\System\Snippet\Exception\FilterNotFoundException;
 class SnippetFilterFactory
 {
     /**
-     * @var array
-     */
-    private $filters = [];
-
-    /**
      * @internal
      */
-    public function __construct(iterable $filters)
+    public function __construct(private readonly iterable $filters)
     {
-        $this->filters = $filters;
     }
 
     /**

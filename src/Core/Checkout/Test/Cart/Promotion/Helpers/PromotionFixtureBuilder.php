@@ -15,61 +15,25 @@ use Shopware\Core\Test\TestDefaults;
  */
 class PromotionFixtureBuilder
 {
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    private readonly SalesChannelContext $context;
 
-    /**
-     * @var EntityRepository
-     */
-    private $promotionRepository;
+    private ?string $code = null;
 
-    /**
-     * @var EntityRepository
-     */
-    private $promotionSetgroupRepository;
+    private array $dataSetGroups;
 
-    /**
-     * @var EntityRepository
-     */
-    private $promotionDiscountRepository;
-
-    /**
-     * @var string
-     */
-    private $promotionId;
-
-    /**
-     * @var string|null
-     */
-    private $code;
-
-    /**
-     * @var array
-     */
-    private $dataSetGroups;
-
-    /**
-     * @var array
-     */
-    private $dataDiscounts;
+    private array $dataDiscounts;
 
     public function __construct(
-        string $promotionId,
+        private readonly string $promotionId,
         AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        EntityRepository $promotionRepository,
-        EntityRepository $promotionSetgroupRepository,
-        EntityRepository $promotionDiscountRepository
+        private readonly EntityRepository $promotionRepository,
+        private readonly EntityRepository $promotionSetgroupRepository,
+        private readonly EntityRepository $promotionDiscountRepository
     ) {
-        $this->promotionId = $promotionId;
         $this->dataSetGroups = [];
         $this->dataDiscounts = [];
 
         $this->context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $this->promotionRepository = $promotionRepository;
-        $this->promotionSetgroupRepository = $promotionSetgroupRepository;
-        $this->promotionDiscountRepository = $promotionDiscountRepository;
     }
 
     public function setCode(string $code): PromotionFixtureBuilder

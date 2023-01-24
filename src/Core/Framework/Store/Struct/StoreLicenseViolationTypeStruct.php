@@ -11,9 +11,9 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 class StoreLicenseViolationTypeStruct extends Struct
 {
-    public const LEVEL_VIOLATION = 'violation';
-    public const LEVEL_WARNING = 'warning';
-    public const LEVEL_INFO = 'info';
+    final public const LEVEL_VIOLATION = 'violation';
+    final public const LEVEL_WARNING = 'warning';
+    final public const LEVEL_INFO = 'info';
 
     /**
      * @var string

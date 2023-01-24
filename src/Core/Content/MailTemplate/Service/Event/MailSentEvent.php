@@ -18,18 +18,18 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class MailSentEvent extends Event implements LogAware, SubjectAware, ContentsAware, RecipientsAware
 {
-    public const EVENT_NAME = 'mail.sent';
+    final public const EVENT_NAME = 'mail.sent';
 
     /**
      * @param array<string, mixed> $recipients
      * @param array<string, mixed> $contents
      */
     public function __construct(
-        private string $subject,
-        private array $recipients,
-        private array $contents,
-        private Context $context,
-        private ?string $eventName = null
+        private readonly string $subject,
+        private readonly array $recipients,
+        private readonly array $contents,
+        private readonly Context $context,
+        private readonly ?string $eventName = null
     ) {
     }
 

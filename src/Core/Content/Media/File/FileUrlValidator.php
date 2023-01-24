@@ -19,7 +19,7 @@ class FileUrlValidator implements FileUrlValidatorInterface
 
         $ip = gethostbyname($host);
 
-        if (strpos($ip, '[') !== false) {
+        if (str_contains($ip, '[')) {
             return $this->validateIpv6(trim($ip, '[]'));
         }
 

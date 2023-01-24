@@ -16,7 +16,7 @@ class VariantNotFoundException extends ShopwareHttpException
             'Variant for productId {{ productId }} with options {{ options }} not found.',
             [
                 'productId' => $productId,
-                'options' => json_encode($options),
+                'options' => json_encode($options, \JSON_THROW_ON_ERROR),
             ]
         );
     }

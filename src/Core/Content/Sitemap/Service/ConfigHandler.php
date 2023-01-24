@@ -10,20 +10,16 @@ use Shopware\Core\Content\Sitemap\Exception\InvalidSitemapKey;
  */
 class ConfigHandler
 {
-    public const EXCLUDED_URLS_KEY = 'excluded_urls';
-    public const CUSTOM_URLS_KEY = 'custom_urls';
-
-    /**
-     * @var ConfigHandlerInterface[]
-     */
-    private $configHandlers;
+    final public const EXCLUDED_URLS_KEY = 'excluded_urls';
+    final public const CUSTOM_URLS_KEY = 'custom_urls';
 
     /**
      * @internal
+     *
+     * @param ConfigHandlerInterface[] $configHandlers
      */
-    public function __construct(iterable $configHandlers)
+    public function __construct(private readonly iterable $configHandlers)
     {
-        $this->configHandlers = $configHandlers;
     }
 
     public function get(string $key): array

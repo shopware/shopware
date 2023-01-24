@@ -22,7 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class ProductSortingDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_sorting';
+    final public const ENTITY_NAME = 'product_sorting';
 
     public function getEntityName(): string
     {

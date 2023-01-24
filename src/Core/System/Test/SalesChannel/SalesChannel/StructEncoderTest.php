@@ -325,14 +325,8 @@ class StructEncoderTest extends TestCase
  */
 class MyTestStruct extends Struct
 {
-    public $foo;
-
-    public $bar;
-
-    public function __construct($foo = null, $bar = null)
+    public function __construct(public $foo = null, public $bar = null)
     {
-        $this->foo = $foo;
-        $this->bar = $bar;
     }
 
     public function getApiAlias(): string

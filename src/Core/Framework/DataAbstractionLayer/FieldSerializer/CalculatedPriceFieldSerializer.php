@@ -27,7 +27,7 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true);
+        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         unset($value['extensions']);
         if (isset($value['listPrice'])) {
@@ -51,23 +51,19 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         }
 
         $taxRules = array_map(
-            function (array $tax) {
-                return new TaxRule(
-                    (float) $tax['taxRate'],
-                    (float) $tax['percentage']
-                );
-            },
+            fn (array $tax) => new TaxRule(
+                (float) $tax['taxRate'],
+                (float) $tax['percentage']
+            ),
             $decoded['taxRules']
         );
 
         $calculatedTaxes = array_map(
-            function (array $tax) {
-                return new CalculatedTax(
-                    (float) $tax['tax'],
-                    (float) $tax['taxRate'],
-                    (float) $tax['price']
-                );
-            },
+            fn (array $tax) => new CalculatedTax(
+                (float) $tax['tax'],
+                (float) $tax['taxRate'],
+                (float) $tax['price']
+            ),
             $decoded['calculatedTaxes']
         );
 

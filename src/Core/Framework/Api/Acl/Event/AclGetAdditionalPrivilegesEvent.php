@@ -10,20 +10,8 @@ use Shopware\Core\Framework\Event\NestedEvent;
  */
 class AclGetAdditionalPrivilegesEvent extends NestedEvent
 {
-    /**
-     * @var array
-     */
-    private $privileges;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    public function __construct(Context $context, array $privileges)
+    public function __construct(private readonly Context $context, private array $privileges)
     {
-        $this->privileges = $privileges;
-        $this->context = $context;
     }
 
     public function getPrivileges(): array

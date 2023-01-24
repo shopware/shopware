@@ -25,9 +25,9 @@ class UserGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        private EntityWriterInterface $writer,
-        private UserDefinition $userDefinition,
-        private EntityRepository $languageRepository
+        private readonly EntityWriterInterface $writer,
+        private readonly UserDefinition $userDefinition,
+        private readonly EntityRepository $languageRepository
     ) {
     }
 

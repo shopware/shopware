@@ -24,25 +24,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class OrderPaymentMethodChangedEvent extends Event implements SalesChannelAware, OrderAware, CustomerAware, MailAware, OrderTransactionAware
 {
-    public const EVENT_NAME = 'checkout.order.payment_method.changed';
+    final public const EVENT_NAME = 'checkout.order.payment_method.changed';
 
-    private OrderEntity $order;
-
-    private OrderTransactionEntity $orderTransaction;
-
-    private Context $context;
-
-    private ?MailRecipientStruct $mailRecipientStruct;
-
-    private string $salesChannelId;
-
-    public function __construct(OrderEntity $order, OrderTransactionEntity $orderTransaction, Context $context, string $salesChannelId, ?MailRecipientStruct $mailRecipientStruct = null)
+    public function __construct(private readonly OrderEntity $order, private readonly OrderTransactionEntity $orderTransaction, private readonly Context $context, private readonly string $salesChannelId, private ?MailRecipientStruct $mailRecipientStruct = null)
     {
-        $this->order = $order;
-        $this->orderTransaction = $orderTransaction;
-        $this->context = $context;
-        $this->mailRecipientStruct = $mailRecipientStruct;
-        $this->salesChannelId = $salesChannelId;
     }
 
     public function getName(): string

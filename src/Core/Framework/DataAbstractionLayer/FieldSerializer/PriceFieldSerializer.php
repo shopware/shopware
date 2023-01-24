@@ -110,7 +110,7 @@ class PriceFieldSerializer extends AbstractFieldSerializer
 
         // used for nested hydration (example cheapest-price-hydrator)
         if (\is_string($value)) {
-            $value = json_decode($value, true);
+            $value = json_decode($value, true, 512, \JSON_THROW_ON_ERROR);
         }
 
         $collection = new PriceCollection();

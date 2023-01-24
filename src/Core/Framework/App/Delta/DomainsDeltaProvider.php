@@ -12,7 +12,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
  */
 class DomainsDeltaProvider extends AbstractAppDeltaProvider
 {
-    public const DELTA_NAME = 'domains';
+    final public const DELTA_NAME = 'domains';
 
     public function getDeltaName(): string
     {

@@ -258,7 +258,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
             if (!isset($availableEntities['editOrderUrl'])) {
                 $availableEntities['editOrderUrl'] = null;
                 $sqlStatement = 'UPDATE `mail_template_type` SET `available_entities` = :availableEntities WHERE `technical_name` = :mailTemplateType AND `updated_at` IS NULL';
-                $connection->executeStatement($sqlStatement, ['availableEntities' => json_encode($availableEntities), 'mailTemplateType' => $mailTemplateType]);
+                $connection->executeStatement($sqlStatement, ['availableEntities' => json_encode($availableEntities, \JSON_THROW_ON_ERROR), 'mailTemplateType' => $mailTemplateType]);
             }
 
             if ($enLangId !== $deLangId) {
@@ -309,7 +309,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         SELECT `available_entities` FROM `mail_template_type` WHERE `technical_name` = :mailTemplateType AND updated_at IS NULL;
         ', ['mailTemplateType' => $mailTemplateType])->fetchOne();
 
-        if ($availableEntities === false || !\is_string($availableEntities) || json_decode($availableEntities, true) === null) {
+        if ($availableEntities === false || !\is_string($availableEntities) || json_decode($availableEntities, true, 512, \JSON_THROW_ON_ERROR) === null) {
             return [];
         }
 

@@ -23,7 +23,7 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
  */
 class CustomerAddressDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'customer_address';
+    final public const ENTITY_NAME = 'customer_address';
 
     public function getEntityName(): string
     {

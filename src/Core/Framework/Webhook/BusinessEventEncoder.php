@@ -19,17 +19,11 @@ use Shopware\Core\Framework\Event\FlowEventAware;
  */
 class BusinessEventEncoder
 {
-    private JsonEntityEncoder $entityEncoder;
-
-    private DefinitionInstanceRegistry $definitionRegistry;
-
     /**
      * @internal
      */
-    public function __construct(JsonEntityEncoder $entityEncoder, DefinitionInstanceRegistry $definitionRegistry)
+    public function __construct(private readonly JsonEntityEncoder $entityEncoder, private readonly DefinitionInstanceRegistry $definitionRegistry)
     {
-        $this->entityEncoder = $entityEncoder;
-        $this->definitionRegistry = $definitionRegistry;
     }
 
     /**
@@ -90,11 +84,10 @@ class BusinessEventEncoder
 
     /**
      * @param array<string, mixed> $dataType
-     * @param mixed $property
      *
      * @return array<string, mixed>|mixed
      */
-    private function encodeProperty(array $dataType, $property)
+    private function encodeProperty(array $dataType, mixed $property)
     {
         switch ($dataType['type']) {
             case ScalarValueType::TYPE_BOOL:
@@ -145,7 +138,7 @@ class BusinessEventEncoder
             sprintf(
                 'Invalid available DataMapping, could not get property "%s" on instance of %s',
                 $propertyName,
-                \is_object($object) ? \get_class($object) : 'array'
+                \is_object($object) ? $object::class : 'array'
             )
         );
     }
@@ -156,7 +149,7 @@ class BusinessEventEncoder
      *
      * @return array<string, mixed>
      */
-    private function encodeEntity(array $dataType, $property): array
+    private function encodeEntity(array $dataType, Entity|EntityCollection $property): array
     {
         $definition = $this->definitionRegistry->get($dataType['entityClass']);
 

@@ -214,7 +214,7 @@ ADD `registration_seo_meta_description` longtext NULL AFTER `registration_only_c
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => Uuid::fromBytesToHex($typeId),
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );

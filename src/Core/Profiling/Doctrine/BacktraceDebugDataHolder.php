@@ -17,14 +17,11 @@ use const DEBUG_BACKTRACE_IGNORE_ARGS;
  *     params:  array<mixed>,
  *     backtrace?: Backtrace
  * }
+ *
+ * @package core
  */
 class BacktraceDebugDataHolder extends DebugDataHolder
 {
-    /**
-     * @var array<string>
-     */
-    private array $connWithBacktraces;
-
     /**
      * @var array<string, array<Backtrace>>
      */
@@ -33,9 +30,8 @@ class BacktraceDebugDataHolder extends DebugDataHolder
     /**
      * @param array<string> $connWithBacktraces
      */
-    public function __construct(array $connWithBacktraces)
+    public function __construct(private readonly array $connWithBacktraces)
     {
-        $this->connWithBacktraces = $connWithBacktraces;
     }
 
     public function reset(): void

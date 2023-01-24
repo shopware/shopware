@@ -20,7 +20,7 @@ class PropertyGroupGenerator implements DemodataGeneratorInterface
     /**
      * @internal
      */
-    public function __construct(private EntityRepository $propertyGroupRepository)
+    public function __construct(private readonly EntityRepository $propertyGroupRepository)
     {
     }
 
@@ -56,9 +56,7 @@ class PropertyGroupGenerator implements DemodataGeneratorInterface
         $context->getConsole()->progressStart(\count($data));
 
         foreach ($data as $group => $options) {
-            $mapped = array_map(function ($option) {
-                return ['id' => Uuid::randomHex(), 'name' => $option];
-            }, $options);
+            $mapped = array_map(fn ($option) => ['id' => Uuid::randomHex(), 'name' => $option], $options);
 
             $this->propertyGroupRepository->create(
                 [

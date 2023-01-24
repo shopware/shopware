@@ -11,29 +11,22 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package system-settings
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class CustomFieldSetActionController extends AbstractController
 {
     /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
-
-    /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $definitionRegistry)
+    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry)
     {
-        $this->definitionRegistry = $definitionRegistry;
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/attribute-set/relations", name="api.action.attribute-set.get-relations", methods={"GET"})
      */
+    #[Route(path: '/api/_action/attribute-set/relations', name: 'api.action.attribute-set.get-relations', methods: ['GET'])]
     public function getAvailableRelations(): JsonResponse
     {
         $definitions = $this->definitionRegistry->getDefinitions();

@@ -12,25 +12,10 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemPropertyRule;
  */
 class CartRuleScopeCase
 {
-    public string $description;
-
-    public bool $match;
-
-    public LineItemPropertyRule $rule;
-
-    /**
-     * @var LineItem[]
-     */
-    public array $lineItems;
-
     /**
      * @param LineItem[] $lineItems
      */
-    public function __construct(string $description, bool $match, LineItemPropertyRule $rule, array $lineItems)
+    public function __construct(public string $description, public bool $match, public LineItemPropertyRule $rule, public array $lineItems)
     {
-        $this->match = $match;
-        $this->rule = $rule;
-        $this->lineItems = $lineItems;
-        $this->description = $description;
     }
 }

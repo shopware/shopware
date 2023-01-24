@@ -10,14 +10,8 @@ use Shopware\Core\Framework\Event\NestedEvent;
  */
 class FlowIndexerEvent extends NestedEvent
 {
-    private Context $context;
-
-    private array $ids;
-
-    public function __construct(array $ids, Context $context)
+    public function __construct(private readonly array $ids, private readonly Context $context)
     {
-        $this->context = $context;
-        $this->ids = $ids;
     }
 
     public function getContext(): Context

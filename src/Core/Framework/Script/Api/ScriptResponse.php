@@ -12,22 +12,16 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ScriptResponse
 {
-    private int $code;
-
     private ArrayFacade $body;
 
-    private ?Response $inner;
-
-    private ResponseCacheConfiguration $cache;
+    private readonly ResponseCacheConfiguration $cache;
 
     /**
      * @internal
      */
-    public function __construct(?Response $inner = null, int $code = Response::HTTP_OK)
+    public function __construct(private readonly ?Response $inner = null, private int $code = Response::HTTP_OK)
     {
         $this->body = new ArrayFacade([]);
-        $this->inner = $inner;
-        $this->code = $code;
         $this->cache = new ResponseCacheConfiguration();
     }
 
@@ -46,10 +40,7 @@ class ScriptResponse
         return $this->body;
     }
 
-    /**
-     * @param array|ArrayFacade $body
-     */
-    public function setBody($body): void
+    public function setBody(array|ArrayFacade $body): void
     {
         if (\is_array($body)) {
             $body = new ArrayFacade($body);
@@ -69,7 +60,7 @@ class ScriptResponse
     public function getInner(): ?Response
     {
         if (ScriptExecutor::$isInScriptExecutionContext) {
-            throw HookMethodException::accessFromScriptExecutionContextNotAllowed(__CLASS__, __METHOD__);
+            throw HookMethodException::accessFromScriptExecutionContextNotAllowed(self::class, __METHOD__);
         }
 
         return $this->inner;

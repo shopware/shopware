@@ -19,14 +19,11 @@ class CartPriceFacade
 {
     use PriceFactoryTrait;
 
-    private CartPrice $price;
-
     /**
      * @internal
      */
-    public function __construct(CartPrice $price, CartFacadeHelper $helper)
+    public function __construct(private readonly CartPrice $price, CartFacadeHelper $helper)
     {
-        $this->price = $price;
         $this->helper = $helper;
     }
 

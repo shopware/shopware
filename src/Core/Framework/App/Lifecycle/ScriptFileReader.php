@@ -15,11 +15,8 @@ class ScriptFileReader implements ScriptFileReaderInterface
 
     private const ALLOWED_FILE_EXTENSIONS = '*.twig';
 
-    private string $projectDir;
-
-    public function __construct(string $projectDir)
+    public function __construct(private readonly string $projectDir)
     {
-        $this->projectDir = $projectDir;
     }
 
     public function getScriptPathsForApp(string $appPath): array
@@ -37,10 +34,8 @@ class ScriptFileReader implements ScriptFileReaderInterface
             ->name(self::ALLOWED_FILE_EXTENSIONS)
             ->ignoreUnreadableDirs();
 
-        return array_values(array_map(static function (\SplFileInfo $file) use ($scriptDirectory): string {
-            // remove scriptDirectory + any leading slashes from pathname
-            return ltrim(mb_substr($file->getPathname(), mb_strlen($scriptDirectory)), '/');
-        }, iterator_to_array($finder)));
+        return array_values(array_map(static fn (\SplFileInfo $file): string // remove scriptDirectory + any leading slashes from pathname
+=> ltrim(mb_substr($file->getPathname(), mb_strlen($scriptDirectory)), '/'), iterator_to_array($finder)));
     }
 
     public function getScriptContent(string $name, string $appPath): string

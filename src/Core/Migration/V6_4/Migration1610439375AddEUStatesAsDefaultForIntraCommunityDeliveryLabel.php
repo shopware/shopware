@@ -45,13 +45,13 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabel exte
         );
 
         foreach ($listInvoiceData as $invoiceData) {
-            $invoiceConfig = json_decode($invoiceData['config'] ?? '[]', true);
+            $invoiceConfig = json_decode($invoiceData['config'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
             $invoiceConfig['deliveryCountries'] = Uuid::fromBytesToHexList($euStates);
 
             $connection->executeStatement(
                 'UPDATE `document_base_config` SET `config` = :invoiceData WHERE `id` = :documentConfigId',
                 [
-                    'invoiceData' => json_encode($invoiceConfig),
+                    'invoiceData' => json_encode($invoiceConfig, \JSON_THROW_ON_ERROR),
                     'documentConfigId' => $invoiceData['id'],
                 ]
             );

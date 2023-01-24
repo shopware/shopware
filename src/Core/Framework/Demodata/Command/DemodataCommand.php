@@ -54,9 +54,9 @@ class DemodataCommand extends Command
      * @internal
      */
     public function __construct(
-        private DemodataService $demodataService,
-        private EventDispatcherInterface $eventDispatcher,
-        private string $kernelEnv
+        private readonly DemodataService $demodataService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly string $kernelEnv
     ) {
         parent::__construct();
     }

@@ -30,12 +30,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
  */
 class ProductCrossSellingDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_cross_selling';
-    public const SORT_BY_PRICE = 'price';
-    public const SORT_BY_RELEASE_DATE = 'releaseDate';
-    public const SORT_BY_NAME = 'name';
-    public const TYPE_PRODUCT_STREAM = 'productStream';
-    public const TYPE_PRODUCT_LIST = 'productList';
+    final public const ENTITY_NAME = 'product_cross_selling';
+    final public const SORT_BY_PRICE = 'price';
+    final public const SORT_BY_RELEASE_DATE = 'releaseDate';
+    final public const SORT_BY_NAME = 'name';
+    final public const TYPE_PRODUCT_STREAM = 'productStream';
+    final public const TYPE_PRODUCT_LIST = 'productList';
 
     public function getEntityName(): string
     {

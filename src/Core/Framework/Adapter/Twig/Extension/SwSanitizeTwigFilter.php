@@ -11,20 +11,17 @@ use Twig\TwigFilter;
  */
 class SwSanitizeTwigFilter extends AbstractExtension
 {
-    private HtmlSanitizer $sanitizer;
-
     /**
      * @internal
      */
-    public function __construct(HtmlSanitizer $sanitizer)
+    public function __construct(private readonly HtmlSanitizer $sanitizer)
     {
-        $this->sanitizer = $sanitizer;
     }
 
     public function getFilters(): array
     {
         return [
-            new TwigFilter('sw_sanitize', [$this, 'sanitize'], ['is_safe' => ['html']]),
+            new TwigFilter('sw_sanitize', $this->sanitize(...), ['is_safe' => ['html']]),
         ];
     }
 

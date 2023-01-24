@@ -23,7 +23,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  */
 class TranslationValidator implements EventSubscriberInterface
 {
-    public const VIOLATION_DELETE_SYSTEM_TRANSLATION = 'delete-system-translation-violation';
+    final public const VIOLATION_DELETE_SYSTEM_TRANSLATION = 'delete-system-translation-violation';
 
     public static function getSubscribedEvents(): array
     {

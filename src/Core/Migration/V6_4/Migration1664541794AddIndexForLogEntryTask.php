@@ -21,7 +21,7 @@ class Migration1664541794AddIndexForLogEntryTask extends MigrationStep
     {
         try {
             $connection->executeStatement('ALTER TABLE `log_entry` ADD INDEX `idx.log_entry.created_at` (`created_at`)');
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // index already exists
         }
     }

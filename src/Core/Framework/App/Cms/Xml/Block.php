@@ -11,7 +11,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
  */
 class Block extends XmlElement
 {
-    public const TRANSLATABLE_FIELDS = [
+    final public const TRANSLATABLE_FIELDS = [
         'label',
     ];
 
@@ -133,9 +133,7 @@ class Block extends XmlElement
         if ($child->tagName === 'slots') {
             $values[$child->tagName] = self::parseChildNodes(
                 $child,
-                static function (\DOMElement $element): Slot {
-                    return Slot::fromXml($element);
-                }
+                static fn (\DOMElement $element): Slot => Slot::fromXml($element)
             );
 
             return $values;

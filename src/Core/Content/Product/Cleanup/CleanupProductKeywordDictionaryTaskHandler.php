@@ -21,7 +21,7 @@ final class CleanupProductKeywordDictionaryTaskHandler extends ScheduledTaskHand
      */
     public function __construct(
         EntityRepository $repository,
-        private Connection $connection
+        private readonly Connection $connection
     ) {
         parent::__construct($repository);
     }

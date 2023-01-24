@@ -25,7 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class OrderDeliveryPositionDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'order_delivery_position';
+    final public const ENTITY_NAME = 'order_delivery_position';
 
     public function getEntityName(): string
     {

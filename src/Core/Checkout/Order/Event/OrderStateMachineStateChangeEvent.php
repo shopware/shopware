@@ -21,31 +21,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class OrderStateMachineStateChangeEvent extends Event implements SalesChannelAware, OrderAware, MailAware, CustomerAware
 {
-    /**
-     * @var OrderEntity
-     */
-    private $order;
+    private ?MailRecipientStruct $mailRecipientStruct = null;
 
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var string
-     */
-    private $name;
-
-    /**
-     * @var MailRecipientStruct
-     */
-    private $mailRecipientStruct;
-
-    public function __construct(string $eventName, OrderEntity $order, Context $context)
+    public function __construct(private readonly string $name, private readonly OrderEntity $order, private readonly Context $context)
     {
-        $this->order = $order;
-        $this->context = $context;
-        $this->name = $eventName;
     }
 
     public function getOrder(): OrderEntity

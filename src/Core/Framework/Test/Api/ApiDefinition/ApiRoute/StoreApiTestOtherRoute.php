@@ -11,9 +11,7 @@ use Symfony\Component\BrowserKit\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class StoreApiTestOtherRoute extends AbstractStoreApiTestRoute
 {
     public function getDecorated(): AbstractStoreApiTestRoute
@@ -36,8 +34,8 @@ class StoreApiTestOtherRoute extends AbstractStoreApiTestRoute
      * )
      *
      * @internal (flag:FEATURE_NEXT_12345)
-     * @Route("/store-api/v{version}/testinternalother", name="store-api.test.internal.other", methods={"GET"}, defaults={"_loginRequired"=true, "_entity"="test"})
      */
+    #[Route(path: '/store-api/v{version}/testinternalother', name: 'store-api.test.internal.other', methods: ['GET'], defaults: ['_loginRequired' => true, '_entity' => 'test'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): Response
     {
         return new Response();
@@ -56,8 +54,8 @@ class StoreApiTestOtherRoute extends AbstractStoreApiTestRoute
      *          description="Success"
      *     )
      * )
-     * @Route("/store-api/v{version}/testnotinternalother", name="store-api.test.not.internal.other", methods={"POST"}, defaults={"_loginRequired"=true, "_entity"="test"})
      */
+    #[Route(path: '/store-api/v{version}/testnotinternalother', name: 'store-api.test.not.internal.other', methods: ['POST'], defaults: ['_loginRequired' => true, '_entity' => 'test'])]
     public function loadPost(Request $request, SalesChannelContext $context, Criteria $criteria): Response
     {
         return new Response();
@@ -78,8 +76,8 @@ class StoreApiTestOtherRoute extends AbstractStoreApiTestRoute
      * )
      *
      * @internal
-     * @Route("/store-api/v{version}/testinternalothernoflag", name="store-api.test.internal.other.no.flag", methods={"GET"}, defaults={"_loginRequired"=true, "_entity"="test"})
      */
+    #[Route(path: '/store-api/v{version}/testinternalothernoflag', name: 'store-api.test.internal.other.no.flag', methods: ['GET'], defaults: ['_loginRequired' => true, '_entity' => 'test'])]
     public function loadNoFlag(Request $request, SalesChannelContext $context, Criteria $criteria): Response
     {
         return new Response();

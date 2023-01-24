@@ -10,9 +10,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package business-ops
- *
- * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class RuleConfigController extends AbstractController
 {
     /**
@@ -32,8 +31,8 @@ class RuleConfigController extends AbstractController
 
     /**
      * @Since("6.5.0.0")
-     * @Route("/api/_info/rule-config", name="api.info.rule-config", methods={"GET"})
      */
+    #[Route(path: '/api/_info/rule-config', name: 'api.info.rule-config', methods: ['GET'])]
     public function getConditionsConfig(): JsonResponse
     {
         return new JsonResponse($this->config);
@@ -47,7 +46,7 @@ class RuleConfigController extends AbstractController
         foreach ($taggedRules as $rule) {
             try {
                 $config = $rule->getConfig();
-            } catch (\Throwable $exception) {
+            } catch (\Throwable) {
                 continue;
             }
 

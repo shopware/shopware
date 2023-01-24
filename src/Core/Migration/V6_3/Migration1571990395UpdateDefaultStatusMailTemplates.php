@@ -15,15 +15,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
 {
-    /**
-     * @var string|null
-     */
-    private $defaultLangId;
+    private ?string $defaultLangId = null;
 
-    /**
-     * @var string|null
-     */
-    private $deLangId;
+    private ?string $deLangId = null;
 
     public function getCreationTimestamp(): int
     {

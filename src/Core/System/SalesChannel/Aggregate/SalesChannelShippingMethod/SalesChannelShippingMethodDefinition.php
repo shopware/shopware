@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class SalesChannelShippingMethodDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'sales_channel_shipping_method';
+    final public const ENTITY_NAME = 'sales_channel_shipping_method';
 
     public function getEntityName(): string
     {

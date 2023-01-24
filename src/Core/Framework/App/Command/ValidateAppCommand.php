@@ -27,21 +27,9 @@ use Symfony\Component\Finder\Finder;
 )]
 class ValidateAppCommand extends Command
 {
-    /**
-     * @var ManifestValidator
-     */
-    private $manifestValidator;
-
-    /**
-     * @var string
-     */
-    private $appDir;
-
-    public function __construct(string $appDir, ManifestValidator $manifestValidator)
+    public function __construct(private readonly string $appDir, private readonly ManifestValidator $manifestValidator)
     {
         parent::__construct();
-        $this->appDir = $appDir;
-        $this->manifestValidator = $manifestValidator;
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
@@ -100,12 +88,7 @@ class ValidateAppCommand extends Command
 
     protected function configure(): void
     {
-        $this->setDescription('Check manifests for errors')
-            ->addArgument(
-                'name',
-                InputArgument::OPTIONAL,
-                'The name of the app, has also to be the name of the folder under which the app can be found under custom/apps.'
-            );
+        $this->addArgument('name', InputArgument::OPTIONAL, 'The name of the app, has also to be the name of the folder under which the app can be found under custom/apps.');
     }
 
     /**

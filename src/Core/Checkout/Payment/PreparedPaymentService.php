@@ -28,27 +28,11 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
  */
 class PreparedPaymentService
 {
-    private PaymentHandlerRegistry $paymentHandlerRegistry;
-
-    private EntityRepository $appPaymentMethodRepository;
-
-    private LoggerInterface $logger;
-
-    private InitialStateIdLoader $initialStateIdLoader;
-
     /**
      * @internal
      */
-    public function __construct(
-        PaymentHandlerRegistry $paymentHandlerRegistry,
-        EntityRepository $appPaymentMethodRepository,
-        LoggerInterface $logger,
-        InitialStateIdLoader $initialStateIdLoader
-    ) {
-        $this->paymentHandlerRegistry = $paymentHandlerRegistry;
-        $this->appPaymentMethodRepository = $appPaymentMethodRepository;
-        $this->logger = $logger;
-        $this->initialStateIdLoader = $initialStateIdLoader;
+    public function __construct(private readonly PaymentHandlerRegistry $paymentHandlerRegistry, private readonly EntityRepository $appPaymentMethodRepository, private readonly LoggerInterface $logger, private readonly InitialStateIdLoader $initialStateIdLoader)
+    {
     }
 
     public function handlePreOrderPayment(

@@ -24,14 +24,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
  */
 class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
 {
-    /**
-     * @var EntityDefinitionQueryHelper
-     */
-    private $queryHelper;
-
-    public function __construct(EntityDefinitionQueryHelper $queryHelper)
+    public function __construct(private readonly EntityDefinitionQueryHelper $queryHelper)
     {
-        $this->queryHelper = $queryHelper;
     }
 
     public function join(FieldResolverContext $context): string

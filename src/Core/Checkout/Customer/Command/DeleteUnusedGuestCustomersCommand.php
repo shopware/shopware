@@ -19,21 +19,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class DeleteUnusedGuestCustomersCommand extends Command
 {
-    private DeleteUnusedGuestCustomerService $deleteUnusedGuestCustomerService;
-
     /**
      * @internal
      */
-    public function __construct(DeleteUnusedGuestCustomerService $deleteUnusedGuestCustomerService)
+    public function __construct(private readonly DeleteUnusedGuestCustomerService $deleteUnusedGuestCustomerService)
     {
         parent::__construct();
-
-        $this->deleteUnusedGuestCustomerService = $deleteUnusedGuestCustomerService;
     }
 
     protected function configure(): void
     {
-        $this->setDescription('Delete unused guest customers without orders');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

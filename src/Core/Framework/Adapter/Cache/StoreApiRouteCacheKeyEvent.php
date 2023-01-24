@@ -12,28 +12,13 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class StoreApiRouteCacheKeyEvent extends Event
 {
-    /**
-     * @var array<mixed>
-     */
-    protected array $parts;
-
-    protected Request $request;
-
-    protected SalesChannelContext $context;
-
-    protected ?Criteria $criteria;
-
     private bool $disableCaching = false;
 
     /**
      * @param array<mixed> $parts
      */
-    public function __construct(array $parts, Request $request, SalesChannelContext $context, ?Criteria $criteria)
+    public function __construct(protected array $parts, protected Request $request, protected SalesChannelContext $context, protected ?Criteria $criteria)
     {
-        $this->parts = $parts;
-        $this->request = $request;
-        $this->context = $context;
-        $this->criteria = $criteria;
     }
 
     /**

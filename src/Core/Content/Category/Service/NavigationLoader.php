@@ -22,31 +22,16 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class NavigationLoader implements NavigationLoaderInterface
 {
-    /**
-     * @var TreeItem
-     */
-    private $treeItem;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var AbstractNavigationRoute
-     */
-    private $navigationRoute;
+    private readonly TreeItem $treeItem;
 
     /**
      * @internal
      */
     public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        AbstractNavigationRoute $navigationRoute
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractNavigationRoute $navigationRoute
     ) {
         $this->treeItem = new TreeItem(null, []);
-        $this->eventDispatcher = $eventDispatcher;
-        $this->navigationRoute = $navigationRoute;
     }
 
     /**
@@ -95,9 +80,7 @@ class NavigationLoader implements NavigationLoaderInterface
 
             $sorted = AfterSort::sort($children);
 
-            $filtered = \array_filter($sorted, static function (TreeItem $filter) {
-                return $filter->getCategory()->getActive() && $filter->getCategory()->getVisible();
-            });
+            $filtered = \array_filter($sorted, static fn (TreeItem $filter) => $filter->getCategory()->getActive() && $filter->getCategory()->getVisible());
 
             if (!isset($items[$parentId])) {
                 continue;

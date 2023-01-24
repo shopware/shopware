@@ -13,18 +13,15 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package content
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class TreeBuildingNavigationRoute extends AbstractNavigationRoute
 {
-    private AbstractNavigationRoute $decorated;
-
     /**
      * @internal
      */
-    public function __construct(AbstractNavigationRoute $decorated)
+    public function __construct(private readonly AbstractNavigationRoute $decorated)
     {
-        $this->decorated = $decorated;
     }
 
     public function getDecorated(): AbstractNavigationRoute
@@ -34,9 +31,8 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
 
     /**
      * @Since("6.2.0.0")
-
-     * @Route("/store-api/navigation/{activeId}/{rootId}", name="store-api.navigation", methods={"GET", "POST"}, defaults={"_entity"="payment_method"})
      */
+    #[Route(path: '/store-api/navigation/{activeId}/{rootId}', name: 'store-api.navigation', methods: ['GET', 'POST'], defaults: ['_entity' => 'payment_method'])]
     public function load(string $activeId, string $rootId, Request $request, SalesChannelContext $context, Criteria $criteria): NavigationRouteResponse
     {
         $activeId = $this->resolveAliasId($activeId, $context->getSalesChannel());

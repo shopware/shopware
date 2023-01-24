@@ -17,34 +17,16 @@ use Symfony\Component\HttpKernel\KernelInterface;
  */
 class SnippetFileLoader implements SnippetFileLoaderInterface
 {
-    private KernelInterface $kernel;
-
-    private Connection $connection;
-
     /**
      * @var array<string, string>
      */
     private array $pluginAuthors = [];
 
-    private AppSnippetFileLoader $appSnippetFileLoader;
-
-    private ActiveAppsLoader $activeAppsLoader;
-
     /**
      * @internal
      */
-    public function __construct(
-        KernelInterface $kernel,
-        Connection $connection,
-        AppSnippetFileLoader $appSnippetFileLoader,
-        ActiveAppsLoader $activeAppsLoader
-    ) {
-        $this->kernel = $kernel;
-        // use Connection directly as this gets executed so early on kernel boot
-        // using the DAL would result in CircularReferences
-        $this->connection = $connection;
-        $this->appSnippetFileLoader = $appSnippetFileLoader;
-        $this->activeAppsLoader = $activeAppsLoader;
+    public function __construct(private readonly KernelInterface $kernel, private readonly Connection $connection, private readonly AppSnippetFileLoader $appSnippetFileLoader, private readonly ActiveAppsLoader $activeAppsLoader)
+    {
     }
 
     public function loadSnippetFilesIntoCollection(SnippetFileCollection $snippetFileCollection): void
@@ -143,7 +125,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
             return 'Shopware';
         }
 
-        return $this->getPluginAuthors()[\get_class($bundle)] ?? '';
+        return $this->getPluginAuthors()[$bundle::class] ?? '';
     }
 
     /**

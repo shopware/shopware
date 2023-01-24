@@ -18,48 +18,8 @@ use Shopware\Core\System\Tax\TaxCollection;
  */
 class BaseContext
 {
-    protected CustomerGroupEntity $currentCustomerGroup;
-
-    protected CurrencyEntity $currency;
-
-    protected SalesChannelEntity $salesChannel;
-
-    protected TaxCollection $taxRules;
-
-    protected PaymentMethodEntity $paymentMethod;
-
-    protected ShippingMethodEntity $shippingMethod;
-
-    protected ShippingLocation $shippingLocation;
-
-    protected Context $context;
-
-    private CashRoundingConfig $itemRounding;
-
-    private CashRoundingConfig $totalRounding;
-
-    public function __construct(
-        Context $baseContext,
-        SalesChannelEntity $salesChannel,
-        CurrencyEntity $currency,
-        CustomerGroupEntity $currentCustomerGroup,
-        TaxCollection $taxRules,
-        PaymentMethodEntity $paymentMethod,
-        ShippingMethodEntity $shippingMethod,
-        ShippingLocation $shippingLocation,
-        CashRoundingConfig $itemRounding,
-        CashRoundingConfig $totalRounding
-    ) {
-        $this->currentCustomerGroup = $currentCustomerGroup;
-        $this->currency = $currency;
-        $this->salesChannel = $salesChannel;
-        $this->taxRules = $taxRules;
-        $this->paymentMethod = $paymentMethod;
-        $this->shippingMethod = $shippingMethod;
-        $this->shippingLocation = $shippingLocation;
-        $this->context = $baseContext;
-        $this->itemRounding = $itemRounding;
-        $this->totalRounding = $totalRounding;
+    public function __construct(protected Context $context, protected SalesChannelEntity $salesChannel, protected CurrencyEntity $currency, protected CustomerGroupEntity $currentCustomerGroup, protected TaxCollection $taxRules, protected PaymentMethodEntity $paymentMethod, protected ShippingMethodEntity $shippingMethod, protected ShippingLocation $shippingLocation, private readonly CashRoundingConfig $itemRounding, private readonly CashRoundingConfig $totalRounding)
+    {
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity

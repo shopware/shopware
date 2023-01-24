@@ -22,7 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class ActionButtonDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'app_action_button';
+    final public const ENTITY_NAME = 'app_action_button';
 
     public function getEntityName(): string
     {

@@ -123,7 +123,7 @@ class KernelLifecycleManager
 
                 try {
                     $existingConnection->fetchOne('SELECT 1');
-                } catch (\Throwable $e) {
+                } catch (\Throwable) {
                     // The connection is closed
                     $existingConnection = null;
                 }
@@ -136,7 +136,7 @@ class KernelLifecycleManager
             $existingConnection->fetchOne('SELECT 1');
 
             $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, $existingConnection);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             // if we don't have database yet, we'll boot the kernel without plugins
             $pluginLoader = new StaticKernelPluginLoader(self::$classLoader);
         }

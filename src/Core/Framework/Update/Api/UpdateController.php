@@ -43,36 +43,35 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 /**
  * @internal
  *
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package system-settings
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class UpdateController extends AbstractController
 {
-    public const UPDATE_TOKEN_KEY = 'core.update.token';
-    public const UPDATE_PREVIOUS_VERSION_KEY = 'core.update.previousVersion';
+    final public const UPDATE_TOKEN_KEY = 'core.update.token';
+    final public const UPDATE_PREVIOUS_VERSION_KEY = 'core.update.previousVersion';
 
     /**
      * @internal
      */
     public function __construct(
-        private string $rootDir,
-        private ApiClient $apiClient,
-        private RequirementsValidator $requirementsValidator,
-        private PluginCompatibility $pluginCompatibility,
-        private EventDispatcherInterface $eventDispatcher,
-        private SystemConfigService $systemConfig,
-        private AbstractExtensionLifecycle $extensionLifecycleService,
-        private  EntityRepository $userRepository,
-        private string $shopwareVersion,
-        private bool $isUpdateTest = false
+        private readonly string $rootDir,
+        private readonly ApiClient $apiClient,
+        private readonly RequirementsValidator $requirementsValidator,
+        private readonly PluginCompatibility $pluginCompatibility,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfig,
+        private readonly AbstractExtensionLifecycle $extensionLifecycleService,
+        private readonly EntityRepository $userRepository,
+        private readonly string $shopwareVersion,
+        private readonly bool $isUpdateTest = false
     ) {
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/update/check", name="api.custom.updateapi.check", methods={"GET"}, defaults={"_acl"={"system:core:update"}})
      */
+    #[Route(path: '/api/_action/update/check', name: 'api.custom.updateapi.check', methods: ['GET'], defaults: ['_acl' => ['system:core:update']])]
     public function updateApiCheck(): JsonResponse
     {
         if ($this->isUpdateTest) {
@@ -91,7 +90,7 @@ class UpdateController extends AbstractController
             return new JsonResponse($updates);
         } catch (\Throwable $e) {
             return new JsonResponse([
-                '__class' => \get_class($e),
+                '__class' => $e::class,
                 '__message' => $e->getMessage(),
             ]);
         }
@@ -99,8 +98,8 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/update/check-requirements", name="api.custom.update.check_requirements", methods={"GET"}, defaults={"_acl"={"system:core:update"}})
      */
+    #[Route(path: '/api/_action/update/check-requirements', name: 'api.custom.update.check_requirements', methods: ['GET'], defaults: ['_acl' => ['system:core:update']])]
     public function checkRequirements(): JsonResponse
     {
         $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
@@ -110,8 +109,8 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/update/plugin-compatibility", name="api.custom.updateapi.plugin_compatibility", methods={"GET"}, defaults={"_acl"={"system:core:update", "system_config:read"}})
      */
+    #[Route(path: '/api/_action/update/plugin-compatibility', name: 'api.custom.updateapi.plugin_compatibility', methods: ['GET'], defaults: ['_acl' => ['system:core:update', 'system_config:read']])]
     public function pluginCompatibility(Context $context): JsonResponse
     {
         $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
@@ -121,8 +120,8 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/update/download-latest-update", name="api.custom.updateapi.download_latest_update", methods={"GET"}, defaults={"_acl"={"system:core:update", "system_config:read"}})
      */
+    #[Route(path: '/api/_action/update/download-latest-update', name: 'api.custom.updateapi.download_latest_update', methods: ['GET'], defaults: ['_acl' => ['system:core:update', 'system_config:read']])]
     public function downloadLatestUpdate(Request $request): JsonResponse
     {
         $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
@@ -145,8 +144,8 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/update/unpack", name="api.custom.updateapi.unpack", methods={"GET"}, defaults={"_acl"={"system:core:update", "system_config:read"}})
      */
+    #[Route(path: '/api/_action/update/unpack', name: 'api.custom.updateapi.unpack', methods: ['GET'], defaults: ['_acl' => ['system:core:update', 'system_config:read']])]
     public function unpack(Request $request, Context $context): JsonResponse
     {
         $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
@@ -189,7 +188,7 @@ class UpdateController extends AbstractController
 
             $updateFilePath = $this->rootDir . '/files/update/update.json';
 
-            if (!file_put_contents($updateFilePath, json_encode($payload))) {
+            if (!file_put_contents($updateFilePath, json_encode($payload, \JSON_THROW_ON_ERROR))) {
                 throw new UpdateFailedException(sprintf('Could not write file %s', $updateFilePath));
             }
 
@@ -205,8 +204,8 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.1.0.0")
-     * @Route("/api/_action/update/deactivate-plugins", name="api.custom.updateapi.deactivate-plugins", methods={"GET"}, defaults={"_acl"={"system:core:update", "system_config:read"}})
      */
+    #[Route(path: '/api/_action/update/deactivate-plugins', name: 'api.custom.updateapi.deactivate-plugins', methods: ['GET'], defaults: ['_acl' => ['system:core:update', 'system_config:read']])]
     public function deactivatePlugins(Request $request, Context $context): JsonResponse
     {
         $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
@@ -251,8 +250,8 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/update/finish/{token}", defaults={"auth_required"=false, "_acl"={"system:core:update", "system_config:read"}}, name="api.custom.updateapi.finish", methods={"GET"})
      */
+    #[Route(path: '/api/_action/update/finish/{token}', defaults: ['auth_required' => false, '_acl' => ['system:core:update', 'system_config:read']], name: 'api.custom.updateapi.finish', methods: ['GET'])]
     public function finish(string $token, Request $request, Context $context): Response
     {
         $offset = $request->query->getInt('offset');
@@ -284,12 +283,12 @@ class UpdateController extends AbstractController
     {
         $contextSource = $context->getSource();
         if (!($contextSource instanceof AdminApiSource)) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($contextSource));
+            throw new InvalidContextSourceException(AdminApiSource::class, $contextSource::class);
         }
 
         $userId = $contextSource->getUserId();
         if ($userId === null) {
-            throw new InvalidContextSourceUserException(\get_class($contextSource));
+            throw new InvalidContextSourceUserException($contextSource::class);
         }
 
         $criteria = new Criteria([$userId]);
@@ -318,10 +317,7 @@ class UpdateController extends AbstractController
         return $kernel->getContainer();
     }
 
-    /**
-     * @param ValidResult|FinishResult $result
-     */
-    private function toJson(ValidResult $result): JsonResponse
+    private function toJson(ValidResult|FinishResult $result): JsonResponse
     {
         if ($result instanceof FinishResult) {
             return new JsonResponse([
@@ -329,7 +325,7 @@ class UpdateController extends AbstractController
                 'offset' => $result->getOffset(),
                 'total' => $result->getTotal(),
                 'success' => true,
-                '_class' => \get_class($result),
+                '_class' => $result::class,
             ]);
         }
 
@@ -338,7 +334,7 @@ class UpdateController extends AbstractController
             'offset' => $result->getOffset(),
             'total' => $result->getTotal(),
             'success' => true,
-            '_class' => \get_class($result),
+            '_class' => $result::class,
         ]);
     }
 
@@ -391,7 +387,7 @@ class UpdateController extends AbstractController
     {
         try {
             return $this->redirectToRoute('administration.index');
-        } catch (RouteNotFoundException $e) {
+        } catch (RouteNotFoundException) {
             return new Response('', Response::HTTP_NO_CONTENT);
         }
     }

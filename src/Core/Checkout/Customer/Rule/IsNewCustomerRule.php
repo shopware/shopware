@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class IsNewCustomerRule extends Rule
 {
-    public const RULE_NAME = 'customerIsNewCustomer';
+    final public const RULE_NAME = 'customerIsNewCustomer';
 
     /**
      * @var bool
@@ -36,7 +36,7 @@ class IsNewCustomerRule extends Rule
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
         );
 
         if (!$scope instanceof CheckoutRuleScope) {
@@ -62,7 +62,7 @@ class IsNewCustomerRule extends Rule
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
         );
 
         return [
@@ -74,7 +74,7 @@ class IsNewCustomerRule extends Rule
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
         );
 
         return (new RuleConfig())

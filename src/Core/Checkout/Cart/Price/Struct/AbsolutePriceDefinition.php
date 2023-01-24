@@ -16,8 +16,8 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
 {
-    public const TYPE = 'absolute';
-    public const SORTING_PRIORITY = 75;
+    final public const TYPE = 'absolute';
+    final public const SORTING_PRIORITY = 75;
 
     /**
      * @var float

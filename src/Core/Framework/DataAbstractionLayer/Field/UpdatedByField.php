@@ -11,15 +11,8 @@ use Shopware\Core\System\User\UserDefinition;
  */
 class UpdatedByField extends FkField
 {
-    /**
-     * @var array
-     */
-    private $allowedWriteScopes;
-
-    public function __construct(array $allowedWriteScopes = [Context::SYSTEM_SCOPE])
+    public function __construct(private readonly array $allowedWriteScopes = [Context::SYSTEM_SCOPE])
     {
-        $this->allowedWriteScopes = $allowedWriteScopes;
-
         parent::__construct('updated_by_id', 'updatedById', UserDefinition::class);
     }
 

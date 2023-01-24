@@ -10,12 +10,12 @@ class SeoUrlRouteRegistry
     /**
      * @var SeoUrlRouteInterface[]
      */
-    private $seoUrlRoutes = [];
+    private array $seoUrlRoutes = [];
 
     /**
      * @var SeoUrlRouteInterface[]
      */
-    private $definitionToRoutes = [];
+    private array $definitionToRoutes = [];
 
     /**
      * @internal

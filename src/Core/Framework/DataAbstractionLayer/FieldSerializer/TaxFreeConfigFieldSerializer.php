@@ -37,7 +37,7 @@ class TaxFreeConfigFieldSerializer extends JsonFieldSerializer
             return null;
         }
 
-        $raw = json_decode($value, true);
+        $raw = json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
 
         return new TaxFreeConfig(
             (bool) $raw['enabled'],

@@ -19,7 +19,7 @@ class ResponseFactoryRegistry
     /**
      * @var ResponseFactoryInterface[]
      */
-    private $responseFactories;
+    private readonly array $responseFactories;
 
     /**
      * @internal

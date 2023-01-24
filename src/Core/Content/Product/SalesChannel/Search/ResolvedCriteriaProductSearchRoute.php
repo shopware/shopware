@@ -15,27 +15,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package system-settings
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
 {
-    private AbstractProductSearchRoute $decorated;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private DefinitionInstanceRegistry $registry;
-
-    private RequestCriteriaBuilder $criteriaBuilder;
-
     /**
      * @internal
      */
-    public function __construct(AbstractProductSearchRoute $decorated, EventDispatcherInterface $eventDispatcher, DefinitionInstanceRegistry $registry, RequestCriteriaBuilder $criteriaBuilder)
+    public function __construct(private readonly AbstractProductSearchRoute $decorated, private readonly EventDispatcherInterface $eventDispatcher, private readonly DefinitionInstanceRegistry $registry, private readonly RequestCriteriaBuilder $criteriaBuilder)
     {
-        $this->decorated = $decorated;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->registry = $registry;
-        $this->criteriaBuilder = $criteriaBuilder;
     }
 
     public function getDecorated(): AbstractProductSearchRoute
@@ -45,8 +33,8 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/search", name="store-api.search", methods={"POST"}, defaults={"_entity"="product"})
      */
+    #[Route(path: '/store-api/search', name: 'store-api.search', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
     {
         $criteria = $this->criteriaBuilder->handleRequest(

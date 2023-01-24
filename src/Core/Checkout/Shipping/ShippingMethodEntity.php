@@ -23,11 +23,11 @@ class ShippingMethodEntity extends Entity
     use EntityIdTrait;
     use EntityCustomFieldsTrait;
 
-    public const TAX_TYPE_AUTO = 'auto';
-    public const TAX_TYPE_FIXED = 'fixed';
-    public const TAX_TYPE_HIGHEST = 'highest';
-    public const POSITION_DEFAULT = 1;
-    public const ACTIVE_DEFAULT = true;
+    final public const TAX_TYPE_AUTO = 'auto';
+    final public const TAX_TYPE_FIXED = 'fixed';
+    final public const TAX_TYPE_HIGHEST = 'highest';
+    final public const POSITION_DEFAULT = 1;
+    final public const ACTIVE_DEFAULT = true;
 
     /**
      * @var string|null

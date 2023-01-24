@@ -11,27 +11,12 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class AppFlowActionEvent extends Event implements Hookable
 {
-    private string $name;
-
-    /**
-     * @var array<string, string>
-     */
-    private array $headers;
-
-    /**
-     * @var array<mixed>
-     */
-    private array $payload;
-
     /**
      * @param array<string, string> $headers
      * @param array<mixed> $payload
      */
-    public function __construct(string $name, array $headers, array $payload)
+    public function __construct(private readonly string $name, private readonly array $headers, private readonly array $payload)
     {
-        $this->name = $name;
-        $this->headers = $headers;
-        $this->payload = $payload;
     }
 
     public function getName(): string

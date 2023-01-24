@@ -9,15 +9,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
  */
 class SetNullOnDelete extends Flag
 {
-    private bool $enforcedByConstraint;
-
     /**
      * In some cases (e.g. because of circular references) it may not be possible to enforce the SetNullBehaviour by a DB constraint,
      * in that case provide $enforcedByConstraint=false so the set null will be handled by the DAL instead
      */
-    public function __construct(bool $enforcedByConstraint = true)
+    public function __construct(private readonly bool $enforcedByConstraint = true)
     {
-        $this->enforcedByConstraint = $enforcedByConstraint;
     }
 
     public function isEnforcedByConstraint(): bool

@@ -24,7 +24,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
  */
 class StateMachineDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'state_machine';
+    final public const ENTITY_NAME = 'state_machine';
 
     public function getEntityName(): string
     {

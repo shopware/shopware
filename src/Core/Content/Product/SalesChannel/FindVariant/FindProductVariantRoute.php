@@ -13,21 +13,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package inventory
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class FindProductVariantRoute extends AbstractFindProductVariantRoute
 {
-    private SalesChannelRepository $productRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        SalesChannelRepository $productRepository
-    ) {
-        $this->productRepository = $productRepository;
+    public function __construct(private readonly SalesChannelRepository $productRepository)
+    {
     }
 
     public function getDecorated(): AbstractFindProductVariantRoute
@@ -37,8 +32,8 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
 
     /**
      * @Since("6.4.14.0")
-     * @Route("/store-api/product/{productId}/find-variant", name="store-api.product.find-variant", methods={"POST"}, defaults={"_entity"="product"})
      */
+    #[Route(path: '/store-api/product/{productId}/find-variant', name: 'store-api.product.find-variant', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $productId, Request $request, SalesChannelContext $context): FindProductVariantRouteResponse
     {
         /** @var string|null $switchedGroup */

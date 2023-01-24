@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class FlowException extends HttpException
 {
-    public const METHOD_NOT_COMPATIBLE = 'METHOD_NOT_COMPATIBLE';
+    final public const METHOD_NOT_COMPATIBLE = 'METHOD_NOT_COMPATIBLE';
 
     public static function methodNotCompatible(string $method, string $class): FlowException
     {

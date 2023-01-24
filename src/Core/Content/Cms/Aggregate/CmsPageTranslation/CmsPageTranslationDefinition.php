@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class CmsPageTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'cms_page_translation';
+    final public const ENTITY_NAME = 'cms_page_translation';
 
     public function getEntityName(): string
     {

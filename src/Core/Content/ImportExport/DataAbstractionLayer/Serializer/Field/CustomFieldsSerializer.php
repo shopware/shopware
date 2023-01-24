@@ -14,17 +14,11 @@ use Shopware\Core\System\CustomField\CustomFieldService;
  */
 class CustomFieldsSerializer extends FieldSerializer
 {
-    private DalCustomFieldsSerializer $customFieldsSerializer;
-
-    private CustomFieldService $customFieldService;
-
     /**
      * @internal
      */
-    public function __construct(DalCustomFieldsSerializer $customFieldsSerializer, CustomFieldService $customFieldService)
+    public function __construct(private readonly DalCustomFieldsSerializer $customFieldsSerializer, private readonly CustomFieldService $customFieldService)
     {
-        $this->customFieldsSerializer = $customFieldsSerializer;
-        $this->customFieldService = $customFieldService;
     }
 
     /**
@@ -44,10 +38,10 @@ class CustomFieldsSerializer extends FieldSerializer
 
         ksort($value);
 
-        yield $field->getPropertyName() => json_encode($value);
+        yield $field->getPropertyName() => json_encode($value, \JSON_THROW_ON_ERROR);
 
         foreach ($value as $customFieldKey => $customFieldValue) {
-            $customFieldValue = \is_array($customFieldValue) ? json_encode($customFieldValue) : $customFieldValue;
+            $customFieldValue = \is_array($customFieldValue) ? json_encode($customFieldValue, \JSON_THROW_ON_ERROR) : $customFieldValue;
 
             yield $field->getPropertyName() . '.' . $customFieldKey => $customFieldValue;
         }
@@ -100,9 +94,7 @@ class CustomFieldsSerializer extends FieldSerializer
 
     private function decodeCustomFields(array $customFields, Field $field): ?array
     {
-        $customFields = json_encode(array_filter($customFields, function ($value) {
-            return $value !== '';
-        }));
+        $customFields = json_encode(array_filter($customFields, fn ($value) => $value !== ''), \JSON_THROW_ON_ERROR);
 
         if (!$customFields) {
             return null;
@@ -119,7 +111,7 @@ class CustomFieldsSerializer extends FieldSerializer
                 continue;
             }
 
-            $jsonDecoded = json_decode($value);
+            $jsonDecoded = json_decode((string) $value, null, 512, \JSON_THROW_ON_ERROR);
 
             if (\is_array($jsonDecoded)) {
                 $customFields[$key] = $jsonDecoded;

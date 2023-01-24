@@ -18,21 +18,13 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
  */
 class StructEncoder
 {
-    private DefinitionInstanceRegistry $definitionRegistry;
-
-    private NormalizerInterface $serializer;
-
     private array $protections = [];
 
     /**
      * @internal
      */
-    public function __construct(
-        DefinitionInstanceRegistry $definitionRegistry,
-        NormalizerInterface $serializer
-    ) {
-        $this->definitionRegistry = $definitionRegistry;
-        $this->serializer = $serializer;
+    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly NormalizerInterface $serializer)
+    {
     }
 
     public function encode(Struct $struct, ResponseFields $fields): array
@@ -89,9 +81,7 @@ class StructEncoder
         }
 
         if ($struct instanceof ErrorCollection) {
-            return array_map(static function (Error $error) {
-                return $error->jsonSerialize();
-            }, $struct->getElements());
+            return array_map(static fn (Error $error) => $error->jsonSerialize(), $struct->getElements());
         }
 
         if ($struct instanceof Collection) {

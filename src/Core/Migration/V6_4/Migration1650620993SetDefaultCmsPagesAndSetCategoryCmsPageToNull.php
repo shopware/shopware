@@ -53,7 +53,7 @@ class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNull extends M
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => $key,
-            'configuration_value' => json_encode(['_value' => $value]),
+            'configuration_value' => json_encode(['_value' => $value], \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

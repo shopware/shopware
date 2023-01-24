@@ -16,9 +16,9 @@ use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
  */
 class AppUpdatedHook extends AppLifecycleHook implements AppSpecificHook
 {
-    public const HOOK_NAME = 'app-updated';
+    final public const HOOK_NAME = 'app-updated';
 
-    private AppUpdatedEvent $event;
+    private readonly AppUpdatedEvent $event;
 
     public function __construct(AppUpdatedEvent $event)
     {

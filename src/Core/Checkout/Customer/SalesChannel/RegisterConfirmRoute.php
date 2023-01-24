@@ -30,48 +30,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 {
     /**
-     * @var EntityRepository
-     */
-    private $customerRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var DataValidator
-     */
-    private $validator;
-
-    /**
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
-
-    private SalesChannelContextServiceInterface $contextService;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $customerRepository,
-        EventDispatcherInterface $eventDispatcher,
-        DataValidator $validator,
-        SalesChannelContextPersister $contextPersister,
-        SalesChannelContextServiceInterface $contextService
-    ) {
-        $this->customerRepository = $customerRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->validator = $validator;
-        $this->contextPersister = $contextPersister;
-        $this->contextService = $contextService;
+    public function __construct(private readonly EntityRepository $customerRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly DataValidator $validator, private readonly SalesChannelContextPersister $contextPersister, private readonly SalesChannelContextServiceInterface $contextService)
+    {
     }
 
     public function getDecorated(): AbstractRegisterConfirmRoute
@@ -81,8 +48,8 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/account/register-confirm", name="store-api.account.register.confirm", methods={"POST"})
      */
+    #[Route(path: '/store-api/account/register-confirm', name: 'store-api.account.register.confirm', methods: ['POST'])]
     public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): CustomerResponse
     {
         if (!$dataBag->has('hash')) {
@@ -108,7 +75,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
                 'em' => $dataBag->get('em'),
                 'doubleOptInRegistration' => $customer->getDoubleOptInRegistration(),
             ],
-            $this->getBeforeConfirmValidation(hash('sha1', $customer->getEmail()))
+            $this->getBeforeConfirmValidation(hash('sha1', (string) $customer->getEmail()))
         );
 
         if ((!Feature::isActive('v6.6.0.0') && $customer->getActive())

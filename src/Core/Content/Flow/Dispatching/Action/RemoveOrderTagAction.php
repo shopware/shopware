@@ -15,14 +15,11 @@ use Shopware\Core\Framework\Event\OrderAware;
  */
 class RemoveOrderTagAction extends FlowAction implements DelayableAction
 {
-    private EntityRepository $orderTagRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $orderTagRepository)
+    public function __construct(private readonly EntityRepository $orderTagRepository)
     {
-        $this->orderTagRepository = $orderTagRepository;
     }
 
     public static function getName(): string
@@ -62,12 +59,10 @@ class RemoveOrderTagAction extends FlowAction implements DelayableAction
             return;
         }
 
-        $tags = array_map(static function ($tagId) use ($orderId) {
-            return [
-                'orderId' => $orderId,
-                'tagId' => $tagId,
-            ];
-        }, $tagIds);
+        $tags = array_map(static fn ($tagId) => [
+            'orderId' => $orderId,
+            'tagId' => $tagId,
+        ], $tagIds);
 
         $this->orderTagRepository->delete($tags, $context);
     }

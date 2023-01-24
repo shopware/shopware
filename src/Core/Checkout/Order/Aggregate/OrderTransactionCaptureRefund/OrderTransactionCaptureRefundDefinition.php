@@ -25,7 +25,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
  */
 class OrderTransactionCaptureRefundDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'order_transaction_capture_refund';
+    final public const ENTITY_NAME = 'order_transaction_capture_refund';
 
     public function getEntityName(): string
     {

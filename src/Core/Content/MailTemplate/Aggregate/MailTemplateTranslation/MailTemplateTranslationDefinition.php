@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class MailTemplateTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'mail_template_translation';
+    final public const ENTITY_NAME = 'mail_template_translation';
 
     public function getEntityName(): string
     {

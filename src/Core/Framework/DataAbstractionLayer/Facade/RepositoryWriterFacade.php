@@ -20,23 +20,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
  */
 class RepositoryWriterFacade
 {
-    private DefinitionInstanceRegistry $registry;
-
-    private SyncService $syncService;
-
-    private Context $context;
-
     /**
      * @internal
      */
-    public function __construct(
-        DefinitionInstanceRegistry $registry,
-        SyncService $syncService,
-        Context $context
-    ) {
-        $this->registry = $registry;
-        $this->context = $context;
-        $this->syncService = $syncService;
+    public function __construct(private readonly DefinitionInstanceRegistry $registry, private readonly SyncService $syncService, private readonly Context $context)
+    {
     }
 
     /**

@@ -18,18 +18,14 @@ use Symfony\Component\Validator\Constraints\Type;
 class CustomerValidationFactory implements DataValidationFactoryInterface
 {
     /**
-     * @todo seems to be the usecase for the shopware api - import or so. maybe rename to CustomerImportValidationService
-     *
-     * @var DataValidationFactoryInterface
-     */
-    private $profileValidation;
-
-    /**
      * @internal
      */
-    public function __construct(DataValidationFactoryInterface $profileValidation)
-    {
-        $this->profileValidation = $profileValidation;
+    public function __construct(
+        /**
+         * @todo seems to be the usecase for the shopware api - import or so. maybe rename to CustomerImportValidationService
+         */
+        private readonly DataValidationFactoryInterface $profileValidation
+    ) {
     }
 
     public function create(SalesChannelContext $context): DataValidationDefinition

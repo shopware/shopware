@@ -40,35 +40,23 @@ class PluginLifecycleServiceMigrationTest extends TestCase
     use PluginTestsHelper;
     use MigrationTestBehaviour;
 
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
+    private ContainerInterface $container;
 
     /**
      * @var EntityRepository
      */
     private $pluginRepo;
 
-    /**
-     * @var PluginService
-     */
-    private $pluginService;
+    private PluginService $pluginService;
 
     /**
      * @var Connection
      */
     private $connection;
 
-    /**
-     * @var PluginLifecycleService
-     */
-    private $pluginLifecycleService;
+    private PluginLifecycleService $pluginLifecycleService;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     public static function tearDownAfterClass(): void
     {

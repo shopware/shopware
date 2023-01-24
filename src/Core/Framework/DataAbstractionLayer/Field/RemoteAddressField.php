@@ -9,16 +9,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\RemoteAddressFi
  */
 class RemoteAddressField extends Field implements StorageAware
 {
-    /**
-     * @var string
-     */
-    private $storageName;
-
     public function __construct(
-        string $storageName,
+        private readonly string $storageName,
         string $propertyName
     ) {
-        $this->storageName = $storageName;
         parent::__construct($propertyName);
     }
 

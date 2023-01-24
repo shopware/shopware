@@ -10,6 +10,8 @@ use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class WebhookCleanup
 {
@@ -17,9 +19,9 @@ class WebhookCleanup
      * @internal
      */
     public function __construct(
-        private SystemConfigService $systemConfigService,
-        private Connection $connection,
-        private ClockInterface $clock = new NativeClock(),
+        private readonly SystemConfigService $systemConfigService,
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock = new NativeClock(),
     ) {
     }
 

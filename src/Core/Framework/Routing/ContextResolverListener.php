@@ -13,15 +13,11 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 class ContextResolverListener implements EventSubscriberInterface
 {
-    private RequestContextResolverInterface $requestContextResolver;
-
     /**
      * @internal
      */
-    public function __construct(
-        RequestContextResolverInterface $requestContextResolver
-    ) {
-        $this->requestContextResolver = $requestContextResolver;
+    public function __construct(private readonly RequestContextResolverInterface $requestContextResolver)
+    {
     }
 
     public static function getSubscribedEvents(): array

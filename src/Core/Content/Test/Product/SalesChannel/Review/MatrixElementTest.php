@@ -10,10 +10,7 @@ use Shopware\Core\Content\Product\SalesChannel\Review\MatrixElement;
  */
 class MatrixElementTest extends TestCase
 {
-    /**
-     * @var MatrixElement
-     */
-    private $element;
+    private MatrixElement $element;
 
     public function setUp(): void
     {

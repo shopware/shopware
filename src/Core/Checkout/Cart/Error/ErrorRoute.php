@@ -9,13 +9,10 @@ namespace Shopware\Core\Checkout\Cart\Error;
  */
 class ErrorRoute
 {
-    private string $key;
+    private readonly array $params;
 
-    private array $params;
-
-    public function __construct(string $route, ?array $params = null)
+    public function __construct(private readonly string $key, ?array $params = null)
     {
-        $this->key = $route;
         $this->params = $params ?? [];
     }
 

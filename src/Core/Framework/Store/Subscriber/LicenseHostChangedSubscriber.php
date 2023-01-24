@@ -15,16 +15,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class LicenseHostChangedSubscriber implements EventSubscriberInterface
 {
-    private SystemConfigService $systemConfigService;
-
-    private Connection $connection;
-
-    public function __construct(
-        SystemConfigService $systemConfigService,
-        Connection $connection
-    ) {
-        $this->systemConfigService = $systemConfigService;
-        $this->connection = $connection;
+    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly Connection $connection)
+    {
     }
 
     public static function getSubscribedEvents(): array

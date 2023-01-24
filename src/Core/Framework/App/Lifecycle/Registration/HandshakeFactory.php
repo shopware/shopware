@@ -15,24 +15,8 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
  */
 final class HandshakeFactory
 {
-    private string $shopUrl;
-
-    private ShopIdProvider $shopIdProvider;
-
-    private StoreClient $storeClient;
-
-    private string $shopwareVersion;
-
-    public function __construct(
-        string $shopUrl,
-        ShopIdProvider $shopIdProvider,
-        StoreClient $storeClient,
-        string $shopwareVersion
-    ) {
-        $this->shopUrl = $shopUrl;
-        $this->shopIdProvider = $shopIdProvider;
-        $this->storeClient = $storeClient;
-        $this->shopwareVersion = $shopwareVersion;
+    public function __construct(private readonly string $shopUrl, private readonly ShopIdProvider $shopIdProvider, private readonly StoreClient $storeClient, private readonly string $shopwareVersion)
+    {
     }
 
     public function create(Manifest $manifest): AppHandshakeInterface
@@ -50,7 +34,7 @@ final class HandshakeFactory
 
         try {
             $shopId = $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
+        } catch (AppUrlChangeDetectedException) {
             throw new AppRegistrationException(
                 'The app url changed. Please resolve how the apps should handle this change.'
             );

@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class Migration1603179023AddDefaultSettingConfigValueForProductListingPerPage extends MigrationStep
 {
-    public const CONFIG_KEY = 'core.listing.productsPerPage';
+    final public const CONFIG_KEY = 'core.listing.productsPerPage';
 
     public function getCreationTimestamp(): int
     {

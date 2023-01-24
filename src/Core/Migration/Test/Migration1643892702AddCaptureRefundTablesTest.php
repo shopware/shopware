@@ -78,7 +78,7 @@ class Migration1643892702AddCaptureRefundTablesTest extends TestCase
 
         try {
             $this->connection->executeQuery($sql);
-        } catch (Exception $exception) {
+        } catch (Exception) {
             return false;
         }
 

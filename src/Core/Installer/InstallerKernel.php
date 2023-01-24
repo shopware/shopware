@@ -23,9 +23,9 @@ class InstallerKernel extends HttpKernel
 {
     use MicroKernelTrait;
 
-    private string $shopwareVersion;
+    private readonly string $shopwareVersion;
 
-    private ?string $shopwareVersionRevision;
+    private readonly ?string $shopwareVersionRevision;
 
     public function __construct(string $environment, bool $debug)
     {

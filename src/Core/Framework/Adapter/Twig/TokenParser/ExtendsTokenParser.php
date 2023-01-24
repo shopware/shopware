@@ -18,14 +18,8 @@ final class ExtendsTokenParser extends AbstractTokenParser
      */
     protected $parser;
 
-    /**
-     * @var TemplateFinder
-     */
-    private $finder;
-
-    public function __construct(TemplateFinder $finder)
+    public function __construct(private readonly TemplateFinder $finder)
     {
-        $this->finder = $finder;
     }
 
     /**

@@ -12,14 +12,11 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  */
 class IsNewDetector extends AbstractIsNewDetector
 {
-    private SystemConfigService $systemConfigService;
-
     /**
      * @internal
      */
-    public function __construct(SystemConfigService $systemConfigService)
+    public function __construct(private readonly SystemConfigService $systemConfigService)
     {
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function getDecorated(): AbstractIsNewDetector

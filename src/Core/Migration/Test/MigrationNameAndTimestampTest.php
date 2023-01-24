@@ -22,7 +22,7 @@ class MigrationNameAndTimestampTest extends TestCase
         foreach ($migrationCollections as $migrations) {
             foreach ($migrations->getMigrationSteps() as $className => $migration) {
                 $matches = [];
-                $result = preg_match('/\\\\(?<name>Migration(?<timestamp>\d+)\w+)$/', $className, $matches);
+                $result = preg_match('/\\\\(?<name>Migration(?<timestamp>\d+)\w+)$/', (string) $className, $matches);
 
                 static::assertEquals(1, $result, sprintf(
                     'Invalid migration name "%s". Example for a valid format: Migration1536232684Order',

@@ -52,59 +52,11 @@ class PromotionCalculator
 {
     use PromotionCartInformationTrait;
 
-    private AmountCalculator $amountCalculator;
-
-    private AbsolutePriceCalculator $absolutePriceCalculator;
-
-    private LineItemGroupBuilder $groupBuilder;
-
-    private PackageFilter $advancedFilter;
-
-    private AdvancedPackagePicker $advancedPicker;
-
-    private SetGroupScopeFilter $advancedRules;
-
-    private LineItemQuantitySplitter $lineItemQuantitySplitter;
-
-    private DiscountCompositionBuilder $discountCompositionBuilder;
-
-    private PercentagePriceCalculator $percentagePriceCalculator;
-
-    private DiscountPackager $cartScopeDiscountPackager;
-
-    private DiscountPackager $setGroupScopeDiscountPackager;
-
-    private DiscountPackager $setScopeDiscountPackager;
-
     /**
      * @internal
      */
-    public function __construct(
-        AmountCalculator $amountCalculator,
-        AbsolutePriceCalculator $absolutePriceCalculator,
-        LineItemGroupBuilder $groupBuilder,
-        DiscountCompositionBuilder $compositionBuilder,
-        PackageFilter $filter,
-        AdvancedPackagePicker $picker,
-        SetGroupScopeFilter $advancedRules,
-        LineItemQuantitySplitter $lineItemQuantitySplitter,
-        PercentagePriceCalculator $percentagePriceCalculator,
-        DiscountPackager $cartScopeDiscountPackager,
-        DiscountPackager $setGroupScopeDiscountPackager,
-        DiscountPackager $setScopeDiscountPackager
-    ) {
-        $this->amountCalculator = $amountCalculator;
-        $this->absolutePriceCalculator = $absolutePriceCalculator;
-        $this->groupBuilder = $groupBuilder;
-        $this->discountCompositionBuilder = $compositionBuilder;
-        $this->advancedFilter = $filter;
-        $this->advancedPicker = $picker;
-        $this->advancedRules = $advancedRules;
-        $this->lineItemQuantitySplitter = $lineItemQuantitySplitter;
-        $this->percentagePriceCalculator = $percentagePriceCalculator;
-        $this->cartScopeDiscountPackager = $cartScopeDiscountPackager;
-        $this->setGroupScopeDiscountPackager = $setGroupScopeDiscountPackager;
-        $this->setScopeDiscountPackager = $setScopeDiscountPackager;
+    public function __construct(private readonly AmountCalculator $amountCalculator, private readonly AbsolutePriceCalculator $absolutePriceCalculator, private readonly LineItemGroupBuilder $groupBuilder, private readonly DiscountCompositionBuilder $discountCompositionBuilder, private readonly PackageFilter $advancedFilter, private readonly AdvancedPackagePicker $advancedPicker, private readonly SetGroupScopeFilter $advancedRules, private readonly LineItemQuantitySplitter $lineItemQuantitySplitter, private readonly PercentagePriceCalculator $percentagePriceCalculator, private readonly DiscountPackager $cartScopeDiscountPackager, private readonly DiscountPackager $setGroupScopeDiscountPackager, private readonly DiscountPackager $setScopeDiscountPackager)
+    {
     }
 
     /**
@@ -284,25 +236,12 @@ class PromotionCalculator
             $lineItem->getReferencedId()
         );
 
-        switch ($discount->getScope()) {
-            case PromotionDiscountEntity::SCOPE_CART:
-                $packager = $this->cartScopeDiscountPackager;
-
-                break;
-
-            case PromotionDiscountEntity::SCOPE_SET:
-                $packager = $this->setScopeDiscountPackager;
-
-                break;
-
-            case PromotionDiscountEntity::SCOPE_SETGROUP:
-                $packager = $this->setGroupScopeDiscountPackager;
-
-                break;
-
-            default:
-                throw new InvalidScopeDefinitionException($discount->getScope());
-        }
+        $packager = match ($discount->getScope()) {
+            PromotionDiscountEntity::SCOPE_CART => $this->cartScopeDiscountPackager,
+            PromotionDiscountEntity::SCOPE_SET => $this->setScopeDiscountPackager,
+            PromotionDiscountEntity::SCOPE_SETGROUP => $this->setGroupScopeDiscountPackager,
+            default => throw new InvalidScopeDefinitionException($discount->getScope()),
+        };
 
         $packages = $packager->getMatchingItems($discount, $calculatedCart, $context);
 
@@ -339,30 +278,13 @@ class PromotionCalculator
         $packages = $this->advancedFilter->filterPackages($discount, $packages, $originalPackageCount);
         $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
 
-        switch ($discount->getType()) {
-            case PromotionDiscountEntity::TYPE_ABSOLUTE:
-                $calculator = new DiscountAbsoluteCalculator($this->absolutePriceCalculator);
-
-                break;
-
-            case PromotionDiscountEntity::TYPE_PERCENTAGE:
-                $calculator = new DiscountPercentageCalculator($this->absolutePriceCalculator, $this->percentagePriceCalculator);
-
-                break;
-
-            case PromotionDiscountEntity::TYPE_FIXED:
-                $calculator = new DiscountFixedPriceCalculator($this->absolutePriceCalculator);
-
-                break;
-
-            case PromotionDiscountEntity::TYPE_FIXED_UNIT:
-                $calculator = new DiscountFixedUnitPriceCalculator($this->absolutePriceCalculator);
-
-                break;
-
-            default:
-                throw new DiscountCalculatorNotFoundException($discount->getType());
-        }
+        $calculator = match ($discount->getType()) {
+            PromotionDiscountEntity::TYPE_ABSOLUTE => new DiscountAbsoluteCalculator($this->absolutePriceCalculator),
+            PromotionDiscountEntity::TYPE_PERCENTAGE => new DiscountPercentageCalculator($this->absolutePriceCalculator, $this->percentagePriceCalculator),
+            PromotionDiscountEntity::TYPE_FIXED => new DiscountFixedPriceCalculator($this->absolutePriceCalculator),
+            PromotionDiscountEntity::TYPE_FIXED_UNIT => new DiscountFixedUnitPriceCalculator($this->absolutePriceCalculator),
+            default => throw new DiscountCalculatorNotFoundException($discount->getType()),
+        };
 
         $result = $calculator->calculate($discount, $packages, $context);
 

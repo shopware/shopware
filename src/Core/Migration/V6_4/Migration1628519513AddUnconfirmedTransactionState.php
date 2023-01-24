@@ -41,7 +41,7 @@ class Migration1628519513AddUnconfirmedTransactionState extends MigrationStep
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
-        } catch (UniqueConstraintViolationException $e) {
+        } catch (UniqueConstraintViolationException) {
             // don't add state if it already exists
             return;
         }

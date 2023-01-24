@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
  */
 class JsonApiDecoder implements DecoderInterface
 {
-    public const FORMAT = 'jsonapi';
+    final public const FORMAT = 'jsonapi';
 
     /**
      * @return array|mixed

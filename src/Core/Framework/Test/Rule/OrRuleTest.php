@@ -35,10 +35,7 @@ class OrRuleTest extends TestCase
      */
     private $conditionRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {

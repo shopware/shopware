@@ -13,17 +13,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class CartVerifyPersistEvent extends Event implements ShopwareSalesChannelEvent
 {
-    protected SalesChannelContext $context;
-
-    protected Cart $cart;
-
-    protected bool $shouldPersist;
-
-    public function __construct(SalesChannelContext $context, Cart $cart, bool $shouldPersist)
+    public function __construct(protected SalesChannelContext $context, protected Cart $cart, protected bool $shouldPersist)
     {
-        $this->context = $context;
-        $this->cart = $cart;
-        $this->shouldPersist = $shouldPersist;
     }
 
     public function getContext(): Context

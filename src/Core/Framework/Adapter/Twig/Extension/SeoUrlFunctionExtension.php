@@ -13,28 +13,16 @@ use Twig\TwigFunction;
 class SeoUrlFunctionExtension extends AbstractExtension
 {
     /**
-     * @var AbstractExtension
-     */
-    private $routingExtension;
-
-    /**
-     * @var SeoUrlPlaceholderHandlerInterface
-     */
-    private $seoUrlReplacer;
-
-    /**
      * @internal
      */
-    public function __construct(RoutingExtension $extension, SeoUrlPlaceholderHandlerInterface $seoUrlReplacer)
+    public function __construct(private readonly RoutingExtension $routingExtension, private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer)
     {
-        $this->routingExtension = $extension;
-        $this->seoUrlReplacer = $seoUrlReplacer;
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('seoUrl', [$this, 'seoUrl'], ['is_safe_callback' => [$this->routingExtension, 'isUrlGenerationSafe']]),
+            new TwigFunction('seoUrl', $this->seoUrl(...), ['is_safe_callback' => $this->routingExtension->isUrlGenerationSafe(...)]),
         ];
     }
 

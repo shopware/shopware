@@ -48,10 +48,7 @@ class ImportEntityCommandTest extends TestCase
      */
     private $demoDataService;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {

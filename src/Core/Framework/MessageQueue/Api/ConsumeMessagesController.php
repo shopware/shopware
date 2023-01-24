@@ -21,59 +21,22 @@ use Symfony\Component\Messenger\Worker;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"api"}})
- *
  * @package system-settings
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class ConsumeMessagesController extends AbstractController
 {
-    private ServiceLocator $receiverLocator;
-
-    private MessageBusInterface $bus;
-
-    private StopWorkerOnRestartSignalListener $stopWorkerOnRestartSignalListener;
-
-    private StopWorkerOnSigtermSignalListener $stopWorkerOnSigtermSignalListener;
-
-    private DispatchPcntlSignalListener $dispatchPcntlSignalListener;
-
-    private EarlyReturnMessagesListener $earlyReturnListener;
-
-    private string $defaultTransportName;
-
-    private string $memoryLimit;
-
-    private MessageQueueStatsSubscriber $statsSubscriber;
-
     /**
      * @internal
      */
-    public function __construct(
-        ServiceLocator $receiverLocator,
-        MessageBusInterface $bus,
-        StopWorkerOnRestartSignalListener $stopWorkerOnRestartSignalListener,
-        StopWorkerOnSigtermSignalListener $stopWorkerOnSigtermSignalListener,
-        DispatchPcntlSignalListener $dispatchPcntlSignalListener,
-        EarlyReturnMessagesListener $earlyReturnListener,
-        MessageQueueStatsSubscriber $statsSubscriber,
-        string $defaultTransportName,
-        string $memoryLimit
-    ) {
-        $this->receiverLocator = $receiverLocator;
-        $this->bus = $bus;
-        $this->stopWorkerOnRestartSignalListener = $stopWorkerOnRestartSignalListener;
-        $this->stopWorkerOnSigtermSignalListener = $stopWorkerOnSigtermSignalListener;
-        $this->dispatchPcntlSignalListener = $dispatchPcntlSignalListener;
-        $this->earlyReturnListener = $earlyReturnListener;
-        $this->defaultTransportName = $defaultTransportName;
-        $this->memoryLimit = $memoryLimit;
-        $this->statsSubscriber = $statsSubscriber;
+    public function __construct(private readonly ServiceLocator $receiverLocator, private readonly MessageBusInterface $bus, private readonly StopWorkerOnRestartSignalListener $stopWorkerOnRestartSignalListener, private readonly StopWorkerOnSigtermSignalListener $stopWorkerOnSigtermSignalListener, private readonly DispatchPcntlSignalListener $dispatchPcntlSignalListener, private readonly EarlyReturnMessagesListener $earlyReturnListener, private readonly MessageQueueStatsSubscriber $statsSubscriber, private readonly string $defaultTransportName, private readonly string $memoryLimit)
+    {
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/message-queue/consume", name="api.action.message-queue.consume", methods={"POST"})
      */
+    #[Route(path: '/api/_action/message-queue/consume', name: 'api.action.message-queue.consume', methods: ['POST'])]
     public function consumeMessages(Request $request): JsonResponse
     {
         $receiverName = $request->get('receiver');
@@ -101,7 +64,7 @@ class ConsumeMessagesController extends AbstractController
 
         $worker = new Worker([$this->defaultTransportName => $receiver], $this->bus, $workerDispatcher);
 
-        $worker->run(['sleep' => 50]);
+        $worker->run();
 
         return new JsonResponse(['handledMessages' => $listener->getHandledMessages()]);
     }

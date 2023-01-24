@@ -32,7 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class AppScriptConditionDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'app_script_condition';
+    final public const ENTITY_NAME = 'app_script_condition';
 
     public function getEntityName(): string
     {

@@ -13,9 +13,7 @@ class InstanceOfExtension extends AbstractExtension
     public function getTests(): array
     {
         return [
-            'instanceof' => new TwigTest('instanceof', [
-                $this, 'isInstanceOf',
-            ]),
+            'instanceof' => new TwigTest('instanceof', $this->isInstanceOf(...)),
         ];
     }
 

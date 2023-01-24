@@ -13,10 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class SalesChannelEntityAggregationResultLoadedEvent extends EntityAggregationResultLoadedEvent implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private readonly SalesChannelContext $salesChannelContext;
 
     public function __construct(EntityDefinition $definition, AggregationResultCollection $result, SalesChannelContext $salesChannelContext)
     {

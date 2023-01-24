@@ -32,17 +32,11 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
     private const STATIC_SEARCH_KEY = 'product-slider';
     private const FALLBACK_LIMIT = 50;
 
-    private ProductStreamBuilderInterface $productStreamBuilder;
-
-    private SystemConfigService $systemConfigService;
-
     /**
      * @internal
      */
-    public function __construct(ProductStreamBuilderInterface $productStreamBuilder, SystemConfigService $systemConfigService)
+    public function __construct(private readonly ProductStreamBuilderInterface $productStreamBuilder, private readonly SystemConfigService $systemConfigService)
     {
-        $this->productStreamBuilder = $productStreamBuilder;
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function getType(): string

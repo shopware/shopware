@@ -39,8 +39,8 @@ class CleanPersonalDataCommand extends Command
      * @internal
      */
     public function __construct(
-        private Connection $connection,
-        private EntityRepository $customerRepository
+        private readonly Connection $connection,
+        private readonly EntityRepository $customerRepository
     ) {
         parent::__construct();
     }
@@ -94,9 +94,7 @@ class CleanPersonalDataCommand extends Command
                 ->getIds();
 
             if ($ids) {
-                $ids = array_map(function ($id) {
-                    return ['id' => $id];
-                }, $ids);
+                $ids = array_map(fn ($id) => ['id' => $id], $ids);
 
                 $this->customerRepository->delete($ids, Context::createDefaultContext());
             }

@@ -20,35 +20,16 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
- *
  * @package customer-order
  */
+#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
 class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
 {
     /**
-     * @var EntityRepository
-     */
-    private $customerRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var EntityRepository
-     */
-    private $paymentMethodRepository;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $customerRepository, EventDispatcherInterface $eventDispatcher, EntityRepository $paymentMethodRepository)
+    public function __construct(private readonly EntityRepository $customerRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityRepository $paymentMethodRepository)
     {
-        $this->customerRepository = $customerRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
     public function getDecorated(): AbstractChangePaymentMethodRoute
@@ -58,8 +39,8 @@ class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route(path="/store-api/account/change-payment-method/{paymentMethodId}", name="store-api.account.set.payment-method", methods={"POST"}, defaults={"_loginRequired"=true})
      */
+    #[Route(path: '/store-api/account/change-payment-method/{paymentMethodId}', name: 'store-api.account.set.payment-method', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function change(string $paymentMethodId, RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         $this->validatePaymentMethodId($paymentMethodId, $context->getContext());

@@ -15,11 +15,8 @@ use Shopware\Core\Framework\Migration\MigrationSource;
  */
 class MigrationCollectionFactory
 {
-    private string $projectDir;
-
-    public function __construct(string $projectDir)
+    public function __construct(private readonly string $projectDir)
     {
-        $this->projectDir = $projectDir;
     }
 
     public function getMigrationCollectionLoader(Connection $connection): MigrationCollectionLoader

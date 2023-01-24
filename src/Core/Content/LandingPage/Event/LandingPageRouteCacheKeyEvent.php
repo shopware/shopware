@@ -12,12 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class LandingPageRouteCacheKeyEvent extends StoreApiRouteCacheKeyEvent
 {
-    protected string $landingPageId;
-
-    public function __construct(string $landingPageId, array $parts, Request $request, SalesChannelContext $context, ?Criteria $criteria)
+    public function __construct(protected string $landingPageId, array $parts, Request $request, SalesChannelContext $context, ?Criteria $criteria)
     {
         parent::__construct($parts, $request, $context, $criteria);
-        $this->landingPageId = $landingPageId;
     }
 
     public function getLandingPageId(): string

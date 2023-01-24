@@ -21,8 +21,6 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class AddressValidator implements CartValidatorInterface, ResetInterface
 {
-    private EntityRepository $repository;
-
     /**
      * @var array<string, bool>
      */
@@ -31,9 +29,8 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
     /**
      * @internal
      */
-    public function __construct(EntityRepository $repository)
+    public function __construct(private readonly EntityRepository $repository)
     {
-        $this->repository = $repository;
     }
 
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void

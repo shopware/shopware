@@ -17,21 +17,14 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemStockRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemStock';
-
-    protected ?int $stock;
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartLineItemStock';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?int $stock = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?int $stock = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->stock = $stock;
     }
 
     public function match(RuleScope $scope): bool

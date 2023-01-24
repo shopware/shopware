@@ -10,10 +10,10 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 class FieldConfig extends Struct
 {
-    public const SOURCE_STATIC = 'static';
-    public const SOURCE_MAPPED = 'mapped';
-    public const SOURCE_DEFAULT = 'default';
-    public const SOURCE_PRODUCT_STREAM = 'product_stream';
+    final public const SOURCE_STATIC = 'static';
+    final public const SOURCE_MAPPED = 'mapped';
+    final public const SOURCE_DEFAULT = 'default';
+    final public const SOURCE_PRODUCT_STREAM = 'product_stream';
 
     /**
      * @var string
@@ -26,18 +26,12 @@ class FieldConfig extends Struct
     protected $source;
 
     /**
-     * @var array|bool|float|int|string|null
-     */
-    protected $value;
-
-    /**
      * @param array|bool|float|int|string|null $value
      */
-    public function __construct(string $name, string $source, $value)
+    public function __construct(string $name, string $source, protected $value)
     {
         $this->name = $name;
         $this->source = $source;
-        $this->value = $value;
     }
 
     public function getName(): string

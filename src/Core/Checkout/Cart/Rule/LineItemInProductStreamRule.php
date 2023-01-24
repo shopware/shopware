@@ -17,26 +17,16 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemInProductStreamRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemInProductStream';
-
-    /**
-     * @var list<string>
-     */
-    protected array $streamIds;
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartLineItemInProductStream';
 
     /**
      * @internal
      *
      * @param list<string> $streamIds
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, array $streamIds = [])
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected array $streamIds = [])
     {
         parent::__construct();
-
-        $this->streamIds = $streamIds;
-        $this->operator = $operator;
     }
 
     public function match(RuleScope $scope): bool

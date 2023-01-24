@@ -18,7 +18,7 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
  */
 class PromotionDiscountPriceDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'promotion_discount_prices';
+    final public const ENTITY_NAME = 'promotion_discount_prices';
 
     public function getEntityName(): string
     {

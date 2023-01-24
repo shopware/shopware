@@ -12,20 +12,15 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
 {
-    private EntityRepository $customerRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $customerRepository
-    ) {
-        $this->customerRepository = $customerRepository;
+    public function __construct(private readonly EntityRepository $customerRepository)
+    {
     }
 
     public function getDecorated(): AbstractDeleteCustomerRoute
@@ -35,8 +30,8 @@ class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
 
     /**
      * @Since("6.3.2.0")
-     * @Route("/store-api/account/customer", name="store-api.account.customer.delete", methods={"DELETE"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
+    #[Route(path: '/store-api/account/customer', name: 'store-api.account.customer.delete', methods: ['DELETE'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function delete(SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {
         $this->customerRepository->delete([['id' => $customer->getId()]], $context->getContext());

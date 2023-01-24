@@ -9,21 +9,9 @@ use Shopware\Core\Framework\Context;
  */
 class UpdatePostPrepareEvent extends UpdateEvent
 {
-    /**
-     * @var string
-     */
-    private $currentVersion;
-
-    /**
-     * @var string
-     */
-    private $newVersion;
-
-    public function __construct(Context $context, string $currentVersion, string $newVersion)
+    public function __construct(Context $context, private readonly string $currentVersion, private readonly string $newVersion)
     {
         parent::__construct($context);
-        $this->currentVersion = $currentVersion;
-        $this->newVersion = $newVersion;
     }
 
     public function getCurrentVersion(): string

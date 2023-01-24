@@ -45,26 +45,17 @@ class HttpKernel
      */
     protected static string $httpCacheClass = HttpCache::class;
 
-    protected ?ClassLoader $classLoader;
-
-    protected string $environment;
-
-    protected bool $debug;
-
     protected ?string $projectDir = null;
 
     protected ?KernelPluginLoader $pluginLoader = null;
 
     protected ?KernelInterface $kernel = null;
 
-    public function __construct(string $environment, bool $debug, ?ClassLoader $classLoader = null)
+    public function __construct(protected string $environment, protected bool $debug, protected ?ClassLoader $classLoader = null)
     {
-        $this->classLoader = $classLoader;
-        $this->environment = $environment;
-        $this->debug = $debug;
     }
 
-    public function handle(Request $request, int $type = HttpKernelInterface::MASTER_REQUEST, bool $catch = true): HttpKernelResult
+    public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): HttpKernelResult
     {
         try {
             return $this->doHandle($request, $type, $catch);

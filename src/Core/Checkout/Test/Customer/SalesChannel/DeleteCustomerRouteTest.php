@@ -55,7 +55,7 @@ class DeleteCustomerRouteTest extends TestCase
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
         $this->callbackFn = function (Event $event): void {
-            $this->events[\get_class($event)] = $event;
+            $this->events[$event::class] = $event;
         };
 
         $this->events = [];
@@ -71,7 +71,7 @@ class DeleteCustomerRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);

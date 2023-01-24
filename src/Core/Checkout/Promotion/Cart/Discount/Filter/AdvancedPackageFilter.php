@@ -16,21 +16,15 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  */
 class AdvancedPackageFilter extends PackageFilter
 {
-    public const APPLIER_ALL = 'ALL';
-    public const USAGE_ALL = 'ALL';
-    public const UNLIMITED = -1;
-
-    /**
-     * @var FilterServiceRegistry
-     */
-    private $registry;
+    final public const APPLIER_ALL = 'ALL';
+    final public const USAGE_ALL = 'ALL';
+    final public const UNLIMITED = -1;
 
     /**
      * @internal
      */
-    public function __construct(FilterServiceRegistry $registry)
+    public function __construct(private readonly FilterServiceRegistry $registry)
     {
-        $this->registry = $registry;
     }
 
     public function getDecorated(): PackageFilter

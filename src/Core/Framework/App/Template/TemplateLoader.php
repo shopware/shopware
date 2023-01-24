@@ -39,10 +39,8 @@ class TemplateLoader extends AbstractTemplateLoader
             ->path(self::ALLOWED_TEMPLATE_DIRS)
             ->ignoreUnreadableDirs();
 
-        return array_values(array_map(static function (\SplFileInfo $file) use ($viewDirectory): string {
-            // remove viewDirectory + any leading slashes from pathname
-            return ltrim(mb_substr($file->getPathname(), mb_strlen($viewDirectory)), '/');
-        }, iterator_to_array($finder)));
+        return array_values(array_map(static fn (\SplFileInfo $file): string // remove viewDirectory + any leading slashes from pathname
+=> ltrim(mb_substr($file->getPathname(), mb_strlen($viewDirectory)), '/'), iterator_to_array($finder)));
     }
 
     /**

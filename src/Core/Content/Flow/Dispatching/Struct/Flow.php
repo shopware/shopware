@@ -11,17 +11,8 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 class Flow extends Struct
 {
-    protected string $id;
-
-    protected array $sequences = [];
-
-    protected array $flat = [];
-
-    public function __construct(string $id, array $sequences = [], array $flat = [])
+    public function __construct(protected string $id, protected array $sequences = [], protected array $flat = [])
     {
-        $this->id = $id;
-        $this->sequences = $sequences;
-        $this->flat = $flat;
     }
 
     public function getId(): string

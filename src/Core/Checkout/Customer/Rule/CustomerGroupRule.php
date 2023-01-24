@@ -15,25 +15,16 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CustomerGroupRule extends Rule
 {
-    public const RULE_NAME = 'customerCustomerGroup';
-
-    /**
-     * @var list<string>|null
-     */
-    protected ?array $customerGroupIds;
-
-    protected string $operator;
+    final public const RULE_NAME = 'customerCustomerGroup';
 
     /**
      * @internal
      *
      * @param list<string>|null $customerGroupIds
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $customerGroupIds = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $customerGroupIds = null)
     {
         parent::__construct();
-        $this->operator = $operator;
-        $this->customerGroupIds = $customerGroupIds;
     }
 
     public function match(RuleScope $scope): bool

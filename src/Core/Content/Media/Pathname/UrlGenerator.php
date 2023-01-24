@@ -19,8 +19,8 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
      * @internal
      */
     public function __construct(
-        private PathnameStrategyInterface $pathnameStrategy,
-        private FilesystemOperator $filesystem
+        private readonly PathnameStrategyInterface $pathnameStrategy,
+        private readonly FilesystemOperator $filesystem
     ) {
     }
 

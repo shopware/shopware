@@ -20,19 +20,11 @@ use Shopware\Core\Framework\Event\OrderAware;
  */
 class GenerateDocumentAction extends FlowAction implements DelayableAction
 {
-    private DocumentGenerator $documentGenerator;
-
-    private LoggerInterface $logger;
-
     /**
      * @internal
      */
-    public function __construct(
-        DocumentGenerator $documentGenerator,
-        LoggerInterface $logger
-    ) {
-        $this->documentGenerator = $documentGenerator;
-        $this->logger = $logger;
+    public function __construct(private readonly DocumentGenerator $documentGenerator, private readonly LoggerInterface $logger)
+    {
     }
 
     public static function getName(): string

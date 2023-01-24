@@ -24,65 +24,22 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package sales-channel
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class ExportController
 {
     /**
-     * @var ProductExporterInterface
-     */
-    private $productExportService;
-
-    /**
-     * @var FilesystemOperator
-     */
-    private $fileSystem;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var EntityRepository
-     */
-    private $productExportRepository;
-
-    /**
-     * @var ProductExportFileHandlerInterface
-     */
-    private $productExportFileHandler;
-
-    /**
-     * @var AbstractSalesChannelContextFactory
-     */
-    private $contextFactory;
-
-    /**
      * @internal
      */
-    public function __construct(
-        ProductExporterInterface $productExportService,
-        ProductExportFileHandlerInterface $productExportFileHandler,
-        FilesystemOperator $fileSystem,
-        EventDispatcherInterface $eventDispatcher,
-        EntityRepository $productExportRepository,
-        AbstractSalesChannelContextFactory $contextFactory
-    ) {
-        $this->productExportService = $productExportService;
-        $this->productExportFileHandler = $productExportFileHandler;
-        $this->fileSystem = $fileSystem;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->productExportRepository = $productExportRepository;
-        $this->contextFactory = $contextFactory;
+    public function __construct(private readonly ProductExporterInterface $productExportService, private readonly ProductExportFileHandlerInterface $productExportFileHandler, private readonly FilesystemOperator $fileSystem, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityRepository $productExportRepository, private readonly AbstractSalesChannelContextFactory $contextFactory)
+    {
     }
 
     /**
      * @Since("6.3.2.0")
-     * @Route("/store-api/product-export/{accessKey}/{fileName}", name="store-api.product.export", methods={"GET"}, defaults={"auth_required"=false})
      */
+    #[Route(path: '/store-api/product-export/{accessKey}/{fileName}', name: 'store-api.product.export', methods: ['GET'], defaults: ['auth_required' => false])]
     public function index(Request $request): Response
     {
         $criteria = new Criteria();
@@ -122,7 +79,7 @@ class ExportController
         $contentType = $this->getContentType($productExport->getFileFormat());
         $encoding = $productExport->getEncoding();
 
-        return (new Response($content ? $content : null, 200, ['Content-Type' => $contentType . ';charset=' . $encoding]))
+        return (new Response($content ?: null, 200, ['Content-Type' => $contentType . ';charset=' . $encoding]))
             ->setCharset($encoding);
     }
 

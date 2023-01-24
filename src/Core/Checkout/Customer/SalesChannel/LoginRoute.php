@@ -26,40 +26,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
+#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
 class LoginRoute extends AbstractLoginRoute
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AccountService $accountService;
-
-    private EntityRepository $customerRepository;
-
-    private CartRestorer $restorer;
-
-    private RequestStack $requestStack;
-
-    private RateLimiter $rateLimiter;
-
     /**
      * @internal
      */
-    public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        AccountService $accountService,
-        EntityRepository $customerRepository,
-        CartRestorer $restorer,
-        RequestStack $requestStack,
-        RateLimiter $rateLimiter
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->accountService = $accountService;
-        $this->customerRepository = $customerRepository;
-        $this->restorer = $restorer;
-        $this->requestStack = $requestStack;
-        $this->rateLimiter = $rateLimiter;
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly AccountService $accountService, private readonly EntityRepository $customerRepository, private readonly CartRestorer $restorer, private readonly RequestStack $requestStack, private readonly RateLimiter $rateLimiter)
+    {
     }
 
     public function getDecorated(): AbstractLoginRoute
@@ -69,8 +44,8 @@ class LoginRoute extends AbstractLoginRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route(path="/store-api/account/login", name="store-api.account.login", methods={"POST"})
      */
+    #[Route(path: '/store-api/account/login', name: 'store-api.account.login', methods: ['POST'])]
     public function login(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {
         $email = $data->get('email', $data->get('username'));
@@ -83,7 +58,7 @@ class LoginRoute extends AbstractLoginRoute
         $this->eventDispatcher->dispatch($event);
 
         if ($this->requestStack->getMainRequest() !== null) {
-            $cacheKey = strtolower($email) . '-' . $this->requestStack->getMainRequest()->getClientIp();
+            $cacheKey = strtolower((string) $email) . '-' . $this->requestStack->getMainRequest()->getClientIp();
 
             try {
                 $this->rateLimiter->ensureAccepted(RateLimiter::LOGIN_ROUTE, $cacheKey);

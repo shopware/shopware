@@ -28,10 +28,10 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        private AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        private EntityRepository $salesChannelRepository,
-        private EntityRepository $productExportRepository,
-        private MessageBusInterface $messageBus
+        private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly EntityRepository $productExportRepository,
+        private readonly MessageBusInterface $messageBus
     ) {
         parent::__construct($scheduledTaskRepository);
     }

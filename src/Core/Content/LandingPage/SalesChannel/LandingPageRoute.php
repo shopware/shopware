@@ -20,36 +20,15 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package content
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class LandingPageRoute extends AbstractLandingPageRoute
 {
     /**
-     * @var SalesChannelRepository
-     */
-    private $landingPageRepository;
-
-    /**
-     * @var SalesChannelCmsPageLoaderInterface
-     */
-    private $cmsPageLoader;
-
-    /**
-     * @var LandingPageDefinition
-     */
-    private $landingPageDefinition;
-
-    /**
      * @internal
      */
-    public function __construct(
-        SalesChannelRepository $landingPageRepository,
-        SalesChannelCmsPageLoaderInterface $cmsPageLoader,
-        LandingPageDefinition $landingPageDefinition
-    ) {
-        $this->landingPageRepository = $landingPageRepository;
-        $this->cmsPageLoader = $cmsPageLoader;
-        $this->landingPageDefinition = $landingPageDefinition;
+    public function __construct(private readonly SalesChannelRepository $landingPageRepository, private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader, private readonly LandingPageDefinition $landingPageDefinition)
+    {
     }
 
     public function getDecorated(): AbstractLandingPageRoute
@@ -59,8 +38,8 @@ class LandingPageRoute extends AbstractLandingPageRoute
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/store-api/landing-page/{landingPageId}", name="store-api.landing-page.detail", methods={"POST"})
      */
+    #[Route(path: '/store-api/landing-page/{landingPageId}', name: 'store-api.landing-page.detail', methods: ['POST'])]
     public function load(string $landingPageId, Request $request, SalesChannelContext $context): LandingPageRouteResponse
     {
         $landingPage = $this->loadLandingPage($landingPageId, $context);

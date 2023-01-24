@@ -15,19 +15,15 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package checkout
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class PaymentMethodRoute extends AbstractPaymentMethodRoute
 {
-    private SalesChannelRepository $paymentMethodsRepository;
-
     /**
      * @internal
      */
-    public function __construct(SalesChannelRepository $paymentMethodsRepository)
+    public function __construct(private readonly SalesChannelRepository $paymentMethodsRepository)
     {
-        $this->paymentMethodsRepository = $paymentMethodsRepository;
     }
 
     public function getDecorated(): AbstractPaymentMethodRoute
@@ -37,8 +33,8 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/payment-method", name="store-api.payment.method", methods={"GET", "POST"}, defaults={"_entity"="payment_method"})
      */
+    #[Route(path: '/store-api/payment-method', name: 'store-api.payment.method', methods: ['GET', 'POST'], defaults: ['_entity' => 'payment_method'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
     {
         $criteria

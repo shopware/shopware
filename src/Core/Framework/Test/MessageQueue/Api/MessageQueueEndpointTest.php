@@ -35,7 +35,7 @@ class MessageQueueEndpointTest extends TestCase
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
-        $entries = json_decode($client->getResponse()->getContent(), true);
+        $entries = json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $mapped = [];
         foreach ($entries as $entry) {

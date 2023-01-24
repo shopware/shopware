@@ -18,24 +18,18 @@ class OrderCustomerCollection extends EntityCollection
      */
     public function getCustomerIds(): array
     {
-        return $this->fmap(function (OrderCustomerEntity $orderCustomer) {
-            return $orderCustomer->getCustomerId();
-        });
+        return $this->fmap(fn (OrderCustomerEntity $orderCustomer) => $orderCustomer->getCustomerId());
     }
 
     public function filterByCustomerId(string $id): self
     {
-        return $this->filter(function (OrderCustomerEntity $orderCustomer) use ($id) {
-            return $orderCustomer->getCustomerId() === $id;
-        });
+        return $this->filter(fn (OrderCustomerEntity $orderCustomer) => $orderCustomer->getCustomerId() === $id);
     }
 
     public function getCustomers(): CustomerCollection
     {
         return new CustomerCollection(
-            $this->fmap(function (OrderCustomerEntity $orderCustomer) {
-                return $orderCustomer->getCustomer();
-            })
+            $this->fmap(fn (OrderCustomerEntity $orderCustomer) => $orderCustomer->getCustomer())
         );
     }
 

@@ -22,7 +22,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  */
 class CustomerWishlistDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'customer_wishlist';
+    final public const ENTITY_NAME = 'customer_wishlist';
 
     public function getEntityName(): string
     {

@@ -12,13 +12,10 @@ use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 class Config extends XmlElement
 {
     /**
-     * @var InputField[]
+     * @param InputField[] $config
      */
-    protected array $config;
-
-    public function __construct(array $data)
+    public function __construct(protected array $config)
     {
-        $this->config = $data;
     }
 
     /**

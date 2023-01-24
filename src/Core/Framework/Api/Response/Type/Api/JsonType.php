@@ -23,22 +23,10 @@ use Symfony\Component\HttpFoundation\Response;
 class JsonType extends JsonFactoryBase
 {
     /**
-     * @var JsonEntityEncoder
-     */
-    private $encoder;
-
-    /**
-     * @var StructEncoder
-     */
-    private $structEncoder;
-
-    /**
      * @internal
      */
-    public function __construct(JsonEntityEncoder $encoder, StructEncoder $structEncoder)
+    public function __construct(private readonly JsonEntityEncoder $encoder, private readonly StructEncoder $structEncoder)
     {
-        $this->encoder = $encoder;
-        $this->structEncoder = $structEncoder;
     }
 
     public function supports(string $contentType, ContextSource $origin): bool

@@ -79,7 +79,7 @@ class ProductsFacade implements \IteratorAggregate
      *
      * @example add-product-cases/add-product-cases.twig 2 1 Add a product to the cart by id.
      */
-    public function add($product, int $quantity = 1): ItemFacade
+    public function add(string|LineItem|ItemFacade $product, int $quantity = 1): ItemFacade
     {
         if ($product instanceof ItemFacade) {
             $this->items->add($product->getItem());

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
  */
 class ScoreQuery extends Filter
 {
-    public function __construct(private Filter $query, private float $score, private ?string $scoreField = null)
+    public function __construct(private readonly Filter $query, private readonly float $score, private readonly ?string $scoreField = null)
     {
     }
 

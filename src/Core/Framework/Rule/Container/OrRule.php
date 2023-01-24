@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class OrRule extends Container
 {
-    public const RULE_NAME = 'orContainer';
+    final public const RULE_NAME = 'orContainer';
 
     public function match(RuleScope $scope): bool
     {

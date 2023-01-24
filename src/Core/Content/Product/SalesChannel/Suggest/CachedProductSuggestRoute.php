@@ -21,29 +21,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package system-settings
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CachedProductSuggestRoute extends AbstractProductSuggestRoute
 {
     private const NAME = 'product-suggest-route';
-
-    private AbstractProductSuggestRoute $decorated;
-
-    private CacheInterface $cache;
-
-    private EntityCacheKeyGenerator $generator;
-
-    /**
-     * @var AbstractCacheTracer<ProductSuggestRouteResponse>
-     */
-    private AbstractCacheTracer $tracer;
-
-    /**
-     * @var array<string>
-     */
-    private array $states;
-
-    private EventDispatcherInterface $dispatcher;
 
     /**
      * @internal
@@ -51,20 +33,8 @@ class CachedProductSuggestRoute extends AbstractProductSuggestRoute
      * @param AbstractCacheTracer<ProductSuggestRouteResponse> $tracer
      * @param array<string> $states
      */
-    public function __construct(
-        AbstractProductSuggestRoute $decorated,
-        CacheInterface $cache,
-        EntityCacheKeyGenerator $generator,
-        AbstractCacheTracer $tracer,
-        EventDispatcherInterface $dispatcher,
-        array $states
-    ) {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
-        $this->generator = $generator;
-        $this->tracer = $tracer;
-        $this->states = $states;
-        $this->dispatcher = $dispatcher;
+    public function __construct(private readonly AbstractProductSuggestRoute $decorated, private readonly CacheInterface $cache, private readonly EntityCacheKeyGenerator $generator, private readonly AbstractCacheTracer $tracer, private readonly EventDispatcherInterface $dispatcher, private readonly array $states)
+    {
     }
 
     public function getDecorated(): AbstractProductSuggestRoute
@@ -74,8 +44,8 @@ class CachedProductSuggestRoute extends AbstractProductSuggestRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/search-suggest", name="store-api.search.suggest", methods={"POST"}, defaults={"_entity"="product"})
      */
+    #[Route(path: '/store-api/search-suggest', name: 'store-api.search.suggest', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSuggestRouteResponse
     {
         if ($context->hasState(...$this->states)) {
@@ -89,9 +59,7 @@ class CachedProductSuggestRoute extends AbstractProductSuggestRoute
         }
 
         $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $criteria) {
-            $response = $this->tracer->trace(self::NAME, function () use ($request, $context, $criteria) {
-                return $this->getDecorated()->load($request, $context, $criteria);
-            });
+            $response = $this->tracer->trace(self::NAME, fn () => $this->getDecorated()->load($request, $context, $criteria));
 
             $item->tag($this->generateTags($request, $response, $context, $criteria));
 

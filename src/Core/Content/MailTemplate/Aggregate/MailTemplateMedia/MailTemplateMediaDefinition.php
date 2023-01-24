@@ -20,7 +20,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
  */
 class MailTemplateMediaDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'mail_template_media';
+    final public const ENTITY_NAME = 'mail_template_media';
 
     public function getEntityName(): string
     {

@@ -51,7 +51,7 @@ class StoreClient
     public function loginWithShopwareId(string $shopwareId, string $password, Context $context): void
     {
         if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
+            throw new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class);
         }
 
         $userId = $context->getSource()->getUserId();
@@ -297,12 +297,10 @@ class StoreClient
     public function listMyExtensions(ExtensionCollection $extensions, Context $context): ExtensionCollection
     {
         try {
-            $payload = ['plugins' => array_map(function (ExtensionStruct $e) {
-                return [
-                    'name' => $e->getName(),
-                    'version' => $e->getVersion(),
-                ];
-            }, $extensions->getElements())];
+            $payload = ['plugins' => array_map(fn (ExtensionStruct $e) => [
+                'name' => $e->getName(),
+                'version' => $e->getVersion(),
+            ], $extensions->getElements())];
 
             $response = $this->fetchLicenses($payload, $context);
         } catch (ClientException $e) {
@@ -462,7 +460,7 @@ class StoreClient
 
         try {
             $headers = $this->getHeaders($context);
-        } catch (StoreTokenMissingException $e) {
+        } catch (StoreTokenMissingException) {
             $headers = [];
         }
 
@@ -476,7 +474,7 @@ class StoreClient
                     'json' => ['plugins' => $extensionList],
                 ]
             );
-        } catch (\Throwable $throwable) {
+        } catch (\Throwable) {
             return [];
         }
 

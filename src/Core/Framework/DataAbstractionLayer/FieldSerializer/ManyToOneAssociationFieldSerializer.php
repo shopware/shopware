@@ -24,7 +24,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
     /**
      * @internal
      */
-    public function __construct(private WriteCommandExtractor $writeExtractor)
+    public function __construct(private readonly WriteCommandExtractor $writeExtractor)
     {
     }
 
@@ -40,7 +40,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
                 sprintf(
                     'Could not find reference field "%s" from definition "%s"',
                     $field->getReferenceField(),
-                    \get_class($field->getReferenceDefinition())
+                    $field->getReferenceDefinition()::class
                 )
             );
         }
@@ -60,7 +60,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
                 sprintf(
                     'Could not find FK field "%s" from field "%s"',
                     $field->getStorageName(),
-                    \get_class($parameters->getDefinition())
+                    $parameters->getDefinition()::class
                 )
             );
         }

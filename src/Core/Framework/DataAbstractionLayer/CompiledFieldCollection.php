@@ -22,8 +22,6 @@ class CompiledFieldCollection extends FieldCollection
 
     private ?ChildrenAssociationField $childrenAssociationField = null;
 
-    private DefinitionInstanceRegistry $registry;
-
     /**
      * @var TranslatedField[]
      */
@@ -34,13 +32,11 @@ class CompiledFieldCollection extends FieldCollection
      */
     private array $extensionFields = [];
 
-    public function __construct(DefinitionInstanceRegistry $registry, iterable $elements = [])
+    public function __construct(private readonly DefinitionInstanceRegistry $registry, iterable $elements = [])
     {
         foreach ($elements as $element) {
             $this->addField($element);
         }
-
-        $this->registry = $registry;
     }
 
     /**
@@ -135,9 +131,7 @@ class CompiledFieldCollection extends FieldCollection
 
     public function filterByFlag(string $flagClass): self
     {
-        return $this->filter(static function (Field $field) use ($flagClass) {
-            return $field->is($flagClass);
-        });
+        return $this->filter(static fn (Field $field) => $field->is($flagClass));
     }
 
     public function getChildrenAssociationField(): ?ChildrenAssociationField

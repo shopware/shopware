@@ -10,5 +10,5 @@ class CartEvents
     /**
      * @Event("Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent")
      */
-    public const CHECKOUT_ORDER_PLACED = 'checkout.order.placed';
+    final public const CHECKOUT_ORDER_PLACED = 'checkout.order.placed';
 }

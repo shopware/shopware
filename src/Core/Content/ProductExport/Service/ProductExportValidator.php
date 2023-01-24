@@ -12,16 +12,12 @@ use Shopware\Core\Content\ProductExport\Validator\ValidatorInterface;
 class ProductExportValidator implements ProductExportValidatorInterface
 {
     /**
-     * @var ValidatorInterface[]
-     */
-    private $validators;
-
-    /**
      * @internal
+     *
+     * @param ValidatorInterface[] $validators
      */
-    public function __construct(iterable $validators)
+    public function __construct(private readonly iterable $validators)
     {
-        $this->validators = $validators;
     }
 
     public function validate(ProductExportEntity $productExportEntity, string $productExportContent): array

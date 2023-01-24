@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class Migration1671723392AddWebhookLifetimeConfig extends MigrationStep
 {

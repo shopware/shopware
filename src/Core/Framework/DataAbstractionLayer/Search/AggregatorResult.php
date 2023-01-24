@@ -14,9 +14,9 @@ use Shopware\Core\Framework\Struct\Struct;
 class AggregatorResult extends Struct
 {
     public function __construct(
-        private  AggregationResultCollection $aggregations,
-        private  Context $context,
-        private Criteria $criteria
+        private readonly AggregationResultCollection $aggregations,
+        private readonly Context $context,
+        private readonly Criteria $criteria
     ) {
     }
 

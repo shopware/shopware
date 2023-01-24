@@ -20,22 +20,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class CheckoutOrderPlacedEvent extends Event implements SalesChannelAware, OrderAware, MailAware, CustomerAware
 {
-    public const EVENT_NAME = 'checkout.order.placed';
+    final public const EVENT_NAME = 'checkout.order.placed';
 
-    private OrderEntity $order;
-
-    private Context $context;
-
-    private ?MailRecipientStruct $mailRecipientStruct = null;
-
-    private string $salesChannelId;
-
-    public function __construct(Context $context, OrderEntity $order, string $salesChannelId, ?MailRecipientStruct $mailRecipientStruct = null)
+    public function __construct(private readonly Context $context, private readonly OrderEntity $order, private readonly string $salesChannelId, private ?MailRecipientStruct $mailRecipientStruct = null)
     {
-        $this->order = $order;
-        $this->context = $context;
-        $this->mailRecipientStruct = $mailRecipientStruct;
-        $this->salesChannelId = $salesChannelId;
     }
 
     public function getName(): string

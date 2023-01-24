@@ -7,14 +7,11 @@ namespace Shopware\Core\System\Snippet\Files;
  */
 class SnippetFileCollectionFactory
 {
-    private SnippetFileLoaderInterface $snippetFileLoader;
-
     /**
      * @internal
      */
-    public function __construct(SnippetFileLoaderInterface $snippetFileLoader)
+    public function __construct(private readonly SnippetFileLoaderInterface $snippetFileLoader)
     {
-        $this->snippetFileLoader = $snippetFileLoader;
     }
 
     public function createSnippetFileCollection(): SnippetFileCollection

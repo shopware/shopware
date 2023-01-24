@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Plugin\PluginDefinition;
  */
 class PluginTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'plugin_translation';
+    final public const ENTITY_NAME = 'plugin_translation';
 
     public function getEntityName(): string
     {

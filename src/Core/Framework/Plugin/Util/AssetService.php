@@ -19,39 +19,11 @@ use Symfony\Component\HttpKernel\KernelInterface;
  */
 class AssetService
 {
-    private FilesystemOperator $filesystem;
-
-    private KernelInterface $kernel;
-
-    private CacheInvalidator $cacheInvalidator;
-
-    private AbstractAppLoader $appLoader;
-
-    private string $coreDir;
-
-    private KernelPluginLoader $pluginLoader;
-
-    private ParameterBagInterface $parameterBag;
-
     /**
      * @internal
      */
-    public function __construct(
-        FilesystemOperator $filesystem,
-        KernelInterface $kernel,
-        KernelPluginLoader $pluginLoader,
-        CacheInvalidator $cacheInvalidator,
-        AbstractAppLoader $appLoader,
-        string $coreDir,
-        ParameterBagInterface $parameterBag
-    ) {
-        $this->filesystem = $filesystem;
-        $this->kernel = $kernel;
-        $this->pluginLoader = $pluginLoader;
-        $this->cacheInvalidator = $cacheInvalidator;
-        $this->coreDir = $coreDir;
-        $this->appLoader = $appLoader;
-        $this->parameterBag = $parameterBag;
+    public function __construct(private readonly FilesystemOperator $filesystem, private readonly KernelInterface $kernel, private readonly KernelPluginLoader $pluginLoader, private readonly CacheInvalidator $cacheInvalidator, private readonly AbstractAppLoader $appLoader, private readonly string $coreDir, private readonly ParameterBagInterface $parameterBag)
+    {
     }
 
     /**
@@ -117,7 +89,7 @@ class AssetService
                     $this->removeAssets($bundle->getName());
                 }
             }
-        } catch (PluginNotFoundException $e) {
+        } catch (PluginNotFoundException) {
             // plugin is already unloaded, we cannot find it. Ignore it
         }
     }
@@ -188,7 +160,7 @@ class AssetService
     {
         try {
             $bundle = $this->kernel->getBundle($bundleName);
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException) {
             $bundle = $this->pluginLoader->getPluginInstances()->get($bundleName);
         }
 

@@ -12,14 +12,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class SalesChannelProcessCriteriaEvent implements ShopwareSalesChannelEvent
 {
-    private Criteria $criteria;
-
-    private SalesChannelContext $salesChannelContext;
-
-    public function __construct(Criteria $criteria, SalesChannelContext $salesChannelContext)
+    public function __construct(private readonly Criteria $criteria, private readonly SalesChannelContext $salesChannelContext)
     {
-        $this->criteria = $criteria;
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getCriteria(): Criteria

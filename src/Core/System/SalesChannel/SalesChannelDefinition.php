@@ -64,9 +64,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigDefinition;
  */
 class SalesChannelDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'sales_channel';
-    public const CALCULATION_TYPE_VERTICAL = 'vertical';
-    public const CALCULATION_TYPE_HORIZONTAL = 'horizontal';
+    final public const ENTITY_NAME = 'sales_channel';
+    final public const CALCULATION_TYPE_VERTICAL = 'vertical';
+    final public const CALCULATION_TYPE_HORIZONTAL = 'horizontal';
 
     public function getEntityName(): string
     {

@@ -18,7 +18,7 @@ class Migration1590758953ProductFeatureSet extends MigrationStep
 {
     use InheritanceUpdaterTrait;
 
-    public const TRANSLATIONS = [
+    final public const TRANSLATIONS = [
         'en-GB' => [
             'name' => 'Default',
             'description' => 'Default template displaying the product\'s price per scale unit',

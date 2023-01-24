@@ -11,23 +11,16 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package inventory
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
 {
-    private AbstractProductListingRoute $decorated;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(AbstractProductListingRoute $decorated, EventDispatcherInterface $eventDispatcher)
+    public function __construct(private readonly AbstractProductListingRoute $decorated, private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->decorated = $decorated;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractProductListingRoute
@@ -37,8 +30,8 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/product-listing/{categoryId}", name="store-api.product.listing", methods={"POST"}, defaults={"_entity"="product"})
      */
+    #[Route(path: '/store-api/product-listing/{categoryId}', name: 'store-api.product.listing', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse
     {
         $this->eventDispatcher->dispatch(

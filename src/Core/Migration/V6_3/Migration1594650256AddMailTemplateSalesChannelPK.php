@@ -25,7 +25,7 @@ class Migration1594650256AddMailTemplateSalesChannelPK extends MigrationStep
                 ALTER TABLE `mail_template_sales_channel`
                 ADD PRIMARY KEY (`id`);
             ');
-        } catch (Exception $e) {
+        } catch (Exception) {
             // PK already exists
         }
     }

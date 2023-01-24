@@ -36,56 +36,18 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 class WebhookDispatcher implements EventDispatcherInterface
 {
-    private EventDispatcherInterface $dispatcher;
-
-    private Connection $connection;
-
     private ?WebhookCollection $webhooks = null;
-
-    private Client $guzzle;
-
-    private string $shopUrl;
-
-    private ContainerInterface $container;
 
     /**
      * @var array<string, mixed>
      */
     private array $privileges = [];
 
-    private HookableEventFactory $eventFactory;
-
-    private string $shopwareVersion;
-
-    private MessageBusInterface $bus;
-
-    private bool $isAdminWorkerEnabled;
-
     /**
      * @internal
      */
-    public function __construct(
-        EventDispatcherInterface $dispatcher,
-        Connection $connection,
-        Client $guzzle,
-        string $shopUrl,
-        ContainerInterface $container,
-        HookableEventFactory $eventFactory,
-        string $shopwareVersion,
-        MessageBusInterface $bus,
-        bool $isAdminWorkerEnabled
-    ) {
-        $this->dispatcher = $dispatcher;
-        $this->connection = $connection;
-        $this->guzzle = $guzzle;
-        $this->shopUrl = $shopUrl;
-        // inject container, so we can later get the ShopIdProvider and the webhook repository
-        // ShopIdProvider, AppLocaleProvider and webhook repository can not be injected directly as it would lead to a circular reference
-        $this->container = $container;
-        $this->eventFactory = $eventFactory;
-        $this->shopwareVersion = $shopwareVersion;
-        $this->bus = $bus;
-        $this->isAdminWorkerEnabled = $isAdminWorkerEnabled;
+    public function __construct(private readonly EventDispatcherInterface $dispatcher, private readonly Connection $connection, private readonly Client $guzzle, private readonly string $shopUrl, private readonly ContainerInterface $container, private readonly HookableEventFactory $eventFactory, private readonly string $shopwareVersion, private readonly MessageBusInterface $bus, private readonly bool $isAdminWorkerEnabled)
+    {
     }
 
     public function dispatch(object $event, ?string $eventName = null): object
@@ -111,11 +73,9 @@ class WebhookDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @param string   $eventName
      * @param callable $listener
-     * @param int      $priority
      */
-    public function addListener($eventName, $listener, $priority = 0): void
+    public function addListener(string $eventName, $listener, int $priority = 0): void
     {
         $this->dispatcher->addListener($eventName, $listener, $priority);
     }
@@ -126,10 +86,9 @@ class WebhookDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @param string   $eventName
      * @param callable $listener
      */
-    public function removeListener($eventName, $listener): void
+    public function removeListener(string $eventName, $listener): void
     {
         $this->dispatcher->removeListener($eventName, $listener);
     }
@@ -140,28 +99,22 @@ class WebhookDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @param string|null $eventName
-     *
      * @return array<array-key, array<array-key, callable>|callable>
      */
-    public function getListeners($eventName = null): array
+    public function getListeners(?string $eventName = null): array
     {
         return $this->dispatcher->getListeners($eventName);
     }
 
     /**
-     * @param string   $eventName
      * @param callable $listener
      */
-    public function getListenerPriority($eventName, $listener): ?int
+    public function getListenerPriority(string $eventName, $listener): ?int
     {
         return $this->dispatcher->getListenerPriority($eventName, $listener);
     }
 
-    /**
-     * @param string|null $eventName
-     */
-    public function hasListeners($eventName = null): bool
+    public function hasListeners(?string $eventName = null): bool
     {
         return $this->dispatcher->hasListeners($eventName);
     }
@@ -270,7 +223,7 @@ class WebhookDispatcher implements EventDispatcherInterface
 
             try {
                 $webhookData = $this->getPayloadForWebhook($webhook, $event);
-            } catch (AppUrlChangeDetectedException $e) {
+            } catch (AppUrlChangeDetectedException) {
                 // don't dispatch webhooks for apps if url changed
                 continue;
             }
@@ -279,7 +232,7 @@ class WebhookDispatcher implements EventDispatcherInterface
             $webhookData['timestamp'] = $timestamp;
 
             /** @var string $jsonPayload */
-            $jsonPayload = json_encode($webhookData);
+            $jsonPayload = json_encode($webhookData, \JSON_THROW_ON_ERROR);
 
             $headers = [
                 'Content-Type' => 'application/json',
@@ -332,7 +285,7 @@ class WebhookDispatcher implements EventDispatcherInterface
 
             try {
                 $webhookData = $this->getPayloadForWebhook($webhook, $event);
-            } catch (AppUrlChangeDetectedException $e) {
+            } catch (AppUrlChangeDetectedException) {
                 // don't dispatch webhooks for apps if url changed
                 continue;
             }
@@ -428,7 +381,7 @@ class WebhookDispatcher implements EventDispatcherInterface
 
         foreach ($roles as $privilege) {
             $this->privileges[$eventName][Uuid::fromBytesToHex($privilege['id'])]
-                = new AclPrivilegeCollection(json_decode($privilege['privileges'], true));
+                = new AclPrivilegeCollection(json_decode((string) $privilege['privileges'], true, 512, \JSON_THROW_ON_ERROR));
         }
     }
 

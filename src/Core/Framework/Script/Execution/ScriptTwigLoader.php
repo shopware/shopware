@@ -13,11 +13,8 @@ use Twig\Source;
  */
 class ScriptTwigLoader implements LoaderInterface
 {
-    private Script $script;
-
-    public function __construct(Script $script)
+    public function __construct(private readonly Script $script)
     {
-        $this->script = $script;
     }
 
     public function getSourceContext(string $name): Source

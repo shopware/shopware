@@ -21,16 +21,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class SetGroupScopeDiscountPackager extends DiscountPackager
 {
     /**
-     * @var LineItemGroupBuilder
-     */
-    private $groupBuilder;
-
-    /**
      * @internal
      */
-    public function __construct(LineItemGroupBuilder $groupBuilder)
+    public function __construct(private readonly LineItemGroupBuilder $groupBuilder)
     {
-        $this->groupBuilder = $groupBuilder;
     }
 
     public function getDecorated(): DiscountPackager

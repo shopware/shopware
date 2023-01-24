@@ -23,16 +23,14 @@ class RedisConnectionFactory
     /**
      * @internal
      */
-    public function __construct(private ?string $prefix = null)
+    public function __construct(private readonly ?string $prefix = null)
     {
     }
 
     /**
      * @param array<string, mixed> $options
-     *
-     * @return \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy
      */
-    public function create(string $dsn, array $options = [])
+    public function create(string $dsn, array $options = []): \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy
     {
         $configHash = md5(json_encode($options, \JSON_THROW_ON_ERROR));
         $key = $dsn . $configHash . $this->prefix;

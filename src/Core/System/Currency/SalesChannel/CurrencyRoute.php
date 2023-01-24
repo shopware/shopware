@@ -12,23 +12,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package inventory
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CurrencyRoute extends AbstractCurrencyRoute
 {
     /**
-     * @var SalesChannelRepository
-     */
-    private $currencyRepository;
-
-    /**
      * @internal
      */
-    public function __construct(SalesChannelRepository $currencyRepository)
+    public function __construct(private readonly SalesChannelRepository $currencyRepository)
     {
-        $this->currencyRepository = $currencyRepository;
     }
 
     public function getDecorated(): AbstractCurrencyRoute
@@ -38,8 +31,8 @@ class CurrencyRoute extends AbstractCurrencyRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/currency", name="store-api.currency", methods={"GET", "POST"}, defaults={"_entity"="currency"})
      */
+    #[Route(path: '/store-api/currency', name: 'store-api.currency', methods: ['GET', 'POST'], defaults: ['_entity' => 'currency'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): CurrencyRouteResponse
     {
         /** @var CurrencyCollection $currencyCollection */

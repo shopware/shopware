@@ -19,22 +19,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class CustomerBeforeLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, MailAware, EmailAware
 {
-    public const EVENT_NAME = 'checkout.customer.before.login';
+    final public const EVENT_NAME = 'checkout.customer.before.login';
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var string
-     */
-    private $email;
-
-    public function __construct(SalesChannelContext $salesChannelContext, string $email)
+    public function __construct(private readonly SalesChannelContext $salesChannelContext, private readonly string $email)
     {
-        $this->email = $email;
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getName(): string

@@ -33,11 +33,11 @@ class CustomerGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        private EntityWriterInterface $writer,
-        private Connection $connection,
-        private EntityRepository $customerGroupRepository,
-        private NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        private CustomerDefinition $customerDefinition
+        private readonly EntityWriterInterface $writer,
+        private readonly Connection $connection,
+        private readonly EntityRepository $customerGroupRepository,
+        private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
+        private readonly CustomerDefinition $customerDefinition
     ) {
     }
 
@@ -229,9 +229,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(
-                    function ($id) {
-                        return ['id' => $id];
-                    },
+                    fn ($id) => ['id' => $id],
                     $chosenTags
                 );
             }

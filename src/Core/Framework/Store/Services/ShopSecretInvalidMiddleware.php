@@ -17,17 +17,11 @@ class ShopSecretInvalidMiddleware implements MiddlewareInterface
 {
     private const INVALID_SHOP_SECRET = 'ShopwarePlatformException-68';
 
-    private Connection $connection;
-
-    private SystemConfigService $systemConfigService;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, SystemConfigService $systemConfigService)
+    public function __construct(private readonly Connection $connection, private readonly SystemConfigService $systemConfigService)
     {
-        $this->connection = $connection;
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function __invoke(ResponseInterface $response): ResponseInterface

@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class DateRangeRule extends Rule
 {
-    public const RULE_NAME = 'dateRange';
+    final public const RULE_NAME = 'dateRange';
 
     /**
      * @var \DateTimeInterface|string|null

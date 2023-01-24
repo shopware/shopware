@@ -21,10 +21,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class LineItemWithQuantityRuleTest extends TestCase
 {
-    /**
-     * @var LineItem
-     */
-    private $lineItem;
+    private LineItem $lineItem;
 
     protected function setUp(): void
     {

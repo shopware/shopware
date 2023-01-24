@@ -43,7 +43,7 @@ class NewsletterConfirmRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('CONTENT__NEWSLETTER_RECIPIENT_NOT_FOUND', $response['errors'][0]['code']);
     }
@@ -60,7 +60,7 @@ class NewsletterConfirmRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('CONTENT__NEWSLETTER_RECIPIENT_NOT_FOUND', $response['errors'][0]['code']);
     }
@@ -77,7 +77,7 @@ class NewsletterConfirmRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('CONTENT__NEWSLETTER_RECIPIENT_NOT_FOUND', $response['errors'][0]['code']);
     }

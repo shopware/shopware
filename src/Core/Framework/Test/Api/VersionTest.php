@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Test\Api;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\HttpKernelBrowser;
 
 /**
  * @internal
@@ -14,10 +14,7 @@ class VersionTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    /**
-     * @var HttpKernelBrowser
-     */
-    private $unauthorizedClient;
+    private TestBrowser $unauthorizedClient;
 
     protected function setUp(): void
     {
@@ -49,7 +46,7 @@ class VersionTest extends TestCase
             'Route should be protected. (URL: /api/oauth/token)'
         );
 
-        $response = json_decode($this->unauthorizedClient->getResponse()->getContent(), true);
+        $response = json_decode($this->unauthorizedClient->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('The authorization grant type is not supported by the authorization server.', $response['errors'][0]['title']);
         static::assertEquals('Check that all required parameters have been provided', $response['errors'][0]['detail']);

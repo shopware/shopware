@@ -11,13 +11,13 @@ use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
  */
 class Metadata extends XmlElement
 {
-    public const TRANSLATABLE_FIELDS = [
+    final public const TRANSLATABLE_FIELDS = [
         'label',
         'description',
         'headline',
     ];
 
-    public const REQUIRED_FIELDS = [
+    final public const REQUIRED_FIELDS = [
         'label',
         'name',
         'url',

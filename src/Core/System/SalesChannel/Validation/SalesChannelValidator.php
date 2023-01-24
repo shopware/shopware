@@ -36,15 +36,11 @@ class SalesChannelValidator implements EventSubscriberInterface
     private const DELETE_VALIDATION_MESSAGE = 'Cannot delete default language id from language list of the sales channel with id "%s".';
     private const DELETE_VALIDATION_CODE = 'SYSTEM__CANNOT_DELETE_DEFAULT_LANGUAGE_ID';
 
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection
-    ) {
-        $this->connection = $connection;
+    public function __construct(private readonly Connection $connection)
+    {
     }
 
     public static function getSubscribedEvents(): array

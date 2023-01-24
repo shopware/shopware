@@ -13,17 +13,14 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CartTaxDisplayRule extends Rule
 {
-    public const RULE_NAME = 'cartTaxDisplay';
-
-    protected string $taxDisplay;
+    final public const RULE_NAME = 'cartTaxDisplay';
 
     /**
      * @internal
      */
-    public function __construct(string $taxDisplay = CartPrice::TAX_STATE_GROSS)
+    public function __construct(protected string $taxDisplay = CartPrice::TAX_STATE_GROSS)
     {
         parent::__construct();
-        $this->taxDisplay = $taxDisplay;
     }
 
     public function match(RuleScope $scope): bool

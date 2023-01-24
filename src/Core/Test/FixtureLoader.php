@@ -23,16 +23,13 @@ class FixtureLoader
 {
     use BasicTestDataBehaviour;
 
-    private ContainerInterface $container;
+    private readonly EntityWriterInterface $writer;
 
-    private EntityWriterInterface $writer;
-
-    private Connection $connection;
+    private readonly Connection $connection;
 
     public function __construct(
-        ContainerInterface $container
+        private readonly ContainerInterface $container
     ) {
-        $this->container = $container;
         $this->connection = $container->get(Connection::class);
         $this->writer = $container->get(EntityWriter::class);
     }
@@ -66,7 +63,7 @@ class FixtureLoader
     private function replaceIds(IdsCollection $ids, string $content): string
     {
         return (string) \preg_replace_callback('/"{.*}"/mU', function (array $match) use ($ids) {
-            $key = \str_replace(['"{', '}"'], '', $match[0]);
+            $key = \str_replace(['"{', '}"'], '', (string) $match[0]);
 
             return '"' . $ids->create($key) . '"';
         }, $content);

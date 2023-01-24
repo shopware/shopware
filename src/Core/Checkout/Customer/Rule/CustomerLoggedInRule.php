@@ -13,17 +13,14 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CustomerLoggedInRule extends Rule
 {
-    public const RULE_NAME = 'customerLoggedIn';
-
-    protected bool $isLoggedIn;
+    final public const RULE_NAME = 'customerLoggedIn';
 
     /**
      * @internal
      */
-    public function __construct(bool $isLoggedIn = false)
+    public function __construct(protected bool $isLoggedIn = false)
     {
         parent::__construct();
-        $this->isLoggedIn = $isLoggedIn;
     }
 
     public function match(RuleScope $scope): bool

@@ -21,23 +21,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class CartPersister extends AbstractCartPersister
 {
-    private Connection $connection;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private CartSerializationCleaner $cartSerializationCleaner;
-
-    private bool $compress;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, EventDispatcherInterface $eventDispatcher, CartSerializationCleaner $cartSerializationCleaner, bool $compress)
+    public function __construct(private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher, private readonly CartSerializationCleaner $cartSerializationCleaner, private readonly bool $compress)
     {
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartSerializationCleaner = $cartSerializationCleaner;
-        $this->compress = $compress;
     }
 
     public function getDecorated(): AbstractCartPersister
@@ -73,7 +61,7 @@ class CartPersister extends AbstractCartPersister
         }
 
         $cart->setToken($token);
-        $cart->setRuleIds(json_decode((string) $content['rule_ids'], true) ?? []);
+        $cart->setRuleIds(json_decode((string) $content['rule_ids'], true, 512, \JSON_THROW_ON_ERROR) ?? []);
 
         return $cart;
     }
@@ -123,7 +111,7 @@ class CartPersister extends AbstractCartPersister
             'price' => $cart->getPrice()->getTotalPrice(),
             'line_item_count' => $cart->getLineItems()->count(),
             'payload' => $this->serializeCart($cart, $payloadExists),
-            'rule_ids' => json_encode($context->getRuleIds()),
+            'rule_ids' => json_encode($context->getRuleIds(), \JSON_THROW_ON_ERROR),
             'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 

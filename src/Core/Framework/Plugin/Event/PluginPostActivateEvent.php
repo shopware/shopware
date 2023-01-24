@@ -10,15 +10,9 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
  */
 class PluginPostActivateEvent extends PluginLifecycleEvent
 {
-    /**
-     * @var ActivateContext
-     */
-    private $context;
-
-    public function __construct(PluginEntity $plugin, ActivateContext $context)
+    public function __construct(PluginEntity $plugin, private readonly ActivateContext $context)
     {
         parent::__construct($plugin);
-        $this->context = $context;
     }
 
     public function getContext(): ActivateContext

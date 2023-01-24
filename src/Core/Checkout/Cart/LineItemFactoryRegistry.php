@@ -21,28 +21,16 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class LineItemFactoryRegistry
 {
-    /**
-     * @var LineItemFactoryInterface[]|iterable
-     */
-    private iterable $handlers;
-
-    private DataValidator $validator;
-
-    private DataValidationDefinition $validatorDefinition;
-
-    private EventDispatcherInterface $eventDispatcher;
+    private readonly DataValidationDefinition $validatorDefinition;
 
     /**
      * @param LineItemFactoryInterface[]|iterable $handlers
      *
      * @internal
      */
-    public function __construct(iterable $handlers, DataValidator $validator, EventDispatcherInterface $eventDispatcher)
+    public function __construct(private readonly iterable $handlers, private readonly DataValidator $validator, private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->handlers = $handlers;
-        $this->validator = $validator;
         $this->validatorDefinition = $this->createValidatorDefinition();
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**

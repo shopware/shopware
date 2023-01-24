@@ -63,7 +63,7 @@ class Migration1617935350ActiveCaptchasV2 extends MigrationStep
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => self::CONFIG_KEY,
-            'configuration_value' => json_encode(['_value' => $this->captchaItems]),
+            'configuration_value' => json_encode(['_value' => $this->captchaItems], \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

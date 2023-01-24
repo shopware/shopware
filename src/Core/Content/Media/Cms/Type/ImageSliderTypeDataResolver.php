@@ -23,14 +23,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
  */
 class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
 {
-    private AbstractDefaultMediaResolver $mediaResolver;
-
     /**
      * @internal
      */
-    public function __construct(AbstractDefaultMediaResolver $mediaResolver)
+    public function __construct(private readonly AbstractDefaultMediaResolver $mediaResolver)
     {
-        $this->mediaResolver = $mediaResolver;
     }
 
     public function getType(): string
@@ -87,7 +84,7 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
         if ($sliderItemsConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
             $sliderItems = $this->resolveEntityValue($resolverContext->getEntity(), $sliderItemsConfig->getStringValue());
 
-            if ($sliderItems === null || \count($sliderItems) < 1) {
+            if ($sliderItems === null || (is_countable($sliderItems) ? \count($sliderItems) : 0) < 1) {
                 return;
             }
             $this->sortItemsByPosition($sliderItems);
@@ -119,9 +116,7 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
             return;
         }
 
-        $sliderItems->sort(static function (ProductMediaEntity $a, ProductMediaEntity $b) {
-            return $a->get('position') - $b->get('position');
-        });
+        $sliderItems->sort(static fn (ProductMediaEntity $a, ProductMediaEntity $b) => $a->get('position') - $b->get('position'));
     }
 
     private function addMedia(CmsSlotEntity $slot, ImageSliderStruct $imageSlider, ElementDataCollection $result, array $config): void

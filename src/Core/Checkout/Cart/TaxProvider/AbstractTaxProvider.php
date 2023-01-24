@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\TaxProvider\Struct\TaxProviderResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 abstract class AbstractTaxProvider
 {
     abstract public function provide(Cart $cart, SalesChannelContext $context): TaxProviderResult;

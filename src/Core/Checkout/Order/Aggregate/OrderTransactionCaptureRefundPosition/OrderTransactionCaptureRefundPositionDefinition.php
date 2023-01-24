@@ -23,7 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class OrderTransactionCaptureRefundPositionDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'order_transaction_capture_refund_position';
+    final public const ENTITY_NAME = 'order_transaction_capture_refund_position';
 
     public function getEntityName(): string
     {

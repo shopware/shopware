@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class ShippingMethodRule extends Rule
 {
-    public const RULE_NAME = 'shippingMethod';
+    final public const RULE_NAME = 'shippingMethod';
 
     /**
      * @var list<string>

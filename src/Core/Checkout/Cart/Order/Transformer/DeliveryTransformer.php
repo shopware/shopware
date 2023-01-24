@@ -57,9 +57,7 @@ class DeliveryTransformer
             'stateId' => $stateId,
         ];
 
-        $deliveryData = array_filter($deliveryData, function ($item) {
-            return $item !== null;
-        });
+        $deliveryData = array_filter($deliveryData, fn ($item) => $item !== null);
 
         foreach ($delivery->getPositions() as $position) {
             $deliveryData['positions'][] = [

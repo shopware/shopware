@@ -736,9 +736,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($document);
         $mediaId = $document->getDocumentMediaFileId();
 
-        $media = $this->context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaId) {
-            return $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context);
-        });
+        $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 
         static::assertNotNull($media->getContents());
     }
@@ -785,9 +783,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($document);
         $mediaId = $document->getDocumentMediaFileId();
 
-        $media = $this->context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaId) {
-            return $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context);
-        });
+        $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 
         static::assertNotNull($media);
     }
@@ -875,9 +871,7 @@ class DocumentGeneratorTest extends TestCase
 
         $mediaId = $document->getDocumentMediaFileId();
 
-        $media = $this->context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaId) {
-            return $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context);
-        });
+        $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 
         static::assertNotNull($media);
     }

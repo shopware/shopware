@@ -9,21 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSeri
  */
 class StringField extends Field implements StorageAware
 {
-    /**
-     * @var string
-     */
-    private $storageName;
-
-    /**
-     * @var int
-     */
-    private $maxLength;
-
-    public function __construct(string $storageName, string $propertyName, int $maxLength = 255)
+    public function __construct(private readonly string $storageName, string $propertyName, private readonly int $maxLength = 255)
     {
-        $this->storageName = $storageName;
         parent::__construct($propertyName);
-        $this->maxLength = $maxLength;
     }
 
     public function getStorageName(): string

@@ -14,22 +14,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class AbsolutePriceCalculator
 {
     /**
-     * @var QuantityPriceCalculator
-     */
-    private $priceCalculator;
-
-    /**
-     * @var PercentageTaxRuleBuilder
-     */
-    private $percentageTaxRuleBuilder;
-
-    /**
      * @internal
      */
-    public function __construct(QuantityPriceCalculator $priceCalculator, PercentageTaxRuleBuilder $percentageTaxRuleBuilder)
+    public function __construct(private readonly QuantityPriceCalculator $priceCalculator, private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder)
     {
-        $this->priceCalculator = $priceCalculator;
-        $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
     public function calculate(float $price, PriceCollection $prices, SalesChannelContext $context, int $quantity = 1): CalculatedPrice

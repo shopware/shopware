@@ -26,17 +26,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 class PluginListCommand extends Command
 {
     /**
-     * @var EntityRepository
-     */
-    private $pluginRepo;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $pluginRepo)
+    public function __construct(private readonly EntityRepository $pluginRepo)
     {
         parent::__construct();
-        $this->pluginRepo = $pluginRepo;
     }
 
     /**
@@ -44,9 +38,7 @@ class PluginListCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setDescription('Show a list of available plugins.')
-            ->addOption('json', null, InputOption::VALUE_NONE, 'Return result as json of plugin entities')
+        $this->addOption('json', null, InputOption::VALUE_NONE, 'Return result as json of plugin entities')
             ->addOption('filter', 'f', InputOption::VALUE_REQUIRED, 'Filter the plugin list to a given term');
     }
 

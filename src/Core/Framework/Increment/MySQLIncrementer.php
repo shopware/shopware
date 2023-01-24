@@ -12,14 +12,11 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  */
 class MySQLIncrementer extends AbstractIncrementer
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function getDecorated(): AbstractIncrementer

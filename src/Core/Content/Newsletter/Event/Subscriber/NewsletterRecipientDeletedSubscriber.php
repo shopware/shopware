@@ -18,14 +18,14 @@ class NewsletterRecipientDeletedSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private MessageBusInterface $messageBus)
+    public function __construct(private readonly MessageBusInterface $messageBus)
     {
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [NewsletterEvents::NEWSLETTER_RECIPIENT_DELETED_EVENT => 'onNewsletterRecipientDeleted'];
     }

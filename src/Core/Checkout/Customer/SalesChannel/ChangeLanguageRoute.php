@@ -23,37 +23,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
+#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
 class ChangeLanguageRoute extends AbstractChangeLanguageRoute
 {
     /**
-     * @var EntityRepository
-     */
-    private $customerRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var DataValidator
-     */
-    private $validator;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $customerRepository,
-        EventDispatcherInterface $eventDispatcher,
-        DataValidator $validator
-    ) {
-        $this->customerRepository = $customerRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->validator = $validator;
+    public function __construct(private readonly EntityRepository $customerRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly DataValidator $validator)
+    {
     }
 
     public function getDecorated(): AbstractChangeLanguageRoute
@@ -63,8 +41,8 @@ class ChangeLanguageRoute extends AbstractChangeLanguageRoute
 
     /**
      * @Since("6.4.14.0")
-     * @Route(path="/store-api/account/change-language", name="store-api.account.change-language", methods={"POST"}, defaults={"_loginRequired"=true})
      */
+    #[Route(path: '/store-api/account/change-language', name: 'store-api.account.change-language', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         $this->validateLanguageId($requestDataBag, $context);

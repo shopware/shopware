@@ -11,22 +11,10 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositi
 class DiscountCalculatorResult
 {
     /**
-     * @var CalculatedPrice
+     * @param DiscountCompositionItem[] $compositionItems
      */
-    private $price;
-
-    /**
-     * @var DiscountCompositionItem[]
-     */
-    private $compositionItems;
-
-    /**
-     * @param DiscountCompositionItem[] $discountedItems
-     */
-    public function __construct(CalculatedPrice $price, array $discountedItems)
+    public function __construct(private readonly CalculatedPrice $price, private readonly array $compositionItems)
     {
-        $this->price = $price;
-        $this->compositionItems = $discountedItems;
     }
 
     public function getPrice(): CalculatedPrice

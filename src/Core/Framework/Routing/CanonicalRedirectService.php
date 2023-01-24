@@ -14,16 +14,10 @@ use Symfony\Component\HttpFoundation\Response;
 class CanonicalRedirectService
 {
     /**
-     * @var SystemConfigService
-     */
-    private $configService;
-
-    /**
      * @internal
      */
-    public function __construct(SystemConfigService $configService)
+    public function __construct(private readonly SystemConfigService $configService)
     {
-        $this->configService = $configService;
     }
 
     /**

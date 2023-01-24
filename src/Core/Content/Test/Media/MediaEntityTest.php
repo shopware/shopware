@@ -31,10 +31,7 @@ class MediaEntityTest extends TestCase
      */
     private $repository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -64,10 +61,10 @@ class MediaEntityTest extends TestCase
         $searchResult = $this->repository->search($criteria, $this->context);
         $fetchedMedia = $searchResult->getEntities()->get($media->getId());
 
-        static::assertEquals(MediaThumbnailCollection::class, \get_class($fetchedMedia->getThumbnails()));
+        static::assertEquals(MediaThumbnailCollection::class, $fetchedMedia->getThumbnails()::class);
 
         $persistedThumbnail = $fetchedMedia->getThumbnails()->first();
-        static::assertEquals(MediaThumbnailEntity::class, \get_class($persistedThumbnail));
+        static::assertEquals(MediaThumbnailEntity::class, $persistedThumbnail::class);
         static::assertEquals(200, $persistedThumbnail->getWidth());
         static::assertEquals(200, $persistedThumbnail->getHeight());
     }

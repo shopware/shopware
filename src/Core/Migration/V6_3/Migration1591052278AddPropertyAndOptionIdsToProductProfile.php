@@ -26,7 +26,7 @@ class Migration1591052278AddPropertyAndOptionIdsToProductProfile extends Migrati
 
         if ($id) {
             $mapping = $this->getProductMapping();
-            $connection->update('import_export_profile', ['mapping' => json_encode($mapping)], ['id' => $id]);
+            $connection->update('import_export_profile', ['mapping' => json_encode($mapping, \JSON_THROW_ON_ERROR)], ['id' => $id]);
         }
     }
 

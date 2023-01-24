@@ -17,7 +17,7 @@ final class DeleteFileHandler
     /**
      * @internal
      */
-    public function __construct(private FilesystemOperator $filesystem)
+    public function __construct(private readonly FilesystemOperator $filesystem)
     {
     }
 
@@ -26,7 +26,7 @@ final class DeleteFileHandler
         foreach ($message->getFiles() as $file) {
             try {
                 $this->filesystem->delete($file);
-            } catch (UnableToDeleteFile $e) {
+            } catch (UnableToDeleteFile) {
                 //ignore file is already deleted
             }
         }

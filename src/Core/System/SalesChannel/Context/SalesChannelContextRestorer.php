@@ -25,35 +25,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class SalesChannelContextRestorer
 {
-    private AbstractSalesChannelContextFactory $factory;
-
-    private CartRuleLoader $cartRuleLoader;
-
-    private OrderConverter $orderConverter;
-
-    private EntityRepository $orderRepository;
-
-    private Connection $connection;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(
-        AbstractSalesChannelContextFactory $factory,
-        CartRuleLoader $cartRuleLoader,
-        OrderConverter $orderConverter,
-        EntityRepository $orderRepository,
-        Connection $connection,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->factory = $factory;
-        $this->cartRuleLoader = $cartRuleLoader;
-        $this->orderConverter = $orderConverter;
-        $this->orderRepository = $orderRepository;
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly AbstractSalesChannelContextFactory $factory, private readonly CartRuleLoader $cartRuleLoader, private readonly OrderConverter $orderConverter, private readonly EntityRepository $orderRepository, private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**

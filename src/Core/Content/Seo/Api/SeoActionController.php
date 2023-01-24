@@ -35,58 +35,21 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package sales-channel
- *
- * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
 class SeoActionController extends AbstractController
 {
-    private SeoUrlGenerator $seoUrlGenerator;
-
-    private DefinitionInstanceRegistry $definitionRegistry;
-
-    private SeoUrlRouteRegistry $seoUrlRouteRegistry;
-
-    private SeoUrlPersister $seoUrlPersister;
-
-    private SeoUrlDataValidationFactoryInterface $seoUrlValidator;
-
-    private DataValidator $validator;
-
-    private EntityRepository $salesChannelRepository;
-
-    private RequestCriteriaBuilder $requestCriteriaBuilder;
-
-    private DefinitionInstanceRegistry $definitionInstanceRegistry;
-
     /**
      * @internal
      */
-    public function __construct(
-        SeoUrlGenerator $seoUrlGenerator,
-        SeoUrlPersister $seoUrlPersister,
-        DefinitionInstanceRegistry $definitionRegistry,
-        SeoUrlRouteRegistry $seoUrlRouteRegistry,
-        SeoUrlDataValidationFactoryInterface $seoUrlValidation,
-        DataValidator $validator,
-        EntityRepository $salesChannelRepository,
-        RequestCriteriaBuilder $requestCriteriaBuilder,
-        DefinitionInstanceRegistry $definitionInstanceRegistry
-    ) {
-        $this->seoUrlGenerator = $seoUrlGenerator;
-        $this->definitionRegistry = $definitionRegistry;
-        $this->seoUrlRouteRegistry = $seoUrlRouteRegistry;
-        $this->seoUrlPersister = $seoUrlPersister;
-        $this->seoUrlValidator = $seoUrlValidation;
-        $this->validator = $validator;
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
-        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
+    public function __construct(private readonly SeoUrlGenerator $seoUrlGenerator, private readonly SeoUrlPersister $seoUrlPersister, private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly SeoUrlRouteRegistry $seoUrlRouteRegistry, private readonly SeoUrlDataValidationFactoryInterface $seoUrlValidator, private readonly DataValidator $validator, private readonly EntityRepository $salesChannelRepository, private readonly RequestCriteriaBuilder $requestCriteriaBuilder, private readonly DefinitionInstanceRegistry $definitionInstanceRegistry)
+    {
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/seo-url-template/validate", name="api.seo-url-template.validate", methods={"POST"})
      */
+    #[Route(path: '/api/_action/seo-url-template/validate', name: 'api.seo-url-template.validate', methods: ['POST'])]
     public function validate(Request $request, Context $context): JsonResponse
     {
         $context->setConsiderInheritance(true);
@@ -102,8 +65,8 @@ class SeoActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/seo-url-template/preview", name="api.seo-url-template.preview", methods={"POST"})
      */
+    #[Route(path: '/api/_action/seo-url-template/preview', name: 'api.seo-url-template.preview', methods: ['POST'])]
     public function preview(Request $request, Context $context): Response
     {
         $this->validateSeoUrlTemplate($request);
@@ -124,7 +87,7 @@ class SeoActionController extends AbstractController
 
         try {
             $preview = $this->getPreview($seoUrlTemplate, $context, $previewCriteria);
-        } catch (NoEntitiesForPreviewException $e) {
+        } catch (NoEntitiesForPreviewException) {
             return new Response('', Response::HTTP_NO_CONTENT);
         }
 
@@ -133,8 +96,8 @@ class SeoActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/seo-url-template/context", name="api.seo-url-template.context", methods={"POST"})
      */
+    #[Route(path: '/api/_action/seo-url-template/context', name: 'api.seo-url-template.context', methods: ['POST'])]
     public function getSeoUrlContext(RequestDataBag $data, Context $context): JsonResponse
     {
         $routeName = $data->get('routeName');
@@ -168,8 +131,8 @@ class SeoActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/seo-url/canonical", name="api.seo-url.canonical", methods={"PATCH"})
      */
+    #[Route(path: '/api/_action/seo-url/canonical', name: 'api.seo-url.canonical', methods: ['PATCH'])]
     public function updateCanonicalUrl(RequestDataBag $seoUrl, Context $context): Response
     {
         $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($seoUrl->get('routeName') ?? '');
@@ -181,7 +144,7 @@ class SeoActionController extends AbstractController
 
         $seoUrlData = $seoUrl->all();
         $this->validator->validate($seoUrlData, $validation);
-        $seoUrlData['isModified'] = $seoUrlData['isModified'] ?? true;
+        $seoUrlData['isModified'] ??= true;
 
         $salesChannelId = $seoUrlData['salesChannelId'] ?? null;
 
@@ -209,8 +172,8 @@ class SeoActionController extends AbstractController
 
     /**
      * @Since("6.3.1.0")
-     * @Route("/api/_action/seo-url/create-custom-url", name="api.seo-url.create", methods={"POST"})
      */
+    #[Route(path: '/api/_action/seo-url/create-custom-url', name: 'api.seo-url.create', methods: ['POST'])]
     public function createCustomSeoUrls(RequestDataBag $dataBag, Context $context): Response
     {
         $urls = $dataBag->get('urls')->all();
@@ -233,7 +196,7 @@ class SeoActionController extends AbstractController
             $id = $seoUrlData['salesChannelId'] ?? null;
 
             $this->validator->validate($seoUrlData, $validation);
-            $seoUrlData['isModified'] = $seoUrlData['isModified'] ?? true;
+            $seoUrlData['isModified'] ??= true;
 
             $writeData[$id][] = $seoUrlData;
         }
@@ -262,8 +225,8 @@ class SeoActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/seo-url-template/default/{routeName}", name="api.seo-url-template.default", methods={"GET"})
      */
+    #[Route(path: '/api/_action/seo-url-template/default/{routeName}', name: 'api.seo-url-template.default', methods: ['GET'])]
     public function getDefaultSeoTemplate(string $routeName, Context $context): JsonResponse
     {
         $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName);

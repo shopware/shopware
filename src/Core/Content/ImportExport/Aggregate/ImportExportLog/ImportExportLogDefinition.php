@@ -25,7 +25,7 @@ use Shopware\Core\System\User\UserDefinition;
  */
 class ImportExportLogDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'import_export_log';
+    final public const ENTITY_NAME = 'import_export_log';
 
     public function getEntityName(): string
     {

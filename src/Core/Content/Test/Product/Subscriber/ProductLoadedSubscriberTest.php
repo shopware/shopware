@@ -1125,11 +1125,9 @@ class ProductLoadedSubscriberTest extends TestCase
 
         static::assertInstanceOf(PropertyGroupOptionCollection::class, $options);
 
-        $names = $options->map(function (PropertyGroupOptionEntity $option) {
-            return [
-                'name' => $option->getName(),
-            ];
-        });
+        $names = $options->map(fn (PropertyGroupOptionEntity $option) => [
+            'name' => $option->getName(),
+        ]);
 
         static::assertEquals($expected, array_values($names));
     }
@@ -1366,7 +1364,7 @@ class ProductLoadedSubscriberTest extends TestCase
     {
         $jsonString = \json_encode($obj, \JSON_THROW_ON_ERROR);
 
-        return \json_decode($jsonString, true);
+        return \json_decode($jsonString, true, 512, \JSON_THROW_ON_ERROR);
     }
 }
 

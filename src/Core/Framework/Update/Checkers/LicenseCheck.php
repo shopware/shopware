@@ -12,22 +12,10 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class LicenseCheck implements CheckerInterface
 {
     /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
-     * @var StoreClient
-     */
-    private $storeClient;
-
-    /**
      * @internal
      */
-    public function __construct(SystemConfigService $systemConfigService, StoreClient $storeClient)
+    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly StoreClient $storeClient)
     {
-        $this->systemConfigService = $systemConfigService;
-        $this->storeClient = $storeClient;
     }
 
     public function supports(string $check): bool

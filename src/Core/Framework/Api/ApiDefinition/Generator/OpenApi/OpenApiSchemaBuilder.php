@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class OpenApiSchemaBuilder
 {
-    public const API = [
+    final public const API = [
         DefinitionService::API => [
             'name' => 'Admin API',
             'url' => '/api',
@@ -35,16 +35,10 @@ class OpenApiSchemaBuilder
     ];
 
     /**
-     * @var string
-     */
-    private $version;
-
-    /**
      * @internal
      */
-    public function __construct(string $version)
+    public function __construct(private readonly string $version)
     {
-        $this->version = $version;
     }
 
     public function enrich(OpenApi $openApi, string $api): void

@@ -25,7 +25,7 @@ class PromotionItemBuilder
      * will be used as prefix for the key
      * within placeholder items
      */
-    public const PLACEHOLDER_PREFIX = 'promotion-';
+    final public const PLACEHOLDER_PREFIX = 'promotion-';
 
     /**
      * Builds a new placeholder promotion line item that does not have

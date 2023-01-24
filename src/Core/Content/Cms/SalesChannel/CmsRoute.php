@@ -13,21 +13,15 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package content
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CmsRoute extends AbstractCmsRoute
 {
     /**
-     * @var SalesChannelCmsPageLoaderInterface
-     */
-    private $cmsPageLoader;
-
-    /**
      * @internal
      */
-    public function __construct(SalesChannelCmsPageLoaderInterface $cmsPageLoader)
+    public function __construct(private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader)
     {
-        $this->cmsPageLoader = $cmsPageLoader;
     }
 
     public function getDecorated(): AbstractCmsRoute
@@ -37,8 +31,8 @@ class CmsRoute extends AbstractCmsRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/cms/{id}", name="store-api.cms.detail", methods={"GET", "POST"})
      */
+    #[Route(path: '/store-api/cms/{id}', name: 'store-api.cms.detail', methods: ['GET', 'POST'])]
     public function load(string $id, Request $request, SalesChannelContext $context): CmsRouteResponse
     {
         $criteria = new Criteria([$id]);

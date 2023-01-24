@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class NoEntitiesForPreviewException extends ShopwareHttpException
 {
-    public const ERROR_CODE = 'FRAMEWORK__NO_ENTRIES_FOR_SEO_URL_PREVIEW';
+    final public const ERROR_CODE = 'FRAMEWORK__NO_ENTRIES_FOR_SEO_URL_PREVIEW';
 
     public function __construct(string $entityName, string $routeName)
     {

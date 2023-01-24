@@ -13,14 +13,8 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
  */
 class CustomerAwareEvent implements CustomerAware
 {
-    protected string $customerId;
-
-    protected ?Context $context;
-
-    public function __construct(string $customerId, ?Context $context = null)
+    public function __construct(protected string $customerId, protected ?Context $context = null)
     {
-        $this->customerId = $customerId;
-        $this->context = $context;
     }
 
     public static function getAvailableData(): EventDataCollection

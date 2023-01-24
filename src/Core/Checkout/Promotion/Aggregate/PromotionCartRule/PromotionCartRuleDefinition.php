@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
  */
 class PromotionCartRuleDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'promotion_cart_rule';
+    final public const ENTITY_NAME = 'promotion_cart_rule';
 
     /**
      * This class is used as m:n relation between promotions and cart rules.

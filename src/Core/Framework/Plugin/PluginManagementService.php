@@ -21,39 +21,11 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class PluginManagementService
 {
-    public const PLUGIN = 'plugin';
-    public const APP = 'app';
+    final public const PLUGIN = 'plugin';
+    final public const APP = 'app';
 
-    private string $projectDir;
-
-    private PluginZipDetector $pluginZipDetector;
-
-    private PluginExtractor $pluginExtractor;
-
-    private PluginService $pluginService;
-
-    private Filesystem $filesystem;
-
-    private CacheClearer $cacheClearer;
-
-    private Client $client;
-
-    public function __construct(
-        string $projectDir,
-        PluginZipDetector $pluginZipDetector,
-        PluginExtractor $pluginExtractor,
-        PluginService $pluginService,
-        Filesystem $filesystem,
-        CacheClearer $cacheClearer,
-        Client $client
-    ) {
-        $this->projectDir = $projectDir;
-        $this->pluginZipDetector = $pluginZipDetector;
-        $this->pluginExtractor = $pluginExtractor;
-        $this->pluginService = $pluginService;
-        $this->filesystem = $filesystem;
-        $this->cacheClearer = $cacheClearer;
-        $this->client = $client;
+    public function __construct(private readonly string $projectDir, private readonly PluginZipDetector $pluginZipDetector, private readonly PluginExtractor $pluginExtractor, private readonly PluginService $pluginService, private readonly Filesystem $filesystem, private readonly CacheClearer $cacheClearer, private readonly Client $client)
+    {
     }
 
     public function extractPluginZip(string $file, bool $delete = true, ?string $storeType = null): string
@@ -110,7 +82,7 @@ class PluginManagementService
             if ($response->getStatusCode() !== Response::HTTP_OK) {
                 throw new \RuntimeException();
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new StoreNotAvailableException();
         }
 

@@ -17,14 +17,11 @@ use Shopware\Core\System\StateMachine\Transition;
  */
 class OrderTransactionCaptureStateHandler
 {
-    private StateMachineRegistry $stateMachineRegistry;
-
     /**
      * @internal
      */
-    public function __construct(StateMachineRegistry $stateMachineRegistry)
+    public function __construct(private readonly StateMachineRegistry $stateMachineRegistry)
     {
-        $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
     /**

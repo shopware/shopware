@@ -14,10 +14,7 @@ use Shopware\Core\Framework\Context;
  */
 class ImportExportExceptionRecordTest extends TestCase
 {
-    /**
-     * @var ImportExportExceptionImportRecordEvent
-     */
-    private $exceptionRecord;
+    private ImportExportExceptionImportRecordEvent $exceptionRecord;
 
     public function setUp(): void
     {

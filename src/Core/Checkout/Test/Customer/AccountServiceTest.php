@@ -208,7 +208,7 @@ class AccountServiceTest extends TestCase
         ?string $customerId = null,
         ?string $createdAt = null,
     ): string {
-        $customerId = $customerId ?? Uuid::randomHex();
+        $customerId ??= Uuid::randomHex();
         $addressId = Uuid::randomHex();
 
         $customer = [

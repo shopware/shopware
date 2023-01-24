@@ -18,11 +18,8 @@ use Shopware\Core\Framework\Event\OrderAware;
  */
 class GrantDownloadAccessAction extends FlowAction implements DelayableAction
 {
-    private EntityRepository $orderLineItemDownloadRepository;
-
-    public function __construct(EntityRepository $orderLineItemDownloadRepository)
+    public function __construct(private readonly EntityRepository $orderLineItemDownloadRepository)
     {
-        $this->orderLineItemDownloadRepository = $orderLineItemDownloadRepository;
     }
 
     public static function getName(): string
@@ -86,9 +83,7 @@ class GrantDownloadAccessAction extends FlowAction implements DelayableAction
         }
 
         $this->orderLineItemDownloadRepository->update(
-            array_map(function (string $id) use ($config): array {
-                return ['id' => $id, 'accessGranted' => $config['value']];
-            }, array_unique($downloadIds)),
+            array_map(fn (string $id): array => ['id' => $id, 'accessGranted' => $config['value']], array_unique($downloadIds)),
             $context
         );
     }

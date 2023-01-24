@@ -15,23 +15,11 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class AttachmentLoader
 {
-    private EntityRepository $documentRepository;
-
-    private DocumentGenerator $documentGenerator;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $documentRepository,
-        DocumentGenerator $documentGenerator,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->documentRepository = $documentRepository;
-        $this->documentGenerator = $documentGenerator;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly EntityRepository $documentRepository, private readonly DocumentGenerator $documentGenerator, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**

@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class ActionButtonTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'app_action_button_translation';
+    final public const ENTITY_NAME = 'app_action_button_translation';
 
     public function getEntityName(): string
     {

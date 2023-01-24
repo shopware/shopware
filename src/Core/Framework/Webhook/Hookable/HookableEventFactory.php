@@ -14,22 +14,10 @@ use Shopware\Core\Framework\Webhook\Hookable;
 class HookableEventFactory
 {
     /**
-     * @var BusinessEventEncoder
-     */
-    private $eventEncoder;
-
-    /**
-     * @var WriteResultMerger
-     */
-    private $writeResultMerger;
-
-    /**
      * @internal
      */
-    public function __construct(BusinessEventEncoder $eventEncoder, WriteResultMerger $writeResultMerger)
+    public function __construct(private readonly BusinessEventEncoder $eventEncoder, private readonly WriteResultMerger $writeResultMerger)
     {
-        $this->eventEncoder = $eventEncoder;
-        $this->writeResultMerger = $writeResultMerger;
     }
 
     /**

@@ -24,23 +24,11 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 final class TaskScheduler
 {
-    private EntityRepository $scheduledTaskRepository;
-
-    private MessageBusInterface $bus;
-
-    private ParameterBagInterface $parameterBag;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $scheduledTaskRepository,
-        MessageBusInterface $bus,
-        ParameterBagInterface $parameterBag
-    ) {
-        $this->scheduledTaskRepository = $scheduledTaskRepository;
-        $this->bus = $bus;
-        $this->parameterBag = $parameterBag;
+    public function __construct(private readonly EntityRepository $scheduledTaskRepository, private readonly MessageBusInterface $bus, private readonly ParameterBagInterface $parameterBag)
+    {
     }
 
     public function queueScheduledTasks(): void

@@ -14,29 +14,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 abstract class ProductCrossSellingCriteriaEvent extends Event implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var ProductCrossSellingEntity
-     */
-    private $crossSelling;
-
-    /**
-     * @var Criteria
-     */
-    private $criteria;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    public function __construct(
-        ProductCrossSellingEntity $crossSelling,
-        Criteria $criteria,
-        SalesChannelContext $salesChannelContext
-    ) {
-        $this->crossSelling = $crossSelling;
-        $this->criteria = $criteria;
-        $this->salesChannelContext = $salesChannelContext;
+    public function __construct(private readonly ProductCrossSellingEntity $crossSelling, private readonly Criteria $criteria, private readonly SalesChannelContext $salesChannelContext)
+    {
     }
 
     public function getCrossSelling(): ProductCrossSellingEntity

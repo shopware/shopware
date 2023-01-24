@@ -16,16 +16,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class PromotionGateway implements PromotionGatewayInterface
 {
     /**
-     * @var EntityRepository
-     */
-    private $promotionRepository;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $promotionRepository)
+    public function __construct(private readonly EntityRepository $promotionRepository)
     {
-        $this->promotionRepository = $promotionRepository;
     }
 
     /**

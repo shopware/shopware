@@ -25,23 +25,10 @@ use Symfony\Component\Console\Question\Question;
 class ValidateSnippetsCommand extends Command
 {
     /**
-     * @var SnippetValidatorInterface
-     */
-    private $snippetValidator;
-
-    /**
-     * @var SnippetFixer
-     */
-    private $snippetFixer;
-
-    /**
      * @internal
      */
-    public function __construct(SnippetValidatorInterface $snippetValidator, SnippetFixer $snippetFixer)
+    public function __construct(private readonly SnippetValidatorInterface $snippetValidator, private readonly SnippetFixer $snippetFixer)
     {
-        $this->snippetValidator = $snippetValidator;
-        $this->snippetFixer = $snippetFixer;
-
         parent::__construct();
     }
 

@@ -42,10 +42,7 @@ class RulePayloadIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var EntityRepository

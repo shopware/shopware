@@ -59,7 +59,7 @@ use Shopware\Core\System\User\UserDefinition;
  */
 class MediaDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'media';
+    final public const ENTITY_NAME = 'media';
 
     public function getEntityName(): string
     {

@@ -19,22 +19,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class MigrateIncrementStorageCommand extends Command
 {
-    private IncrementStorageRegistry $registry;
-
     /**
      * @internal
      */
-    public function __construct(IncrementStorageRegistry $registry)
+    public function __construct(private readonly IncrementStorageRegistry $registry)
     {
-        $this->registry = $registry;
-
         parent::__construct();
     }
 
     protected function configure(): void
     {
-        $this->setDescription('Migrates the current states of the number ranges from the given storage to the given storage. Note that if this command runs during load on the system it may be possible that the same number is generated twice.')
-            ->addArgument('from', InputArgument::REQUIRED, 'The storage name from which you want to migrate.')
+        $this->addArgument('from', InputArgument::REQUIRED, 'The storage name from which you want to migrate.')
             ->addArgument('to', InputArgument::REQUIRED, 'The storage name to which you want to migrate to.');
     }
 

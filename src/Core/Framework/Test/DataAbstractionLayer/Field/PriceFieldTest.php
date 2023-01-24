@@ -34,7 +34,7 @@ class PriceFieldTest extends TestCase
      */
     private $connection;
 
-    private $otherCurrencyId = '0fa91ce3e96a4bc2be4bd9ce752c3425';
+    private string $otherCurrencyId = '0fa91ce3e96a4bc2be4bd9ce752c3425';
 
     protected function setUp(): void
     {
@@ -254,8 +254,8 @@ EOF;
             'symbol' => 'A',
             'shortName' => 'A',
             'isoCode' => 'A',
-            'itemRounding' => json_decode(json_encode($rounding), true),
-            'totalRounding' => json_decode(json_encode($rounding), true),
+            'itemRounding' => json_decode(json_encode($rounding, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode($rounding, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
         ];
 
         $this->getContainer()
@@ -484,8 +484,8 @@ EOF;
             'symbol' => 'A',
             'shortName' => 'A',
             'isoCode' => 'A',
-            'itemRounding' => json_decode(json_encode($rounding), true),
-            'totalRounding' => json_decode(json_encode($rounding), true),
+            'itemRounding' => json_decode(json_encode($rounding, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode($rounding, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
         ];
 
         $this->getContainer()

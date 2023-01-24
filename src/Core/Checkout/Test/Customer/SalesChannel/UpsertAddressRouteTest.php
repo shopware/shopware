@@ -126,7 +126,7 @@ class UpsertAddressRouteTest extends TestCase
         $response = \json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertGreaterThanOrEqual(1, \count($response['errors']));
+        static::assertGreaterThanOrEqual(1, is_countable($response['errors']) ? \count($response['errors']) : 0);
     }
 
     public function testUpdateExistingAddress(): void

@@ -26,11 +26,8 @@ class AppPrinter
         AclRoleDefinition::PRIVILEGE_DELETE => 'delete',
     ];
 
-    private EntityRepository $appRepository;
-
-    public function __construct(EntityRepository $appRepository)
+    public function __construct(private readonly EntityRepository $appRepository)
     {
-        $this->appRepository = $appRepository;
     }
 
     public function printInstalledApps(ShopwareStyle $io, Context $context): void

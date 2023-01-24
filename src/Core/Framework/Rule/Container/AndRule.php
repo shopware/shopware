@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class AndRule extends Container
 {
-    public const RULE_NAME = 'andContainer';
+    final public const RULE_NAME = 'andContainer';
 
     public function match(RuleScope $scope): bool
     {

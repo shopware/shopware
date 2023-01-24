@@ -19,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class ImportExportFileDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'import_export_file';
+    final public const ENTITY_NAME = 'import_export_file';
 
     public function getEntityName(): string
     {

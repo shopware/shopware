@@ -12,16 +12,13 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class WriteNotSupportedException extends ShopwareHttpException
 {
-    /**
-     * @var Field
-     */
-    private $field;
+    private readonly Field $field;
 
     public function __construct(Field $field)
     {
         parent::__construct(
             'Writing to ReadOnly field "{{ field }}" is not supported.',
-            ['field' => \get_class($field)]
+            ['field' => $field::class]
         );
 
         $this->field = $field;

@@ -13,9 +13,7 @@ class TaxRuleCollection extends EntityCollection
 {
     public function sortByTypePosition(): void
     {
-        $this->sort(function (TaxRuleEntity $entityA, TaxRuleEntity $entityB) {
-            return $entityA->getType()->getPosition() <=> $entityB->getType()->getPosition();
-        });
+        $this->sort(fn (TaxRuleEntity $entityA, TaxRuleEntity $entityB) => $entityA->getType()->getPosition() <=> $entityB->getType()->getPosition());
     }
 
     public function getApiAlias(): string

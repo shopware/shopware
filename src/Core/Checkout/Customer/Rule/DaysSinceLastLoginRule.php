@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class DaysSinceLastLoginRule extends DaysSinceRule
 {
-    public const RULE_NAME = 'customerDaysSinceLastLogin';
+    final public const RULE_NAME = 'customerDaysSinceLastLogin';
 
     protected function getDate(RuleScope $scope): ?\DateTimeInterface
     {

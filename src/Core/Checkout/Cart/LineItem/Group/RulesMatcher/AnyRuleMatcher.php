@@ -12,14 +12,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class AnyRuleMatcher implements LineItemGroupRuleMatcherInterface
 {
-    private AbstractAnyRuleLineItemMatcher $anyRuleProvider;
-
     /**
      * @internal
      */
-    public function __construct(AbstractAnyRuleLineItemMatcher $anyRuleProvider)
+    public function __construct(private readonly AbstractAnyRuleLineItemMatcher $anyRuleProvider)
     {
-        $this->anyRuleProvider = $anyRuleProvider;
     }
 
     public function getMatchingItems(

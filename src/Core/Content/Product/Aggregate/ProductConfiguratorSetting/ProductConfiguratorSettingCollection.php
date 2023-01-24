@@ -19,16 +19,12 @@ class ProductConfiguratorSettingCollection extends EntityCollection
      */
     public function getProductIds(): array
     {
-        return $this->fmap(function (ProductConfiguratorSettingEntity $productConfigurator) {
-            return $productConfigurator->getProductId();
-        });
+        return $this->fmap(fn (ProductConfiguratorSettingEntity $productConfigurator) => $productConfigurator->getProductId());
     }
 
     public function filterByProductId(string $id): self
     {
-        return $this->filter(function (ProductConfiguratorSettingEntity $productConfigurator) use ($id) {
-            return $productConfigurator->getProductId() === $id;
-        });
+        return $this->filter(fn (ProductConfiguratorSettingEntity $productConfigurator) => $productConfigurator->getProductId() === $id);
     }
 
     /**
@@ -36,24 +32,18 @@ class ProductConfiguratorSettingCollection extends EntityCollection
      */
     public function getOptionIds(): array
     {
-        return $this->fmap(function (ProductConfiguratorSettingEntity $productConfigurator) {
-            return $productConfigurator->getOptionId();
-        });
+        return $this->fmap(fn (ProductConfiguratorSettingEntity $productConfigurator) => $productConfigurator->getOptionId());
     }
 
     public function filterByOptionId(string $id): self
     {
-        return $this->filter(function (ProductConfiguratorSettingEntity $productConfigurator) use ($id) {
-            return $productConfigurator->getOptionId() === $id;
-        });
+        return $this->filter(fn (ProductConfiguratorSettingEntity $productConfigurator) => $productConfigurator->getOptionId() === $id);
     }
 
     public function getOptions(): PropertyGroupOptionCollection
     {
         return new PropertyGroupOptionCollection(
-            $this->fmap(function (ProductConfiguratorSettingEntity $productConfigurator) {
-                return $productConfigurator->getOption();
-            })
+            $this->fmap(fn (ProductConfiguratorSettingEntity $productConfigurator) => $productConfigurator->getOption())
         );
     }
 

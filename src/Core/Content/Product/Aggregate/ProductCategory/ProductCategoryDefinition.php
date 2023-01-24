@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
  */
 class ProductCategoryDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'product_category';
+    final public const ENTITY_NAME = 'product_category';
 
     public function getEntityName(): string
     {

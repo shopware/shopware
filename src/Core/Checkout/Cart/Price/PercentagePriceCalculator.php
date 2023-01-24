@@ -14,23 +14,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class PercentagePriceCalculator
 {
-    private CashRounding $rounding;
-
-    private QuantityPriceCalculator $priceCalculator;
-
-    private PercentageTaxRuleBuilder $percentageTaxRuleBuilder;
-
     /**
      * @internal
      */
-    public function __construct(
-        CashRounding $rounding,
-        QuantityPriceCalculator $priceCalculator,
-        PercentageTaxRuleBuilder $percentageTaxRuleBuilder
-    ) {
-        $this->rounding = $rounding;
-        $this->priceCalculator = $priceCalculator;
-        $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
+    public function __construct(private readonly CashRounding $rounding, private readonly QuantityPriceCalculator $priceCalculator, private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder)
+    {
     }
 
     /**

@@ -18,8 +18,8 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
 {
-    public const TYPE = 'quantity';
-    public const SORTING_PRIORITY = 100;
+    final public const TYPE = 'quantity';
+    final public const SORTING_PRIORITY = 100;
 
     /**
      * @var float
@@ -91,12 +91,10 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     public static function fromArray(array $data): self
     {
         $taxRules = array_map(
-            function (array $tax) {
-                return new TaxRule(
-                    (float) $tax['taxRate'],
-                    (float) $tax['percentage']
-                );
-            },
+            fn (array $tax) => new TaxRule(
+                (float) $tax['taxRate'],
+                (float) $tax['percentage']
+            ),
             $data['taxRules']
         );
 

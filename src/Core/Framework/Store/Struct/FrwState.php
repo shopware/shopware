@@ -9,26 +9,8 @@ namespace Shopware\Core\Framework\Store\Struct;
  */
 final class FrwState
 {
-    /**
-     * @var \DateTimeImmutable|null
-     */
-    private $completedAt;
-
-    /**
-     * @var \DateTimeImmutable|null
-     */
-    private $failedAt;
-
-    /**
-     * @var int
-     */
-    private $failureCount;
-
-    private function __construct(?\DateTimeImmutable $completedAt = null, ?\DateTimeImmutable $failedAt = null, int $failureCount = 0)
+    private function __construct(private readonly ?\DateTimeImmutable $completedAt = null, private readonly ?\DateTimeImmutable $failedAt = null, private readonly int $failureCount = 0)
     {
-        $this->completedAt = $completedAt;
-        $this->failedAt = $failedAt;
-        $this->failureCount = $failureCount;
     }
 
     public static function openState(): FrwState

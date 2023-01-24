@@ -15,20 +15,16 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemUnitPriceRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemUnitPrice';
+    final public const RULE_NAME = 'cartLineItemUnitPrice';
 
     protected float $amount;
-
-    protected string $operator;
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, ?float $amount = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
         $this->amount = (float) $amount;
     }
 

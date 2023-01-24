@@ -19,16 +19,10 @@ use Shopware\Core\System\Language\LanguageEntity;
 class TranslationsSerializer extends FieldSerializer
 {
     /**
-     * @var EntityRepository
-     */
-    private $languageRepository;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $languageRepository)
+    public function __construct(private readonly EntityRepository $languageRepository)
     {
-        $this->languageRepository = $languageRepository;
     }
 
     public function serialize(Config $config, Field $associationField, $translations): iterable

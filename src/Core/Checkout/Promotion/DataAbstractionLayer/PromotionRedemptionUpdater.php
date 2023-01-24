@@ -19,20 +19,17 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class PromotionRedemptionUpdater implements EventSubscriberInterface
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             CheckoutOrderPlacedEvent::class => 'orderPlaced',
@@ -87,7 +84,7 @@ SQL;
             $update->execute([
                 'id' => Uuid::fromHexToBytes($id),
                 'count' => (int) $total,
-                'customerCount' => json_encode($totals),
+                'customerCount' => json_encode($totals, \JSON_THROW_ON_ERROR),
             ]);
         }
     }
@@ -135,7 +132,7 @@ SQL;
 
             $update->execute([
                 'id' => Uuid::fromHexToBytes($promotionId),
-                'customerCount' => json_encode($allCustomerCounts[$promotionId]),
+                'customerCount' => json_encode($allCustomerCounts[$promotionId], \JSON_THROW_ON_ERROR),
             ]);
         }
     }
@@ -178,7 +175,7 @@ SQL;
                 continue;
             }
 
-            $customerCount = json_decode($row['orders_per_customer_count'], true);
+            $customerCount = json_decode($row['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
             if (!$customerCount) {
                 $allCustomerCounts[Uuid::fromBytesToHex($row['id'])] = [];
 

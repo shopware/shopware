@@ -13,7 +13,7 @@ class ReplaceRecursiveFilter extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('replace_recursive', [$this, 'replaceRecursive']),
+            new TwigFilter('replace_recursive', $this->replaceRecursive(...)),
         ];
     }
 

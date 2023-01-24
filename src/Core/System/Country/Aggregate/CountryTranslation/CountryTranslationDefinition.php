@@ -16,7 +16,7 @@ use Shopware\Core\System\Country\CountryDefinition;
  */
 class CountryTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'country_translation';
+    final public const ENTITY_NAME = 'country_translation';
 
     public function getEntityName(): string
     {

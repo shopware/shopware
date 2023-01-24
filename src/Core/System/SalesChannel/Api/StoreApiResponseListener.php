@@ -15,14 +15,11 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 class StoreApiResponseListener implements EventSubscriberInterface
 {
-    private StructEncoder $encoder;
-
     /**
      * @internal
      */
-    public function __construct(StructEncoder $encoder)
+    public function __construct(private readonly StructEncoder $encoder)
     {
-        $this->encoder = $encoder;
     }
 
     public static function getSubscribedEvents(): array

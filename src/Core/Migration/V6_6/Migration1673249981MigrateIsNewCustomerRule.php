@@ -21,9 +21,7 @@ class Migration1673249981MigrateIsNewCustomerRule extends MigrationStep
     {
         // find all the deprecated rules
         $ruleConditions = $connection->fetchAllAssociative('SELECT DISTINCT rule_id FROM rule_condition WHERE type = "customerIsNewCustomer"');
-        $ruleIds = array_map(function ($condition) {
-            return $condition['rule_id'];
-        }, $ruleConditions);
+        $ruleIds = array_map(fn ($condition) => $condition['rule_id'], $ruleConditions);
 
         if (empty($ruleIds)) {
             return;

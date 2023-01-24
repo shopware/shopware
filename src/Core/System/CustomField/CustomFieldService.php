@@ -28,14 +28,11 @@ class CustomFieldService implements EventSubscriberInterface, ResetInterface
      */
     private ?array $customFields = null;
 
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function getCustomField(string $attributeName): ?Field
@@ -45,32 +42,16 @@ class CustomFieldService implements EventSubscriberInterface, ResetInterface
             return null;
         }
 
-        switch ($type) {
-            case CustomFieldTypes::INT:
-                return (new IntField($attributeName, $attributeName))->addFlags(new ApiAware());
-
-            case CustomFieldTypes::FLOAT:
-                return (new FloatField($attributeName, $attributeName))->addFlags(new ApiAware());
-
-            case CustomFieldTypes::BOOL:
-                return (new BoolField($attributeName, $attributeName))->addFlags(new ApiAware());
-
-            case CustomFieldTypes::DATETIME:
-                return (new DateTimeField($attributeName, $attributeName))->addFlags(new ApiAware());
-
-            case CustomFieldTypes::TEXT:
-                return (new LongTextField($attributeName, $attributeName))->addFlags(new ApiAware());
-
-            case CustomFieldTypes::HTML:
-                return (new LongTextField($attributeName, $attributeName))->addFlags(new ApiAware(), new AllowHtml());
-
-            case CustomFieldTypes::PRICE:
-                return (new PriceField($attributeName, $attributeName))->addFlags(new ApiAware());
-
-            case CustomFieldTypes::JSON:
-            default:
-                return (new JsonField($attributeName, $attributeName))->addFlags(new ApiAware());
-        }
+        return match ($type) {
+            CustomFieldTypes::INT => (new IntField($attributeName, $attributeName))->addFlags(new ApiAware()),
+            CustomFieldTypes::FLOAT => (new FloatField($attributeName, $attributeName))->addFlags(new ApiAware()),
+            CustomFieldTypes::BOOL => (new BoolField($attributeName, $attributeName))->addFlags(new ApiAware()),
+            CustomFieldTypes::DATETIME => (new DateTimeField($attributeName, $attributeName))->addFlags(new ApiAware()),
+            CustomFieldTypes::TEXT => (new LongTextField($attributeName, $attributeName))->addFlags(new ApiAware()),
+            CustomFieldTypes::HTML => (new LongTextField($attributeName, $attributeName))->addFlags(new ApiAware(), new AllowHtml()),
+            CustomFieldTypes::PRICE => (new PriceField($attributeName, $attributeName))->addFlags(new ApiAware()),
+            default => (new JsonField($attributeName, $attributeName))->addFlags(new ApiAware()),
+        };
     }
 
     /**

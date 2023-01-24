@@ -22,38 +22,10 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ProductExporter implements ProductExporterInterface
 {
     /**
-     * @var EntityRepository
-     */
-    private $productExportRepository;
-
-    /**
-     * @var ProductExportGeneratorInterface
-     */
-    private $productExportGenerator;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var ProductExportFileHandlerInterface
-     */
-    private $productExportFileHandler;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $productExportRepository,
-        ProductExportGeneratorInterface $productExportGenerator,
-        EventDispatcherInterface $eventDispatcher,
-        ProductExportFileHandlerInterface $productExportFileHandler
-    ) {
-        $this->productExportRepository = $productExportRepository;
-        $this->productExportGenerator = $productExportGenerator;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->productExportFileHandler = $productExportFileHandler;
+    public function __construct(private readonly EntityRepository $productExportRepository, private readonly ProductExportGeneratorInterface $productExportGenerator, private readonly EventDispatcherInterface $eventDispatcher, private readonly ProductExportFileHandlerInterface $productExportFileHandler)
+    {
     }
 
     public function export(

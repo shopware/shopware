@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class IsCompanyRule extends Rule
 {
-    public const RULE_NAME = 'customerIsCompany';
+    final public const RULE_NAME = 'customerIsCompany';
 
     /**
      * @var bool

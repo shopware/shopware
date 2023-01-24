@@ -16,7 +16,7 @@ class WriteException extends ShopwareHttpException
     /**
      * @var \Throwable[]
      */
-    private $exceptions = [];
+    private array $exceptions = [];
 
     public function __construct()
     {

@@ -32,9 +32,9 @@ class CategoryGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        private EntityRepository $categoryRepository,
-        private EntityRepository $cmsPageRepository,
-        private Connection $connection
+        private readonly EntityRepository $categoryRepository,
+        private readonly EntityRepository $cmsPageRepository,
+        private readonly Connection $connection
     ) {
     }
 
@@ -115,9 +115,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(
-                    function ($id) {
-                        return ['id' => $id];
-                    },
+                    fn ($id) => ['id' => $id],
                     $chosenTags
                 );
             }

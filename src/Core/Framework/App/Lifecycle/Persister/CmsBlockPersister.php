@@ -19,8 +19,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 class CmsBlockPersister
 {
     public function __construct(
-        private EntityRepository $cmsBlockRepository,
-        private AbstractBlockTemplateLoader $blockTemplateLoader,
+        private readonly EntityRepository $cmsBlockRepository,
+        private readonly AbstractBlockTemplateLoader $blockTemplateLoader,
     ) {
     }
 
@@ -65,9 +65,7 @@ class CmsBlockPersister
         $ids = $toBeRemoved->getIds();
 
         if (!empty($ids)) {
-            $ids = array_map(static function (string $id): array {
-                return ['id' => $id];
-            }, array_values($ids));
+            $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
 
             $this->cmsBlockRepository->delete($ids, $context);
         }

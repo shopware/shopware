@@ -27,7 +27,7 @@ use Twig\Extension\DebugExtension;
  */
 class ScriptRule extends Rule
 {
-    public const RULE_NAME = 'scriptRule';
+    final public const RULE_NAME = 'scriptRule';
 
     protected string $script = '';
 
@@ -53,7 +53,7 @@ class ScriptRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
-        $context = array_merge(['scope' => $scope], $this->values);
+        $context = [...['scope' => $scope], ...$this->values];
         $lastModified = $this->lastModified ?? $scope->getCurrentTime();
         $name = $this->identifier ?? $this->getName();
 
@@ -129,7 +129,7 @@ class ScriptRule extends Rule
     private function render(TwigEnvironment $twig, Script $script, Hook $hook, string $name, array $context): bool
     {
         if (!$this->traces) {
-            return filter_var(trim($twig->render($name, $context)), \FILTER_VALIDATE_BOOLEAN);
+            return filter_var(trim((string) $twig->render($name, $context)), \FILTER_VALIDATE_BOOLEAN);
         }
 
         $match = false;

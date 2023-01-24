@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class SeoUrlRouteNotFoundException extends ShopwareHttpException
 {
-    public const ERROR_CODE = 'FRAMEWORK__SEO_URL_ROUTE_NOT_FOUND';
+    final public const ERROR_CODE = 'FRAMEWORK__SEO_URL_ROUTE_NOT_FOUND';
 
     public function __construct(string $routeName)
     {

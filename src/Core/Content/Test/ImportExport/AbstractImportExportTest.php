@@ -56,7 +56,7 @@ abstract class AbstractImportExportTest extends TestCase
     use RequestStackTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    public const TEST_IMAGE = __DIR__ . '/fixtures/shopware-logo.png';
+    final public const TEST_IMAGE = __DIR__ . '/fixtures/shopware-logo.png';
 
     /**
      * @var EntityRepository
@@ -77,7 +77,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     public static function assertImportExportSucceeded(Progress $progress, array $invalidLog = []): void
     {
-        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState(), json_encode($invalidLog));
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState(), json_encode($invalidLog, \JSON_THROW_ON_ERROR));
     }
 
     public static function assertImportExportFailed(Progress $progress): void
@@ -140,7 +140,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function createProduct(?string $productId = null): string
     {
-        $productId = $productId ?? Uuid::randomHex();
+        $productId ??= Uuid::randomHex();
 
         $data = [
             'id' => $productId,
@@ -193,7 +193,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function createRule(?string $ruleId = null): string
     {
-        $ruleId = $ruleId ?? Uuid::randomHex();
+        $ruleId ??= Uuid::randomHex();
         $this->getContainer()->get('rule.repository')->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
             Context::createDefaultContext()
@@ -440,7 +440,7 @@ abstract class AbstractImportExportTest extends TestCase
 
         $importExportService = $this->getContainer()->get(ImportExportService::class);
 
-        $profileId = $profileId ?? $this->getDefaultProfileId($entityName);
+        $profileId ??= $this->getDefaultProfileId($entityName);
 
         $expireDate = new \DateTimeImmutable('2099-01-01');
         $file = new UploadedFile((!$absolutePath ? __DIR__ : '') . $path, $originalName, 'text/csv');
@@ -470,7 +470,7 @@ abstract class AbstractImportExportTest extends TestCase
 
         $importExportService = $this->getContainer()->get(ImportExportService::class);
 
-        $profileId = $profileId ?? $this->getDefaultProfileId($entityName);
+        $profileId ??= $this->getDefaultProfileId($entityName);
 
         $expireDate = new \DateTimeImmutable('2099-01-01');
         $logEntity = $importExportService->prepareExport($context, $profileId, $expireDate);
@@ -478,7 +478,7 @@ abstract class AbstractImportExportTest extends TestCase
         $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
         do {
             $groupSize = $groupSize ? $groupSize - 1 : 0;
-            $criteria = $criteria ?? new Criteria();
+            $criteria ??= new Criteria();
             $importExport = $factory->create($logEntity->getId(), $groupSize, $groupSize);
             $progress = $importExport->export(Context::createDefaultContext(), $criteria, $progress->getOffset());
         } while (!$progress->isFinished());

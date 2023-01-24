@@ -9,14 +9,8 @@ use League\OAuth2\Server\Entities\UserEntityInterface;
  */
 class User implements UserEntityInterface
 {
-    /**
-     * @var string
-     */
-    private $userId;
-
-    public function __construct(string $userId)
+    public function __construct(private readonly string $userId)
     {
-        $this->userId = $userId;
     }
 
     /**

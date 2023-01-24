@@ -35,30 +35,15 @@ class SalesChannelCmsPageLoaderTest extends TestCase
      */
     private $salesChannelCmsPageLoader;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var string
-     */
-    private static $firstSlotId;
+    private static string $firstSlotId;
 
-    /**
-     * @var string
-     */
-    private static $secondSlotId;
+    private static string $secondSlotId;
 
-    /**
-     * @var string
-     */
-    private static $categoryId;
+    private static string $categoryId;
 
-    /**
-     * @var array
-     */
-    private static $category;
+    private static array $category;
 
     public static function setUpBeforeClass(): void
     {

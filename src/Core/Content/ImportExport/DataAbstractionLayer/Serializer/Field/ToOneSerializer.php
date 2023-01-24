@@ -14,14 +14,11 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 class ToOneSerializer extends FieldSerializer
 {
-    private PrimaryKeyResolver $primaryKeyResolver;
-
     /**
      * @internal
      */
-    public function __construct(PrimaryKeyResolver $primaryKeyResolver)
+    public function __construct(private readonly PrimaryKeyResolver $primaryKeyResolver)
     {
-        $this->primaryKeyResolver = $primaryKeyResolver;
     }
 
     /**

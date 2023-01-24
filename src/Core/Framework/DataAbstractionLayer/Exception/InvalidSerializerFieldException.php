@@ -12,21 +12,15 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class InvalidSerializerFieldException extends ShopwareHttpException
 {
-    /**
-     * @var string
-     */
-    private $expectedClass;
+    private readonly string $expectedClass;
 
-    /**
-     * @var Field
-     */
-    private $field;
+    private readonly Field $field;
 
     public function __construct(string $expectedClass, Field $field)
     {
         parent::__construct(
             'Expected field of type "{{ expectedField }}" got "{{ field }}".',
-            ['expectedField' => $expectedClass, 'field' => \get_class($field)]
+            ['expectedField' => $expectedClass, 'field' => $field::class]
         );
 
         $this->expectedClass = $expectedClass;

@@ -28,7 +28,7 @@ class PromotionGenerator implements DemodataGeneratorInterface
     /**
      * @internal
      */
-    public function __construct(private Connection $connection, private DefinitionInstanceRegistry $registry)
+    public function __construct(private readonly Connection $connection, private readonly DefinitionInstanceRegistry $registry)
     {
     }
 
@@ -136,8 +136,6 @@ class PromotionGenerator implements DemodataGeneratorInterface
     {
         $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM `sales_channel` LIMIT 100');
 
-        return array_map(function ($id) {
-            return ['salesChannelId' => $id['id'], 'priority' => 1];
-        }, $ids);
+        return array_map(fn ($id) => ['salesChannelId' => $id['id'], 'priority' => 1], $ids);
     }
 }

@@ -53,7 +53,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
             return null;
         }
 
-        return array_values(json_decode($value, true));
+        return array_values(json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     protected function getConstraints(Field $field): array

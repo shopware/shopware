@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  */
 class BlueGreenDeploymentService
 {
-    public const ENV_NAME = 'BLUE_GREEN_DEPLOYMENT';
+    final public const ENV_NAME = 'BLUE_GREEN_DEPLOYMENT';
 
     public function setEnvironmentVariable(Connection $connection, SessionInterface $session): void
     {
@@ -28,7 +28,7 @@ class BlueGreenDeploymentService
         try {
             $connection->executeQuery($this->getCreateTableQuery());
             $connection->executeQuery($this->getTriggerQuery());
-        } catch (Exception $exception) {
+        } catch (Exception) {
             return false;
         } finally {
             $connection->executeQuery('DROP TABLE IF EXISTS example');

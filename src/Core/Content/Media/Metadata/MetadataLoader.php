@@ -17,16 +17,12 @@ use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Handler;
 class MetadataLoader
 {
     /**
-     * @var MetadataLoaderInterface[]
-     */
-    private $metadataLoader;
-
-    /**
      * @internal
+     *
+     * @param MetadataLoaderInterface[] $metadataLoader
      */
-    public function __construct(iterable $metadataLoader)
+    public function __construct(private readonly iterable $metadataLoader)
     {
-        $this->metadataLoader = $metadataLoader;
     }
 
     public function loadFromFile(MediaFile $mediaFile, MediaType $mediaType): ?array

@@ -17,7 +17,7 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefi
  */
 class CustomFieldSetRelationDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'custom_field_set_relation';
+    final public const ENTITY_NAME = 'custom_field_set_relation';
 
     public function getEntityName(): string
     {

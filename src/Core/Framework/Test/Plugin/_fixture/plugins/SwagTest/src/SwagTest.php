@@ -11,19 +11,20 @@ use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\FooBarBundle;
 use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\GizmoBundle;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class SwagTest extends Plugin
 {
-    public const PLUGIN_LABEL = 'English plugin name';
+    final public const PLUGIN_LABEL = 'English plugin name';
 
-    public const PLUGIN_VERSION = '1.0.1';
+    final public const PLUGIN_VERSION = '1.0.1';
 
-    public const PLUGIN_OLD_VERSION = '1.0.0';
+    final public const PLUGIN_OLD_VERSION = '1.0.0';
 
-    public const PLUGIN_GERMAN_LABEL = 'Deutscher Pluginname';
+    final public const PLUGIN_GERMAN_LABEL = 'Deutscher Pluginname';
 
-    public const THROW_ERROR_ON_UPDATE = 'throw-error-on-update';
-    public const THROW_ERROR_ON_DEACTIVATE = 'throw-error-on-deactivate';
+    final public const THROW_ERROR_ON_UPDATE = 'throw-error-on-update';
+    final public const THROW_ERROR_ON_DEACTIVATE = 'throw-error-on-deactivate';
 
     /**
      * @var SystemConfigService
@@ -55,9 +56,7 @@ class SwagTest extends Plugin
      */
     public $postDeactivateContext;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function requiredSetterOfPrivateService(SystemConfigService $systemConfig): void
     {
         $this->systemConfig = $systemConfig;

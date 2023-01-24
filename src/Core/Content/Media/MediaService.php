@@ -20,45 +20,10 @@ use Symfony\Component\HttpFoundation\Request;
 class MediaService
 {
     /**
-     * @var EntityRepository
-     */
-    private $mediaRepository;
-
-    /**
-     * @var EntityRepository
-     */
-    private $mediaFolderRepository;
-
-    /**
-     * @var FileLoader
-     */
-    private $fileLoader;
-
-    /**
-     * @var FileSaver
-     */
-    private $fileSaver;
-
-    /**
-     * @var FileFetcher
-     */
-    private $fileFetcher;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $mediaRepository,
-        EntityRepository $mediaFolderRepository,
-        FileLoader $fileLoader,
-        FileSaver $fileSaver,
-        FileFetcher $fileFetcher
-    ) {
-        $this->mediaRepository = $mediaRepository;
-        $this->mediaFolderRepository = $mediaFolderRepository;
-        $this->fileLoader = $fileLoader;
-        $this->fileSaver = $fileSaver;
-        $this->fileFetcher = $fileFetcher;
+    public function __construct(private readonly EntityRepository $mediaRepository, private readonly EntityRepository $mediaFolderRepository, private readonly FileLoader $fileLoader, private readonly FileSaver $fileSaver, private readonly FileFetcher $fileFetcher)
+    {
     }
 
     public function createMediaInFolder(string $folder, Context $context, bool $private = true): string

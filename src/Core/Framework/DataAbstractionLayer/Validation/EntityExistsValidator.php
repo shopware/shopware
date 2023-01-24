@@ -15,22 +15,10 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 class EntityExistsValidator extends ConstraintValidator
 {
     /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
-
-    /**
-     * @var EntitySearcherInterface
-     */
-    private $entitySearcher;
-
-    /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $definitionRegistry, EntitySearcherInterface $entitySearcher)
+    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly EntitySearcherInterface $entitySearcher)
     {
-        $this->definitionRegistry = $definitionRegistry;
-        $this->entitySearcher = $entitySearcher;
     }
 
     public function validate(mixed $value, Constraint $constraint): void

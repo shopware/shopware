@@ -39,7 +39,7 @@ use Shopware\Core\System\Unit\UnitEntity;
 /**
  * @package inventory
  */
-class ProductEntity extends Entity
+class ProductEntity extends Entity implements \Stringable
 {
     use EntityIdTrait;
     use EntityCustomFieldsTrait;
@@ -496,7 +496,7 @@ class ProductEntity extends Entity
         $this->prices = new ProductPriceCollection();
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return (string) $this->getName();
     }

@@ -12,14 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
  */
 class CriteriaBuilder
 {
-    /**
-     * @var EntityDefinition
-     */
-    private $definition;
-
-    public function __construct(EntityDefinition $entityDefinition)
+    public function __construct(private readonly EntityDefinition $definition)
     {
-        $this->definition = $entityDefinition;
     }
 
     public function enrichCriteria(Config $config, Criteria $criteria): Criteria

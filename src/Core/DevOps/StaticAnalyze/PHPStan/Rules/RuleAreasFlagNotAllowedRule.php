@@ -24,11 +24,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
  */
 class RuleAreasFlagNotAllowedRule implements Rule
 {
-    private ReflectionProvider $reflectionProvider;
-
-    public function __construct(ReflectionProvider $reflectionProvider)
+    public function __construct(private readonly ReflectionProvider $reflectionProvider)
     {
-        $this->reflectionProvider = $reflectionProvider;
     }
 
     public function getNodeType(): string

@@ -13,14 +13,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 final class UpdatePostFinishSubscriber implements EventSubscriberInterface
 {
-    private TaskRegistry $registry;
-
     /**
      * @internal
      */
-    public function __construct(TaskRegistry $taskRegistry)
+    public function __construct(private readonly TaskRegistry $registry)
     {
-        $this->registry = $taskRegistry;
     }
 
     /**

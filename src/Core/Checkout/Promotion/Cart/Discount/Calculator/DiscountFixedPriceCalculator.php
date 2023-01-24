@@ -17,11 +17,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class DiscountFixedPriceCalculator
 {
-    private AbsolutePriceCalculator $absolutePriceCalculator;
-
-    public function __construct(AbsolutePriceCalculator $absolutePriceCalculator)
+    public function __construct(private readonly AbsolutePriceCalculator $absolutePriceCalculator)
     {
-        $this->absolutePriceCalculator = $absolutePriceCalculator;
     }
 
     /**

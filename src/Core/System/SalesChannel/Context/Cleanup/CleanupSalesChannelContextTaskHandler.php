@@ -22,8 +22,8 @@ final class CleanupSalesChannelContextTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $repository,
-        private Connection $connection,
-        private int $days
+        private readonly Connection $connection,
+        private readonly int $days
     ) {
         parent::__construct($repository);
     }

@@ -18,10 +18,7 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class ConstraintBuilder
 {
-    /**
-     * @var array
-     */
-    private $constraints = [];
+    private array $constraints = [];
 
     /**
      * Set prop must not be blank (required)

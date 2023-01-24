@@ -12,6 +12,8 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class Migration1657173907DownloadMailTemplate extends MigrationStep
 {
@@ -98,7 +100,7 @@ class Migration1657173907DownloadMailTemplate extends MigrationStep
             }
 
             return (string) $result;
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             return null;
         }
     }

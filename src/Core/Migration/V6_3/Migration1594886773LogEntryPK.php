@@ -25,7 +25,7 @@ class Migration1594886773LogEntryPK extends MigrationStep
                 ALTER TABLE `log_entry`
                 ADD PRIMARY KEY (`id`);
             ');
-        } catch (Exception $e) {
+        } catch (Exception) {
             // PK already exists
         }
     }

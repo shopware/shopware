@@ -30,10 +30,7 @@ class CustomFieldSubscriberTest extends TestCase
      */
     private $customFieldRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var array

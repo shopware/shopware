@@ -11,22 +11,10 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotF
 class LineItemGroupServiceRegistry
 {
     /**
-     * @var iterable
-     */
-    private $packagers;
-
-    /**
-     * @var iterable
-     */
-    private $sorters;
-
-    /**
      * @internal
      */
-    public function __construct(iterable $packagers, iterable $sorters)
+    public function __construct(private readonly iterable $packagers, private readonly iterable $sorters)
     {
-        $this->packagers = $packagers;
-        $this->sorters = $sorters;
     }
 
     /**

@@ -40,10 +40,7 @@ class ShippingCountryRuleTest extends TestCase
      */
     private $conditionRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     private ShippingCountryRule $rule;
 

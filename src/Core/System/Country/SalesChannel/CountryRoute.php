@@ -12,30 +12,22 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @package system-settings
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 class CountryRoute extends AbstractCountryRoute
 {
     /**
-     * @var SalesChannelRepository
-     */
-    private $countryRepository;
-
-    /**
      * @internal
      */
-    public function __construct(
-        SalesChannelRepository $countryRepository
-    ) {
-        $this->countryRepository = $countryRepository;
+    public function __construct(private readonly SalesChannelRepository $countryRepository)
+    {
     }
 
     /**
      * @Since("6.3.0.0")
-     * @Route("/store-api/country", name="store-api.country", methods={"GET", "POST"}, defaults={"_entity"="country"})
      */
+    #[Route(path: '/store-api/country', name: 'store-api.country', methods: ['GET', 'POST'], defaults: ['_entity' => 'country'])]
     public function load(Request $request, Criteria $criteria, SalesChannelContext $context): CountryRouteResponse
     {
         $criteria->addFilter(new EqualsFilter('active', true));

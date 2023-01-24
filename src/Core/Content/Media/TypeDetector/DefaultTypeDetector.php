@@ -27,15 +27,11 @@ class DefaultTypeDetector implements TypeDetectorInterface
             return new BinaryType();
         }
 
-        switch ($mime[0]) {
-            case 'image':
-                return new ImageType();
-            case 'video':
-                return new VideoType();
-            case 'audio':
-                return new AudioType();
-            default:
-                return new BinaryType();
-        }
+        return match ($mime[0]) {
+            'image' => new ImageType(),
+            'video' => new VideoType(),
+            'audio' => new AudioType(),
+            default => new BinaryType(),
+        };
     }
 }

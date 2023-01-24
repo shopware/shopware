@@ -13,26 +13,8 @@ use Psr\Http\Message\RequestInterface;
  */
 class PrivateHandshake implements AppHandshakeInterface
 {
-    private string $shopUrl;
-
-    private string $secret;
-
-    private string $appEndpoint;
-
-    private string $appName;
-
-    private string $shopId;
-
-    private string $shopwareVersion;
-
-    public function __construct(string $shopUrl, string $secret, string $appEndpoint, string $appName, string $shopId, string $shopwareVersion)
+    public function __construct(private readonly string $shopUrl, private readonly string $secret, private readonly string $appEndpoint, private readonly string $appName, private readonly string $shopId, private readonly string $shopwareVersion)
     {
-        $this->shopUrl = $shopUrl;
-        $this->secret = $secret;
-        $this->appEndpoint = $appEndpoint;
-        $this->appName = $appName;
-        $this->shopId = $shopId;
-        $this->shopwareVersion = $shopwareVersion;
     }
 
     public function assembleRequest(): RequestInterface

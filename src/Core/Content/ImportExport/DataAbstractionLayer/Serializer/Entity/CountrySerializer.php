@@ -17,8 +17,6 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class CountrySerializer extends EntitySerializer implements ResetInterface
 {
-    private EntityRepository $countryRepository;
-
     /**
      * @var array<string>|null[]
      */
@@ -27,9 +25,8 @@ class CountrySerializer extends EntitySerializer implements ResetInterface
     /**
      * @internal
      */
-    public function __construct(EntityRepository $countryRepository)
+    public function __construct(private readonly EntityRepository $countryRepository)
     {
-        $this->countryRepository = $countryRepository;
     }
 
     /**

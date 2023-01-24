@@ -20,7 +20,7 @@ class SeoUrlAssociationFieldResolver extends AbstractFieldResolver
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
         );
 
         $field = $context->getField();

@@ -16,14 +16,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CrossSellingCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
-    private AbstractProductCrossSellingRoute $crossSellingLoader;
-
     /**
      * @internal
      */
-    public function __construct(AbstractProductCrossSellingRoute $crossSellingLoader)
+    public function __construct(private readonly AbstractProductCrossSellingRoute $crossSellingLoader)
     {
-        $this->crossSellingLoader = $crossSellingLoader;
     }
 
     public function getType(): string

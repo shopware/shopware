@@ -66,9 +66,7 @@ class TaxRuleCollection extends Collection
 
     public function highestRate(): ?TaxRule
     {
-        return $this->reduce(function ($result, $item) {
-            return $result === null || $item->getTaxRate() > $result->getTaxRate() ? $item : $result;
-        });
+        return $this->reduce(fn ($result, $item) => $result === null || $item->getTaxRate() > $result->getTaxRate() ? $item : $result);
     }
 
     public function getApiAlias(): string

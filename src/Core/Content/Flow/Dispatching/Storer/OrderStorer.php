@@ -14,14 +14,11 @@ use Shopware\Core\Framework\Event\OrderAware;
  */
 class OrderStorer extends FlowStorer
 {
-    private EntityRepository $orderRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $orderRepository)
+    public function __construct(private readonly EntityRepository $orderRepository)
     {
-        $this->orderRepository = $orderRepository;
     }
 
     public function store(FlowEventAware $event, array $stored): array
@@ -43,7 +40,7 @@ class OrderStorer extends FlowStorer
 
         $storable->lazy(
             OrderAware::ORDER,
-            [$this, 'load'],
+            $this->load(...),
             [$storable->getStore(OrderAware::ORDER_ID), $storable->getContext()]
         );
     }
@@ -53,7 +50,7 @@ class OrderStorer extends FlowStorer
      */
     public function load(array $args): ?OrderEntity
     {
-        list($orderId, $context) = $args;
+        [$orderId, $context] = $args;
 
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('orderCustomer');

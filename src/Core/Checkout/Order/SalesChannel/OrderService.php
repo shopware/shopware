@@ -32,11 +32,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class OrderService
 {
-    public const CUSTOMER_COMMENT_KEY = 'customerComment';
-    public const AFFILIATE_CODE_KEY = 'affiliateCode';
-    public const CAMPAIGN_CODE_KEY = 'campaignCode';
+    final public const CUSTOMER_COMMENT_KEY = 'customerComment';
+    final public const AFFILIATE_CODE_KEY = 'affiliateCode';
+    final public const CAMPAIGN_CODE_KEY = 'campaignCode';
 
-    public const ALLOWED_TRANSACTION_STATES = [
+    final public const ALLOWED_TRANSACTION_STATES = [
         OrderTransactionStates::STATE_OPEN,
         OrderTransactionStates::STATE_CANCELLED,
         OrderTransactionStates::STATE_REMINDED,
@@ -45,35 +45,11 @@ class OrderService
         OrderTransactionStates::STATE_UNCONFIRMED,
     ];
 
-    private DataValidator $dataValidator;
-
-    private DataValidationFactoryInterface $orderValidationFactory;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private CartService $cartService;
-
-    private EntityRepository $paymentMethodRepository;
-
-    private StateMachineRegistry $stateMachineRegistry;
-
     /**
      * @internal
      */
-    public function __construct(
-        DataValidator $dataValidator,
-        DataValidationFactoryInterface $orderValidationFactory,
-        EventDispatcherInterface $eventDispatcher,
-        CartService $cartService,
-        EntityRepository $paymentMethodRepository,
-        StateMachineRegistry $stateMachineRegistry
-    ) {
-        $this->dataValidator = $dataValidator;
-        $this->orderValidationFactory = $orderValidationFactory;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartService = $cartService;
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->stateMachineRegistry = $stateMachineRegistry;
+    public function __construct(private readonly DataValidator $dataValidator, private readonly DataValidationFactoryInterface $orderValidationFactory, private readonly EventDispatcherInterface $eventDispatcher, private readonly CartService $cartService, private readonly EntityRepository $paymentMethodRepository, private readonly StateMachineRegistry $stateMachineRegistry)
+    {
     }
 
     /**

@@ -20,20 +20,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class TaxProviderPayloadService
 {
-    private AppPayloadServiceHelper $helper;
-
-    private Client $client;
-
-    private string $shopUrl;
-
-    public function __construct(
-        AppPayloadServiceHelper $helper,
-        Client $client,
-        string $shopUrl
-    ) {
-        $this->helper = $helper;
-        $this->client = $client;
-        $this->shopUrl = $shopUrl;
+    public function __construct(private readonly AppPayloadServiceHelper $helper, private readonly Client $client, private readonly string $shopUrl)
+    {
     }
 
     public function request(
@@ -48,8 +36,8 @@ class TaxProviderPayloadService
             $response = $this->client->post($url, $optionRequest);
             $content = $response->getBody()->getContents();
 
-            return TaxProviderResponse::create(\json_decode($content, true));
-        } catch (GuzzleException $ex) {
+            return TaxProviderResponse::create(\json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
+        } catch (GuzzleException) {
             return null;
         }
     }
@@ -61,7 +49,7 @@ class TaxProviderPayloadService
     {
         $payload->setSource($this->helper->buildSource($app, $this->shopUrl));
         $encoded = $this->helper->encode($payload);
-        $jsonPayload = \json_encode($encoded);
+        $jsonPayload = \json_encode($encoded, \JSON_THROW_ON_ERROR);
 
         if (!$jsonPayload) {
             throw new BadRequestHttpException(\sprintf('Empty payload, got: %s', \var_export($jsonPayload, true)));

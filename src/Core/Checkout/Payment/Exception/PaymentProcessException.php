@@ -10,16 +10,12 @@ use Symfony\Component\HttpFoundation\Response;
  */
 abstract class PaymentProcessException extends ShopwareHttpException
 {
-    private string $orderTransactionId;
-
     public function __construct(
-        string $orderTransactionId,
+        private readonly string $orderTransactionId,
         string $message,
         array $parameters = [],
         ?\Throwable $e = null
     ) {
-        $this->orderTransactionId = $orderTransactionId;
-
         parent::__construct($message, $parameters, $e);
     }
 

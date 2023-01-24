@@ -15,16 +15,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class UserRepository implements UserRepositoryInterface
 {
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -52,7 +46,7 @@ class UserRepository implements UserRepositoryInterface
             return null;
         }
 
-        if (!password_verify($password, $user['password'])) {
+        if (!password_verify($password, (string) $user['password'])) {
             return null;
         }
 

@@ -36,35 +36,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 class FileSaver
 {
-    private EntityRepository $mediaRepository;
-
-    private FilesystemOperator $filesystemPublic;
-
-    private UrlGeneratorInterface $urlGenerator;
-
-    private ThumbnailService $thumbnailService;
-
-    private FileNameValidator $fileNameValidator;
-
-    private MessageBusInterface $messageBus;
-
-    private MetadataLoader $metadataLoader;
-
-    private TypeDetector $typeDetector;
-
-    private FilesystemOperator $filesystemPrivate;
-
-    /**
-     * @var list<string>
-     */
-    private array $allowedExtensions;
-
-    /**
-     * @var list<string>
-     */
-    private array $privateAllowedExtensions;
-
-    private EventDispatcherInterface $eventDispatcher;
+    private readonly FileNameValidator $fileNameValidator;
 
     /**
      * @internal
@@ -73,30 +45,19 @@ class FileSaver
      * @param list<string> $privateAllowedExtensions
      */
     public function __construct(
-        EntityRepository $mediaRepository,
-        FilesystemOperator $filesystemPublic,
-        FilesystemOperator $filesystemPrivate,
-        UrlGeneratorInterface $urlGenerator,
-        ThumbnailService $thumbnailService,
-        MetadataLoader $metadataLoader,
-        TypeDetector $typeDetector,
-        MessageBusInterface $messageBus,
-        EventDispatcherInterface $eventDispatcher,
-        array $allowedExtensions,
-        array $privateAllowedExtensions
+        private readonly EntityRepository $mediaRepository,
+        private readonly FilesystemOperator $filesystemPublic,
+        private readonly FilesystemOperator $filesystemPrivate,
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly ThumbnailService $thumbnailService,
+        private readonly MetadataLoader $metadataLoader,
+        private readonly TypeDetector $typeDetector,
+        private readonly MessageBusInterface $messageBus,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly array $allowedExtensions,
+        private readonly array $privateAllowedExtensions
     ) {
-        $this->mediaRepository = $mediaRepository;
-        $this->filesystemPublic = $filesystemPublic;
-        $this->filesystemPrivate = $filesystemPrivate;
-        $this->urlGenerator = $urlGenerator;
-        $this->thumbnailService = $thumbnailService;
         $this->fileNameValidator = new FileNameValidator();
-        $this->metadataLoader = $metadataLoader;
-        $this->typeDetector = $typeDetector;
-        $this->messageBus = $messageBus;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->allowedExtensions = $allowedExtensions;
-        $this->privateAllowedExtensions = $privateAllowedExtensions;
     }
 
     /**
@@ -182,17 +143,14 @@ class FileSaver
                 $this->urlGenerator->getRelativeMediaUrl($updatedMedia),
                 $this->getFileSystem($currentMedia)
             );
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new CouldNotRenameFileException($currentMedia->getId(), (string) $currentMedia->getFileName());
         }
 
         foreach ($currentMedia->getThumbnails() ?? [] as $thumbnail) {
             try {
-                $renamedFiles = array_merge(
-                    $renamedFiles,
-                    $this->renameThumbnail($thumbnail, $currentMedia, $updatedMedia)
-                );
-            } catch (\Exception $e) {
+                $renamedFiles = [...$renamedFiles, ...$this->renameThumbnail($thumbnail, $currentMedia, $updatedMedia)];
+            } catch (\Exception) {
                 $this->rollbackRenameAction($currentMedia, $renamedFiles);
             }
         }
@@ -207,7 +165,7 @@ class FileSaver
             $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($updateData): void {
                 $this->mediaRepository->update([$updateData], $context);
             });
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $this->rollbackRenameAction($currentMedia, $renamedFiles);
         }
     }
@@ -243,7 +201,7 @@ class FileSaver
 
         try {
             $this->getFileSystem($media)->delete($oldMediaFilePath);
-        } catch (UnableToDeleteFile $e) {
+        } catch (UnableToDeleteFile) {
             //nth
         }
 
@@ -380,7 +338,7 @@ class FileSaver
         $fileExtension = mb_strtolower($mediaFile->getFileExtension());
 
         foreach ($event->getWhitelist() as $extension) {
-            if ($fileExtension === mb_strtolower($extension)) {
+            if ($fileExtension === mb_strtolower((string) $extension)) {
                 return;
             }
         }

@@ -10,16 +10,12 @@ use Shopware\Core\Content\Media\Exception\StrategyNotFoundException;
 class StrategyFactory
 {
     /**
-     * @var PathnameStrategyInterface[]
-     */
-    private $strategies;
-
-    /**
      * @internal
+     *
+     * @param PathnameStrategyInterface[] $strategies
      */
-    public function __construct(iterable $strategies)
+    public function __construct(private readonly iterable $strategies)
     {
-        $this->strategies = $strategies;
     }
 
     public function factory(string $strategyName): PathnameStrategyInterface

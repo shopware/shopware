@@ -28,10 +28,7 @@ class RuleValidatorTest extends TestCase
      */
     private $ruleValidator;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var RuleConditionRegistry|MockObject

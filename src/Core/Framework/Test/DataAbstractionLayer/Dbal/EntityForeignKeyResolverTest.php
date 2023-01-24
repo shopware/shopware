@@ -14,7 +14,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -30,12 +29,6 @@ class EntityForeignKeyResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
-
-    private Connection $testConnection;
-
-    private EntityForeignKeyResolver $entityForeignKeyResolver;
-
-    private DefinitionInstanceRegistry $definitionRegistry;
 
     public function testItCreatesEventsForWriteProtectedCascadeDeletes(): void
     {

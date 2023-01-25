@@ -44,7 +44,7 @@ class ConfirmUrlStorerTest extends TestCase
 
     public function testRestoreWithEmptyStored(): void
     {
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -64,7 +64,7 @@ class ConfirmUrlStorerTest extends TestCase
     {
         $confirmUrl = 'shopware-test.com';
 
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))

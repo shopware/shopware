@@ -36,34 +36,34 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductDetailRouteTest extends TestCase
 {
     /**
-     * @var MockObject|SalesChannelRepository
+     * @var MockObject&SalesChannelRepository
      */
     private SalesChannelRepository $productRepository;
 
     /**
-     * @var MockObject|SystemConfigService
+     * @var MockObject&SystemConfigService
      */
     private SystemConfigService $systemConfig;
 
     /**
-     * @var MockObject|ProductConfiguratorLoader
+     * @var MockObject&ProductConfiguratorLoader
      */
     private ProductConfiguratorLoader $configuratorLoader;
 
     /**
-     * @var MockObject|CategoryBreadcrumbBuilder
+     * @var MockObject&CategoryBreadcrumbBuilder
      */
     private CategoryBreadcrumbBuilder $breadcrumbBuilder;
 
     /**
-     * @var MockObject|SalesChannelCmsPageLoader
+     * @var MockObject&SalesChannelCmsPageLoader
      */
     private SalesChannelCmsPageLoader $cmsPageLoader;
 
     private ProductDetailRoute $route;
 
     /**
-     * @var MockObject|SalesChannelContext
+     * @var MockObject&SalesChannelContext
      */
     private SalesChannelContext $context;
 

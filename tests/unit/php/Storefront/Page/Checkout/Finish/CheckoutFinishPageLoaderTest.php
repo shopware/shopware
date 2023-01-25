@@ -269,7 +269,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
     }
 
     /**
-     * @return SalesChannelContext|MockObject
+     * @return SalesChannelContext&MockObject
      */
     private function getContextWithDummyCustomer(): SalesChannelContext
     {

@@ -82,7 +82,7 @@ class VerifyResponseSignatureMiddlewareTest extends TestCase
     }
 
     /**
-     * @return OpenSSLVerifier|MockObject
+     * @return OpenSSLVerifier&MockObject
      */
     private function createOpenSslVerifier(bool $isSystemSupported, bool $isValid): MockObject
     {

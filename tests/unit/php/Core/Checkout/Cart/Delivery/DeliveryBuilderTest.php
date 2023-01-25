@@ -66,7 +66,7 @@ class DeliveryBuilderTest extends TestCase
             'shipping-method-shipping-method-id' => $shippingMethod,
         ]);
 
-        /** @var DeliveryBuilder|MockObject $deliveryBuilder */
+        /** @var DeliveryBuilder&MockObject $deliveryBuilder */
         $deliveryBuilder = $this->getMockBuilder(DeliveryBuilder::class)
             // don't mock build because it is the function under test
             ->onlyMethods(['buildByUsingShippingMethod'])

@@ -34,27 +34,27 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class RegisterConfirmRouteTest extends TestCase
 {
     /**
-     * @var MockObject|SalesChannelContext
+     * @var MockObject&SalesChannelContext
      */
     protected $context;
 
     /**
-     * @var MockObject|EventDispatcherInterface
+     * @var MockObject&EventDispatcherInterface
      */
     protected $eventDispatcher;
 
     /**
-     * @var MockObject|EntityRepository
+     * @var MockObject&EntityRepository
      */
     protected $customerRepository;
 
     /**
-     * @var MockObject|DataValidator
+     * @var MockObject&DataValidator
      */
     protected $validator;
 
     /**
-     * @var MockObject|SalesChannelContextPersister
+     * @var MockObject&SalesChannelContextPersister
      */
     protected $salesChannelContextPersister;
 

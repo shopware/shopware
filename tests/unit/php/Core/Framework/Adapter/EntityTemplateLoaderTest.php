@@ -17,7 +17,7 @@ use Twig\Source;
 class EntityTemplateLoaderTest extends TestCase
 {
     /**
-     * @var Connection|MockObject
+     * @var Connection&MockObject
      */
     private Connection $connectionMock;
 

@@ -26,27 +26,27 @@ use Shopware\Storefront\Theme\ThemeService;
 class ThemeLifecycleHandlerTest extends TestCase
 {
     /**
-     * @var MockObject|ThemeService
+     * @var MockObject&ThemeService
      */
     private ThemeService $themeServiceMock;
 
     /**
-     * @var StorefrontPluginRegistryInterface|MockObject
+     * @var StorefrontPluginRegistryInterface&MockObject
      */
     private StorefrontPluginRegistryInterface $configurationRegistryMock;
 
     /**
-     * @var MockObject|ThemeLifecycleService
+     * @var MockObject&ThemeLifecycleService
      */
     private ThemeLifecycleService $themeLifecycleServiceMock;
 
     /**
-     * @var MockObject|EntityRepository
+     * @var MockObject&EntityRepository
      */
     private EntityRepository $themeRepositoryMock;
 
     /**
-     * @var MockObject|Connection
+     * @var MockObject&Connection
      */
     private Connection $connectionsMock;
 

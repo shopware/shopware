@@ -35,12 +35,12 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 class ThemeServiceTest extends TestCase
 {
     /**
-     * @var Connection|MockObject
+     * @var Connection&MockObject
      */
     private Connection $connectionMock;
 
     /**
-     * @var StorefrontPluginRegistry|MockObject
+     * @var StorefrontPluginRegistry&MockObject
      */
     private StorefrontPluginRegistry $storefrontPluginRegistryMock;
 
@@ -49,17 +49,17 @@ class ThemeServiceTest extends TestCase
     private MockObject&EntityRepository $themeSalesChannelRepositoryMock;
 
     /**
-     * @var ThemeCompiler|MockObject
+     * @var ThemeCompiler&MockObject
      */
     private ThemeCompiler $themeCompilerMock;
 
     /**
-     * @var EventDispatcher|MockObject
+     * @var EventDispatcher&MockObject
      */
     private EventDispatcher $eventDispatcherMock;
 
     /**
-     * @var DatabaseConfigLoader|MockObject
+     * @var DatabaseConfigLoader&MockObject
      */
     private DatabaseConfigLoader $databaseConfigLoaderMock;
 

@@ -69,7 +69,7 @@ class FlowSendMailActionEventTest extends TestCase
 
     public function testGetStorableFlowHasOriginalFlowEvent(): void
     {
-        /** @var StorableFlow|MockObject $event */
+        /** @var StorableFlow&MockObject $event */
         $event = $this->createMock(StorableFlow::class);
 
         $mailTemplate = new MailTemplateEntity();

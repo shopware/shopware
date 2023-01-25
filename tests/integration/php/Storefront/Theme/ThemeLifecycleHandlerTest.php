@@ -39,15 +39,9 @@ class ThemeLifecycleHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var MockObject|ThemeService
-     */
-    private ThemeService $themeServiceMock;
+    private MockObject&ThemeService $themeServiceMock;
 
-    /**
-     * @var MockObject|StorefrontPluginRegistryInterface
-     */
-    private StorefrontPluginRegistryInterface $configurationRegistryMock;
+    private MockObject&StorefrontPluginRegistryInterface $configurationRegistryMock;
 
     private ThemeLifecycleHandler $themeLifecycleHandler;
 

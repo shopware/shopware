@@ -147,7 +147,7 @@ class DownloadResponseGeneratorTest extends TestCase
     }
 
     /**
-     * @return Filesystem|MockObject
+     * @return Filesystem&MockObject
      */
     private function getLocaleFilesystemOperator(): Filesystem
     {
@@ -157,7 +157,7 @@ class DownloadResponseGeneratorTest extends TestCase
         return $fileSystem;
     }
 
-    private function getExternalFilesystemOperator(): Filesystem|MockObject
+    private function getExternalFilesystemOperator(): Filesystem&MockObject
     {
         $fileSystem = $this->createMock(Filesystem::class);
         $fileSystem->method('temporaryUrl')->willReturn('foobar.txt');

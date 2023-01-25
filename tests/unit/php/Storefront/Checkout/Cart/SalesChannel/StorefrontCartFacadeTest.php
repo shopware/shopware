@@ -471,7 +471,7 @@ class StorefrontCartFacadeTest extends TestCase
     }
 
     /**
-     * @return MockObject|SalesChannelContext
+     * @return MockObject&SalesChannelContext
      */
     private function getSalesChannelContext(): MockObject
     {

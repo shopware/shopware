@@ -57,7 +57,7 @@ class MailStorerTest extends TestCase
         $mailStruct->setBcc('bcc');
         $mailStruct->setCc('cc');
 
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -81,7 +81,7 @@ class MailStorerTest extends TestCase
         $mailStruct->setBcc('bcc');
         $mailStruct->setCc('cc');
 
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))

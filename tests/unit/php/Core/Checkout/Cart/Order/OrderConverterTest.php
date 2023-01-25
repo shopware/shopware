@@ -501,7 +501,7 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @return MockObject|SalesChannelContext
+     * @return MockObject&SalesChannelContext
      */
     private function getSalesChannelContext(bool $loginCustomer, bool $customerWithoutBillingAddress = false): MockObject
     {

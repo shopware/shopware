@@ -12,11 +12,12 @@ use Shopware\Core\Checkout\Cart\Event\BeforeLineItemQuantityChangedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartCreatedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -173,7 +174,7 @@ class CartServiceTest extends TestCase
 
         $context = $this->getSalesChannelContext();
 
-        $lineItem = (new ProductLineItemFactory())->create($this->productId);
+        $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $this->productId, 'referencedId' => $this->productId], $context);
 
         $cart = $cartService->getCart($context->getToken(), $context);
 
@@ -199,7 +200,7 @@ class CartServiceTest extends TestCase
 
         $context = $this->getSalesChannelContext();
 
-        $lineItem = (new ProductLineItemFactory())->create($this->productId);
+        $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $this->productId, 'referencedId' => $this->productId], $context);
 
         $cart = $cartService->getCart($context->getToken(), $context);
 
@@ -225,7 +226,7 @@ class CartServiceTest extends TestCase
 
         $context = $this->getSalesChannelContext();
 
-        $lineItem = (new ProductLineItemFactory())->create($this->productId);
+        $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $this->productId, 'referencedId' => $this->productId], $context);
 
         $cart = $cartService->getCart($context->getToken(), $context);
 
@@ -249,7 +250,7 @@ class CartServiceTest extends TestCase
 
         $context = $this->getSalesChannelContext();
 
-        $lineItem = (new ProductLineItemFactory())->create($this->productId);
+        $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $this->productId, 'referencedId' => $this->productId], $context);
 
         $cart = $cartService->getCart($context->getToken(), $context);
 
@@ -287,7 +288,7 @@ class CartServiceTest extends TestCase
             ->create([$product], $context->getContext());
         $this->addTaxDataToSalesChannel($context, $product['tax']);
 
-        $lineItem = (new ProductLineItemFactory())->create($productId);
+        $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $productId, 'referencedId' => $productId], $context);
 
         $cart = $cartService->getCart($context->getToken(), $context);
 
@@ -328,7 +329,7 @@ class CartServiceTest extends TestCase
 
         $context = $contextService->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $newtoken));
 
-        $lineItem = (new ProductLineItemFactory())->create($this->productId);
+        $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $this->productId, 'referencedId' => $this->productId], $context);
 
         $cartService = $this->getContainer()->get(CartService::class);
 

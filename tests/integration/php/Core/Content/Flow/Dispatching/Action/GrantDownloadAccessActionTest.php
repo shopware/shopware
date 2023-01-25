@@ -5,6 +5,8 @@ namespace Shopware\Tests\Integration\Core\Content\Flow\Dispatching\Action;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDownloadRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute;
@@ -19,7 +21,6 @@ use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileSaver;
-use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -440,8 +441,8 @@ class GrantDownloadAccessActionTest extends TestCase
 
     private function addProduct(string $productId, int $quantity, Cart $cart, CartService $cartService, SalesChannelContext $context): Cart
     {
-        $factory = new ProductLineItemFactory();
-        $product = $factory->create($productId, ['quantity' => $quantity]);
+        $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
+        $product = $factory->create(['id' => $productId, 'referencedId' => $productId, 'quantity' => $quantity], $context);
 
         return $cartService->add($cart, $product, $context);
     }

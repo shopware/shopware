@@ -113,7 +113,7 @@ class MailService extends AbstractMailService
         $contents = $this->buildContents($data, $salesChannel);
         if ($this->isTestMode($data)) {
             $this->templateRenderer->enableTestMode();
-            if (!isset($templateData['order']) && !isset($templateData['order']['deepLinkCode']) || $templateData['order']['deepLinkCode'] === '') {
+            if (\is_array($templateData['order'] ?? []) && empty($templateData['order']['deepLinkCode'])) {
                 $templateData['order']['deepLinkCode'] = 'home';
             }
         }

@@ -62,7 +62,8 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('config_loader_id')->defaultValue(DatabaseConfigLoader::class)->end()
                         ->scalarNode('theme_path_builder_id')->defaultValue(SeedingThemePathBuilder::class)->end()
                         ->scalarNode('available_theme_provider')->defaultValue(DatabaseAvailableThemeProvider::class)->end()
-                    ->end()
+                        ->integerNode('file_delete_delay')->defaultValue(900)->end()
+            ->end()
                 ->end()
             ->end();
 

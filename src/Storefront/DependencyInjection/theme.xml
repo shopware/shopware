@@ -33,6 +33,7 @@
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
             <argument type="service" id="messenger.bus.shopware"/>
+            <argument>%storefront.theme.file_delete_delay%</argument>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileImporter">

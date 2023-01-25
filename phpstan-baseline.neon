@@ -16963,11 +16963,6 @@ parameters:
 			path: src/Elasticsearch/Framework/Indexing/IndexerOffset.php
 
 		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset\\:\\:getLanguages\\(\\) should return list\\<string\\> but returns array\\<string\\>\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/IndexerOffset.php
-
-		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexingDto\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/Indexing/IndexingDto.php

@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class FilterPickerNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $key)

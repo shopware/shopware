@@ -4,17 +4,17 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1598885384RedirectToLatestSeoUrl extends MigrationStep
 {
-    public const CONFIG_KEY = 'core.seo.redirectToCanonicalUrl';
+    final public const CONFIG_KEY = 'core.seo.redirectToCanonicalUrl';
 
     public function getCreationTimestamp(): int
     {

@@ -4,13 +4,13 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1591253089OrderDeeplinkForMailTemplates extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -254,7 +254,7 @@ class Migration1591253089OrderDeeplinkForMailTemplates extends MigrationStep
             if (!isset($availableEntities['editOrderUrl'])) {
                 $availableEntities['editOrderUrl'] = null;
                 $sqlStatement = 'UPDATE `mail_template_type` SET `available_entities` = :availableEntities WHERE `technical_name` = :mailTemplateType AND `updated_at` IS NULL';
-                $connection->executeStatement($sqlStatement, ['availableEntities' => json_encode($availableEntities), 'mailTemplateType' => $mailTemplateType]);
+                $connection->executeStatement($sqlStatement, ['availableEntities' => json_encode($availableEntities, \JSON_THROW_ON_ERROR), 'mailTemplateType' => $mailTemplateType]);
             }
 
             $this->updateMailTemplateTranslation(
@@ -302,7 +302,7 @@ class Migration1591253089OrderDeeplinkForMailTemplates extends MigrationStep
             ['mailTemplateType' => $mailTemplateType]
         )->fetchOne();
 
-        if ($availableEntities === false || !\is_string($availableEntities) || json_decode($availableEntities, true) === null) {
+        if ($availableEntities === false || !\is_string($availableEntities) || json_decode($availableEntities, true, 512, \JSON_THROW_ON_ERROR) === null) {
             return [];
         }
 

@@ -36,10 +36,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 class AdminSearchRegistryTest extends TestCase
 {
-    /**
-     * @var MockObject&AbstractAdminIndexer
-     */
-    private $indexer;
+    private MockObject&AbstractAdminIndexer $indexer;
 
     public function setUp(): void
     {

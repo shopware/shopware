@@ -5,19 +5,18 @@ namespace Shopware\Core\Installer\Configuration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 
 /**
- * @package core
- *
  * @internal
  * @codeCoverageIgnore - Is tested by integration test, does not make sense to unit test
  * as the sole purpose of this class is to configure the DB according to the configuration
- *
  * @phpstan-import-type Shop from ShopConfigurationController
  */
+#[Package('core')]
 class ShopConfigurationService
 {
     /**

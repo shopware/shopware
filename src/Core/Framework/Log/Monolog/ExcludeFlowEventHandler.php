@@ -4,10 +4,9 @@ namespace Shopware\Core\Framework\Log\Monolog;
 
 use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\HandlerInterface;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ExcludeFlowEventHandler extends AbstractHandler
 {
     /**
@@ -15,7 +14,7 @@ class ExcludeFlowEventHandler extends AbstractHandler
      *
      * @param array<int, string> $excludeEvents
      */
-    public function __construct(private HandlerInterface $handler, private array $excludeEvents = [])
+    public function __construct(private readonly HandlerInterface $handler, private readonly array $excludeEvents = [])
     {
         parent::__construct();
     }

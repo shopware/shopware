@@ -93,7 +93,7 @@ class ShippingMethodRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true) ?: [];
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
 
         $ids = array_column($response['elements'], 'id');
 
@@ -116,7 +116,7 @@ class ShippingMethodRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true) ?: [];
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
 
         $ids = array_column($response['elements'], 'id');
 
@@ -146,7 +146,7 @@ class ShippingMethodRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true) ?: [];
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
 
         $ids = array_column($response['elements'], 'id');
 
@@ -194,7 +194,7 @@ class ShippingMethodRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true) ?: [];
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
 
         static::assertSame(3, $response['total']);
         static::assertArrayHasKey('name', $response['elements'][0]);
@@ -214,7 +214,7 @@ class ShippingMethodRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true) ?: [];
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
 
         static::assertSame(3, $response['total']);
         static::assertNotEmpty($response['elements'][0]['availabilityRule']);
@@ -228,7 +228,7 @@ class ShippingMethodRouteTest extends TestCase
                 '/store-api/shipping-method?onlyAvailable=1',
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true) ?: [];
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
 
         static::assertSame(2, $response['total']);
         static::assertCount(2, $response['elements']);
@@ -247,7 +247,7 @@ class ShippingMethodRouteTest extends TestCase
                 ['onlyAvailable' => 1],
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true) ?: [];
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
 
         static::assertSame(2, $response['total']);
         static::assertCount(2, $response['elements']);

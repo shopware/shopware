@@ -4,34 +4,21 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\Exception\NoConfigurationException;
 use Shopware\Core\System\NumberRange\NumberRangeEvents;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 {
-    private ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(
-        ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry,
-        EventDispatcherInterface $eventDispatcher,
-        Connection $connection
-    ) {
-        $this->valueGeneratorPatternRegistry = $valueGeneratorPatternRegistry;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->connection = $connection;
+    public function __construct(private readonly ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry, private readonly EventDispatcherInterface $eventDispatcher, private readonly Connection $connection)
+    {
     }
 
     public function getValue(string $type, Context $context, ?string $salesChannelId, bool $preview = false): string

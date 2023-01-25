@@ -4,15 +4,15 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Migration\Traits\MailSubjectUpdate;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1652345915UpdateSubjectMailTemplate extends MigrationStep
 {
     use UpdateMailTrait;

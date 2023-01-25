@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
-/**
- * @package business-ops
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('business-ops')]
 interface DelayableAction
 {
 }

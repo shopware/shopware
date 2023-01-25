@@ -4,28 +4,23 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class CartHasDeliveryFreeItemRule extends Rule
 {
-    public const RULE_NAME = 'cartHasDeliveryFreeItem';
-
-    protected bool $allowed;
+    final public const RULE_NAME = 'cartHasDeliveryFreeItem';
 
     /**
      * @internal
      */
-    public function __construct(bool $allowed = true)
+    public function __construct(protected bool $allowed = true)
     {
         parent::__construct();
-
-        $this->allowed = $allowed;
     }
 
     public function match(RuleScope $scope): bool

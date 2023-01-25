@@ -5,12 +5,12 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package customer-order
- *
  * @extends EntityCollection<OrderLineItemEntity>
  */
+#[Package('customer-order')]
 class OrderLineItemCollection extends EntityCollection
 {
     /**
@@ -18,16 +18,12 @@ class OrderLineItemCollection extends EntityCollection
      */
     public function getOrderIds(): array
     {
-        return $this->fmap(function (OrderLineItemEntity $orderLineItem) {
-            return $orderLineItem->getOrderId();
-        });
+        return $this->fmap(fn (OrderLineItemEntity $orderLineItem) => $orderLineItem->getOrderId());
     }
 
     public function filterByOrderId(string $id): self
     {
-        return $this->filter(function (OrderLineItemEntity $orderLineItem) use ($id) {
-            return $orderLineItem->getOrderId() === $id;
-        });
+        return $this->filter(fn (OrderLineItemEntity $orderLineItem) => $orderLineItem->getOrderId() === $id);
     }
 
     public function sortByCreationDate(string $sortDirection = FieldSorting::ASCENDING): void
@@ -43,9 +39,7 @@ class OrderLineItemCollection extends EntityCollection
 
     public function sortByPosition(): void
     {
-        $this->sort(function (OrderLineItemEntity $a, OrderLineItemEntity $b) {
-            return $a->getPosition() <=> $b->getPosition();
-        });
+        $this->sort(fn (OrderLineItemEntity $a, OrderLineItemEntity $b) => $a->getPosition() <=> $b->getPosition());
     }
 
     /**
@@ -65,9 +59,7 @@ class OrderLineItemCollection extends EntityCollection
 
     public function filterByType(string $type): self
     {
-        return $this->filter(function (OrderLineItemEntity $lineItem) use ($type) {
-            return $lineItem->getType() === $type;
-        });
+        return $this->filter(fn (OrderLineItemEntity $lineItem) => $lineItem->getType() === $type);
     }
 
     /**
@@ -106,9 +98,7 @@ class OrderLineItemCollection extends EntityCollection
     public function getPrices(): PriceCollection
     {
         return new PriceCollection(
-            array_filter(array_map(static function (OrderLineItemEntity $orderLineItem) {
-                return $orderLineItem->getPrice();
-            }, array_values($this->getElements())))
+            array_filter(array_map(static fn (OrderLineItemEntity $orderLineItem) => $orderLineItem->getPrice(), array_values($this->getElements())))
         );
     }
 

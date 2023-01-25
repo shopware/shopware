@@ -14,14 +14,8 @@ use Shopware\Core\System\Tax\TaxDefinition;
  */
 class CollectionBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
 {
-    /**
-     * @var TaxCollection
-     */
-    private $taxes;
-
-    public function __construct(TaxCollection $taxes)
+    public function __construct(private readonly TaxCollection $taxes)
     {
-        $this->taxes = $taxes;
     }
 
     public static function getAvailableData(): EventDataCollection

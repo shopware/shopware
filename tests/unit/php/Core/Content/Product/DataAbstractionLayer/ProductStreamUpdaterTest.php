@@ -24,30 +24,11 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 class ProductStreamUpdaterTest extends TestCase
 {
-    /**
-     * @var Connection|MockObject
-     */
-    private $connection;
+    private Connection&MockObject $connection;
 
-    /**
-     * @var ProductDefinition|MockObject
-     */
-    private $productDefinition;
+    private MockObject&ProductDefinition $productDefinition;
 
-    /**
-     * @var EntityRepository|MockObject
-     */
-    private $repository;
-
-    /**
-     * @var MessageBusInterface|MockObject
-     */
-    private $messageBus;
-
-    /**
-     * @var ManyToManyIdFieldUpdater|MockObject
-     */
-    private $manyToManyIdFieldUpdater;
+    private MockObject&EntityRepository $repository;
 
     private ProductStreamUpdater $updater;
 
@@ -56,15 +37,15 @@ class ProductStreamUpdaterTest extends TestCase
         $this->connection = $this->createMock(Connection::class);
         $this->productDefinition = $this->createMock(ProductDefinition::class);
         $this->repository = $this->createMock(EntityRepository::class);
-        $this->messageBus = $this->createMock(MessageBusInterface::class);
-        $this->manyToManyIdFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $manyToManyIdFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
 
         $this->updater = new ProductStreamUpdater(
             $this->connection,
             $this->productDefinition,
             $this->repository,
-            $this->messageBus,
-            $this->manyToManyIdFieldUpdater
+            $messageBus,
+            $manyToManyIdFieldUpdater
         );
     }
 

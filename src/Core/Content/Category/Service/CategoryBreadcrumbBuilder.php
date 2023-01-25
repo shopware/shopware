@@ -14,22 +14,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-/**
- * @package content
- */
+#[Package('content')]
 class CategoryBreadcrumbBuilder
 {
-    private EntityRepository $categoryRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $categoryRepository)
+    public function __construct(private readonly EntityRepository $categoryRepository)
     {
-        $this->categoryRepository = $categoryRepository;
     }
 
     /**
@@ -118,9 +114,7 @@ class CategoryBreadcrumbBuilder
             $context->getSalesChannel()->getFooterCategoryId(),
         ]);
 
-        return new OrFilter(array_map(static function (string $id) {
-            return new ContainsFilter('path', '|' . $id . '|');
-        }, $ids));
+        return new OrFilter(array_map(static fn (string $id) => new ContainsFilter('path', '|' . $id . '|'), $ids));
     }
 
     private function getMainCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity

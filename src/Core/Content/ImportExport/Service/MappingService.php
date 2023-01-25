@@ -22,31 +22,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class MappingService extends AbstractMappingService
 {
-    private AbstractFileService $fileService;
-
-    private EntityRepository $profileRepository;
-
-    private DefinitionInstanceRegistry $definitionInstanceRegistry;
-
     /**
      * @internal
      */
-    public function __construct(
-        AbstractFileService $fileService,
-        EntityRepository $profileRepository,
-        DefinitionInstanceRegistry $definitionInstanceRegistry
-    ) {
-        $this->fileService = $fileService;
-        $this->profileRepository = $profileRepository;
-        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
+    public function __construct(private readonly AbstractFileService $fileService, private readonly EntityRepository $profileRepository, private readonly DefinitionInstanceRegistry $definitionInstanceRegistry)
+    {
     }
 
     public function getDecorated(): AbstractMappingService

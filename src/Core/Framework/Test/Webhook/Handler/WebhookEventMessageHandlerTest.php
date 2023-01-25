@@ -87,7 +87,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         $request = $this->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $request);
         $payload = $request->getBody()->getContents();
-        $body = json_decode($payload);
+        $body = json_decode($payload, null, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('POST', $request->getMethod());
         static::assertEquals($body->body, 'payload');
@@ -169,7 +169,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         $request = $this->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $request);
         $payload = $request->getBody()->getContents();
-        $body = json_decode($payload);
+        $body = json_decode($payload, null, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('POST', $request->getMethod());
         static::assertEquals($body->body, 'payload');

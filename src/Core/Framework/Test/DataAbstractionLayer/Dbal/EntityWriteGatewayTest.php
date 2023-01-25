@@ -504,7 +504,7 @@ class EntityWriteGatewayTest extends TestCase
 
     private function createProduct(?string $id = null): string
     {
-        $id = $id ?? Uuid::randomHex();
+        $id ??= Uuid::randomHex();
 
         $data = [
             'id' => $id,

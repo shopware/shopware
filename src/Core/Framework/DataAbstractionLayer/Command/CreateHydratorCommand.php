@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -38,34 +39,23 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'dal:create:hydrators',
     description: 'Creates the hydrator classes',
 )]
+#[Package('core')]
 class CreateHydratorCommand extends Command
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
-
-    /**
-     * @var string
-     */
-    private $dir;
+    private readonly string $dir;
 
     /**
      * @internal
      */
     public function __construct(
-        DefinitionInstanceRegistry $registry,
+        private readonly DefinitionInstanceRegistry $registry,
         string $rootDir
     ) {
         parent::__construct();
-        $this->registry = $registry;
         $this->dir = $rootDir . '/platform/src';
     }
 
@@ -100,7 +90,7 @@ class CreateHydratorCommand extends Command
 
             foreach ($entities as $definition) {
                 foreach ($startsWith as $prefix) {
-                    if (strpos($definition->getEntityName(), $prefix) === 0) {
+                    if (str_starts_with($definition->getEntityName(), $prefix)) {
                         $whitelist[] = $definition->getEntityName();
 
                         break;
@@ -164,12 +154,12 @@ EOF;
             $output->writeln($e->getMessage());
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     private function getDefinitionFile(EntityDefinition $definition): string
     {
-        $class = \get_class($definition);
+        $class = $definition::class;
 
         $class = explode('\\', $class);
 
@@ -188,7 +178,7 @@ EOF;
 
         $content = (string) file_get_contents($file);
 
-        if (strpos($content, 'getHydratorClass') !== false) {
+        if (str_contains($content, 'getHydratorClass')) {
             return null;
         }
 
@@ -310,7 +300,7 @@ EOF;
 
     private function getClass(EntityDefinition $definition): string
     {
-        $parts = explode('_', $definition->getEntityName());
+        $parts = explode('_', (string) $definition->getEntityName());
 
         $parts = array_map('ucfirst', $parts);
 
@@ -346,7 +336,7 @@ class #class# extends EntityHydrator
 
 EOF;
 
-        $entity = explode('\\', $definition->getEntityClass());
+        $entity = explode('\\', (string) $definition->getEntityClass());
         $entity = array_pop($entity);
 
         $callTemplate = '';

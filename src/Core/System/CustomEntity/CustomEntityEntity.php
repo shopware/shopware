@@ -4,10 +4,9 @@ namespace Shopware\Core\System\CustomEntity;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CustomEntityEntity extends Entity
 {
     use EntityIdTrait;
@@ -18,9 +17,9 @@ class CustomEntityEntity extends Entity
 
     protected bool $storeApiAware;
 
-    protected ?string $appId;
+    protected ?string $appId = null;
 
-    protected ?string $pluginId;
+    protected ?string $pluginId = null;
 
     /**
      * @var array<mixed>

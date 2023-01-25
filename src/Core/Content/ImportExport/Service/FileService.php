@@ -10,30 +10,23 @@ use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
 use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class FileService extends AbstractFileService
 {
-    private FilesystemOperator $filesystem;
-
-    private EntityRepository $fileRepository;
-
-    private CsvFileWriter $writer;
+    private readonly CsvFileWriter $writer;
 
     /**
      * @internal
      */
     public function __construct(
-        FilesystemOperator $filesystem,
-        EntityRepository $fileRepository
+        private readonly FilesystemOperator $filesystem,
+        private readonly EntityRepository $fileRepository
     ) {
-        $this->filesystem = $filesystem;
-        $this->fileRepository = $fileRepository;
         $this->writer = new CsvFileWriter($filesystem);
     }
 
@@ -48,7 +41,7 @@ class FileService extends AbstractFileService
     public function storeFile(Context $context, \DateTimeInterface $expireDate, ?string $sourcePath, ?string $originalFileName, string $activity, ?string $path = null): ImportExportFileEntity
     {
         $id = Uuid::randomHex();
-        $path = $path ?? $activity . '/' . ImportExportFileEntity::buildPath($id);
+        $path ??= $activity . '/' . ImportExportFileEntity::buildPath($id);
         if (!empty($sourcePath)) {
             if (!is_readable($sourcePath)) {
                 throw new FileNotReadableException($sourcePath);

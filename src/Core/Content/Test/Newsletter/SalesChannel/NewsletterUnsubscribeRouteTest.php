@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Newsletter\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -12,12 +13,11 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
- * @package customer-order
- *
  * @internal
  * @group store-api
  * @covers \Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute
  */
+#[Package('customer-order')]
 class NewsletterUnsubscribeRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

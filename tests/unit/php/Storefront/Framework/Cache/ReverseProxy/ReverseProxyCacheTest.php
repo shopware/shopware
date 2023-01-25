@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Framework\Cache\ReverseProxy;
+namespace Shopware\Tests\Unit\Storefront\Framework\Cache\ReverseProxy;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;

@@ -3,12 +3,12 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductVisibility;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductVisibilityEntity>
- *
- * @package inventory
  */
+#[Package('inventory')]
 class ProductVisibilityCollection extends EntityCollection
 {
     /**
@@ -16,23 +16,17 @@ class ProductVisibilityCollection extends EntityCollection
      */
     public function getProductIds(): array
     {
-        return $this->fmap(function (ProductVisibilityEntity $visibility) {
-            return $visibility->getProductId();
-        });
+        return $this->fmap(fn (ProductVisibilityEntity $visibility) => $visibility->getProductId());
     }
 
     public function filterByProductId(string $id): self
     {
-        return $this->filter(function (ProductVisibilityEntity $visibility) use ($id) {
-            return $visibility->getProductId() === $id;
-        });
+        return $this->filter(fn (ProductVisibilityEntity $visibility) => $visibility->getProductId() === $id);
     }
 
     public function filterBySalesChannelId(string $id): self
     {
-        return $this->filter(function (ProductVisibilityEntity $visibility) use ($id) {
-            return $visibility->getSalesChannelId() === $id;
-        });
+        return $this->filter(fn (ProductVisibilityEntity $visibility) => $visibility->getSalesChannelId() === $id);
     }
 
     public function getApiAlias(): string

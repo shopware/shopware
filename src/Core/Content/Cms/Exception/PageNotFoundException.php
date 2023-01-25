@@ -2,15 +2,14 @@
 
 namespace Shopware\Core\Content\Cms\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package content
- */
+#[Package('content')]
 class PageNotFoundException extends ShopwareHttpException
 {
-    public const ERROR_CODE = 'CONTENT__CMS_PAGE_NOT_FOUND';
+    final public const ERROR_CODE = 'CONTENT__CMS_PAGE_NOT_FOUND';
 
     public function __construct(string $pageId)
     {

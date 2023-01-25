@@ -9,45 +9,21 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
  * This class can be used to regenerate the seo urls for a route and an offset at ids.
- *
- * @package sales-channel
  */
+#[Package('sales-channel')]
 class SeoUrlUpdater
 {
-    private EntityRepository $languageRepository;
-
-    private SeoUrlRouteRegistry $seoUrlRouteRegistry;
-
-    private SeoUrlGenerator $seoUrlGenerator;
-
-    private SeoUrlPersister $seoUrlPersister;
-
-    private Connection $connection;
-
-    private EntityRepository $salesChannelRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $languageRepository,
-        SeoUrlRouteRegistry $seoUrlRouteRegistry,
-        SeoUrlGenerator $seoUrlGenerator,
-        SeoUrlPersister $seoUrlPersister,
-        Connection $connection,
-        EntityRepository $salesChannelRepository
-    ) {
-        $this->languageRepository = $languageRepository;
-        $this->seoUrlRouteRegistry = $seoUrlRouteRegistry;
-        $this->seoUrlGenerator = $seoUrlGenerator;
-        $this->seoUrlPersister = $seoUrlPersister;
-        $this->connection = $connection;
-        $this->salesChannelRepository = $salesChannelRepository;
+    public function __construct(private readonly EntityRepository $languageRepository, private readonly SeoUrlRouteRegistry $seoUrlRouteRegistry, private readonly SeoUrlGenerator $seoUrlGenerator, private readonly SeoUrlPersister $seoUrlPersister, private readonly Connection $connection, private readonly EntityRepository $salesChannelRepository)
+    {
     }
 
     /**

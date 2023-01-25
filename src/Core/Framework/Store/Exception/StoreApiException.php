@@ -3,12 +3,11 @@
 namespace Shopware\Core\Framework\Store\Exception;
 
 use GuzzleHttp\Exception\ClientException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package merchant-services
- */
+#[Package('merchant-services')]
 class StoreApiException extends ShopwareHttpException
 {
     /**
@@ -23,7 +22,13 @@ class StoreApiException extends ShopwareHttpException
 
     public function __construct(ClientException $exception)
     {
-        $data = json_decode($exception->getResponse()->getBody()->getContents(), true);
+        $data = [];
+
+        try {
+            $data = json_decode($exception->getResponse()->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+        }
+
         parent::__construct($data['description'] ?? $exception->getMessage());
 
         $this->title = $data['title'] ?? '';

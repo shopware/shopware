@@ -6,6 +6,7 @@ use Composer\Autoload\ClassLoader;
 use DG\BypassFinals;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -18,9 +19,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use function is_dir;
 use function is_file;
 
-/**
- * @package core
- */
+#[Package('core')]
 class TestBootstrapper
 {
     private ?ClassLoader $classLoader = null;
@@ -157,7 +156,7 @@ class TestBootstrapper
         $dbUrlParts = parse_url($_SERVER['DATABASE_URL'] ?? '') ?: [];
 
         $testToken = getenv('TEST_TOKEN');
-        $dbUrlParts['path'] = $dbUrlParts['path'] ?? 'root';
+        $dbUrlParts['path'] ??= 'root';
 
         // allows using the same database during development, by setting TEST_TOKEN=none
         if ($testToken !== 'none' && !str_ends_with($dbUrlParts['path'], 'test')) {
@@ -233,13 +232,13 @@ class TestBootstrapper
             throw new \RuntimeException('Could not auto detect plugin name via composer.json. Path: ' . $pathToComposerJson);
         }
 
-        $composer = json_decode((string) file_get_contents($pathToComposerJson), true);
+        $composer = json_decode((string) file_get_contents($pathToComposerJson), true, 512, \JSON_THROW_ON_ERROR);
         $baseClass = $composer['extra']['shopware-plugin-class'] ?? '';
         if ($baseClass === '') {
             throw new \RuntimeException('composer.json does not contain `extra.shopware-plugin-class`. Path: ' . $pathToComposerJson);
         }
 
-        $parts = explode('\\', $baseClass);
+        $parts = explode('\\', (string) $baseClass);
         $pluginName = end($parts);
 
         $this->addActivePlugins($pluginName);
@@ -324,7 +323,7 @@ class TestBootstrapper
             $connection->executeQuery('SELECT 1 FROM `plugin`')->fetchAllAssociative();
 
             return true;
-        } catch (\Throwable $exists) {
+        } catch (\Throwable) {
             return false;
         }
     }

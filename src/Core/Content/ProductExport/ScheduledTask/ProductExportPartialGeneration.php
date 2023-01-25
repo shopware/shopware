@@ -2,27 +2,17 @@
 
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class ProductExportPartialGeneration implements AsyncMessageInterface
 {
-    private int $offset;
-
-    private string $productExportId;
-
-    private string $salesChannelId;
-
     /**
      * @internal
      */
-    public function __construct(string $productExportId, string $salesChannelId, int $offset = 0)
+    public function __construct(private readonly string $productExportId, private readonly string $salesChannelId, private readonly int $offset = 0)
     {
-        $this->offset = $offset;
-        $this->productExportId = $productExportId;
-        $this->salesChannelId = $salesChannelId;
     }
 
     public function getOffset(): int

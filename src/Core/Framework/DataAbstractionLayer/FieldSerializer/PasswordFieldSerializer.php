@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -17,9 +18,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class PasswordFieldSerializer extends AbstractFieldSerializer
 {
     public const CONFIG_MIN_LENGTH_FOR = [
@@ -59,7 +59,7 @@ class PasswordFieldSerializer extends AbstractFieldSerializer
             // if no password algorithm is detected, it might be plain text which needs to be encoded.
             // otherwise, passthrough the possibly encoded string
             if (!$info['algo']) {
-                $value = password_hash($value, $field->getAlgorithm(), $field->getHashOptions());
+                $value = password_hash((string) $value, $field->getAlgorithm(), $field->getHashOptions());
             }
         }
 

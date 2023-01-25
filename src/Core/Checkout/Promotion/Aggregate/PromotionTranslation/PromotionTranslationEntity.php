@@ -6,10 +6,9 @@ namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PromotionTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
@@ -18,39 +19,26 @@ use Shopware\Core\Framework\Update\Struct\Version;
  * @internal
  *
  * @phpstan-type Compatibility array{name: string, managedByComposer: bool, installedVersion: ?string, statusVariant: ?string, statusColor: ?string, statusMessage: string, statusName: string}
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class PluginCompatibility
 {
-    public const PLUGIN_COMPATIBILITY_COMPATIBLE = 'compatible';
-    public const PLUGIN_COMPATIBILITY_NOT_COMPATIBLE = 'notCompatible';
-    public const PLUGIN_COMPATIBILITY_UPDATABLE_NOW = 'updatableNow';
-    public const PLUGIN_COMPATIBILITY_UPDATABLE_FUTURE = 'updatableFuture';
+    final public const PLUGIN_COMPATIBILITY_COMPATIBLE = 'compatible';
+    final public const PLUGIN_COMPATIBILITY_NOT_COMPATIBLE = 'notCompatible';
+    final public const PLUGIN_COMPATIBILITY_UPDATABLE_NOW = 'updatableNow';
+    final public const PLUGIN_COMPATIBILITY_UPDATABLE_FUTURE = 'updatableFuture';
 
-    public const PLUGIN_COMPATIBILITY_NOT_IN_STORE = 'notInStore';
+    final public const PLUGIN_COMPATIBILITY_NOT_IN_STORE = 'notInStore';
 
-    public const PLUGIN_DEACTIVATION_FILTER_ALL = 'all';
-    public const PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE = 'notCompatible';
-    public const PLUGIN_DEACTIVATION_FILTER_NONE = '';
-
-    private EntityRepository $pluginRepository;
-
-    private StoreClient $storeClient;
-
-    private AbstractExtensionDataProvider $extensionDataProvider;
+    final public const PLUGIN_DEACTIVATION_FILTER_ALL = 'all';
+    final public const PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE = 'notCompatible';
+    final public const PLUGIN_DEACTIVATION_FILTER_NONE = '';
 
     /**
      * @internal
      */
-    public function __construct(
-        StoreClient $storeClient,
-        EntityRepository $pluginRepository,
-        AbstractExtensionDataProvider $extensionDataProvider
-    ) {
-        $this->storeClient = $storeClient;
-        $this->pluginRepository = $pluginRepository;
-        $this->extensionDataProvider = $extensionDataProvider;
+    public function __construct(private readonly StoreClient $storeClient, private readonly EntityRepository $pluginRepository, private readonly AbstractExtensionDataProvider $extensionDataProvider)
+    {
     }
 
     /**
@@ -309,22 +297,19 @@ class PluginCompatibility
      */
     private function mapColorToStatusVariant(string $color): array
     {
-        switch ($color) {
-            case 'green':
-                return [
-                    'statusColor' => null,
-                    'statusVariant' => 'success',
-                ];
-            case 'red':
-                return [
-                    'statusColor' => null,
-                    'statusVariant' => 'error',
-                ];
-            default:
-                return [
-                    'statusColor' => $color,
-                    'statusVariant' => null,
-                ];
-        }
+        return match ($color) {
+            'green' => [
+                'statusColor' => null,
+                'statusVariant' => 'success',
+            ],
+            'red' => [
+                'statusColor' => null,
+                'statusVariant' => 'error',
+            ],
+            default => [
+                'statusColor' => $color,
+                'statusVariant' => null,
+            ],
+        };
     }
 }

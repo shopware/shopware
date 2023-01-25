@@ -6,15 +6,13 @@ namespace Shopware\Core\Framework\Log;
  * @interal
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
+#[Package('core')]
 final class Package
 {
     public const PACKAGE_TRACE_ATTRIBUTE_KEY = 'pTrace';
 
-    public string $package;
-
-    public function __construct(string $package)
+    public function __construct(public string $package)
     {
-        $this->package = $package;
     }
 
     public static function getPackageName(string $class): ?string
@@ -24,9 +22,6 @@ final class Package
         }
 
         $reflection = new \ReflectionClass($class);
-        if (!method_exists($reflection, 'getAttributes')) {
-            return null;
-        }
 
         $attrs = $reflection->getAttributes(Package::class);
 

@@ -5,12 +5,12 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package customer-order
- *
  * @extends EntityCollection<OrderDeliveryEntity>
  */
+#[Package('customer-order')]
 class OrderDeliveryCollection extends EntityCollection
 {
     /**
@@ -18,16 +18,12 @@ class OrderDeliveryCollection extends EntityCollection
      */
     public function getOrderIds(): array
     {
-        return $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
-            return $orderDelivery->getOrderId();
-        });
+        return $this->fmap(fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getOrderId());
     }
 
     public function filterByOrderId(string $id): self
     {
-        return $this->filter(function (OrderDeliveryEntity $orderDelivery) use ($id) {
-            return $orderDelivery->getOrderId() === $id;
-        });
+        return $this->filter(fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getOrderId() === $id);
     }
 
     /**
@@ -35,16 +31,12 @@ class OrderDeliveryCollection extends EntityCollection
      */
     public function getShippingAddressIds(): array
     {
-        return $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
-            return $orderDelivery->getShippingOrderAddressId();
-        });
+        return $this->fmap(fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingOrderAddressId());
     }
 
     public function filterByShippingAddressId(string $id): self
     {
-        return $this->filter(function (OrderDeliveryEntity $orderDelivery) use ($id) {
-            return $orderDelivery->getShippingOrderAddressId() === $id;
-        });
+        return $this->filter(fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingOrderAddressId() === $id);
     }
 
     /**
@@ -52,33 +44,25 @@ class OrderDeliveryCollection extends EntityCollection
      */
     public function getShippingMethodIds(): array
     {
-        return $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
-            return $orderDelivery->getShippingMethodId();
-        });
+        return $this->fmap(fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingMethodId());
     }
 
     public function filterByShippingMethodId(string $id): self
     {
-        return $this->filter(function (OrderDeliveryEntity $orderDelivery) use ($id) {
-            return $orderDelivery->getShippingMethodId() === $id;
-        });
+        return $this->filter(fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingMethodId() === $id);
     }
 
     public function getShippingAddress(): OrderAddressCollection
     {
         return new OrderAddressCollection(
-            $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
-                return $orderDelivery->getShippingOrderAddress();
-            })
+            $this->fmap(fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingOrderAddress())
         );
     }
 
     public function getShippingMethods(): ShippingMethodCollection
     {
         return new ShippingMethodCollection(
-            $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
-                return $orderDelivery->getShippingMethod();
-            })
+            $this->fmap(fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getShippingMethod())
         );
     }
 

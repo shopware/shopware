@@ -3,13 +3,13 @@
 namespace Shopware\Core\Framework\Store\Struct;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Helper\PermissionCategorization;
 
 /**
- * @package merchant-services
- *
  * @codeCoverageIgnore
  */
+#[Package('merchant-services')]
 class PermissionCollection extends StoreCollection
 {
     public function __construct(iterable $elements = [])
@@ -52,9 +52,7 @@ class PermissionCollection extends StoreCollection
 
     private function getPermissionsForCategory(string $category): PermissionCollection
     {
-        return $this->filter(static function (PermissionStruct $element) use ($category) {
-            return PermissionCategorization::isInCategory($element->getEntity(), $category);
-        });
+        return $this->filter(static fn (PermissionStruct $element) => PermissionCategorization::isInCategory($element->getEntity(), $category));
     }
 
     private function generatePrivileges(array $permissions): array
@@ -83,8 +81,6 @@ class PermissionCollection extends StoreCollection
 
     private function hasNoPermissionStructElements(array $elements): bool
     {
-        return empty(array_filter($elements, static function ($element) {
-            return $element instanceof PermissionStruct;
-        }));
+        return empty(array_filter($elements, static fn ($element) => $element instanceof PermissionStruct));
     }
 }

@@ -10,19 +10,14 @@ use Doctrine\DBAL\Driver\PDO\MySQL\Driver;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class FakeConnection extends Connection
 {
-    /**
-     * @var array<mixed>
-     */
-    private array $dbRows;
-
     /**
      * @param array<mixed> $dbRows
      *
@@ -31,7 +26,7 @@ class FakeConnection extends Connection
      * @phpstan-ignore-next-line DBAL Connection uses psalm-consistent-constructor annotation,
      * therefore deriving classes should not change the constructor args, as we are in tests we ignore the error
      */
-    public function __construct(array $dbRows)
+    public function __construct(private readonly array $dbRows)
     {
         parent::__construct(
             [
@@ -40,8 +35,6 @@ class FakeConnection extends Connection
             new Driver(),
             new Configuration()
         );
-
-        $this->dbRows = $dbRows;
     }
 
     public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
@@ -52,10 +45,7 @@ class FakeConnection extends Connection
         );
     }
 
-    /**
-     * @return QueryBuilder|FakeQueryBuilder
-     */
-    public function createQueryBuilder()
+    public function createQueryBuilder(): QueryBuilder|FakeQueryBuilder
     {
         return new FakeQueryBuilder($this, $this->dbRows);
     }

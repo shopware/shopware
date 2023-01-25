@@ -5,11 +5,10 @@ namespace Shopware\Core\Content\ProductExport\Exception;
 use Shopware\Core\Content\ProductExport\Error\Error;
 use Shopware\Core\Content\ProductExport\Error\ErrorMessage;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class ExportInvalidException extends ShopwareHttpException
 {
     /**
@@ -24,9 +23,7 @@ class ExportInvalidException extends ShopwareHttpException
     {
         $errorMessages = array_merge(
             ...array_map(
-                function (Error $error) {
-                    return $error->getErrorMessages();
-                },
+                fn (Error $error) => $error->getErrorMessages(),
                 $errors
             )
         );

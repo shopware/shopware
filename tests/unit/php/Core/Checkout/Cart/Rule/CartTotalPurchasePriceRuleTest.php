@@ -47,9 +47,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
     public function testMatchWithCartRuleScope(string $operator, array $prices, float $total, bool $matches): void
     {
         $cart = new Cart('test-token');
-        $cart->setLineItems(new LineItemCollection(array_map(function (float $price): LineItem {
-            return $this->createLineItem($price);
-        }, $prices)));
+        $cart->setLineItems(new LineItemCollection(array_map(fn (float $price): LineItem => $this->createLineItem($price), $prices)));
 
         $ruleScope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
 
@@ -175,7 +173,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
 
         $price = new Price('currency-id', $price, $price, false);
 
-        $lineItem->setPayloadValue('purchasePrices', json_encode($price));
+        $lineItem->setPayloadValue('purchasePrices', json_encode($price, \JSON_THROW_ON_ERROR));
 
         return $lineItem;
     }

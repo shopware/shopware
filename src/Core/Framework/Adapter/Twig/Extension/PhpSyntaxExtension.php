@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
 use Squirrel\TwigPhpSyntax\Operator\NotSameAsBinary;
 use Squirrel\TwigPhpSyntax\Operator\SameAsBinary;
@@ -28,9 +29,7 @@ use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twig\TwigTest;
 
-/**
- * @package core
- */
+#[Package('core')]
 class PhpSyntaxExtension extends AbstractExtension
 {
     public function getTokenParsers(): array
@@ -49,7 +48,7 @@ class PhpSyntaxExtension extends AbstractExtension
     public function getFilters()
     {
         return [
-            new TwigFilter('intval', /** @param mixed $var */ function ($var): int {
+            new TwigFilter('intval', /** @param mixed $var */ function (mixed $var): int {
                 if (\is_int($var)) {
                     return $var;
                 }
@@ -58,7 +57,7 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 return (int) $var;
             }),
-            new TwigFilter('floatval', /** @param mixed $var */ function ($var): float {
+            new TwigFilter('floatval', /** @param mixed $var */ function (mixed $var): float {
                 if (\is_float($var)) {
                     return $var;
                 }
@@ -67,7 +66,7 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 return (float) $var;
             }),
-            new TwigFilter('strval', /** @param mixed $var */ function ($var): string {
+            new TwigFilter('strval', /** @param mixed $var */ function (mixed $var): string {
                 if (\is_string($var)) {
                     return $var;
                 }
@@ -76,7 +75,7 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 return (string) $var;
             }),
-            new TwigFilter('boolval', /** @param mixed $var */ function ($var): bool {
+            new TwigFilter('boolval', /** @param mixed $var */ function (mixed $var): bool {
                 if (\is_bool($var)) {
                     return $var;
                 }
@@ -88,10 +87,9 @@ class PhpSyntaxExtension extends AbstractExtension
             new TwigFilter(
                 'json_encode',
                 /**
-                 * @param mixed $var
                  * @param int<1, max> $depth
                  */
-                function ($var, int $options = 0, $depth = 512) {
+                function (mixed $var, int $options = 0, $depth = 512) {
                     try {
                         FieldVisibility::$isInTwigRenderingContext = true;
 
@@ -101,14 +99,14 @@ class PhpSyntaxExtension extends AbstractExtension
                     }
                 }
             ),
-            new TwigFilter('md5', /** @param mixed $var */ function ($var) {
+            new TwigFilter('md5', /** @param mixed $var */ function (mixed $var) {
                 if (\is_array($var)) {
                     $var = \json_encode($var, \JSON_THROW_ON_ERROR);
                 }
 
                 if (!\is_string($var)) {
                     throw new \InvalidArgumentException(
-                        sprintf('The md5 filter expects a string or array as input, %s given', \get_class($var))
+                        sprintf('The md5 filter expects a string or array as input, %s given', $var::class)
                     );
                 }
 
@@ -123,7 +121,7 @@ class PhpSyntaxExtension extends AbstractExtension
     public function getFunctions()
     {
         return [
-            new TwigFunction('array', [$this, 'createArray']),
+            new TwigFunction('array', $this->createArray(...)),
         ];
     }
 

@@ -3,23 +3,15 @@
 namespace Shopware\Core\Checkout\Cart\Address\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class BillingAddressBlockedError extends Error
 {
     private const KEY = 'billing-address-blocked';
 
-    /**
-     * @var string
-     */
-    private $name;
-
-    public function __construct(string $name)
+    public function __construct(private readonly string $name)
     {
-        $this->name = $name;
-
         $this->message = sprintf(
             'Billings to billing address %s are not possible.',
             $name

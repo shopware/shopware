@@ -26,11 +26,11 @@ use Shopware\Core\Checkout\Promotion\Cart\Error\AutoPromotionNotFoundError;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -38,10 +38,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class ProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -114,14 +113,15 @@ class ProcessorTest extends TestCase
     {
         $extension = new class() extends Struct {
         };
+
         $cart = new Cart('bar');
         $cart->addExtension('unit-test', $extension);
 
-        $processorProperty = ReflectionHelper::getProperty(Processor::class, 'processors');
-        $originalProcessors = $processorProperty->getValue($this->processor);
-
-        try {
-            $processorProperty->setValue($this->processor, [
+        $processor = new Processor(
+            new Validator([]),
+            $this->createMock(AmountCalculator::class),
+            $this->createMock(TransactionProcessor::class),
+            [
                 new class() implements CartProcessorInterface {
                     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
                     {
@@ -130,14 +130,14 @@ class ProcessorTest extends TestCase
                         TestCase::assertSame($original->getExtension('unit-test'), $toCalculate->getExtension('unit-test'));
                     }
                 },
-            ]);
+            ],
+            [],
+            $this->createMock(ScriptExecutor::class)
+        );
 
-            $newCart = $this->processor->process($cart, $this->context, new CartBehavior());
+        $newCart = $processor->process($cart, $this->context, new CartBehavior());
 
-            static::assertSame($extension, $newCart->getExtension('unit-test'));
-        } finally {
-            $processorProperty->setValue($this->processor, $originalProcessors);
-        }
+        static::assertSame($extension, $newCart->getExtension('unit-test'));
     }
 
     public function testCalculatedCreditTaxesIncludeCustomItemTax(): void
@@ -195,16 +195,12 @@ class ProcessorTest extends TestCase
         static::assertInstanceOf(CalculatedPrice::class, $creditLineItem->getPrice());
         static::assertCount(2, $creditCalculatedTaxes = $creditLineItem->getPrice()->getCalculatedTaxes()->getElements());
 
-        $calculatedTaxForCustomItem = array_filter($creditCalculatedTaxes, function (CalculatedTax $tax) use ($taxForCustomItem) {
-            return (int) $tax->getTaxRate() === $taxForCustomItem;
-        });
+        $calculatedTaxForCustomItem = array_filter($creditCalculatedTaxes, fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForCustomItem);
 
         static::assertNotEmpty($calculatedTaxForCustomItem);
         static::assertCount(1, $calculatedTaxForCustomItem);
 
-        $calculatedTaxForProductItem = array_filter($creditCalculatedTaxes, function (CalculatedTax $tax) use ($taxForProductItem) {
-            return (int) $tax->getTaxRate() === $taxForProductItem;
-        });
+        $calculatedTaxForProductItem = array_filter($creditCalculatedTaxes, fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForProductItem);
 
         static::assertNotEmpty($calculatedTaxForProductItem);
         static::assertCount(1, $calculatedTaxForProductItem);
@@ -292,16 +288,12 @@ class ProcessorTest extends TestCase
         static::assertInstanceOf(Delivery::class, $delivery);
         static::assertCount(2, $shippingCalculatedTaxes = $delivery->getShippingCosts()->getCalculatedTaxes()->getElements());
 
-        $calculatedTaxForCustomItem = array_filter($shippingCalculatedTaxes, function (CalculatedTax $tax) use ($taxForCustomItem) {
-            return (int) $tax->getTaxRate() === $taxForCustomItem;
-        });
+        $calculatedTaxForCustomItem = array_filter($shippingCalculatedTaxes, fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForCustomItem);
 
         static::assertNotEmpty($calculatedTaxForCustomItem);
         static::assertCount(1, $calculatedTaxForCustomItem);
 
-        $calculatedTaxForProductItem = array_filter($shippingCalculatedTaxes, function (CalculatedTax $tax) use ($taxForProductItem) {
-            return (int) $tax->getTaxRate() === $taxForProductItem;
-        });
+        $calculatedTaxForProductItem = array_filter($shippingCalculatedTaxes, fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForProductItem);
 
         static::assertNotEmpty($calculatedTaxForProductItem);
         static::assertCount(1, $calculatedTaxForProductItem);
@@ -345,7 +337,7 @@ class ProcessorTest extends TestCase
         );
         $originalCart->add(
             (new LineItem(Uuid::randomHex(), LineItem::PROMOTION_LINE_ITEM_TYPE, '', 1))
-            ->setLabel('Discount 15%')
+                ->setLabel('Discount 15%')
         );
         $originalCart->add(
             (new LineItem(Uuid::randomHex(), LineItem::PROMOTION_LINE_ITEM_TYPE, '', 1))

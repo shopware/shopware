@@ -4,14 +4,14 @@ namespace Shopware\Core\Framework\Test\MessageQueue\Api;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MessageQueueEndpointTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -35,7 +35,7 @@ class MessageQueueEndpointTest extends TestCase
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
-        $entries = json_decode($client->getResponse()->getContent(), true);
+        $entries = json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $mapped = [];
         foreach ($entries as $entry) {

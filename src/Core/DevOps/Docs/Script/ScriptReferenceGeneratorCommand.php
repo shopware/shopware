@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\DevOps\Docs\Script;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -10,19 +11,18 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
- *
- * @package core
  */
 #[AsCommand(
     name: 'docs:generate-scripts-reference',
     description: 'Generate the script reference',
 )]
+#[Package('core')]
 class ScriptReferenceGeneratorCommand extends Command
 {
     /**
      * @param iterable<ScriptReferenceGenerator> $generators
      */
-    public function __construct(private iterable $generators)
+    public function __construct(private readonly iterable $generators)
     {
         parent::__construct();
     }
@@ -46,6 +46,5 @@ class ScriptReferenceGeneratorCommand extends Command
 
     protected function configure(): void
     {
-        $this->setDescription('(Re-)Generate reference documentation for the app scripts feature.');
     }
 }

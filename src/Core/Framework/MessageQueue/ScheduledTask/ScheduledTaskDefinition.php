@@ -10,25 +10,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ScheduledTaskDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'scheduled_task';
+    final public const ENTITY_NAME = 'scheduled_task';
 
-    public const STATUS_SCHEDULED = 'scheduled';
+    final public const STATUS_SCHEDULED = 'scheduled';
 
-    public const STATUS_QUEUED = 'queued';
+    final public const STATUS_QUEUED = 'queued';
 
-    public const STATUS_SKIPPED = 'skipped';
+    final public const STATUS_SKIPPED = 'skipped';
 
-    public const STATUS_RUNNING = 'running';
+    final public const STATUS_RUNNING = 'running';
 
-    public const STATUS_FAILED = 'failed';
+    final public const STATUS_FAILED = 'failed';
 
-    public const STATUS_INACTIVE = 'inactive';
+    final public const STATUS_INACTIVE = 'inactive';
 
     public function getEntityName(): string
     {

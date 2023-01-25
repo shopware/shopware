@@ -5,15 +5,15 @@ namespace Shopware\Core\Checkout\Cart\Cleanup;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package checkout
- *
  *  @internal
  */
 #[AsMessageHandler(handles: CleanupCartTask::class)]
+#[Package('checkout')]
 final class CleanupCartTaskHandler extends ScheduledTaskHandler
 {
     /**
@@ -21,8 +21,8 @@ final class CleanupCartTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $repository,
-        private Connection $connection,
-        private int $days
+        private readonly Connection $connection,
+        private readonly int $days
     ) {
         parent::__construct($repository);
     }

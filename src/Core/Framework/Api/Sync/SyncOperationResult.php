@@ -3,13 +3,13 @@
 namespace Shopware\Core\Framework\Api\Sync;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.6.0 - Will be removed, as it is not used anymore
  */
+#[Package('core')]
 class SyncOperationResult extends Struct
 {
     /**
@@ -24,7 +24,7 @@ class SyncOperationResult extends Struct
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         $this->result = $result;
@@ -37,7 +37,7 @@ class SyncOperationResult extends Struct
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         return $this->result;
@@ -47,11 +47,11 @@ class SyncOperationResult extends Struct
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         foreach ($this->result as $result) {
-            if (\count($result['errors']) > 0) {
+            if ((is_countable($result['errors']) ? \count($result['errors']) : 0) > 0) {
                 return true;
             }
         }
@@ -60,28 +60,23 @@ class SyncOperationResult extends Struct
     }
 
     /**
-     * @param string|int $key
-     *
      * @return array<mixed>|null
      */
-    public function get($key): ?array
+    public function get(string|int $key): ?array
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         return $this->result[$key] ?? null;
     }
 
-    /**
-     * @param string|int $key
-     */
-    public function has($key): bool
+    public function has(string|int $key): bool
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         return isset($this->result[$key]);
@@ -91,7 +86,7 @@ class SyncOperationResult extends Struct
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         foreach ($this->result as $index => $_writeResult) {
@@ -103,7 +98,7 @@ class SyncOperationResult extends Struct
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         return 'api_sync_operation_result';

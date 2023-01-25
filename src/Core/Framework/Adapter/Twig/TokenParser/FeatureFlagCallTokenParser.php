@@ -3,12 +3,11 @@
 namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 
 use Shopware\Core\Framework\Adapter\Twig\Node\FeatureCallSilentToken;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
-/**
- * @package core
- */
+#[Package('core')]
 class FeatureFlagCallTokenParser extends AbstractTokenParser
 {
     public function parse(Token $token): FeatureCallSilentToken
@@ -23,7 +22,7 @@ class FeatureFlagCallTokenParser extends AbstractTokenParser
         $stream->next();
 
         // Parse the body of the tag inside
-        $body = $this->parser->subparse([$this, 'decideBlockEnd'], true);
+        $body = $this->parser->subparse($this->decideBlockEnd(...), true);
 
         // We read until the string of the end of the block. But we need to parse the end tag as well, so the parser is on clean state again.
         $stream->next();

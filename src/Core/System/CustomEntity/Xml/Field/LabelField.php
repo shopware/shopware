@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class LabelField extends Field
 {
     protected string $type = 'label';

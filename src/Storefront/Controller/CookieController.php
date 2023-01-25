@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2;
@@ -11,17 +12,15 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package storefront
- *
  * Returns the cookie-configuration.html.twig template including all cookies returned by the "getCookieGroup"-method
  *
  * Cookies are returned within groups, groups require the "group" attribute
  * A group is structured as described above the "getCookieGroup"-method
- * @package storefront
  *
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('storefront')]
 class CookieController extends StorefrontController
 {
     /**

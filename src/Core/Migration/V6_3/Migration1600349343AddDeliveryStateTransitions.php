@@ -4,14 +4,14 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1600349343AddDeliveryStateTransitions extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -68,9 +68,7 @@ class Migration1600349343AddDeliveryStateTransitions extends MigrationStep
             'id' => $stateMachineId,
         ]);
 
-        $reopenStates = array_filter($allStates, static function (array $state) {
-            return $state['action_name'] === 'reopen';
-        });
+        $reopenStates = array_filter($allStates, static fn (array $state) => $state['action_name'] === 'reopen');
 
         $missingStates = array_filter($allStates, static function (array $state) use ($reopenStates) {
             if (\in_array($state['to_state_id'], array_column($reopenStates, 'from_state_id'), true)) {

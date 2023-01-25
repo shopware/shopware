@@ -16,45 +16,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestExceptio
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class ProductStreamIndexer extends EntityIndexer
 {
-    private IteratorFactory $iteratorFactory;
-
-    private Connection $connection;
-
-    private EntityRepository $repository;
-
-    private SerializerInterface $serializer;
-
-    private ProductDefinition $productDefinition;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        SerializerInterface $serializer,
-        ProductDefinition $productDefinition,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->connection = $connection;
-        $this->serializer = $serializer;
-        $this->productDefinition = $productDefinition;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly Connection $connection, private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly SerializerInterface $serializer, private readonly ProductDefinition $productDefinition, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function getName(): string
@@ -120,7 +95,7 @@ class ProductStreamIndexer extends EntityIndexer
 
             try {
                 $serialized = $this->buildPayload($filter);
-            } catch (InvalidFilterQueryException | SearchRequestException $exception) {
+            } catch (InvalidFilterQueryException | SearchRequestException) {
                 $invalid = true;
             } finally {
                 $update->execute([
@@ -146,9 +121,7 @@ class ProductStreamIndexer extends EntityIndexer
 
     private function buildPayload(array $filter): string
     {
-        usort($filter, static function (array $a, array $b) {
-            return $a['position'] <=> $b['position'];
-        });
+        usort($filter, static fn (array $a, array $b) => $a['position'] <=> $b['position']);
 
         $nested = $this->buildNested($filter, null);
 
@@ -177,7 +150,7 @@ class ProductStreamIndexer extends EntityIndexer
 
             $parameters = $entity['parameters'];
             if ($parameters && \is_string($parameters)) {
-                $decodedParameters = json_decode($entity['parameters'], true);
+                $decodedParameters = json_decode((string) $entity['parameters'], true);
                 if (json_last_error() === \JSON_ERROR_NONE) {
                     $entity['parameters'] = $decodedParameters;
                 }

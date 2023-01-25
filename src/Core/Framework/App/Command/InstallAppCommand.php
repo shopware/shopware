@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -21,34 +22,21 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- *
- * @package core
  */
 #[AsCommand(
     name: 'app:install',
     description: 'Installs an app',
 )]
+#[Package('core')]
 class InstallAppCommand extends Command
 {
-    private AbstractAppLoader $appLoader;
-
-    private AbstractAppLifecycle $appLifecycle;
-
-    private AppPrinter $appPrinter;
-
-    private ManifestValidator $manifestValidator;
-
     public function __construct(
-        AbstractAppLoader $appLoader,
-        AbstractAppLifecycle $appLifecycle,
-        AppPrinter $appPrinter,
-        ManifestValidator $manifestValidator
+        private readonly AbstractAppLoader $appLoader,
+        private readonly AbstractAppLifecycle $appLifecycle,
+        private readonly AppPrinter $appPrinter,
+        private readonly ManifestValidator $manifestValidator
     ) {
         parent::__construct();
-        $this->appLifecycle = $appLifecycle;
-        $this->appPrinter = $appPrinter;
-        $this->appLoader = $appLoader;
-        $this->manifestValidator = $manifestValidator;
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
@@ -99,7 +87,7 @@ class InstallAppCommand extends Command
 
             try {
                 $this->appLifecycle->install($manifest, $input->getOption('activate'), $context);
-            } catch (AppAlreadyInstalledException $e) {
+            } catch (AppAlreadyInstalledException) {
                 $io->info(sprintf('App %s is already installed', $name));
 
                 continue;
@@ -108,18 +96,12 @@ class InstallAppCommand extends Command
             $io->success(sprintf('App %s has been successfully installed.', $name));
         }
 
-        return $success;
+        return (int) $success;
     }
 
     protected function configure(): void
     {
-        $this
-            ->setDescription('Installs the app with the given name')
-            ->addArgument(
-                'name',
-                InputArgument::REQUIRED | InputArgument::IS_ARRAY,
-                'The name of the app'
-            )
+        $this->addArgument('name', InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'The name of the app')
             ->addOption(
                 'force',
                 'f',
@@ -147,7 +129,7 @@ class InstallAppCommand extends Command
 
         foreach ($requestedApps as $requestedApp) {
             foreach ($apps as $app => $manifest) {
-                if (str_contains($app, $requestedApp)) {
+                if (str_contains($app, (string) $requestedApp)) {
                     $manifests[$app] = $manifest;
                 }
             }

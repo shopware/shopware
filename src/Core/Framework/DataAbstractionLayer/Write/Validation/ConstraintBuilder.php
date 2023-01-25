@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Blank;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -13,15 +14,10 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ConstraintBuilder
 {
-    /**
-     * @var array
-     */
-    private $constraints = [];
+    private array $constraints = [];
 
     /**
      * Set prop must not be blank (required)

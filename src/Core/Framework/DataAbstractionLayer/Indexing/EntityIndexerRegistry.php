@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEn
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -20,17 +21,16 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  *
  * @phpstan-import-type Offset from IterableQuery
- *
- * @package core
  */
 #[AsMessageHandler]
+#[Package('core')]
 class EntityIndexerRegistry
 {
-    public const EXTENSION_INDEXER_SKIP = 'indexer-skip';
+    final public const EXTENSION_INDEXER_SKIP = 'indexer-skip';
 
-    public const USE_INDEXING_QUEUE = 'use-queue-indexing';
+    final public const USE_INDEXING_QUEUE = 'use-queue-indexing';
 
-    public const DISABLE_INDEXING = 'disable-indexing';
+    final public const DISABLE_INDEXING = 'disable-indexing';
 
     private bool $working = false;
 
@@ -40,9 +40,9 @@ class EntityIndexerRegistry
      * @param iterable<EntityIndexer> $indexer
      */
     public function __construct(
-        private iterable $indexer,
-        private MessageBusInterface $messageBus,
-        private EventDispatcherInterface $dispatcher
+        private readonly iterable $indexer,
+        private readonly MessageBusInterface $messageBus,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
@@ -99,7 +99,7 @@ class EntityIndexerRegistry
                 try {
                     $count = \is_array($message->getData()) ? \count($message->getData()) : 1;
                     $this->dispatcher->dispatch(new ProgressAdvancedEvent($count));
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                 }
             }
 

@@ -2,13 +2,12 @@
 
 namespace Shopware\Storefront\Page\Navigation\Error;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ErrorPageLoadedEvent extends PageLoadedEvent
 {
     /**

@@ -3,15 +3,15 @@
 namespace Shopware\Storefront\Theme\Message;
 
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\AbstractThemePathBuilder;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package storefront
- *
  * @internal
  */
 #[AsMessageHandler]
+#[Package('storefront')]
 final class DeleteThemeFilesHandler
 {
     public function __construct(private readonly FilesystemOperator $filesystem, private readonly AbstractThemePathBuilder $pathBuilder)

@@ -8,11 +8,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'theme_translation';

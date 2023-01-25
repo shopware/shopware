@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Framework\Struct\Serializer;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class StructDecoder implements DecoderInterface
 {
     /**
@@ -28,7 +27,7 @@ class StructDecoder implements DecoderInterface
             return $decoded;
         }
 
-        if (\array_key_exists('_class', $decoded) && preg_match('/(Collection|SearchResult)$/', $decoded['_class'])) {
+        if (\array_key_exists('_class', $decoded) && preg_match('/(Collection|SearchResult)$/', (string) $decoded['_class'])) {
             $elements = [];
             foreach ($decoded['elements'] as $element) {
                 $elements[] = $this->format($element);

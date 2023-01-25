@@ -3,13 +3,10 @@
 namespace Shopware\Core\Content\Category\Service;
 
 use Shopware\Core\Content\Category\Tree\Tree;
-use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package content
- * @Decoratable()
- */
+#[Package('content')]
 interface NavigationLoaderInterface
 {
     /**

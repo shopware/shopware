@@ -4,31 +4,26 @@ namespace Shopware\Core\Checkout\Promotion\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class PromotionsInCartCountRule extends Rule
 {
-    public const RULE_NAME = 'promotionsInCartCount';
+    final public const RULE_NAME = 'promotionsInCartCount';
 
     protected int $count;
-
-    protected string $operator;
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?int $count = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, ?int $count = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
         $this->count = (int) $count;
     }
 

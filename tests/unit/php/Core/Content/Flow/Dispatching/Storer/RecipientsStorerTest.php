@@ -46,7 +46,7 @@ class RecipientsStorerTest extends TestCase
     {
         $recipients = ['test'];
 
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -68,7 +68,7 @@ class RecipientsStorerTest extends TestCase
     {
         $recipients = ['test'];
 
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))

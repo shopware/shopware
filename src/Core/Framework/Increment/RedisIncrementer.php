@@ -2,18 +2,14 @@
 
 namespace Shopware\Core\Framework\Increment;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-/**
- * @package core
- */
+#[Package('core')]
 class RedisIncrementer extends AbstractIncrementer
 {
-    private \Redis $redis;
-
-    public function __construct(\Redis $redis)
+    public function __construct(private readonly \Redis $redis)
     {
-        $this->redis = $redis;
     }
 
     public function getDecorated(): AbstractIncrementer

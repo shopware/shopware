@@ -7,21 +7,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package customer-order
- *
  * @internal
  */
 #[AsMessageHandler(handles: NewsletterRecipientTask::class)]
+#[Package('customer-order')]
 final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
 {
     /**
      * @internal
      */
-    public function __construct(EntityRepository $scheduledTaskRepository, private EntityRepository $newsletterRecipientRepository)
+    public function __construct(EntityRepository $scheduledTaskRepository, private readonly EntityRepository $newsletterRecipientRepository)
     {
         parent::__construct($scheduledTaskRepository);
     }
@@ -35,9 +35,7 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
             return;
         }
 
-        $emailRecipientIds = array_map(function ($id) {
-            return ['id' => $id];
-        }, $emailRecipient->getIds());
+        $emailRecipientIds = array_map(fn ($id) => ['id' => $id], $emailRecipient->getIds());
 
         $this->newsletterRecipientRepository->delete($emailRecipientIds, Context::createDefaultContext());
     }

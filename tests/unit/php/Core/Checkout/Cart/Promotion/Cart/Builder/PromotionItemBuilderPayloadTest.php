@@ -37,11 +37,6 @@ class PromotionItemBuilderPayloadTest extends TestCase
      */
     private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var MockObject&Context
-     */
-    private Context $context;
-
     public function setUp(): void
     {
         $this->promotion = new PromotionEntity();
@@ -51,9 +46,9 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $this->promotion->setUseSetGroups(false);
 
         $this->salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
-        $this->context = $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock();
+        $context = $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock();
 
-        $this->salesChannelContext->method('getContext')->willReturn($this->context);
+        $this->salesChannelContext->method('getContext')->willReturn($context);
     }
 
     /**
@@ -170,7 +165,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      */
     public function testPayloadPercentageWithoutAdvancedPricesWithCurrencyFactor(): void
     {
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
         $maxValue = 23.0;
         $discount = new PromotionDiscountEntity();
         $discount->setId('P123');
@@ -223,7 +218,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
     {
         $groupId = 'id123';
 
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('P123');
@@ -251,7 +246,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      */
     public function testPayloadWithSetGroup(): void
     {
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('P123');
@@ -261,7 +256,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $rule = new RuleEntity();
         $rule->setId('R1');
-        $rule->setPayload($this->getFakeRule(10, '='));
+        $rule->setPayload($this->getFakeRule());
 
         $ruleCollection = new RuleCollection([$rule]);
 
@@ -322,7 +317,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      */
     public function testPayloadPercentageMaxValueWithAdvancedPrices(): void
     {
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -361,7 +356,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      */
     public function testPayloadAbsoluteMaxValueIsNull(): void
     {
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -413,7 +408,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      */
     public function testPayloadDiscountValues(): void
     {
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
 
         $builder = new PromotionItemBuilder();
 
@@ -446,7 +441,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -477,7 +472,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -499,8 +494,8 @@ class PromotionItemBuilderPayloadTest extends TestCase
     /**
      * just get a ruleEntity with ID R1
      */
-    private function getFakeRule(int $amount, string $operator): LineItemUnitPriceRule
+    private function getFakeRule(): LineItemUnitPriceRule
     {
-        return (new LineItemUnitPriceRule())->assign(['amount' => $amount, 'operator' => $operator]);
+        return (new LineItemUnitPriceRule())->assign(['amount' => 10, 'operator' => '=']);
     }
 }

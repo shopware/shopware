@@ -11,29 +11,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundExcepti
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class ProductStreamBuilder implements ProductStreamBuilderInterface
 {
     /**
-     * @var EntityRepository
-     */
-    private $repository;
-
-    /**
-     * @var EntityDefinition
-     */
-    private $productDefinition;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $productStreamRepository, EntityDefinition $productDefinition)
+    public function __construct(private readonly EntityRepository $repository, private readonly EntityDefinition $productDefinition)
     {
-        $this->repository = $productStreamRepository;
-        $this->productDefinition = $productDefinition;
     }
 
     public function buildFilters(string $id, Context $context): array

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Webhook\Subscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
@@ -13,26 +14,17 @@ use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
 {
     private const MAX_WEBHOOK_ERROR_COUNT = 10;
 
-    private EntityRepository $webhookRepository;
-
-    private EntityRepository $webhookEventLogRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $webhookRepository,
-        EntityRepository $webhookEventLogRepository
-    ) {
-        $this->webhookRepository = $webhookRepository;
-        $this->webhookEventLogRepository = $webhookEventLogRepository;
+    public function __construct(private readonly EntityRepository $webhookRepository, private readonly EntityRepository $webhookEventLogRepository)
+    {
     }
 
     public static function getSubscribedEvents(): array

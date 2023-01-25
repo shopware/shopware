@@ -7,13 +7,12 @@ use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 abstract class MigrationStep
 {
-    public const INSTALL_ENVIRONMENT_VARIABLE = 'SHOPWARE_INSTALL';
+    final public const INSTALL_ENVIRONMENT_VARIABLE = 'SHOPWARE_INSTALL';
 
     /**
      * get creation timestamp
@@ -34,7 +33,7 @@ abstract class MigrationStep
     {
         try {
             $connection->executeUpdate(sprintf('DROP TRIGGER IF EXISTS %s', $name));
-        } catch (Exception $e) {
+        } catch (Exception) {
         }
     }
 
@@ -100,14 +99,14 @@ abstract class MigrationStep
 
             /** @var array<string, mixed> $role */
             foreach ($roles as $role) {
-                $currentPrivileges = \json_decode($role['privileges'], true, 512, \JSON_THROW_ON_ERROR);
+                $currentPrivileges = \json_decode((string) $role['privileges'], true, 512, \JSON_THROW_ON_ERROR);
                 $newPrivileges = $this->fixRolePrivileges($privileges, $currentPrivileges);
 
                 if ($currentPrivileges === $newPrivileges) {
                     continue;
                 }
 
-                $role['privileges'] = \json_encode($newPrivileges);
+                $role['privileges'] = \json_encode($newPrivileges, \JSON_THROW_ON_ERROR);
                 $role['updated_at'] = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT);
 
                 $connection->update('acl_role', $role, ['id' => $role['id']]);

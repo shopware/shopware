@@ -3,17 +3,16 @@
 namespace Shopware\Core\Installer\Configuration;
 
 use Defuse\Crypto\Key;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Installer\Finish\UniqueIdGenerator;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 /**
- * @package core
- *
  * @internal
- *
  * @phpstan-import-type Shop from ShopConfigurationController
  */
+#[Package('core')]
 class EnvConfigWriter
 {
     private const FLEX_DOTENV = <<<'EOT'
@@ -62,14 +61,8 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
 ###< shopware/storefront ###
 EOT;
 
-    private string $projectDir;
-
-    private UniqueIdGenerator $idGenerator;
-
-    public function __construct(string $projectDir, UniqueIdGenerator $idGenerator)
+    public function __construct(private readonly string $projectDir, private readonly UniqueIdGenerator $idGenerator)
     {
-        $this->projectDir = $projectDir;
-        $this->idGenerator = $idGenerator;
     }
 
     /**

@@ -7,7 +7,9 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductDownloadEntity extends Entity
 {
     use EntityIdTrait;
@@ -19,9 +21,9 @@ class ProductDownloadEntity extends Entity
 
     protected int $position;
 
-    protected ?MediaEntity $media;
+    protected ?MediaEntity $media = null;
 
-    protected ?ProductEntity $product;
+    protected ?ProductEntity $product = null;
 
     public function getProductId(): string
     {

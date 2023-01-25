@@ -3,57 +3,44 @@
 namespace Shopware\Core\Framework\Changelog;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class ChangelogDefinition
 {
-    /**
-     * @Assert\NotBlank(
-     *     message="The title should not be blank"
-     * )
-     */
+    #[Assert\NotBlank(message: 'The title should not be blank')]
     private string $title;
 
-    /**
-     * @Assert\NotBlank(
-     *     message="The Jira ticket should not be blank"
-     * )
-     * @Assert\Regex(
-     *     pattern="/^NEXT-\d+$/",
-     *     message="The Jira ticket has an invalid format"
-     * )]
-     */
+    #[Assert\NotBlank(message: 'The Jira ticket should not be blank')]
+    #[Assert\Regex(pattern: '/^NEXT-\d+$/', message: 'The Jira ticket has an invalid format')]
     private string $issue;
 
-    private ?string $flag;
+    private ?string $flag = null;
 
-    private ?string $author;
+    private ?string $author = null;
 
-    private ?string $authorEmail;
+    private ?string $authorEmail = null;
 
-    private ?string $authorGitHub;
+    private ?string $authorGitHub = null;
 
-    private ?string $core;
+    private ?string $core = null;
 
-    private ?string $storefront;
+    private ?string $storefront = null;
 
-    private ?string $administration;
+    private ?string $administration = null;
 
-    private ?string $api;
+    private ?string $api = null;
 
-    private ?string $upgrade;
+    private ?string $upgrade = null;
 
-    private ?string $nextMajorVersionChanges;
+    private ?string $nextMajorVersionChanges = null;
 
-    /**
-     * @Assert\Callback
-     */
+    #[Assert\Callback]
     public function validate(ExecutionContextInterface $context): void
     {
         if (empty($this->api) && empty($this->core) && empty($this->storefront) && empty($this->administration)) {

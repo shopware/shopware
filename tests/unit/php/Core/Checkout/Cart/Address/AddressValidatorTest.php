@@ -25,10 +25,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class AddressValidatorTest extends TestCase
 {
-    /**
-     * @var MockObject|EntityRepository
-     */
-    private $repository;
+    private MockObject&EntityRepository $repository;
 
     private AddressValidator $validator;
 

@@ -5,11 +5,13 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
  */
+#[Package('core')]
 class Migration1654839361ProductDownload extends MigrationStep
 {
     public function getCreationTimestamp(): int

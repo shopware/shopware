@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,9 +16,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExportActionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -32,10 +32,7 @@ class ImportExportActionControllerTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -108,7 +105,7 @@ class ImportExportActionControllerTest extends TestCase
 
             $response = $client->getResponse();
             static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
-            $response = json_decode($response->getContent(), true);
+            $response = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
             static::assertEquals('FRAMEWORK__MISSING_PRIVILEGE_ERROR', $response['errors'][0]['code'] ?? null);
             static::assertStringContainsString('product:read', $response['errors'][0]['detail']);
             static::assertStringContainsString('tax:read', $response['errors'][0]['detail']);
@@ -152,7 +149,7 @@ class ImportExportActionControllerTest extends TestCase
             $response = $client->getResponse();
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode($response->getContent(), true);
+            $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
             static::assertSame(ImportExportLogEntity::ACTIVITY_DRYRUN, $content['log']['activity']);
         }
     }
@@ -182,7 +179,7 @@ class ImportExportActionControllerTest extends TestCase
         );
 
         $response = $client->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($expectedErrorCode !== null) {
             static::assertSame($expectedErrorCode, $response->getStatusCode());
@@ -197,9 +194,7 @@ class ImportExportActionControllerTest extends TestCase
         }
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        $result = array_map(function ($mapping) {
-            return ['key' => $mapping['key'], 'mappedKey' => $mapping['mappedKey']];
-        }, $content);
+        $result = array_map(fn ($mapping) => ['key' => $mapping['key'], 'mappedKey' => $mapping['mappedKey']], $content);
         static::assertSame($expectedMapping, $result);
     }
 
@@ -325,18 +320,18 @@ class ImportExportActionControllerTest extends TestCase
 
         switch ($type) {
             case 'text/html':
-                $content = $content ?? '<!DOCTYPE html><html><body></body></html>';
+                $content ??= '<!DOCTYPE html><html><body></body></html>';
                 $fileName = 'test.html';
 
                 break;
             case 'text/xml':
-                $content = $content ?? '<?xml version="1.0" ?><foo></foo>';
+                $content ??= '<?xml version="1.0" ?><foo></foo>';
                 $fileName = 'test.xml';
 
                 break;
             case 'text/csv':
             default:
-                $content = $content ?? '"foo";"bar";"123"';
+                $content ??= '"foo";"bar";"123"';
                 $fileName = 'test.csv';
         }
         file_put_contents($file, $content);

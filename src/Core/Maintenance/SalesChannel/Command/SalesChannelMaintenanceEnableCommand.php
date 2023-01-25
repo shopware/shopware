@@ -5,6 +5,7 @@ namespace Shopware\Core\Maintenance\SalesChannel\Command;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,14 +14,13 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @package core
- *
  * @internal should be used over the CLI only
  */
 #[AsCommand(
     name: 'sales-channel:maintenance:enable',
     description: 'Enable maintenance mode for a sales channel',
 )]
+#[Package('core')]
 class SalesChannelMaintenanceEnableCommand extends Command
 {
     /**
@@ -28,16 +28,9 @@ class SalesChannelMaintenanceEnableCommand extends Command
      */
     protected $setMaintenanceMode = true;
 
-    /**
-     * @var EntityRepository
-     */
-    private $salesChannelRepository;
-
     public function __construct(
-        EntityRepository $salesChannelRepository
+        private readonly EntityRepository $salesChannelRepository
     ) {
-        $this->salesChannelRepository = $salesChannelRepository;
-
         parent::__construct();
     }
 
@@ -81,12 +74,10 @@ class SalesChannelMaintenanceEnableCommand extends Command
             return self::SUCCESS;
         }
 
-        $update = array_map(function (string $id) {
-            return [
-                'id' => $id,
-                'maintenance' => $this->setMaintenanceMode,
-            ];
-        }, $salesChannelIds);
+        $update = array_map(fn (string $id) => [
+            'id' => $id,
+            'maintenance' => $this->setMaintenanceMode,
+        ], $salesChannelIds);
 
         $this->salesChannelRepository->update($update, $context);
 

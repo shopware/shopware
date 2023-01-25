@@ -9,15 +9,15 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Demodata\Faker\Commerce;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class DemodataService
 {
     /**
@@ -26,9 +26,9 @@ class DemodataService
      * @param \IteratorAggregate<DemodataGeneratorInterface> $generators
      */
     public function __construct(
-        private \IteratorAggregate $generators,
-        private string $projectDir,
-        private DefinitionInstanceRegistry $registry
+        private readonly \IteratorAggregate $generators,
+        private readonly string $projectDir,
+        private readonly DefinitionInstanceRegistry $registry
     ) {
     }
 
@@ -51,9 +51,7 @@ class DemodataService
 
             $console->section(sprintf('Generating %d items for %s', $numberOfItems, $definition->getEntityName()));
 
-            $validGenerators = array_filter(iterator_to_array($this->generators), static function (DemodataGeneratorInterface $generator) use ($definitionClass) {
-                return $generator->getDefinition() === $definitionClass;
-            });
+            $validGenerators = array_filter(iterator_to_array($this->generators), static fn (DemodataGeneratorInterface $generator) => $generator->getDefinition() === $definitionClass);
 
             if (empty($validGenerators)) {
                 throw new \RuntimeException(

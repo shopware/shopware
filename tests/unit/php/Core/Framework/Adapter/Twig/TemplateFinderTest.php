@@ -65,9 +65,7 @@ class TemplateFinderTest extends TestCase
             $map[] = '@' . $bundleName . '/' . $templatePath;
         }
 
-        $this->loader->expects(static::any())->method('exists')->willReturnCallback(function (string $template) use ($map) {
-            return \in_array($template, $map, true);
-        });
+        $this->loader->expects(static::any())->method('exists')->willReturnCallback(fn (string $template) => \in_array($template, $map, true));
 
         $this->hierarchyBuilder->expects(static::once())->method('buildHierarchy')->willReturn($bundles);
 

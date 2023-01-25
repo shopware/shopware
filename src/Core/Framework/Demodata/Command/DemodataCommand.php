@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
@@ -36,13 +37,12 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @package core
  */
 #[AsCommand(
     name: 'framework:demodata',
     description: 'Generates demo data',
 )]
+#[Package('core')]
 class DemodataCommand extends Command
 {
     /**
@@ -54,9 +54,9 @@ class DemodataCommand extends Command
      * @internal
      */
     public function __construct(
-        private DemodataService $demodataService,
-        private EventDispatcherInterface $eventDispatcher,
-        private string $kernelEnv
+        private readonly DemodataService $demodataService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly string $kernelEnv
     ) {
         parent::__construct();
     }

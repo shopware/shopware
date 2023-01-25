@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -23,9 +24,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class OrderGenerator implements DemodataGeneratorInterface
 {
     /**
@@ -39,13 +39,13 @@ class OrderGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        private Connection $connection,
-        private AbstractSalesChannelContextFactory $contextFactory,
-        private CartService $cartService,
-        private OrderConverter $orderConverter,
-        private EntityWriterInterface $writer,
-        private OrderDefinition $orderDefinition,
-        private CartCalculator $cartCalculator
+        private readonly Connection $connection,
+        private readonly AbstractSalesChannelContextFactory $contextFactory,
+        private readonly CartService $cartService,
+        private readonly OrderConverter $orderConverter,
+        private readonly EntityWriterInterface $writer,
+        private readonly OrderDefinition $orderDefinition,
+        private readonly CartCalculator $cartCalculator
     ) {
     }
 
@@ -67,11 +67,9 @@ class OrderGenerator implements DemodataGeneratorInterface
         $context->getConsole()->progressStart($numberOfItems);
 
         $productLineItems = array_map(
-            function ($productId) {
-                return (new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, $this->faker->randomDigit() + 1))
-                    ->setStackable(true)
-                    ->setRemovable(true);
-            },
+            fn ($productId) => (new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, $this->faker->randomDigit() + 1))
+                ->setStackable(true)
+                ->setRemovable(true),
             $productIds
         );
         $promotionLineItems = array_map(
@@ -138,9 +136,7 @@ class OrderGenerator implements DemodataGeneratorInterface
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(
-                    function (string $id) {
-                        return ['id' => $id];
-                    },
+                    fn (string $id) => ['id' => $id],
                     $chosenTags
                 );
             }

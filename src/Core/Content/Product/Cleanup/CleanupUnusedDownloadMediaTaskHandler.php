@@ -6,23 +6,21 @@ use Shopware\Core\Content\Media\DeleteNotUsedMediaService;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 final class CleanupUnusedDownloadMediaTaskHandler extends ScheduledTaskHandler
 {
-    private DeleteNotUsedMediaService $deleteMediaService;
-
     public function __construct(
         EntityRepository $repository,
-        DeleteNotUsedMediaService $deleteMediaService
+        private readonly DeleteNotUsedMediaService $deleteMediaService
     ) {
         parent::__construct($repository);
-
-        $this->deleteMediaService = $deleteMediaService;
     }
 
     /**

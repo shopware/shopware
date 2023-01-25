@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Checkout\Cart\Order;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class IdStruct extends Struct
 {
     /**

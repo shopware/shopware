@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch\Framework\Command;
 
 use OpenSearch\Client;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -11,29 +12,21 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'es:index:cleanup',
     description: 'Clean outdated indices',
 )]
+#[Package('core')]
 class ElasticsearchCleanIndicesCommand extends Command
 {
-    private ElasticsearchOutdatedIndexDetector $outdatedIndexDetector;
-
-    private Client $client;
-
     /**
      * @internal
      */
     public function __construct(
-        Client $client,
-        ElasticsearchOutdatedIndexDetector $indexCleaner
+        private readonly Client $client,
+        private readonly ElasticsearchOutdatedIndexDetector $outdatedIndexDetector
     ) {
         parent::__construct();
-        $this->outdatedIndexDetector = $indexCleaner;
-        $this->client = $client;
     }
 
     /**
@@ -42,8 +35,7 @@ class ElasticsearchCleanIndicesCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Do not ask for confirmation')
-            ->setDescription('Admin command to remove old and unused indices');
+            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Do not ask for confirmation');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

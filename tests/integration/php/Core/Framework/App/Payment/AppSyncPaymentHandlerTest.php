@@ -42,7 +42,7 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
         static::assertSame('POST', $request->getMethod());
         static::assertJson($body);
-        $content = json_decode($body, true);
+        $content = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('source', $content);
         static::assertSame([
             'url' => $this->shopUrl,
@@ -151,7 +151,7 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
         $response = new SyncPayResponse();
-        $json = \json_encode($response);
+        $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
         $this->appendNewResponse(new Response(200, [], $json));
@@ -169,7 +169,7 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
         $response = new SyncPayResponse();
-        $json = \json_encode($response);
+        $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
         $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));

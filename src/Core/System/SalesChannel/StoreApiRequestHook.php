@@ -4,13 +4,12 @@ namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 
-/**
- * @package core
- */
+#[Package('core')]
 abstract class StoreApiRequestHook extends Hook implements SalesChannelContextAware
 {
     /**

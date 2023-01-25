@@ -25,10 +25,7 @@ class TreeIndexerTest extends TestCase
      */
     private $categoryRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var Connection

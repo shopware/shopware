@@ -27,7 +27,7 @@ class AppUrlChangeControllerTest extends TestCase
         $this->getBrowser()->request('GET', $url);
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
 
-        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
@@ -74,7 +74,7 @@ class AppUrlChangeControllerTest extends TestCase
         );
 
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
-        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
 
@@ -93,7 +93,7 @@ class AppUrlChangeControllerTest extends TestCase
 
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
 
-        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
 
@@ -117,7 +117,7 @@ class AppUrlChangeControllerTest extends TestCase
 
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
 
-        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertEquals(['oldUrl' => $oldUrl, 'newUrl' => $_SERVER['APP_URL']], $response);

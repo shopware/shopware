@@ -9,49 +9,28 @@ use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"api"}})
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('customer-order')]
 class CustomerGroupRegistrationActionController
 {
-    private EntityRepository $customerRepository;
-
-    private EntityRepository $customerGroupRepository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private SalesChannelContextRestorer $restorer;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $customerRepository,
-        EntityRepository $customerGroupRepository,
-        EventDispatcherInterface $eventDispatcher,
-        SalesChannelContextRestorer $restorer
-    ) {
-        $this->customerRepository = $customerRepository;
-        $this->customerGroupRepository = $customerGroupRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->restorer = $restorer;
+    public function __construct(private readonly EntityRepository $customerRepository, private readonly EntityRepository $customerGroupRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly SalesChannelContextRestorer $restorer)
+    {
     }
 
     /**
      * @throws Exception
-     *
-     * @Since("6.3.1.0")
-     * @Route("/api/_action/customer-group-registration/accept", name="api.customer-group.accept", methods={"POST"}, requirements={"version"="\d+"})
      */
+    #[Route(path: '/api/_action/customer-group-registration/accept', name: 'api.customer-group.accept', methods: ['POST'], requirements: ['version' => '\d+'])]
     public function accept(Request $request, Context $context): JsonResponse
     {
         $customerIds = $this->getRequestCustomerIds($request);
@@ -98,10 +77,8 @@ class CustomerGroupRegistrationActionController
 
     /**
      * @throws Exception
-     *
-     * @Since("6.3.1.0")
-     * @Route("/api/_action/customer-group-registration/decline", name="api.customer-group.decline", methods={"POST"}, requirements={"version"="\d+"})
      */
+    #[Route(path: '/api/_action/customer-group-registration/decline', name: 'api.customer-group.decline', methods: ['POST'], requirements: ['version' => '\d+'])]
     public function decline(Request $request, Context $context): JsonResponse
     {
         $customerIds = $this->getRequestCustomerIds($request);

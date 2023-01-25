@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -12,25 +13,17 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class EmailRule extends Rule
 {
-    public const RULE_NAME = 'customerEmail';
-
-    protected ?string $email;
-
-    protected string $operator;
+    final public const RULE_NAME = 'customerEmail';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $email = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?string $email = null)
     {
         parent::__construct();
-        $this->operator = $operator;
-        $this->email = $email;
     }
 
     public function match(RuleScope $scope): bool
@@ -74,16 +67,11 @@ class EmailRule extends Rule
         $email = str_replace('\*', '(.*?)', preg_quote($this->email, '/'));
         $regex = sprintf('/^%s$/i', $email);
 
-        switch ($this->operator) {
-            case Rule::OPERATOR_EQ:
-                return preg_match($regex, $customer->getEmail()) === 1;
-
-            case Rule::OPERATOR_NEQ:
-                return preg_match($regex, $customer->getEmail()) !== 1;
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return match ($this->operator) {
+            Rule::OPERATOR_EQ => preg_match($regex, $customer->getEmail()) === 1,
+            Rule::OPERATOR_NEQ => preg_match($regex, $customer->getEmail()) !== 1,
+            default => throw new UnsupportedOperatorException($this->operator, self::class),
+        };
     }
 
     private function matchExact(CustomerEntity $customer): bool

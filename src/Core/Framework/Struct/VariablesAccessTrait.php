@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Struct;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 trait VariablesAccessTrait
 {
     public function getVars(): array

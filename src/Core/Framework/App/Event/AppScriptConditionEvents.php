@@ -2,23 +2,23 @@
 
 namespace Shopware\Core\Framework\App\Event;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class AppScriptConditionEvents
 {
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")
      */
-    public const APP_SCRIPT_CONDITION_WRITTEN_EVENT = 'app_script_condition.written';
+    final public const APP_SCRIPT_CONDITION_WRITTEN_EVENT = 'app_script_condition.written';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent")
      */
-    public const APP_SCRIPT_CONDITION_DELETED_EVENT = 'app_script_condition.deleted';
+    final public const APP_SCRIPT_CONDITION_DELETED_EVENT = 'app_script_condition.deleted';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent")
      */
-    public const APP_SCRIPT_CONDITION_LOADED_EVENT = 'app_script_condition.loaded';
+    final public const APP_SCRIPT_CONDITION_LOADED_EVENT = 'app_script_condition.loaded';
 }

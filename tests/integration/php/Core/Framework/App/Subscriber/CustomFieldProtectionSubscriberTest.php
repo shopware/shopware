@@ -69,7 +69,7 @@ class CustomFieldProtectionSubscriberTest extends TestCase
         $this->authorizeBrowserWithIntegrationForApp($client, $appId);
 
         $data = ['id' => $id, 'active' => false];
-        $json = \json_encode($data);
+        $json = \json_encode($data, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
         $client->request('PATCH', '/api/custom-field-set/' . $id, [], [], [
@@ -126,7 +126,7 @@ class CustomFieldProtectionSubscriberTest extends TestCase
         $client = $this->createClient();
 
         $data = ['id' => $id, 'active' => false];
-        $json = \json_encode($data);
+        $json = \json_encode($data, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
         $client->request('PATCH', '/api/custom-field-set/' . $id, [], [], [
@@ -161,7 +161,7 @@ class CustomFieldProtectionSubscriberTest extends TestCase
         $browser->request('POST', '/api/oauth/token', $authPayload);
         static::assertNotFalse($browser->getResponse()->getContent());
 
-        $data = \json_decode($browser->getResponse()->getContent(), true);
+        $data = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(

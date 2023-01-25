@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Framework\Webhook\ScheduledTask;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CleanupWebhookEventLogTask extends ScheduledTask
 {
     public static function getTaskName(): string

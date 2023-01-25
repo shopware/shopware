@@ -48,7 +48,7 @@ class SqlQueryParserTest extends TestCase
 
         $has = false;
         foreach ($parsed->getWheres() as $where) {
-            $has = $has || strpos($where, '<=>') !== false;
+            $has = $has || str_contains((string) $where, '<=>');
         }
 
         static::assertEquals($expected, $has);

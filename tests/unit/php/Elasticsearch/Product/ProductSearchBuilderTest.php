@@ -24,7 +24,7 @@ class ProductSearchBuilderTest extends TestCase
      *
      * @param array<string>|string $query
      */
-    public function testArraySearchTerm($query, string $expected): void
+    public function testArraySearchTerm(array|string $query, string $expected): void
     {
         $criteria = new Criteria();
         $request = new Request();

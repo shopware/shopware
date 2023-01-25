@@ -25,10 +25,7 @@ class TextTypeDataResolverTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @var TextCmsElementResolver
-     */
-    private $textResolver;
+    private TextCmsElementResolver $textResolver;
 
     protected function setUp(): void
     {

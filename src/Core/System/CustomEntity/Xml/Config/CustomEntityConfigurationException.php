@@ -3,16 +3,15 @@
 namespace Shopware\Core\System\CustomEntity\Xml\Config;
 
 use Shopware\Core\Framework\HttpException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package content
- */
+#[Package('content')]
 class CustomEntityConfigurationException extends HttpException
 {
-    public const ENTITY_NOT_GIVEN_CODE = 'CUSTOM_ENTITY_NOT_GIVEN';
-    public const DUPLICATE_REFERENCES = 'CUSTOM_ENTITY_DUPLICATE_REFERENCES';
-    public const INVALID_REFERENCES = 'CUSTOM_ENTITY_INVALID_REFERENCES';
+    final public const ENTITY_NOT_GIVEN_CODE = 'CUSTOM_ENTITY_NOT_GIVEN';
+    final public const DUPLICATE_REFERENCES = 'CUSTOM_ENTITY_DUPLICATE_REFERENCES';
+    final public const INVALID_REFERENCES = 'CUSTOM_ENTITY_INVALID_REFERENCES';
 
     /**
      * @param string[] $entities

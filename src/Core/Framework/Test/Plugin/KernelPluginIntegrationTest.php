@@ -38,10 +38,7 @@ class KernelPluginIntegrationTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;
 
-    /**
-     * @var Kernel|null
-     */
-    private $kernel;
+    private ?Kernel $kernel = null;
 
     public function tearDown(): void
     {

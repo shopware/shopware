@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Plugin\Context;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class ActivateContext extends InstallContext
 {
 }

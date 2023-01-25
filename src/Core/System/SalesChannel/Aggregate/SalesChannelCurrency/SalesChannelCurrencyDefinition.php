@@ -8,15 +8,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SalesChannelCurrencyDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'sales_channel_currency';
+    final public const ENTITY_NAME = 'sales_channel_currency';
 
     public function getEntityName(): string
     {

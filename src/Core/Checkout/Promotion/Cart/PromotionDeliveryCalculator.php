@@ -20,13 +20,11 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- *
  * Calculates discounts on deliveries
- *
  * as calculation base we are always taking the delivery costs coming from the delivery calculator
  * this means if we have an absolute and percentage discount, the percentage discount is always
  * calculated with the deliveries coming from DeliveryCalculator even if absolute discounts have
@@ -35,24 +33,16 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Absolute discount is 10 => Shippingcosts = 90
  * Percentage discount is 30 => Shippingcosts = 60 (Shippingcosts = 100 - (10 + 100 * 0.3))
  */
+#[Package('checkout')]
 class PromotionDeliveryCalculator
 {
     use PromotionCartInformationTrait;
 
-    private QuantityPriceCalculator $quantityPriceCalculator;
-
-    private PercentagePriceCalculator $percentagePriceCalculator;
-
-    private PromotionItemBuilder $builder;
-
     /**
      * @internal
      */
-    public function __construct(QuantityPriceCalculator $quantityPriceCalculator, PercentagePriceCalculator $percentagePriceCalculator, PromotionItemBuilder $builder)
+    public function __construct(private readonly QuantityPriceCalculator $quantityPriceCalculator, private readonly PercentagePriceCalculator $percentagePriceCalculator, private readonly PromotionItemBuilder $builder)
     {
-        $this->quantityPriceCalculator = $quantityPriceCalculator;
-        $this->percentagePriceCalculator = $percentagePriceCalculator;
-        $this->builder = $builder;
     }
 
     /**
@@ -482,9 +472,7 @@ class PromotionDeliveryCalculator
     private function addFakeLineitem(Cart $toCalculate, LineItem $discount, SalesChannelContext $context): void
     {
         // filter all cart line items with the code
-        $lineItems = $toCalculate->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->filter(function ($discountLineItem) use ($discount) {
-            return $discountLineItem->getId() === $discount->getId();
-        });
+        $lineItems = $toCalculate->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->filter(fn ($discountLineItem) => $discountLineItem->getId() === $discount->getId());
 
         // if we have a line item in cart for this discount, it is already stored and we do not need to add
         // another lineitem

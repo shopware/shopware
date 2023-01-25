@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,10 +26,9 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal Only to be used by the admin-extension-sdk.
- *
- * @package administration
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('administration')]
 class AdminExtensionApiController extends AbstractController
 {
     public function __construct(private readonly Executor $executor, private readonly ShopIdProvider $shopIdProvider, private readonly EntityRepository $appRepository, private readonly QuerySigner $querySigner)

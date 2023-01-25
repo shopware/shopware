@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class DefaultsChildTranslationDefinition extends EntityTranslationDefinition
 {
-    public const SCHEMA = '
+    final public const SCHEMA = '
         CREATE TABLE IF NOT EXISTS `defaults_child_translation` (
             `defaults_child_id` BINARY(16) NOT NULL,
             `language_id` BINARY(16) NOT NULL,

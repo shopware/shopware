@@ -4,14 +4,14 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1617356092UpdateCmsPdpLayoutSection extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -94,35 +94,28 @@ class Migration1617356092UpdateCmsPdpLayoutSection extends MigrationStep
         ', ['cmsBlockId' => $blockIds], ['cmsBlockId' => Connection::PARAM_STR_ARRAY]);
 
         foreach ($slots as $slot) {
-            switch ($slot['type']) {
-                case 'manufacturer-logo':
-                    $configData = [
-                        'displayMode' => ['source' => 'static', 'value' => 'standard'],
-                        'media' => ['value' => 'product.manufacturer.media', 'source' => 'mapped'],
-                        'minHeight' => ['value' => null, 'source' => 'static'],
-                        'newTab' => ['value' => true, 'source' => 'static'],
-                        'url' => ['value' => null, 'source' => 'static'],
-                        'verticalAlign' => ['value' => null, 'source' => 'static'],
-                    ];
-
-                    break;
-                case 'image-gallery':
-                    $configData = [
-                        'displayMode' => ['value' => 'contain', 'source' => 'static'],
-                        'fullScreen' => ['value' => true, 'source' => 'static'],
-                        'galleryPosition' => ['value' => 'left', 'source' => 'static'],
-                        'minHeight' => ['value' => '430px', 'source' => 'static'],
-                        'navigationArrows' => ['value' => 'inside', 'source' => 'static'],
-                        'navigationDots' => ['value' => 'inside', 'source' => 'static'],
-                        'sliderItems' => ['value' => 'product.media', 'source' => 'mapped'],
-                        'verticalAlign' => ['value' => null, 'source' => 'static'],
-                        'zoom' => ['value' => true, 'source' => 'static'],
-                    ];
-
-                    break;
-                default:
-                    $configData = [];
-            }
+            $configData = match ($slot['type']) {
+                'manufacturer-logo' => [
+                    'displayMode' => ['source' => 'static', 'value' => 'standard'],
+                    'media' => ['value' => 'product.manufacturer.media', 'source' => 'mapped'],
+                    'minHeight' => ['value' => null, 'source' => 'static'],
+                    'newTab' => ['value' => true, 'source' => 'static'],
+                    'url' => ['value' => null, 'source' => 'static'],
+                    'verticalAlign' => ['value' => null, 'source' => 'static'],
+                ],
+                'image-gallery' => [
+                    'displayMode' => ['value' => 'contain', 'source' => 'static'],
+                    'fullScreen' => ['value' => true, 'source' => 'static'],
+                    'galleryPosition' => ['value' => 'left', 'source' => 'static'],
+                    'minHeight' => ['value' => '430px', 'source' => 'static'],
+                    'navigationArrows' => ['value' => 'inside', 'source' => 'static'],
+                    'navigationDots' => ['value' => 'inside', 'source' => 'static'],
+                    'sliderItems' => ['value' => 'product.media', 'source' => 'mapped'],
+                    'verticalAlign' => ['value' => null, 'source' => 'static'],
+                    'zoom' => ['value' => true, 'source' => 'static'],
+                ],
+                default => [],
+            };
 
             if (empty($configData)) {
                 return;
@@ -134,7 +127,7 @@ class Migration1617356092UpdateCmsPdpLayoutSection extends MigrationStep
                 WHERE cms_slot_id = :slotId
             ', [
                 'slotId' => $slot['id'],
-                'config' => json_encode($configData),
+                'config' => json_encode($configData, \JSON_THROW_ON_ERROR),
             ]);
         }
     }

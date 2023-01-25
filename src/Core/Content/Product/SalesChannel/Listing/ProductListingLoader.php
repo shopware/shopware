@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -23,36 +24,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductListingLoader
 {
-    private SalesChannelRepository $repository;
-
-    private SystemConfigService $systemConfigService;
-
-    private Connection $connection;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
-
     /**
      * @internal
      */
-    public function __construct(
-        SalesChannelRepository $repository,
-        SystemConfigService $systemConfigService,
-        Connection $connection,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
-    ) {
-        $this->repository = $repository;
-        $this->systemConfigService = $systemConfigService;
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->productCloseoutFilterFactory = $productCloseoutFilterFactory;
+    public function __construct(private readonly SalesChannelRepository $repository, private readonly SystemConfigService $systemConfigService, private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory)
+    {
     }
 
     public function load(Criteria $origin, SalesChannelContext $context): EntitySearchResult
@@ -113,9 +92,7 @@ class ProductListingLoader
             array_push($fields, ...$filter->getFields());
         }
 
-        $fields = array_map(function (string $field) {
-            return preg_replace('/^product./', '', $field);
-        }, $fields);
+        $fields = array_map(fn (string $field) => preg_replace('/^product./', '', $field), $fields);
 
         if (\in_array('options.id', $fields, true)) {
             return true;
@@ -189,7 +166,7 @@ class ProductListingLoader
             if ($item['variantListingConfig'] === null) {
                 continue;
             }
-            $variantListingConfig = json_decode($item['variantListingConfig'], true, 512, \JSON_THROW_ON_ERROR);
+            $variantListingConfig = json_decode((string) $item['variantListingConfig'], true, 512, \JSON_THROW_ON_ERROR);
 
             if ($variantListingConfig['mainVariantId']) {
                 $mapping[$item['id']] = $variantListingConfig['mainVariantId'];

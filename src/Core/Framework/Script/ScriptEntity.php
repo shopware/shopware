@@ -5,12 +5,12 @@ namespace Shopware\Core\Framework\Script;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class ScriptEntity extends Entity
 {
     use EntityIdTrait;
@@ -23,9 +23,9 @@ class ScriptEntity extends Entity
 
     protected bool $active;
 
-    protected ?string $appId;
+    protected ?string $appId = null;
 
-    protected ?AppEntity $app;
+    protected ?AppEntity $app = null;
 
     public function getScript(): string
     {

@@ -4,9 +4,7 @@ namespace Shopware\Core\Framework\Log;
 
 use Shopware\Core\Framework\Event\FlowEventAware;
 
-/**
- * @package core
- */
+#[Package('core')]
 interface LogAware extends FlowEventAware
 {
     public function getLogData(): array;

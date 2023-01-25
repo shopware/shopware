@@ -66,7 +66,7 @@ class DeliveryBuilderTest extends TestCase
             'shipping-method-shipping-method-id' => $shippingMethod,
         ]);
 
-        /** @var DeliveryBuilder|MockObject $deliveryBuilder */
+        /** @var DeliveryBuilder&MockObject $deliveryBuilder */
         $deliveryBuilder = $this->getMockBuilder(DeliveryBuilder::class)
             // don't mock build because it is the function under test
             ->onlyMethods(['buildByUsingShippingMethod'])
@@ -118,7 +118,7 @@ class DeliveryBuilderTest extends TestCase
                 ->assign(['deliveryInformation' => new DeliveryInformation(10, 1, false, null, null)]),
         ])];
 
-        $deliveryTime = $this->createDeliveryTime(DeliveryTimeEntity::DELIVERY_TIME_DAY, 1, 3);
+        $deliveryTime = $this->createDeliveryTime(1, 3);
 
         yield 'DeliveryCollection is empty if LineItems price is not set' => [new LineItemCollection([
             (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 1))
@@ -173,33 +173,33 @@ class DeliveryBuilderTest extends TestCase
             new LineItemCollection([
                 (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 1))
                     ->assign([
-                        'deliveryInformation' => $this->createDeliveryInformation(null, 10, 0),
+                        'deliveryInformation' => $this->createDeliveryInformation(null, 0),
                         'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
                     ]),
             ]),
-            DeliveryDate::createFromDeliveryTime($this->createDeliveryTime(DeliveryTimeEntity::DELIVERY_TIME_DAY, 2, 3)),
+            DeliveryDate::createFromDeliveryTime($this->createDeliveryTime(2, 3)),
         ];
 
         yield 'It takes delivery time of position if line item is in stock' => [
             new LineItemCollection([
                 (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 1))
                     ->assign([
-                        'deliveryInformation' => $this->createDeliveryInformation($this->createDeliveryTime(DeliveryTimeEntity::DELIVERY_TIME_DAY, 4, 5), 10, 0),
+                        'deliveryInformation' => $this->createDeliveryInformation($this->createDeliveryTime(4, 5), 0),
                         'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
                     ]),
             ]),
-            DeliveryDate::createFromDeliveryTime($this->createDeliveryTime(DeliveryTimeEntity::DELIVERY_TIME_DAY, 4, 5)),
+            DeliveryDate::createFromDeliveryTime($this->createDeliveryTime(4, 5)),
         ];
 
         yield 'It adds restock time to Delivery Time if item is out of stock' => [
             new LineItemCollection([
                 (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 20))
                     ->assign([
-                        'deliveryInformation' => $this->createDeliveryInformation($this->createDeliveryTime(DeliveryTimeEntity::DELIVERY_TIME_DAY, 4, 5), 10, 2),
+                        'deliveryInformation' => $this->createDeliveryInformation($this->createDeliveryTime(4, 5), 2),
                         'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
                     ]),
             ]),
-            DeliveryDate::createFromDeliveryTime($this->createDeliveryTime(DeliveryTimeEntity::DELIVERY_TIME_DAY, 6, 7)),
+            DeliveryDate::createFromDeliveryTime($this->createDeliveryTime(6, 7)),
         ];
 
         yield 'It takes delivery time of nested line item if parent has none' => [
@@ -209,40 +209,40 @@ class DeliveryBuilderTest extends TestCase
                         'children' => new LineItemCollection([
                             (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 1))
                                 ->assign([
-                                    'deliveryInformation' => $this->createDeliveryInformation($this->createDeliveryTime(DeliveryTimeEntity::DELIVERY_TIME_DAY, 4, 5), 10, 0),
+                                    'deliveryInformation' => $this->createDeliveryInformation($this->createDeliveryTime(4, 5), 0),
                                     'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
                                 ]),
                         ]),
                     ]),
             ]),
-            DeliveryDate::createFromDeliveryTime($this->createDeliveryTime(DeliveryTimeEntity::DELIVERY_TIME_DAY, 4, 5)),
+            DeliveryDate::createFromDeliveryTime($this->createDeliveryTime(4, 5)),
         ];
 
         yield 'It calculates the earliest and latest delivery time from all positions' => [
             new LineItemCollection([
                 (new LineItem('first-line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 1))
                     ->assign([
-                        'deliveryInformation' => $this->createDeliveryInformation($this->createDeliveryTime(DeliveryTimeEntity::DELIVERY_TIME_DAY, 2, 8), 10, 2),
+                        'deliveryInformation' => $this->createDeliveryInformation($this->createDeliveryTime(2, 8), 2),
                         'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
                     ]),
                 (new LineItem('second-line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 1))
                     ->assign([
-                        'deliveryInformation' => $this->createDeliveryInformation($this->createDeliveryTime(DeliveryTimeEntity::DELIVERY_TIME_DAY, 4, 6), 10, 2),
+                        'deliveryInformation' => $this->createDeliveryInformation($this->createDeliveryTime(4, 6), 2),
                         'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
                     ]),
             ]),
-            DeliveryDate::createFromDeliveryTime($this->createDeliveryTime(DeliveryTimeEntity::DELIVERY_TIME_DAY, 4, 8)),
+            DeliveryDate::createFromDeliveryTime($this->createDeliveryTime(4, 8)),
         ];
 
         yield 'It adds one day buffer if earliest and latest is the same' => [
             new LineItemCollection([
                 (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 1))
                     ->assign([
-                        'deliveryInformation' => $this->createDeliveryInformation($this->createDeliveryTime(DeliveryTimeEntity::DELIVERY_TIME_DAY, 2, 2), 10, 2),
+                        'deliveryInformation' => $this->createDeliveryInformation($this->createDeliveryTime(2, 2), 2),
                         'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
                     ]),
             ]),
-            DeliveryDate::createFromDeliveryTime($this->createDeliveryTime(DeliveryTimeEntity::DELIVERY_TIME_DAY, 2, 3)),
+            DeliveryDate::createFromDeliveryTime($this->createDeliveryTime(2, 3)),
         ];
     }
 
@@ -258,15 +258,15 @@ class DeliveryBuilderTest extends TestCase
         ]);
     }
 
-    private function createDeliveryTime(string $unit, int $min, int $max): DeliveryTime
+    private function createDeliveryTime(int $min, int $max): DeliveryTime
     {
-        return DeliveryTime::createFromEntity($this->createDeliveryTimeEntity($unit, $min, $max));
+        return DeliveryTime::createFromEntity($this->createDeliveryTimeEntity(DeliveryTimeEntity::DELIVERY_TIME_DAY, $min, $max));
     }
 
-    private function createDeliveryInformation(?DeliveryTime $deliveryTime, int $stock, int $restockTime): DeliveryInformation
+    private function createDeliveryInformation(?DeliveryTime $deliveryTime, int $restockTime): DeliveryInformation
     {
         return new DeliveryInformation(
-            $stock,
+            10,
             0.0,
             false,
             $restockTime,

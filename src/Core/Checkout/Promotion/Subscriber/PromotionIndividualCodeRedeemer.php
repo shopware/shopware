@@ -15,23 +15,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
- *
- * @package checkout
  */
+#[Package('checkout')]
 class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
 {
-    private EntityRepository $codesRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $codesRepository)
+    public function __construct(private readonly EntityRepository $codesRepository)
     {
-        $this->codesRepository = $codesRepository;
     }
 
     public static function getSubscribedEvents(): array
@@ -60,7 +57,7 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
                 // first try if its an individual
                 // if not, then it might be a global promotion
                 $individualCode = $this->getIndividualCode($code, $event->getContext());
-            } catch (PromotionCodeNotFoundException $ex) {
+            } catch (PromotionCodeNotFoundException) {
                 $individualCode = null;
             }
 

@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\App\Payment\Response;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal only for use by the app-system
- *
- * @package core
  */
+#[Package('core')]
 class ValidateResponse extends AbstractResponse
 {
     /**

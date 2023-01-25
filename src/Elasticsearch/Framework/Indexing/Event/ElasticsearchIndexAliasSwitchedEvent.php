@@ -2,22 +2,16 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing\Event;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class ElasticsearchIndexAliasSwitchedEvent
 {
     /**
-     * @var array<string, string>
-     */
-    private array $changes;
-
-    /**
      * @param array<string, string> $changes
      */
-    public function __construct(array $changes)
+    public function __construct(private readonly array $changes)
     {
-        $this->changes = $changes;
     }
 
     /**

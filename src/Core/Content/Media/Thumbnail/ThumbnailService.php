@@ -20,37 +20,16 @@ use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('content')]
 class ThumbnailService
 {
-    private EntityRepository $thumbnailRepository;
-
-    private FilesystemOperator $filesystemPublic;
-
-    private FilesystemOperator $filesystemPrivate;
-
-    private UrlGeneratorInterface $urlGenerator;
-
-    private EntityRepository $mediaFolderRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $thumbnailRepository,
-        FilesystemOperator $fileSystemPublic,
-        FilesystemOperator $fileSystemPrivate,
-        UrlGeneratorInterface $urlGenerator,
-        EntityRepository $mediaFolderRepository
-    ) {
-        $this->thumbnailRepository = $thumbnailRepository;
-        $this->filesystemPublic = $fileSystemPublic;
-        $this->filesystemPrivate = $fileSystemPrivate;
-        $this->urlGenerator = $urlGenerator;
-        $this->mediaFolderRepository = $mediaFolderRepository;
+    public function __construct(private readonly EntityRepository $thumbnailRepository, private readonly FilesystemOperator $filesystemPublic, private readonly FilesystemOperator $filesystemPrivate, private readonly UrlGeneratorInterface $urlGenerator, private readonly EntityRepository $mediaFolderRepository)
+    {
     }
 
     public function generate(MediaCollection $collection, Context $context): int
@@ -65,7 +44,7 @@ class ThumbnailService
             }
 
             if (!$this->mediaCanHaveThumbnails($media, $context)) {
-                $delete = array_merge($delete, $media->getThumbnails()->getIds());
+                $delete = [...$delete, ...$media->getThumbnails()->getIds()];
 
                 continue;
             }
@@ -80,7 +59,7 @@ class ThumbnailService
                 continue;
             }
 
-            $delete = array_merge($delete, $media->getThumbnails()->getIds());
+            $delete = [...$delete, ...$media->getThumbnails()->getIds()];
 
             $generate[] = $media;
         }
@@ -88,9 +67,7 @@ class ThumbnailService
         if (!empty($delete)) {
             $context->addState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
 
-            $delete = \array_values(\array_map(function (string $id) {
-                return ['id' => $id];
-            }, $delete));
+            $delete = \array_values(\array_map(fn (string $id) => ['id' => $id], $delete));
 
             $this->thumbnailRepository->delete($delete, $context);
         }
@@ -173,9 +150,7 @@ class ThumbnailService
             }
         }
 
-        $delete = \array_values(\array_map(static function (string $id) {
-            return ['id' => $id];
-        }, $toBeDeletedThumbnails->getIds()));
+        $delete = \array_values(\array_map(static fn (string $id) => ['id' => $id], $toBeDeletedThumbnails->getIds()));
 
         $this->thumbnailRepository->delete($delete, $context);
 
@@ -304,7 +279,7 @@ class ThumbnailService
                         $image = imagerotate($image, -90, 0);
                     }
                 }
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 // Ignore.
             } finally {
                 fclose($stream);
@@ -454,7 +429,7 @@ class ThumbnailService
 
         try {
             $this->getFileSystem($media)->write($url, (string) $imageFile);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new ThumbnailCouldNotBeSavedException($url);
         }
     }
@@ -494,9 +469,7 @@ class ThumbnailService
 
         $delete = $media->getThumbnails()->getIds();
 
-        $delete = \array_values(\array_map(static function (string $id) {
-            return ['id' => $id];
-        }, $delete));
+        $delete = \array_values(\array_map(static fn (string $id) => ['id' => $id], $delete));
 
         $this->thumbnailRepository->delete($delete, $context);
     }

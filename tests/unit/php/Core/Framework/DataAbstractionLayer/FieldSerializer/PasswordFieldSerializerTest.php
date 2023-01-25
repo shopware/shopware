@@ -174,7 +174,7 @@ class PasswordFieldSerializerTest extends TestCase
             $minPasswordLength,
             $minLengthConstraints,
             false,
-            password_hash('over8characters', \PASSWORD_DEFAULT, []),
+            password_hash('over8characters', \PASSWORD_DEFAULT),
         ];
     }
 }

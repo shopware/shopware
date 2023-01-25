@@ -6,13 +6,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\RulesTestFixtureBehaviour;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class LineItemGroupDefinitionTest extends TestCase
 {
     use RulesTestFixtureBehaviour;

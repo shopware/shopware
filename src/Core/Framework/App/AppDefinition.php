@@ -33,6 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ScriptDefinition;
 use Shopware\Core\Framework\Webhook\WebhookDefinition;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
@@ -40,13 +41,12 @@ use Shopware\Core\System\Integration\IntegrationDefinition;
 use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class AppDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'app';
+    final public const ENTITY_NAME = 'app';
 
     public function getEntityName(): string
     {

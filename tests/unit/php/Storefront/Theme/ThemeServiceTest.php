@@ -35,39 +35,28 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 class ThemeServiceTest extends TestCase
 {
     /**
-     * @var Connection|MockObject
+     * @var Connection&MockObject
      */
     private Connection $connectionMock;
 
     /**
-     * @var StorefrontPluginRegistry|MockObject
+     * @var StorefrontPluginRegistry&MockObject
      */
     private StorefrontPluginRegistry $storefrontPluginRegistryMock;
 
-    /**
-     * @var EntityRepository&MockObject
-     */
-    private $themeRepositoryMock;
+    private MockObject&EntityRepository $themeRepositoryMock;
+
+    private MockObject&EntityRepository $themeSalesChannelRepositoryMock;
 
     /**
-     * @var EntityRepository&MockObject
-     */
-    private $themeSalesChannelRepositoryMock;
-
-    /**
-     * @var ThemeCompiler|MockObject
+     * @var ThemeCompiler&MockObject
      */
     private ThemeCompiler $themeCompilerMock;
 
     /**
-     * @var EventDispatcher|MockObject
+     * @var EventDispatcher&MockObject
      */
     private EventDispatcher $eventDispatcherMock;
-
-    /**
-     * @var DatabaseConfigLoader|MockObject
-     */
-    private DatabaseConfigLoader $databaseConfigLoaderMock;
 
     private ThemeService $themeService;
 
@@ -81,7 +70,7 @@ class ThemeServiceTest extends TestCase
         $this->themeSalesChannelRepositoryMock = $this->createMock(EntityRepository::class);
         $this->themeCompilerMock = $this->createMock(ThemeCompiler::class);
         $this->eventDispatcherMock = $this->createMock(EventDispatcher::class);
-        $this->databaseConfigLoaderMock = $this->createMock(DatabaseConfigLoader::class);
+        $databaseConfigLoaderMock = $this->createMock(DatabaseConfigLoader::class);
         $this->context = Context::createDefaultContext();
 
         $this->themeService = new ThemeService(
@@ -90,7 +79,7 @@ class ThemeServiceTest extends TestCase
             $this->themeSalesChannelRepositoryMock,
             $this->themeCompilerMock,
             $this->eventDispatcherMock,
-            $this->databaseConfigLoaderMock,
+            $databaseConfigLoaderMock,
             $this->connectionMock
         );
     }

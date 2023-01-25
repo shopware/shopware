@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\Cms\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package content
- */
+#[Package('content')]
 class DuplicateCriteriaKeyException extends ShopwareHttpException
 {
     public function __construct(string $key)

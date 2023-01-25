@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ListFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * Stores a JSON formatted value list. This can be typed using the third constructor parameter.
@@ -22,15 +23,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ListFieldSerial
  *
  *      // single type values
  *      [12,55,192,22]
- *
- * @package core
  */
+#[Package('core')]
 class ListField extends JsonField
 {
     public function __construct(
         string $storageName,
         string $propertyName,
-        private ?string $fieldType = null
+        private readonly ?string $fieldType = null
     ) {
         parent::__construct($storageName, $propertyName);
     }

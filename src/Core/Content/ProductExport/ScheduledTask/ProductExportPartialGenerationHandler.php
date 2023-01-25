@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -27,28 +28,27 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
- *
- * @package sales-channel
  */
 #[AsMessageHandler]
+#[Package('sales-channel')]
 final class ProductExportPartialGenerationHandler
 {
     /**
      * @internal
      */
     public function __construct(
-        private ProductExportGeneratorInterface $productExportGenerator,
-        private AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        private EntityRepository $productExportRepository,
-        private ProductExportFileHandlerInterface $productExportFileHandler,
-        private  MessageBusInterface $messageBus,
-        private ProductExportRendererInterface $productExportRender,
-        private Translator $translator,
-        private SalesChannelContextServiceInterface $salesChannelContextService,
-        private SalesChannelContextPersister $contextPersister,
-        private Connection $connection,
-        private int $readBufferSize,
-        private LanguageLocaleCodeProvider $languageLocaleProvider
+        private readonly ProductExportGeneratorInterface $productExportGenerator,
+        private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        private readonly EntityRepository $productExportRepository,
+        private readonly ProductExportFileHandlerInterface $productExportFileHandler,
+        private readonly MessageBusInterface $messageBus,
+        private readonly ProductExportRendererInterface $productExportRender,
+        private readonly Translator $translator,
+        private readonly SalesChannelContextServiceInterface $salesChannelContextService,
+        private readonly SalesChannelContextPersister $contextPersister,
+        private readonly Connection $connection,
+        private readonly int $readBufferSize,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider
     ) {
     }
 

@@ -49,7 +49,7 @@ class MailHeaderFooterApiTest extends TestCase
 
         // do API calls
         foreach ($data as $entry) {
-            $this->getBrowser()->request('POST', $this->prepareRoute(), [], [], [], json_encode($entry));
+            $this->getBrowser()->request('POST', $this->prepareRoute(), [], [], [], json_encode($entry, \JSON_THROW_ON_ERROR));
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
         }
@@ -96,7 +96,7 @@ class MailHeaderFooterApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
 
-        $content = json_decode($response->getContent());
+        $content = json_decode($response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
 
         // Prepare expected data.
         $expectData = [];
@@ -139,7 +139,7 @@ class MailHeaderFooterApiTest extends TestCase
 
             $this->getBrowser()->request('PATCH', $this->prepareRoute() . $id, [], [], [
                 'HTTP_ACCEPT' => 'application/json',
-            ], json_encode($data[$idx]));
+            ], json_encode($data[$idx], \JSON_THROW_ON_ERROR));
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         }
@@ -150,7 +150,7 @@ class MailHeaderFooterApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-        $content = json_decode($response->getContent());
+        $content = json_decode($response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
 
         // Compare expected and received data.
         static::assertEquals($num, $content->total);
@@ -186,7 +186,7 @@ class MailHeaderFooterApiTest extends TestCase
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
             // compare deatils with expected
-            $content = json_decode($response->getContent());
+            $content = json_decode($response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
             static::assertEquals($expect['systemDefault'], $content->data->systemDefault);
             static::assertEquals($expect['name'], $content->data->name);
             static::assertEquals($expect['description'], $content->data->description);
@@ -218,7 +218,7 @@ class MailHeaderFooterApiTest extends TestCase
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-            $content = json_decode($response->getContent());
+            $content = json_decode($response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
             static ::assertEquals(1, $content->total);
         }
     }

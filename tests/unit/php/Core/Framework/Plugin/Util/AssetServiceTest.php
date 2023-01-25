@@ -69,7 +69,7 @@ class AssetServiceTest extends TestCase
 
         static::assertTrue($filesystem->has('bundles/example'));
         static::assertTrue($filesystem->has('bundles/example/test.txt'));
-        static::assertSame('TEST', trim((string) $filesystem->read('bundles/example/test.txt')));
+        static::assertSame('TEST', trim($filesystem->read('bundles/example/test.txt')));
         static::assertTrue($filesystem->has('bundles/featurea'));
     }
 
@@ -115,11 +115,11 @@ class AssetServiceTest extends TestCase
             new ParameterBag()
         );
 
-        $assetService->copyAssetsFromBundle('Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\ExampleBundle\ExampleBundle');
+        $assetService->copyAssetsFromBundle(ExampleBundle::class);
 
         static::assertTrue($filesystem->has('bundles/example'));
         static::assertTrue($filesystem->has('bundles/example/test.txt'));
-        static::assertSame('TEST', trim((string) $filesystem->read('bundles/example/test.txt')));
+        static::assertSame('TEST', trim($filesystem->read('bundles/example/test.txt')));
     }
 
     public function testBundleDeletion(): void
@@ -211,7 +211,7 @@ class AssetServiceTest extends TestCase
 
         static::assertTrue($filesystem->has('bundles/example'));
         static::assertTrue($filesystem->has('bundles/example/test.txt'));
-        static::assertSame('TEST', trim((string) $filesystem->read('bundles/example/test.txt')));
+        static::assertSame('TEST', trim($filesystem->read('bundles/example/test.txt')));
     }
 
     private function getBundle(): ExampleBundle

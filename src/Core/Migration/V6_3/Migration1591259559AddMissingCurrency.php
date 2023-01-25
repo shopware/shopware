@@ -4,25 +4,19 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1591259559AddMissingCurrency extends MigrationStep
 {
-    /**
-     * @var string|null
-     */
-    private $deLanguage = null;
+    private ?string $deLanguage = null;
 
-    /**
-     * @var string|null
-     */
-    private $enLanguage = null;
+    private ?string $enLanguage = null;
 
     public function getCreationTimestamp(): int
     {

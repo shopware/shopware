@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\PlatformRequest;
@@ -28,20 +29,19 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
+#[Package('sales-channel')]
 class StoreApiSeoResolver implements EventSubscriberInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private SalesChannelRepository $salesChannelRepository,
-        private DefinitionInstanceRegistry $definitionInstanceRegistry,
-        private SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionInstanceRegistry,
-        private SeoUrlRouteRegistry $seoUrlRouteRegistry
+        private readonly SalesChannelRepository $salesChannelRepository,
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionInstanceRegistry,
+        private readonly SeoUrlRouteRegistry $seoUrlRouteRegistry
     ) {
     }
 
@@ -126,9 +126,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
                 continue;
             }
 
-            $routes = array_map(static function (SeoUrlRouteConfigRoute $seoUrlRoute) {
-                return $seoUrlRoute->getConfig()->getRouteName();
-            }, $routes);
+            $routes = array_map(static fn (SeoUrlRouteConfigRoute $seoUrlRoute) => $seoUrlRoute->getConfig()->getRouteName(), $routes);
 
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('isCanonical', true));

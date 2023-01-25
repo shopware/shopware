@@ -24,20 +24,17 @@ class TestBrowser extends KernelBrowser
      */
     protected $lastRequest;
 
-    private RequestTransformerInterface $requestTransformer;
-
-    private EventDispatcherInterface $eventDispatcher;
+    private readonly RequestTransformerInterface $requestTransformer;
 
     /**
      * @param array<string, mixed> $server
      */
-    public function __construct(KernelInterface $kernel, EventDispatcherInterface $eventDispatcher, array $server = [], ?History $history = null, ?CookieJar $cookieJar = null)
+    public function __construct(KernelInterface $kernel, private readonly EventDispatcherInterface $eventDispatcher, array $server = [], ?History $history = null, ?CookieJar $cookieJar = null)
     {
         parent::__construct($kernel, $server, $history, $cookieJar);
 
         $transformer = $this->getContainer()->get(RequestTransformerInterface::class);
         $this->requestTransformer = $transformer;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function setServerParameter(string $key, mixed $value): void

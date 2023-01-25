@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
 /**
@@ -21,15 +22,14 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
  * Fields which are not necessary to determines which ids are affected are not fetched.
  *
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class EntitySearcher implements EntitySearcherInterface
 {
     public function __construct(
-        private Connection $connection,
-        private EntityDefinitionQueryHelper $queryHelper,
-        private CriteriaQueryBuilder $criteriaQueryBuilder
+        private readonly Connection $connection,
+        private readonly EntityDefinitionQueryHelper $queryHelper,
+        private readonly CriteriaQueryBuilder $criteriaQueryBuilder
     ) {
     }
 

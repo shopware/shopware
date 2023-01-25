@@ -6,46 +6,26 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Middleware as MiddlewareInterface;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bridge\Doctrine\DataCollector\ObjectParameter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 use Symfony\Component\HttpKernel\DataCollector\LateDataCollectorInterface;
+use Symfony\Component\VarDumper\Cloner\Data;
 
 /**
  * @internal
  *
- * @package core
- *
- * @phpstan-import-type Backtrace from \Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder
- * @phpstan-import-type QueryInfo from \Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder
- * @phpstan-type SanitizedQueryInfo array{
- *     sql: string,
- *     executionMS: float,
- *     types: array<int|string, int>,
- *     params:  \Symfony\Component\VarDumper\Cloner\Data,
- *     runnable: bool,
- *     explainable: bool,
- *     backtrace?: Backtrace
- * }
- * @phpstan-type SanitizedQueryInfoGroup array{
- *     sql: string,
- *     executionMS: float,
- *     types: array<int|string, int>,
- *     params:  \Symfony\Component\VarDumper\Cloner\Data,
- *     runnable: bool,
- *     explainable: bool,
- *     backtrace?: Backtrace,
- *     count: int,
- *     index: int,
- *     executionPercent?: float
- * }
+ * @phpstan-import-type Backtrace from BacktraceDebugDataHolder
+ * @phpstan-import-type QueryInfo from BacktraceDebugDataHolder
+ * @phpstan-type SanitizedQueryInfo array{sql: string, executionMS: float, types: array<(int | string), int>, params: Data, runnable: bool, explainable: bool, backtrace?: Backtrace}
+ * @phpstan-type SanitizedQueryInfoGroup array{sql: string, executionMS: float, types: array<(int | string), int>, params: Data, runnable: bool, explainable: bool, backtrace?: Backtrace, count: int, index: int, executionPercent?: float}
  */
+#[Package('core')]
 class ConnectionProfiler extends DataCollector implements LateDataCollectorInterface
 {
     private ?BacktraceDebugDataHolder $dataHolder = null;
-
-    private Connection $connection;
 
     /**
      * @var ?array<string, array<string, SanitizedQueryInfoGroup>>
@@ -60,10 +40,8 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
-
         $profilingMiddleware = current(array_filter(
             $this->connection->getConfiguration()->getMiddlewares(),
             fn (MiddlewareInterface $middleware) => $middleware instanceof ProfilingMiddleware
@@ -174,13 +152,7 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
                 $totalExecutionMS += $query['executionMS'];
             }
 
-            usort($connectionGroupedQueries, static function ($a, $b) {
-                if ($a['executionMS'] === $b['executionMS']) {
-                    return 0;
-                }
-
-                return $a['executionMS'] < $b['executionMS'] ? 1 : -1;
-            });
+            usort($connectionGroupedQueries, static fn ($a, $b) => $b['executionMS'] <=> $a['executionMS']);
             $this->groupedQueries[$connection] = $connectionGroupedQueries;
         }
 
@@ -229,9 +201,7 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
      */
     private function sanitizeQueries(array $queries): array
     {
-        return array_map(function (array $query) {
-            return $this->sanitizeQuery($query);
-        }, $queries);
+        return array_map(fn (array $query) => $this->sanitizeQuery($query), $queries);
     }
 
     /**

@@ -14,38 +14,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package content
- */
+#[Package('content')]
 class CmsSlotsDataResolver
 {
     /**
      * @var CmsElementResolverInterface[]
      */
-    private $resolvers;
+    private ?array $resolvers = null;
 
-    /**
-     * @var array
-     */
-    private $repositories;
-
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
+    private ?array $repositories = null;
 
     /**
      * @internal
      *
      * @param CmsElementResolverInterface[] $resolvers
      */
-    public function __construct(iterable $resolvers, array $repositories, DefinitionInstanceRegistry $definitionRegistry)
+    public function __construct(iterable $resolvers, array $repositories, private readonly DefinitionInstanceRegistry $definitionRegistry)
     {
-        $this->definitionRegistry = $definitionRegistry;
-
         foreach ($repositories as $entityName => $repository) {
             $this->repositories[$entityName] = $repository;
         }
@@ -313,9 +302,7 @@ class CmsSlotsDataResolver
                 }
 
                 $ids = $criteria->getIds();
-                $filtered = $entities[$definition]->filter(function (Entity $entity) use ($ids) {
-                    return \in_array($entity->getUniqueIdentifier(), $ids, true);
-                });
+                $filtered = $entities[$definition]->filter(fn (Entity $entity) => \in_array($entity->getUniqueIdentifier(), $ids, true));
 
                 $result->add($key, $filtered);
             }

@@ -27,10 +27,7 @@ class ProductStorerTest extends TestCase
 {
     private ProductStorer $storer;
 
-    /**
-     * @var MockObject|EntityRepository
-     */
-    private $repository;
+    private MockObject&EntityRepository $repository;
 
     public function setUp(): void
     {
@@ -56,7 +53,7 @@ class ProductStorerTest extends TestCase
 
     public function testRestoreHasStored(): void
     {
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -75,7 +72,7 @@ class ProductStorerTest extends TestCase
 
     public function testRestoreEmptyStored(): void
     {
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))

@@ -2,12 +2,11 @@
 
 namespace Shopware\Storefront\Page\Account\Order;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\Page;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class AccountOrderPage extends Page
 {
     /**

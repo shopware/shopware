@@ -4,12 +4,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @phpstan-import-type Offset from IterableQuery
  */
+#[Package('core')]
 abstract class EntityIndexer
 {
     /**

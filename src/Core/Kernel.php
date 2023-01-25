@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Util\VersionParser;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -18,19 +19,17 @@ use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
 
-/**
- * @package core
- */
+#[Package('core')]
 class Kernel extends HttpKernel
 {
     use MicroKernelTrait;
 
-    public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
+    final public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
     /**
      * @var string Fallback version if nothing is provided via kernel constructor
      */
-    public const SHOPWARE_FALLBACK_VERSION = '6.5.9999999.9999999-dev';
+    final public const SHOPWARE_FALLBACK_VERSION = '6.5.9999999.9999999-dev';
 
     /**
      * @var Connection|null
@@ -59,8 +58,6 @@ class Kernel extends HttpKernel
 
     private bool $rebooting = false;
 
-    private string $cacheId;
-
     /**
      * {@inheritdoc}
      */
@@ -68,7 +65,7 @@ class Kernel extends HttpKernel
         string $environment,
         bool $debug,
         KernelPluginLoader $pluginLoader,
-        string $cacheId,
+        private string $cacheId,
         ?string $version = self::SHOPWARE_FALLBACK_VERSION,
         ?Connection $connection = null,
         ?string $projectDir = null
@@ -83,7 +80,6 @@ class Kernel extends HttpKernel
         $version = VersionParser::parseShopwareVersion($version);
         $this->shopwareVersion = $version['version'];
         $this->shopwareVersionRevision = $version['revision'];
-        $this->cacheId = $cacheId;
         $this->projectDir = $projectDir;
     }
 
@@ -276,7 +272,7 @@ class Kernel extends HttpKernel
         $activePluginMeta = [];
 
         foreach ($this->pluginLoader->getPluginInstances()->getActives() as $plugin) {
-            $class = \get_class($plugin);
+            $class = $plugin::class;
             $activePluginMeta[$class] = [
                 'name' => $plugin->getName(),
                 'path' => $plugin->getPath(),
@@ -355,7 +351,7 @@ class Kernel extends HttpKernel
                 return;
             }
             $connection->executeQuery(implode(';', $connectionVariables));
-        } catch (\Throwable $_) {
+        } catch (\Throwable) {
         }
     }
 

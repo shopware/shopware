@@ -4,13 +4,12 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
-/**
- * @package core
- */
+#[Package('core')]
 class TwigLoaderConfigCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
@@ -53,7 +52,7 @@ class TwigLoaderConfigCompilerPass implements CompilerPassInterface
 
         try {
             $apps = $connection->fetchAllAssociative('SELECT `name`, `path` FROM `app` WHERE `active` = 1');
-        } catch (Exception $e) {
+        } catch (Exception) {
             // If DB is not yet set up correctly we don't need to add app paths
             return;
         }

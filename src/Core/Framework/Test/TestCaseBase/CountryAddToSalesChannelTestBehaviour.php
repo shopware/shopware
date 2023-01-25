@@ -23,9 +23,7 @@ trait CountryAddToSalesChannelTestBehaviour
 
         $countryIds = array_merge([
             ['id' => $this->getValidCountryId($salesChannelId)],
-        ], array_map(static function (string $countryId) {
-            return ['id' => $countryId];
-        }, $additionalCountryIds));
+        ], array_map(static fn (string $countryId) => ['id' => $countryId], $additionalCountryIds));
 
         $salesChannelRepository->update([[
             'id' => $salesChannelId,

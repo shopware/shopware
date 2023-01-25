@@ -162,7 +162,7 @@ class ModuleLoaderTest extends TestCase
         ];
 
         foreach ($params as $additionalParams) {
-            $payload = array_merge($payload, $additionalParams);
+            $payload = [...$payload, ...$additionalParams];
         }
 
         $this->appRepository->create([$payload], $this->context);
@@ -229,9 +229,7 @@ class ModuleLoaderTest extends TestCase
     {
         $modules = $this->moduleLoader->loadModules($this->context);
 
-        usort($modules, function ($a, $b) {
-            return $a['name'] <=> $b['name'];
-        });
+        usort($modules, fn ($a, $b) => $a['name'] <=> $b['name']);
 
         return $modules;
     }

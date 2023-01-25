@@ -77,7 +77,7 @@ class MessageStorerTest extends TestCase
         $mail = new Email();
         $mail->html('text/plain');
 
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -99,7 +99,7 @@ class MessageStorerTest extends TestCase
     {
         $storer = new MessageStorer();
 
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))

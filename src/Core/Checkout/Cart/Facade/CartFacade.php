@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsHasTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsRemoveTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\SurchargeTrait;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -21,9 +22,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * You can use the cart service to add line-items, change prices, add discounts, etc. to the cart.
  *
  * @script-service cart_manipulation
- *
- * @package checkout
  */
+#[Package('checkout')]
 class CartFacade
 {
     use DiscountTrait;
@@ -34,15 +34,12 @@ class CartFacade
     use ItemsCountTrait;
     use ContainerFactoryTrait;
 
-    private Cart $cart;
-
     /**
      * @internal
      */
-    public function __construct(CartFacadeHelper $helper, Cart $cart, SalesChannelContext $context)
+    public function __construct(CartFacadeHelper $helper, private Cart $cart, SalesChannelContext $context)
     {
         $this->helper = $helper;
-        $this->cart = $cart;
         $this->context = $context;
     }
 
@@ -82,9 +79,7 @@ class CartFacade
             throw new \LogicException('Cart behavior missing. The instanced cart was never calculated');
         }
 
-        $this->cart = $behavior->disableHooks(function () use ($behavior) {
-            return $this->helper->calculate($this->cart, $behavior, $this->context);
-        });
+        $this->cart = $behavior->disableHooks(fn () => $this->helper->calculate($this->cart, $behavior, $this->context));
     }
 
     /**

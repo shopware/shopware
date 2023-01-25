@@ -10,20 +10,19 @@ use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Log\LogAware;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class MailBeforeValidateEvent extends Event implements LogAware, TemplateDataAware, DataAware
 {
-    public const EVENT_NAME = 'mail.before.send';
+    final public const EVENT_NAME = 'mail.before.send';
 
     /**
      * @param array<string, mixed> $data
      * @param array<string, mixed> $templateData
      */
-    public function __construct(private array $data, private Context $context, private array $templateData = [])
+    public function __construct(private array $data, private readonly Context $context, private array $templateData = [])
     {
     }
 

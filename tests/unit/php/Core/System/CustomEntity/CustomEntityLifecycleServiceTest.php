@@ -180,7 +180,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
 
         $ceSuperSimple = $this->getSpecificCustomEntity($entities, 'ce_super_simple');
         static::assertCount(1, $ceSuperSimple->getFields());
-        static::assertCount(0 + ($withAdminUi ? 1 : 0), $ceSuperSimple->getFlags());
+        static::assertCount($withAdminUi ? 1 : 0, $ceSuperSimple->getFlags());
 
         // @todo NEXT-22697 - Re-implement, when re-enabling cms-aware
 //        $ceCmsAware = $this->getSpecificCustomEntity($entities, 'ce_cms_aware');

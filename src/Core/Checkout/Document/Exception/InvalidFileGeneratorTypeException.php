@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Checkout\Document\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class InvalidFileGeneratorTypeException extends ShopwareHttpException
 {
     public function __construct(string $type)

@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\BusinessEventRegisterCompilerPass;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Framework;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
@@ -19,9 +20,9 @@ class BusinessEventRegisterCompilerPassTest extends TestCase
         $container->register(BusinessEventRegistry::class)
             ->setPublic(true);
 
-        $container->addCompilerPass(new BusinessEventRegisterCompilerPass([Framework::class]));
+        $container->addCompilerPass(new BusinessEventRegisterCompilerPass([Framework::class]), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
 
-        $container->compile();
+        $container->compile(false);
         static::assertSame([Framework::class], $container->get(BusinessEventRegistry::class)->getClasses());
     }
 }

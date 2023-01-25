@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\Util;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\XmlElementNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
-/**
- * @package core
- */
+#[Package('core')]
 abstract class XmlReader
 {
     /**
@@ -128,11 +127,9 @@ abstract class XmlReader
     }
 
     /**
-     * @param mixed $value
-     *
      * @return mixed
      */
-    public static function phpize($value)
+    public static function phpize(mixed $value)
     {
         $value = XmlUtils::phpize($value);
 
@@ -142,7 +139,7 @@ abstract class XmlReader
 
         try {
             return json_decode($value, true, 512, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
+        } catch (\JsonException) {
             // do nothing, return unparsed value
         }
 

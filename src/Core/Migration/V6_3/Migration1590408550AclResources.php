@@ -5,14 +5,14 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1590408550AclResources extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -36,7 +36,7 @@ class Migration1590408550AclResources extends MigrationStep
             $connection->executeStatement(
                 'UPDATE `acl_role` SET `privileges` = :privileges WHERE id = :id',
                 [
-                    'privileges' => json_encode($list),
+                    'privileges' => json_encode($list, \JSON_THROW_ON_ERROR),
                     'id' => Uuid::fromHexToBytes($id),
                 ]
             );
@@ -69,7 +69,7 @@ class Migration1590408550AclResources extends MigrationStep
     {
         try {
             $connection->fetchOne('SELECT 1 FROM ' . $table . ' LIMIT 1');
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
 

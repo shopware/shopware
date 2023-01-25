@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Product;
 
 use OpenSearch\Client;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -11,19 +12,18 @@ use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class CustomFieldUpdater implements EventSubscriberInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private ElasticsearchOutdatedIndexDetector $indexDetector,
-        private Client $client,
-        private ElasticsearchHelper $elasticsearchHelper
+        private readonly ElasticsearchOutdatedIndexDetector $indexDetector,
+        private readonly Client $client,
+        private readonly ElasticsearchHelper $elasticsearchHelper
     ) {
     }
 
@@ -73,46 +73,32 @@ class CustomFieldUpdater implements EventSubscriberInterface
      */
     public static function getTypeFromCustomFieldType(string $type): array
     {
-        switch ($type) {
-            case CustomFieldTypes::INT:
-                return [
-                    'type' => 'long',
-                ];
-            case CustomFieldTypes::FLOAT:
-                return [
-                    'type' => 'double',
-                ];
-            case CustomFieldTypes::BOOL:
-                return [
-                    'type' => 'boolean',
-                ];
-            case CustomFieldTypes::DATETIME:
-                return [
-                    'type' => 'date',
-                    'format' => 'yyyy-MM-dd HH:mm:ss.000',
-                    'ignore_malformed' => true,
-                ];
-            case CustomFieldTypes::PRICE:
-            case CustomFieldTypes::JSON:
-                return [
-                    'type' => 'object',
-                    'dynamic' => true,
-                ];
-            case CustomFieldTypes::HTML:
-            case CustomFieldTypes::TEXT:
-                return [
-                    'type' => 'text',
-                ];
-            case CustomFieldTypes::COLORPICKER:
-            case CustomFieldTypes::ENTITY:
-            case CustomFieldTypes::MEDIA:
-            case CustomFieldTypes::SELECT:
-            case CustomFieldTypes::SWITCH:
-            default:
-                return [
-                    'type' => 'keyword',
-                ];
-        }
+        return match ($type) {
+            CustomFieldTypes::INT => [
+                'type' => 'long',
+            ],
+            CustomFieldTypes::FLOAT => [
+                'type' => 'double',
+            ],
+            CustomFieldTypes::BOOL => [
+                'type' => 'boolean',
+            ],
+            CustomFieldTypes::DATETIME => [
+                'type' => 'date',
+                'format' => 'yyyy-MM-dd HH:mm:ss.000',
+                'ignore_malformed' => true,
+            ],
+            CustomFieldTypes::PRICE, CustomFieldTypes::JSON => [
+                'type' => 'object',
+                'dynamic' => true,
+            ],
+            CustomFieldTypes::HTML, CustomFieldTypes::TEXT => [
+                'type' => 'text',
+            ],
+            default => [
+                'type' => 'keyword',
+            ],
+        };
     }
 
     /**

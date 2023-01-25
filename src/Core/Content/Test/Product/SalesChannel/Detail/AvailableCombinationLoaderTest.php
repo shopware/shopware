@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Product\SalesChannel\Detail;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -23,7 +24,7 @@ class AvailableCombinationLoaderTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    private AvailableCombinationLoader $loader;
+    private AbstractAvailableCombinationLoader $loader;
 
     private EntityRepository $productRepository;
 
@@ -235,10 +236,7 @@ class AvailableCombinationLoaderTest extends TestCase
             'stock' => 10,
             'active' => true,
             'parentId' => $productId,
-            'options' => array_map(static function (array $group) {
-                // Assign first option from each group
-                return ['id' => $group[0]];
-            }, $optionIds),
+            'options' => array_map(static fn (array $group) => ['id' => $group[0]], $optionIds),
         ];
 
         $variant = \array_replace_recursive($variant, $variantOverrides);

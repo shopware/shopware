@@ -19,38 +19,18 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal only for use by the app-system
- *
- * @package core
  */
+#[Package('core')]
 class PayloadService
 {
-    protected Client $client;
-
-    protected ShopIdProvider $shopIdProvider;
-
-    private JsonEntityEncoder $entityEncoder;
-
-    private DefinitionInstanceRegistry $definitionRegistry;
-
-    private string $shopUrl;
-
-    public function __construct(
-        JsonEntityEncoder $entityEncoder,
-        DefinitionInstanceRegistry $definitionRegistry,
-        Client $client,
-        ShopIdProvider $shopIdProvider,
-        string $shopUrl
-    ) {
-        $this->entityEncoder = $entityEncoder;
-        $this->definitionRegistry = $definitionRegistry;
-        $this->client = $client;
-        $this->shopIdProvider = $shopIdProvider;
-        $this->shopUrl = $shopUrl;
+    public function __construct(private readonly JsonEntityEncoder $entityEncoder, private readonly DefinitionInstanceRegistry $definitionRegistry, protected Client $client, protected ShopIdProvider $shopIdProvider, private readonly string $shopUrl)
+    {
     }
 
     /**
@@ -70,8 +50,8 @@ class PayloadService
                 $transactionId = $payload->getOrderTransaction()->getId();
             }
 
-            return $responseClass::create($transactionId, json_decode($content, true));
-        } catch (GuzzleException $ex) {
+            return $responseClass::create($transactionId, json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
+        } catch (GuzzleException) {
             return null;
         }
     }
@@ -83,7 +63,7 @@ class PayloadService
     {
         $payload->setSource($this->buildSource($app));
         $encoded = $this->encode($payload);
-        $jsonPayload = json_encode($encoded);
+        $jsonPayload = json_encode($encoded, \JSON_THROW_ON_ERROR);
 
         if (!$jsonPayload) {
             if ($payload instanceof PaymentPayloadInterface) {

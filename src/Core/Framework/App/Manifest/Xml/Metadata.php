@@ -3,21 +3,21 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- *
- * @package core
  */
+#[Package('core')]
 class Metadata extends XmlElement
 {
-    public const TRANSLATABLE_FIELDS = [
+    final public const TRANSLATABLE_FIELDS = [
         'label',
         'description',
         'privacyPolicyExtensions',
     ];
 
-    public const REQUIRED_FIELDS = [
+    final public const REQUIRED_FIELDS = [
         'label',
         'name',
         'author',
@@ -111,6 +111,7 @@ class Metadata extends XmlElement
 
     public function validateTranslations(): ?MissingTranslationError
     {
+        $missingTranslations = [];
         // used locales are valid, see Manifest::createFromXmlFile()
         $usedLocales = array_keys(array_merge($this->getDescription(), $this->getPrivacyPolicyExtensions()));
 

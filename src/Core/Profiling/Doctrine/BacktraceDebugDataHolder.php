@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Profiling\Doctrine;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bridge\Doctrine\Middleware\Debug\DebugDataHolder;
 use Symfony\Bridge\Doctrine\Middleware\Debug\Query;
 use function array_slice;
@@ -18,13 +19,9 @@ use const DEBUG_BACKTRACE_IGNORE_ARGS;
  *     backtrace?: Backtrace
  * }
  */
+#[Package('core')]
 class BacktraceDebugDataHolder extends DebugDataHolder
 {
-    /**
-     * @var array<string>
-     */
-    private array $connWithBacktraces;
-
     /**
      * @var array<string, array<Backtrace>>
      */
@@ -33,9 +30,8 @@ class BacktraceDebugDataHolder extends DebugDataHolder
     /**
      * @param array<string> $connWithBacktraces
      */
-    public function __construct(array $connWithBacktraces)
+    public function __construct(private readonly array $connWithBacktraces)
     {
-        $this->connWithBacktraces = $connWithBacktraces;
     }
 
     public function reset(): void

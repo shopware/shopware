@@ -4,17 +4,15 @@ namespace Shopware\Administration\Controller;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\Service\FilterTagIdsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package administration
- */
 #[Route(defaults: ['_routeScope' => ['administration']])]
+#[Package('administration')]
 class AdminTagController extends AbstractController
 {
     /**
@@ -24,9 +22,6 @@ class AdminTagController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.4.10.1")
-     */
     #[Route(path: '/api/_admin/tag-filter-ids', name: 'api.admin.tag-filter-ids', defaults: ['_acl' => ['tag:read'], '_entity' => 'tag'], methods: ['POST'])]
     public function filterIds(Request $request, Criteria $criteria, Context $context): JsonResponse
     {

@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Checkout\Cart\Error;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\AssignArrayTrait;
 use Shopware\Core\Framework\Struct\CreateFromTrait;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 abstract class Error extends \Exception implements \JsonSerializable
 {
     //allows json_encode and to decode object via json serializer
@@ -20,11 +19,11 @@ abstract class Error extends \Exception implements \JsonSerializable
     //allows to create a new instance with all data of the provided object
     use CreateFromTrait;
 
-    public const LEVEL_NOTICE = 0;
+    final public const LEVEL_NOTICE = 0;
 
-    public const LEVEL_WARNING = 10;
+    final public const LEVEL_WARNING = 10;
 
-    public const LEVEL_ERROR = 20;
+    final public const LEVEL_ERROR = 20;
 
     abstract public function getId(): string;
 

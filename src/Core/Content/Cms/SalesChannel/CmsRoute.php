@@ -5,29 +5,21 @@ namespace Shopware\Core\Content\Cms\SalesChannel;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package content
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('content')]
 class CmsRoute extends AbstractCmsRoute
 {
     /**
-     * @var SalesChannelCmsPageLoaderInterface
-     */
-    private $cmsPageLoader;
-
-    /**
      * @internal
      */
-    public function __construct(SalesChannelCmsPageLoaderInterface $cmsPageLoader)
+    public function __construct(private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader)
     {
-        $this->cmsPageLoader = $cmsPageLoader;
     }
 
     public function getDecorated(): AbstractCmsRoute
@@ -35,10 +27,7 @@ class CmsRoute extends AbstractCmsRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/store-api/cms/{id}", name="store-api.cms.detail", methods={"GET", "POST"})
-     */
+    #[Route(path: '/store-api/cms/{id}', name: 'store-api.cms.detail', methods: ['GET', 'POST'])]
     public function load(string $id, Request $request, SalesChannelContext $context): CmsRouteResponse
     {
         $criteria = new Criteria([$id]);

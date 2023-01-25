@@ -8,20 +8,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\ProductAware;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class ProductStorer extends FlowStorer
 {
-    private EntityRepository $productRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $productRepository)
+    public function __construct(private readonly EntityRepository $productRepository)
     {
-        $this->productRepository = $productRepository;
     }
 
     public function store(FlowEventAware $event, array $stored): array
@@ -43,7 +39,7 @@ class ProductStorer extends FlowStorer
 
         $storable->lazy(
             ProductAware::PRODUCT,
-            [$this, 'load'],
+            $this->load(...),
             [$storable->getStore(ProductAware::PRODUCT_ID), $storable->getContext()]
         );
     }
@@ -53,7 +49,7 @@ class ProductStorer extends FlowStorer
      */
     public function load(array $args): ?ProductEntity
     {
-        list($productId, $context) = $args;
+        [$productId, $context] = $args;
 
         $criteria = new Criteria([$productId]);
         $context->setConsiderInheritance(true);

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -32,9 +33,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Allows to hydrate database values into struct objects.
  *
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class EntityHydrator
 {
     /**
@@ -60,7 +60,7 @@ class EntityHydrator
     /**
      * @internal
      */
-    public function __construct(private ContainerInterface $container)
+    public function __construct(private readonly ContainerInterface $container)
     {
     }
 
@@ -498,7 +498,7 @@ class EntityHydrator
                 continue;
             }
 
-            $decoded = json_decode($string, true);
+            $decoded = json_decode($string, true, 512, \JSON_THROW_ON_ERROR);
 
             if (!$decoded) {
                 continue;
@@ -547,7 +547,7 @@ class EntityHydrator
         $entity = new $entityClass();
 
         if (!$entity instanceof Entity) {
-            throw new \RuntimeException(sprintf('Expected instance of Entity.php, got %s', \get_class($entity)));
+            throw new \RuntimeException(sprintf('Expected instance of Entity.php, got %s', $entity::class));
         }
 
         $entity->addExtension(EntityReader::FOREIGN_KEYS, new ArrayStruct());

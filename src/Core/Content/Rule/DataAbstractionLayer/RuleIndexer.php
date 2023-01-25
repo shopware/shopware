@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
@@ -24,27 +25,26 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
 {
-    public const PAYLOAD_UPDATER = 'rule.payload';
+    final public const PAYLOAD_UPDATER = 'rule.payload';
 
-    public const AREA_UPDATER = 'rule.area';
+    final public const AREA_UPDATER = 'rule.area';
 
     /**
      * @internal
      */
     public function __construct(
-        private Connection $connection,
-        private IteratorFactory $iteratorFactory,
-        private EntityRepository $repository,
-        private RulePayloadUpdater $payloadUpdater,
-        private RuleAreaUpdater $areaUpdater,
-        private CartRuleLoader $cartRuleLoader,
-        private EventDispatcherInterface $eventDispatcher
+        private readonly Connection $connection,
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly RulePayloadUpdater $payloadUpdater,
+        private readonly RuleAreaUpdater $areaUpdater,
+        private readonly CartRuleLoader $cartRuleLoader,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 

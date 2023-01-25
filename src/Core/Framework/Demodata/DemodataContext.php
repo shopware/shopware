@@ -9,13 +9,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class DemodataContext
 {
     /**
@@ -31,11 +31,11 @@ class DemodataContext
     private array $timings;
 
     public function __construct(
-        private Context $context,
-        private Generator $faker,
-        private string $projectDir,
-        private SymfonyStyle $console,
-        private DefinitionInstanceRegistry $registry
+        private readonly Context $context,
+        private readonly Generator $faker,
+        private readonly string $projectDir,
+        private readonly SymfonyStyle $console,
+        private readonly DefinitionInstanceRegistry $registry
     ) {
     }
 

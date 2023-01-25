@@ -4,11 +4,10 @@ namespace Shopware\Administration\Events;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package administration
- */
+#[Package('administration')]
 class PreResetExcludedSearchTermEvent extends Event implements ShopwareEvent
 {
     /**

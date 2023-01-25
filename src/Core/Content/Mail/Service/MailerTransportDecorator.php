@@ -7,6 +7,7 @@ use League\Flysystem\UnableToRetrieveMetadata;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\TransportInterface;
@@ -14,29 +15,12 @@ use Symfony\Component\Mime\RawMessage;
 
 /**
  * @internal
- *
- * @package system-settings
  */
-class MailerTransportDecorator implements TransportInterface
+#[Package('system-settings')]
+class MailerTransportDecorator implements TransportInterface, \Stringable
 {
-    private TransportInterface $decorated;
-
-    private MailAttachmentsBuilder $attachmentsBuilder;
-
-    private FilesystemOperator $filesystem;
-
-    private EntityRepository $documentRepository;
-
-    public function __construct(
-        TransportInterface $decorated,
-        MailAttachmentsBuilder $attachmentsBuilder,
-        FilesystemOperator $filesystem,
-        EntityRepository $documentRepository
-    ) {
-        $this->decorated = $decorated;
-        $this->attachmentsBuilder = $attachmentsBuilder;
-        $this->filesystem = $filesystem;
-        $this->documentRepository = $documentRepository;
+    public function __construct(private readonly TransportInterface $decorated, private readonly MailAttachmentsBuilder $attachmentsBuilder, private readonly FilesystemOperator $filesystem, private readonly EntityRepository $documentRepository)
+    {
     }
 
     public function __toString(): string
@@ -53,7 +37,7 @@ class MailerTransportDecorator implements TransportInterface
         foreach ($message->getAttachmentUrls() as $url) {
             try {
                 $mimeType = $this->filesystem->mimeType($url);
-            } catch (UnableToRetrieveMetadata $e) {
+            } catch (UnableToRetrieveMetadata) {
                 $mimeType = null;
             }
             $message->attach($this->filesystem->read($url) ?: '', basename($url), $mimeType);
@@ -93,9 +77,7 @@ class MailerTransportDecorator implements TransportInterface
      */
     private function setDocumentsSent(array $attachments, MailSendSubscriberConfig $extension, Context $context): void
     {
-        $documentAttachments = array_filter($attachments, function (array $attachment) use ($extension) {
-            return \in_array($attachment['id'] ?? null, $extension->getDocumentIds(), true);
-        });
+        $documentAttachments = array_filter($attachments, fn (array $attachment) => \in_array($attachment['id'] ?? null, $extension->getDocumentIds(), true));
 
         $documentAttachments = array_column($documentAttachments, 'id');
 
@@ -103,12 +85,10 @@ class MailerTransportDecorator implements TransportInterface
             return;
         }
 
-        $payload = array_map(static function (string $documentId) {
-            return [
-                'id' => $documentId,
-                'sent' => true,
-            ];
-        }, $documentAttachments);
+        $payload = array_map(static fn (string $documentId) => [
+            'id' => $documentId,
+            'sent' => true,
+        ], $documentAttachments);
 
         $this->documentRepository->update($payload, $context);
     }

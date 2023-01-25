@@ -11,13 +11,13 @@ use Shopware\Core\Content\Test\ImportExport\AbstractImportExportTest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTest
 {
     private EntityRepository $logRepository;

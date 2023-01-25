@@ -4,11 +4,10 @@ namespace Shopware\Core\System\TaxProvider\Aggregate\TaxProviderTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\TaxProvider\TaxProviderEntity;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class TaxProviderTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

@@ -42,25 +42,13 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var string
-     */
-    private $enSearchConfigId;
+    private string $enSearchConfigId;
 
-    /**
-     * @var string
-     */
-    private $deSearchConfigId;
+    private string $deSearchConfigId;
 
     protected function setUp(): void
     {
@@ -141,9 +129,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
         $result = $analyzer->analyze($product, Context::createDefaultContext(), $config);
 
-        $words = $result->map(function (AnalyzedKeyword $keyword) {
-            return $keyword->getKeyword();
-        });
+        $words = $result->map(fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
 
         static::assertEquals(
             ['searchable', 'match', 'array', '10000000', '10.99999', 'nested'],

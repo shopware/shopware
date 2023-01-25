@@ -11,10 +11,10 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException
 use Shopware\Core\Checkout\Customer\Exception\InactiveCustomerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
@@ -24,42 +24,15 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
- */
+#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
+#[Package('customer-order')]
 class LoginRoute extends AbstractLoginRoute
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AccountService $accountService;
-
-    private EntityRepository $customerRepository;
-
-    private CartRestorer $restorer;
-
-    private RequestStack $requestStack;
-
-    private RateLimiter $rateLimiter;
-
     /**
      * @internal
      */
-    public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        AccountService $accountService,
-        EntityRepository $customerRepository,
-        CartRestorer $restorer,
-        RequestStack $requestStack,
-        RateLimiter $rateLimiter
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->accountService = $accountService;
-        $this->customerRepository = $customerRepository;
-        $this->restorer = $restorer;
-        $this->requestStack = $requestStack;
-        $this->rateLimiter = $rateLimiter;
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly AccountService $accountService, private readonly EntityRepository $customerRepository, private readonly CartRestorer $restorer, private readonly RequestStack $requestStack, private readonly RateLimiter $rateLimiter)
+    {
     }
 
     public function getDecorated(): AbstractLoginRoute
@@ -67,10 +40,7 @@ class LoginRoute extends AbstractLoginRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route(path="/store-api/account/login", name="store-api.account.login", methods={"POST"})
-     */
+    #[Route(path: '/store-api/account/login', name: 'store-api.account.login', methods: ['POST'])]
     public function login(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {
         $email = $data->get('email', $data->get('username'));
@@ -83,7 +53,7 @@ class LoginRoute extends AbstractLoginRoute
         $this->eventDispatcher->dispatch($event);
 
         if ($this->requestStack->getMainRequest() !== null) {
-            $cacheKey = strtolower($email) . '-' . $this->requestStack->getMainRequest()->getClientIp();
+            $cacheKey = strtolower((string) $email) . '-' . $this->requestStack->getMainRequest()->getClientIp();
 
             try {
                 $this->rateLimiter->ensureAccepted(RateLimiter::LOGIN_ROUTE, $cacheKey);

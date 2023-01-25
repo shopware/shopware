@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Update\Services\Archive;
 
-/**
- * @package system-settings
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('system-settings')]
 abstract class Adapter implements \SeekableIterator, \Countable
 {
     /**

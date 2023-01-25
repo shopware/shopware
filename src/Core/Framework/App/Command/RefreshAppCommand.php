@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -20,40 +21,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- *
- * @package core
  */
-#[AsCommand(
-    name: 'app:refresh',
-    description: 'Refreshes an app',
-)]
+#[AsCommand(name: 'app:refresh', description: 'Refreshes an app', aliases: ['app:update'])]
+#[Package('core')]
 class RefreshAppCommand extends Command
 {
-    private AppService $appService;
-
-    private AppPrinter $appPrinter;
-
-    private ManifestValidator $manifestValidator;
-
-    public function __construct(AppService $appService, AppPrinter $appPrinter, ManifestValidator $manifestValidator)
+    public function __construct(private readonly AppService $appService, private readonly AppPrinter $appPrinter, private readonly ManifestValidator $manifestValidator)
     {
         parent::__construct();
-
-        $this->appService = $appService;
-        $this->appPrinter = $appPrinter;
-        $this->manifestValidator = $manifestValidator;
     }
 
     protected function configure(): void
     {
-        $this
-            ->setAliases(['app:update'])
-            ->setDescription('Refreshes the installed Apps')
-            ->addArgument(
-                'name',
-                InputArgument::OPTIONAL | InputArgument::IS_ARRAY,
-                'The name of the app'
-            )
+        $this->addArgument('name', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'The name of the app')
             ->addOption(
                 'force',
                 'f',
@@ -94,7 +74,7 @@ class RefreshAppCommand extends Command
         if (!$input->getOption('force')) {
             try {
                 $this->grantPermissions($refreshableApps, $io);
-            } catch (UserAbortedCommandException $e) {
+            } catch (UserAbortedCommandException) {
                 $io->error('Aborting due to user input.');
 
                 return self::FAILURE;

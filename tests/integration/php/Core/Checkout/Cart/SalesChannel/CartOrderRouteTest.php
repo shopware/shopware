@@ -74,7 +74,7 @@ class CartOrderRouteTest extends TestCase
 
         static::assertNotFalse($this->browser->getResponse()->getContent());
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
@@ -92,7 +92,7 @@ class CartOrderRouteTest extends TestCase
 
         static::assertNotFalse($this->browser->getResponse()->getContent());
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CART_EMPTY', $response['errors'][0]['code']);
@@ -121,7 +121,7 @@ class CartOrderRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertNotFalse($this->browser->getResponse()->getContent());
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -136,7 +136,7 @@ class CartOrderRouteTest extends TestCase
 
         static::assertNotFalse($this->browser->getResponse()->getContent());
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('order', $response['apiAlias']);
         static::assertSame(10, $response['transactions'][0]['amount']['totalPrice']);
@@ -166,7 +166,7 @@ class CartOrderRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertNotFalse($this->browser->getResponse()->getContent());
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -181,7 +181,7 @@ class CartOrderRouteTest extends TestCase
 
         $content = $this->browser->getResponse()->getContent();
         static::assertIsString($content);
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         $statusCode = (int) ($response['errors'][0]['status']);
         static::assertGreaterThanOrEqual(400, $statusCode);
@@ -217,7 +217,7 @@ class CartOrderRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertNotFalse($this->browser->getResponse()->getContent());
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -235,7 +235,7 @@ class CartOrderRouteTest extends TestCase
 
         static::assertNotFalse($this->browser->getResponse()->getContent());
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('order', $response['apiAlias']);
         static::assertSame('test comment', $response['customerComment']);
@@ -264,7 +264,7 @@ class CartOrderRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertNotFalse($this->browser->getResponse()->getContent());
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -283,7 +283,7 @@ class CartOrderRouteTest extends TestCase
 
         static::assertNotFalse($this->browser->getResponse()->getContent());
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('order', $response['apiAlias']);
         static::assertSame('test affiliate code', $response['affiliateCode']);
@@ -313,7 +313,7 @@ class CartOrderRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertNotFalse($this->browser->getResponse()->getContent());
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -331,7 +331,7 @@ class CartOrderRouteTest extends TestCase
 
         static::assertNotFalse($this->browser->getResponse()->getContent());
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('order', $response['apiAlias']);
         static::assertSame('test affiliate code', $response['affiliateCode']);
@@ -361,7 +361,7 @@ class CartOrderRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertNotFalse($this->browser->getResponse()->getContent());
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -377,7 +377,7 @@ class CartOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('order', $response['apiAlias']);
         static::assertNull($response['affiliateCode']);
@@ -437,7 +437,7 @@ class CartOrderRouteTest extends TestCase
         $originalToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertNotNull($originalToken);
         static::assertNotFalse($response->getContent());
-        $data = \json_decode($response->getContent(), true);
+        $data = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(1, $data['lineItems']);
 
         $interval = new \DateInterval($this->getContainer()->getParameter('shopware.api.store.context_lifetime'));
@@ -464,7 +464,7 @@ class CartOrderRouteTest extends TestCase
         static::assertNotEquals($originalToken, $guestToken);
         static::assertNotFalse($response->getContent());
 
-        $data = \json_decode($response->getContent(), true);
+        $data = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEmpty($data['lineItems']);
 
         $this->browser
@@ -487,7 +487,7 @@ class CartOrderRouteTest extends TestCase
         static::assertSame($guestToken, $token);
         static::assertNotFalse($response->getContent());
 
-        $data = \json_decode($response->getContent(), true);
+        $data = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(1, $data['lineItems']);
 
         // the cart should be merged on login and a new token should be created
@@ -500,7 +500,7 @@ class CartOrderRouteTest extends TestCase
 
         static::assertNotFalse($response->getContent());
 
-        $data = \json_decode($response->getContent(), true);
+        $data = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(2, $data['lineItems']);
 
         static::assertNotSame($guestToken, $mergedToken);
@@ -609,7 +609,7 @@ class CartOrderRouteTest extends TestCase
 
         static::assertNotFalse($this->browser->getResponse()->getContent());
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($response);
         static::assertArrayHasKey('price', $response);
@@ -672,8 +672,8 @@ class CartOrderRouteTest extends TestCase
         string $paymentHandler = SyncTestPaymentHandler::class,
         bool $invalidSalutationId = false
     ): void {
-        $email = $email ?? (Uuid::randomHex() . '@example.com');
-        $password = $password ?? 'shopware';
+        $email ??= Uuid::randomHex() . '@example.com';
+        $password ??= 'shopware';
         $this->createCustomer($password, $email, $paymentHandler, $invalidSalutationId);
 
         $this->login($email, $password);

@@ -39,36 +39,35 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
-/**
- * @package content
- */
+#[Package('content')]
 class CategoryDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'category';
+    final public const ENTITY_NAME = 'category';
 
-    public const TYPE_PAGE = 'page';
+    final public const TYPE_PAGE = 'page';
 
-    public const TYPE_LINK = 'link';
+    final public const TYPE_LINK = 'link';
 
-    public const TYPE_FOLDER = 'folder';
+    final public const TYPE_FOLDER = 'folder';
 
-    public const LINK_TYPE_EXTERNAL = 'external';
+    final public const LINK_TYPE_EXTERNAL = 'external';
 
-    public const LINK_TYPE_CATEGORY = 'category';
+    final public const LINK_TYPE_CATEGORY = 'category';
 
-    public const LINK_TYPE_PRODUCT = 'product';
+    final public const LINK_TYPE_PRODUCT = 'product';
 
-    public const LINK_TYPE_LANDING_PAGE = 'landing_page';
+    final public const LINK_TYPE_LANDING_PAGE = 'landing_page';
 
-    public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT = 'product';
+    final public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT = 'product';
 
-    public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM = 'product_stream';
+    final public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM = 'product_stream';
 
-    public const CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY = 'core.cms.default_category_cms_page';
+    final public const CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY = 'core.cms.default_category_cms_page';
 
     public function getEntityName(): string
     {

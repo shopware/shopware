@@ -8,19 +8,15 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class DiscountPackage
 {
-    private LineItemQuantityCollection $metaItems;
-
     private LineItemFlatCollection $cartItems;
 
-    public function __construct(LineItemQuantityCollection $items)
+    public function __construct(private LineItemQuantityCollection $metaItems)
     {
-        $this->metaItems = $items;
         $this->cartItems = new LineItemFlatCollection();
     }
 

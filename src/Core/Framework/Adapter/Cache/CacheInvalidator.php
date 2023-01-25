@@ -4,48 +4,25 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package core
- *
  * @final
  */
+#[Package('core')]
 class CacheInvalidator
 {
     private const CACHE_KEY = 'invalidation';
-
-    /**
-     * @var CacheItemPoolInterface[]
-     */
-    private array $adapters;
-
-    private TagAwareAdapterInterface $cache;
-
-    private EventDispatcherInterface $dispatcher;
-
-    private int $delay;
-
-    private int $count;
 
     /**
      * @internal
      *
      * @param CacheItemPoolInterface[] $adapters
      */
-    public function __construct(
-        int $delay,
-        int $count,
-        array $adapters,
-        TagAwareAdapterInterface $cache,
-        EventDispatcherInterface $dispatcher,
-    ) {
-        $this->dispatcher = $dispatcher;
-        $this->adapters = $adapters;
-        $this->cache = $cache;
-        $this->delay = $delay;
-        $this->count = $count;
+    public function __construct(private readonly int $delay, private readonly int $count, private readonly array $adapters, private readonly TagAwareAdapterInterface $cache, private readonly EventDispatcherInterface $dispatcher)
+    {
     }
 
     /**

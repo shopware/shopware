@@ -11,8 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -21,34 +21,15 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
- * @package customer-order
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('customer-order')]
 class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
 {
-    private EntityRepository $wishlistRepository;
-
-    private SalesChannelRepository $productRepository;
-
-    private SystemConfigService $systemConfigService;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $wishlistRepository,
-        SalesChannelRepository $productRepository,
-        SystemConfigService $systemConfigService,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->wishlistRepository = $wishlistRepository;
-        $this->productRepository = $productRepository;
-        $this->systemConfigService = $systemConfigService;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly EntityRepository $wishlistRepository, private readonly SalesChannelRepository $productRepository, private readonly SystemConfigService $systemConfigService, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function getDecorated(): AbstractAddWishlistProductRoute
@@ -56,10 +37,7 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-    * @Since("6.3.4.0")
-     * @Route("/store-api/customer/wishlist/add/{productId}", name="store-api.customer.wishlist.add", methods={"POST"}, defaults={"_loginRequired"=true})
-    */
+    #[Route(path: '/store-api/customer/wishlist/add/{productId}', name: 'store-api.customer.wishlist.add', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function add(string $productId, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {

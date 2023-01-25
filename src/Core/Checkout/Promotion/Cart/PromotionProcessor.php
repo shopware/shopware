@@ -11,30 +11,23 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Error\AutoPromotionNotFoundError;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PromotionProcessor implements CartProcessorInterface
 {
-    public const DATA_KEY = 'promotions';
-    public const LINE_ITEM_TYPE = 'promotion';
+    final public const DATA_KEY = 'promotions';
+    final public const LINE_ITEM_TYPE = 'promotion';
 
-    public const SKIP_PROMOTION = 'skipPromotion';
-
-    private PromotionCalculator $promotionCalculator;
-
-    private LineItemGroupBuilder $groupBuilder;
+    final public const SKIP_PROMOTION = 'skipPromotion';
 
     /**
      * @internal
      */
-    public function __construct(PromotionCalculator $promotionCalculator, LineItemGroupBuilder $groupBuilder)
+    public function __construct(private readonly PromotionCalculator $promotionCalculator, private readonly LineItemGroupBuilder $groupBuilder)
     {
-        $this->promotionCalculator = $promotionCalculator;
-        $this->groupBuilder = $groupBuilder;
     }
 
     /**

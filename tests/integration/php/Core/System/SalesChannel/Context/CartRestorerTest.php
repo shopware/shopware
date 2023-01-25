@@ -44,10 +44,7 @@ class CartRestorerTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var CartRestorer
-     */
-    private $cartRestorer;
+    private CartRestorer $cartRestorer;
 
     /**
      * @var CartService
@@ -57,7 +54,7 @@ class CartRestorerTest extends TestCase
     /**
      * @var array<string, Event>
      */
-    private $events;
+    private array $events;
 
     /**
      * @var \Closure
@@ -74,10 +71,7 @@ class CartRestorerTest extends TestCase
      */
     private $contextPersister;
 
-    /**
-     * @var string
-     */
-    private $customerId;
+    private string $customerId;
 
     public function setUp(): void
     {
@@ -89,7 +83,7 @@ class CartRestorerTest extends TestCase
         $this->events = [];
 
         $this->callbackFn = function (Event $event): void {
-            $this->events[\get_class($event)] = $event;
+            $this->events[$event::class] = $event;
         };
 
         $this->contextPersister = $this->getContainer()->get(SalesChannelContextPersister::class);
@@ -372,6 +366,7 @@ class CartRestorerTest extends TestCase
 
     private function createSalesChannelContext(string $contextToken, ?string $customerId = null): SalesChannelContext
     {
+        $salesChannelData = [];
         if ($customerId) {
             $salesChannelData[SalesChannelContextService::CUSTOMER_ID] = $customerId;
         }

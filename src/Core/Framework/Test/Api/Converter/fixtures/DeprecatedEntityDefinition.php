@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class DeprecatedEntityDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'deprecated_entity';
+    final public const ENTITY_NAME = 'deprecated_entity';
 
     public function getEntityName(): string
     {

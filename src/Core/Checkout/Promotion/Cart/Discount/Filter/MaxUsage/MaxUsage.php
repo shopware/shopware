@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\MaxUsage;
 
-/**
- * @package checkout
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class MaxUsage
 {
-    public const APPLIER_ALL = 'ALL';
-    public const USAGE_ALL = 'ALL';
-    public const UNLIMITED = -1;
+    final public const APPLIER_ALL = 'ALL';
+    final public const USAGE_ALL = 'ALL';
+    final public const UNLIMITED = -1;
 
     public function getMaxItemCount(string $applierKey, string $maxUsageKey, int $originalPackageCount): int
     {

@@ -4,14 +4,13 @@ namespace Shopware\Core\System\Tax\TaxRuleType;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class ZipCodeRangeRuleTypeFilter implements TaxRuleTypeFilterInterface
 {
-    public const TECHNICAL_NAME = 'zip_code_range';
+    final public const TECHNICAL_NAME = 'zip_code_range';
 
     public function match(TaxRuleEntity $taxRuleEntity, ?CustomerEntity $customer, ShippingLocation $shippingLocation): bool
     {

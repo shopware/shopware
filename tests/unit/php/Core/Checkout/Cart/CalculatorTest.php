@@ -24,6 +24,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -368,7 +369,7 @@ class CalculatorTest extends TestCase
     {
         $cart = new Cart('test');
 
-        $noContainerRule = new LineItemOfTypeRule(LineItemOfTypeRule::OPERATOR_NEQ, 'container');
+        $noContainerRule = new LineItemOfTypeRule(Rule::OPERATOR_NEQ, 'container');
 
         $nested = (new LineItem('A', 'container'))->assign([
             'children' => new LineItemCollection([

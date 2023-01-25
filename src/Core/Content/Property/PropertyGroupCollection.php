@@ -4,12 +4,12 @@ namespace Shopware\Core\Content\Property;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<PropertyGroupEntity>
- *
- * @package inventory
  */
+#[Package('inventory')]
 class PropertyGroupCollection extends EntityCollection
 {
     /**
@@ -38,7 +38,7 @@ class PropertyGroupCollection extends EntityCollection
             $posA = $a->getTranslation('position') ?? $a->getPosition() ?? 0;
             $posB = $b->getTranslation('position') ?? $b->getPosition() ?? 0;
             if ($posA === $posB) {
-                return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
+                return strnatcmp((string) $a->getTranslation('name'), (string) $b->getTranslation('name'));
             }
 
             return $posA <=> $posB;
@@ -56,7 +56,7 @@ class PropertyGroupCollection extends EntityCollection
 
             $options->sort(static function (Entity $a, Entity $b) use ($group) {
                 if ($group->get('sortingType') === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
-                    return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
+                    return strnatcmp((string) $a->getTranslation('name'), (string) $b->getTranslation('name'));
                 }
 
                 return ($a->getTranslation('position') ?? $a->get('position') ?? 0) <=> ($b->getTranslation('position') ?? $b->get('position') ?? 0);

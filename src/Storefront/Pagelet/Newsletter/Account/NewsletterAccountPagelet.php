@@ -3,11 +3,10 @@
 namespace Shopware\Storefront\Pagelet\Newsletter\Account;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Pagelet\Pagelet;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class NewsletterAccountPagelet extends Pagelet
 {
     protected CustomerEntity $customer;

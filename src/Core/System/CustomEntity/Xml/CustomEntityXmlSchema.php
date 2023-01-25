@@ -2,28 +2,22 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class CustomEntityXmlSchema
 {
-    public const FILENAME = 'entities.xml';
+    final public const FILENAME = 'entities.xml';
 
     private const XSD_FILE = __DIR__ . '/entity-1.0.xsd';
 
-    private string $path;
-
-    private ?Entities $entities;
-
-    public function __construct(string $path, ?Entities $entities)
+    public function __construct(private string $path, private readonly ?Entities $entities)
     {
-        $this->path = $path;
-        $this->entities = $entities;
     }
 
     public static function createFromXmlFile(string $xmlFile): self

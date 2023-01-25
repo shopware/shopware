@@ -8,28 +8,20 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class AddOrderAffiliateAndCampaignCodeAction extends FlowAction implements DelayableAction
 {
-    private Connection $connection;
-
-    private EntityRepository $orderRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        EntityRepository $orderRepository
-    ) {
-        $this->connection = $connection;
-        $this->orderRepository = $orderRepository;
+    public function __construct(private readonly Connection $connection, private readonly EntityRepository $orderRepository)
+    {
     }
 
     public static function getName(): string

@@ -6,11 +6,10 @@ use Shopware\Administration\Notification\NotificationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\IntegrationDefinition;
 
-/**
- * @package administration
- */
+#[Package('administration')]
 class IntegrationExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void

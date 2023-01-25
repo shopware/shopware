@@ -3,13 +3,13 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1585816139FixMediaMapping extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -26,7 +26,7 @@ class Migration1585816139FixMediaMapping extends MigrationStep
 
         if ($categoryProfileId) {
             $mapping = $this->getCategoryMapping();
-            $connection->update('import_export_profile', ['mapping' => json_encode($mapping)], ['id' => $categoryProfileId]);
+            $connection->update('import_export_profile', ['mapping' => json_encode($mapping, \JSON_THROW_ON_ERROR)], ['id' => $categoryProfileId]);
         }
 
         $mediaProfileId = $connection->executeQuery(
@@ -36,7 +36,7 @@ class Migration1585816139FixMediaMapping extends MigrationStep
 
         if ($mediaProfileId) {
             $mapping = $this->getMediaMapping();
-            $connection->update('import_export_profile', ['mapping' => json_encode($mapping)], ['id' => $mediaProfileId]);
+            $connection->update('import_export_profile', ['mapping' => json_encode($mapping, \JSON_THROW_ON_ERROR)], ['id' => $mediaProfileId]);
         }
     }
 

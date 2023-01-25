@@ -23,30 +23,15 @@ use Symfony\Component\Routing\RouterInterface;
  */
 class CacheWarmerTaskHandlerTest extends TestCase
 {
-    /**
-     * @var Kernel&MockObject
-     */
-    private $kernel;
+    private MockObject&Kernel $kernel;
 
-    /**
-     * @var RouterInterface&MockObject
-     */
-    private $router;
+    private MockObject&RouterInterface $router;
 
-    /**
-     * @var RequestTransformerInterface&MockObject
-     */
-    private $requestTransformer;
+    private MockObject&RequestTransformerInterface $requestTransformer;
 
-    /**
-     * @var CacheIdLoader&MockObject
-     */
-    private $cacheIdLoader;
+    private MockObject&CacheIdLoader $cacheIdLoader;
 
-    /**
-     * @var CacheTagCollection&MockObject
-     */
-    private $cacheTagCollection;
+    private MockObject&CacheTagCollection $cacheTagCollection;
 
     private CacheWarmerTaskHandler $handler;
 
@@ -98,14 +83,10 @@ class CacheWarmerTaskHandlerTest extends TestCase
 
         $this->requestTransformer->expects(static::exactly(2))->method('transform')->withConsecutive(
             [
-                static::callback(static function (Request $request) {
-                    return $request->getRequestUri() === '/product/list?page=1';
-                }),
+                static::callback(static fn (Request $request) => $request->getRequestUri() === '/product/list?page=1'),
             ],
             [
-                static::callback(static function (Request $request) {
-                    return $request->getRequestUri() === '/product/list?page=2';
-                }),
+                static::callback(static fn (Request $request) => $request->getRequestUri() === '/product/list?page=2'),
             ],
         )->willReturnOnConsecutiveCalls(
             $request1,
@@ -119,14 +100,10 @@ class CacheWarmerTaskHandlerTest extends TestCase
             ->method('handle')
             ->withConsecutive(
                 [
-                    static::callback(static function (Request $request) {
-                        return $request->getRequestUri() === '/product/list?page=1';
-                    }),
+                    static::callback(static fn (Request $request) => $request->getRequestUri() === '/product/list?page=1'),
                 ],
                 [
-                    static::callback(static function (Request $request) {
-                        return $request->getRequestUri() === '/product/list?page=2';
-                    }),
+                    static::callback(static fn (Request $request) => $request->getRequestUri() === '/product/list?page=2'),
                 ],
             )->willReturn(new Response());
 

@@ -174,7 +174,7 @@ class SwEscapeFilterTest extends TestCase
     {
         $twig = new Environment($this->createMock(LoaderInterface::class));
         foreach ($this->htmlSpecialChars as $key => $value) {
-            static::assertEquals($value, sw_escape_filter($twig, $key, 'html'), 'Failed to escape: ' . $key);
+            static::assertEquals($value, sw_escape_filter($twig, $key), 'Failed to escape: ' . $key);
         }
     }
 
@@ -388,7 +388,7 @@ class SwEscapeFilterTest extends TestCase
     {
         $obj = new Extension_TestClass();
         $twig = new Environment($this->createMock(LoaderInterface::class));
-        $twig->getExtension('\Twig\Extension\EscaperExtension')->setSafeClasses($safeClasses);
+        $twig->getExtension('\\' . EscaperExtension::class)->setSafeClasses($safeClasses);
         static::assertSame($escapedHtml, sw_escape_filter($twig, $obj, 'html', null, true));
         static::assertSame($escapedJs, sw_escape_filter($twig, $obj, 'js', null, true));
     }
@@ -399,10 +399,10 @@ class SwEscapeFilterTest extends TestCase
     public function provideObjectsForEscaping(): array
     {
         return [
-            ['&lt;br /&gt;', '<br />', ['\Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension_TestClass' => ['js']]],
-            ['<br />', '\u003Cbr\u0020\/\u003E', ['\Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension_TestClass' => ['html']]],
-            ['&lt;br /&gt;', '<br />', ['\Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension_TestClass' => ['js']]],
-            ['<br />', '<br />', ['\Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension_TestClass' => ['all']]],
+            ['&lt;br /&gt;', '<br />', ['\\' . Extension_TestClass::class => ['js']]],
+            ['<br />', '\u003Cbr\u0020\/\u003E', ['\\' . Extension_TestClass::class => ['html']]],
+            ['&lt;br /&gt;', '<br />', ['\\' . Extension_TestClass::class => ['js']]],
+            ['<br />', '<br />', ['\\' . Extension_TestClass::class => ['all']]],
         ];
     }
 
@@ -452,9 +452,9 @@ interface Extension_SafeHtmlInterface
 /**
  * @internal
  */
-class Extension_TestClass implements Extension_SafeHtmlInterface
+class Extension_TestClass implements Extension_SafeHtmlInterface, \Stringable
 {
-    public function __toString()
+    public function __toString(): string
     {
         return '<br />';
     }

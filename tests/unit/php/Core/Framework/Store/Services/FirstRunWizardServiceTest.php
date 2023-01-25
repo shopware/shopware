@@ -790,9 +790,7 @@ class FirstRunWizardServiceTest extends TestCase
 
         static::assertCount(3, $recommendations);
 
-        $paypalPlugin = $recommendations->filter(static function (StorePluginStruct $plugin) {
-            return $plugin->getName() === 'SwagPaypal';
-        })->first();
+        $paypalPlugin = $recommendations->filter(static fn (StorePluginStruct $plugin) => $plugin->getName() === 'SwagPaypal')->first();
         static::assertInstanceOf(StorePluginStruct::class, $paypalPlugin);
         static::assertTrue($paypalPlugin->isActive());
     }

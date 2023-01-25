@@ -6,6 +6,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
@@ -16,25 +17,12 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class AppLoader extends AbstractAppLoader
 {
-    private string $appDir;
-
-    private ConfigReader $configReader;
-
-    private string $projectDir;
-
-    private CustomEntityXmlSchemaValidator $customEntityXmlValidator;
-
-    public function __construct(string $appDir, string $projectDir, ConfigReader $configReader, CustomEntityXmlSchemaValidator $customEntityXmlValidator)
+    public function __construct(private readonly string $appDir, private readonly string $projectDir, private readonly ConfigReader $configReader, private readonly CustomEntityXmlSchemaValidator $customEntityXmlValidator)
     {
-        $this->appDir = $appDir;
-        $this->configReader = $configReader;
-        $this->projectDir = $projectDir;
-        $this->customEntityXmlValidator = $customEntityXmlValidator;
     }
 
     public function getDecorated(): AbstractAppLoader
@@ -62,7 +50,7 @@ class AppLoader extends AbstractAppLoader
                 $manifest = Manifest::createFromXmlFile($xml->getPathname());
 
                 $manifests[$manifest->getMetadata()->getName()] = $manifest;
-            } catch (XmlParsingException $e) {
+            } catch (XmlParsingException) {
                 //nth, if app is already registered it will be deleted
             }
         }

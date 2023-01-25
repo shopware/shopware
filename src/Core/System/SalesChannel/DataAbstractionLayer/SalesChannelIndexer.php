@@ -8,39 +8,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelIndexerEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SalesChannelIndexer extends EntityIndexer
 {
-    public const MANY_TO_MANY_UPDATER = 'sales_channel.many-to-many';
-
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepository $repository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private ManyToManyIdFieldUpdater $manyToManyUpdater;
+    final public const MANY_TO_MANY_UPDATER = 'sales_channel.many-to-many';
 
     /**
      * @internal
      */
-    public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        EventDispatcherInterface $eventDispatcher,
-        ManyToManyIdFieldUpdater $manyToManyUpdater
-    ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->manyToManyUpdater = $manyToManyUpdater;
+    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly EventDispatcherInterface $eventDispatcher, private readonly ManyToManyIdFieldUpdater $manyToManyUpdater)
+    {
     }
 
     public function getName(): string

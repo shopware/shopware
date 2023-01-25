@@ -90,9 +90,7 @@ class CartOrderRouteBench extends BenchCase
     #[Bench\Assert('mode(variant.time.avg) < 150ms +/- 20ms')]
     public function bench_order_10_physical_products(): void
     {
-        $this->cart->setLineItems($this->cart->getLineItems()->filter(function (LineItem $lineItem): bool {
-            return \in_array($lineItem->getReferencedId(), $this->ids->prefixed('product-state-physical-'), true);
-        }));
+        $this->cart->setLineItems($this->cart->getLineItems()->filter(fn (LineItem $lineItem): bool => \in_array($lineItem->getReferencedId(), $this->ids->prefixed('product-state-physical-'), true)));
         $this->getContainer()->get(CartOrderRoute::class)->order($this->cart, $this->context, new RequestDataBag());
     }
 
@@ -100,9 +98,7 @@ class CartOrderRouteBench extends BenchCase
     #[Bench\Assert('mode(variant.time.avg) < 170ms +/- 20ms')]
     public function bench_order_10_digital_products(): void
     {
-        $this->cart->setLineItems($this->cart->getLineItems()->filter(function (LineItem $lineItem): bool {
-            return \in_array($lineItem->getReferencedId(), $this->ids->prefixed('product-state-digital-'), true);
-        }));
+        $this->cart->setLineItems($this->cart->getLineItems()->filter(fn (LineItem $lineItem): bool => \in_array($lineItem->getReferencedId(), $this->ids->prefixed('product-state-digital-'), true)));
         $this->getContainer()->get(CartOrderRoute::class)->order($this->cart, $this->context, new RequestDataBag());
     }
 }

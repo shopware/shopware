@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Event\AppScriptConditionEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\ContainerInterface;
@@ -17,16 +18,15 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class RulePayloadUpdater implements EventSubscriberInterface
 {
     /**
      * @internal
      */
-    public function __construct(private Connection $connection, private RuleConditionRegistry $ruleConditionRegistry)
+    public function __construct(private readonly Connection $connection, private readonly RuleConditionRegistry $ruleConditionRegistry)
     {
     }
 
@@ -74,7 +74,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
                 $nested = new AndRule($nested);
 
                 $serialized = serialize($nested);
-            } catch (ConditionTypeNotFound $exception) {
+            } catch (ConditionTypeNotFound) {
                 $invalid = true;
             } finally {
                 $update->execute([
@@ -133,7 +133,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
                     'script' => $rule['script'] ?? '',
                     'lastModified' => $rule['lastModified'] ? new \DateTimeImmutable($rule['lastModified']) : null,
                     'identifier' => $rule['identifier'] ?? null,
-                    'values' => $rule['value'] ? json_decode($rule['value'], true) : [],
+                    'values' => $rule['value'] ? json_decode((string) $rule['value'], true, 512, \JSON_THROW_ON_ERROR) : [],
                 ]);
 
                 $nested[] = $object;
@@ -142,7 +142,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
             }
 
             if ($rule['value'] !== null) {
-                $object->assign(json_decode($rule['value'], true));
+                $object->assign(json_decode((string) $rule['value'], true, 512, \JSON_THROW_ON_ERROR));
             }
 
             if ($object instanceof ContainerInterface) {

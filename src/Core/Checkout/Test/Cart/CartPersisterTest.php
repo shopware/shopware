@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -27,10 +28,9 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class CartPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -272,12 +272,8 @@ class CartPersisterTest extends TestCase
         $connection->expects(static::once())
             ->method('prepare')
             ->with(
-                static::callback(function (string $sql) use ($beginOfSql): bool {
-                    return \str_starts_with(\trim($sql), $beginOfSql);
-                })
+                static::callback(fn (string $sql): bool => \str_starts_with(\trim($sql), $beginOfSql))
             )
-            ->willReturnCallback(function (string $sql): Statement {
-                return $this->getContainer()->get(Connection::class)->prepare($sql);
-            });
+            ->willReturnCallback(fn (string $sql): Statement => $this->getContainer()->get(Connection::class)->prepare($sql));
     }
 }

@@ -22,20 +22,11 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  */
 class SetOrderStateActionTest extends TestCase
 {
-    /**
-     * @var MockObject|Connection
-     */
-    private $connection;
+    private Connection&MockObject $connection;
 
-    /**
-     * @var MockObject|OrderService
-     */
-    private $orderService;
+    private MockObject&OrderService $orderService;
 
-    /**
-     * @var MockObject|StorableFlow
-     */
-    private $flow;
+    private MockObject&StorableFlow $flow;
 
     private SetOrderStateAction $action;
 

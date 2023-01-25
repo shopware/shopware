@@ -3,15 +3,15 @@
 namespace Shopware\Core\Maintenance\System\Service;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 
 /**
- * @package core
- *
  * @internal
  * @codeCoverageIgnore - Is tested by integration test, does not make sense to unit test
  * as the sole purpose of this class is to abstract DB interactions during setup
  */
+#[Package('core')]
 class SetupDatabaseAdapter
 {
     public function dropDatabase(Connection $connection, string $database): void

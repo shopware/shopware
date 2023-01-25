@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -21,10 +22,9 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class RuleTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -115,7 +115,7 @@ class RuleTest extends TestCase
             try {
                 $constraints = $rule->getConstraints();
                 $config = $rule->getConfig();
-            } catch (\Throwable $exception) {
+            } catch (\Throwable) {
                 continue;
             }
 
@@ -144,9 +144,7 @@ class RuleTest extends TestCase
                 ));
             }
 
-            $choiceConstraint = current(array_filter($constraints['operator'], function (Constraint $operatorConstraints) {
-                return $operatorConstraints instanceof Choice;
-            }));
+            $choiceConstraint = current(array_filter($constraints['operator'], fn (Constraint $operatorConstraints) => $operatorConstraints instanceof Choice));
 
             if (!$choiceConstraint) {
                 continue;
@@ -181,7 +179,7 @@ class RuleTest extends TestCase
         foreach ($this->getRules() as $rule) {
             try {
                 $constraints = $rule->getConstraints();
-            } catch (\Throwable $exception) {
+            } catch (\Throwable) {
                 continue;
             }
 
@@ -190,9 +188,7 @@ class RuleTest extends TestCase
                 continue;
             }
 
-            $choiceConstraint = current(array_filter($constraints['operator'], function (Constraint $operatorConstraints) {
-                return $operatorConstraints instanceof Choice;
-            }));
+            $choiceConstraint = current(array_filter($constraints['operator'], fn (Constraint $operatorConstraints) => $operatorConstraints instanceof Choice));
 
             if (!$choiceConstraint) {
                 continue;

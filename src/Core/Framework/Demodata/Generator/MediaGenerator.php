@@ -17,14 +17,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class MediaGenerator implements DemodataGeneratorInterface
 {
     private array $tmpImages = [];
@@ -35,13 +35,13 @@ class MediaGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        private EntityWriterInterface $writer,
-        private FileSaver $mediaUpdater,
-        private FileNameProvider $fileNameProvider,
-        private EntityRepository $defaultFolderRepository,
-        private EntityRepository $folderRepository,
-        private MediaDefinition $mediaDefinition,
-        private Connection $connection
+        private readonly EntityWriterInterface $writer,
+        private readonly FileSaver $mediaUpdater,
+        private readonly FileNameProvider $fileNameProvider,
+        private readonly EntityRepository $defaultFolderRepository,
+        private readonly EntityRepository $folderRepository,
+        private readonly MediaDefinition $mediaDefinition,
+        private readonly Connection $connection
     ) {
     }
 
@@ -112,9 +112,7 @@ class MediaGenerator implements DemodataGeneratorInterface
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(
-                    function ($id) {
-                        return ['id' => $id];
-                    },
+                    fn ($id) => ['id' => $id],
                     $chosenTags
                 );
             }

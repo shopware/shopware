@@ -14,11 +14,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class TestConstantTaxRateProvider extends AbstractTaxProvider
 {
-    private float $taxRate;
-
-    public function __construct(float $taxRate = 0.07)
+    public function __construct(private readonly float $taxRate = 0.07)
     {
-        $this->taxRate = $taxRate;
     }
 
     /**

@@ -7,15 +7,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 #[AsMessageHandler(handles: UpdateProductStreamMappingTask::class)]
+#[Package('business-ops')]
 final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
 {
     /**
@@ -23,7 +23,7 @@ final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $repository,
-        private EntityRepository $productStreamRepository
+        private readonly EntityRepository $productStreamRepository
     ) {
         parent::__construct($repository);
     }
@@ -39,9 +39,7 @@ final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
 
         /** @var array<string> $streamIds */
         $streamIds = $this->productStreamRepository->searchIds($criteria, $context)->getIds();
-        $data = array_map(function (string $id) {
-            return ['id' => $id];
-        }, $streamIds);
+        $data = array_map(fn (string $id) => ['id' => $id], $streamIds);
 
         $this->productStreamRepository->update($data, $context);
     }

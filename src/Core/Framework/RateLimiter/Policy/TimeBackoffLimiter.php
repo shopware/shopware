@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\RateLimiter\Policy;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Lock\NoLock;
 use Symfony\Component\RateLimiter\Exception\ReserveNotSupportedException;
@@ -16,35 +17,28 @@ use Symfony\Component\RateLimiter\Util\TimeUtil;
  * @internal
  *
  * @phpstan-import-type TimeBackoffLimit from TimeBackoff
- *
- * @package core
  */
+#[Package('core')]
 class TimeBackoffLimiter implements LimiterInterface
 {
     use ResetLimiterTrait;
 
-    /**
-     * @var list<TimeBackoffLimit>
-     */
-    private array $limits;
-
-    private int $reset;
+    private readonly int $reset;
 
     /**
      * @param list<TimeBackoffLimit> $limits
      */
-    public function __construct(string $id, array $limits, \DateInterval $reset, StorageInterface $storage, ?LockInterface $lock = null)
+    public function __construct(string $id, private readonly array $limits, \DateInterval $reset, StorageInterface $storage, LockInterface|null $lock = new NoLock())
     {
         $this->id = $id;
-        $this->limits = $limits;
         $this->reset = TimeUtil::dateIntervalToSeconds($reset);
         $this->storage = $storage;
-        $this->lock = $lock ?? new NoLock();
+        $this->lock = $lock;
     }
 
     public function reserve(int $tokens = 1, ?float $maxTime = null): Reservation
     {
-        throw new ReserveNotSupportedException(__CLASS__);
+        throw new ReserveNotSupportedException(self::class);
     }
 
     public function consume(int $tokens = 1): RateLimit

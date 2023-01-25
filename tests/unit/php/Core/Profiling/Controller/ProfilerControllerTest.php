@@ -76,7 +76,7 @@ class ProfilerControllerTest extends TestCase
                 //noop
             }
 
-            public function getName()
+            public function getName(): string
             {
                 return 'some-panel';
             }

@@ -25,14 +25,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class OrderDeliveryDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'order_delivery';
+    final public const ENTITY_NAME = 'order_delivery';
 
     public function getEntityName(): string
     {

@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class AnalyzedKeyword extends Struct
 {
     /**

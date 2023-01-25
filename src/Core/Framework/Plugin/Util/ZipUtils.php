@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ZipUtils
 {
     public static function openZip(string $filename): \ZipArchive
@@ -22,27 +21,17 @@ class ZipUtils
 
     private static function getErrorMessage(int $retVal, string $file): string
     {
-        switch ($retVal) {
-            case \ZipArchive::ER_EXISTS:
-                return sprintf('File \'%s\' already exists.', $file);
-            case \ZipArchive::ER_INCONS:
-                return sprintf('Zip archive \'%s\' is inconsistent.', $file);
-            case \ZipArchive::ER_INVAL:
-                return sprintf('Invalid argument (%s)', $file);
-            case \ZipArchive::ER_MEMORY:
-                return sprintf('Malloc failure (%s)', $file);
-            case \ZipArchive::ER_NOENT:
-                return sprintf('No such zip file: \'%s\'', $file);
-            case \ZipArchive::ER_NOZIP:
-                return sprintf('\'%s\' is not a zip archive.', $file);
-            case \ZipArchive::ER_OPEN:
-                return sprintf('Can\'t open zip file: %s', $file);
-            case \ZipArchive::ER_READ:
-                return sprintf('Zip read error (%s)', $file);
-            case \ZipArchive::ER_SEEK:
-                return sprintf('Zip seek error (%s)', $file);
-            default:
-                return sprintf('\'%s\' is not a valid zip archive, got error code: %s', $file, $retVal);
-        }
+        return match ($retVal) {
+            \ZipArchive::ER_EXISTS => sprintf('File \'%s\' already exists.', $file),
+            \ZipArchive::ER_INCONS => sprintf('Zip archive \'%s\' is inconsistent.', $file),
+            \ZipArchive::ER_INVAL => sprintf('Invalid argument (%s)', $file),
+            \ZipArchive::ER_MEMORY => sprintf('Malloc failure (%s)', $file),
+            \ZipArchive::ER_NOENT => sprintf('No such zip file: \'%s\'', $file),
+            \ZipArchive::ER_NOZIP => sprintf('\'%s\' is not a zip archive.', $file),
+            \ZipArchive::ER_OPEN => sprintf('Can\'t open zip file: %s', $file),
+            \ZipArchive::ER_READ => sprintf('Zip read error (%s)', $file),
+            \ZipArchive::ER_SEEK => sprintf('Zip seek error (%s)', $file),
+            default => sprintf('\'%s\' is not a valid zip archive, got error code: %s', $file, $retVal),
+        };
     }
 }

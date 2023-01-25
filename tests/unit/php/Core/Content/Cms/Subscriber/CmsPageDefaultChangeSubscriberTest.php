@@ -221,12 +221,9 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
         return $event;
     }
 
-    /**
-     * @param mixed $value
-     */
-    private function getBeforeSystemConfigChangedEvent(string $key, $value, ?string $salesChannelId = null): BeforeSystemConfigChangedEvent
+    private function getBeforeSystemConfigChangedEvent(string $key, mixed $value): BeforeSystemConfigChangedEvent
     {
-        return new BeforeSystemConfigChangedEvent($key, $value, $salesChannelId);
+        return new BeforeSystemConfigChangedEvent($key, $value, null);
     }
 
     /**

@@ -7,26 +7,20 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- *
- * @package core
  */
+#[Package('core')]
 class ShopIdProvider
 {
-    public const SHOP_ID_SYSTEM_CONFIG_KEY = 'core.app.shopId';
+    final public const SHOP_ID_SYSTEM_CONFIG_KEY = 'core.app.shopId';
 
-    private SystemConfigService $systemConfigService;
-
-    private EntityRepository $appRepository;
-
-    public function __construct(SystemConfigService $systemConfigService, EntityRepository $appRepository)
+    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly EntityRepository $appRepository)
     {
-        $this->systemConfigService = $systemConfigService;
-        $this->appRepository = $appRepository;
     }
 
     /**

@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Checkout\Customer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class DeleteUnusedGuestCustomerTask extends ScheduledTask
 {
     public static function getTaskName(): string

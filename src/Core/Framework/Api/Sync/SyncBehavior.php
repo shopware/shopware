@@ -2,25 +2,16 @@
 
 namespace Shopware\Core\Framework\Api\Sync;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class SyncBehavior
 {
-    protected ?string $indexingBehavior;
-
-    /**
-     * @var list<string>
-     */
-    protected array $skipIndexers = [];
-
     /**
      * @param list<string> $skipIndexers
      */
-    public function __construct(?string $indexingBehavior = null, array $skipIndexers = [])
+    public function __construct(protected ?string $indexingBehavior = null, protected array $skipIndexers = [])
     {
-        $this->indexingBehavior = $indexingBehavior;
-        $this->skipIndexers = $skipIndexers;
     }
 
     public function getIndexingBehavior(): ?string

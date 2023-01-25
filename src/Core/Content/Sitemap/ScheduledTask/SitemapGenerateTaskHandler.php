@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -19,11 +20,10 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
 #[AsMessageHandler(handles: SitemapGenerateTask::class)]
+#[Package('sales-channel')]
 final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
 {
     /**
@@ -31,10 +31,10 @@ final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        private EntityRepository $salesChannelRepository,
-        private  SystemConfigService $systemConfigService,
-        private MessageBusInterface $messageBus,
-        private EventDispatcherInterface $eventDispatcher
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly MessageBusInterface $messageBus,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
         parent::__construct($scheduledTaskRepository);
     }
@@ -70,9 +70,7 @@ final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
                 continue;
             }
 
-            $languageIds = $salesChannel->getDomains()->map(function (SalesChannelDomainEntity $salesChannelDomain) {
-                return $salesChannelDomain->getLanguageId();
-            });
+            $languageIds = $salesChannel->getDomains()->map(fn (SalesChannelDomainEntity $salesChannelDomain) => $salesChannelDomain->getLanguageId());
 
             $languageIds = array_unique($languageIds);
 

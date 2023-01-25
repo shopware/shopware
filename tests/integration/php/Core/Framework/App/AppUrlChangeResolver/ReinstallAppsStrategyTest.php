@@ -65,9 +65,7 @@ class ReinstallAppsStrategyTest extends TestCase
         $registrationsService->expects(static::once())
             ->method('registerApp')
             ->with(
-                static::callback(static function (Manifest $manifest) use ($appDir): bool {
-                    return $manifest->getPath() === $appDir;
-                }),
+                static::callback(static fn (Manifest $manifest): bool => $manifest->getPath() === $appDir),
                 $app->getId(),
                 static::isType('string'),
                 static::isInstanceOf(Context::class)
@@ -139,7 +137,7 @@ class ReinstallAppsStrategyTest extends TestCase
         try {
             $this->shopIdProvider->getShopId();
             static::fail('Expected exception AppUrlChangeDetectedException was not thrown');
-        } catch (AppUrlChangeDetectedException $e) {
+        } catch (AppUrlChangeDetectedException) {
             // exception is expected
         }
 

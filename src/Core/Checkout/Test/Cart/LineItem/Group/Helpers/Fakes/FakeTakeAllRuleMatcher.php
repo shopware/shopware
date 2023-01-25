@@ -5,28 +5,19 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupRuleMatcherInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class FakeTakeAllRuleMatcher implements LineItemGroupRuleMatcherInterface
 {
-    /**
-     * @var FakeSequenceSupervisor
-     */
-    private $sequenceSupervisor;
+    private int $sequenceCount = 0;
 
-    /**
-     * @var int
-     */
-    private $sequenceCount;
-
-    public function __construct(FakeSequenceSupervisor $sequenceSupervisor)
+    public function __construct(private readonly FakeSequenceSupervisor $sequenceSupervisor)
     {
-        $this->sequenceSupervisor = $sequenceSupervisor;
     }
 
     public function getSequenceCount(): int

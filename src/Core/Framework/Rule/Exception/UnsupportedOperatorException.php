@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\Rule\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class UnsupportedOperatorException extends ShopwareHttpException
 {
     /**

@@ -267,9 +267,7 @@ class NavigationLoaderTest extends TestCase
         $tree = $this->navigationLoader->load($this->ids->get('rootId'), $context, $this->ids->get('rootId'));
 
         static::assertInstanceOf(Tree::class, $tree->getChildren($this->ids->get('category3')));
-        $elements = array_values(array_map(static function (TreeItem $item) {
-            return $item->getCategory()->getName();
-        }, $tree->getChildren($this->ids->get('category3'))->getTree()));
+        $elements = array_values(array_map(static fn (TreeItem $item) => $item->getCategory()->getName(), $tree->getChildren($this->ids->get('category3'))->getTree()));
 
         static::assertSame('Category 3.1', $elements[0]);
         static::assertSame('Category 3.3', $elements[1]);
@@ -366,7 +364,7 @@ class NavigationLoaderTest extends TestCase
         $ids = [];
         foreach ($items as $item) {
             $ids[] = $item->getId();
-            $ids = \array_merge($ids, $this->getIds($item->getChildren()));
+            $ids = [...$ids, ...$this->getIds($item->getChildren())];
         }
 
         return $ids;

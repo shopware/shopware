@@ -11,11 +11,10 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 trait SurchargeTrait
 {
     private LineItemCollection $items;
@@ -33,7 +32,7 @@ trait SurchargeTrait
      * @example add-absolute-surcharge/add-absolute-surcharge.twig Add an absolute surcharge to the cart.#
      * @example add-simple-surcharge/add-simple-surcharge.twig Add a relative surcharge to the cart.
      */
-    public function surcharge(string $key, string $type, $value, string $label): DiscountFacade
+    public function surcharge(string $key, string $type, float|PriceCollection $value, string $label): DiscountFacade
     {
         $definition = $this->buildSurchargeDefinition($type, $value, $key);
 
@@ -52,10 +51,7 @@ trait SurchargeTrait
         return $this->items;
     }
 
-    /**
-     * @param float|PriceCollection|string|int $value
-     */
-    private function buildSurchargeDefinition(string $type, $value, string $key): PriceDefinitionInterface
+    private function buildSurchargeDefinition(string $type, float|PriceCollection|string|int $value, string $key): PriceDefinitionInterface
     {
         if ($type === PercentagePriceDefinition::TYPE) {
             if ($value instanceof PriceCollection) {

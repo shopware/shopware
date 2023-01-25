@@ -14,43 +14,31 @@ use Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
  * @internal not intended for decoration or replacement
  */
+#[Package('business-ops')]
 class FlowExecutor
 {
-    private EventDispatcherInterface $dispatcher;
-
-    private AppFlowActionProvider $appFlowActionProvider;
-
-    private AbstractRuleLoader $ruleLoader;
-
-    private FlowRuleScopeBuilder $scopeBuilder;
-
     /**
      * @var array<string, mixed>
      */
-    private array $actions;
+    private readonly array $actions;
 
     /**
      * @param FlowAction[] $actions
      */
     public function __construct(
-        EventDispatcherInterface $dispatcher,
-        AppFlowActionProvider $appFlowActionProvider,
-        AbstractRuleLoader $ruleLoader,
-        FlowRuleScopeBuilder $scopeBuilder,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly AppFlowActionProvider $appFlowActionProvider,
+        private readonly AbstractRuleLoader $ruleLoader,
+        private readonly FlowRuleScopeBuilder $scopeBuilder,
         $actions
     ) {
-        $this->dispatcher = $dispatcher;
-        $this->appFlowActionProvider = $appFlowActionProvider;
-        $this->ruleLoader = $ruleLoader;
-        $this->scopeBuilder = $scopeBuilder;
         $this->actions = $actions instanceof \Traversable ? iterator_to_array($actions) : $actions;
     }
 

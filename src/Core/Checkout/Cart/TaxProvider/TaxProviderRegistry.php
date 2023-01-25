@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\TaxProvider;
 
-/**
- * @package checkout
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class TaxProviderRegistry
 {
     /**
@@ -21,7 +21,7 @@ class TaxProviderRegistry
     {
         /** @var AbstractTaxProvider $provider */
         foreach ($providers as $provider) {
-            $identifier = \get_class($provider);
+            $identifier = $provider::class;
 
             if (!$this->has($identifier)) {
                 $this->providers[$identifier] = $provider;

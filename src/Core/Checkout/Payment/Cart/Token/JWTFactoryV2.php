@@ -8,11 +8,10 @@ use Lcobucci\JWT\UnencryptedToken;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class JWTFactoryV2 implements TokenFactoryInterfaceV2
 {
     /**
@@ -20,15 +19,12 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
      */
     protected $configuration;
 
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Configuration $configuration, Connection $connection)
+    public function __construct(Configuration $configuration, private readonly Connection $connection)
     {
         $this->configuration = $configuration;
-        $this->connection = $connection;
     }
 
     public function generateToken(TokenStruct $tokenStruct): string
@@ -70,7 +66,7 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
         try {
             /** @var UnencryptedToken $jwtToken */
             $jwtToken = $this->configuration->parser()->parse($token);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             throw new InvalidTokenException($token);
         }
 

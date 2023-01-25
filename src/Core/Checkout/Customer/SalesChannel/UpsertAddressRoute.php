@@ -10,8 +10,8 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\DataMappingEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -26,11 +26,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('customer-order')]
 class UpsertAddressRoute extends AbstractUpsertAddressRoute
 {
     use CustomerAddressValidationTrait;
@@ -41,44 +38,17 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
     private $addressRepository;
 
     /**
-     * @var DataValidator
-     */
-    private $validator;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var DataValidationFactoryInterface
-     */
-    private $addressValidationFactory;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    private StoreApiCustomFieldMapper $storeApiCustomFieldMapper;
-
-    /**
      * @internal
      */
     public function __construct(
         EntityRepository $addressRepository,
-        DataValidator $validator,
-        EventDispatcherInterface $eventDispatcher,
-        DataValidationFactoryInterface $addressValidationFactory,
-        SystemConfigService $systemConfigService,
-        StoreApiCustomFieldMapper $storeApiCustomFieldMapper
+        private readonly DataValidator $validator,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DataValidationFactoryInterface $addressValidationFactory,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper
     ) {
         $this->addressRepository = $addressRepository;
-        $this->validator = $validator;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->addressValidationFactory = $addressValidationFactory;
-        $this->systemConfigService = $systemConfigService;
-        $this->storeApiCustomFieldMapper = $storeApiCustomFieldMapper;
     }
 
     public function getDecorated(): AbstractUpsertAddressRoute
@@ -86,11 +56,8 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.3.2.0")
-     * @Route(path="/store-api/account/address", name="store-api.account.address.create", methods={"POST"}, defaults={"addressId"=null, "_loginRequired"=true, "_loginRequiredAllowGuest"=true})
-     * @Route(path="/store-api/account/address/{addressId}", name="store-api.account.address.update", methods={"PATCH"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
-     */
+    #[Route(path: '/store-api/account/address', name: 'store-api.account.address.create', methods: ['POST'], defaults: ['addressId' => null, '_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
+    #[Route(path: '/store-api/account/address/{addressId}', name: 'store-api.account.address.update', methods: ['PATCH'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function upsert(?string $addressId, RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): UpsertAddressRouteResponse
     {
         if (!$addressId) {
@@ -113,7 +80,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             'city' => $data->get('city'),
             'zipcode' => $data->get('zipcode'),
             'countryId' => $data->get('countryId'),
-            'countryStateId' => $data->get('countryStateId') ? $data->get('countryStateId') : null,
+            'countryStateId' => $data->get('countryStateId') ?: null,
             'company' => $data->get('company'),
             'department' => $data->get('department'),
             'title' => $data->get('title'),

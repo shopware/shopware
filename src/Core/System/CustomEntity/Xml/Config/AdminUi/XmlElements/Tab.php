@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 use Symfony\Component\Config\Util\XmlUtils;
 
@@ -10,10 +11,9 @@ use Symfony\Component\Config\Util\XmlUtils;
  *
  * admin-ui > entity > detail > tabs > tab
  *
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 final class Tab extends ConfigXmlElement
 {
     /**

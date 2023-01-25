@@ -2,43 +2,25 @@
 
 namespace Shopware\Core\Framework\Update\Steps;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 use Shopware\Core\Framework\Update\Services\Archive\Zip;
 use Symfony\Component\Filesystem\Filesystem;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class UnpackStep
 {
-    /**
-     * @var string
-     */
-    private $destinationDir;
+    private readonly string $destinationDir;
 
-    /**
-     * @var string
-     */
-    private $source;
-
-    /**
-     * @var bool
-     */
-    private $testMode;
-
-    public function __construct(string $source, $destinationDir, bool $testMode = false)
+    public function __construct(private readonly string $source, $destinationDir, private readonly bool $testMode = false)
     {
-        $this->source = $source;
-        $this->destinationDir = rtrim($destinationDir, '/') . '/';
-        $this->testMode = $testMode;
+        $this->destinationDir = rtrim((string) $destinationDir, '/') . '/';
     }
 
     /**
      * @throws UpdateFailedException
-     *
-     * @return FinishResult|ValidResult
      */
-    public function run(int $offset)
+    public function run(int $offset): FinishResult|ValidResult
     {
         $fs = new Filesystem();
         $requestTime = time();

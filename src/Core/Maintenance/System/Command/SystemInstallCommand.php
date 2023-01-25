@@ -4,6 +4,7 @@ namespace Shopware\Core\Maintenance\System\Command;
 
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
@@ -16,20 +17,19 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @package core
- *
  * @internal should be used over the CLI only
  */
 #[AsCommand(
     name: 'system:install',
     description: 'Installs the Shopware 6 system',
 )]
+#[Package('core')]
 class SystemInstallCommand extends Command
 {
     public function __construct(
-        private string $projectDir,
-        private SetupDatabaseAdapter $setupDatabaseAdapter,
-        private DatabaseConnectionFactory $databaseConnectionFactory
+        private readonly string $projectDir,
+        private readonly SetupDatabaseAdapter $setupDatabaseAdapter,
+        private readonly DatabaseConnectionFactory $databaseConnectionFactory
     ) {
         parent::__construct();
     }

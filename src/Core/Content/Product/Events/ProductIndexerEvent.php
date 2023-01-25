@@ -4,10 +4,9 @@ namespace Shopware\Core\Content\Product\Events;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInterface
 {
     /**
@@ -16,7 +15,7 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
      * @param string[] $ids
      * @param string[] $skip
      */
-    public function __construct(private array $ids, private Context $context, private array $skip = [])
+    public function __construct(private readonly array $ids, private readonly Context $context, private readonly array $skip = [])
     {
     }
 

@@ -3,10 +3,12 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductDownload;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductDownloadEntity>
  */
+#[Package('inventory')]
 class ProductDownloadCollection extends EntityCollection
 {
     public function getApiAlias(): string

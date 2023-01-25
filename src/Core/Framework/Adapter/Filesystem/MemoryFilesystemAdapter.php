@@ -15,30 +15,27 @@ use League\Flysystem\UnableToSetVisibility;
 use League\Flysystem\Visibility;
 use League\MimeTypeDetection\FinfoMimeTypeDetector;
 use League\MimeTypeDetection\MimeTypeDetector;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @see https://github.com/thephpleague/flysystem/issues/1477
- *
- * @package core
  */
+#[Package('core')]
 class MemoryFilesystemAdapter implements FilesystemAdapter
 {
-    public const DUMMY_FILE_FOR_FORCED_LISTING_IN_FLYSYSTEM_TEST = '______DUMMY_FILE_FOR_FORCED_LISTING_IN_FLYSYSTEM_TEST';
+    final public const DUMMY_FILE_FOR_FORCED_LISTING_IN_FLYSYSTEM_TEST = '______DUMMY_FILE_FOR_FORCED_LISTING_IN_FLYSYSTEM_TEST';
 
     /**
      * @var InMemoryFile[]
      */
     private array $files = [];
 
-    private string $defaultVisibility;
+    private readonly FinfoMimeTypeDetector|MimeTypeDetector $mimeTypeDetector;
 
-    private FinfoMimeTypeDetector|MimeTypeDetector $mimeTypeDetector;
-
-    public function __construct(string $defaultVisibility = Visibility::PUBLIC, ?MimeTypeDetector $mimeTypeDetector = null)
+    public function __construct(private readonly string $defaultVisibility = Visibility::PUBLIC, ?MimeTypeDetector $mimeTypeDetector = null)
     {
-        $this->defaultVisibility = $defaultVisibility;
         $this->mimeTypeDetector = $mimeTypeDetector ?: new FinfoMimeTypeDetector();
     }
 
@@ -50,7 +47,7 @@ class MemoryFilesystemAdapter implements FilesystemAdapter
     public function write(string $path, string $contents, Config $config): void
     {
         $path = $this->preparePath($path);
-        $file = $this->files[$path] = $this->files[$path] ?? new InMemoryFile();
+        $file = $this->files[$path] ??= new InMemoryFile();
         $file->updateContents($contents, $config->get('timestamp'));
 
         $visibility = $config->get(Config::OPTION_VISIBILITY, $this->defaultVisibility);

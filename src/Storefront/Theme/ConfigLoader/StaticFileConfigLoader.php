@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Theme\ConfigLoader;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
@@ -12,9 +13,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use function sprintf;
 use const JSON_THROW_ON_ERROR;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class StaticFileConfigLoader extends AbstractConfigLoader
 {
     /**

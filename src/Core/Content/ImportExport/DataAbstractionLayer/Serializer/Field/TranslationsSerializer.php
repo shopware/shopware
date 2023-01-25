@@ -11,24 +11,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 
-/**
- * @package core
- */
+#[Package('core')]
 class TranslationsSerializer extends FieldSerializer
 {
     /**
-     * @var EntityRepository
-     */
-    private $languageRepository;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $languageRepository)
+    public function __construct(private readonly EntityRepository $languageRepository)
     {
-        $this->languageRepository = $languageRepository;
     }
 
     public function serialize(Config $config, Field $associationField, $translations): iterable

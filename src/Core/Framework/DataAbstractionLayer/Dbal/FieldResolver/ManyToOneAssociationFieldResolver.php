@@ -16,22 +16,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
 {
-    /**
-     * @var EntityDefinitionQueryHelper
-     */
-    private $queryHelper;
-
-    public function __construct(EntityDefinitionQueryHelper $queryHelper)
+    public function __construct(private readonly EntityDefinitionQueryHelper $queryHelper)
     {
-        $this->queryHelper = $queryHelper;
     }
 
     public function join(FieldResolverContext $context): string

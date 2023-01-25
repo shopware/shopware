@@ -3,12 +3,11 @@
 namespace Shopware\Storefront\Framework\Twig\Extension;
 
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class UrlEncodingTwigFilter extends AbstractExtension
 {
     /**

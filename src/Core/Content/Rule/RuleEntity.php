@@ -14,13 +14,12 @@ use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class RuleEntity extends Entity
 {
     use EntityIdTrait;

@@ -6,16 +6,16 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodeService;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class PromotionCodeServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -86,9 +86,7 @@ class PromotionCodeServiceTest extends TestCase
         $pattern = 'PREFIX_%s%d%s%d_SUFFIX';
         $expectedCodeLength = \strlen(str_replace('%', '', $pattern));
         $codeList = $this->codesService->generateIndividualCodes($pattern, $requestedAmount);
-        $codeLengthList = array_map(static function ($code) {
-            return \strlen($code);
-        }, $codeList);
+        $codeLengthList = array_map(static fn ($code) => \strlen((string) $code), $codeList);
 
         static::assertCount($requestedAmount, $codeList);
         static::assertCount($requestedAmount, array_unique($codeList));

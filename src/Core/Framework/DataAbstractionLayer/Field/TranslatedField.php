@@ -4,24 +4,17 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\TranslationFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslatedFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 
-/**
- * @package core
- */
+#[Package('core')]
 class TranslatedField extends Field
 {
-    public const PRIORITY = 100;
+    final public const PRIORITY = 100;
 
-    /**
-     * @var string
-     */
-    private $foreignClassName;
+    private readonly string $foreignClassName;
 
-    /**
-     * @var string
-     */
-    private $foreignFieldName;
+    private readonly string $foreignFieldName;
 
     public function __construct(string $propertyName)
     {

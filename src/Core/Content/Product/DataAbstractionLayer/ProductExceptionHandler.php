@@ -4,10 +4,9 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Shopware\Core\Content\Product\Exception\DuplicateProductNumberException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ProductExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int

@@ -34,15 +34,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class SortedShippingMethodRouteTest extends TestCase
 {
-    /**
-     * @var AbstractShippingMethodRoute&MockObject
-     */
-    private $decorated;
+    private MockObject&AbstractShippingMethodRoute $decorated;
 
-    /**
-     * @var ScriptExecutor&MockObject
-     */
-    private $executor;
+    private MockObject&ScriptExecutor $executor;
 
     private SortedShippingMethodRoute $sortedRoute;
 
@@ -94,11 +88,9 @@ class SortedShippingMethodRouteTest extends TestCase
             ->method('load')
             ->willReturn($this->response);
 
-        $this->executor->method('execute')->with(static::callback(function (ShippingMethodRouteHook $hook) {
-            return $hook->getCollection() === $this->response->getShippingMethods()
-                && $hook->getSalesChannelContext() === $this->context
-                && $hook->isOnlyAvailable();
-        }));
+        $this->executor->method('execute')->with(static::callback(fn (ShippingMethodRouteHook $hook) => $hook->getCollection() === $this->response->getShippingMethods()
+            && $hook->getSalesChannelContext() === $this->context
+            && $hook->isOnlyAvailable()));
 
         $response = $this->sortedRoute->load(new Request(['onlyAvailable' => true]), $this->context, new Criteria());
         static::assertCount(1, $response->getShippingMethods());

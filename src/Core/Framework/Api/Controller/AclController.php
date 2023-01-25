@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Api\Acl\Event\AclGetAdditionalPrivilegesEvent;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -15,49 +15,28 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
 use function array_merge;
 
-/**
- * @Route(defaults={"_routeScope"={"api"}})
- *
- * @package system-settings
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('system-settings')]
 class AclController extends AbstractController
 {
-    private DefinitionInstanceRegistry $definitionInstanceRegistry;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private RouterInterface $router;
-
     /**
      * @internal
      */
-    public function __construct(
-        DefinitionInstanceRegistry $definitionInstanceRegistry,
-        EventDispatcherInterface $eventDispatcher,
-        RouterInterface $router
-    ) {
-        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->router = $router;
+    public function __construct(private readonly DefinitionInstanceRegistry $definitionInstanceRegistry, private readonly EventDispatcherInterface $eventDispatcher, private readonly RouterInterface $router)
+    {
     }
 
-    /**
-     * @Since("6.3.3.0")
-     * @Route("/api/_action/acl/privileges", name="api.acl.privileges.get", methods={"GET"}, defaults={"auth_required"=true, "_acl"={"api_acl_privileges_get"}})
-     */
+    #[Route(path: '/api/_action/acl/privileges', name: 'api.acl.privileges.get', methods: ['GET'], defaults: ['auth_required' => true, '_acl' => ['api_acl_privileges_get']])]
     public function getPrivileges(): JsonResponse
     {
         $privileges = $this->getFromRoutes();
 
-        $privileges = array_unique(array_merge($privileges, $this->getFromDefinitions()));
+        $privileges = array_unique([...$privileges, ...$this->getFromDefinitions()]);
 
         return new JsonResponse($privileges);
     }
 
-    /**
-     * @Since("6.3.3.0")
-     * @Route("/api/_action/acl/additional_privileges", name="api.acl.privileges.additional.get", methods={"GET"}, defaults={"auth_required"=true, "_acl"={"api_acl_privileges_additional_get"}})
-     */
+    #[Route(path: '/api/_action/acl/additional_privileges', name: 'api.acl.privileges.additional.get', methods: ['GET'], defaults: ['auth_required' => true, '_acl' => ['api_acl_privileges_additional_get']])]
     public function getAdditionalPrivileges(Context $context): JsonResponse
     {
         $privileges = $this->getFromRoutes();

@@ -16,7 +16,7 @@ use Shopware\Storefront\Theme\SalesChannelThemeLoader;
 class SalesChannelThemeLoaderTest extends TestCase
 {
     /**
-     * @var Connection|MockObject
+     * @var Connection&MockObject
      */
     private Connection $connection;
 

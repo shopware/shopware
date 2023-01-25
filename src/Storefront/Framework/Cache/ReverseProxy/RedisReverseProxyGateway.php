@@ -7,13 +7,12 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
 use function sprintf;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class RedisReverseProxyGateway extends AbstractReverseProxyGateway
 {
     private string $keyScript = <<<LUA

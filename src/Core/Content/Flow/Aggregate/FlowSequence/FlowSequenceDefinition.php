@@ -21,13 +21,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class FlowSequenceDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'flow_sequence';
+    final public const ENTITY_NAME = 'flow_sequence';
 
     public function getEntityName(): string
     {

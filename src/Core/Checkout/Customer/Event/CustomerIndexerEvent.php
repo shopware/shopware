@@ -4,29 +4,13 @@ namespace Shopware\Core\Checkout\Customer\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class CustomerIndexerEvent extends NestedEvent
 {
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var array
-     */
-    private $ids;
-
-    private array $skip;
-
-    public function __construct(array $ids, Context $context, array $skip = [])
+    public function __construct(private readonly array $ids, private readonly Context $context, private readonly array $skip = [])
     {
-        $this->context = $context;
-        $this->ids = $ids;
-        $this->skip = $skip;
     }
 
     public function getContext(): Context

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoader;
@@ -11,13 +12,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package system-settings
- *
  * @internal
- *
- * @package system-settings
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('system-settings')]
 class CountryStateController extends StorefrontController
 {
     /**

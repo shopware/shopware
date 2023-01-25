@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -23,34 +24,20 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * Will run through the registration process for all apps again
  * with the new appUrl and new shopId and throw installed events for every app
- *
- * @package core
  */
+#[Package('core')]
 class ReinstallAppsStrategy extends AbstractAppUrlChangeStrategy
 {
-    public const STRATEGY_NAME = 'reinstall-apps';
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    final public const STRATEGY_NAME = 'reinstall-apps';
 
     public function __construct(
         AbstractAppLoader $appLoader,
         EntityRepository $appRepository,
         AppRegistrationService $registrationService,
-        SystemConfigService $systemConfigService,
-        EventDispatcherInterface $eventDispatcher
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
         parent::__construct($appLoader, $appRepository, $registrationService);
-
-        $this->systemConfigService = $systemConfigService;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractAppUrlChangeStrategy

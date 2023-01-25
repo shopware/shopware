@@ -5,15 +5,15 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package core
- *
  * @internal
  */
 #[AsMessageHandler(handles: CleanupVersionTask::class)]
+#[Package('core')]
 final class CleanupVersionTaskHandler extends ScheduledTaskHandler
 {
     /**
@@ -21,8 +21,8 @@ final class CleanupVersionTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $repository,
-        private Connection $connection,
-        private int $days
+        private readonly Connection $connection,
+        private readonly int $days
     ) {
         parent::__construct($repository);
     }

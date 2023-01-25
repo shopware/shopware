@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\System\Salutation\Event\SalutationRouteCacheKeyEvent;
@@ -18,32 +18,11 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
- * @package customer-order
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('customer-order')]
 class CachedSalutationRoute extends AbstractSalutationRoute
 {
-    public const ALL_TAG = 'salutation-route';
-
-    private AbstractSalutationRoute $decorated;
-
-    private CacheInterface $cache;
-
-    private EntityCacheKeyGenerator $generator;
-
-    /**
-     * @var AbstractCacheTracer<SalutationRouteResponse>
-     */
-    private AbstractCacheTracer $tracer;
-
-    /**
-     * @var array<string>
-     */
-    private array $states;
-
-    private EventDispatcherInterface $dispatcher;
+    final public const ALL_TAG = 'salutation-route';
 
     /**
      * @internal
@@ -51,20 +30,8 @@ class CachedSalutationRoute extends AbstractSalutationRoute
      * @param AbstractCacheTracer<SalutationRouteResponse> $tracer
      * @param array<string> $states
      */
-    public function __construct(
-        AbstractSalutationRoute $decorated,
-        CacheInterface $cache,
-        EntityCacheKeyGenerator $generator,
-        AbstractCacheTracer $tracer,
-        EventDispatcherInterface $dispatcher,
-        array $states
-    ) {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
-        $this->generator = $generator;
-        $this->tracer = $tracer;
-        $this->states = $states;
-        $this->dispatcher = $dispatcher;
+    public function __construct(private readonly AbstractSalutationRoute $decorated, private readonly CacheInterface $cache, private readonly EntityCacheKeyGenerator $generator, private readonly AbstractCacheTracer $tracer, private readonly EventDispatcherInterface $dispatcher, private readonly array $states)
+    {
     }
 
     public static function buildName(): string
@@ -77,10 +44,7 @@ class CachedSalutationRoute extends AbstractSalutationRoute
         return $this->decorated;
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route(path="/store-api/salutation", name="store-api.salutation", methods={"GET", "POST"}, defaults={"_entity"="salutation"})
-     */
+    #[Route(path: '/store-api/salutation', name: 'store-api.salutation', methods: ['GET', 'POST'], defaults: ['_entity' => 'salutation'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SalutationRouteResponse
     {
         if ($context->hasState(...$this->states)) {
@@ -96,9 +60,7 @@ class CachedSalutationRoute extends AbstractSalutationRoute
         $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $criteria) {
             $name = self::buildName();
 
-            $response = $this->tracer->trace($name, function () use ($request, $context, $criteria) {
-                return $this->getDecorated()->load($request, $context, $criteria);
-            });
+            $response = $this->tracer->trace($name, fn () => $this->getDecorated()->load($request, $context, $criteria));
 
             $item->tag($this->generateTags($request, $response, $context, $criteria));
 
@@ -122,7 +84,7 @@ class CachedSalutationRoute extends AbstractSalutationRoute
             return null;
         }
 
-        return self::buildName() . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
+        return self::buildName() . '-' . md5((string) JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
     /**

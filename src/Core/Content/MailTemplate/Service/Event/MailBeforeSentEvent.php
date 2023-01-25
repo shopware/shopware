@@ -11,20 +11,19 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Log\LogAware;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mime\Email;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class MailBeforeSentEvent extends Event implements LogAware, DataAware, MessageAware
 {
-    public const EVENT_NAME = 'mail.after.create.message';
+    final public const EVENT_NAME = 'mail.after.create.message';
 
     /**
      * @param array<string, mixed> $data
      */
-    public function __construct(private array $data, private Email $message, private Context $context, private ?string $eventName = null)
+    public function __construct(private readonly array $data, private readonly Email $message, private readonly Context $context, private readonly ?string $eventName = null)
     {
     }
 

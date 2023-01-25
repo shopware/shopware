@@ -18,13 +18,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class ProductStreamFilterDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_stream_filter';
+    final public const ENTITY_NAME = 'product_stream_filter';
 
     public function getEntityName(): string
     {

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Profiling\Controller;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Doctrine\ConnectionProfiler;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Profiler\Profiler;
@@ -12,15 +13,16 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('core')]
 class ProfilerController
 {
     /**
      * @internal
      */
     public function __construct(
-        private Environment $twig,
-        private Profiler $profiler,
-        private Connection $connection
+        private readonly Environment $twig,
+        private readonly Profiler $profiler,
+        private readonly Connection $connection
     ) {
     }
 
@@ -40,7 +42,7 @@ class ProfilerController
 
         try {
             $collector = $profile->getCollector($panelName);
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException) {
             return new Response('This collector does not exist.');
         }
 
@@ -61,7 +63,7 @@ class ProfilerController
 
         try {
             $results = $this->explain($this->connection, $queryIndex);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             return new Response('This query cannot be explained.');
         }
 

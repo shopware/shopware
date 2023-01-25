@@ -3,12 +3,12 @@
 namespace Shopware\Core\System\TaxProvider\Aggregate\TaxProviderTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package checkout
- *
  * @extends EntityCollection<TaxProviderTranslationEntity>
  */
+#[Package('checkout')]
 class TaxProviderTranslationCollection extends EntityCollection
 {
     public function getApiAlias(): string

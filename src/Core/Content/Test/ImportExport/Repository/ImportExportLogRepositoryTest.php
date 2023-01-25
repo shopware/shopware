@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -17,9 +18,8 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExportLogRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -49,10 +49,7 @@ class ImportExportLogRepositoryTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -175,9 +172,7 @@ class ImportExportLogRepositoryTest extends TestCase
                 }
             }
 
-            $missingPropertyPaths = array_map(function ($property) {
-                return '/' . $property;
-            }, $requiredProperties);
+            $missingPropertyPaths = array_map(fn ($property) => '/' . $property, $requiredProperties);
 
             static::assertEquals($missingPropertyPaths, $foundViolations);
         }
@@ -262,6 +257,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
     public function testImportExportLogUpdatePartial(): void
     {
+        $upsertData = [];
         $origDate = $data = $this->prepareImportExportLogTestData();
         $item = array_pop($data);
         static::assertNotNull($item);

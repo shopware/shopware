@@ -7,18 +7,18 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class CustomEntityPersister
 {
-    public function __construct(private Connection $connection, private AdapterInterface $cache)
+    public function __construct(private readonly Connection $connection, private readonly AdapterInterface $cache)
     {
     }
 

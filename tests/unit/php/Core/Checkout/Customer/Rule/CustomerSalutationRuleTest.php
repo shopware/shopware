@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Checkout\Customer\Rule;
+namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -45,7 +45,7 @@ class CustomerSalutationRuleTest extends TestCase
         static::assertArrayHasKey('operator', $constraints, 'operator constraint not found');
 
         static::assertEquals(RuleConstraints::uuids(), $constraints['salutationIds']);
-        static::assertEquals(RuleConstraints::uuidOperators(true), $constraints['operator']);
+        static::assertEquals(RuleConstraints::uuidOperators(), $constraints['operator']);
     }
 
     /**

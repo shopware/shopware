@@ -4,11 +4,10 @@ namespace Shopware\Storefront\Page\LandingPage;
 
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-/**
- * @package content
- */
+#[Package('content')]
 class LandingPage extends Page
 {
     protected ?LandingPageEntity $landingPage = null;

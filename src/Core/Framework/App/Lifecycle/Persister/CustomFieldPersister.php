@@ -9,22 +9,16 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- *
- * @package core
  */
+#[Package('core')]
 class CustomFieldPersister
 {
-    /**
-     * @var EntityRepository
-     */
-    private $customFieldSetRepository;
-
-    public function __construct(EntityRepository $customFieldSetRepository)
+    public function __construct(private readonly EntityRepository $customFieldSetRepository)
     {
-        $this->customFieldSetRepository = $customFieldSetRepository;
     }
 
     /**
@@ -47,9 +41,7 @@ class CustomFieldPersister
         $ids = $this->customFieldSetRepository->searchIds($criteria, $context)->getIds();
 
         if (!empty($ids)) {
-            $ids = array_map(static function (string $id): array {
-                return ['id' => $id];
-            }, $ids);
+            $ids = array_map(static fn (string $id): array => ['id' => $id], $ids);
 
             $this->customFieldSetRepository->delete($ids, $context);
         }

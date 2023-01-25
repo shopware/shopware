@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Checkout\Document\Renderer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 final class RendererResult extends Struct
 {
     /**

@@ -18,13 +18,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('content')]
 class MediaFolderConfigurationDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'media_folder_configuration';
+    final public const ENTITY_NAME = 'media_folder_configuration';
 
     public function getEntityName(): string
     {

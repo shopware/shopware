@@ -5,12 +5,12 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductPriceEntity>
- *
- * @package inventory
  */
+#[Package('inventory')]
 class ProductPriceCollection extends EntityCollection
 {
     public function getApiAlias(): string
@@ -20,16 +20,12 @@ class ProductPriceCollection extends EntityCollection
 
     public function filterByRuleId(string $ruleId): self
     {
-        return $this->filter(function (ProductPriceEntity $price) use ($ruleId) {
-            return $ruleId === $price->getRuleId();
-        });
+        return $this->filter(fn (ProductPriceEntity $price) => $ruleId === $price->getRuleId());
     }
 
     public function sortByQuantity(): void
     {
-        $this->sort(function (ProductPriceEntity $a, ProductPriceEntity $b) {
-            return $a->getQuantityStart() <=> $b->getQuantityStart();
-        });
+        $this->sort(fn (ProductPriceEntity $a, ProductPriceEntity $b) => $a->getQuantityStart() <=> $b->getQuantityStart());
     }
 
     public function sortByPrice(Context $context): void

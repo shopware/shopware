@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\AffiliateTracking;
 
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
@@ -12,9 +13,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
- *
- * @package storefront
  */
+#[Package('storefront')]
 class AffiliateTrackingListener implements EventSubscriberInterface
 {
     final public const AFFILIATE_CODE_KEY = OrderService::AFFILIATE_CODE_KEY;

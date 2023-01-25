@@ -60,6 +60,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -69,9 +70,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExportTest extends AbstractImportExportTest
 {
     use SalesChannelApiTestBehaviour;
@@ -248,9 +248,7 @@ class ImportExportTest extends AbstractImportExportTest
         $csvColumns = explode(';', $firstLine);
 
         $sortedMappings = $profile['mapping'];
-        usort($sortedMappings, function ($firstMapping, $secondMapping) {
-            return $firstMapping['position'] - $secondMapping['position'];
-        });
+        usort($sortedMappings, fn ($firstMapping, $secondMapping) => $firstMapping['position'] - $secondMapping['position']);
 
         foreach ($sortedMappings as $index => $mapping) {
             static::assertSame(
@@ -860,9 +858,7 @@ class ImportExportTest extends AbstractImportExportTest
 
         $importExportService->method('getProgress')
             ->willReturnCallback(
-                static function () use ($logEntity) {
-                    return new Progress($logEntity->getId(), $logEntity->getState());
-                }
+                static fn () => new Progress($logEntity->getId(), $logEntity->getState())
             );
 
         $logEntity->setState(Progress::STATE_SUCCEEDED);

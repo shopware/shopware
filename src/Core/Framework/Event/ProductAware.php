@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Event;
 
-/**
- * @package business-ops
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('business-ops')]
 interface ProductAware extends FlowEventAware
 {
     public const PRODUCT = 'product';

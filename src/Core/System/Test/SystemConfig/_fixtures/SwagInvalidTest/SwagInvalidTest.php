@@ -6,5 +6,5 @@ use Shopware\Core\Framework\Plugin;
 
 class SwagInvalidTest extends Plugin
 {
-    public const PLUGIN_NAME = 'SwagInvalidTest';
+    final public const PLUGIN_NAME = 'SwagInvalidTest';
 }

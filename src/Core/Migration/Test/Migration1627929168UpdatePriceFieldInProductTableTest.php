@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,10 +20,9 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -38,7 +38,7 @@ class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase
 
         $this->previousSqlMode = $con->fetchOne('SELECT @@sql_mode');
 
-        $current = array_filter(explode(',', $this->previousSqlMode));
+        $current = array_filter(explode(',', (string) $this->previousSqlMode));
 
         if (!\in_array('STRICT_ALL_TABLES', $current, true)) {
             $current[] = 'STRICT_ALL_TABLES';

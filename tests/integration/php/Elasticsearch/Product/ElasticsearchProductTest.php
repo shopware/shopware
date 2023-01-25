@@ -494,9 +494,7 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
 
             static::assertCount(\count($expectedProducts), $products->getIds());
-            static::assertEquals(\array_map(function ($item) use ($data) {
-                return $data->get($item);
-            }, $expectedProducts), $products->getIds());
+            static::assertEquals(\array_map(fn ($item) => $data->get($item), $expectedProducts), $products->getIds());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -2282,10 +2280,7 @@ class ElasticsearchProductTest extends TestCase
             $searcher = $this->createEntitySearcher();
 
             foreach ($cases as $message => $case) {
-                $affected = array_merge(
-                    $ids->prefixed('p.'),
-                    $ids->prefixed('v.')
-                );
+                $affected = [...$ids->prefixed('p.'), ...$ids->prefixed('v.')];
                 $criteria = new Criteria(array_values($affected));
                 $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
@@ -2554,10 +2549,7 @@ class ElasticsearchProductTest extends TestCase
         $context = $this->context;
 
         try {
-            $affected = array_merge(
-                $ids->prefixed('p.'),
-                $ids->prefixed('v.')
-            );
+            $affected = [...$ids->prefixed('p.'), ...$ids->prefixed('v.')];
             $criteria = new Criteria(array_values($affected));
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new OrFilter([
@@ -2628,10 +2620,8 @@ class ElasticsearchProductTest extends TestCase
 
                 $result = $searcher->search($this->productDefinition, $criteria, $context->getContext());
 
-                static::assertCount(\count($case['ids']), $result->getIds(), sprintf('Case `%s` failed', $message));
-                static::assertEquals(array_map(function (string $id) use ($ids) {
-                    return $ids->get($id);
-                }, $case['ids']), $result->getIds(), sprintf('Case `%s` failed', $message));
+                static::assertCount(is_countable($case['ids']) ? \count($case['ids']) : 0, $result->getIds(), sprintf('Case `%s` failed', $message));
+                static::assertEquals(array_map(fn (string $id) => $ids->get($id), $case['ids']), $result->getIds(), sprintf('Case `%s` failed', $message));
             }
         } catch (\Exception $e) {
             static::tearDown();
@@ -3209,10 +3199,7 @@ class ElasticsearchProductTest extends TestCase
     private function assertSorting(string $message, IdsCollection $ids, SalesChannelContext $context, array $case, string $direction): void
     {
         $criteria = new Criteria(
-            array_merge(
-                $ids->prefixed('p.'),
-                $ids->prefixed('v.'),
-            )
+            [...$ids->prefixed('p.'), ...$ids->prefixed('v.')]
         );
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 

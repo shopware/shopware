@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -33,10 +34,9 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('customer-order')]
 class OrderRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -88,7 +88,7 @@ class OrderRepositoryTest extends TestCase
         $orderId = Uuid::randomHex();
         $defaultContext = Context::createDefaultContext();
         $orderData = $this->getOrderData($orderId, $defaultContext);
-        $orderData = \json_decode(\json_encode($orderData, \JSON_THROW_ON_ERROR), true);
+        $orderData = \json_decode(\json_encode($orderData, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         unset($orderData[0]['lineItems'][0]['price']['calculatedTaxes']);
 
@@ -96,7 +96,7 @@ class OrderRepositoryTest extends TestCase
 
         try {
             $this->orderRepository->create($orderData, $defaultContext);
-        } catch (WriteException $e) {
+        } catch (WriteException) {
             $wasThrown = true;
         }
 

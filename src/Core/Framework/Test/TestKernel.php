@@ -2,18 +2,18 @@
 
 namespace Shopware\Core\Framework\Test;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 /**
- * @package core
- *
  * @internal
  *
  * @method void configureContainer(ContainerBuilder $container, LoaderInterface $loader)
  */
+#[Package('core')]
 class TestKernel extends Kernel
 {
     /**

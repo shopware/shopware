@@ -5,27 +5,27 @@ namespace Shopware\Core\Content\Sitemap\ScheduledTask;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
 #[AsMessageHandler]
+#[Package('sales-channel')]
 final class SitemapMessageHandler
 {
     /**
      * @internal
      */
     public function __construct(
-        private AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        private SitemapExporterInterface $sitemapExporter,
-        private LoggerInterface $logger,
-        private  SystemConfigService $systemConfigService,
+        private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        private readonly SitemapExporterInterface $sitemapExporter,
+        private readonly LoggerInterface $logger,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 

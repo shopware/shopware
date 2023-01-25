@@ -11,15 +11,15 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package checkout
- *
  * @internal Only to be used by the Storefront
  */
+#[Package('checkout')]
 class BlockedShippingMethodSwitcher
 {
     public function __construct(private readonly AbstractShippingMethodRoute $shippingMethodRoute)

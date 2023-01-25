@@ -11,28 +11,18 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 
-/**
- * @package content
- */
+#[Package('content')]
 class CategoryBreadcrumbUpdater
 {
-    private Connection $connection;
-
-    private EntityRepository $categoryRepository;
-
-    private EntityRepository $languageRepository;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, EntityRepository $categoryRepository, EntityRepository $languageRepository)
+    public function __construct(private readonly Connection $connection, private readonly EntityRepository $categoryRepository, private readonly EntityRepository $languageRepository)
     {
-        $this->connection = $connection;
-        $this->categoryRepository = $categoryRepository;
-        $this->languageRepository = $languageRepository;
     }
 
     public function update(array $ids, Context $context): void
@@ -99,7 +89,7 @@ class CategoryBreadcrumbUpdater
         foreach ($ids as $id) {
             try {
                 $path = $this->buildBreadcrumb($id, $categories);
-            } catch (CategoryNotFoundException $e) {
+            } catch (CategoryNotFoundException) {
                 continue;
             }
 
@@ -107,7 +97,7 @@ class CategoryBreadcrumbUpdater
                 'categoryId' => Uuid::fromHexToBytes($id),
                 'versionId' => $versionId,
                 'languageId' => $languageId,
-                'breadcrumb' => json_encode($path),
+                'breadcrumb' => json_encode($path, \JSON_THROW_ON_ERROR),
             ]);
         }
     }

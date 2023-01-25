@@ -89,7 +89,7 @@ class OpenApi3Test extends TestCase
         static::assertIsString($validatorURL);
 
         $response = $client->post($validatorURL, [
-            'json' => json_decode($schema, true),
+            'json' => json_decode($schema, true, 512, \JSON_THROW_ON_ERROR),
             'headers' => [
                 'Accept' => 'application/json',
             ],

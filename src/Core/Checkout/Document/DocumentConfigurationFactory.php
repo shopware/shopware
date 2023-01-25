@@ -3,10 +3,9 @@
 namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class DocumentConfigurationFactory
 {
     private function __construct()
@@ -26,10 +25,7 @@ class DocumentConfigurationFactory
         return $documentConfiguration;
     }
 
-    /**
-     * @param DocumentBaseConfigEntity|DocumentConfiguration|array $additionalConfig
-     */
-    public static function mergeConfiguration(DocumentConfiguration $baseConfig, $additionalConfig): DocumentConfiguration
+    public static function mergeConfiguration(DocumentConfiguration $baseConfig, DocumentBaseConfigEntity|DocumentConfiguration|array $additionalConfig): DocumentConfiguration
     {
         $additionalConfigArray = [];
         if (\is_array($additionalConfig)) {
@@ -44,7 +40,7 @@ class DocumentConfigurationFactory
             if ($value !== null) {
                 if ($key === 'custom' && \is_array($value)) {
                     $baseConfig->__set('custom', array_merge((array) $baseConfig->__get('custom'), $value));
-                } elseif (strncmp($key, 'custom.', 7) === 0) {
+                } elseif (str_starts_with($key, 'custom.')) {
                     $customKey = mb_substr($key, 7);
                     $baseConfig->__set('custom', array_merge((array) $baseConfig->__get('custom'), [$customKey => $value]));
                 } else {

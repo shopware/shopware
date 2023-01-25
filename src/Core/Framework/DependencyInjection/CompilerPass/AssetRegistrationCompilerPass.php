@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @package core
- */
+#[Package('core')]
 class AssetRegistrationCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

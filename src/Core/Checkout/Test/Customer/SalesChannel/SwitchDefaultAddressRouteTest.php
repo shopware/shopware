@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -10,30 +11,20 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
- * @package customer-order
- *
  * @internal
  * @group store-api
  */
+#[Package('customer-order')]
 class SwitchDefaultAddressRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var string
-     */
-    private $newAddressId;
+    private string $newAddressId;
 
     protected function setUp(): void
     {
@@ -76,7 +67,7 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 []
             );
 
-        $oldBillingId = json_decode((string) $this->browser->getResponse()->getContent(), true)['defaultBillingAddressId'];
+        $oldBillingId = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['defaultBillingAddressId'];
         static::assertNotSame($oldBillingId, $this->newAddressId);
 
         $this->browser
@@ -93,7 +84,7 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 []
             );
 
-        $newBillingId = json_decode((string) $this->browser->getResponse()->getContent(), true)['defaultBillingAddressId'];
+        $newBillingId = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['defaultBillingAddressId'];
         static::assertSame($newBillingId, $this->newAddressId);
     }
 
@@ -106,7 +97,7 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 []
             );
 
-        $oldShippingId = json_decode((string) $this->browser->getResponse()->getContent(), true)['defaultShippingAddressId'];
+        $oldShippingId = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['defaultShippingAddressId'];
         static::assertNotSame($oldShippingId, $this->newAddressId);
 
         $this->browser
@@ -123,7 +114,7 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 []
             );
 
-        $newShippingId = json_decode((string) $this->browser->getResponse()->getContent(), true)['defaultShippingAddressId'];
+        $newShippingId = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['defaultShippingAddressId'];
         static::assertSame($newShippingId, $this->newAddressId);
     }
 
@@ -147,6 +138,6 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 $data
             );
 
-        return json_decode((string) $this->browser->getResponse()->getContent(), true)['id'];
+        return json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['id'];
     }
 }

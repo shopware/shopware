@@ -12,14 +12,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class DocumentBaseConfigSalesChannelDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'document_base_config_sales_channel';
+    final public const ENTITY_NAME = 'document_base_config_sales_channel';
 
     public function getEntityName(): string
     {

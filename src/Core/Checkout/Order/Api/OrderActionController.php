@@ -11,7 +11,7 @@ use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,44 +21,18 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"api"}})
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('customer-order')]
 class OrderActionController extends AbstractController
 {
-    private OrderService $orderService;
-
-    private ApiVersionConverter $apiVersionConverter;
-
-    private StateMachineDefinition $stateMachineDefinition;
-
-    private Connection $connection;
-
-    private PaymentRefundProcessor $paymentRefundProcessor;
-
     /**
      * @internal
      */
-    public function __construct(
-        OrderService $orderService,
-        ApiVersionConverter $apiVersionConverter,
-        StateMachineDefinition $stateMachineDefinition,
-        Connection $connection,
-        PaymentRefundProcessor $paymentRefundProcessor
-    ) {
-        $this->orderService = $orderService;
-        $this->apiVersionConverter = $apiVersionConverter;
-        $this->stateMachineDefinition = $stateMachineDefinition;
-        $this->connection = $connection;
-        $this->paymentRefundProcessor = $paymentRefundProcessor;
+    public function __construct(private readonly OrderService $orderService, private readonly ApiVersionConverter $apiVersionConverter, private readonly StateMachineDefinition $stateMachineDefinition, private readonly Connection $connection, private readonly PaymentRefundProcessor $paymentRefundProcessor)
+    {
     }
 
-    /**
-     * @Since("6.1.0.0")
-     * @Route("/api/_action/order/{orderId}/state/{transition}", name="api.action.order.state_machine.order.transition_state", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/order/{orderId}/state/{transition}', name: 'api.action.order.state_machine.order.transition_state', methods: ['POST'])]
     public function orderStateTransition(
         string $orderId,
         string $transition,
@@ -99,10 +73,7 @@ class OrderActionController extends AbstractController
         return new JsonResponse($response);
     }
 
-    /**
-     * @Since("6.1.0.0")
-     * @Route("/api/_action/order_transaction/{orderTransactionId}/state/{transition}", name="api.action.order.state_machine.order_transaction.transition_state", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/order_transaction/{orderTransactionId}/state/{transition}', name: 'api.action.order.state_machine.order_transaction.transition_state', methods: ['POST'])]
     public function orderTransactionStateTransition(
         string $orderTransactionId,
         string $transition,
@@ -143,10 +114,7 @@ class OrderActionController extends AbstractController
         return new JsonResponse($response);
     }
 
-    /**
-     * @Since("6.1.0.0")
-     * @Route("/api/_action/order_delivery/{orderDeliveryId}/state/{transition}", name="api.action.order.state_machine.order_delivery.transition_state", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/order_delivery/{orderDeliveryId}/state/{transition}', name: 'api.action.order.state_machine.order_delivery.transition_state', methods: ['POST'])]
     public function orderDeliveryStateTransition(
         string $orderDeliveryId,
         string $transition,
@@ -188,11 +156,9 @@ class OrderActionController extends AbstractController
     }
 
     /**
-     * @Since("6.4.12.0")
-     * @Route("/api/_action/order_transaction_capture_refund/{refundId}", name="api.action.order.order_transaction_capture_refund", methods={"POST"}, defaults={"_acl"={"order_refund.editor"}})
-     *
      * @throws RefundProcessException
      */
+    #[Route(path: '/api/_action/order_transaction_capture_refund/{refundId}', name: 'api.action.order.order_transaction_capture_refund', methods: ['POST'], defaults: ['_acl' => ['order_refund.editor']])]
     public function refundOrderTransactionCapture(string $refundId, Context $context): JsonResponse
     {
         $this->paymentRefundProcessor->processRefund($refundId, $context);

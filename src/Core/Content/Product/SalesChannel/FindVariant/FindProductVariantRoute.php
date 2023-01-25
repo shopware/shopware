@@ -5,29 +5,22 @@ namespace Shopware\Core\Content\Product\SalesChannel\FindVariant;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
- * @package inventory
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('inventory')]
 class FindProductVariantRoute extends AbstractFindProductVariantRoute
 {
-    private SalesChannelRepository $productRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        SalesChannelRepository $productRepository
-    ) {
-        $this->productRepository = $productRepository;
+    public function __construct(private readonly SalesChannelRepository $productRepository)
+    {
     }
 
     public function getDecorated(): AbstractFindProductVariantRoute
@@ -35,10 +28,7 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.4.14.0")
-     * @Route("/store-api/product/{productId}/find-variant", name="store-api.product.find-variant", methods={"POST"}, defaults={"_entity"="product"})
-     */
+    #[Route(path: '/store-api/product/{productId}/find-variant', name: 'store-api.product.find-variant', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $productId, Request $request, SalesChannelContext $context): FindProductVariantRouteResponse
     {
         /** @var string|null $switchedGroup */

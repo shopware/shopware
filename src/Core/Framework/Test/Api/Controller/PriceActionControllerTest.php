@@ -43,7 +43,7 @@ class PriceActionControllerTest extends TestCase
         $this->getBrowser()->request('POST', '/api/price/actions/calculate');
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -54,7 +54,7 @@ class PriceActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
 
-        $response = json_decode($response, true);
+        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -68,7 +68,7 @@ class PriceActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
 
-        $response = json_decode($response, true);
+        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -222,7 +222,7 @@ class PriceActionControllerTest extends TestCase
         $this->getBrowser()->request('POST', 'api/_action/calculate-prices');
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -233,7 +233,7 @@ class PriceActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
 
-        $response = json_decode($response, true);
+        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -252,7 +252,7 @@ class PriceActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
 
-        $response = json_decode($response, true);
+        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -450,7 +450,7 @@ class PriceActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
 
-        $response = json_decode($response, true);
+        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('data', $response);
 
@@ -460,13 +460,9 @@ class PriceActionControllerTest extends TestCase
             $data['unitPrice'],
             $data['totalPrice'],
             new CalculatedTaxCollection(
-                array_map(function ($row) {
-                    return new CalculatedTax($row['tax'], $row['taxRate'], $row['price']);
-                }, $data['calculatedTaxes'])
+                array_map(fn ($row) => new CalculatedTax($row['tax'], $row['taxRate'], $row['price']), $data['calculatedTaxes'])
             ),
-            new TaxRuleCollection(array_map(function ($row) {
-                return new TaxRule($row['taxRate'], $row['percentage']);
-            }, $data['taxRules'])),
+            new TaxRuleCollection(array_map(fn ($row) => new TaxRule($row['taxRate'], $row['percentage']), $data['taxRules'])),
             $data['quantity']
         );
     }
@@ -478,7 +474,7 @@ class PriceActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
 
-        $response = json_decode($response, true);
+        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('data', $response);
 
         $data = $response['data'];
@@ -493,13 +489,9 @@ class PriceActionControllerTest extends TestCase
             $data['unitPrice'],
             $data['totalPrice'],
             new CalculatedTaxCollection(
-                array_map(function ($row) {
-                    return new CalculatedTax($row['tax'], $row['taxRate'], $row['price']);
-                }, $data['calculatedTaxes'])
+                array_map(fn ($row) => new CalculatedTax($row['tax'], $row['taxRate'], $row['price']), $data['calculatedTaxes'])
             ),
-            new TaxRuleCollection(array_map(function ($row) {
-                return new TaxRule($row['taxRate'], $row['percentage']);
-            }, $data['taxRules'])),
+            new TaxRuleCollection(array_map(fn ($row) => new TaxRule($row['taxRate'], $row['percentage']), $data['taxRules'])),
             $data['quantity']
         );
     }

@@ -5,13 +5,13 @@ namespace Shopware\Core\Content\Test\Sitemap\Provider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Sitemap\Provider\CustomUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
+#[Package('sales-channel')]
 class CustomUrlProviderTest extends TestCase
 {
     public function testGetUrlsReturnsNoUrls(): void

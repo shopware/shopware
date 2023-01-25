@@ -251,7 +251,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $data = json_decode($body, true);
+        $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals('Max', $data['data']['payload']['customer']['firstName']);
         static::assertEquals('Mustermann', $data['data']['payload']['customer']['lastName']);
         static::assertArrayHasKey('timestamp', $data);

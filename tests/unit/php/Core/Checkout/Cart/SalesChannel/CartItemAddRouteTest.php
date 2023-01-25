@@ -92,9 +92,7 @@ class CartItemAddRouteTest extends TestCase
             ->expects(static::atLeastOnce())
             ->method('create')
             ->willReturnCallback(
-                function ($dataBag): LineItem {
-                    return new LineItem($dataBag['id'], $dataBag['type'], $dataBag['referencedId'] ?? null, $dataBag['quantity']);
-                }
+                fn ($dataBag): LineItem => new LineItem($dataBag['id'], $dataBag['type'], $dataBag['referencedId'] ?? null, $dataBag['quantity'])
             );
 
         return new CartItemAddRoute(

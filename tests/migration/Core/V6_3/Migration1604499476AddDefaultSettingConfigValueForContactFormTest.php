@@ -18,10 +18,8 @@ class Migration1604499476AddDefaultSettingConfigValueForContactFormTest extends 
      *           ["1"]
      *           [false]
      *           [" "]
-     *
-     * @param bool|int|string $configPresent
      */
-    public function testDoesNotOverwriteValuesWhenAlreadyConfigured($configPresent): void
+    public function testDoesNotOverwriteValuesWhenAlreadyConfigured(bool|int|string $configPresent): void
     {
         $migration = new Migration1604499476AddDefaultSettingConfigValueForContactForm();
         $abortCondition = $configPresent !== false;

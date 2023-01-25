@@ -7,22 +7,19 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class AddCustomerTagAction extends FlowAction implements DelayableAction
 {
-    private EntityRepository $customerRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $customerRepository)
+    public function __construct(private readonly EntityRepository $customerRepository)
     {
-        $this->customerRepository = $customerRepository;
     }
 
     public static function getName(): string
@@ -61,9 +58,7 @@ class AddCustomerTagAction extends FlowAction implements DelayableAction
             return;
         }
 
-        $tags = array_map(static function ($tagId) {
-            return ['id' => $tagId];
-        }, $tagIds);
+        $tags = array_map(static fn ($tagId) => ['id' => $tagId], $tagIds);
 
         $this->customerRepository->update([
             [

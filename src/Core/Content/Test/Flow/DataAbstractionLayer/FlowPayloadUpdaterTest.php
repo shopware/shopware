@@ -15,14 +15,14 @@ use Shopware\Core\Content\Flow\FlowEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class FlowPayloadUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;

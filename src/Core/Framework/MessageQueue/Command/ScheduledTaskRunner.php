@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\MessageQueue\Command;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -12,47 +13,28 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'scheduled-task:run',
     description: 'Runs scheduled tasks',
 )]
+#[Package('core')]
 class ScheduledTaskRunner extends Command
 {
-    /**
-     * @var TaskScheduler
-     */
-    private $scheduler;
-
-    /**
-     * @var bool
-     */
-    private $shouldStop = false;
-
-    /**
-     * @var CacheItemPoolInterface
-     */
-    private $restartSignalCachePool;
+    private bool $shouldStop = false;
 
     /**
      * @internal
      */
-    public function __construct(TaskScheduler $scheduler, CacheItemPoolInterface $restartSignalCachePool)
+    public function __construct(private readonly TaskScheduler $scheduler, private readonly CacheItemPoolInterface $restartSignalCachePool)
     {
         parent::__construct();
-
-        $this->scheduler = $scheduler;
-        $this->restartSignalCachePool = $restartSignalCachePool;
     }
 
     protected function configure(): void
     {
         $this
             ->addOption('memory-limit', 'm', InputOption::VALUE_REQUIRED, 'The memory limit the worker can consume')
-            ->addOption('time-limit', 't', InputOption::VALUE_REQUIRED, 'The time limit in seconds the worker can run')
-            ->setDescription('Worker that runs scheduled task.');
+            ->addOption('time-limit', 't', InputOption::VALUE_REQUIRED, 'The time limit in seconds the worker can run');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -100,7 +82,7 @@ class ScheduledTaskRunner extends Command
             }
         }
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 
     private function shouldRestart(float $workerStartedAt): bool

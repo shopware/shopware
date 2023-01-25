@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -27,26 +28,24 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class MailService extends AbstractMailService
 {
     /**
      * @internal
      */
     public function __construct(
-        private DataValidator $dataValidator,
-        private StringTemplateRenderer $templateRenderer,
-        private AbstractMailFactory $mailFactory,
-        private AbstractMailSender $mailSender,
-        private EntityRepository $mediaRepository,
-        private SalesChannelDefinition $salesChannelDefinition,
-        private EntityRepository $salesChannelRepository,
-        private SystemConfigService $systemConfigService,
-        private EventDispatcherInterface $eventDispatcher,
-        private UrlGeneratorInterface $urlGenerator,
-        private LoggerInterface $logger
+        private readonly DataValidator $dataValidator,
+        private readonly StringTemplateRenderer $templateRenderer,
+        private readonly AbstractMailFactory $mailFactory,
+        private readonly AbstractMailSender $mailSender,
+        private readonly EntityRepository $mediaRepository,
+        private readonly SalesChannelDefinition $salesChannelDefinition,
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly LoggerInterface $logger
     ) {
     }
 
@@ -206,7 +205,7 @@ class MailService extends AbstractMailService
     {
         $senderEmail = $data['senderEmail'] ?? null;
 
-        if ($senderEmail !== null && trim($senderEmail) !== '') {
+        if ($senderEmail !== null && trim((string) $senderEmail) !== '') {
             return $senderEmail;
         }
 

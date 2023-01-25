@@ -6,26 +6,22 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 class CategorySubscriber implements EventSubscriberInterface
 {
-    private SystemConfigService $systemConfigService;
-
     /**
      * @internal
      */
-    public function __construct(
-        SystemConfigService $systemConfigService
-    ) {
-        $this->systemConfigService = $systemConfigService;
+    public function __construct(private readonly SystemConfigService $systemConfigService)
+    {
     }
 
     public static function getSubscribedEvents(): array

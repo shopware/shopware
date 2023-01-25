@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxEntity;
@@ -24,9 +25,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
- *
- * @package inventory
  */
+#[Package('inventory')]
 class ProductGenerator implements DemodataGeneratorInterface
 {
     private SymfonyStyle $io;
@@ -37,10 +37,10 @@ class ProductGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        private Connection $connection,
-        private DefinitionInstanceRegistry $registry,
-        private InheritanceUpdater $updater,
-        private StatesUpdater $statesUpdater
+        private readonly Connection $connection,
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly InheritanceUpdater $updater,
+        private readonly StatesUpdater $statesUpdater
     ) {
     }
 
@@ -107,18 +107,16 @@ class ProductGenerator implements DemodataGeneratorInterface
             if ($mediaIds) {
                 $product['cover'] = ['mediaId' => Random::getRandomArrayElement($mediaIds)];
 
-                $product['media'] = array_map(function (string $id): array {
-                    return ['mediaId' => $id];
-                }, $this->faker->randomElements($mediaIds, random_int(2, 5)));
+                $product['media'] = array_map(fn (string $id): array => ['mediaId' => $id], $this->faker->randomElements($mediaIds, random_int(2, 5)));
             }
 
             $product['properties'] = $this->buildProperties($properties);
 
             if ($i % 40 === 0) {
                 $combination = $this->faker->randomElement($combinations);
-                $product = array_merge($product, $this->buildVariants($combination, $prices, $taxes));
+                $product = [...$product, ...$this->buildVariants($combination, $prices, $taxes)];
             } elseif ($i % 20 === 0) {
-                $product = array_merge($product, $this->buildDownloads($downloadMediaIds, $instantDeliveryId));
+                $product = [...$product, ...$this->buildDownloads($downloadMediaIds, $instantDeliveryId)];
             }
 
             $payload[] = $product;
@@ -149,7 +147,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         $mapped = [];
         // reduce permutation count
         foreach ($properties as $index => $values) {
-            $permutations = \count($values);
+            $permutations = is_countable($values) ? \count($values) : 0;
             if ($permutations > 4) {
                 $permutations = random_int(2, 4);
             }
@@ -196,19 +194,15 @@ class ProductGenerator implements DemodataGeneratorInterface
                 'active' => true,
                 'stock' => $this->faker->numberBetween(1, 50),
                 'prices' => $this->faker->randomElement($prices),
-                'options' => array_map(function ($id) {
-                    return ['id' => $id];
-                }, $options),
+                'options' => array_map(fn ($id) => ['id' => $id], $options),
             ];
 
-            $configurator = array_merge($configurator, array_values($options));
+            $configurator = [...$configurator, ...array_values($options)];
         }
 
         return [
             'children' => $variants,
-            'configuratorSettings' => array_map(function (string $id) {
-                return ['optionId' => $id];
-            }, array_filter(array_unique($configurator))),
+            'configuratorSettings' => array_map(fn (string $id) => ['optionId' => $id], array_filter(array_unique($configurator))),
         ];
     }
 
@@ -251,7 +245,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             if (!isset($product['children'])) {
                 continue;
             }
-            $all = array_merge($all, array_column($product['children'], 'id'));
+            $all = [...$all, ...array_column($product['children'], 'id')];
         }
 
         $this->updater->update(ProductDefinition::ENTITY_NAME, $all, $context);
@@ -358,9 +352,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(
-                    function ($id) {
-                        return ['id' => $id];
-                    },
+                    fn ($id) => ['id' => $id],
                     $chosenTags
                 );
             }
@@ -391,9 +383,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     {
         $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM sales_channel LIMIT 100');
 
-        return array_map(function ($id) {
-            return ['salesChannelId' => $id['id'], 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL];
-        }, $ids);
+        return array_map(fn ($id) => ['salesChannelId' => $id['id'], 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL], $ids);
     }
 
     /**
@@ -454,9 +444,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $productProperties = \array_slice($productProperties, 0, random_int(4, 10));
 
-        return array_map(function ($config) {
-            return ['id' => (string) $config];
-        }, $productProperties);
+        return array_map(fn ($config) => ['id' => (string) $config], $productProperties);
     }
 
     private function getInstantDeliveryId(): ?string

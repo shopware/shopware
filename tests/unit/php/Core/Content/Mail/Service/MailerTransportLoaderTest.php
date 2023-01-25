@@ -14,6 +14,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Transport\AbstractTransportFactory;
+use Symfony\Component\Mailer\Transport\NullTransport;
+use Symfony\Component\Mailer\Transport\NullTransportFactory;
 use Symfony\Component\Mailer\Transport\SendmailTransport;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
@@ -168,7 +170,7 @@ class MailerTransportLoaderTest extends TestCase
 
         $decorated = ReflectionHelper::getPropertyValue($mailer, 'decorated');
 
-        static::assertInstanceOf(Transport\NullTransport::class, $decorated);
+        static::assertInstanceOf(NullTransport::class, $decorated);
     }
 
     public function testLoadMultipleMailers(): void
@@ -208,7 +210,7 @@ class MailerTransportLoaderTest extends TestCase
         static::assertInstanceOf(MailerTransportDecorator::class, $fallbackMailer);
 
         $decorated = ReflectionHelper::getPropertyValue($fallbackMailer, 'decorated');
-        static::assertInstanceOf(Transport\NullTransport::class, $decorated);
+        static::assertInstanceOf(NullTransport::class, $decorated);
     }
 
     /**
@@ -218,7 +220,7 @@ class MailerTransportLoaderTest extends TestCase
     {
         return [
             'smtp' => new EsmtpTransportFactory(),
-            'null' => new Transport\NullTransportFactory(),
+            'null' => new NullTransportFactory(),
         ];
     }
 

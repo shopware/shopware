@@ -4,11 +4,10 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits;
 
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 trait LineItemGroupTestFixtureBehaviour
 {
     private function buildGroup(string $packagerKey, float $value, string $sorterKey, RuleCollection $rules): LineItemGroupDefinition

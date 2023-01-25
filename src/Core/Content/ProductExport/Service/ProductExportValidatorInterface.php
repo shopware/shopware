@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\ProductExport\Service;
 
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 interface ProductExportValidatorInterface
 {
     public function validate(ProductExportEntity $productExportEntity, string $productExportContent): array;

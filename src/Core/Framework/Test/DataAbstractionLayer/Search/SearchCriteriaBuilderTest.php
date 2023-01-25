@@ -37,10 +37,7 @@ class SearchCriteriaBuilderTest extends TestCase
      */
     private $manufacturerRepository;
 
-    /**
-     * @var string
-     */
-    private $url;
+    private string $url;
 
     protected function setUp(): void
     {
@@ -61,21 +58,21 @@ class SearchCriteriaBuilderTest extends TestCase
         // no count, equals to fetched entities
         $this->getBrowser()->request('GET', $this->url . '/product-manufacturer', ['total-count-mode' => Criteria::TOTAL_COUNT_MODE_NONE, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(5, $content['meta']['total'], print_r($content, true));
 
         // calculates all matching rows
         $this->getBrowser()->request('GET', $this->url . '/product-manufacturer', ['total-count-mode' => Criteria::TOTAL_COUNT_MODE_EXACT, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(35, $content['meta']['total']);
 
         // returns the count of 5 next pages plus 1 if there are more
         $this->getBrowser()->request('GET', $this->url . '/product-manufacturer', ['total-count-mode' => Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(31, $content['meta']['total']);
     }
@@ -99,7 +96,7 @@ class SearchCriteriaBuilderTest extends TestCase
             ]
         );
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('a', $content['data'][0]['attributes']['link'], print_r($content, true));
         static::assertEquals('b', $content['data'][1]['attributes']['link']);
@@ -122,7 +119,7 @@ class SearchCriteriaBuilderTest extends TestCase
             ]
         );
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('c', $content['data'][0]['attributes']['link']);
         static::assertEquals('b', $content['data'][1]['attributes']['link']);
@@ -148,7 +145,7 @@ class SearchCriteriaBuilderTest extends TestCase
             ]
         );
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode(), print_r($this->getBrowser()->getRequest()->getContent(), true));
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $expectedSort = [$manufacturer1, $manufacturer2, $manufacturer3];
         $actualSort = array_column($content['data'], 'id');
@@ -167,7 +164,7 @@ class SearchCriteriaBuilderTest extends TestCase
             ]
         );
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $expectedSort = [$manufacturer1, $manufacturer3, $manufacturer2];
         $actualSort = array_column($content['data'], 'id');
@@ -186,7 +183,7 @@ class SearchCriteriaBuilderTest extends TestCase
             ]
         );
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $expectedSort = [$manufacturer2, $manufacturer3, $manufacturer1];
         $actualSort = array_column($content['data'], 'id');
@@ -205,7 +202,7 @@ class SearchCriteriaBuilderTest extends TestCase
             ]
         );
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $expectedSort = [$manufacturer3, $manufacturer2, $manufacturer1];
         $actualSort = array_column($content['data'], 'id');
@@ -217,7 +214,7 @@ class SearchCriteriaBuilderTest extends TestCase
     {
         $this->getBrowser()->request('GET', $this->url . '/product', ['sort' => 'product.unknown']);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('Field "unknown" in entity "product" was not found.', $content['errors'][0]['detail']);
     }
@@ -226,7 +223,7 @@ class SearchCriteriaBuilderTest extends TestCase
     {
         $this->getBrowser()->request('GET', $this->url . '/product', ['sort' => '']);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('A value for the sort parameter is required.', $content['errors'][0]['detail']);
         static::assertEquals('/sort', $content['errors'][0]['source']['pointer']);
@@ -255,7 +252,7 @@ class SearchCriteriaBuilderTest extends TestCase
             ]
         );
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('c', $content['data'][0]['attributes']['link']);
         static::assertEquals('b', $content['data'][1]['attributes']['link']);
@@ -276,7 +273,7 @@ class SearchCriteriaBuilderTest extends TestCase
             ]
         );
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('a', $content['data'][0]['attributes']['link']);
         static::assertEquals('b', $content['data'][1]['attributes']['link']);
@@ -296,7 +293,7 @@ class SearchCriteriaBuilderTest extends TestCase
         $requestedPage = 2;
         $this->getBrowser()->request('GET', $this->url . '/product-manufacturer', ['page' => $requestedPage, 'limit' => $limit, 'filter' => ['product_manufacturer.link' => $link], 'sort' => 'product_manufacturer.id']);
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $expectedIds = \array_slice($ids, $limit * ($requestedPage - 1), $limit);
         $actualIds = array_column($content['data'], 'id');
@@ -314,7 +311,7 @@ class SearchCriteriaBuilderTest extends TestCase
         $requestedPage = 3;
         $this->getBrowser()->request('GET', $this->url . '/product-manufacturer', ['page' => $requestedPage, 'limit' => $limit, 'filter' => ['product_manufacturer.link' => $link], 'sort' => 'product_manufacturer.id']);
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $expectedIds = [];
         $actualIds = array_column($content['data'], 'id');
@@ -332,7 +329,7 @@ class SearchCriteriaBuilderTest extends TestCase
         $requestedPage = 3;
         $this->getBrowser()->request('GET', $this->url . '/product-manufacturer', ['page' => $requestedPage, 'limit' => $limit, 'filter' => ['product_manufacturer.link' => $link], 'sort' => 'product_manufacturer.id']);
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $expectedIds = \array_slice($ids, $limit * ($requestedPage - 1), $limit);
         $actualIds = array_column($content['data'], 'id');
@@ -344,7 +341,7 @@ class SearchCriteriaBuilderTest extends TestCase
     {
         $this->getBrowser()->request('GET', $this->url . '/product', ['page' => -1]);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('The page parameter must be a positive integer. Given: -1', $content['errors'][0]['detail']);
         static::assertEquals('/page', $content['errors'][0]['source']['pointer']);
@@ -357,7 +354,7 @@ class SearchCriteriaBuilderTest extends TestCase
     {
         $this->getBrowser()->request('GET', $this->url . '/product', ['page' => 'foo']);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('The page parameter must be a positive integer. Given: foo', $content['errors'][0]['detail']);
         static::assertEquals('/page', $content['errors'][0]['source']['pointer']);
@@ -367,7 +364,7 @@ class SearchCriteriaBuilderTest extends TestCase
     {
         $this->getBrowser()->request('GET', $this->url . '/product', ['page' => '']);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('The page parameter must be a positive integer. Given: (empty)', $content['errors'][0]['detail']);
         static::assertEquals('/page', $content['errors'][0]['source']['pointer']);
@@ -384,7 +381,7 @@ class SearchCriteriaBuilderTest extends TestCase
 
         $this->getBrowser()->request('GET', $this->url . '/product-manufacturer', ['limit' => 5, 'filter' => ['product_manufacturer.link' => 'testLimit'], 'sort' => 'product_manufacturer.id']);
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(5, $content['data']);
     }
@@ -397,7 +394,7 @@ class SearchCriteriaBuilderTest extends TestCase
 
         $this->getBrowser()->request('GET', $this->url . '/product-manufacturer', ['limit' => '5', 'filter' => ['product_manufacturer.link' => 'testLimitWithNumericString'], 'sort' => 'product_manufacturer.id']);
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(5, $content['data']);
     }
@@ -406,14 +403,14 @@ class SearchCriteriaBuilderTest extends TestCase
     {
         $this->getBrowser()->request('GET', $this->url . '/product', ['limit' => 0]);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('The limit parameter must be a positive integer greater or equals than 1. Given: 0', $content['errors'][0]['detail']);
         static::assertEquals('/limit', $content['errors'][0]['source']['pointer']);
 
         $this->getBrowser()->request('GET', $this->url . '/product', ['limit' => -1]);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('The limit parameter must be a positive integer greater or equals than 1. Given: -1', $content['errors'][0]['detail']);
         static::assertEquals('/limit', $content['errors'][0]['source']['pointer']);
@@ -423,7 +420,7 @@ class SearchCriteriaBuilderTest extends TestCase
     {
         $this->getBrowser()->request('GET', $this->url . '/product', ['limit' => 'foo']);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('The limit parameter must be a positive integer greater or equals than 1. Given: foo', $content['errors'][0]['detail']);
         static::assertEquals('/limit', $content['errors'][0]['source']['pointer']);
@@ -433,7 +430,7 @@ class SearchCriteriaBuilderTest extends TestCase
     {
         $this->getBrowser()->request('GET', $this->url . '/product', ['limit' => '']);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('The limit parameter must be a positive integer greater or equals than 1. Given: (empty)', $content['errors'][0]['detail']);
         static::assertEquals('/limit', $content['errors'][0]['source']['pointer']);
@@ -482,7 +479,7 @@ class SearchCriteriaBuilderTest extends TestCase
 
         $this->getBrowser()->request('GET', $this->url . '/product', $query);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(6, $content['errors'], print_r($content['errors'], true));
         static::assertEquals('/limit', $content['errors'][0]['source']['pointer']);

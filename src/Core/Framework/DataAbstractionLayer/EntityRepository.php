@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,45 +27,16 @@ use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package core
- *
  * @final
  */
+#[Package('core')]
 class EntityRepository
 {
-    private EntityReaderInterface $reader;
-
-    private EntitySearcherInterface $searcher;
-
-    private EntityAggregatorInterface $aggregator;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private VersionManager $versionManager;
-
-    private EntityDefinition $definition;
-
-    private EntityLoadedEventFactory $eventFactory;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityDefinition $definition,
-        EntityReaderInterface $reader,
-        VersionManager $versionManager,
-        EntitySearcherInterface $searcher,
-        EntityAggregatorInterface $aggregator,
-        EventDispatcherInterface $eventDispatcher,
-        EntityLoadedEventFactory $eventFactory
-    ) {
-        $this->reader = $reader;
-        $this->searcher = $searcher;
-        $this->aggregator = $aggregator;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->versionManager = $versionManager;
-        $this->definition = $definition;
-        $this->eventFactory = $eventFactory;
+    public function __construct(private readonly EntityDefinition $definition, private readonly EntityReaderInterface $reader, private readonly VersionManager $versionManager, private readonly EntitySearcherInterface $searcher, private readonly EntityAggregatorInterface $aggregator, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityLoadedEventFactory $eventFactory)
+    {
     }
 
     public function getDefinition(): EntityDefinition
@@ -78,9 +50,7 @@ class EntityRepository
             return $this->_search($criteria, $context);
         }
 
-        return Profiler::trace($criteria->getTitle(), function () use ($criteria, $context) {
-            return $this->_search($criteria, $context);
-        }, 'repository');
+        return Profiler::trace($criteria->getTitle(), fn () => $this->_search($criteria, $context), 'repository');
     }
 
     public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
@@ -199,7 +169,7 @@ class EntityRepository
     {
         ReplicaConnection::ensurePrimary();
 
-        $newId = $newId ?? Uuid::randomHex();
+        $newId ??= Uuid::randomHex();
         if (!Uuid::isValid($newId)) {
             throw new InvalidUuidException($newId);
         }

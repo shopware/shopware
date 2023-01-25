@@ -16,6 +16,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Elasticsearch\Admin\AdminSearcher;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -26,27 +27,23 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @package system-settings
- *
  * @internal
  */
 #[AsCommand(
     name: 'es:admin:test',
     description: 'Allows you to test the admin search index',
 )]
+#[Package('system-settings')]
 final class ElasticsearchAdminTestCommand extends Command
 {
-    private AdminSearcher $searcher;
-
     private SymfonyStyle $io;
 
     /**
      * @internal
      */
-    public function __construct(AdminSearcher $searcher)
+    public function __construct(private readonly AdminSearcher $searcher)
     {
         parent::__construct();
-        $this->searcher = $searcher;
     }
 
     /**

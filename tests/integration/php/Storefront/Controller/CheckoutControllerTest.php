@@ -304,9 +304,7 @@ class CheckoutControllerTest extends TestCase
 
         $crawler = new Crawler();
         $crawler->addHtmlContent($contentReturn);
-        $errorContent = implode('', $crawler->filterXPath('//div[@class="alert-content"]')->each(static function ($node) {
-            return $node->text();
-        }));
+        $errorContent = implode('', $crawler->filterXPath('//div[@class="alert-content"]')->each(static fn ($node) => $node->text()));
         foreach ($errorKeys as $errorKey) {
             static::assertStringContainsString($errorKey, $errorContent);
         }
@@ -955,7 +953,7 @@ class CheckoutControllerTest extends TestCase
             return;
         }
 
-        static::fail(\sprintf('Could not provoke error of type %s. Did you forget to implement it?', \get_class($error)));
+        static::fail(\sprintf('Could not provoke error of type %s. Did you forget to implement it?', $error::class));
     }
 
     private function createAvailabilityRule(string $salesChannelId): string

@@ -4,23 +4,16 @@ namespace Shopware\Core\Checkout\Promotion\Cart;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PromotionCartAddedInformationError extends Error
 {
     private const KEY = 'promotion-discount-added';
 
-    /**
-     * @var string
-     */
-    private $name;
+    private string $name;
 
-    /**
-     * @var string
-     */
-    private $discountLineItemId;
+    private readonly string $discountLineItemId;
 
     public function __construct(LineItem $discountLineItem)
     {

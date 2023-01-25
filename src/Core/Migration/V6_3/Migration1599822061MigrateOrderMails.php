@@ -6,14 +6,14 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1599822061MigrateOrderMails extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -31,7 +31,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
 
         $mapping = [];
         foreach ($events as $event) {
-            $config = json_decode($event['config'], true);
+            $config = json_decode((string) $event['config'], true, 512, \JSON_THROW_ON_ERROR);
             if (!isset($config['mail_template_type_id'])) {
                 continue;
             }
@@ -168,7 +168,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
 
                     // blue green deployment => mail send subscriber expects in blue state a type id without isset() condition
                     'mail_template_type_id' => Uuid::randomHex(),
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'event_name' => $mail['technical_name'],
                 // will be set to true, after feature flag removed
                 'active' => 1,
@@ -213,16 +213,14 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
         foreach ($events as $event) {
             $typeId = $event['typeId'];
 
-            $typeMails = array_filter($mails, static function ($mail) use ($typeId) {
-                return $mail['mail_template_type_id'] === $typeId;
-            });
+            $typeMails = array_filter($mails, static fn ($mail) => $mail['mail_template_type_id'] === $typeId);
 
             foreach ($typeMails as &$mail) {
                 $mail['technical_name'] = $event['event_name'];
             }
             unset($mail);
 
-            $exploded = array_merge($exploded, $typeMails);
+            $exploded = [...$exploded, ...$typeMails];
         }
 
         return $exploded;

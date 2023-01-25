@@ -5,6 +5,7 @@ namespace unit\php\Core\Framework\DependencyInjection\CompilerPass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
@@ -55,6 +56,6 @@ class RateLimiterCompilerPassTest extends TestCase
         /** @var Definition $rateLimiterDef */
         $rateLimiterDef = $registerLimiterFactoryCall[1];
 
-        static::assertEquals('Shopware\Core\System\SystemConfig\SystemConfigService', $rateLimiterDef->getArgument(2));
+        static::assertEquals(SystemConfigService::class, $rateLimiterDef->getArgument(2));
     }
 }

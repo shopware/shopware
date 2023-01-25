@@ -521,7 +521,7 @@ PHP_EOL;
             $this->eventDispatcher->removeSubscriber($subscriber);
         }
 
-        static::assertSame(trim($expectedCssOutput), trim($actual));
+        static::assertSame(trim($expectedCssOutput), trim((string) $actual));
     }
 
     public function testOutputsOnlyExpectedCssWhenUsingFeatureFlagFunction(): void
@@ -581,7 +581,7 @@ PHP_EOL;
             Context::createDefaultContext()
         );
 
-        static::assertSame(trim($expectedCssOutput), trim($actual));
+        static::assertSame(trim($expectedCssOutput), trim((string) $actual));
     }
 
     public function testVendorImportFiles(): void
@@ -626,7 +626,7 @@ PHP_EOL;
             Context::createDefaultContext()
         );
 
-        static::assertSame(trim($expectedCssOutput), trim($actual));
+        static::assertSame(trim($expectedCssOutput), trim((string) $actual));
     }
 
     /**

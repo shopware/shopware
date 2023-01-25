@@ -2,14 +2,15 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class EqualsFilter extends SingleFieldFilter
 {
-    public function __construct(private string $field, private string|bool|float|int|null $value)
+    public function __construct(private readonly string $field, private readonly string|bool|float|int|null $value)
     {
     }
 

@@ -23,13 +23,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class AppFlowActionDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'app_flow_action';
+    final public const ENTITY_NAME = 'app_flow_action';
 
     public function getEntityName(): string
     {

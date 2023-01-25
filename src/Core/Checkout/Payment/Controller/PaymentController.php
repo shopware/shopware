@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\ShopwareException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -23,38 +23,17 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PaymentController extends AbstractController
 {
-    private PaymentService $paymentService;
-
-    private OrderConverter $orderConverter;
-
-    private TokenFactoryInterfaceV2 $tokenFactoryInterfaceV2;
-
-    private EntityRepository $orderRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        PaymentService $paymentService,
-        OrderConverter $orderConverter,
-        TokenFactoryInterfaceV2 $tokenFactoryInterfaceV2,
-        EntityRepository $orderRepository
-    ) {
-        $this->paymentService = $paymentService;
-        $this->orderConverter = $orderConverter;
-        $this->tokenFactoryInterfaceV2 = $tokenFactoryInterfaceV2;
-        $this->orderRepository = $orderRepository;
+    public function __construct(private readonly PaymentService $paymentService, private readonly OrderConverter $orderConverter, private readonly TokenFactoryInterfaceV2 $tokenFactoryInterfaceV2, private readonly EntityRepository $orderRepository)
+    {
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/payment/finalize-transaction", name="payment.finalize.transaction", methods={"GET", "POST"})
-     */
+    #[Route(path: '/payment/finalize-transaction', name: 'payment.finalize.transaction', methods: ['GET', 'POST'])]
     public function finalizeTransaction(Request $request): Response
     {
         $paymentToken = $request->get('_sw_payment_token');

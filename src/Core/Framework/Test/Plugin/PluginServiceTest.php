@@ -38,15 +38,9 @@ class PluginServiceTest extends TestCase
      */
     private $pluginRepo;
 
-    /**
-     * @var PluginService
-     */
-    private $pluginService;
+    private PluginService $pluginService;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     private string $iso = 'nl-NL';
 
@@ -86,9 +80,7 @@ class PluginServiceTest extends TestCase
         static::assertInstanceOf(ExceptionCollection::class, $errors);
         static::assertTrue($errors->count() > 0);
 
-        $composerJsonException = $errors->filter(function (ShopwareHttpException $error) {
-            return $error instanceof PluginComposerJsonInvalidException;
-        });
+        $composerJsonException = $errors->filter(fn (ShopwareHttpException $error) => $error instanceof PluginComposerJsonInvalidException);
 
         static::assertNotEmpty($composerJsonException);
 
@@ -215,7 +207,7 @@ class PluginServiceTest extends TestCase
 
         static::assertNull($pluginCollection->filterByProperty('baseClass', $nonExistentPluginBaseClass)->first());
         /** @var PluginEntity $plugin */
-        $plugin = $pluginCollection->filterByProperty('baseClass', 'SwagTest\\SwagTest')->first();
+        $plugin = $pluginCollection->filterByProperty('baseClass', SwagTest::class)->first();
 
         $this->assertDefaultPlugin($plugin);
         static::assertNull($plugin->getUpgradeVersion());
@@ -226,9 +218,7 @@ class PluginServiceTest extends TestCase
         $errors = $this->pluginService->refreshPlugins($this->context, new NullIO());
         static::assertNotEmpty($errors);
 
-        $changeLogErrors = $errors->filter(function ($error) {
-            return $error instanceof PluginChangelogInvalidException;
-        });
+        $changeLogErrors = $errors->filter(fn ($error) => $error instanceof PluginChangelogInvalidException);
 
         static::assertCount(1, $changeLogErrors);
 
@@ -354,7 +344,7 @@ class PluginServiceTest extends TestCase
             $context = $this->context;
         }
 
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('baseClass', 'SwagTest\\SwagTest'));
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('baseClass', SwagTest::class));
 
         return $this->pluginRepo
             ->search($criteria, $context)
@@ -367,7 +357,7 @@ class PluginServiceTest extends TestCase
             $context = $this->context;
         }
 
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('baseClass', 'SwagTestNoDefaultLang\\SwagTestNoDefaultLang'));
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('baseClass', SwagTestNoDefaultLang::class));
 
         return $this->pluginRepo
             ->search($criteria, $context)

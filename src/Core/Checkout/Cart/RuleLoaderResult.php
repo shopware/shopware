@@ -3,26 +3,13 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class RuleLoaderResult
 {
-    /**
-     * @var Cart
-     */
-    private $cart;
-
-    /**
-     * @var RuleCollection
-     */
-    private $matchingRules;
-
-    public function __construct(Cart $cart, RuleCollection $rules)
+    public function __construct(private readonly Cart $cart, private readonly RuleCollection $matchingRules)
     {
-        $this->cart = $cart;
-        $this->matchingRules = $rules;
     }
 
     public function getCart(): Cart

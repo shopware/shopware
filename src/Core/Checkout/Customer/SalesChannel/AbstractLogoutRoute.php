@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * This route can be used to logout the current context token
- *
- * @package customer-order
  */
+#[Package('customer-order')]
 abstract class AbstractLogoutRoute
 {
     abstract public function getDecorated(): AbstractLogoutRoute;

@@ -31,7 +31,7 @@ class AppActionControllerTest extends TestCase
 
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
 
-        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('actions', $response);
@@ -47,7 +47,7 @@ class AppActionControllerTest extends TestCase
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
 
-        $result = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $result = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('actions', $result);
 
         $result = $result['actions'];
@@ -111,7 +111,7 @@ class AppActionControllerTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertNotFalse($body);
         static::assertJson($body);
-        $data = \json_decode($body, true);
+        $data = \json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
 
         $shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
 
@@ -168,7 +168,7 @@ class AppActionControllerTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertNotFalse($body);
         static::assertJson($body);
-        $data = \json_decode($body, true);
+        $data = \json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
 
         $expectedData = [
             'ids' => [],
@@ -239,7 +239,7 @@ class AppActionControllerTest extends TestCase
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
 
-        $result = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $result = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         // the query strings of the sources contain non-deterministic values like timestamps
         // they are validated in `\Swag\SaasConnect\Test\Core\Content\App\Action\ModuleLoaderTest::validateSources`
@@ -294,13 +294,13 @@ class AppActionControllerTest extends TestCase
         $result['modules'][0]['modules'][0]['source'] = preg_replace(
             '/\?.*/',
             '',
-            $result['modules'][0]['modules'][0]['source']
+            (string) $result['modules'][0]['modules'][0]['source']
         );
 
         $result['modules'][0]['mainModule']['source'] = preg_replace(
             '/\?.*/',
             '',
-            $result['modules'][0]['mainModule']['source']
+            (string) $result['modules'][0]['mainModule']['source']
         );
 
         return $result;

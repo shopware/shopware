@@ -151,10 +151,7 @@ class OrderPersisterTest extends TestCase
         return $customer;
     }
 
-    /**
-     * @return MockObject|SalesChannelContext
-     */
-    private function getSalesChannelContext()
+    private function getSalesChannelContext(): MockObject&SalesChannelContext
     {
         $customer = $this->getCustomer();
         $salesChannel = new SalesChannelEntity();

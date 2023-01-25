@@ -8,29 +8,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class AppTemplateIterator implements \IteratorAggregate
 {
     /**
-     * @var \IteratorAggregate
-     */
-    private $templateIterator;
-
-    /**
-     * @var EntityRepository
-     */
-    private $templateRepository;
-
-    /**
      * @internal
      */
-    public function __construct(\IteratorAggregate $templateIterator, EntityRepository $templateRepository)
+    public function __construct(private readonly \IteratorAggregate $templateIterator, private readonly EntityRepository $templateRepository)
     {
-        $this->templateIterator = $templateIterator;
-        $this->templateRepository = $templateRepository;
     }
 
     public function getIterator(): \Traversable

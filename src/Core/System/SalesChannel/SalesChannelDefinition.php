@@ -44,6 +44,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -59,14 +60,12 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesCha
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigDefinition;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SalesChannelDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'sales_channel';
-    public const CALCULATION_TYPE_VERTICAL = 'vertical';
-    public const CALCULATION_TYPE_HORIZONTAL = 'horizontal';
+    final public const ENTITY_NAME = 'sales_channel';
+    final public const CALCULATION_TYPE_VERTICAL = 'vertical';
+    final public const CALCULATION_TYPE_HORIZONTAL = 'horizontal';
 
     public function getEntityName(): string
     {

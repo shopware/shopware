@@ -5,12 +5,12 @@ namespace Shopware\Core\Content\Property\Aggregate\PropertyGroupOption;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<PropertyGroupOptionEntity>
- *
- * @package inventory
  */
+#[Package('inventory')]
 class PropertyGroupOptionCollection extends EntityCollection
 {
     /**
@@ -18,16 +18,12 @@ class PropertyGroupOptionCollection extends EntityCollection
      */
     public function getPropertyGroupIds(): array
     {
-        return $this->fmap(function (PropertyGroupOptionEntity $propertyGroupOption) {
-            return $propertyGroupOption->getGroupId();
-        });
+        return $this->fmap(fn (PropertyGroupOptionEntity $propertyGroupOption) => $propertyGroupOption->getGroupId());
     }
 
     public function filterByGroupId(string $id): self
     {
-        return $this->filter(function (PropertyGroupOptionEntity $propertyGroupOption) use ($id) {
-            return $propertyGroupOption->getGroupId() === $id;
-        });
+        return $this->filter(fn (PropertyGroupOptionEntity $propertyGroupOption) => $propertyGroupOption->getGroupId() === $id);
     }
 
     /**
@@ -35,24 +31,18 @@ class PropertyGroupOptionCollection extends EntityCollection
      */
     public function getMediaIds(): array
     {
-        return $this->fmap(function (PropertyGroupOptionEntity $propertyGroupOption) {
-            return $propertyGroupOption->getMediaId();
-        });
+        return $this->fmap(fn (PropertyGroupOptionEntity $propertyGroupOption) => $propertyGroupOption->getMediaId());
     }
 
     public function filterByMediaId(string $id): self
     {
-        return $this->filter(function (PropertyGroupOptionEntity $propertyGroupOption) use ($id) {
-            return $propertyGroupOption->getMediaId() === $id;
-        });
+        return $this->filter(fn (PropertyGroupOptionEntity $propertyGroupOption) => $propertyGroupOption->getMediaId() === $id);
     }
 
     public function getGroups(): PropertyGroupCollection
     {
         return new PropertyGroupCollection(
-            $this->fmap(function (PropertyGroupOptionEntity $propertyGroupOption) {
-                return $propertyGroupOption->getGroup();
-            })
+            $this->fmap(fn (PropertyGroupOptionEntity $propertyGroupOption) => $propertyGroupOption->getGroup())
         );
     }
 

@@ -16,14 +16,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 use Shopware\Core\System\TaxProvider\TaxProviderEntity;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class TaxProviderProcessor
 {
     /**

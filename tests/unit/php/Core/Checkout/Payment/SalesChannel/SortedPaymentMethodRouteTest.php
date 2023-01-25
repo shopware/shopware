@@ -34,15 +34,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class SortedPaymentMethodRouteTest extends TestCase
 {
-    /**
-     * @var AbstractPaymentMethodRoute&MockObject
-     */
-    private $decorated;
+    private MockObject&AbstractPaymentMethodRoute $decorated;
 
-    /**
-     * @var ScriptExecutor&MockObject
-     */
-    private $executor;
+    private MockObject&ScriptExecutor $executor;
 
     private SortedPaymentMethodRoute $sortedRoute;
 
@@ -94,11 +88,9 @@ class SortedPaymentMethodRouteTest extends TestCase
             ->method('load')
             ->willReturn($this->response);
 
-        $this->executor->method('execute')->with(static::callback(function (PaymentMethodRouteHook $hook) {
-            return $hook->getCollection() === $this->response->getPaymentMethods()
-                && $hook->getSalesChannelContext() === $this->context
-                && $hook->isOnlyAvailable();
-        }));
+        $this->executor->method('execute')->with(static::callback(fn (PaymentMethodRouteHook $hook) => $hook->getCollection() === $this->response->getPaymentMethods()
+            && $hook->getSalesChannelContext() === $this->context
+            && $hook->isOnlyAvailable()));
 
         $response = $this->sortedRoute->load(new Request(['onlyAvailable' => true]), $this->context, new Criteria());
         static::assertCount(1, $response->getPaymentMethods());

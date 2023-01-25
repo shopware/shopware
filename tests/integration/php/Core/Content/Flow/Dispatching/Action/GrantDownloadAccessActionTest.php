@@ -198,8 +198,8 @@ class GrantDownloadAccessActionTest extends TestCase
         }
 
         $event->getDataBag()->add([
-            'contentHtml' => str_replace('frontend.account.order.single.download', 'store-api.account.order.single.download', $event->getDataBag()->get('contentHtml')),
-            'contentPlain' => str_replace('frontend.account.order.single.download', 'store-api.account.order.single.download', $event->getDataBag()->get('contentPlain')),
+            'contentHtml' => str_replace('frontend.account.order.single.download', 'store-api.account.order.single.download', (string) $event->getDataBag()->get('contentHtml')),
+            'contentPlain' => str_replace('frontend.account.order.single.download', 'store-api.account.order.single.download', (string) $event->getDataBag()->get('contentPlain')),
         ]);
 
         return $event;
@@ -226,7 +226,7 @@ class GrantDownloadAccessActionTest extends TestCase
      */
     private function placeOrder(?array $productDownloads = null): string
     {
-        $productDownloads = $productDownloads ?? [[]];
+        $productDownloads ??= [[]];
 
         $cart = $this->cartService->createNew($this->salesChannelContext->getToken());
         $cart = $this->addProducts($cart, $productDownloads);

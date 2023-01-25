@@ -4,10 +4,9 @@ declare(strict_types=1);
 namespace Shopware\Core\Content\Product\Cart;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductStockReachedError extends Error
 {
     /**
@@ -25,9 +24,7 @@ class ProductStockReachedError extends Error
      */
     protected $quantity;
 
-    protected bool $resolved;
-
-    public function __construct(string $id, string $name, int $quantity, bool $resolved = true)
+    public function __construct(string $id, string $name, int $quantity, protected bool $resolved = true)
     {
         $this->id = $id;
 
@@ -40,7 +37,6 @@ class ProductStockReachedError extends Error
         parent::__construct($this->message);
         $this->name = $name;
         $this->quantity = $quantity;
-        $this->resolved = $resolved;
     }
 
     public function getParameters(): array

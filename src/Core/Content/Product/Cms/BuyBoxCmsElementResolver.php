@@ -15,26 +15,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
-    private ProductConfiguratorLoader $configuratorLoader;
-
-    private EntityRepository $repository;
-
     /**
      * @internal
      */
-    public function __construct(
-        ProductConfiguratorLoader $configuratorLoader,
-        EntityRepository $repository
-    ) {
-        $this->configuratorLoader = $configuratorLoader;
-        $this->repository = $repository;
+    public function __construct(private readonly ProductConfiguratorLoader $configuratorLoader, private readonly EntityRepository $repository)
+    {
     }
 
     public function getType(): string
@@ -82,6 +73,7 @@ class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
 
     private function createReviewCriteria(SalesChannelContext $context, string $productId): Criteria
     {
+        $reviewFilters = [];
         $criteria = new Criteria();
 
         $reviewFilters[] = new EqualsFilter('status', true);

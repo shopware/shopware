@@ -44,25 +44,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class RuleAreaUpdaterTest extends TestCase
 {
-    /**
-     * @var MockObject|Connection
-     */
-    private $connection;
+    private Connection&MockObject $connection;
 
-    /**
-     * @var RuleDefinition
-     */
-    private $definition;
+    private RuleDefinition $definition;
 
-    /**
-     * @var MockObject|RuleConditionRegistry
-     */
-    private $conditionRegistry;
-
-    /**
-     * @var MockObject|CacheInvalidator
-     */
-    private $cacheInvalidator;
+    private MockObject&RuleConditionRegistry $conditionRegistry;
 
     private RuleAreaUpdater $areaUpdater;
 
@@ -87,12 +73,12 @@ class RuleAreaUpdaterTest extends TestCase
         $entityDefinition = $registry->getByEntityName('rule');
         $this->definition = $entityDefinition;
 
-        $this->cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $this->areaUpdater = new RuleAreaUpdater(
             $this->connection,
             $this->definition,
             $this->conditionRegistry,
-            $this->cacheInvalidator
+            $cacheInvalidator
         );
     }
 

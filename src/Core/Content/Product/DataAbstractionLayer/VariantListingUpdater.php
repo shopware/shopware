@@ -6,21 +6,17 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package core
- */
+#[Package('core')]
 class VariantListingUpdater
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -144,7 +140,7 @@ class VariantListingUpdater
 
         $listingConfiguration = [];
         foreach ($configuration as $config) {
-            $config['config'] = $config['config'] === null ? [] : json_decode($config['config'], true);
+            $config['config'] = $config['config'] === null ? [] : json_decode((string) $config['config'], true, 512, \JSON_THROW_ON_ERROR);
 
             $groups = [];
             foreach ($config['config'] as $group) {

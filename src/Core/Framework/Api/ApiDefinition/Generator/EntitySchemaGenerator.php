@@ -47,16 +47,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Schema\DynamicEntityDefinition;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 {
-    public const FORMAT = 'entity-schema';
+    final public const FORMAT = 'entity-schema';
 
     public function supports(string $format, string $api): bool
     {
@@ -307,7 +307,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 return ['type' => 'boolean', 'flags' => $flags];
 
             default:
-                return ['type' => \get_class($field), 'flags' => $flags];
+                return ['type' => $field::class, 'flags' => $flags];
         }
     }
 

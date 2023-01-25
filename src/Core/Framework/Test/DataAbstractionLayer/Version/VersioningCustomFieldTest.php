@@ -26,10 +26,7 @@ class VersioningCustomFieldTest extends TestCase
      */
     private $orderRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {

@@ -8,51 +8,28 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\Exception\ContextRulesLockedException;
 
-/**
- * @package core
- */
+#[Package('core')]
 class Context extends Struct
 {
     use StateAwareTrait;
 
-    public const SYSTEM_SCOPE = 'system';
-    public const USER_SCOPE = 'user';
-    public const CRUD_API_SCOPE = 'crud';
+    final public const SYSTEM_SCOPE = 'system';
+    final public const USER_SCOPE = 'user';
+    final public const CRUD_API_SCOPE = 'crud';
 
-    public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
+    final public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
 
     /**
      * @var non-empty-array<string>
      */
     protected array $languageIdChain;
 
-    protected string $versionId;
-
-    protected string $currencyId;
-
-    protected float $currencyFactor;
-
     protected string $scope = self::USER_SCOPE;
-
-    /**
-     * @var array<string>
-     */
-    protected array $ruleIds;
-
-    protected ContextSource $source;
-
-    protected bool $considerInheritance;
-
-    /**
-     * @see CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_FREE
-     */
-    protected string $taxState = CartPrice::TAX_STATE_GROSS;
-
-    protected CashRoundingConfig $rounding;
 
     protected bool $rulesLocked = false;
 
@@ -61,27 +38,22 @@ class Context extends Struct
      * @param array<string> $ruleIds
      */
     public function __construct(
-        ContextSource $source,
-        array $ruleIds = [],
-        string $currencyId = Defaults::CURRENCY,
+        protected ContextSource $source,
+        protected array $ruleIds = [],
+        protected string $currencyId = Defaults::CURRENCY,
         array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
-        string $versionId = Defaults::LIVE_VERSION,
-        float $currencyFactor = 1.0,
-        bool $considerInheritance = false,
-        string $taxState = CartPrice::TAX_STATE_GROSS,
-        ?CashRoundingConfig $rounding = null
+        protected string $versionId = Defaults::LIVE_VERSION,
+        protected float $currencyFactor = 1.0,
+        protected bool $considerInheritance = false,
+        /**
+         * @see CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_FREE
+         */
+        protected string $taxState = CartPrice::TAX_STATE_GROSS,
+        protected CashRoundingConfig $rounding = new CashRoundingConfig(2, 0.01, true)
     ) {
-        $this->source = $source;
-
         if ($source instanceof SystemSource) {
             $this->scope = self::SYSTEM_SCOPE;
         }
-
-        $this->ruleIds = $ruleIds;
-        $this->currencyId = $currencyId;
-
-        $this->versionId = $versionId;
-        $this->currencyFactor = $currencyFactor;
 
         if (empty($languageIdChain)) {
             throw new \InvalidArgumentException('Argument languageIdChain must not be empty');
@@ -90,9 +62,6 @@ class Context extends Struct
         /** @var non-empty-array<string> $chain */
         $chain = array_keys(array_flip(array_filter($languageIdChain)));
         $this->languageIdChain = $chain;
-        $this->considerInheritance = $considerInheritance;
-        $this->taxState = $taxState;
-        $this->rounding = $rounding ?? new CashRoundingConfig(2, 0.01, true);
     }
 
     /**
@@ -100,7 +69,7 @@ class Context extends Struct
      */
     public static function createDefaultContext(?ContextSource $source = null): self
     {
-        $source = $source ?? new SystemSource();
+        $source ??= new SystemSource();
 
         return new self($source);
     }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Customer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -10,24 +11,20 @@ use Shopware\Core\Test\TestBuilderTrait;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package customer-order
- *
  * @internal
  * How to use:
- *
  * $x = (new CustomerBuilder(new IdsCollection(), 'p1'))
  *          ->firstName('Max')
  *          ->lastName('Muster')
  *          ->group('standard')
  *          ->build();
  */
+#[Package('customer-order')]
 class CustomerBuilder
 {
     use TestBuilderTrait;
 
     public string $id;
-
-    protected string $customerNumber;
 
     protected string $firstName;
 
@@ -45,8 +42,6 @@ class CustomerBuilder
 
     protected string $defaultPaymentMethodId;
 
-    protected string $salesChannelId;
-
     protected array $addresses = [];
 
     protected array $group = [];
@@ -57,19 +52,17 @@ class CustomerBuilder
 
     public function __construct(
         IdsCollection $ids,
-        string $customerNumber,
-        string $salesChannelId = TestDefaults::SALES_CHANNEL,
+        protected string $customerNumber,
+        protected string $salesChannelId = TestDefaults::SALES_CHANNEL,
         string $customerGroup = 'customer-group',
         string $billingAddress = 'default-address',
         string $shippingAddress = 'default-address'
     ) {
         $this->ids = $ids;
-        $this->customerNumber = $customerNumber;
         $this->id = $ids->create($customerNumber);
         $this->firstName = 'Max';
         $this->lastName = 'Mustermann';
         $this->email = 'max@mustermann.com';
-        $this->salesChannelId = $salesChannelId;
         $this->salutation = self::salutation($ids);
 
         $this->customerGroup($customerGroup);

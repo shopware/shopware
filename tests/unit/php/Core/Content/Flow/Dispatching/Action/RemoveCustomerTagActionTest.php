@@ -19,17 +19,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class RemoveCustomerTagActionTest extends TestCase
 {
-    /**
-     * @var MockObject|EntityRepository
-     */
-    private $repository;
+    private MockObject&EntityRepository $repository;
 
     private RemoveCustomerTagAction $action;
 
-    /**
-     * @var MockObject|StorableFlow
-     */
-    private $flow;
+    private MockObject&StorableFlow $flow;
 
     public function setUp(): void
     {
@@ -65,12 +59,10 @@ class RemoveCustomerTagActionTest extends TestCase
         $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
 
         $customerId = $this->flow->getStore(CustomerAware::CUSTOMER_ID);
-        $withData = array_map(function ($id) use ($customerId) {
-            return [
-                'customerId' => $customerId,
-                'tagId' => $id['id'],
-            ];
-        }, $expected);
+        $withData = array_map(fn ($id) => [
+            'customerId' => $customerId,
+            'tagId' => $id['id'],
+        ], $expected);
 
         $this->repository->expects(static::once())
             ->method('delete')

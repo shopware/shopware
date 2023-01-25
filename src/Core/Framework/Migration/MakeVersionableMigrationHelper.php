@@ -6,10 +6,9 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class MakeVersionableMigrationHelper
 {
     private const DROP_FOREIGN_KEY = 'ALTER TABLE `%s` DROP FOREIGN KEY `%s`';
@@ -34,17 +33,14 @@ WHERE
     AND REFERENCED_TABLE_NAME = '%s';
 EOD;
 
-    private Connection $connection;
-
     /**
      * @var AbstractSchemaManager<MySQLPlatform>
      */
-    private AbstractSchemaManager $schemaManager;
+    private readonly AbstractSchemaManager $schemaManager;
 
     public function __construct(
-        Connection $connection
+        private readonly Connection $connection
     ) {
-        $this->connection = $connection;
         $this->schemaManager = $connection->createSchemaManager();
     }
 
@@ -113,7 +109,7 @@ EOD;
     {
         $playbook = [];
         foreach ($keyStructures as $keyStructure) {
-            if (\count($keyStructure['REFERENCED_COLUMN_NAME']) < 2) {
+            if ((is_countable($keyStructure['REFERENCED_COLUMN_NAME']) ? \count($keyStructure['REFERENCED_COLUMN_NAME']) : 0) < 2) {
                 continue;
             }
 
@@ -129,9 +125,7 @@ EOD;
 
     private function implodeColumns(array $columns): string
     {
-        return implode(',', array_map(function (string $column): string {
-            return '`' . $column . '`';
-        }, $columns));
+        return implode(',', array_map(fn (string $column): string => '`' . $column . '`', $columns));
     }
 
     private function isEqualForeignKey(ForeignKeyConstraint $constraint, string $foreignTable, array $foreignFieldNames): bool
@@ -177,9 +171,7 @@ EOD;
 
     private function filterHydrateForeignKeyData(array $hydratedData, string $keyColumnName): array
     {
-        $hydratedData = array_filter($hydratedData, function (array $entry) use ($keyColumnName): bool {
-            return \in_array($keyColumnName, $entry['REFERENCED_COLUMN_NAME'], true);
-        });
+        $hydratedData = array_filter($hydratedData, fn (array $entry): bool => \in_array($keyColumnName, $entry['REFERENCED_COLUMN_NAME'], true));
 
         return $hydratedData;
     }

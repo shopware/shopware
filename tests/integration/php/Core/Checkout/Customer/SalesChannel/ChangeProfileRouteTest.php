@@ -29,25 +29,16 @@ class ChangeProfileRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     /**
      * @var EntityRepository
      */
     private $customerRepository;
 
-    /**
-     * @var string
-     */
-    private $customerId;
+    private string $customerId;
 
     protected function setUp(): void
     {
@@ -93,7 +84,7 @@ class ChangeProfileRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
 
@@ -115,12 +106,12 @@ class ChangeProfileRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($response['success']);
 
         $this->browser->request('GET', '/store-api/account/customer');
-        $customer = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $customer = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('Max', $customer['firstName']);
         static::assertSame('Mustermann', $customer['lastName']);
@@ -146,7 +137,7 @@ class ChangeProfileRouteTest extends TestCase
                 $changeData
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($response['success']);
 
@@ -179,7 +170,7 @@ class ChangeProfileRouteTest extends TestCase
                 $changeData
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($response['success']);
 
@@ -341,7 +332,7 @@ class ChangeProfileRouteTest extends TestCase
                 $changeData
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if (!$shouldBeValid) {
             static::assertArrayHasKey('errors', $response);
@@ -383,7 +374,7 @@ class ChangeProfileRouteTest extends TestCase
             $changeData
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($response['success']);
 
@@ -407,7 +398,7 @@ class ChangeProfileRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $this->browser
             ->request(

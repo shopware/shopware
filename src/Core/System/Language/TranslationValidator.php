@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\CascadeDeleteComm
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -17,13 +18,12 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class TranslationValidator implements EventSubscriberInterface
 {
-    public const VIOLATION_DELETE_SYSTEM_TRANSLATION = 'delete-system-translation-violation';
+    final public const VIOLATION_DELETE_SYSTEM_TRANSLATION = 'delete-system-translation-violation';
 
     public static function getSubscribedEvents(): array
     {

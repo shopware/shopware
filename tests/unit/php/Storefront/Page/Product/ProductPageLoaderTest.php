@@ -45,7 +45,7 @@ class ProductPageLoaderTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $request = new Request([], [], ['productId' => $productId]);
-        $salesChannelContext = $this->getSalesChannelContext('salesChannelId');
+        $salesChannelContext = $this->getSalesChannelContext();
         $reviews = $this->getCmsSlotConfig();
 
         $productPageLoader = $this->getProductPageLoaderWithProduct($productId, $reviews, $request, $salesChannelContext);
@@ -55,7 +55,7 @@ class ProductPageLoaderTest extends TestCase
         /** @phpstan-ignore-next-line $slot */
         $slot = $page->getCmsPage()->getSections()->first()->getBlocks()->first()->getSlots()->first()->getSlot();
 
-        static::assertEquals($reviews, json_decode($slot, true));
+        static::assertEquals($reviews, json_decode((string) $slot, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     /**
@@ -104,10 +104,10 @@ class ProductPageLoaderTest extends TestCase
         return $product;
     }
 
-    private function getSalesChannelContext(string $salesChanelId): SalesChannelContext
+    private function getSalesChannelContext(): SalesChannelContext
     {
         $salesChannelEntity = new SalesChannelEntity();
-        $salesChannelEntity->setId($salesChanelId);
+        $salesChannelEntity->setId('salesChannelId');
 
         return new SalesChannelContext(
             Context::createDefaultContext(),

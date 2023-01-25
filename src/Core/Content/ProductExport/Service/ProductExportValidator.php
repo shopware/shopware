@@ -5,23 +5,18 @@ namespace Shopware\Core\Content\ProductExport\Service;
 use Shopware\Core\Content\ProductExport\Error\ErrorCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Validator\ValidatorInterface;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class ProductExportValidator implements ProductExportValidatorInterface
 {
     /**
-     * @var ValidatorInterface[]
-     */
-    private $validators;
-
-    /**
      * @internal
+     *
+     * @param ValidatorInterface[] $validators
      */
-    public function __construct(iterable $validators)
+    public function __construct(private readonly iterable $validators)
     {
-        $this->validators = $validators;
     }
 
     public function validate(ProductExportEntity $productExportEntity, string $productExportContent): array

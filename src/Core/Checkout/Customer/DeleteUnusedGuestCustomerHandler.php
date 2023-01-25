@@ -4,15 +4,15 @@ namespace Shopware\Core\Checkout\Customer;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package customer-order
- *
  * @internal
  */
 #[AsMessageHandler(handles: DeleteUnusedGuestCustomerTask::class)]
+#[Package('customer-order')]
 final class DeleteUnusedGuestCustomerHandler extends ScheduledTaskHandler
 {
     /**
@@ -20,7 +20,7 @@ final class DeleteUnusedGuestCustomerHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        private DeleteUnusedGuestCustomerService $unusedGuestCustomerService
+        private readonly DeleteUnusedGuestCustomerService $unusedGuestCustomerService
     ) {
         parent::__construct($scheduledTaskRepository);
     }

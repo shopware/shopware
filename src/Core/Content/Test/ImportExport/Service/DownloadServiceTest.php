@@ -8,14 +8,14 @@ use Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException
 use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class DownloadServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -9,26 +9,25 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class MailErrorEvent extends Event implements LogAware, FlowEventAware, NameAware
 {
-    public const NAME = 'mail.sent.error';
+    final public const NAME = 'mail.sent.error';
 
     /**
      * @param 100|200|250|300|400|500|550|600|null $logLevel
      * @param array<string, mixed> $templateData
      */
     public function __construct(
-        private Context $context,
-        private ?int $logLevel = Logger::DEBUG,
-        private ?\Throwable $throwable = null,
-        private ?string $message = null,
-        private ?string $template = null,
-        private ?array $templateData = []
+        private readonly Context $context,
+        private readonly ?int $logLevel = Logger::DEBUG,
+        private readonly ?\Throwable $throwable = null,
+        private readonly ?string $message = null,
+        private readonly ?string $template = null,
+        private readonly ?array $templateData = []
     ) {
     }
 

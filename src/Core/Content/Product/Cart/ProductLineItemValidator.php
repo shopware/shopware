@@ -6,18 +6,15 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class ProductLineItemValidator implements CartValidatorInterface
 {
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void
     {
-        $productLineItems = array_filter($cart->getLineItems()->getFlat(), static function (LineItem $lineItem) {
-            return $lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE;
-        });
+        $productLineItems = array_filter($cart->getLineItems()->getFlat(), static fn (LineItem $lineItem) => $lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE);
 
         $quantities = [];
         $refs = [];

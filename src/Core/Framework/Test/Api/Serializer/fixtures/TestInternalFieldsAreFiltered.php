@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 
@@ -14,7 +16,7 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
  */
 class TestInternalFieldsAreFiltered extends SerializationFixture
 {
-    public function getInput()
+    public function getInput(): EntityCollection|Entity
     {
         $ruleCollection = new RuleCollection();
 

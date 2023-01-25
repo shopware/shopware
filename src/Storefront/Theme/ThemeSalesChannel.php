@@ -2,11 +2,10 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeSalesChannel extends Struct
 {
     public function __construct(protected string $themeId, protected string $salesChannelId)

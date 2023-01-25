@@ -15,8 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -24,38 +24,15 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
- * @package customer-order
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('customer-order')]
 class LoadWishlistRoute extends AbstractLoadWishlistRoute
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private EntityRepository $wishlistRepository;
-
-    private SalesChannelRepository $productRepository;
-
-    private SystemConfigService $systemConfigService;
-
-    private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $wishlistRepository,
-        SalesChannelRepository $productRepository,
-        EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfigService,
-        AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
-    ) {
-        $this->wishlistRepository = $wishlistRepository;
-        $this->productRepository = $productRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->systemConfigService = $systemConfigService;
-        $this->productCloseoutFilterFactory = $productCloseoutFilterFactory;
+    public function __construct(private readonly EntityRepository $wishlistRepository, private readonly SalesChannelRepository $productRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly SystemConfigService $systemConfigService, private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory)
+    {
     }
 
     public function getDecorated(): AbstractLoadWishlistRoute
@@ -63,10 +40,7 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-    * @Since("6.3.4.0")
-     * @Route("/store-api/customer/wishlist", name="store-api.customer.wishlist.load", methods={"GET", "POST"}, defaults={"_loginRequired"=true, "_entity"="product"})
-    */
+    #[Route(path: '/store-api/customer/wishlist', name: 'store-api.customer.wishlist.load', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_entity' => 'product'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): LoadWishlistRouteResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {

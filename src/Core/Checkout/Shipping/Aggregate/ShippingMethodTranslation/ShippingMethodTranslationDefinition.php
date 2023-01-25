@@ -10,13 +10,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class ShippingMethodTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'shipping_method_translation';
+    final public const ENTITY_NAME = 'shipping_method_translation';
 
     public function getEntityName(): string
     {

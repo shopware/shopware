@@ -64,9 +64,7 @@ class StaticEntityRepository extends EntityRepository
 
         // flat array of ids
         if (\array_key_exists(0, $result) && \is_string($result[0])) {
-            $result = \array_map(function (string $id) {
-                return ['primaryKey' => $id, 'data' => []];
-            }, $result);
+            $result = \array_map(fn (string $id) => ['primaryKey' => $id, 'data' => []], $result);
         }
 
         return new IdSearchResult(\count($result), $result, $criteria, $context);

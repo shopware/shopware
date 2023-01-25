@@ -51,24 +51,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * Allows to execute aggregated queries for all entities in the system
  *
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class EntityAggregator implements EntityAggregatorInterface
 {
     public function __construct(
-        private Connection $connection,
-        private EntityDefinitionQueryHelper $queryHelper,
-        private DefinitionInstanceRegistry $registry,
-        private CriteriaQueryBuilder $criteriaQueryBuilder,
-        private bool $timeZoneSupportEnabled,
-        private SearchTermInterpreter $interpreter,
-        private EntityScoreQueryBuilder $scoreBuilder
+        private readonly Connection $connection,
+        private readonly EntityDefinitionQueryHelper $queryHelper,
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly CriteriaQueryBuilder $criteriaQueryBuilder,
+        private readonly bool $timeZoneSupportEnabled,
+        private readonly SearchTermInterpreter $interpreter,
+        private readonly EntityScoreQueryBuilder $scoreBuilder
     ) {
     }
 
@@ -149,9 +149,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $scoreQuery = new QueryBuilder($this->connection);
 
             $scoreQuery = $this->criteriaQueryBuilder->build($scoreQuery, $definition, $scoreCritera, $context, $paths);
-            $pks = $definition->getFields()->filterByFlag(PrimaryKey::class)->map(function (StorageAware $f) {
-                return $f->getStorageName();
-            });
+            $pks = $definition->getFields()->filterByFlag(PrimaryKey::class)->map(fn (StorageAware $f) => $f->getStorageName());
 
             $join = '';
             foreach ($pks as $pk) {
@@ -227,75 +225,20 @@ class EntityAggregator implements EntityAggregatorInterface
 
     private function extendQuery(Aggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
     {
-        switch (true) {
-            case $aggregation instanceof DateHistogramAggregation:
-
-                $this->parseDateHistogramAggregation($aggregation, $query, $definition, $context);
-
-                break;
-
-            case $aggregation instanceof TermsAggregation:
-
-                $this->parseTermsAggregation($aggregation, $query, $definition, $context);
-
-                break;
-
-            case $aggregation instanceof FilterAggregation:
-
-                $this->parseFilterAggregation($aggregation, $query, $definition, $context);
-
-                break;
-
-            case $aggregation instanceof AvgAggregation:
-
-                $this->parseAvgAggregation($aggregation, $query, $definition, $context);
-
-                break;
-
-            case $aggregation instanceof SumAggregation:
-
-                $this->parseSumAggregation($aggregation, $query, $definition, $context);
-
-                break;
-
-            case $aggregation instanceof MaxAggregation:
-
-                $this->parseMaxAggregation($aggregation, $query, $definition, $context);
-
-                break;
-
-            case $aggregation instanceof MinAggregation:
-
-                $this->parseMinAggregation($aggregation, $query, $definition, $context);
-
-                break;
-
-            case $aggregation instanceof CountAggregation:
-
-                $this->parseCountAggregation($aggregation, $query, $definition, $context);
-
-                break;
-
-            case $aggregation instanceof StatsAggregation:
-
-                $this->parseStatsAggregation($aggregation, $query, $definition, $context);
-
-                break;
-
-            case $aggregation instanceof EntityAggregation:
-
-                $this->parseEntityAggregation($aggregation, $query, $definition, $context);
-
-                break;
-            case $aggregation instanceof RangeAggregation:
-
-                $this->parseRangeAggregation($aggregation, $query, $definition, $context);
-
-                break;
-
-            default:
-                throw new InvalidAggregationQueryException(sprintf('Aggregation of type %s not supported', \get_class($aggregation)));
-        }
+        match (true) {
+            $aggregation instanceof DateHistogramAggregation => $this->parseDateHistogramAggregation($aggregation, $query, $definition, $context),
+            $aggregation instanceof TermsAggregation => $this->parseTermsAggregation($aggregation, $query, $definition, $context),
+            $aggregation instanceof FilterAggregation => $this->parseFilterAggregation($aggregation, $query, $definition, $context),
+            $aggregation instanceof AvgAggregation => $this->parseAvgAggregation($aggregation, $query, $definition, $context),
+            $aggregation instanceof SumAggregation => $this->parseSumAggregation($aggregation, $query, $definition, $context),
+            $aggregation instanceof MaxAggregation => $this->parseMaxAggregation($aggregation, $query, $definition, $context),
+            $aggregation instanceof MinAggregation => $this->parseMinAggregation($aggregation, $query, $definition, $context),
+            $aggregation instanceof CountAggregation => $this->parseCountAggregation($aggregation, $query, $definition, $context),
+            $aggregation instanceof StatsAggregation => $this->parseStatsAggregation($aggregation, $query, $definition, $context),
+            $aggregation instanceof EntityAggregation => $this->parseEntityAggregation($aggregation, $query, $definition, $context),
+            $aggregation instanceof RangeAggregation => $this->parseRangeAggregation($aggregation, $query, $definition, $context),
+            default => throw new InvalidAggregationQueryException(sprintf('Aggregation of type %s not supported', $aggregation::class)),
+        };
     }
 
     private function parseFilterAggregation(FilterAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
@@ -318,39 +261,16 @@ class EntityAggregator implements EntityAggregatorInterface
             $accessor = 'CONVERT_TZ(' . $accessor . ', "UTC", "' . $aggregation->getTimeZone() . '")';
         }
 
-        switch ($aggregation->getInterval()) {
-            case DateHistogramAggregation::PER_MINUTE:
-                $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y-%m-%d %H:%i\')';
-
-                break;
-            case DateHistogramAggregation::PER_HOUR:
-                $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y-%m-%d %H\')';
-
-                break;
-            case DateHistogramAggregation::PER_DAY:
-                $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y-%m-%d\')';
-
-                break;
-            case DateHistogramAggregation::PER_WEEK:
-                $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y-%v\')';
-
-                break;
-            case DateHistogramAggregation::PER_MONTH:
-                $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y-%m\')';
-
-                break;
-            case DateHistogramAggregation::PER_QUARTER:
-                $groupBy = 'CONCAT(DATE_FORMAT(' . $accessor . ', \'%Y\'), \'-\', QUARTER(' . $accessor . '))';
-
-                break;
-            case DateHistogramAggregation::PER_YEAR:
-                $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y\')';
-
-                break;
-
-            default:
-                throw new \RuntimeException('Provided date format is not supported');
-        }
+        $groupBy = match ($aggregation->getInterval()) {
+            DateHistogramAggregation::PER_MINUTE => 'DATE_FORMAT(' . $accessor . ', \'%Y-%m-%d %H:%i\')',
+            DateHistogramAggregation::PER_HOUR => 'DATE_FORMAT(' . $accessor . ', \'%Y-%m-%d %H\')',
+            DateHistogramAggregation::PER_DAY => 'DATE_FORMAT(' . $accessor . ', \'%Y-%m-%d\')',
+            DateHistogramAggregation::PER_WEEK => 'DATE_FORMAT(' . $accessor . ', \'%Y-%v\')',
+            DateHistogramAggregation::PER_MONTH => 'DATE_FORMAT(' . $accessor . ', \'%Y-%m\')',
+            DateHistogramAggregation::PER_QUARTER => 'CONCAT(DATE_FORMAT(' . $accessor . ', \'%Y\'), \'-\', QUARTER(' . $accessor . '))',
+            DateHistogramAggregation::PER_YEAR => 'DATE_FORMAT(' . $accessor . ', \'%Y\')',
+            default => throw new \RuntimeException('Provided date format is not supported'),
+        };
         $query->addGroupBy($groupBy);
 
         $key = $aggregation->getName() . '.key';
@@ -552,7 +472,7 @@ class EntityAggregator implements EntityAggregatorInterface
             case $aggregation instanceof RangeAggregation:
                 return $this->hydrateRangeAggregation($aggregation, $rows);
             default:
-                throw new InvalidAggregationQueryException(sprintf('Aggregation of type %s not supported', \get_class($aggregation)));
+                throw new InvalidAggregationQueryException(sprintf('Aggregation of type %s not supported', $aggregation::class));
         }
     }
 

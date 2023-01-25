@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -24,29 +25,18 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackExcepti
 use Shopware\Core\Framework\Plugin\Requirement\Exception\VersionMismatchException;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 
-/**
- * @package core
- */
+#[Package('core')]
 class RequirementsValidator
 {
-    private EntityRepository $pluginRepo;
-
-    private string $projectDir;
-
     private Composer $pluginComposer;
 
-    /**
-     * @var Composer
-     */
-    private $shopwareProjectComposer;
+    private Composer $shopwareProjectComposer;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepository $pluginRepo, string $projectDir)
+    public function __construct(private readonly EntityRepository $pluginRepo, private readonly string $projectDir)
     {
-        $this->pluginRepo = $pluginRepo;
-        $this->projectDir = $projectDir;
     }
 
     /**
@@ -101,10 +91,8 @@ class RequirementsValidator
      */
     private function dependsOn(PluginEntity $plugin, PluginEntity $dependency): bool
     {
-        foreach (array_keys($this->getPluginDependencies($plugin)['require']) as $requirement) {
-            if ($requirement === $dependency->getComposerName()) {
-                return true;
-            }
+        if (\in_array($dependency->getComposerName(), array_keys($this->getPluginDependencies($plugin)['require']), true)) {
+            return true;
         }
 
         return false;
@@ -266,9 +254,7 @@ class RequirementsValidator
     private function getComposerPackagesFromPlugins(): array
     {
         $packages = $this->shopwareProjectComposer->getRepositoryManager()->getLocalRepository()->getPackages();
-        $pluginPackages = array_filter($packages, static function (PackageInterface $package) {
-            return $package->getType() === PluginFinder::COMPOSER_TYPE;
-        });
+        $pluginPackages = array_filter($packages, static fn (PackageInterface $package) => $package->getType() === PluginFinder::COMPOSER_TYPE);
 
         $pluginPackagesWithNameAsKey = [];
         foreach ($pluginPackages as $pluginPackage) {

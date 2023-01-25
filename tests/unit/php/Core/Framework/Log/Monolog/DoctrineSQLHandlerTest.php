@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler;
  *
  * @internal
  *
- * @phpstan-import-type Record from \Monolog\Logger
+ * @phpstan-import-type Record from Logger
  *
  * @package core
  */

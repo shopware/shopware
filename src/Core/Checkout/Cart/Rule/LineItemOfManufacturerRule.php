@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -12,31 +13,19 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class LineItemOfManufacturerRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemOfManufacturer';
-
-    /**
-     * @var list<string>
-     */
-    protected array $manufacturerIds;
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartLineItemOfManufacturer';
 
     /**
      * @internal
      *
      * @param list<string> $manufacturerIds
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, array $manufacturerIds = [])
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected array $manufacturerIds = [])
     {
         parent::__construct();
-
-        $this->manufacturerIds = $manufacturerIds;
-        $this->operator = $operator;
     }
 
     /**

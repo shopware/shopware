@@ -14,36 +14,17 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, ContextTokenAware
 {
-    public const EVENT_NAME = 'checkout.customer.login';
+    final public const EVENT_NAME = 'checkout.customer.login';
 
-    /**
-     * @var CustomerEntity
-     */
-    private $customer;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var string
-     */
-    private $contextToken;
-
-    public function __construct(SalesChannelContext $salesChannelContext, CustomerEntity $customer, string $contextToken)
+    public function __construct(private readonly SalesChannelContext $salesChannelContext, private readonly CustomerEntity $customer, private readonly string $contextToken)
     {
-        $this->customer = $customer;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->contextToken = $contextToken;
     }
 
     public function getName(): string

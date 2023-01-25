@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -21,10 +22,9 @@ use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
+#[Package('sales-channel')]
 class StructEncoderTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -325,14 +325,8 @@ class StructEncoderTest extends TestCase
  */
 class MyTestStruct extends Struct
 {
-    public $foo;
-
-    public $bar;
-
-    public function __construct($foo = null, $bar = null)
+    public function __construct(public $foo = null, public $bar = null)
     {
-        $this->foo = $foo;
-        $this->bar = $bar;
     }
 
     public function getApiAlias(): string

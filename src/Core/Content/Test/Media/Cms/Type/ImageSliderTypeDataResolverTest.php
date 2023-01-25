@@ -37,15 +37,9 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
     private const FIXTURES_DIRECTORY = '/../../fixtures/';
 
-    /**
-     * @var ImageSliderTypeDataResolver
-     */
-    private $imageSliderResolver;
+    private ImageSliderTypeDataResolver $imageSliderResolver;
 
-    /**
-     * @var FilesystemOperator
-     */
-    private $publicFilesystem;
+    private FilesystemOperator $publicFilesystem;
 
     protected function setUp(): void
     {

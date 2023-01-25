@@ -9,30 +9,20 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @interal only for use by the app-system
  */
+#[Package('core')]
 class AppPayloadServiceHelper
 {
-    private DefinitionInstanceRegistry $definitionRegistry;
-
-    private JsonEntityEncoder $entityEncoder;
-
-    private ShopIdProvider $shopIdProvider;
-
     /**
      * @internal
      */
-    public function __construct(
-        DefinitionInstanceRegistry $definitionRegistry,
-        JsonEntityEncoder $entityEncoder,
-        ShopIdProvider $shopIdProvider
-    ) {
-        $this->definitionRegistry = $definitionRegistry;
-        $this->entityEncoder = $entityEncoder;
-        $this->shopIdProvider = $shopIdProvider;
+    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly JsonEntityEncoder $entityEncoder, private readonly ShopIdProvider $shopIdProvider)
+    {
     }
 
     public function buildSource(AppEntity $app, string $shopUrl): Source

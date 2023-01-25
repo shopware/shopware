@@ -5,6 +5,7 @@ namespace Shopware\Administration\Test\DependencyInjection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\DependencyInjection\AdministrationMigrationCompilerPass;
 use Shopware\Core\Framework\Migration\MigrationSource;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
@@ -17,7 +18,7 @@ class AdminMigrationCompilerPassTest extends TestCase
         $container = new ContainerBuilder();
         $container->register(MigrationSource::class . '.core.V6_4', MigrationSource::class)->setPublic(true);
 
-        $container->addCompilerPass(new AdministrationMigrationCompilerPass(), \Symfony\Component\DependencyInjection\Compiler\PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new AdministrationMigrationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->compile(false);
 
         $calls = $container->getDefinition(MigrationSource::class . '.core.V6_4')->getMethodCalls();

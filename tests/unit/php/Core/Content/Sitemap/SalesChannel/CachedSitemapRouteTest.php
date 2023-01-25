@@ -37,15 +37,9 @@ use Symfony\Contracts\Cache\CacheInterface;
  */
 class CachedSitemapRouteTest extends TestCase
 {
-    /**
-     * @var AbstractSitemapRoute&MockObject
-     */
-    private $decorated;
+    private MockObject&AbstractSitemapRoute $decorated;
 
-    /**
-     * @var CacheInterface&MockObject
-     */
-    private $cache;
+    private MockObject&CacheInterface $cache;
 
     private EventDispatcher $eventDispatcher;
 

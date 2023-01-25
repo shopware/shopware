@@ -22,6 +22,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Exception\HookInjectionException;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -34,10 +35,9 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class CartFacadeTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -448,9 +448,9 @@ class ExpectedPrice extends CalculatedPrice
 {
     public function __construct(float $unitPrice, ?float $totalPrice = null, ?CalculatedTaxCollection $calculatedTaxes = null, ?TaxRuleCollection $taxRules = null, int $quantity = 1)
     {
-        $totalPrice = $totalPrice ?? $unitPrice;
-        $calculatedTaxes = $calculatedTaxes ?? new CalculatedTaxCollection([]);
-        $taxRules = $taxRules ?? new TaxRuleCollection([]);
+        $totalPrice ??= $unitPrice;
+        $calculatedTaxes ??= new CalculatedTaxCollection([]);
+        $taxRules ??= new TaxRuleCollection([]);
 
         parent::__construct($unitPrice, $totalPrice, $calculatedTaxes, $taxRules, $quantity);
     }

@@ -431,7 +431,7 @@ class AmountCalculatorTest extends TestCase
                 new CashRoundingConfig(4, 0.01, true),
                 new CashRoundingConfig(2, 0.01, true),
                 new PriceCollection([
-                    self::price(55.111, 8.7811, 19),
+                    self::price(),
                 ]),
                 new CartPrice(
                     46.3299,
@@ -447,10 +447,10 @@ class AmountCalculatorTest extends TestCase
                 new CashRoundingConfig(4, 0.01, true),
                 new CashRoundingConfig(2, 0.05, true),
                 new PriceCollection([
-                    self::price(55.111, 8.7811, 19),
-                    self::price(55.111, 8.7811, 19),
-                    self::price(55.111, 8.7811, 19),
-                    self::price(55.111, 8.7811, 19),
+                    self::price(),
+                    self::price(),
+                    self::price(),
+                    self::price(),
                 ]),
                 new CartPrice(
                     185.3196,
@@ -487,15 +487,15 @@ class AmountCalculatorTest extends TestCase
         static::assertEquals($expected, $amount);
     }
 
-    private static function price(float $gross, float $tax, int $taxRate): CalculatedPrice
+    private static function price(): CalculatedPrice
     {
         return new CalculatedPrice(
-            $gross,
-            $gross,
+            55.111,
+            55.111,
             new CalculatedTaxCollection([
-                new CalculatedTax($tax, $taxRate, $gross),
+                new CalculatedTax(8.7811, 19, 55.111),
             ]),
-            new TaxRuleCollection([new TaxRule($taxRate)])
+            new TaxRuleCollection([new TaxRule(19)])
         );
     }
 }

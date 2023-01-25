@@ -6,24 +6,17 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Event\CartBeforeSerializationEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class CartSerializationCleaner
 {
-    private Connection $connection;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, EventDispatcherInterface $eventDispatcher)
+    public function __construct(private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function cleanupCart(Cart $cart): void

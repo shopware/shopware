@@ -13,6 +13,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -22,11 +23,10 @@ use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
  * @group rules
  */
+#[Package('business-ops')]
 class LineItemPurchasePriceRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -337,7 +337,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
                 $purchasePriceNet,
                 $purchasePriceGross,
                 false
-            ))
+            ), \JSON_THROW_ON_ERROR)
         );
     }
 }

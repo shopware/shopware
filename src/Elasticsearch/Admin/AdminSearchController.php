@@ -8,50 +8,30 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package system-settings
- *
  * @internal
  */
+#[Package('system-settings')]
 final class AdminSearchController
 {
-    private AdminSearcher $searcher;
-
-    private JsonEntityEncoder $entityEncoder;
-
-    private DefinitionInstanceRegistry $definitionRegistry;
-
-    private AdminElasticsearchHelper $adminEsHelper;
-
-    public function __construct(
-        AdminSearcher $searcher,
-        DefinitionInstanceRegistry $definitionRegistry,
-        JsonEntityEncoder $entityEncoder,
-        AdminElasticsearchHelper $adminEsHelper
-    ) {
-        $this->searcher = $searcher;
-        $this->definitionRegistry = $definitionRegistry;
-        $this->entityEncoder = $entityEncoder;
-        $this->adminEsHelper = $adminEsHelper;
+    public function __construct(private readonly AdminSearcher $searcher, private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly JsonEntityEncoder $entityEncoder, private readonly AdminElasticsearchHelper $adminEsHelper)
+    {
     }
 
-    /**
-     * @Since("6.4.19.0")
-     * @Route("/api/_admin/es-search", name="api.admin.es-search", methods={"POST"}, defaults={"_routeScope"={"administration"}})
-     */
+    #[Route(path: '/api/_admin/es-search', name: 'api.admin.es-search', methods: ['POST'], defaults: ['_routeScope' => ['administration']])]
     public function elastic(Request $request, Context $context): Response
     {
         if ($this->adminEsHelper->getEnabled() === false) {
             throw new \RuntimeException('Admin elasticsearch is not enabled');
         }
 
-        $term = trim($request->get('term', ''));
+        $term = trim((string) $request->get('term', ''));
         $entities = $request->request->all('entities');
 
         if (empty($term)) {

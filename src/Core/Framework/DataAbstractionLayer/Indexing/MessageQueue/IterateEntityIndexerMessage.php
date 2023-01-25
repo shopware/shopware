@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class IterateEntityIndexerMessage implements AsyncMessageInterface
 {
     /**
@@ -15,20 +14,11 @@ class IterateEntityIndexerMessage implements AsyncMessageInterface
     protected $indexer;
 
     /**
-     * @var mixed|null
-     */
-    protected $offset;
-
-    protected array $skip = [];
-
-    /**
      * @internal
      */
-    public function __construct(string $indexer, $offset, array $skip = [])
+    public function __construct(string $indexer, protected $offset, protected array $skip = [])
     {
         $this->indexer = $indexer;
-        $this->offset = $offset;
-        $this->skip = $skip;
     }
 
     public function getIndexer(): string

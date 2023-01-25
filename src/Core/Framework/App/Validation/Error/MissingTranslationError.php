@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\App\Validation\Error;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal only for use by the app-system
- *
- * @package core
  */
+#[Package('core')]
 class MissingTranslationError extends Error
 {
     private const KEY = 'manifest-missing-translation';

@@ -8,10 +8,9 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PromotionDiscountEntity extends Entity
 {
     use EntityIdTrait;
@@ -20,50 +19,50 @@ class PromotionDiscountEntity extends Entity
      * This scope defines promotion discounts on
      * the entire cart and its line items.
      */
-    public const SCOPE_CART = 'cart';
+    final public const SCOPE_CART = 'cart';
 
     /**
      * This scope defines promotion discounts on
      * the delivery costs.
      */
-    public const SCOPE_DELIVERY = 'delivery';
+    final public const SCOPE_DELIVERY = 'delivery';
 
     /**
      * This scope defines promotion discounts on
      * the whole set of groups
      */
-    public const SCOPE_SET = 'set';
+    final public const SCOPE_SET = 'set';
 
     /**
      * This scope defines promotion discounts on
      * a specific set group.
      */
-    public const SCOPE_SETGROUP = 'setgroup';
+    final public const SCOPE_SETGROUP = 'setgroup';
 
     /**
      * This type defines a percentage
      * price definition of the discount.
      */
-    public const TYPE_PERCENTAGE = 'percentage';
+    final public const TYPE_PERCENTAGE = 'percentage';
 
     /**
      * This type defines an absolute price
      * definition of the discount in the
      * current context currency.
      */
-    public const TYPE_ABSOLUTE = 'absolute';
+    final public const TYPE_ABSOLUTE = 'absolute';
 
     /**
      * This type defines an fixed item price
      * definition of the discount.
      */
-    public const TYPE_FIXED_UNIT = 'fixed_unit';
+    final public const TYPE_FIXED_UNIT = 'fixed_unit';
 
     /**
      * This type defines a fixed price
      * definition of the discount.
      */
-    public const TYPE_FIXED = 'fixed';
+    final public const TYPE_FIXED = 'fixed';
 
     /**
      * @var string

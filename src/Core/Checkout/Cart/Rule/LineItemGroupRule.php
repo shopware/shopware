@@ -8,18 +8,17 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotF
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\FilterRule;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class LineItemGroupRule extends FilterRule
 {
-    public const RULE_NAME = 'cartLineItemInGroup';
+    final public const RULE_NAME = 'cartLineItemInGroup';
 
     protected string $groupId;
 
@@ -29,7 +28,7 @@ class LineItemGroupRule extends FilterRule
 
     protected string $sorterKey;
 
-    protected ?RuleCollection $rules;
+    protected ?RuleCollection $rules = null;
 
     /**
      * @throws CartException

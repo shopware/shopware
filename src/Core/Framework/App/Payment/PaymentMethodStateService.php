@@ -6,22 +6,16 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
- *
- * @package core
  */
+#[Package('core')]
 class PaymentMethodStateService
 {
-    /**
-     * @var EntityRepository
-     */
-    private $paymentMethodRepository;
-
-    public function __construct(EntityRepository $paymentMethodRepository)
+    public function __construct(private readonly EntityRepository $paymentMethodRepository)
     {
-        $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
     public function activatePaymentMethods(string $appId, Context $context): void
@@ -33,9 +27,7 @@ class PaymentMethodStateService
         /** @var array<string> $templates */
         $templates = $this->paymentMethodRepository->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(function (string $id) {
-            return ['id' => $id, 'active' => true];
-        }, $templates);
+        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => true], $templates);
 
         $this->paymentMethodRepository->update($updateSet, $context);
     }
@@ -49,9 +41,7 @@ class PaymentMethodStateService
         /** @var array<string> $templates */
         $templates = $this->paymentMethodRepository->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(function (string $id) {
-            return ['id' => $id, 'active' => false];
-        }, $templates);
+        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => false], $templates);
 
         $this->paymentMethodRepository->update($updateSet, $context);
     }

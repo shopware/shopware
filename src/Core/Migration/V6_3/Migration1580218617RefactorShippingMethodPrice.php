@@ -3,14 +3,14 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1580218617RefactorShippingMethodPrice extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -127,7 +127,7 @@ class Migration1580218617RefactorShippingMethodPrice extends MigrationStep
                     'linked' => false,
                 ],
             ];
-            $currencyPrice = json_encode($currencyPrice);
+            $currencyPrice = json_encode($currencyPrice, \JSON_THROW_ON_ERROR);
 
             $connection->executeStatement(
                 'UPDATE `shipping_method_price` SET `currency_price` = :currencyPrice WHERE `id` = :id',

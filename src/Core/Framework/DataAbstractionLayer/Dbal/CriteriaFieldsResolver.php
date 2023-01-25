@@ -6,10 +6,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('core')]
 class CriteriaFieldsResolver
 {
     /**
@@ -66,7 +68,7 @@ class CriteriaFieldsResolver
 
                 if ($flag instanceof Runtime) {
                     foreach ($flag->getDepends() as $depend) {
-                        $mapped[] = implode('.', \array_merge($accessor, [$depend]));
+                        $mapped[] = implode('.', [...$accessor, ...[$depend]]);
                     }
                 }
 

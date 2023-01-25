@@ -6,11 +6,10 @@ use Doctrine\DBAL\Connection;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package core
- */
+#[Package('core')]
 class DoctrineSQLHandler extends AbstractProcessingHandler
 {
     /**
@@ -36,15 +35,15 @@ class DoctrineSQLHandler extends AbstractProcessingHandler
             'message' => $record['message'],
             'level' => $record['level'],
             'channel' => $record['channel'],
-            'context' => json_encode($record['context']),
-            'extra' => json_encode($record['extra']),
+            'context' => json_encode($record['context'], \JSON_THROW_ON_ERROR),
+            'extra' => json_encode($record['extra'], \JSON_THROW_ON_ERROR),
             'updated_at' => null,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
         try {
             $this->connection->insert('log_entry', $envelope);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             $envelope['context'] = json_encode([]);
             $envelope['extra'] = json_encode([]);
             $this->connection->insert('log_entry', $envelope);

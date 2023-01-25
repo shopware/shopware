@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\MessageQueue;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 interface AsyncMessageInterface
 {
 }

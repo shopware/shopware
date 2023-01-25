@@ -8,10 +8,9 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class AppFlowActionEntity extends Entity
 {
     use EntityIdTrait;
@@ -23,13 +22,13 @@ class AppFlowActionEntity extends Entity
 
     protected string $name;
 
-    protected ?string $badge;
+    protected ?string $badge = null;
 
     protected string $label;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
-    protected ?string $headline;
+    protected ?string $headline = null;
 
     /**
      * @var array<string, mixed>
@@ -53,9 +52,9 @@ class AppFlowActionEntity extends Entity
 
     protected ?string $iconRaw = null;
 
-    protected ?string $icon;
+    protected ?string $icon = null;
 
-    protected ?string $swIcon;
+    protected ?string $swIcon = null;
 
     protected string $url;
 

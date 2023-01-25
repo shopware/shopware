@@ -35,8 +35,8 @@ class FileSaverTest extends TestCase
     use IntegrationTestBehaviour;
     use MediaFixtures;
 
-    public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
-    public const TEST_SCRIPT_FILE = __DIR__ . '/../fixtures/test.php';
+    final public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
+    final public const TEST_SCRIPT_FILE = __DIR__ . '/../fixtures/test.php';
 
     private EntityRepository $mediaRepository;
 

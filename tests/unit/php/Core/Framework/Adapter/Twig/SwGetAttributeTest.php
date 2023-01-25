@@ -19,10 +19,7 @@ use function Shopware\Core\Framework\Adapter\Twig\sw_get_attribute;
  */
 class SwGetAttributeTest extends TestCase
 {
-    /**
-     * @var Environment&MockObject
-     */
-    private $environmentMock;
+    private MockObject&Environment $environmentMock;
 
     protected function setUp(): void
     {

@@ -3,12 +3,12 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductFeatureSetTranslationEntity>
- *
- * @package inventory
  */
+#[Package('inventory')]
 class ProductFeatureSetTranslationCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

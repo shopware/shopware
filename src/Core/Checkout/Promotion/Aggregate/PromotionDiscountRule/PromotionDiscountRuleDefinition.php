@@ -10,13 +10,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PromotionDiscountRuleDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'promotion_discount_rule';
+    final public const ENTITY_NAME = 'promotion_discount_rule';
 
     public function getEntityName(): string
     {

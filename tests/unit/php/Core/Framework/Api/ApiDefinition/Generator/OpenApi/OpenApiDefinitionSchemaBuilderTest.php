@@ -65,7 +65,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
             '/simple',
             false
         );
-        $properties = json_decode($schema['Simple']->toJson(), true, \JSON_THROW_ON_ERROR)['properties'];
+        $properties = json_decode($schema['Simple']->toJson(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR)['properties'];
         static::assertArrayHasKey('id', $properties);
         static::assertArrayHasKey('type', $properties['id']);
         static::assertEquals('string', $properties['id']['type']);
@@ -101,7 +101,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
             '/simple',
             false
         );
-        $properties = json_decode($schema['Simple']->toJson(), true, \JSON_THROW_ON_ERROR)['properties'];
+        $properties = json_decode($schema['Simple']->toJson(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR)['properties'];
 
         static::assertArrayHasKey('requiredField', $properties);
         static::assertArrayHasKey('readOnlyField', $properties);
@@ -118,7 +118,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
             '/simple-extended',
             false
         );
-        $properties = json_decode($schema['SimpleExtended']->toJson(), true, \JSON_THROW_ON_ERROR)['properties'];
+        $properties = json_decode($schema['SimpleExtended']->toJson(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR)['properties'];
 
         static::assertArrayHasKey('extensions', $properties);
         static::assertArrayHasKey('properties', $properties['extensions']);

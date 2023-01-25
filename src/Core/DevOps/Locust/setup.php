@@ -96,9 +96,7 @@ GROUP BY product.id
 $keywords = array_map(static function (string $term) {
     $terms = explode(' ', $term);
 
-    return array_filter($terms, static function (string $split) {
-        return mb_strlen($split) >= 4;
-    });
+    return array_filter($terms, static fn (string $split) => mb_strlen($split) >= 4);
 }, $connection->fetchFirstColumn('SELECT name FROM product_translation WHERE name IS NOT NULL ' . $limit));
 
 $keywords = array_values(array_unique(array_merge(...$keywords)));

@@ -47,7 +47,7 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
 
-    public const ERROR_MESSAGE = 'testError';
+    final public const ERROR_MESSAGE = 'testError';
 
     protected PaymentService $paymentService;
 
@@ -270,7 +270,7 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
      */
     protected function signResponse(array $content): ResponseInterface
     {
-        $json = \json_encode($content);
+        $json = \json_encode($content, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
         $secret = $this->app->getAppSecret();

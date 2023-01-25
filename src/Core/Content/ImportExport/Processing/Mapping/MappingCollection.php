@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Mapping;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @extends Collection<Mapping>
  * @phpstan-import-type MappingArray from Mapping
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MappingCollection extends Collection
 {
     /**
@@ -94,9 +94,7 @@ class MappingCollection extends Collection
     {
         $mappings = $this->getElements();
 
-        usort($mappings, function (Mapping $firstMapping, Mapping $secondMapping) {
-            return $firstMapping->getPosition() - $secondMapping->getPosition();
-        });
+        usort($mappings, fn (Mapping $firstMapping, Mapping $secondMapping) => $firstMapping->getPosition() - $secondMapping->getPosition());
 
         return $mappings;
     }

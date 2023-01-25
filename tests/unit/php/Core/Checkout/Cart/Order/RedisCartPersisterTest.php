@@ -100,10 +100,9 @@ class RedisCartPersisterTest extends TestCase
     /**
      * @dataProvider dataProviderInvalidData
      *
-     * @param mixed $data
      * @param class-string<\Throwable> $exceptionClass
      */
-    public function testLoadingInvalidCart($data, string $exceptionClass): void
+    public function testLoadingInvalidCart(mixed $data, string $exceptionClass): void
     {
         $token = Uuid::randomHex();
         $dispatcher = $this->createMock(EventDispatcher::class);

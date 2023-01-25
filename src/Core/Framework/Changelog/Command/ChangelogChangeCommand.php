@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Changelog\Command;
 
 use Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,28 +14,25 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
- *
- * @package core
  */
 #[AsCommand(
     name: 'changelog:change',
     description: 'Changes the changelog of a release',
 )]
+#[Package('core')]
 class ChangelogChangeCommand extends Command
 {
     /**
      * @internal
      */
-    public function __construct(private ChangelogReleaseExporter $releaseExporter)
+    public function __construct(private readonly ChangelogReleaseExporter $releaseExporter)
     {
         parent::__construct();
     }
 
     protected function configure(): void
     {
-        $this
-            ->setDescription('Returns all changes made in a specific / unreleased version.')
-            ->addArgument('version', InputArgument::OPTIONAL, 'A version of release. It should be 4-digits type. Please leave it blank for the unreleased version.')
+        $this->addArgument('version', InputArgument::OPTIONAL, 'A version of release. It should be 4-digits type. Please leave it blank for the unreleased version.')
             ->addOption('path', 'p', InputOption::VALUE_REQUIRED, 'Renders the output of the command in a markdown file under the given path', '')
             ->addOption('core', null, InputOption::VALUE_NONE, 'Returns all changes made in the Core')
             ->addOption('api', null, InputOption::VALUE_NONE, 'Returns all changes made in the API')
@@ -46,10 +44,7 @@ class ChangelogChangeCommand extends Command
             ->addOption('keys-only', null, InputOption::VALUE_NONE, 'Returns only Jira ticket keys of all changes made.');
     }
 
-    /**
-     * @return int
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $IOHelper = new SymfonyStyle($input, $output);
         $IOHelper->title('Get all changes made in the given version');

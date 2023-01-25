@@ -8,22 +8,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 use Shopware\Core\System\TaxProvider\TaxProviderEntity;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class TaxProviderPersister
 {
-    private EntityRepository $taxProviderRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $taxProviderRepository)
+    public function __construct(private readonly EntityRepository $taxProviderRepository)
     {
-        $this->taxProviderRepository = $taxProviderRepository;
     }
 
     public function updateTaxProviders(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void

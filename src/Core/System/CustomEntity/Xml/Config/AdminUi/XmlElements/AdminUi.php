@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 
 /**
@@ -9,10 +10,9 @@ use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
  *
  * The config is located here Resources/config/admin-ui.xml
  *
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 final class AdminUi extends ConfigXmlElement
 {
     /**

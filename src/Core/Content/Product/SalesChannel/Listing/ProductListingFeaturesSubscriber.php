@@ -33,6 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -42,41 +43,20 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package inventory
- *
  * @internal
  */
+#[Package('inventory')]
 class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 {
-    public const DEFAULT_SEARCH_SORT = 'score';
+    final public const DEFAULT_SEARCH_SORT = 'score';
 
-    public const PROPERTY_GROUP_IDS_REQUEST_PARAM = 'property-whitelist';
-
-    private EntityRepository $optionRepository;
-
-    private EntityRepository $sortingRepository;
-
-    private Connection $connection;
-
-    private SystemConfigService $systemConfigService;
-
-    private EventDispatcherInterface $dispatcher;
+    final public const PROPERTY_GROUP_IDS_REQUEST_PARAM = 'property-whitelist';
 
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        EntityRepository $optionRepository,
-        EntityRepository $productSortingRepository,
-        SystemConfigService $systemConfigService,
-        EventDispatcherInterface $dispatcher
-    ) {
-        $this->optionRepository = $optionRepository;
-        $this->sortingRepository = $productSortingRepository;
-        $this->connection = $connection;
-        $this->systemConfigService = $systemConfigService;
-        $this->dispatcher = $dispatcher;
+    public function __construct(private readonly Connection $connection, private readonly EntityRepository $optionRepository, private readonly EntityRepository $sortingRepository, private readonly SystemConfigService $systemConfigService, private readonly EventDispatcherInterface $dispatcher)
+    {
     }
 
     public static function getSubscribedEvents(): array
@@ -349,7 +329,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $options = $options ? $options->getKeys() : [];
         $properties = $properties ? $properties->getKeys() : [];
 
-        return array_unique(array_filter(array_merge($options, $properties)));
+        return array_unique(array_filter([...$options, ...$properties]));
     }
 
     private function groupOptionAggregations(ProductListingResultEvent $event): void

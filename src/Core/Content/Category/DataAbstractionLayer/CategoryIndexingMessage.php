@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\Category\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('content')]
 class CategoryIndexingMessage extends EntityIndexingMessage
 {
 }

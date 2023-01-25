@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentComp
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Core\Framework\Increment\IncrementerGatewayCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCompilerPass;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
@@ -40,10 +41,9 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Framework extends Bundle
 {
     public function getTemplatePriority(): int
@@ -98,28 +98,28 @@ class Framework extends Bundle
 
         // make sure to remove services behind a feature flag, before some other compiler passes may reference them, therefore the high priority
         $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
-        $container->addCompilerPass(new EntityCompilerPass());
-        $container->addCompilerPass(new MigrationCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);
-        $container->addCompilerPass(new ActionEventCompilerPass());
-        $container->addCompilerPass(new DisableTwigCacheWarmerCompilerPass());
-        $container->addCompilerPass(new DefaultTransportCompilerPass());
-        $container->addCompilerPass(new TwigLoaderConfigCompilerPass());
-        $container->addCompilerPass(new TwigEnvironmentCompilerPass());
-        $container->addCompilerPass(new RouteScopeCompilerPass());
-        $container->addCompilerPass(new AssetRegistrationCompilerPass());
-        $container->addCompilerPass(new FilesystemConfigMigrationCompilerPass());
-        $container->addCompilerPass(new RateLimiterCompilerPass());
-        $container->addCompilerPass(new IncrementerGatewayCompilerPass());
-        $container->addCompilerPass(new RedisPrefixCompilerPass());
+        $container->addCompilerPass(new EntityCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new MigrationCompilerPass(), PassConfig::TYPE_AFTER_REMOVING, 0);
+        $container->addCompilerPass(new ActionEventCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new DisableTwigCacheWarmerCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new DefaultTransportCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new TwigLoaderConfigCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new TwigEnvironmentCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new RouteScopeCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new AssetRegistrationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new FilesystemConfigMigrationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new RateLimiterCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new IncrementerGatewayCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new RedisPrefixCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
 
         if ($container->getParameter('kernel.environment') === 'test') {
-            $container->addCompilerPass(new DisableRateLimiterCompilerPass());
-            $container->addCompilerPass(new ContainerVisibilityCompilerPass());
+            $container->addCompilerPass(new DisableRateLimiterCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+            $container->addCompilerPass(new ContainerVisibilityCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         }
 
-        $container->addCompilerPass(new FrameworkMigrationReplacementCompilerPass());
+        $container->addCompilerPass(new FrameworkMigrationReplacementCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
 
-        $container->addCompilerPass(new DemodataCompilerPass());
+        $container->addCompilerPass(new DemodataCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
 
         parent::build($container);
     }

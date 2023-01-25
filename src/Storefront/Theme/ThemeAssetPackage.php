@@ -3,14 +3,13 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeAssetPackage extends FallbackUrlPackage
 {
     /**

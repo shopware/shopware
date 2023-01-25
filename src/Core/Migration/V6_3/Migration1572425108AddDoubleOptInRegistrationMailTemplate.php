@@ -7,14 +7,14 @@ use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends MigrationStep
 {
     private const GERMAN_LANGUAGE_NAME = 'Deutsch';
@@ -48,7 +48,7 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
                 'SELECT id FROM `language` WHERE `name` = :languageName',
                 ['languageName' => $languageName]
             );
-        } catch (Exception $e) {
+        } catch (Exception) {
             return null;
         }
     }
@@ -183,7 +183,7 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => Uuid::fromBytesToHex($templateTypeId),
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );

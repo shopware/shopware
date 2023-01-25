@@ -2,24 +2,20 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator;
 use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareFields;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 
 /**
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 class CustomEntityEnrichmentService
 {
-    private AdminUiXmlSchemaValidator $adminUiXmlSchemaValidator;
-
-    public function __construct(
-        AdminUiXmlSchemaValidator $adminUiXmlSchemaValidator
-    ) {
-        $this->adminUiXmlSchemaValidator = $adminUiXmlSchemaValidator;
+    public function __construct(private readonly AdminUiXmlSchemaValidator $adminUiXmlSchemaValidator)
+    {
     }
 
     public function enrich(
@@ -48,7 +44,7 @@ class CustomEntityEnrichmentService
             $entity->setFields($fields);
 
             $flags = $entity->getFlags();
-            $flags = array_merge($flags, ['cms-aware' => ['name' => $entity->getName()]]);
+            $flags = [...$flags, ...['cms-aware' => ['name' => $entity->getName()]]];
             $entity->setFlags($flags);
         }
 
@@ -72,10 +68,7 @@ class CustomEntityEnrichmentService
                 $entity
             );
 
-            $flags = array_merge(
-                $entity->getFlags(),
-                ['admin-ui' => $adminUiEntitiesConfig[$entity->getName()]]
-            );
+            $flags = [...$entity->getFlags(), ...['admin-ui' => $adminUiEntitiesConfig[$entity->getName()]]];
             $entity->setFlags($flags);
 
             unset($adminUiEntitiesConfig[$entity->getName()]);

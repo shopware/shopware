@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace unit\php\Core\Content\Media\File;
+namespace Shopware\Tests\Unit\Core\Content\Media\File;
 
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -30,72 +30,34 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class FileSaverTest extends TestCase
 {
-    /**
-     * @var MockObject|EntityRepository
-     */
-    private $mediaRepository;
-
-    /**
-     * @var MockObject|FilesystemOperator
-     */
-    private $filesystemPublic;
-
-    /**
-     * @var MockObject|UrlGeneratorInterface
-     */
-    private $urlGenerator;
-
-    /**
-     * @var MockObject|ThumbnailService
-     */
-    private $thumbnailService;
+    private MockObject&EntityRepository $mediaRepository;
 
     private CollectingMessageBus $messageBus;
-
-    /**
-     * @var MockObject|MetadataLoader
-     */
-    private $metadataLoader;
-
-    /**
-     * @var MockObject|TypeDetector
-     */
-    private $typeDetector;
-
-    /**
-     * @var MockObject|FilesystemOperator
-     */
-    private $filesystemPrivate;
-
-    /**
-     * @var MockObject|EventDispatcherInterface
-     */
-    private $eventDispatcher;
 
     private FileSaver $fileSaver;
 
     public function setUp(): void
     {
         $this->mediaRepository = $this->createMock(EntityRepository::class);
-        $this->filesystemPublic = $this->createMock(FilesystemOperator::class);
-        $this->urlGenerator = $this->createMock(UrlGeneratorInterface::class);
-        $this->thumbnailService = $this->createMock(ThumbnailService::class);
+        $filesystemPublic = $this->createMock(FilesystemOperator::class);
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $thumbnailService = $this->createMock(ThumbnailService::class);
         $this->messageBus = new CollectingMessageBus();
-        $this->metadataLoader = $this->createMock(MetadataLoader::class);
-        $this->typeDetector = $this->createMock(TypeDetector::class);
-        $this->filesystemPrivate = $this->createMock(FilesystemOperator::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $metadataLoader = $this->createMock(MetadataLoader::class);
+        $typeDetector = $this->createMock(TypeDetector::class);
+        $filesystemPrivate = $this->createMock(FilesystemOperator::class);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $this->fileSaver = new FileSaver(
             $this->mediaRepository,
-            $this->filesystemPublic,
-            $this->filesystemPrivate,
-            $this->urlGenerator,
-            $this->thumbnailService,
-            $this->metadataLoader,
-            $this->typeDetector,
+            $filesystemPublic,
+            $filesystemPrivate,
+            $urlGenerator,
+            $thumbnailService,
+            $metadataLoader,
+            $typeDetector,
             $this->messageBus,
-            $this->eventDispatcher,
+            $eventDispatcher,
             ['png'],
             ['png']
         );
@@ -197,9 +159,7 @@ class FileSaverTest extends TestCase
         $this->mediaRepository
             ->expects(static::once())
             ->method('update')
-            ->with(static::callback(static function (array $payload) use ($currentMedia) {
-                return $payload[0]['id'] === $currentMedia->getId() && $payload[0]['fileName'] === 'foo';
-            }));
+            ->with(static::callback(static fn (array $payload) => $payload[0]['id'] === $currentMedia->getId() && $payload[0]['fileName'] === 'foo'));
 
         $this->fileSaver->persistFileToMedia($mediaFile, 'foo', $mediaId, $context);
 

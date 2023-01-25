@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @package core
- */
+#[Package('core')]
 class FilesystemConfigMigrationCompilerPass implements CompilerPassInterface
 {
     private const MIGRATED_FS = ['theme', 'asset', 'sitemap'];

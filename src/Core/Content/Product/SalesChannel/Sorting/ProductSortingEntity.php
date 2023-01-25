@@ -5,10 +5,9 @@ namespace Shopware\Core\Content\Product\SalesChannel\Sorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductSortingEntity extends Entity
 {
     use EntityIdTrait;
@@ -54,12 +53,10 @@ class ProductSortingEntity extends Entity
 
         $fields = $this->fields;
 
-        usort($fields, function ($a, $b) {
-            return $b['priority'] <=> $a['priority'];
-        });
+        usort($fields, fn ($a, $b) => $b['priority'] <=> $a['priority']);
 
         foreach ($fields as $field) {
-            $direction = mb_strtoupper($field['order']) === FieldSorting::ASCENDING
+            $direction = mb_strtoupper((string) $field['order']) === FieldSorting::ASCENDING
                 ? FieldSorting::ASCENDING
                 : FieldSorting::DESCENDING;
 

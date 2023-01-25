@@ -128,7 +128,7 @@ class MigrationCommandTest extends TestCase
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrateException $e) {
+        } catch (MigrateException) {
             //nth
         }
 
@@ -177,7 +177,7 @@ class MigrationCommandTest extends TestCase
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrateException $e) {
+        } catch (MigrateException) {
             //nth
         }
 
@@ -185,7 +185,7 @@ class MigrationCommandTest extends TestCase
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrateException $e) {
+        } catch (MigrateException) {
             //nth
         }
 

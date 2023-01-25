@@ -13,27 +13,27 @@ use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalcula
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package inventory
- *
  * @internal
  */
+#[Package('inventory')]
 class ProductSubscriber implements EventSubscriberInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private AbstractProductVariationBuilder $productVariationBuilder,
-        private AbstractProductPriceCalculator $calculator,
-        private AbstractPropertyGroupSorter $propertyGroupSorter,
-        private AbstractProductMaxPurchaseCalculator $maxPurchaseCalculator,
-        private AbstractIsNewDetector $isNewDetector,
-        private SystemConfigService $systemConfigService
+        private readonly AbstractProductVariationBuilder $productVariationBuilder,
+        private readonly AbstractProductPriceCalculator $calculator,
+        private readonly AbstractPropertyGroupSorter $propertyGroupSorter,
+        private readonly AbstractProductMaxPurchaseCalculator $maxPurchaseCalculator,
+        private readonly AbstractIsNewDetector $isNewDetector,
+        private readonly SystemConfigService $systemConfigService
     ) {
     }
 

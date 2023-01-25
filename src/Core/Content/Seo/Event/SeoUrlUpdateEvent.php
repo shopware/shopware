@@ -2,18 +2,14 @@
 
 namespace Shopware\Core\Content\Seo\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SeoUrlUpdateEvent extends Event
 {
-    protected array $seoUrls;
-
-    public function __construct(array $seoUrls)
+    public function __construct(protected array $seoUrls)
     {
-        $this->seoUrls = $seoUrls;
     }
 
     public function getSeoUrls(): array

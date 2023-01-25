@@ -5,57 +5,26 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToManyAssociationFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToManyAssociationFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ManyToManyAssociationField extends AssociationField
 {
-    /**
-     * @var EntityDefinition
-     */
-    private $mappingDefinition;
+    private ?EntityDefinition $mappingDefinition = null;
 
-    /**
-     * @var string
-     */
-    private $mappingLocalColumn;
-
-    /**
-     * @var string
-     */
-    private $mappingReferenceColumn;
-
-    /**
-     * @var string
-     */
-    private $sourceColumn;
-
-    /**
-     * @var string
-     */
-    private $toManyDefinitionClass;
-
-    /**
-     * @var EntityDefinition
-     */
-    private $toManyDefinition;
+    private ?EntityDefinition $toManyDefinition = null;
 
     public function __construct(
         string $propertyName,
-        string $referenceDefinition,
+        private string $toManyDefinitionClass,
         string $mappingDefinition,
-        string $mappingLocalColumn,
-        string $mappingReferenceColumn,
-        string $sourceColumn = 'id',
+        private readonly string $mappingLocalColumn,
+        private readonly string $mappingReferenceColumn,
+        private readonly string $sourceColumn = 'id',
         string $referenceField = 'id'
     ) {
         parent::__construct($propertyName);
-        $this->toManyDefinitionClass = $referenceDefinition;
         $this->referenceClass = $mappingDefinition;
-        $this->mappingLocalColumn = $mappingLocalColumn;
-        $this->mappingReferenceColumn = $mappingReferenceColumn;
-        $this->sourceColumn = $sourceColumn;
         $this->referenceField = $referenceField;
     }
 
@@ -65,6 +34,8 @@ class ManyToManyAssociationField extends AssociationField
             $this->compileLazy();
         }
 
+        \assert($this->toManyDefinition !== null);
+
         return $this->toManyDefinition;
     }
 
@@ -73,6 +44,8 @@ class ManyToManyAssociationField extends AssociationField
         if ($this->mappingDefinition === null) {
             $this->compileLazy();
         }
+
+        \assert($this->mappingDefinition !== null);
 
         return $this->mappingDefinition;
     }

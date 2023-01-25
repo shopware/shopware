@@ -6,10 +6,9 @@ use Shopware\Administration\Framework\Search\CriteriaCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package administration
- */
+#[Package('administration')]
 class AdminSearcher
 {
     /**

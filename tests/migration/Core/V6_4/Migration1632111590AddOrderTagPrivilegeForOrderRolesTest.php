@@ -33,7 +33,7 @@ class Migration1632111590AddOrderTagPrivilegeForOrderRolesTest extends TestCase
         $migration->update($connection);
 
         $privileges = $connection->fetchOne('SELECT privileges FROM acl_role WHERE id = :id', ['id' => $id]);
-        $privileges = \json_decode($privileges, true, 512, \JSON_THROW_ON_ERROR);
+        $privileges = \json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertContains('order_tag:read', $privileges);
 
@@ -49,7 +49,7 @@ class Migration1632111590AddOrderTagPrivilegeForOrderRolesTest extends TestCase
         $migration->update($connection);
 
         $privileges = $connection->fetchOne('SELECT privileges FROM acl_role WHERE id = :id', ['id' => $id]);
-        $privileges = \json_decode($privileges, true, 512, \JSON_THROW_ON_ERROR);
+        $privileges = \json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertContains('order_tag:create', $privileges);
         static::assertContains('order_tag:update', $privileges);

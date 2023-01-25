@@ -7,14 +7,14 @@ use Shopware\Core\Content\Flow\Aggregate\FlowTemplate\FlowTemplateDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1659257396DownloadFlow extends MigrationStep
 {
     public function getCreationTimestamp(): int

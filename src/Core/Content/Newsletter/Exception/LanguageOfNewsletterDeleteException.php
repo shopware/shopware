@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Content\Newsletter\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class LanguageOfNewsletterDeleteException extends ShopwareHttpException
 {
     public function __construct(?\Throwable $e = null)

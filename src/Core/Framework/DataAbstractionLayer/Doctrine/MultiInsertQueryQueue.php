@@ -5,10 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class MultiInsertQueryQueue
 {
     /**
@@ -16,32 +15,23 @@ class MultiInsertQueryQueue
      */
     private array $inserts = [];
 
-    private Connection $connection;
-
     /**
      * @var int<1, max>
      */
-    private int $chunkSize;
-
-    private bool $ignoreErrors;
-
-    private bool $useReplace;
+    private readonly int $chunkSize;
 
     public function __construct(
-        Connection $connection,
+        private readonly Connection $connection,
         int $chunkSize = 250,
-        bool $ignoreErrors = false,
-        bool $useReplace = false
+        private readonly bool $ignoreErrors = false,
+        private readonly bool $useReplace = false
     ) {
         if ($chunkSize < 1) {
             throw new \InvalidArgumentException(
                 sprintf('Parameter $chunkSize needs to be a positive integer starting with 1, "%d" given', $chunkSize)
             );
         }
-        $this->connection = $connection;
         $this->chunkSize = $chunkSize;
-        $this->ignoreErrors = $ignoreErrors;
-        $this->useReplace = $useReplace;
     }
 
     /**
@@ -109,7 +99,7 @@ class MultiInsertQueryQueue
             $columns = $this->prepareColumns($rows);
             $data = $this->prepareValues($columns, $rows);
 
-            $columns = array_map([EntityDefinitionQueryHelper::class, 'escape'], $columns);
+            $columns = array_map(EntityDefinitionQueryHelper::escape(...), $columns);
 
             $chunks = array_chunk($data, $this->chunkSize);
             foreach ($chunks as $chunk) {

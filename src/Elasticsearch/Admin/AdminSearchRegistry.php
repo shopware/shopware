@@ -3,11 +3,13 @@
 namespace Shopware\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use OpenSearch\Client;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
@@ -17,38 +19,21 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package system-settings
- *
  * @internal
- *
  * @final
  */
+#[Package('system-settings')]
 class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInterface
 {
     /**
      * @var array<string, mixed>
      */
-    private array $indexer;
-
-    private Connection $connection;
-
-    private MessageBusInterface $queue;
-
-    private EventDispatcherInterface $dispatcher;
-
-    private Client $client;
-
-    private AdminElasticsearchHelper $adminEsHelper;
+    private readonly array $indexer;
 
     /**
      * @var array<mixed>
      */
-    private array $config;
-
-    /**
-     * @var array<mixed>
-     */
-    private array $mapping;
+    private readonly array $config;
 
     /**
      * @param AbstractAdminIndexer[] $indexer
@@ -57,21 +42,15 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
      */
     public function __construct(
         $indexer,
-        Connection $connection,
-        MessageBusInterface $queue,
-        EventDispatcherInterface $dispatcher,
-        Client $client,
-        AdminElasticsearchHelper $adminEsHelper,
+        private readonly Connection $connection,
+        private readonly MessageBusInterface $queue,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly Client $client,
+        private readonly AdminElasticsearchHelper $adminEsHelper,
         array $config,
-        array $mapping
+        private readonly array $mapping
     ) {
         $this->indexer = $indexer instanceof \Traversable ? iterator_to_array($indexer) : $indexer;
-        $this->connection = $connection;
-        $this->queue = $queue;
-        $this->dispatcher = $dispatcher;
-        $this->client = $client;
-        $this->adminEsHelper = $adminEsHelper;
-        $this->mapping = $mapping;
 
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
@@ -227,9 +206,7 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
             return;
         }
 
-        $toRemove = array_filter($ids, static function (string $id) use ($data): bool {
-            return !isset($data[$id]);
-        });
+        $toRemove = array_filter($ids, static fn (string $id): bool => !isset($data[$id]));
 
         $documents = [];
         foreach ($data as $id => $document) {
@@ -262,7 +239,7 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
     /**
      * @param array<string> $entities
      *
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      *
      * @return array<string, string>
      */

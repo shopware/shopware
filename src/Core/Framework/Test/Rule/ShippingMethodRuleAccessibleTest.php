@@ -7,33 +7,27 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class ShippingMethodRuleAccessibleTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $ruleRepository;
+    private EntityRepository $ruleRepository;
 
     /**
-     * @var array
+     * @var array<array<string, mixed>>
      */
-    private $rule;
+    private array $rule = [];
 
-    /**
-     * @var string
-     */
-    private $ruleId;
+    private string $ruleId;
 
     public function setUp(): void
     {

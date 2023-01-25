@@ -10,14 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserDefinition;
 
-/**
- * @package core
- */
+#[Package('core')]
 class AclUserRoleDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'acl_user_role';
+    final public const ENTITY_NAME = 'acl_user_role';
 
     public function getEntityName(): string
     {

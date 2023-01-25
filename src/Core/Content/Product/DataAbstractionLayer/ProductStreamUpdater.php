@@ -20,40 +20,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdat
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ProductStreamUpdater extends EntityIndexer
 {
-    private Connection $connection;
-
-    private ProductDefinition $productDefinition;
-
-    private EntityRepository $repository;
-
-    private MessageBusInterface $messageBus;
-
-    private ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        ProductDefinition $productDefinition,
-        EntityRepository $repository,
-        MessageBusInterface $messageBus,
-        ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater
-    ) {
-        $this->connection = $connection;
-        $this->productDefinition = $productDefinition;
-        $this->repository = $repository;
-        $this->messageBus = $messageBus;
-        $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
+    public function __construct(private readonly Connection $connection, private readonly ProductDefinition $productDefinition, private readonly EntityRepository $repository, private readonly MessageBusInterface $messageBus, private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater)
+    {
     }
 
     public function getName(): string
@@ -91,7 +70,7 @@ class ProductStreamUpdater extends EntityIndexer
 
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $filter = json_decode((string) $filter, true);
+        $filter = json_decode((string) $filter, true, 512, \JSON_THROW_ON_ERROR);
 
         $criteria = $this->getCriteria($filter);
 
@@ -175,7 +154,7 @@ class ProductStreamUpdater extends EntityIndexer
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         foreach ($streams as $stream) {
-            $filter = json_decode((string) $stream['api_filter'], true);
+            $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
             if (empty($filter)) {
                 continue;
             }
@@ -188,7 +167,7 @@ class ProductStreamUpdater extends EntityIndexer
 
             try {
                 $matches = $this->repository->searchIds($criteria, $context);
-            } catch (UnmappedFieldException $e) {
+            } catch (UnmappedFieldException) {
                 // skip if filter field is not found
                 continue;
             }
@@ -294,11 +273,11 @@ class ProductStreamUpdater extends EntityIndexer
         $fieldName = $filter['field'];
 
         $prefix = $this->productDefinition->getEntityName() . '.';
-        if (str_starts_with($fieldName, $prefix)) {
-            $fieldName = substr($fieldName, \strlen($prefix));
+        if (str_starts_with((string) $fieldName, $prefix)) {
+            $fieldName = substr((string) $fieldName, \strlen($prefix));
         }
 
-        $accessors = explode('.', $fieldName);
+        $accessors = explode('.', (string) $fieldName);
         if (($accessors[0] ?? '') !== 'cheapestPrice') {
             return null;
         }
@@ -307,8 +286,8 @@ class ProductStreamUpdater extends EntityIndexer
         $accessors = implode('.', $accessors);
 
         return [
-            array_merge($filter, ['field' => $prefix . 'price' . $accessors]),
-            array_merge($filter, ['field' => $prefix . 'prices.price' . $accessors]),
+            [...$filter, ...['field' => $prefix . 'price' . $accessors]],
+            [...$filter, ...['field' => $prefix . 'prices.price' . $accessors]],
         ];
     }
 }

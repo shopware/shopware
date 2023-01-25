@@ -12,11 +12,8 @@ class ComparisonExtensionTest extends TestCase
 {
     /**
      * @dataProvider comparisonProvider
-     *
-     * @param mixed $value
-     * @param mixed $comparable
      */
-    public function testCompare(bool $shouldBeTrue, string $operator, $value, $comparable = null): void
+    public function testCompare(bool $shouldBeTrue, string $operator, mixed $value, mixed $comparable = null): void
     {
         $extension = new ComparisonExtension();
         $comparison = $extension->compare($operator, $value, $comparable);

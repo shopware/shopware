@@ -7,7 +7,6 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
@@ -17,8 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -26,46 +25,15 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
- * @package inventory
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('inventory')]
 class ProductDetailRoute extends AbstractProductDetailRoute
 {
-    private SalesChannelRepository $productRepository;
-
-    private SystemConfigService $config;
-
-    private ProductConfiguratorLoader $configuratorLoader;
-
-    private CategoryBreadcrumbBuilder $breadcrumbBuilder;
-
-    private SalesChannelCmsPageLoaderInterface $cmsPageLoader;
-
-    private ProductDefinition $productDefinition;
-
-    private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
-
     /**
      * @internal
      */
-    public function __construct(
-        SalesChannelRepository $productRepository,
-        SystemConfigService $config,
-        ProductConfiguratorLoader $configuratorLoader,
-        CategoryBreadcrumbBuilder $breadcrumbBuilder,
-        SalesChannelCmsPageLoaderInterface $cmsPageLoader,
-        SalesChannelProductDefinition $productDefinition,
-        AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
-    ) {
-        $this->productRepository = $productRepository;
-        $this->config = $config;
-        $this->configuratorLoader = $configuratorLoader;
-        $this->breadcrumbBuilder = $breadcrumbBuilder;
-        $this->cmsPageLoader = $cmsPageLoader;
-        $this->productDefinition = $productDefinition;
-        $this->productCloseoutFilterFactory = $productCloseoutFilterFactory;
+    public function __construct(private readonly SalesChannelRepository $productRepository, private readonly SystemConfigService $config, private readonly ProductConfiguratorLoader $configuratorLoader, private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder, private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader, private readonly SalesChannelProductDefinition $productDefinition, private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory)
+    {
     }
 
     public function getDecorated(): AbstractProductDetailRoute
@@ -73,10 +41,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.3.2.0")
-     * @Route("/store-api/product/{productId}", name="store-api.product.detail", methods={"POST"}, defaults={"_entity"="product"})
-     */
+    #[Route(path: '/store-api/product/{productId}', name: 'store-api.product.detail', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse
     {
         return Profiler::trace('product-detail-route', function () use ($productId, $request, $context, $criteria) {

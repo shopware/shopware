@@ -3,21 +3,18 @@
 namespace Shopware\Core\Framework\Adapter\Cache\Message;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package core
- *
  * @internal
  */
 #[AsMessageHandler]
+#[Package('core')]
 final class CleanupOldCacheFoldersHandler
 {
-    private CacheClearer $cacheClearer;
-
-    public function __construct(CacheClearer $cacheClearer)
+    public function __construct(private readonly CacheClearer $cacheClearer)
     {
-        $this->cacheClearer = $cacheClearer;
     }
 
     public function __invoke(CleanupOldCacheFolders $message): void

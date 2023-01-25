@@ -98,8 +98,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
                         'appId' => 'appId',
                         'localeId' => 'en-GB',
                     ],
-                ],
-                []
+                ]
             ),
             'localeRepository' => $this->getLocaleRepository([
                 [

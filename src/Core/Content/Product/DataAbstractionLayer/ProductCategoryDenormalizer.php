@@ -8,21 +8,17 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ProductCategoryDenormalizer
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -51,7 +47,7 @@ class ProductCategoryDenormalizer
 
             $json = null;
             if (!empty($categoryIds)) {
-                $json = json_encode($categoryIds);
+                $json = json_encode($categoryIds, \JSON_THROW_ON_ERROR);
             }
 
             $updates[] = ['id' => $productId, 'tree' => $json, 'version' => $versionId];
@@ -140,9 +136,7 @@ class ProductCategoryDenormalizer
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
         $query->setParameter('live', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
 
-        $bytes = array_map(function (string $id) {
-            return Uuid::fromHexToBytes($id);
-        }, $ids);
+        $bytes = array_map(fn (string $id) => Uuid::fromHexToBytes($id), $ids);
 
         $query->setParameter('ids', $bytes, Connection::PARAM_STR_ARRAY);
 

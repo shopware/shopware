@@ -12,27 +12,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\SetNullOnDeleteCo
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package inventory
- *
  * @internal
  */
+#[Package('inventory')]
 class ProductLineItemCommandValidator implements EventSubscriberInterface
 {
     /**
      * @internal
      */
-    public function __construct(private Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             PreWriteValidationEvent::class => 'preValidate',
@@ -63,7 +63,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
 
             $referenceIdChanged = \array_key_exists('referenced_id', $payload);
 
-            $lineItemPayload = isset($payload['payload']) ? json_decode($payload['payload'], true) : [];
+            $lineItemPayload = isset($payload['payload']) ? json_decode((string) $payload['payload'], true, 512, \JSON_THROW_ON_ERROR) : [];
             $orderNumberChanged = \array_key_exists('productNumber', $lineItemPayload);
 
             if (!$this->isProduct($products, $payload, $lineItemId)) {

@@ -4,22 +4,14 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\UpdatedByFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserDefinition;
 
-/**
- * @package core
- */
+#[Package('core')]
 class UpdatedByField extends FkField
 {
-    /**
-     * @var array
-     */
-    private $allowedWriteScopes;
-
-    public function __construct(array $allowedWriteScopes = [Context::SYSTEM_SCOPE])
+    public function __construct(private readonly array $allowedWriteScopes = [Context::SYSTEM_SCOPE])
     {
-        $this->allowedWriteScopes = $allowedWriteScopes;
-
         parent::__construct('updated_by_id', 'updatedById', UserDefinition::class);
     }
 

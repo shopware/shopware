@@ -7,12 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldNotStorageAwareException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class DefaultFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {
     public function buildAccessor(string $root, Field $field, Context $context, string $accessor): string

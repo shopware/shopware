@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -19,10 +20,9 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class CartTaxTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -141,7 +141,7 @@ class CartTaxTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($testCase === 'tax-free') {
             static::assertEquals((500 * $quantity) + 10, $response['price']['totalPrice']);
@@ -225,7 +225,7 @@ class CartTaxTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($testCase === 'tax-free') {
             static::assertEquals((550 * $quantity) + 11, $response['price']['totalPrice']);
@@ -291,7 +291,7 @@ class CartTaxTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($testCase === 'tax-free') {
             static::assertEquals(FloatComparator::cast((585.43 * $quantity) + 11.71), $response['price']['totalPrice']);
@@ -391,8 +391,8 @@ class CartTaxTest extends TestCase
 
     private function createCustomerAndLogin(string $countryId, ?string $email = null, ?string $password = null): void
     {
-        $email = $email ?? (Uuid::randomHex() . '@example.com');
-        $password = $password ?? 'shopware';
+        $email ??= Uuid::randomHex() . '@example.com';
+        $password ??= 'shopware';
         $this->createCustomer($countryId, $password, $email);
 
         $this->login($email, $password);
@@ -410,7 +410,7 @@ class CartTaxTest extends TestCase
                 (string) json_encode([
                     'email' => $email,
                     'password' => $password,
-                ])
+                ], \JSON_THROW_ON_ERROR)
             );
 
         $response = $this->browser->getResponse();

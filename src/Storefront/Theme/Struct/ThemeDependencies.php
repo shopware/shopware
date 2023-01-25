@@ -2,11 +2,10 @@
 
 namespace Shopware\Storefront\Theme\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeDependencies extends Struct
 {
     /**

@@ -15,14 +15,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class CustomerWishlistDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'customer_wishlist';
+    final public const ENTITY_NAME = 'customer_wishlist';
 
     public function getEntityName(): string
     {

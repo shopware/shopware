@@ -3,13 +3,13 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1664541794AddIndexForLogEntryTask extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -21,7 +21,7 @@ class Migration1664541794AddIndexForLogEntryTask extends MigrationStep
     {
         try {
             $connection->executeStatement('ALTER TABLE `log_entry` ADD INDEX `idx.log_entry.created_at` (`created_at`)');
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // index already exists
         }
     }

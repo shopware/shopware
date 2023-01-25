@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
  */
 class ToManyAssociationMappingDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = '_test_to_many_association_mapping';
+    final public const ENTITY_NAME = '_test_to_many_association_mapping';
 
     public function getEntityName(): string
     {

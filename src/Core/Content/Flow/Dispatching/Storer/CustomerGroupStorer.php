@@ -8,20 +8,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class CustomerGroupStorer extends FlowStorer
 {
-    private EntityRepository $customerGroupRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $customerGroupRepository)
+    public function __construct(private readonly EntityRepository $customerGroupRepository)
     {
-        $this->customerGroupRepository = $customerGroupRepository;
     }
 
     /**
@@ -48,7 +44,7 @@ class CustomerGroupStorer extends FlowStorer
 
         $storable->lazy(
             CustomerGroupAware::CUSTOMER_GROUP,
-            [$this, 'load'],
+            $this->load(...),
             [$storable->getStore(CustomerGroupAware::CUSTOMER_GROUP_ID), $storable->getContext()]
         );
     }
@@ -58,7 +54,7 @@ class CustomerGroupStorer extends FlowStorer
      */
     public function load(array $args): ?CustomerGroupEntity
     {
-        list($id, $context) = $args;
+        [$id, $context] = $args;
         $criteria = new Criteria([$id]);
 
         $customerGroup = $this->customerGroupRepository->search($criteria, $context)->get($id);

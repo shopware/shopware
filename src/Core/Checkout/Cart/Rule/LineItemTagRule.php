@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -11,31 +12,19 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tag\TagDefinition;
 use Symfony\Component\Validator\Constraint;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class LineItemTagRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemTag';
-
-    protected string $operator;
-
-    /**
-     * @var list<string>|null
-     */
-    protected ?array $identifiers;
+    final public const RULE_NAME = 'cartLineItemTag';
 
     /**
      * @internal
      *
      * @param list<string>|null $identifiers
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $identifiers = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $identifiers = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->identifiers = $identifiers;
     }
 
     public function match(RuleScope $scope): bool

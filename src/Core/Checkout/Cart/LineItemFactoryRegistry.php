@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -16,33 +17,19 @@ use Symfony\Component\Validator\Constraints\Required;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class LineItemFactoryRegistry
 {
-    /**
-     * @var LineItemFactoryInterface[]|iterable
-     */
-    private iterable $handlers;
-
-    private DataValidator $validator;
-
-    private DataValidationDefinition $validatorDefinition;
-
-    private EventDispatcherInterface $eventDispatcher;
+    private readonly DataValidationDefinition $validatorDefinition;
 
     /**
      * @param LineItemFactoryInterface[]|iterable $handlers
      *
      * @internal
      */
-    public function __construct(iterable $handlers, DataValidator $validator, EventDispatcherInterface $eventDispatcher)
+    public function __construct(private readonly iterable $handlers, private readonly DataValidator $validator, private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->handlers = $handlers;
-        $this->validator = $validator;
         $this->validatorDefinition = $this->createValidatorDefinition();
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**

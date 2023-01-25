@@ -197,7 +197,7 @@ class ProductExportGeneratorTest extends TestCase
 
         try {
             $exportGenerator->generate($productExport, $exportBehavior);
-        } catch (EmptyExportException $emptyExportException) {
+        } catch (EmptyExportException) {
         }
 
         static::assertTrue($productExportProductCriteriaEventDispatched, 'ProductExportProductCriteriaEvent was not dispatched');

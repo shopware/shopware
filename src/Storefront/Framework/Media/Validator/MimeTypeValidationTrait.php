@@ -2,11 +2,10 @@
 
 namespace Shopware\Storefront\Framework\Media\Validator;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-/**
- * @package content
- */
+#[Package('content')]
 trait MimeTypeValidationTrait
 {
     protected function checkMimeType(UploadedFile $file, array $allowedMimeTypes): bool

@@ -21,28 +21,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal This class is not intended for service decoration
- *
- * @package core
  */
+#[Package('core')]
 class CriteriaPartResolver
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
-     * @var SqlQueryParser
-     */
-    private $parser;
-
-    public function __construct(Connection $connection, SqlQueryParser $parser)
+    public function __construct(private readonly Connection $connection, private readonly SqlQueryParser $parser)
     {
-        $this->connection = $connection;
-        $this->parser = $parser;
     }
 
     public function resolve(array $parts, EntityDefinition $definition, QueryBuilder $query, Context $context): void
@@ -171,7 +159,7 @@ class CriteriaPartResolver
         }
 
         if (!$field instanceof ManyToManyAssociationField) {
-            throw new \RuntimeException(sprintf('Unknown association class provided %s', \get_class($field)));
+            throw new \RuntimeException(sprintf('Unknown association class provided %s', $field::class));
         }
 
         $reference = $field->getReferenceDefinition();
@@ -349,6 +337,6 @@ class CriteriaPartResolver
             return EntityDefinitionQueryHelper::escape($association->getLocalField());
         }
 
-        throw new \RuntimeException(sprintf('Unknown association class provided %s', \get_class($association)));
+        throw new \RuntimeException(sprintf('Unknown association class provided %s', $association::class));
     }
 }

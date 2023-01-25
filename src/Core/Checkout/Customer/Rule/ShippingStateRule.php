@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -13,30 +14,19 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class ShippingStateRule extends Rule
 {
-    public const RULE_NAME = 'customerShippingState';
-
-    /**
-     * @var list<string>|null
-     */
-    protected ?array $stateIds;
-
-    protected string $operator;
+    final public const RULE_NAME = 'customerShippingState';
 
     /**
      * @internal
      *
      * @param list<string>|null $stateIds
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $stateIds = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $stateIds = null)
     {
         parent::__construct();
-        $this->operator = $operator;
-        $this->stateIds = $stateIds;
     }
 
     /**

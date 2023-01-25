@@ -4,30 +4,23 @@ namespace Shopware\Core\Framework\Feature\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
-#[AsCommand(
-    name: 'feature:dump',
-    description: 'Dumps all features',
-)]
+#[AsCommand(name: 'feature:dump', description: 'Dumps all features', aliases: ['administration:dump:features'])]
+#[Package('core')]
 class FeatureDumpCommand extends Command
 {
-    private Kernel $kernel;
-
     /**
      * @internal
      */
-    public function __construct(Kernel $kernel)
+    public function __construct(private readonly Kernel $kernel)
     {
         parent::__construct();
-        $this->kernel = $kernel;
     }
 
     /**
@@ -35,16 +28,13 @@ class FeatureDumpCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setAliases(['administration:dump:features'])
-            ->setDescription('Creating json file with feature config for js testing and hot reloading capabilities.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         file_put_contents(
             $this->kernel->getProjectDir() . '/var/config_js_features.json',
-            json_encode(Feature::getAll())
+            json_encode(Feature::getAll(), \JSON_THROW_ON_ERROR)
         );
 
         $style = new ShopwareStyle($input, $output);

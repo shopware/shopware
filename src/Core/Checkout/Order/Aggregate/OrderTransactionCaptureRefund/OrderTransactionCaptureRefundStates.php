@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund;
 
-/**
- * @package customer-order
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('customer-order')]
 final class OrderTransactionCaptureRefundStates
 {
     public const STATE_MACHINE = 'order_transaction_capture_refund.state';

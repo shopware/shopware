@@ -5,11 +5,10 @@ namespace Shopware\Core\Content\Product;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class PropertyGroupSorter extends AbstractPropertyGroupSorter
 {
     public function getDecorated(): AbstractPropertyGroupSorter

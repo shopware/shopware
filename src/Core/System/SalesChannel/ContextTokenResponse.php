@@ -3,12 +3,11 @@
 namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\PlatformRequest;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ContextTokenResponse extends StoreApiResponse
 {
     /**

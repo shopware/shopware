@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition;
 
-/**
- * @package checkout
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 final class StateMachineTransitionActions
 {
     public const ACTION_CANCEL = 'cancel';

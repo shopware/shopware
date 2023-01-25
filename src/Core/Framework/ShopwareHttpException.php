@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-/**
- * @package core
- */
+#[Package('core')]
 abstract class ShopwareHttpException extends HttpException implements ShopwareException
 {
     /**

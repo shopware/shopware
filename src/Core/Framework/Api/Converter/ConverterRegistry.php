@@ -2,24 +2,18 @@
 
 namespace Shopware\Core\Framework\Api\Converter;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class ConverterRegistry
 {
-    /**
-     * @var iterable<ApiConverter>
-     */
-    private iterable $converters;
-
     /**
      * @internal
      *
      * @param iterable<ApiConverter> $converters
      */
-    public function __construct(iterable $converters)
+    public function __construct(private readonly iterable $converters)
     {
-        $this->converters = $converters;
     }
 
     /**

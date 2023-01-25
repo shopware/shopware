@@ -3,10 +3,9 @@
 namespace Shopware\Core\Checkout\Payment\Event;
 
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheKeyEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PaymentMethodRouteCacheKeyEvent extends StoreApiRouteCacheKeyEvent
 {
 }

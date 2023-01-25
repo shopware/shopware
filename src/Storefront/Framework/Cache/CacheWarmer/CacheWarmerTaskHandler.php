@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Cache\CacheWarmer;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\Framework\Cache\CacheStore;
@@ -13,11 +14,10 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
- * @package storefront
- *
  * @internal
  */
 #[AsMessageHandler]
+#[Package('storefront')]
 final class CacheWarmerTaskHandler
 {
     public function __construct(private readonly Kernel $kernel, private readonly RouterInterface $router, private readonly RequestTransformerInterface $requestTransformer, private readonly CacheIdLoader $cacheIdLoader, private readonly CacheTagCollection $cacheTagCollection)

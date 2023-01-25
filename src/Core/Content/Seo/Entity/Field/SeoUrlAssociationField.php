@@ -8,34 +8,28 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @deprecated tag:v6.6.0 - will be removed
- *
- * @package sales-channel
  */
+#[Package('sales-channel')]
 class SeoUrlAssociationField extends OneToManyAssociationField
 {
-    /**
-     * @var string
-     */
-    private $routeName;
-
     public function __construct(
         string $propertyName,
-        string $routeName,
+        private readonly string $routeName,
         string $localField = 'id'
     ) {
         parent::__construct($propertyName, SeoUrlDefinition::class, 'foreign_key', $localField);
         $this->addFlags(new Extension());
-        $this->routeName = $routeName;
     }
 
     public function getRouteName(): string
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
         );
 
         return $this->routeName;
@@ -45,7 +39,7 @@ class SeoUrlAssociationField extends OneToManyAssociationField
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
         );
 
         return SeoUrlFieldSerializer::class;
@@ -55,7 +49,7 @@ class SeoUrlAssociationField extends OneToManyAssociationField
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
         );
 
         return SeoUrlAssociationFieldResolver::class;

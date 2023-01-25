@@ -3,12 +3,12 @@
 namespace Shopware\Core\System\CustomEntity\Xml\Config;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 abstract class ConfigXmlElement extends XmlElement
 {
     abstract public static function fromXml(\DOMElement $element): self;

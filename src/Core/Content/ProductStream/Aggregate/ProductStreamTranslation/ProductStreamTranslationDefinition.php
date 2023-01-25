@@ -10,13 +10,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class ProductStreamTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'product_stream_translation';
+    final public const ENTITY_NAME = 'product_stream_translation';
 
     public function getEntityName(): string
     {

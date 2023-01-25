@@ -13,17 +13,14 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class Cart extends Struct
 {
     use StateAwareTrait;
-
-    protected string $token;
 
     protected CartPrice $price;
 
@@ -55,9 +52,8 @@ class Cart extends Struct
     /**
      * @internal
      */
-    public function __construct(string $token)
+    public function __construct(protected string $token)
     {
-        $this->token = $token;
         $this->lineItems = new LineItemCollection();
         $this->transactions = new TransactionCollection();
         $this->errors = new ErrorCollection();

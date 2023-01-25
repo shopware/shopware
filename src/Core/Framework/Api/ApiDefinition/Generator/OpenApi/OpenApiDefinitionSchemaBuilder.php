@@ -34,11 +34,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package core
- */
+#[Package('core')]
 class OpenApiDefinitionSchemaBuilder
 {
     /**
@@ -51,6 +50,7 @@ class OpenApiDefinitionSchemaBuilder
         bool $onlyFlat = false,
         string $apiType = DefinitionService::TypeJsonApi
     ): array {
+        $schema = [];
         $attributes = [];
         $requiredAttributes = [];
         $relationships = [];
@@ -146,7 +146,7 @@ class OpenApiDefinitionSchemaBuilder
             }
         }
 
-        $attributes = array_merge([new Property(['property' => 'id', 'type' => 'string', 'pattern' => '^[0-9a-f]{32}$'])], $attributes);
+        $attributes = [...[new Property(['property' => 'id', 'type' => 'string', 'pattern' => '^[0-9a-f]{32}$'])], ...$attributes];
 
         if (!$onlyFlat && $apiType === 'jsonapi') {
             $schema[$schemaName . 'JsonApi'] = new Schema([
@@ -234,10 +234,7 @@ class OpenApiDefinitionSchemaBuilder
         return true;
     }
 
-    /**
-     * @param ManyToOneAssociationField|OneToOneAssociationField $field
-     */
-    private function createToOneLinkage($field, string $basePath): Property
+    private function createToOneLinkage(ManyToOneAssociationField|OneToOneAssociationField $field, string $basePath): Property
     {
         return new Property([
             'type' => 'object',
@@ -271,10 +268,7 @@ class OpenApiDefinitionSchemaBuilder
         ]);
     }
 
-    /**
-     * @param ManyToManyAssociationField|OneToManyAssociationField|AssociationField $field
-     */
-    private function createToManyLinkage(AssociationField $field, string $basePath): Property
+    private function createToManyLinkage(ManyToManyAssociationField|OneToManyAssociationField|AssociationField $field, string $basePath): Property
     {
         $associationEntityName = $field->getReferenceDefinition()->getEntityName();
 
@@ -409,7 +403,7 @@ class OpenApiDefinitionSchemaBuilder
 
     private function getPropertyByField(Field $field): Property
     {
-        $fieldClass = \get_class($field);
+        $fieldClass = $field::class;
 
         $property = new Property([
             'type' => $this->getType($fieldClass),

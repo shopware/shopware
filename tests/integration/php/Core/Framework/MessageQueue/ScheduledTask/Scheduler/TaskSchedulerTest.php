@@ -31,10 +31,7 @@ class TaskSchedulerTest extends TestCase
 
     private EntityRepository $scheduledTaskRepo;
 
-    /**
-     * @var MessageBusInterface&MockObject
-     */
-    private $messageBus;
+    private MockObject&MessageBusInterface $messageBus;
 
     private TaskScheduler $scheduler;
 

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -24,16 +25,15 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  * @internal We might break this in v6.2
  *
  * @phpstan-type Config array{mapping?: ?array<array<string, mixed>>, updateBy?: ?array<string, mixed>, parameters?: ?array<string, mixed>}
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExportService
 {
     public function __construct(
-        private EntityRepository $logRepository,
-        private EntityRepository $userRepository,
-        private EntityRepository $profileRepository,
-        private AbstractFileService $fileService
+        private readonly EntityRepository $logRepository,
+        private readonly EntityRepository $userRepository,
+        private readonly EntityRepository $profileRepository,
+        private readonly AbstractFileService $fileService
     ) {
     }
 
@@ -209,9 +209,7 @@ class ImportExportService
         }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($logEntity): void {
-            $logData = array_filter($logEntity->jsonSerialize(), function ($value) {
-                return $value !== null;
-            });
+            $logData = array_filter($logEntity->jsonSerialize(), fn ($value) => $value !== null);
             $this->logRepository->create([$logData], $context);
         });
 

@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class NamedOptionalGroupDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'named_optional_group';
+    final public const ENTITY_NAME = 'named_optional_group';
 
     public function getEntityName(): string
     {

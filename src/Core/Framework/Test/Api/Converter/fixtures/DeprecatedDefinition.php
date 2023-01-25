@@ -21,7 +21,7 @@ use Shopware\Core\System\Tax\TaxDefinition;
  */
 class DeprecatedDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'deprecated';
+    final public const ENTITY_NAME = 'deprecated';
 
     public function getEntityName(): string
     {

@@ -2,30 +2,26 @@
 
 namespace Shopware\Core\DevOps\System\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use const PHP_EOL;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'sync:composer:version',
     description: 'Syncs the composer version with the shopware version',
 )]
+#[Package('core')]
 class SyncComposerVersionCommand extends Command
 {
-    private string $projectDir;
-
     /**
      * @internal
      */
-    public function __construct(string $projectDir)
+    public function __construct(private readonly string $projectDir)
     {
         parent::__construct();
-        $this->projectDir = $projectDir;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -5,13 +5,13 @@ namespace Shopware\Core\Content\ImportExport\Processing\Pipe;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\ArrayNormalizer;
 
 /**
  * @phpstan-import-type MappingArray from Mapping
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class KeyMappingPipe extends AbstractPipe
 {
     private MappingCollection $mapping;

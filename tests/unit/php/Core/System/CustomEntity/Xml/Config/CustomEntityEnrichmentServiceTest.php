@@ -85,9 +85,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
                 continue;
             }
 
-            $fieldNames = array_map(static function ($field) {
-                return $field->getName();
-            }, $enrichedCustomEntity->getFields());
+            $fieldNames = array_map(static fn ($field) => $field->getName(), $enrichedCustomEntity->getFields());
 
             static::assertCount(15, $fieldNames);
 
@@ -134,9 +132,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
                 continue;
             }
 
-            $fieldNames = array_map(static function ($field) {
-                return $field->getName();
-            }, $enrichedCustomEntity->getFields());
+            $fieldNames = array_map(static fn ($field) => $field->getName(), $enrichedCustomEntity->getFields());
 
             static::assertCount(4, $fieldNames);
 
@@ -194,9 +190,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             $listingColumns = $adminUi->getListing()->getColumns()->getContent();
             static::assertCount(3, $listingColumns);
 
-            $listingColumnNames = array_map(static function ($column) {
-                return $column->getVars()['ref'];
-            }, $listingColumns);
+            $listingColumnNames = array_map(static fn ($column) => $column->getVars()['ref'], $listingColumns);
 
             static::assertIsArray($listingColumns);
 

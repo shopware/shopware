@@ -2,13 +2,12 @@
 
 namespace Shopware\Storefront\Page\Search;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class SearchPageLoadedEvent extends PageLoadedEvent
 {
     /**

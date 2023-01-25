@@ -6,45 +6,33 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Test\TestBuilderTrait;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('customer-order')]
 class OrderTransactionCaptureRefundPositionBuilder
 {
     use TestBuilderTrait;
 
     protected string $id;
 
-    protected string $refundId;
-
-    protected ?string $orderLineItemId = null;
-
     protected CalculatedPrice $amount;
-
-    protected ?string $externalReference = null;
-
-    protected ?string $reason = null;
 
     public function __construct(
         IdsCollection $ids,
         string $key,
-        string $refundId,
+        protected string $refundId,
         float $amount = 420.69,
-        ?string $externalReference = null,
-        ?string $reason = null,
-        ?string $orderLineItemId = null
+        protected ?string $externalReference = null,
+        protected ?string $reason = null,
+        protected ?string $orderLineItemId = null
     ) {
         $this->id = $ids->get($key);
         $this->ids = $ids;
-        $this->refundId = $refundId;
-        $this->externalReference = $externalReference;
-        $this->reason = $reason;
-        $this->orderLineItemId = $orderLineItemId;
 
         $this->amount($amount);
 

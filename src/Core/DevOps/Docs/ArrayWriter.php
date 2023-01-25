@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\DevOps\Docs;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class ArrayWriter
 {
     /**
@@ -12,7 +12,7 @@ class ArrayWriter
      */
     private array $data = [];
 
-    public function __construct(private string $path)
+    public function __construct(private readonly string $path)
     {
         if (file_exists($path)) {
             $this->data = (array) require $path;

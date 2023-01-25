@@ -19,17 +19,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class AddOrderTagActionTest extends TestCase
 {
-    /**
-     * @var MockObject|EntityRepository
-     */
-    private $repository;
+    private MockObject&EntityRepository $repository;
 
     private AddOrderTagAction $action;
 
-    /**
-     * @var MockObject|StorableFlow
-     */
-    private $flow;
+    private MockObject&StorableFlow $flow;
 
     public function setUp(): void
     {

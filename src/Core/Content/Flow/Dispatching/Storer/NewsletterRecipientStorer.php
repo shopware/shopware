@@ -8,20 +8,16 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class NewsletterRecipientStorer extends FlowStorer
 {
-    private EntityRepository $newsletterRecipientRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $newsletterRecipientRepository)
+    public function __construct(private readonly EntityRepository $newsletterRecipientRepository)
     {
-        $this->newsletterRecipientRepository = $newsletterRecipientRepository;
     }
 
     /**
@@ -48,7 +44,7 @@ class NewsletterRecipientStorer extends FlowStorer
 
         $storable->lazy(
             NewsletterRecipientAware::NEWSLETTER_RECIPIENT,
-            [$this, 'load'],
+            $this->load(...),
             [$storable->getStore(NewsletterRecipientAware::NEWSLETTER_RECIPIENT_ID), $storable->getContext()]
         );
     }
@@ -58,7 +54,7 @@ class NewsletterRecipientStorer extends FlowStorer
      */
     public function load(array $args): ?NewsletterRecipientEntity
     {
-        list($id, $context) = $args;
+        [$id, $context] = $args;
         $criteria = new Criteria([$id]);
 
         $newsletterRecipient = $this->newsletterRecipientRepository->search($criteria, $context)->get($id);

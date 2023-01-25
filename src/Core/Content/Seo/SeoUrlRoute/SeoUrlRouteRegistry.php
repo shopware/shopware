@@ -2,20 +2,20 @@
 
 namespace Shopware\Core\Content\Seo\SeoUrlRoute;
 
-/**
- * @package sales-channel
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('sales-channel')]
 class SeoUrlRouteRegistry
 {
     /**
      * @var SeoUrlRouteInterface[]
      */
-    private $seoUrlRoutes = [];
+    private array $seoUrlRoutes = [];
 
     /**
      * @var SeoUrlRouteInterface[]
      */
-    private $definitionToRoutes = [];
+    private array $definitionToRoutes = [];
 
     /**
      * @internal

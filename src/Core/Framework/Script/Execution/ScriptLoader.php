@@ -7,36 +7,24 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Twig\Cache\FilesystemCache;
 
 /**
  * @internal only for use by the app-system
- *
- * @package core
  */
+#[Package('core')]
 class ScriptLoader implements EventSubscriberInterface
 {
-    public const CACHE_KEY = 'shopware-app-scripts';
+    final public const CACHE_KEY = 'shopware-app-scripts';
 
-    private Connection $connection;
+    private readonly string $cacheDir;
 
-    private string $cacheDir;
-
-    private ScriptPersister $scriptPersister;
-
-    private bool $debug;
-
-    private TagAwareAdapterInterface $cache;
-
-    public function __construct(Connection $connection, ScriptPersister $scriptPersister, TagAwareAdapterInterface $cache, string $cacheDir, bool $debug)
+    public function __construct(private readonly Connection $connection, private readonly ScriptPersister $scriptPersister, private readonly TagAwareAdapterInterface $cache, string $cacheDir, private readonly bool $debug)
     {
-        $this->connection = $connection;
         $this->cacheDir = $cacheDir . '/twig/scripts';
-        $this->scriptPersister = $scriptPersister;
-        $this->debug = $debug;
-        $this->cache = $cache;
     }
 
     public static function getSubscribedEvents(): array
@@ -111,7 +99,7 @@ class ScriptLoader implements EventSubscriberInterface
 
             $includes = $allIncludes[$appId] ?? [];
 
-            $dates = array_merge([$script['lastModified']], array_column($includes, 'lastModified'));
+            $dates = [...[$script['lastModified']], ...array_column($includes, 'lastModified')];
 
             /** @var \DateTimeInterface $lastModified */
             $lastModified = new \DateTimeImmutable(max($dates));

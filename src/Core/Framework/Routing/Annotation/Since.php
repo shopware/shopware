@@ -3,13 +3,13 @@
 namespace Shopware\Core\Framework\Routing\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @Annotation
  * @NamedArgumentConstructor
- *
- * @package core
  */
+#[Package('core')]
 class Since
 {
     public function __construct(public string $version)

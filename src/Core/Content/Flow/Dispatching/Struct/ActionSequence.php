@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Struct;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package business-ops
- *
  * @internal not intended for decoration or replacement
  */
+#[Package('business-ops')]
 class ActionSequence extends Sequence
 {
     public string $action;

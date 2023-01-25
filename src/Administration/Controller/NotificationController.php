@@ -7,9 +7,9 @@ use Shopware\Administration\Notification\NotificationService;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,10 +17,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package administration
- */
 #[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('administration')]
 class NotificationController extends AbstractController
 {
     final public const NOTIFICATION = 'notification';
@@ -34,9 +32,6 @@ class NotificationController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.4.7.0")
-     */
     #[Route(path: '/api/notification', name: 'api.notification', defaults: ['_acl' => ['notification:create']], methods: ['POST'])]
     public function saveNotification(Request $request, Context $context): Response
     {
@@ -82,9 +77,6 @@ class NotificationController extends AbstractController
         return new JsonResponse(['id' => $notificationId]);
     }
 
-    /**
-     * @Since("6.4.7.0")
-     */
     #[Route(path: '/api/notification/message', name: 'api.notification.message', methods: ['GET'])]
     public function fetchNotification(Request $request, Context $context): Response
     {

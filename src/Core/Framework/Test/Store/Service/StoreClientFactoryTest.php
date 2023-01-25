@@ -5,16 +5,16 @@ namespace Shopware\Core\Framework\Test\Store\Service;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\HandlerStack;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClientFactory;
 use Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
+#[Package('merchant-services')]
 class StoreClientFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -23,7 +23,7 @@ class StoreClientFactoryTest extends TestCase
 
     private const STORE_URI_CONFIG_KEY = 'core.store.apiUri';
 
-    private ?string $originalStoreUri;
+    private ?string $originalStoreUri = null;
 
     /**
      * @before

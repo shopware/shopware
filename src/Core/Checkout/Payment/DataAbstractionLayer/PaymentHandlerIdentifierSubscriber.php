@@ -9,14 +9,14 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandler
 use Shopware\Core\Checkout\Payment\PaymentEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array
@@ -44,7 +44,7 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
 
     private function getHandlerIdentifier(Entity $entity): string
     {
-        $explodedHandlerIdentifier = explode('\\', $entity->get('handlerIdentifier'));
+        $explodedHandlerIdentifier = explode('\\', (string) $entity->get('handlerIdentifier'));
 
         if (\count($explodedHandlerIdentifier) < 2) {
             return $entity->get('handlerIdentifier');
@@ -85,7 +85,7 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
 
     private function getShortName(Entity $entity): string
     {
-        $explodedHandlerIdentifier = explode('\\', $entity->get('handlerIdentifier'));
+        $explodedHandlerIdentifier = explode('\\', (string) $entity->get('handlerIdentifier'));
 
         $last = $explodedHandlerIdentifier[\count($explodedHandlerIdentifier) - 1];
 

@@ -2,15 +2,14 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class TimeRangeRule extends Rule
 {
-    public const RULE_NAME = 'timeRange';
+    final public const RULE_NAME = 'timeRange';
 
     private const TIME_REGEX = '/^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/';
 

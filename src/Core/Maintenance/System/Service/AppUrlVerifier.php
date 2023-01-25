@@ -7,30 +7,18 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class AppUrlVerifier
 {
-    private Client $guzzle;
-
-    private Connection $connection;
-
-    private string $appEnv;
-
-    private bool $appUrlCheckDisabled;
-
-    public function __construct(Client $guzzle, Connection $connection, string $appEnv, bool $appUrlCheckDisabled)
+    public function __construct(private readonly Client $guzzle, private readonly Connection $connection, private readonly string $appEnv, private readonly bool $appUrlCheckDisabled)
     {
-        $this->guzzle = $guzzle;
-        $this->connection = $connection;
-        $this->appEnv = $appEnv;
-        $this->appUrlCheckDisabled = $appUrlCheckDisabled;
     }
 
     public function isAppUrlReachable(Request $request): bool
@@ -62,7 +50,7 @@ class AppUrlVerifier
             if ($response->getStatusCode() === Response::HTTP_OK) {
                 return true;
             }
-        } catch (GuzzleException $e) {
+        } catch (GuzzleException) {
             return false;
         }
 

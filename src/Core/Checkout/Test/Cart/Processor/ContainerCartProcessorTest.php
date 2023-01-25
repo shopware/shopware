@@ -18,16 +18,16 @@ use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\HighTaxes;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\LowTaxes;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\PercentageItem;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\QuantityItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class ContainerCartProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;

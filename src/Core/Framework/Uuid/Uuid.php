@@ -2,18 +2,17 @@
 
 namespace Shopware\Core\Framework\Uuid;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 
-/**
- * @package core
- */
+#[Package('core')]
 class Uuid
 {
     /**
      * Regular expression pattern for matching a valid UUID of any variant.
      */
-    public const VALID_PATTERN = '^[0-9a-f]{32}$';
+    final public const VALID_PATTERN = '^[0-9a-f]{32}$';
 
     public static function randomHex(): string
     {

@@ -5,23 +5,18 @@ namespace Shopware\Core\Checkout\Customer\Password;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\LegacyPasswordEncoderNotFoundException;
 use Shopware\Core\Checkout\Customer\Password\LegacyEncoder\LegacyEncoderInterface;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class LegacyPasswordVerifier
 {
     /**
-     * @var LegacyEncoderInterface[]
-     */
-    private $encoder;
-
-    /**
      * @internal
+     *
+     * @param LegacyEncoderInterface[] $encoder
      */
-    public function __construct(iterable $encoder)
+    public function __construct(private readonly iterable $encoder)
     {
-        $this->encoder = $encoder;
     }
 
     public function verify(string $password, CustomerEntity $customer): bool

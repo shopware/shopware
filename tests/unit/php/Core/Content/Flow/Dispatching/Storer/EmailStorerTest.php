@@ -41,7 +41,7 @@ class EmailStorerTest extends TestCase
     {
         $email = 'shopware-test@gmail.com';
 
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         if ($hasStore) {

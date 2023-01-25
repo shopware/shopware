@@ -14,29 +14,17 @@ use Shopware\Core\Framework\App\Payment\Payload\Struct\PaymentPayloadInterface;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\SourcedPayloadInterface;
 use Shopware\Core\Framework\App\Payment\Response\AbstractResponse;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal only for use by the app-systems
- *
- * @package core
  */
+#[Package('core')]
 class PaymentPayloadService
 {
-    private AppPayloadServiceHelper $helper;
-
-    private Client $client;
-
-    private string $shopUrl;
-
-    public function __construct(
-        AppPayloadServiceHelper $helper,
-        Client $client,
-        string $shopUrl
-    ) {
-        $this->helper = $helper;
-        $this->client = $client;
-        $this->shopUrl = $shopUrl;
+    public function __construct(private readonly AppPayloadServiceHelper $helper, private readonly Client $client, private readonly string $shopUrl)
+    {
     }
 
     /**
@@ -61,8 +49,8 @@ class PaymentPayloadService
                 $transactionId = $payload->getOrderTransaction()->getId();
             }
 
-            return $responseClass::create($transactionId, \json_decode($content, true));
-        } catch (GuzzleException $ex) {
+            return $responseClass::create($transactionId, \json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
+        } catch (GuzzleException) {
             return null;
         }
     }
@@ -74,7 +62,7 @@ class PaymentPayloadService
     {
         $payload->setSource($this->helper->buildSource($app, $this->shopUrl));
         $encoded = $this->helper->encode($payload);
-        $jsonPayload = json_encode($encoded);
+        $jsonPayload = json_encode($encoded, \JSON_THROW_ON_ERROR);
 
         if (!$jsonPayload) {
             if ($payload instanceof PaymentPayloadInterface) {

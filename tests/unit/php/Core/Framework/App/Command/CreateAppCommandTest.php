@@ -29,7 +29,7 @@ class CreateAppCommandTest extends TestCase
 
     public function tearDown(): void
     {
-        $this->removeApp(self::AppName);
+        $this->removeApp();
     }
 
     public function testSuccessfulCreateCommand(): void
@@ -322,9 +322,9 @@ class CreateAppCommandTest extends TestCase
         ];
     }
 
-    private function removeApp(string $appName): void
+    private function removeApp(): void
     {
-        $directory = $this->appDir . '/' . $appName;
+        $directory = $this->appDir . '/' . self::AppName;
 
         if (!is_dir($directory)) {
             return;

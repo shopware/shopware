@@ -13,11 +13,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LocaleDefinition;
 
-/**
- * @package administration
- */
+#[Package('administration')]
 class AppAdministrationSnippetDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'app_administration_snippet';

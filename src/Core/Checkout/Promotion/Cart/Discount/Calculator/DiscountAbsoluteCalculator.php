@@ -10,18 +10,14 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class DiscountAbsoluteCalculator implements DiscountCalculatorInterface
 {
-    private AbsolutePriceCalculator $priceCalculator;
-
-    public function __construct(AbsolutePriceCalculator $priceCalculator)
+    public function __construct(private readonly AbsolutePriceCalculator $priceCalculator)
     {
-        $this->priceCalculator = $priceCalculator;
     }
 
     /**

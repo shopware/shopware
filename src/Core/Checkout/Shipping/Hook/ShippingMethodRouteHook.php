@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Shipping\Hook;
 
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiRequestHook;
@@ -10,17 +11,16 @@ use Shopware\Core\System\SalesChannel\StoreApiRequestHook;
 /**
  * Triggered when ShippingMethodRoute is requested
  *
- * @package checkout
- *
  * @hook-use-case data_loading
  *
  * @since 6.5.0.0
  */
+#[Package('checkout')]
 class ShippingMethodRouteHook extends StoreApiRequestHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'shipping-method-route-request';
+    final public const HOOK_NAME = 'shipping-method-route-request';
 
     /**
      * @internal

@@ -191,10 +191,7 @@ class ProductConfiguratorOrderTest extends TestCase
                 'stock' => 10,
                 'active' => true,
                 'parentId' => $productId,
-                'options' => array_map(function (array $group) {
-                    // Assign first option from each group
-                    return ['id' => $group[0]];
-                }, $optionIds),
+                'options' => array_map(fn (array $group) => ['id' => $group[0]], $optionIds),
             ],
         ];
 

@@ -6,22 +6,18 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class ProductLineItemFactory implements LineItemFactoryInterface
 {
-    private PriceDefinitionFactory $priceDefinitionFactory;
-
     /**
      * @internal
      */
-    public function __construct(PriceDefinitionFactory $priceDefinitionFactory)
+    public function __construct(private readonly PriceDefinitionFactory $priceDefinitionFactory)
     {
-        $this->priceDefinitionFactory = $priceDefinitionFactory;
     }
 
     public function supports(string $type): bool

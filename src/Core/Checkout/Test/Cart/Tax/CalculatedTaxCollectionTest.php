@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
  */
 class CalculatedTaxCollectionTest extends TestCase
 {
-    public const DUMMY_TAX_NAME = 'dummy-tax';
+    final public const DUMMY_TAX_NAME = 'dummy-tax';
 
     public function testCollectionIsCountable(): void
     {

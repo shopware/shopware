@@ -90,7 +90,7 @@ class AppRegistrationServiceTest extends TestCase
         $confirmationReq = $this->getPastRequest(1);
         static::assertEquals('POST', $confirmationReq->getMethod());
 
-        $postBody = \json_decode($confirmationReq->getBody()->getContents(), true);
+        $postBody = \json_decode($confirmationReq->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals($secretAccessKey, $postBody['secretKey']);
 
         $integration = $app->getIntegration();
@@ -100,7 +100,7 @@ class AppRegistrationServiceTest extends TestCase
         static::assertEquals($_SERVER['APP_URL'], $postBody['shopUrl']);
         static::assertEquals($this->shopIdProvider->getShopId(), $postBody['shopId']);
 
-        $json = \json_encode($postBody);
+        $json = \json_encode($postBody, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
         static::assertEquals(
@@ -325,7 +325,7 @@ class AppRegistrationServiceTest extends TestCase
         );
 
         $confirmationUrl = 'https://my-app.com/confirm';
-        $appResponseBody = \json_encode(['proof' => $proof, 'secret' => $appSecret, 'confirmation_url' => $confirmationUrl]);
+        $appResponseBody = \json_encode(['proof' => $proof, 'secret' => $appSecret, 'confirmation_url' => $confirmationUrl], \JSON_THROW_ON_ERROR);
 
         static::assertNotFalse($appResponseBody);
 

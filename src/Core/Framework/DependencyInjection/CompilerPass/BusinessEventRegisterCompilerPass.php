@@ -3,22 +3,18 @@
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @package core
- */
+#[Package('core')]
 class BusinessEventRegisterCompilerPass implements CompilerPassInterface
 {
     /**
-     * @var class-string[]
+     * @param class-string[] $classes
      */
-    private array $classes;
-
-    public function __construct(array $classes)
+    public function __construct(private readonly array $classes)
     {
-        $this->classes = $classes;
     }
 
     public function process(ContainerBuilder $container): void

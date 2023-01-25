@@ -3,40 +3,32 @@
 namespace Shopware\Core\System\Country\Aggregate\CountryStateTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CountryStateTranslationEntity>
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class CountryStateTranslationCollection extends EntityCollection
 {
     public function getCountryStateIds(): array
     {
-        return $this->fmap(function (CountryStateTranslationEntity $countryStateTranslation) {
-            return $countryStateTranslation->getCountryStateId();
-        });
+        return $this->fmap(fn (CountryStateTranslationEntity $countryStateTranslation) => $countryStateTranslation->getCountryStateId());
     }
 
     public function filterByCountryStateId(string $id): self
     {
-        return $this->filter(function (CountryStateTranslationEntity $countryStateTranslation) use ($id) {
-            return $countryStateTranslation->getCountryStateId() === $id;
-        });
+        return $this->filter(fn (CountryStateTranslationEntity $countryStateTranslation) => $countryStateTranslation->getCountryStateId() === $id);
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (CountryStateTranslationEntity $countryStateTranslation) {
-            return $countryStateTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (CountryStateTranslationEntity $countryStateTranslation) => $countryStateTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (CountryStateTranslationEntity $countryStateTranslation) use ($id) {
-            return $countryStateTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (CountryStateTranslationEntity $countryStateTranslation) => $countryStateTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

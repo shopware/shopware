@@ -4,22 +4,14 @@ namespace Shopware\Core\Framework\Plugin\KernelPluginLoader;
 
 use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class DbalKernelPluginLoader extends KernelPluginLoader
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    public function __construct(ClassLoader $classLoader, ?string $pluginDir, Connection $connection)
+    public function __construct(ClassLoader $classLoader, ?string $pluginDir, private readonly Connection $connection)
     {
         parent::__construct($classLoader, $pluginDir);
-
-        $this->connection = $connection;
     }
 
     protected function loadPluginInfos(): void
@@ -43,7 +35,7 @@ SQL;
         foreach ($plugins as $i => $plugin) {
             $plugins[$i]['active'] = (bool) $plugin['active'];
             $plugins[$i]['managedByComposer'] = (bool) $plugin['managedByComposer'];
-            $plugins[$i]['autoload'] = json_decode($plugin['autoload'], true);
+            $plugins[$i]['autoload'] = json_decode((string) $plugin['autoload'], true, 512, \JSON_THROW_ON_ERROR);
         }
 
         $this->pluginInfos = $plugins;

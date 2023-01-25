@@ -3,38 +3,13 @@
 namespace Shopware\Core\Content\Seo\SeoUrlRoute;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SeoUrlRouteConfig
 {
-    /**
-     * @var EntityDefinition
-     */
-    private $definition;
-
-    /**
-     * @var string
-     */
-    private $routeName;
-
-    /**
-     * @var string
-     */
-    private $template;
-
-    /**
-     * @var bool
-     */
-    private $skipInvalid;
-
-    public function __construct(EntityDefinition $definition, string $routeName, string $defaultTemplate, bool $skipInvalid = true)
+    public function __construct(private readonly EntityDefinition $definition, private readonly string $routeName, private string $template, private bool $skipInvalid = true)
     {
-        $this->definition = $definition;
-        $this->routeName = $routeName;
-        $this->template = $defaultTemplate;
-        $this->skipInvalid = $skipInvalid;
     }
 
     public function getDefinition(): EntityDefinition

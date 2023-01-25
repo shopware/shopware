@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Util;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class HtmlSanitizer
 {
     /**
@@ -14,13 +14,7 @@ class HtmlSanitizer
      */
     private array $purifiers = [];
 
-    private string $cacheDir;
-
-    private bool $cacheEnabled;
-
-    private array $sets;
-
-    private array $fieldSets;
+    private readonly string $cacheDir;
 
     private array $cache = [];
 
@@ -29,21 +23,18 @@ class HtmlSanitizer
      */
     public function __construct(
         ?string $cacheDir = null,
-        bool $cacheEnabled = true,
-        array $sets = [],
-        array $fieldSets = []
+        private readonly bool $cacheEnabled = true,
+        private array $sets = [],
+        private readonly array $fieldSets = []
     ) {
         $this->cacheDir = (string) $cacheDir;
-        $this->cacheEnabled = $cacheEnabled;
-        $this->sets = $sets;
-        $this->fieldSets = $fieldSets;
     }
 
     public function sanitize(string $text, ?array $options = [], bool $override = false, ?string $field = null): string
     {
-        $options = $options ?? [];
+        $options ??= [];
 
-        $hash = md5(sprintf('%s%s', (string) json_encode($options), (string) $field));
+        $hash = md5(sprintf('%s%s', (string) json_encode($options, \JSON_THROW_ON_ERROR), (string) $field));
 
         if ($override) {
             $hash .= '-override';

@@ -19,15 +19,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class AppUrlVerifierTest extends TestCase
 {
-    /**
-     * @var Client&MockObject
-     */
-    private $guzzleMock;
+    private Client&MockObject $guzzleMock;
 
-    /**
-     * @var Connection&MockObject
-     */
-    private $connection;
+    private Connection&MockObject $connection;
 
     public function setUp(): void
     {

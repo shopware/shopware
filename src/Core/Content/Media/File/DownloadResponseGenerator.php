@@ -10,6 +10,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -17,36 +18,17 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+#[Package('content')]
 class DownloadResponseGenerator
 {
-    public const X_SENDFILE_DOWNLOAD_STRATEGRY = 'x-sendfile';
-    public const X_ACCEL_DOWNLOAD_STRATEGRY = 'x-accel';
-
-    private FilesystemOperator $filesystemPublic;
-
-    private FilesystemOperator $filesystemPrivate;
-
-    private UrlGeneratorInterface $urlGenerator;
-
-    private MediaService $mediaService;
-
-    private string $localPrivateDownloadStrategy;
+    final public const X_SENDFILE_DOWNLOAD_STRATEGRY = 'x-sendfile';
+    final public const X_ACCEL_DOWNLOAD_STRATEGRY = 'x-accel';
 
     /**
      * @internal
      */
-    public function __construct(
-        FilesystemOperator $filesystemPublic,
-        FilesystemOperator $filesystemPrivate,
-        UrlGeneratorInterface $urlGenerator,
-        MediaService $mediaService,
-        string $localPrivateDownloadStrategy
-    ) {
-        $this->filesystemPublic = $filesystemPublic;
-        $this->filesystemPrivate = $filesystemPrivate;
-        $this->urlGenerator = $urlGenerator;
-        $this->mediaService = $mediaService;
-        $this->localPrivateDownloadStrategy = $localPrivateDownloadStrategy;
+    public function __construct(private readonly FilesystemOperator $filesystemPublic, private readonly FilesystemOperator $filesystemPrivate, private readonly UrlGeneratorInterface $urlGenerator, private readonly MediaService $mediaService, private readonly string $localPrivateDownloadStrategy)
+    {
     }
 
     public function getResponse(
@@ -61,7 +43,7 @@ class DownloadResponseGenerator
             $url = $fileSystem->temporaryUrl($path, (new \DateTime())->modify($expiration));
 
             return new RedirectResponse($url);
-        } catch (UnableToGenerateTemporaryUrl $exception) {
+        } catch (UnableToGenerateTemporaryUrl) {
         }
 
         return $this->getDefaultResponse($media, $context, $fileSystem);
@@ -102,9 +84,7 @@ class DownloadResponseGenerator
     {
         $stream = $context->getContext()->scope(
             Context::SYSTEM_SCOPE,
-            function (Context $context) use ($media): StreamInterface {
-                return $this->mediaService->loadFileStream($media->getId(), $context);
-            }
+            fn (Context $context): StreamInterface => $this->mediaService->loadFileStream($media->getId(), $context)
         )->detach();
 
         if (!\is_resource($stream)) {

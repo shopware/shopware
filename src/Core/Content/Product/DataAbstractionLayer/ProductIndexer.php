@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
@@ -24,92 +25,28 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package core
  * @phpstan-import-type Offset from IterableQuery
  */
+#[Package('core')]
 class ProductIndexer extends EntityIndexer
 {
-    public const INHERITANCE_UPDATER = 'product.inheritance';
-    public const STOCK_UPDATER = 'product.stock';
-    public const VARIANT_LISTING_UPDATER = 'product.variant-listing';
-    public const CHILD_COUNT_UPDATER = 'product.child-count';
-    public const MANY_TO_MANY_ID_FIELD_UPDATER = 'product.many-to-many-id-field';
-    public const CATEGORY_DENORMALIZER_UPDATER = 'product.category-denormalizer';
-    public const CHEAPEST_PRICE_UPDATER = 'product.cheapest-price';
-    public const RATING_AVERAGE_UPDATER = 'product.rating-average';
-    public const STREAM_UPDATER = 'product.stream';
-    public const SEARCH_KEYWORD_UPDATER = 'product.search-keyword';
-    public const STATES_UPDATER = 'product.states';
-
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepository $repository;
-
-    private Connection $connection;
-
-    private VariantListingUpdater $variantListingUpdater;
-
-    private ProductCategoryDenormalizer $categoryDenormalizer;
-
-    private CheapestPriceUpdater $cheapestPriceUpdater;
-
-    private SearchKeywordUpdater $searchKeywordUpdater;
-
-    private InheritanceUpdater $inheritanceUpdater;
-
-    private RatingAverageUpdater $ratingAverageUpdater;
-
-    private ChildCountUpdater $childCountUpdater;
-
-    private ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater;
-
-    private StockUpdater $stockUpdater;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private ProductStreamUpdater $streamUpdater;
-
-    private StatesUpdater $statesUpdater;
-
-    private MessageBusInterface $messageBus;
+    final public const INHERITANCE_UPDATER = 'product.inheritance';
+    final public const STOCK_UPDATER = 'product.stock';
+    final public const VARIANT_LISTING_UPDATER = 'product.variant-listing';
+    final public const CHILD_COUNT_UPDATER = 'product.child-count';
+    final public const MANY_TO_MANY_ID_FIELD_UPDATER = 'product.many-to-many-id-field';
+    final public const CATEGORY_DENORMALIZER_UPDATER = 'product.category-denormalizer';
+    final public const CHEAPEST_PRICE_UPDATER = 'product.cheapest-price';
+    final public const RATING_AVERAGE_UPDATER = 'product.rating-average';
+    final public const STREAM_UPDATER = 'product.stream';
+    final public const SEARCH_KEYWORD_UPDATER = 'product.search-keyword';
+    final public const STATES_UPDATER = 'product.states';
 
     /**
      * @internal
      */
-    public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        Connection $connection,
-        VariantListingUpdater $variantListingUpdater,
-        ProductCategoryDenormalizer $categoryDenormalizer,
-        InheritanceUpdater $inheritanceUpdater,
-        RatingAverageUpdater $ratingAverageUpdater,
-        SearchKeywordUpdater $searchKeywordUpdater,
-        ChildCountUpdater $childCountUpdater,
-        ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
-        StockUpdater $stockUpdater,
-        EventDispatcherInterface $eventDispatcher,
-        CheapestPriceUpdater $cheapestPriceUpdater,
-        ProductStreamUpdater $streamUpdater,
-        StatesUpdater $statesUpdater,
-        MessageBusInterface $messageBus
-    ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->connection = $connection;
-        $this->variantListingUpdater = $variantListingUpdater;
-        $this->categoryDenormalizer = $categoryDenormalizer;
-        $this->searchKeywordUpdater = $searchKeywordUpdater;
-        $this->inheritanceUpdater = $inheritanceUpdater;
-        $this->ratingAverageUpdater = $ratingAverageUpdater;
-        $this->childCountUpdater = $childCountUpdater;
-        $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
-        $this->stockUpdater = $stockUpdater;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cheapestPriceUpdater = $cheapestPriceUpdater;
-        $this->streamUpdater = $streamUpdater;
-        $this->statesUpdater = $statesUpdater;
-        $this->messageBus = $messageBus;
+    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly Connection $connection, private readonly VariantListingUpdater $variantListingUpdater, private readonly ProductCategoryDenormalizer $categoryDenormalizer, private readonly InheritanceUpdater $inheritanceUpdater, private readonly RatingAverageUpdater $ratingAverageUpdater, private readonly SearchKeywordUpdater $searchKeywordUpdater, private readonly ChildCountUpdater $childCountUpdater, private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater, private readonly StockUpdater $stockUpdater, private readonly EventDispatcherInterface $eventDispatcher, private readonly CheapestPriceUpdater $cheapestPriceUpdater, private readonly ProductStreamUpdater $streamUpdater, private readonly StatesUpdater $statesUpdater, private readonly MessageBusInterface $messageBus)
+    {
     }
 
     public function getName(): string

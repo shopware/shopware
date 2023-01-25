@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Twig\Compiler;
 use Twig\Environment;
 use Twig\Node\Node;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class TwigEnvironment extends Environment
 {
     private ?Compiler $compiler = null;

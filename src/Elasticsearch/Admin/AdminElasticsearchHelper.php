@@ -2,26 +2,17 @@
 
 namespace Shopware\Elasticsearch\Admin;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package system-settings
- *
  * @internal
- *
  * @final
  */
+#[Package('system-settings')]
 class AdminElasticsearchHelper
 {
-    private bool $adminEsEnabled;
-
-    private bool $refreshIndices;
-
-    private string $adminIndexPrefix;
-
-    public function __construct(bool $adminEsEnabled, bool $refreshIndices, string $adminIndexPrefix)
+    public function __construct(private bool $adminEsEnabled, private readonly bool $refreshIndices, private readonly string $adminIndexPrefix)
     {
-        $this->adminEsEnabled = $adminEsEnabled;
-        $this->refreshIndices = $refreshIndices;
-        $this->adminIndexPrefix = $adminIndexPrefix;
     }
 
     public function getEnabled(): bool

@@ -13,11 +13,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class TestRuleScope extends RuleScope
 {
-    private SalesChannelContext $salesChannelContext;
-
-    public function __construct(SalesChannelContext $salesChannelContext)
+    public function __construct(private readonly SalesChannelContext $salesChannelContext)
     {
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getContext(): Context

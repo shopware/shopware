@@ -4,14 +4,14 @@ namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Util\FloatComparator;
 
 /**
- * @package checkout
- *
  * @extends Collection<CalculatedTax>
  */
+#[Package('checkout')]
 class CalculatedTaxCollection extends Collection
 {
     /**
@@ -43,9 +43,7 @@ class CalculatedTaxCollection extends Collection
 
     public function sortByTax(): CalculatedTaxCollection
     {
-        $this->sort(function (CalculatedTax $a, CalculatedTax $b) {
-            return $a->getTaxRate() <=> $b->getTaxRate();
-        });
+        $this->sort(fn (CalculatedTax $a, CalculatedTax $b) => $a->getTaxRate() <=> $b->getTaxRate());
 
         return $this;
     }
@@ -56,9 +54,7 @@ class CalculatedTaxCollection extends Collection
     public function getAmount(): float
     {
         $amounts = $this->map(
-            function (CalculatedTax $calculatedTax) {
-                return $calculatedTax->getTax();
-            }
+            fn (CalculatedTax $calculatedTax) => $calculatedTax->getTax()
         );
 
         return FloatComparator::cast(array_sum($amounts));

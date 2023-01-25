@@ -20,15 +20,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class CustomFieldSetDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'custom_field_set';
+    final public const ENTITY_NAME = 'custom_field_set';
 
     public function getEntityName(): string
     {

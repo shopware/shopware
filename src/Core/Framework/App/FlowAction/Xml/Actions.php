@@ -3,22 +3,19 @@
 namespace Shopware\Core\Framework\App\FlowAction\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class Actions extends XmlElement
 {
     /**
-     * @var Action[]
+     * @param Action[] $actions
      */
-    protected array $actions;
-
-    public function __construct(array $data)
+    public function __construct(protected array $actions)
     {
-        $this->actions = $data;
     }
 
     public static function fromXml(\DOMElement $element): self

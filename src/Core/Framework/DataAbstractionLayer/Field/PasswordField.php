@@ -3,42 +3,24 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PasswordFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class PasswordField extends Field implements StorageAware
 {
-    public const FOR_CUSTOMER = 'customer';
+    final public const FOR_CUSTOMER = 'customer';
 
-    public const FOR_ADMIN = 'admin';
+    final public const FOR_ADMIN = 'admin';
 
-    private string $storageName;
-
-    private string $algorithm;
-
-    /**
-     * @var array<int, string>
-     */
-    private array $hashOptions;
-
-    private ?string $for;
+    private readonly string $algorithm;
 
     /**
      * @param array<int, string> $hashOptions
      */
-    public function __construct(
-        string $storageName,
-        string $propertyName,
-        ?string $algorithm = \PASSWORD_DEFAULT,
-        array $hashOptions = [],
-        ?string $for = null
-    ) {
+    public function __construct(private readonly string $storageName, string $propertyName, ?string $algorithm = \PASSWORD_DEFAULT, private readonly array $hashOptions = [], private readonly ?string $for = null)
+    {
         parent::__construct($propertyName);
-        $this->storageName = $storageName;
         $this->algorithm = $algorithm ?? \PASSWORD_DEFAULT;
-        $this->hashOptions = $hashOptions;
-        $this->for = $for;
     }
 
     public function getStorageName(): string

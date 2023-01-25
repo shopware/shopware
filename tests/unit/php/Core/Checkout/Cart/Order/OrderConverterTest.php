@@ -170,20 +170,20 @@ class OrderConverterTest extends TestCase
         unset($result['orderDateTime']);
         unset($result['stateId']);
         unset($result['languageId']);
-        for ($i = 0; $i < \count($result['lineItems']); ++$i) {
+        for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
             unset($result['lineItems'][$i]['id']);
         }
 
-        for ($i = 0; $i < \count($result['addresses']); ++$i) {
+        for ($i = 0; $i < (is_countable($result['addresses']) ? \count($result['addresses']) : 0); ++$i) {
             unset($result['addresses'][$i]['id']);
         }
 
         $expected = $this->getExpectedConvertToOrder();
         $expected['deliveries'] = [];
 
-        $expectedJson = \json_encode($expected);
+        $expectedJson = \json_encode($expected, \JSON_THROW_ON_ERROR);
         static::assertIsString($expectedJson);
-        $actual = \json_encode($result);
+        $actual = \json_encode($result, \JSON_THROW_ON_ERROR);
         static::assertIsString($actual);
 
         // As json to avoid classes
@@ -204,11 +204,11 @@ class OrderConverterTest extends TestCase
         unset($result['orderDateTime']);
         unset($result['stateId']);
         unset($result['languageId']);
-        for ($i = 0; $i < \count($result['lineItems']); ++$i) {
+        for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
             unset($result['lineItems'][$i]['id']);
         }
 
-        for ($i = 0; $i < \count($result['deliveries']); ++$i) {
+        for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
             unset($result['deliveries'][$i]['shippingOrderAddress']['id']);
             unset($result['deliveries'][$i]['shippingDateEarliest']);
             unset($result['deliveries'][$i]['shippingDateLatest']);
@@ -219,9 +219,9 @@ class OrderConverterTest extends TestCase
         $expected['shippingCosts']['unitPrice'] = 1;
         $expected['shippingCosts']['totalPrice'] = 1;
 
-        $expectedJson = \json_encode($expected);
+        $expectedJson = \json_encode($expected, \JSON_THROW_ON_ERROR);
         static::assertIsString($expectedJson);
-        $actual = \json_encode($result);
+        $actual = \json_encode($result, \JSON_THROW_ON_ERROR);
         static::assertIsString($actual);
         // As json to avoid classes
         static::assertJsonStringEqualsJsonString($expectedJson, $actual);
@@ -262,11 +262,11 @@ class OrderConverterTest extends TestCase
         unset($result['orderDateTime']);
         unset($result['stateId']);
         unset($result['languageId']);
-        for ($i = 0; $i < \count($result['lineItems']); ++$i) {
+        for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
             unset($result['lineItems'][$i]['id']);
         }
 
-        for ($i = 0; $i < \count($result['deliveries']); ++$i) {
+        for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
             unset($result['deliveries'][$i]['shippingOrderAddress']['id']);
             unset($result['deliveries'][$i]['shippingDateEarliest']);
             unset($result['deliveries'][$i]['shippingDateLatest']);
@@ -277,9 +277,9 @@ class OrderConverterTest extends TestCase
         $expected['shippingCosts']['unitPrice'] = 1;
         $expected['shippingCosts']['totalPrice'] = 1;
 
-        $expectedJson = \json_encode($expected);
+        $expectedJson = \json_encode($expected, \JSON_THROW_ON_ERROR);
         static::assertIsString($expectedJson);
-        $actual = \json_encode($result);
+        $actual = \json_encode($result, \JSON_THROW_ON_ERROR);
         static::assertIsString($actual);
         // As json to avoid classes
         static::assertJsonStringEqualsJsonString($expectedJson, $actual);
@@ -312,22 +312,22 @@ class OrderConverterTest extends TestCase
     public function testConvertToCart(): void
     {
         $result = $this->orderConverter->convertToCart($this->getOrder(), Context::createDefaultContext());
-        $result = \json_encode($result);
+        $result = \json_encode($result, \JSON_THROW_ON_ERROR);
         static::assertIsString($result);
-        $result = \json_decode($result, true);
+        $result = \json_decode($result, true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($result);
 
         // unset uncheckable ids
         unset($result['extensions']['originalId']);
         unset($result['token']);
-        for ($i = 0; $i < \count($result['lineItems']); ++$i) {
+        for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
             unset($result['lineItems'][$i]['extensions']['originalId']);
             unset($result['lineItems'][$i]['uniqueIdentifier']);
         }
 
-        for ($i = 0; $i < \count($result['deliveries']); ++$i) {
+        for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
             unset($result['deliveries'][$i]['deliveryDate']);
-            for ($f = 0; $f < \count($result['deliveries'][$i]['positions']); ++$f) {
+            for ($f = 0; $f < (is_countable($result['deliveries'][$i]['positions']) ? \count($result['deliveries'][$i]['positions']) : 0); ++$f) {
                 unset($result['deliveries'][$i]['positions'][$f]['deliveryDate']);
                 unset($result['deliveries'][$i]['positions'][$f]['lineItem']['uniqueIdentifier']);
             }
@@ -346,22 +346,22 @@ class OrderConverterTest extends TestCase
         $order = $this->getOrder($manipulateOrder);
 
         $result = $this->orderConverter->convertToCart($order, Context::createDefaultContext());
-        $result = \json_encode($result);
+        $result = \json_encode($result, \JSON_THROW_ON_ERROR);
         static::assertIsString($result);
-        $result = \json_decode($result, true);
+        $result = \json_decode($result, true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($result);
 
         // unset uncheckable ids
         unset($result['extensions']['originalId']);
         unset($result['token']);
-        for ($i = 0; $i < \count($result['lineItems']); ++$i) {
+        for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
             unset($result['lineItems'][$i]['extensions']['originalId']);
             unset($result['lineItems'][$i]['uniqueIdentifier']);
         }
 
-        for ($i = 0; $i < \count($result['deliveries']); ++$i) {
+        for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
             unset($result['deliveries'][$i]['deliveryDate']);
-            for ($f = 0; $f < \count($result['deliveries'][$i]['positions']); ++$f) {
+            for ($f = 0; $f < (is_countable($result['deliveries'][$i]['positions']) ? \count($result['deliveries'][$i]['positions']) : 0); ++$f) {
                 unset($result['deliveries'][$i]['positions'][$f]['deliveryDate']);
             }
         }
@@ -400,21 +400,21 @@ class OrderConverterTest extends TestCase
         $order = $this->getOrder($manipulateOrder);
 
         $result = $this->orderConverter->convertToCart($order, Context::createDefaultContext());
-        $result = \json_encode($result);
+        $result = \json_encode($result, \JSON_THROW_ON_ERROR);
         static::assertIsString($result);
-        $result = \json_decode($result, true);
+        $result = \json_decode($result, true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($result);
 
         // unset uncheckable ids
         unset($result['extensions']['originalId']);
         unset($result['token']);
-        for ($i = 0; $i < \count($result['lineItems']); ++$i) {
+        for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
             unset($result['lineItems'][$i]['extensions']['originalId']);
         }
 
-        for ($i = 0; $i < \count($result['deliveries']); ++$i) {
+        for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
             unset($result['deliveries'][$i]['deliveryDate']);
-            for ($f = 0; $f < \count($result['deliveries'][$i]['positions']); ++$f) {
+            for ($f = 0; $f < (is_countable($result['deliveries'][$i]['positions']) ? \count($result['deliveries'][$i]['positions']) : 0); ++$f) {
                 unset($result['deliveries'][$i]['positions'][$f]['deliveryDate']);
             }
         }
@@ -501,7 +501,7 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @return MockObject|SalesChannelContext
+     * @return MockObject&SalesChannelContext
      */
     private function getSalesChannelContext(bool $loginCustomer, bool $customerWithoutBillingAddress = false): MockObject
     {
@@ -955,6 +955,8 @@ class OrderConverterTest extends TestCase
                             'extensions' => [],
                             'id' => 'country-id',
                             'customFields' => null,
+                            'advancedPostalCodePattern' => null,
+                            'defaultPostalCodePattern' => null,
                         ],
                         'state' => [
                             'countryId' => null,

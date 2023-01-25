@@ -67,7 +67,7 @@ class FlowTemplateConfigFieldSerializerTest extends TestCase
             return;
         }
 
-        $data = json_decode($config, true);
+        $data = json_decode($config, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('sequences', $data);
         static::assertCount(1, $data['sequences']);
@@ -105,7 +105,7 @@ class FlowTemplateConfigFieldSerializerTest extends TestCase
      */
     private function encode(?array $data = null, ?Field $field = null): ?string
     {
-        $field = $field ?? new FlowTemplateConfigField('config', 'config');
+        $field ??= new FlowTemplateConfigField('config', 'config');
         $existence = new EntityExistence('config', ['someId'], true, false, false, []);
         $keyPair = new KeyValuePair('someId', $data, false);
         $bag = new WriteParameterBag(
@@ -115,7 +115,7 @@ class FlowTemplateConfigFieldSerializerTest extends TestCase
             new WriteCommandQueue()
         );
 
-        $data = iterator_to_array($this->serializer->encode($field, $existence, $keyPair, $bag), true);
+        $data = iterator_to_array($this->serializer->encode($field, $existence, $keyPair, $bag));
 
         return $data['config'] ?? null;
     }

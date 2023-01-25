@@ -2,17 +2,16 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\Rector;
 
-use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike;
 use Rector\Core\Rector\AbstractRector;
+use Rector\PhpAttribute\NodeFactory\PhpAttributeGroupFactory;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule;
+use Shopware\Core\Framework\Log\Package;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ClassPackageRector extends AbstractRector
 {
     private string $template = <<<'PHP'
@@ -20,6 +19,18 @@ class ClassPackageRector extends AbstractRector
  * @package %s
  */
 PHP;
+
+    /**
+     * @readonly
+     *
+     * @var PhpAttributeGroupFactory
+     */
+    private $phpAttributeGroupFactory;
+
+    public function __construct(PhpAttributeGroupFactory $phpAttributeGroupFactory)
+    {
+        $this->phpAttributeGroupFactory = $phpAttributeGroupFactory;
+    }
 
     public function getNodeTypes(): array
     {
@@ -42,21 +53,11 @@ PHP;
             return null;
         }
 
-        $doc = $node->getDocComment();
-        if ($doc === null) {
-            $node->setDocComment(new Doc(\sprintf($this->template, $area)));
-
-            return $node;
-        }
-
-        $text = $node->getDocComment()->getText();
-        if (\str_contains($text, '@package')) {
+        if ($this->hasPackageAnnotation($node)) {
             return null;
         }
 
-        $text = \str_replace('*/', \sprintf(' * @package %s', $area) . \PHP_EOL . ' */', $text);
-
-        $node->setDocComment(new Doc($text));
+        $node->attrGroups[] = $this->phpAttributeGroupFactory->createFromClassWithItems(Package::class, [$area]);
 
         return $node;
     }
@@ -64,22 +65,16 @@ PHP;
     public function getRuleDefinition(): RuleDefinition
     {
         return new RuleDefinition(
-            'Adds a @package annotation to all php classes corresponding to the area mapping.',
+            'Adds a #[Package] attribute to all php classes corresponding to the area mapping.',
             [
                 new CodeSample(
-                    // code before
-'
-/**
- * some docs
- */
+                // code before
+                    '
 class Foo{}',
 
                     // code after
-'
-/**
- * @package area
- * some docs
- */
+                    '
+#[Package(\'core\')]
 class Foo{}'
                 ),
             ]
@@ -103,6 +98,22 @@ class Foo{}'
         }
 
         return null;
+    }
+
+    private function hasPackageAnnotation(ClassLike $class): bool
+    {
+        foreach ($class->attrGroups as $group) {
+            $attribute = $group->attrs[0];
+
+            /** @var Node\Name\FullyQualified $name */
+            $name = $attribute->name;
+
+            if ($name->toString() === Package::class) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function isTestClass(ClassLike $node): bool

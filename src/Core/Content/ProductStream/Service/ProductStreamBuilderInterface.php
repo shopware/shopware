@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\ProductStream\Service;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 interface ProductStreamBuilderInterface
 {
     public function buildFilters(

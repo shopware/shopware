@@ -10440,26 +10440,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Write/Command/ChangeSet.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommandQueue\\:\\:getCommandsForEntity\\(\\) has parameter \\$primaryKey with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/WriteCommandQueue.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommandQueue\\:\\:getCommandsForEntity\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/WriteCommandQueue.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommandQueue\\:\\:hasDependencies\\(\\) has parameter \\$commands with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/WriteCommandQueue.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommandQueue\\:\\:hasDependencies\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/WriteCommandQueue.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\DataStack\\\\DataStack\\:\\:__construct\\(\\) has parameter \\$originalData with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/DataStack/DataStack.php
@@ -10643,11 +10623,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\EntityWriteResultFactory\\:\\:splitResultsByOperation\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/EntityWriteResultFactory.php
-
-		-
-			message: "#^Parameter \\#1 \\$commands of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\EntityWriteGatewayInterface\\:\\:execute\\(\\) expects list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommand\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommand\\> given\\.$#"
-			count: 3
-			path: src/Core/Framework/DataAbstractionLayer/Write/EntityWriter.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\EntityWriterInterface\\:\\:delete\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
@@ -12320,66 +12295,6 @@ parameters:
 			path: src/Core/Framework/Test/Api/Serializer/JsonApiDecoderTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiEncoderTest\\:\\:arrayRemove\\(\\) has parameter \\$haystack with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiEncoderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiEncoderTest\\:\\:arrayRemove\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiEncoderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiEncoderTest\\:\\:assertValues\\(\\) has parameter \\$actual with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiEncoderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiEncoderTest\\:\\:assertValues\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiEncoderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiEncoderTest\\:\\:complexStructsProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiEncoderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiEncoderTest\\:\\:customFieldsProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiEncoderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiEncoderTest\\:\\:emptyInputProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiEncoderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiEncoderTest\\:\\:removeIncludedExtensions\\(\\) has parameter \\$array with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiEncoderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiEncoderTest\\:\\:removeIncludedExtensions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiEncoderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiEncoderTest\\:\\:testCustomFields\\(\\) has parameter \\$input with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiEncoderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiEncoderTest\\:\\:testCustomFields\\(\\) has parameter \\$output with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiEncoderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiEncoderTest\\:\\:testEncodeWithEmptyInput\\(\\) has parameter \\$input with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiEncoderTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonEntityEncoderTest\\:\\:assertValues\\(\\) has parameter \\$actual with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Api/Serializer/JsonEntityEncoderTest.php
@@ -12565,36 +12480,6 @@ parameters:
 			path: src/Core/Framework/Test/Api/Serializer/fixtures/SerializationFixture.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicStruct\\:\\:getJsonApiFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicStruct\\:\\:getJsonFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicStruct\\:\\:removeProtectedSalesChannelJsonApiData\\(\\) has parameter \\$fixtures with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicStruct\\:\\:removeProtectedSalesChannelJsonApiData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicStruct\\:\\:removeProtectedSalesChannelJsonData\\(\\) has parameter \\$fixtures with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicStruct\\:\\:removeProtectedSalesChannelJsonData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicStruct.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicWithExtension\\:\\:getJsonApiFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicWithExtension.php
@@ -12603,191 +12488,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicWithExtension\\:\\:getJsonFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicWithExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicWithToManyExtension\\:\\:getJsonApiFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicWithToManyExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicWithToManyExtension\\:\\:getJsonFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicWithToManyExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicWithToManyRelationships\\:\\:getJsonApiFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicWithToManyRelationships.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicWithToManyRelationships\\:\\:getJsonFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicWithToManyRelationships.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicWithToManyRelationships\\:\\:removeProtectedSalesChannelJsonApiData\\(\\) has parameter \\$fixtures with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicWithToManyRelationships.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicWithToManyRelationships\\:\\:removeProtectedSalesChannelJsonApiData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicWithToManyRelationships.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicWithToManyRelationships\\:\\:removeProtectedSalesChannelJsonData\\(\\) has parameter \\$fixtures with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicWithToManyRelationships.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicWithToManyRelationships\\:\\:removeProtectedSalesChannelJsonData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicWithToManyRelationships.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicWithToOneRelationship\\:\\:getJsonApiFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicWithToOneRelationship.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicWithToOneRelationship\\:\\:getJsonFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicWithToOneRelationship.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicWithToOneRelationship\\:\\:removeProtectedSalesChannelJsonApiData\\(\\) has parameter \\$fixtures with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicWithToOneRelationship.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicWithToOneRelationship\\:\\:removeProtectedSalesChannelJsonApiData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicWithToOneRelationship.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicWithToOneRelationship\\:\\:removeProtectedSalesChannelJsonData\\(\\) has parameter \\$fixtures with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicWithToOneRelationship.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestBasicWithToOneRelationship\\:\\:removeProtectedSalesChannelJsonData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicWithToOneRelationship.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestCollectionWithSelfReference\\:\\:getInput\\(\\) should return Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\> but returns Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolder\\\\MediaFolderCollection\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestCollectionWithSelfReference.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestCollectionWithSelfReference\\:\\:getJsonApiFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestCollectionWithSelfReference.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestCollectionWithSelfReference\\:\\:getJsonFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestCollectionWithSelfReference.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestCollectionWithToOneRelationship\\:\\:getInput\\(\\) should return Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\> but returns Shopware\\\\Core\\\\Content\\\\Media\\\\MediaCollection\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestCollectionWithToOneRelationship.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestCollectionWithToOneRelationship\\:\\:getJsonApiFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestCollectionWithToOneRelationship.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestCollectionWithToOneRelationship\\:\\:getJsonFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestCollectionWithToOneRelationship.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestCollectionWithToOneRelationship\\:\\:removeProtectedSalesChannelJsonApiData\\(\\) has parameter \\$fixtures with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestCollectionWithToOneRelationship.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestCollectionWithToOneRelationship\\:\\:removeProtectedSalesChannelJsonApiData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestCollectionWithToOneRelationship.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestCollectionWithToOneRelationship\\:\\:removeProtectedSalesChannelJsonData\\(\\) has parameter \\$fixtures with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestCollectionWithToOneRelationship.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestCollectionWithToOneRelationship\\:\\:removeProtectedSalesChannelJsonData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestCollectionWithToOneRelationship.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestInternalFieldsAreFiltered\\:\\:getInput\\(\\) should return Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\> but returns Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleCollection\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestInternalFieldsAreFiltered.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestInternalFieldsAreFiltered\\:\\:getJsonApiFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestInternalFieldsAreFiltered.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestInternalFieldsAreFiltered\\:\\:getJsonFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestInternalFieldsAreFiltered.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestInternalFieldsAreFiltered\\:\\:removeProtectedSalesChannelJsonApiData\\(\\) has parameter \\$fixtures with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestInternalFieldsAreFiltered.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestInternalFieldsAreFiltered\\:\\:removeProtectedSalesChannelJsonApiData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestInternalFieldsAreFiltered.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestInternalFieldsAreFiltered\\:\\:removeProtectedSalesChannelJsonData\\(\\) has parameter \\$fixtures with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestInternalFieldsAreFiltered.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestInternalFieldsAreFiltered\\:\\:removeProtectedSalesChannelJsonData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestInternalFieldsAreFiltered.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestMainResourceShouldNotBeInIncluded\\:\\:getJsonApiFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestMainResourceShouldNotBeInIncluded.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestMainResourceShouldNotBeInIncluded\\:\\:getJsonFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestMainResourceShouldNotBeInIncluded.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestMainResourceShouldNotBeInIncluded\\:\\:removeProtectedSalesChannelJsonApiData\\(\\) has parameter \\$fixtures with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestMainResourceShouldNotBeInIncluded.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestMainResourceShouldNotBeInIncluded\\:\\:removeProtectedSalesChannelJsonApiData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestMainResourceShouldNotBeInIncluded.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestMainResourceShouldNotBeInIncluded\\:\\:removeProtectedSalesChannelJsonData\\(\\) has parameter \\$fixtures with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestMainResourceShouldNotBeInIncluded.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\fixtures\\\\TestMainResourceShouldNotBeInIncluded\\:\\:removeProtectedSalesChannelJsonData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestMainResourceShouldNotBeInIncluded.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\TranslationTest\\:\\:assertTranslation\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
@@ -13146,16 +12846,6 @@ parameters:
 
 		-
 			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 6
-			path: src/Core/Framework/Test/DataAbstractionLayer/Field/OneToOneAssociationFieldTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Framework\\\\Event\\\\NestedEventCollection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Field/OneToOneAssociationFieldTest.php
-
-		-
-			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Field/PriceFieldTest.php
 
@@ -13408,11 +13098,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\GroupByTest\\:\\:\\$searcher \\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntitySearcher\\) does not accept Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\ElasticsearchEntitySearcher\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/GroupByTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\JoinFilterTest\\:\\:testIndexing\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/JoinFilterTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\NaturalSortingTest\\:\\:sortingFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"

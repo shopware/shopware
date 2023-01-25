@@ -218,7 +218,9 @@ class EntityWriter implements EntityWriterInterface
 
         $writeContext->getExceptions()->tryToThrow();
 
-        $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
+        $ordered = $commandQueue->getCommandsInOrder();
+
+        $this->gateway->execute($ordered, $writeContext);
 
         $result = $this->factory->build($commandQueue);
 

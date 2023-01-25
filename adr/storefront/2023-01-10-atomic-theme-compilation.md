@@ -70,7 +70,7 @@ This was already the case previously as a new theme compilation would add a cach
 
 But with the theme compilation, we can't delete the old theme folder immediately after the new theme compilation finished successfully, as the cache invalidation can take some time especially if you use external CDNs like fastly.
 This means that we expect for a short time that clients still will request the old theme folder, because they are served stale content from the CDN.
-To ensure that the site renders normally for those clients we won't delete the old theme folder immediately, but instead dispatch a queue message with a delay of one hour that the old theme folder should be deleted.
+To ensure that the site renders normally for those clients we won't delete the old theme folder immediately, but instead dispatch a queue message with a configurable delay (default 15 min / max SQS delay) that the old theme folder should be deleted.
 So the old theme files will still be accessible for one hour after a new theme was compiled.
 
 We can expand on this deletion strategy, once we implement further features like manual rollback to previous theme versions.

@@ -16,6 +16,9 @@ After the theme was compiled successfully the `saveSeed()` method is called to t
 
 Additionally, the default implementation for `\Shopware\Storefront\Theme\AbstractThemePathBuilder` was changed from `\Shopware\Storefront\Theme\MD5ThemePathBuilder` to `\Shopware\Storefront\Theme\SeedingThemePathBuilder`.
 
+Obsolete compiled theme files are now deleted with a delay, whenever a new theme compilation created new files.
+The delay time can be configured in the `shopware.yaml` file with the new `storefront.theme.file_delete_delay` option, by default it is set to 900 seconds (15 min), if the old theme files should be deleted immediately you can set the value to 0.
+
 For more details refer to the corresponding [ADR](../../adr/storefront/2023-01-10-atomic-theme-compilation.md).
 ___
 # Next Major Version Changes

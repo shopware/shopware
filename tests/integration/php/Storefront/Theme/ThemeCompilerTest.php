@@ -85,7 +85,8 @@ class ThemeCompilerTest extends TestCase
             new MD5ThemePathBuilder(),
             $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get(ScssPhpCompiler::class),
-            new MessageBus()
+            new MessageBus(),
+            0
         );
     }
 
@@ -425,7 +426,8 @@ PHP_EOL;
             new MD5ThemePathBuilder(),
             $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get(ScssPhpCompiler::class),
-            new MessageBus()
+            new MessageBus(),
+            0
         );
 
         $config = new StorefrontPluginConfiguration('test');

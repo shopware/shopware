@@ -47,7 +47,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly AbstractThemePathBuilder $themePathBuilder,
         private readonly string $projectDir,
         private readonly AbstractScssCompiler $scssCompiler,
-        private readonly MessageBusInterface $messageBus
+        private readonly MessageBusInterface $messageBus,
+        private readonly int $themeFileDeleteDelay
     ) {
     }
 
@@ -96,14 +97,19 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
 
+        // only delete the old directory if the `themePathBuilder` actually returned a new path and supports seeding
         if ($themePrefix !== $oldThemePrefix) {
-            // only delete the old directory if the `themePathBuilder` actually returned a new path and supports seeding
-            // also delete with a delay of one our, so that the old theme is still available for a while in case some CDN delivers stale content
+            $stamps = [];
+
+            if ($this->themeFileDeleteDelay > 0) {
+                // also delete with a delay, so that the old theme is still available for a while in case some CDN delivers stale content
+                // delay is configured in seconds, symfony expects milliseconds
+                $stamps[] = new DelayStamp($this->themeFileDeleteDelay * 1000);
+            }
             $this->messageBus->dispatch(
                 new Envelope(
                     new DeleteThemeFilesMessage($oldThemePrefix, $salesChannelId, $themeId),
-                    // one hour in milliseconds
-                    [new DelayStamp(3600 * 1000)]
+                    $stamps
                 )
             );
         }

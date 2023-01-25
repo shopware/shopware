@@ -696,27 +696,6 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "csrf": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                        "enabled": {
-                            "type": "boolean",
-                            "default": true,
-                            "title": "Toggles CSRF"
-                        },
-                        "mode": {
-                            "type": "string",
-                            "enum": [
-                                "ajax",
-                                "twig"
-                            ],
-                            "default": "twig",
-                            "title": "CSRF implementation type"
-                        }
-                    },
-                    "title": "CSRF configuration for the PHP storefront"
-                },
                 "reverse_proxy": {
                     "type": "object",
                     "additionalProperties": false,
@@ -848,6 +827,11 @@
                         },
                         "available_theme_provider": {
                             "type": "string"
+                        },
+                        "file_delete_delay": {
+                            "type": "integer",
+                            "description": "Delay in seconds until old theme files will be deleted after a new theme compile",
+                            "default": 900
                         }
                     },
                     "title": "Theme loader configuration"

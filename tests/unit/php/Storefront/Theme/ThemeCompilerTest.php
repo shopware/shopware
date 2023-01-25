@@ -80,7 +80,8 @@ class ThemeCompilerTest extends TestCase
             new MD5ThemePathBuilder(),
             __DIR__,
             $this->createMock(ScssPhpCompiler::class),
-            new MessageBus()
+            new MessageBus(),
+            0
         );
     }
 
@@ -386,7 +387,8 @@ PHP_EOL;
             new MD5ThemePathBuilder(),
             __DIR__,
             $this->createMock(ScssPhpCompiler::class),
-            new MessageBus()
+            new MessageBus(),
+            0
         );
 
         $config = new StorefrontPluginConfiguration('test');
@@ -444,7 +446,8 @@ PHP_EOL;
             new MD5ThemePathBuilder(),
             __DIR__,
             $this->createMock(ScssPhpCompiler::class),
-            new MessageBus()
+            new MessageBus(),
+            0
         );
 
         $config = new StorefrontPluginConfiguration('test');
@@ -501,7 +504,8 @@ PHP_EOL;
             new MD5ThemePathBuilder(),
             __DIR__,
             $scssCompiler,
-            new MessageBus()
+            new MessageBus(),
+            0
         );
 
         $config = new StorefrontPluginConfiguration('test');
@@ -564,7 +568,8 @@ PHP_EOL;
             $pathBuilder,
             __DIR__,
             $scssCompiler,
-            new MessageBus()
+            new MessageBus(),
+            0
         );
 
         $config = new StorefrontPluginConfiguration('test');
@@ -623,7 +628,7 @@ PHP_EOL;
 
         $expectedEnvelope = new Envelope(
             new DeleteThemeFilesMessage('current', TestDefaults::SALES_CHANNEL, 'test'),
-            [new DelayStamp(3600000)]
+            [new DelayStamp(900000)]
         );
 
         $messageBusMock = $this->createMock(MessageBusInterface::class);
@@ -644,7 +649,8 @@ PHP_EOL;
             $pathBuilder,
             __DIR__,
             $scssCompiler,
-            $messageBusMock
+            $messageBusMock,
+            900
         );
 
         $config = new StorefrontPluginConfiguration('test');

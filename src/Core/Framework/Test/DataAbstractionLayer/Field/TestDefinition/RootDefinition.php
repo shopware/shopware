@@ -38,7 +38,13 @@ class RootDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()), new VersionField(), new StringField('name', 'name'), (new OneToOneAssociationField('sub', 'id', 'root_id', SubDefinition::class))->addFlags(new ApiAware(), new RestrictDelete()), (new OneToOneAssociationField('subCascade', 'id', 'root_id', SubCascadeDefinition::class))->addFlags(new ApiAware(), new CascadeDelete())]);
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            new VersionField(),
+            new StringField('name', 'name'),
+            (new OneToOneAssociationField('sub', 'id', 'root_id', SubDefinition::class))->addFlags(new ApiAware(), new RestrictDelete()),
+            (new OneToOneAssociationField('subCascade', 'id', 'root_id', SubCascadeDefinition::class))->addFlags(new ApiAware(), new CascadeDelete()),
+        ]);
     }
 }
 /**
@@ -58,9 +64,23 @@ class SubDefinition extends EntityDefinition
         return '6.3.3.0';
     }
 
+//    protected function getParentDefinitionClass(): ?string
+//    {
+//        return RootDefinition::class;
+//    }
+
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()), new VersionField(), new StringField('name', 'name'), new IntField('stock', 'stock'), new FkField('root_id', 'rootId', RootDefinition::class, 'id'), (new ReferenceVersionField(RootDefinition::class))->addFlags(new ApiAware(), new Required()), new OneToOneAssociationField('root', 'root_id', 'id', RootDefinition::class, false), new OneToManyAssociationField('manies', SubManyDefinition::class, 'root_sub_id')]);
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            new VersionField(),
+            new StringField('name', 'name'),
+            new IntField('stock', 'stock'),
+            new FkField('root_id', 'rootId', RootDefinition::class, 'id'),
+            (new ReferenceVersionField(RootDefinition::class))->addFlags(new ApiAware(), new Required()),
+            new OneToOneAssociationField('root', 'root_id', 'id', RootDefinition::class, false),
+            new OneToManyAssociationField('manies', SubManyDefinition::class, 'root_sub_id'),
+        ]);
     }
 }
 /**
@@ -80,9 +100,22 @@ class SubCascadeDefinition extends EntityDefinition
         return '6.3.3.0';
     }
 
+//    protected function getParentDefinitionClass(): ?string
+//    {
+//        return RootDefinition::class;
+//    }
+
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()), new VersionField(), new StringField('name', 'name'), new IntField('stock', 'stock'), new FkField('root_id', 'rootId', RootDefinition::class, 'id'), (new ReferenceVersionField(RootDefinition::class))->addFlags(new ApiAware(), new Required()), new OneToOneAssociationField('root', 'root_id', 'id', RootDefinition::class, false)]);
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            new VersionField(),
+            new StringField('name', 'name'),
+            new IntField('stock', 'stock'),
+            new FkField('root_id', 'rootId', RootDefinition::class, 'id'),
+            (new ReferenceVersionField(RootDefinition::class))->addFlags(new ApiAware(), new Required()),
+            new OneToOneAssociationField('root', 'root_id', 'id', RootDefinition::class, false),
+        ]);
     }
 }
 /**

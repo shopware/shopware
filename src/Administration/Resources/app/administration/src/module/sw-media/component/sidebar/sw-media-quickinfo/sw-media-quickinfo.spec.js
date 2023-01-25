@@ -14,7 +14,7 @@ const itemMock = (options = {}) => {
         getEntityName: () => { return 'media'; },
         id: '4a12jd3kki9yyy765gkn5hdb',
         fileName: 'demo.jpg',
-        avatarUser: {},
+        avatarUsers: [],
         categories: [],
         productManufacturers: [],
         productMedia: [],

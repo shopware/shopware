@@ -16,7 +16,7 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
             getEntityName: () => { return 'media'; },
             id: '4a12jd3kki9yyy765gkn5hdb',
             fileName: 'demo.jpg',
-            avatarUser: {},
+            avatarUsers: [],
             categories: [],
             productManufacturers: [],
             productMedia: [],
@@ -120,7 +120,7 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
 
         await wrapper.setProps({
             item: itemDeleteMock({
-                avatarUser: avatarUserMock,
+                avatarUsers: [avatarUserMock],
                 productMedia: [productMediaMock],
                 categories: [categoryMock],
                 productManufacturers: [manufacturerMock],

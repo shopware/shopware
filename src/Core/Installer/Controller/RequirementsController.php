@@ -3,7 +3,6 @@
 namespace Shopware\Core\Installer\Controller;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Installer\Requirements\RequirementsValidatorInterface;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
@@ -27,9 +26,6 @@ class RequirementsController extends InstallerController
         $this->jwtDir = $projectDir . '/config/jwt';
     }
 
-    /**
-     * @Since("6.4.15.0")
-     */
     #[Route(path: '/installer/requirements', name: 'installer.requirements', methods: ['GET', 'POST'])]
     public function requirements(Request $request): Response
     {

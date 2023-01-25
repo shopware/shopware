@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Product\Api;
 use Shopware\Core\Content\Product\Util\VariantCombinationLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,9 +20,6 @@ class ProductActionController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/product/{productId}/combinations', name: 'api.action.product.combinations', methods: ['GET'])]
     public function getCombinations(string $productId, Context $context): JsonResponse
     {

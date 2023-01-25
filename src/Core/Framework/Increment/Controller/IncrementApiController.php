@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Increment\Controller;
 
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,9 +20,6 @@ class IncrementApiController
     {
     }
 
-    /**
-     * @Since("6.4.6.0")
-     */
     #[Route(path: '/api/_action/increment/{pool}', name: 'api.increment.increment', methods: ['POST'])]
     public function increment(Request $request, string $pool): Response
     {
@@ -42,9 +38,6 @@ class IncrementApiController
         return new JsonResponse(['success' => true]);
     }
 
-    /**
-     * @Since("6.4.6.0")
-     */
     #[Route(path: '/api/_action/decrement/{pool}', name: 'api.increment.decrement', methods: ['POST'])]
     public function decrement(Request $request, string $pool): Response
     {
@@ -66,9 +59,6 @@ class IncrementApiController
         return new JsonResponse(['success' => true]);
     }
 
-    /**
-     * @Since("6.4.6.0")
-     */
     #[Route(path: '/api/_action/increment/{pool}', name: 'api.increment.list', methods: ['GET'])]
     public function getIncrement(string $pool, Request $request): Response
     {
@@ -84,9 +74,6 @@ class IncrementApiController
         return new JsonResponse($result);
     }
 
-    /**
-     * @Since("6.4.6.0")
-     */
     #[Route(path: '/api/_action/reset-increment/{pool}', name: 'api.increment.reset', methods: ['POST'])]
     public function reset(string $pool, Request $request): Response
     {

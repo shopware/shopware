@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -27,9 +26,6 @@ class AclController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.3.3.0")
-     */
     #[Route(path: '/api/_action/acl/privileges', name: 'api.acl.privileges.get', methods: ['GET'], defaults: ['auth_required' => true, '_acl' => ['api_acl_privileges_get']])]
     public function getPrivileges(): JsonResponse
     {
@@ -40,9 +36,6 @@ class AclController extends AbstractController
         return new JsonResponse($privileges);
     }
 
-    /**
-     * @Since("6.3.3.0")
-     */
     #[Route(path: '/api/_action/acl/additional_privileges', name: 'api.acl.privileges.additional.get', methods: ['GET'], defaults: ['auth_required' => true, '_acl' => ['api_acl_privileges_additional_get']])]
     public function getAdditionalPrivileges(Context $context): JsonResponse
     {

@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
@@ -34,9 +33,6 @@ class StoreController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/store/login', name: 'api.custom.store.login', methods: ['POST'])]
     public function login(Request $request, Context $context): JsonResponse
     {
@@ -56,9 +52,6 @@ class StoreController extends AbstractController
         return new JsonResponse();
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/store/checklogin', name: 'api.custom.store.checklogin', methods: ['POST'])]
     public function checkLogin(Context $context): Response
     {
@@ -78,9 +71,6 @@ class StoreController extends AbstractController
         }
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/store/logout', name: 'api.custom.store.logout', methods: ['POST'])]
     public function logout(Context $context): Response
     {
@@ -91,9 +81,6 @@ class StoreController extends AbstractController
         return new Response();
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/store/updates', name: 'api.custom.store.updates', methods: ['GET'])]
     public function getUpdateList(Context $context): JsonResponse
     {
@@ -111,9 +98,6 @@ class StoreController extends AbstractController
         ]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/store/license-violations', name: 'api.custom.store.license-violations', methods: ['POST'])]
     public function getLicenseViolations(Request $request, Context $context): JsonResponse
     {
@@ -142,9 +126,6 @@ class StoreController extends AbstractController
         ]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/store/plugin/search', name: 'api.action.store.plugin.search', methods: ['POST'])]
     public function searchPlugins(Request $request, Context $context): Response
     {

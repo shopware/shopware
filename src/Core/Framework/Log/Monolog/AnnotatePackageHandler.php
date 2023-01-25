@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Package(null)]
+#[Package('core')]
 class AnnotatePackageHandler extends AbstractHandler
 {
     /**

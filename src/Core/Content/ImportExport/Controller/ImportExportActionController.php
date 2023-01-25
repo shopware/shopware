@@ -22,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -47,9 +46,6 @@ class ImportExportActionController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/import-export/features', name: 'api.action.import_export.features', methods: ['GET'])]
     public function features(): JsonResponse
     {
@@ -60,9 +56,6 @@ class ImportExportActionController extends AbstractController
         ]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/import-export/prepare', name: 'api.action.import_export.initiate', methods: ['POST'])]
     public function initiate(Request $request, Context $context): JsonResponse
     {
@@ -100,9 +93,6 @@ class ImportExportActionController extends AbstractController
         return new JsonResponse(['log' => $this->apiVersionConverter->convertEntity($this->logDefinition, $log)]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/import-export/process', name: 'api.action.import_export.process', methods: ['POST'])]
     public function process(Request $request, Context $context): Response
     {
@@ -116,9 +106,6 @@ class ImportExportActionController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.4.3.1")
-     */
     #[Route(path: '/api/_action/import-export/file/prepare-download/{fileId}', name: 'api.action.import_export.file.prepare-download', methods: ['POST'])]
     public function prepareDownload(string $fileId, Context $context): Response
     {
@@ -127,9 +114,6 @@ class ImportExportActionController extends AbstractController
         return new JsonResponse(['accessToken' => $token]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/import-export/file/download', name: 'api.action.import_export.file.download', defaults: ['auth_required' => false], methods: ['GET'])]
     public function download(Request $request, Context $context): Response
     {
@@ -143,9 +127,6 @@ class ImportExportActionController extends AbstractController
         return $this->downloadService->createFileResponse($context, $params['fileId'], $params['accessToken']);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/import-export/cancel', name: 'api.action.import_export.cancel', methods: ['POST'])]
     public function cancel(Request $request, Context $context): Response
     {

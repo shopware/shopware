@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotAZipFileException;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
@@ -29,9 +28,6 @@ class ExtensionStoreActionsController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/_action/extension/refresh', name: 'api.extension.refresh', methods: ['POST'])]
     public function refreshExtensions(Context $context): Response
     {
@@ -40,9 +36,6 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/_action/extension/upload', name: 'api.extension.upload', methods: ['POST'], defaults: ['_acl' => ['system.plugin_upload']])]
     public function uploadExtensions(Request $request, Context $context): Response
     {
@@ -70,9 +63,6 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/_action/extension/download/{technicalName}', name: 'api.extension.download', methods: ['POST'])]
     public function downloadExtension(string $technicalName, Context $context): Response
     {
@@ -81,9 +71,6 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/_action/extension/install/{type}/{technicalName}', name: 'api.extension.install', methods: ['POST'])]
     public function installExtension(string $type, string $technicalName, Context $context): Response
     {
@@ -92,9 +79,6 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/_action/extension/uninstall/{type}/{technicalName}', name: 'api.extension.uninstall', methods: ['POST'])]
     public function uninstallExtension(string $type, string $technicalName, Request $request, Context $context): Response
     {
@@ -108,9 +92,6 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/_action/extension/remove/{type}/{technicalName}', name: 'api.extension.remove', methods: ['DELETE'])]
     public function removeExtension(string $type, string $technicalName, Context $context): Response
     {
@@ -119,9 +100,6 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/_action/extension/activate/{type}/{technicalName}', name: 'api.extension.activate', methods: ['PUT'])]
     public function activateExtension(string $type, string $technicalName, Context $context): Response
     {
@@ -130,9 +108,6 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/_action/extension/deactivate/{type}/{technicalName}', name: 'api.extension.deactivate', methods: ['PUT'])]
     public function deactivateExtension(string $type, string $technicalName, Context $context): Response
     {
@@ -141,9 +116,6 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/_action/extension/update/{type}/{technicalName}', name: 'api.extension.update', methods: ['POST'])]
     public function updateExtension(Request $request, string $type, string $technicalName, Context $context): Response
     {

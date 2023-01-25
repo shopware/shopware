@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\MessageQueue\Api;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,9 +19,6 @@ class ScheduledTaskController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/scheduled-task/run', name: 'api.action.scheduled-task.run', methods: ['POST'])]
     public function runScheduledTasks(): JsonResponse
     {
@@ -31,9 +27,6 @@ class ScheduledTaskController extends AbstractController
         return $this->json(['message' => 'Success']);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/scheduled-task/min-run-interval', name: 'api.action.scheduled-task.min-run-interval', methods: ['GET'])]
     public function getMinRunInterval(): JsonResponse
     {

@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultShippingAddressEvent
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -38,9 +37,6 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.3.2.0")
-     */
     #[Route(path: '/store-api/account/address/default-shipping/{addressId}', name: 'store-api.account.address.change.default.shipping', methods: ['PATCH'], defaults: ['type' => 'shipping', '_loginRequired' => true])]
     #[Route(path: '/store-api/account/address/default-billing/{addressId}', name: 'store-api.account.address.change.default.billing', methods: ['PATCH'], defaults: ['type' => 'billing', '_loginRequired' => true])]
     public function swap(string $addressId, string $type, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse

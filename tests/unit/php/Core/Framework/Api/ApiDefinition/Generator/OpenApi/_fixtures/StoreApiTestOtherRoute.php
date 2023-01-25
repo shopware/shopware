@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi
 use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\BrowserKit\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,7 +17,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class StoreApiTestOtherRoute
 {
     /**
-     * @Since("6.3.4.0")
      * @Entity("test")
      * @OA\Post(
      *      path="/test",

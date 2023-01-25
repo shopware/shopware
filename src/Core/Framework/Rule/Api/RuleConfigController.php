@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Rule\Api;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,9 +27,6 @@ class RuleConfigController extends AbstractController
         $this->hydrateConfig($taggedRules);
     }
 
-    /**
-     * @Since("6.5.0.0")
-     */
     #[Route(path: '/api/_info/rule-config', name: 'api.info.rule-config', methods: ['GET'])]
     public function getConditionsConfig(): JsonResponse
     {

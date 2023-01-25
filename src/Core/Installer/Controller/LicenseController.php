@@ -3,7 +3,6 @@
 namespace Shopware\Core\Installer\Controller;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Installer\License\LicenseFetcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,9 +18,6 @@ class LicenseController extends InstallerController
     {
     }
 
-    /**
-     * @Since("6.4.15.0")
-     */
     #[Route(path: '/installer/license', name: 'installer.license', methods: ['GET', 'POST'])]
     public function license(Request $request): Response
     {

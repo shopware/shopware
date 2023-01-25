@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Promotion\Api;
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodeService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,18 +23,12 @@ class PromotionController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/_action/promotion/codes/generate-fixed', name: 'api.action.promotion.codes.generate-fixed', methods: ['GET'], defaults: ['_acl' => ['promotion.editor']])]
     public function generateFixedCode(): Response
     {
         return new JsonResponse($this->codeService->getFixedCode());
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/_action/promotion/codes/generate-individual', name: 'api.action.promotion.codes.generate-individual', methods: ['GET'], defaults: ['_acl' => ['promotion.editor']])]
     public function generateIndividualCodes(Request $request): Response
     {
@@ -48,9 +41,6 @@ class PromotionController extends AbstractController
         return new JsonResponse($this->codeService->generateIndividualCodes($codePattern, $amount));
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/_action/promotion/codes/replace-individual', name: 'api.action.promotion.codes.replace-individual', methods: ['PATCH'], defaults: ['_acl' => ['promotion.editor']])]
     public function replaceIndividualCodes(Request $request, Context $context): Response
     {
@@ -63,9 +53,6 @@ class PromotionController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/_action/promotion/codes/add-individual', name: 'api.action.promotion.codes.add-individual', methods: ['POST'], defaults: ['_acl' => ['promotion.editor']])]
     public function addIndividualCodes(Request $request, Context $context): Response
     {
@@ -77,9 +64,6 @@ class PromotionController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/_action/promotion/codes/preview', name: 'api.action.promotion.codes.preview', methods: ['GET'], defaults: ['_acl' => ['promotion.editor']])]
     public function getCodePreview(Request $request): Response
     {

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Store\Api;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionStoreLicensesService;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,9 +23,6 @@ class ExtensionStoreLicensesController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/license/cancel/{licenseId}', name: 'api.license.cancel', methods: ['DELETE'])]
     public function cancelSubscription(int $licenseId, Context $context): JsonResponse
     {
@@ -35,9 +31,6 @@ class ExtensionStoreLicensesController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/license/rate/{extensionId}', name: 'api.license.rate', methods: ['POST'])]
     public function rateLicensedExtension(int $extensionId, Request $request, Context $context): JsonResponse
     {

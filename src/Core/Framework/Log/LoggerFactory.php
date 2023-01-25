@@ -7,7 +7,7 @@ use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Psr\Log\LoggerInterface;
 
-#[Package(null)]
+#[Package('core')]
 class LoggerFactory
 {
     /**

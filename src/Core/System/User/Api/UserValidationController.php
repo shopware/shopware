@@ -4,7 +4,6 @@ namespace Shopware\Core\System\User\Api;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\User\Service\UserValidationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,9 +22,6 @@ class UserValidationController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: 'api/_action/user/check-email-unique', name: 'api.action.check-email-unique', methods: ['POST'])]
     public function isEmailUnique(Request $request, Context $context): JsonResponse
     {
@@ -45,9 +41,6 @@ class UserValidationController extends AbstractController
         );
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: 'api/_action/user/check-username-unique', name: 'api.action.check-username-unique', methods: ['POST'])]
     public function isUsernameUnique(Request $request, Context $context): JsonResponse
     {

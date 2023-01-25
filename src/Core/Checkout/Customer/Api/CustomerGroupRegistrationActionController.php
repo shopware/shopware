@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,8 +29,6 @@ class CustomerGroupRegistrationActionController
 
     /**
      * @throws Exception
-     *
-     * @Since("6.3.1.0")
      */
     #[Route(path: '/api/_action/customer-group-registration/accept', name: 'api.customer-group.accept', methods: ['POST'], requirements: ['version' => '\d+'])]
     public function accept(Request $request, Context $context): JsonResponse
@@ -80,8 +77,6 @@ class CustomerGroupRegistrationActionController
 
     /**
      * @throws Exception
-     *
-     * @Since("6.3.1.0")
      */
     #[Route(path: '/api/_action/customer-group-registration/decline', name: 'api.customer-group.decline', methods: ['POST'], requirements: ['version' => '\d+'])]
     public function decline(Request $request, Context $context): JsonResponse

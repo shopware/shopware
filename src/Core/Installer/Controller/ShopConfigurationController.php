@@ -4,7 +4,6 @@ namespace Shopware\Core\Installer\Controller;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Installer\Configuration\AdminConfigurationService;
 use Shopware\Core\Installer\Configuration\EnvConfigWriter;
 use Shopware\Core\Installer\Configuration\ShopConfigurationService;
@@ -32,9 +31,6 @@ class ShopConfigurationController extends InstallerController
     {
     }
 
-    /**
-     * @Since("6.4.15.0")
-     */
     #[Route(path: '/installer/configuration', name: 'installer.configuration', methods: ['GET', 'POST'])]
     public function shopConfiguration(Request $request): Response
     {

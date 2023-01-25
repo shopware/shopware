@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Util\Random;
@@ -73,9 +72,6 @@ class SalesChannelProxyController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.2.0.0")
-     */
     #[Route(path: '/api/_proxy/store-api/{salesChannelId}/{_path}', name: 'api.proxy.store-api', requirements: ['_path' => '.*'])]
     public function proxy(string $_path, string $salesChannelId, Request $request, Context $context): Response
     {
@@ -86,9 +82,6 @@ class SalesChannelProxyController extends AbstractController
         return $this->wrapInSalesChannelApiRoute($salesChannelApiRequest, fn (): Response => $this->kernel->handle($salesChannelApiRequest, HttpKernelInterface::SUB_REQUEST));
     }
 
-    /**
-     * @Since("6.3.4.0")
-     */
     #[Route(path: '/api/_proxy-order/{salesChannelId}', name: 'api.proxy-order.create')]
     public function proxyCreateOrder(string $salesChannelId, Request $request, Context $context, RequestDataBag $data): Response
     {
@@ -114,9 +107,6 @@ class SalesChannelProxyController extends AbstractController
         return new JsonResponse($order);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     */
     #[Route(path: '/api/_proxy/switch-customer', name: 'api.proxy.switch-customer', methods: ['PATCH'], defaults: ['_acl' => ['api_proxy_switch-customer']])]
     public function assignCustomer(Request $request, Context $context): Response
     {
@@ -148,9 +138,6 @@ class SalesChannelProxyController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Since("6.2.0.0")
-     */
     #[Route(path: '/api/_proxy/modify-shipping-costs', name: 'api.proxy.modify-shipping-costs', methods: ['PATCH'])]
     public function modifyShippingCosts(Request $request, Context $context): JsonResponse
     {
@@ -171,9 +158,6 @@ class SalesChannelProxyController extends AbstractController
         return new JsonResponse(['data' => $cart]);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     */
     #[Route(path: '/api/_proxy/disable-automatic-promotions', name: 'api.proxy.disable-automatic-promotions', methods: ['PATCH'])]
     public function disableAutomaticPromotions(Request $request): JsonResponse
     {
@@ -190,9 +174,6 @@ class SalesChannelProxyController extends AbstractController
         return new JsonResponse();
     }
 
-    /**
-     * @Since("6.2.0.0")
-     */
     #[Route(path: '/api/_proxy/enable-automatic-promotions', name: 'api.proxy.enable-automatic-promotions', methods: ['PATCH'])]
     public function enableAutomaticPromotions(Request $request): JsonResponse
     {

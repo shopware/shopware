@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -34,8 +33,6 @@ class SyncController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0.0")
-     *
      * @throws ConnectionException
      * @throws InvalidSyncOperationException
      */

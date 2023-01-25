@@ -4,7 +4,6 @@ namespace Shopware\Core\Installer\Controller;
 
 use Doctrine\DBAL\Exception\DriverException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
@@ -36,9 +35,6 @@ class DatabaseConfigurationController extends InstallerController
         $this->jwtDir = $projectDir . '/config/jwt';
     }
 
-    /**
-     * @Since("6.4.15.0")
-     */
     #[Route(path: '/installer/database-configuration', name: 'installer.database-configuration', methods: ['POST', 'GET'])]
     public function databaseConfiguration(Request $request): Response
     {
@@ -103,9 +99,6 @@ class DatabaseConfigurationController extends InstallerController
         return $this->redirectToRoute('installer.database-import');
     }
 
-    /**
-     * @Since("6.4.15.0")
-     */
     #[Route(path: '/installer/database-information', name: 'installer.database-information', methods: ['POST'])]
     public function databaseInformation(Request $request): JsonResponse
     {

@@ -4,9 +4,6 @@ namespace Shopware\Core\DevOps\StaticAnalyze\Rector;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike;
-use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
-use Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfo;
-use Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTagRemover;
 use Rector\Core\Rector\AbstractRector;
 use Rector\PhpAttribute\NodeFactory\PhpAttributeGroupFactory;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule;
@@ -14,13 +11,25 @@ use Shopware\Core\Framework\Log\Package;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ClassPackageRector extends AbstractRector
 {
-    public function __construct(private PhpAttributeGroupFactory $phpAttributeGroupFactory, private PhpDocTagRemover $phpDocTagRemover)
+    private string $template = <<<'PHP'
+/**
+ * @package %s
+ */
+PHP;
+
+    /**
+     * @readonly
+     *
+     * @var PhpAttributeGroupFactory
+     */
+    private $phpAttributeGroupFactory;
+
+    public function __construct(PhpAttributeGroupFactory $phpAttributeGroupFactory)
     {
+        $this->phpAttributeGroupFactory = $phpAttributeGroupFactory;
     }
 
     public function getNodeTypes(): array
@@ -34,19 +43,21 @@ class ClassPackageRector extends AbstractRector
             return null;
         }
 
-        /** @var PhpDocInfo $phpDocInfo */
-        $phpDocInfo = $this->phpDocInfoFactory->createFromNodeOrEmpty($node);
-
-        /** @var PhpDocTagNode $packageAnnotation */
-        $packageAnnotation = $phpDocInfo->getByName('Since');
-
-        if ($packageAnnotation === null) {
+        if ($this->isTestClass($node)) {
             return null;
         }
 
-        $this->phpDocTagRemover->removeByName($phpDocInfo, 'Since');
+        $area = $this->getArea($node);
 
-//        $node->attrGroups[] = $this->phpAttributeGroupFactory->createFromClassWithItems(Package::class, [$packageAnnotation->value->value]);
+        if ($area === null) {
+            return null;
+        }
+
+        if ($this->hasPackageAnnotation($node)) {
+            return null;
+        }
+
+        $node->attrGroups[] = $this->phpAttributeGroupFactory->createFromClassWithItems(Package::class, [$area]);
 
         return $node;
     }
@@ -54,22 +65,16 @@ class ClassPackageRector extends AbstractRector
     public function getRuleDefinition(): RuleDefinition
     {
         return new RuleDefinition(
-            'Adds a @package annotation to all php classes corresponding to the area mapping.',
+            'Adds a #[Package] attribute to all php classes corresponding to the area mapping.',
             [
                 new CodeSample(
-                    // code before
-'
-/**
- * some docs
- */
+                // code before
+                    '
 class Foo{}',
 
                     // code after
-'
-/**
- * @package area
- * some docs
- */
+                    '
+#[Package(\'core\')]
 class Foo{}'
                 ),
             ]
@@ -80,7 +85,7 @@ class Foo{}'
     {
         try {
             $namespace = $node->namespacedName->toString();
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return null;
         }
 
@@ -95,11 +100,27 @@ class Foo{}'
         return null;
     }
 
+    private function hasPackageAnnotation(ClassLike $class): bool
+    {
+        foreach ($class->attrGroups as $group) {
+            $attribute = $group->attrs[0];
+
+            /** @var Node\Name\FullyQualified $name */
+            $name = $attribute->name;
+
+            if ($name->toString() === Package::class) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function isTestClass(ClassLike $node): bool
     {
         try {
             $namespace = $node->namespacedName->toString();
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return true;
         }
 

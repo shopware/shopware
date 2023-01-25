@@ -4,7 +4,6 @@ namespace Shopware\Core\System\NumberRange\Api;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,9 +22,6 @@ class NumberRangeController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Cache(mustRevalidate: true)]
     #[Route(path: '/api/_action/number-range/reserve/{type}/{saleschannel?}', name: 'api.action.number-range.reserve', methods: ['GET'])]
     public function reserve(string $type, ?string $saleschannel, Context $context, Request $request): JsonResponse
@@ -37,9 +33,6 @@ class NumberRangeController extends AbstractController
         ]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Cache(mustRevalidate: true)]
     #[Route(path: '/api/_action/number-range/preview-pattern/{type}', defaults: ['type' => 'default'], name: 'api.action.number-range.preview-pattern', methods: ['GET'])]
     public function previewPattern(string $type, Request $request): JsonResponse

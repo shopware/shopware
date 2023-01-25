@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Document\Service\DocumentMerger;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -28,9 +27,6 @@ class DocumentController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/document/{documentId}/{deepLinkCode}', name: 'api.action.download.document', methods: ['GET'], defaults: ['_acl' => ['document.viewer']])]
     public function downloadDocument(Request $request, string $documentId, string $deepLinkCode, Context $context): Response
     {
@@ -50,9 +46,6 @@ class DocumentController extends AbstractController
         );
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/order/{orderId}/{deepLinkCode}/document/{documentTypeName}/preview', name: 'api.action.document.preview', methods: ['GET'], defaults: ['_acl' => ['document.viewer']])]
     public function previewDocument(
         Request $request,
@@ -80,9 +73,6 @@ class DocumentController extends AbstractController
         );
     }
 
-    /**
-     * @Since("6.4.12.0")
-     */
     #[Route(path: '/api/_action/order/document/download', name: 'api.action.download.documents', methods: ['POST'], defaults: ['_acl' => ['document.viewer']])]
     public function downloadDocuments(Request $request, Context $context): Response
     {

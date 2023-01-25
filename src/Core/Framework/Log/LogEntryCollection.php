@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 /**
  * @extends EntityCollection<LogEntryEntity>
  */
-#[Package(null)]
+#[Package('core')]
 class LogEntryCollection extends EntityCollection
 {
     public function getApiAlias(): string

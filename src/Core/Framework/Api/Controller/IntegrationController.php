@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\Integration\IntegrationDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,9 +25,6 @@ class IntegrationController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.4.1.0")
-     */
     #[Route(path: '/api/integration', name: 'api.integration.create', methods: ['POST'], defaults: ['_acl' => ['integration:create']])]
     public function upsertIntegration(?string $integrationId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
@@ -60,9 +56,6 @@ class IntegrationController extends AbstractController
         return $factory->createRedirectResponse($this->integrationRepository->getDefinition(), $entityId, $request, $context);
     }
 
-    /**
-     * @Since("6.4.1.0")
-     */
     #[Route(path: '/api/integration/{integrationId}', name: 'api.integration.update', methods: ['PATCH'], defaults: ['_acl' => ['integration:update']])]
     public function updateIntegration(?string $integrationId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {

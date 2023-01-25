@@ -4,7 +4,6 @@ namespace Shopware\Core\Installer\Controller;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Installer\Database\DatabaseMigrator;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
@@ -24,9 +23,6 @@ class DatabaseImportController extends InstallerController
     {
     }
 
-    /**
-     * @Since("6.4.15.0")
-     */
     #[Route(path: '/installer/database-import', name: 'installer.database-import', methods: ['GET'])]
     public function databaseImport(Request $request): Response
     {
@@ -46,9 +42,6 @@ class DatabaseImportController extends InstallerController
         );
     }
 
-    /**
-     * @Since("6.4.15.0")
-     */
     #[Route(path: '/installer/database-migrate', name: 'installer.database-migrate', methods: ['POST'])]
     public function databaseMigrate(Request $request): JsonResponse
     {

@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\Api\ApiDefinition\ApiRoute;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,7 +22,6 @@ class StoreApiTestRoute extends AbstractStoreApiTestRoute
     }
 
     /**
-     * @Since("6.3.4.0")
      * @OA\Post(
      *      path="/testinternal",
      *      summary="An internal Route",

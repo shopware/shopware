@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Media\File;
 
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -15,9 +14,6 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route(defaults: ['_routeScope' => ['api']])]
 class MediaFileFetchRedirectTestController extends AbstractController
 {
-    /**
-     * @Since("6.3.4.1")
-     */
     #[Route(path: '/api/_action/redirect-to-echo', name: 'api.action.test.redirect-to-echo', defaults: ['auth_required' => false], methods: ['GET'])]
     public function redirectAction(Request $request): RedirectResponse
     {
@@ -30,9 +26,6 @@ class MediaFileFetchRedirectTestController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Since("6.3.4.1")
-     */
     #[Route(path: '/api/_action/echo-json', name: 'api.action.test.echo_json', defaults: ['auth_required' => false], methods: ['GET'])]
     public function echoJsonAction(Request $request): JsonResponse
     {

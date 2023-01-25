@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -33,9 +32,6 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.3.0.0")
-     */
     #[Route(path: '/store-api/checkout/cart/line-item', name: 'store-api.checkout.cart.remove-item', methods: ['DELETE'])]
     public function remove(Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {

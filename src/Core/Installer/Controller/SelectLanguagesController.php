@@ -3,7 +3,6 @@
 namespace Shopware\Core\Installer\Controller;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Installer\Finish\Notifier;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,9 +17,6 @@ class SelectLanguagesController extends InstallerController
     {
     }
 
-    /**
-     * @Since("6.4.15.0")
-     */
     #[Route(path: '/installer', name: 'installer.language-selection', methods: ['GET'])]
     public function languageSelection(): Response
     {

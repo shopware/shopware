@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -33,9 +32,6 @@ class OrderActionController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.1.0.0")
-     */
     #[Route(path: '/api/_action/order/{orderId}/state/{transition}', name: 'api.action.order.state_machine.order.transition_state', methods: ['POST'])]
     public function orderStateTransition(
         string $orderId,
@@ -77,9 +73,6 @@ class OrderActionController extends AbstractController
         return new JsonResponse($response);
     }
 
-    /**
-     * @Since("6.1.0.0")
-     */
     #[Route(path: '/api/_action/order_transaction/{orderTransactionId}/state/{transition}', name: 'api.action.order.state_machine.order_transaction.transition_state', methods: ['POST'])]
     public function orderTransactionStateTransition(
         string $orderTransactionId,
@@ -121,9 +114,6 @@ class OrderActionController extends AbstractController
         return new JsonResponse($response);
     }
 
-    /**
-     * @Since("6.1.0.0")
-     */
     #[Route(path: '/api/_action/order_delivery/{orderDeliveryId}/state/{transition}', name: 'api.action.order.state_machine.order_delivery.transition_state', methods: ['POST'])]
     public function orderDeliveryStateTransition(
         string $orderDeliveryId,
@@ -166,8 +156,6 @@ class OrderActionController extends AbstractController
     }
 
     /**
-     * @Since("6.4.12.0")
-     *
      * @throws RefundProcessException
      */
     #[Route(path: '/api/_action/order_transaction_capture_refund/{refundId}', name: 'api.action.order.order_transaction_capture_refund', methods: ['POST'], defaults: ['_acl' => ['order_refund.editor']])]

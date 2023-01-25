@@ -5,7 +5,6 @@ namespace Shopware\Core\Installer\Controller;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Installer\Finish\Notifier;
 use Shopware\Core\Installer\Finish\SystemLocker;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -23,9 +22,6 @@ class FinishController extends InstallerController
     {
     }
 
-    /**
-     * @Since("6.4.15.0")
-     */
     #[Route(path: '/installer/finish', name: 'installer.finish', methods: ['GET'])]
     public function finish(Request $request): Response
     {

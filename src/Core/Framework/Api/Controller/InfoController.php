@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundExceptio
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
@@ -41,9 +40,6 @@ class InfoController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_info/openapi3.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.openapi3', methods: ['GET'])]
     public function info(Request $request): JsonResponse
     {
@@ -59,9 +55,6 @@ class InfoController extends AbstractController
         return new JsonResponse($data);
     }
 
-    /**
-     * @Since("6.4.6.0")
-     */
     #[Route(path: '/api/_info/queue.json', name: 'api.info.queue', methods: ['GET'])]
     public function queue(): JsonResponse
     {
@@ -81,9 +74,6 @@ class InfoController extends AbstractController
         ], array_values($entries)));
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_info/open-api-schema.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.open-api-schema', methods: ['GET'])]
     public function openApiSchema(): JsonResponse
     {
@@ -92,9 +82,6 @@ class InfoController extends AbstractController
         return new JsonResponse($data);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_info/entity-schema.json', name: 'api.info.entity-schema', methods: ['GET'])]
     public function entitySchema(): JsonResponse
     {
@@ -103,9 +90,6 @@ class InfoController extends AbstractController
         return new JsonResponse($data);
     }
 
-    /**
-     * @Since("6.3.2.0")
-     */
     #[Route(path: '/api/_info/events.json', name: 'api.info.business-events', methods: ['GET'])]
     public function businessEvents(Context $context): JsonResponse
     {
@@ -114,9 +98,6 @@ class InfoController extends AbstractController
         return new JsonResponse($events);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_info/swagger.html', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.swagger', methods: ['GET'])]
     public function infoHtml(Request $request): Response
     {
@@ -142,9 +123,6 @@ class InfoController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_info/config', name: 'api.info.config', methods: ['GET'])]
     public function config(Context $context, Request $request): JsonResponse
     {
@@ -165,9 +143,6 @@ class InfoController extends AbstractController
         ]);
     }
 
-    /**
-     * @Since("6.3.5.0")
-     */
     #[Route(path: '/api/_info/version', name: 'api.info.shopware.version', methods: ['GET'])]
     #[Route(path: '/api/v1/_info/version', name: 'api.info.shopware.version_old_version', methods: ['GET'])]
     public function infoShopwareVersion(): JsonResponse
@@ -177,9 +152,6 @@ class InfoController extends AbstractController
         ]);
     }
 
-    /**
-     * @Since("6.4.5.0")
-     */
     #[Route(path: '/api/_info/flow-actions.json', name: 'api.info.actions', methods: ['GET'])]
     public function flowActions(Context $context): JsonResponse
     {

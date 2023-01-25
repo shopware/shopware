@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDownloadRoute;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,6 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal
  */
+#[Package('customer-order')]
 #[Route(defaults: ['_routeScope' => ['storefront']])]
 class DownloadController extends StorefrontController
 {

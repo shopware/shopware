@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,9 +24,6 @@ class CustomSnippetFormatController
     {
     }
 
-    /**
-     * @Since("6.4.18.0")
-     */
     #[Route(path: '/api/_action/custom-snippet', name: 'api.action.custom-snippet', methods: ['GET'])]
     public function snippets(): JsonResponse
     {
@@ -40,9 +36,6 @@ class CustomSnippetFormatController
         ]);
     }
 
-    /**
-     * @Since("6.4.18.0")
-     */
     #[Route(path: '/api/_action/custom-snippet/render', name: 'api.action.custom-snippet.render', methods: ['POST'])]
     public function render(Request $request): JsonResponse
     {

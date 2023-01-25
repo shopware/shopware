@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
@@ -32,9 +31,6 @@ class FirstRunWizardController extends AbstractController
     ) {
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/store/frw/start', name: 'api.custom.store.frw.start', methods: ['POST'])]
     public function frwStart(Context $context): JsonResponse
     {
@@ -47,9 +43,6 @@ class FirstRunWizardController extends AbstractController
         return new JsonResponse();
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/store/language-plugins', name: 'api.custom.store.language-plugins', methods: ['GET'])]
     public function getLanguagePluginList(Context $context): JsonResponse
     {
@@ -68,9 +61,6 @@ class FirstRunWizardController extends AbstractController
         ]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/store/demo-data-plugins', name: 'api.custom.store.demo-data-plugins', methods: ['GET'])]
     public function getDemoDataPluginList(Context $context): JsonResponse
     {
@@ -89,9 +79,6 @@ class FirstRunWizardController extends AbstractController
         ]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/store/recommendation-regions', name: 'api.custom.store.recommendation-regions', methods: ['GET'])]
     public function getRecommendationRegions(Context $context): JsonResponse
     {
@@ -107,9 +94,6 @@ class FirstRunWizardController extends AbstractController
         ]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/store/recommendations', name: 'api.custom.store.recommendations', methods: ['GET'])]
     public function getRecommendations(Request $request, Context $context): JsonResponse
     {
@@ -131,9 +115,6 @@ class FirstRunWizardController extends AbstractController
         ]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/store/frw/login', name: 'api.custom.store.frw.login', methods: ['POST'])]
     public function frwLogin(RequestDataBag $requestDataBag, Context $context): JsonResponse
     {
@@ -153,9 +134,6 @@ class FirstRunWizardController extends AbstractController
         return new JsonResponse();
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/store/license-domains', name: 'api.custom.store.license-domains', methods: ['GET'])]
     public function getDomainList(Context $context): JsonResponse
     {
@@ -171,9 +149,6 @@ class FirstRunWizardController extends AbstractController
         ]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/store/verify-license-domain', name: 'api.custom.store.verify-license-domain', methods: ['POST'])]
     public function verifyDomain(QueryDataBag $params, Context $context): JsonResponse
     {
@@ -189,9 +164,6 @@ class FirstRunWizardController extends AbstractController
         return new JsonResponse(['data' => $domainStruct]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/store/frw/finish', name: 'api.custom.store.frw.finish', methods: ['POST'])]
     public function frwFinish(QueryDataBag $params, Context $context): JsonResponse
     {

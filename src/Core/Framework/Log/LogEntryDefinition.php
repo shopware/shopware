@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-#[Package(null)]
+#[Package('core')]
 class LogEntryDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'log_entry';

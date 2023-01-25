@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,9 +25,6 @@ class IndexingController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/indexing', name: 'api.action.indexing', methods: ['POST'])]
     public function indexing(Request $request): JsonResponse
     {
@@ -39,9 +35,6 @@ class IndexingController extends AbstractController
         return new JsonResponse();
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/_action/indexing/{indexer}', name: 'api.action.indexing.iterate', methods: ['POST'])]
     public function iterate(string $indexer, Request $request): JsonResponse
     {
@@ -69,9 +62,6 @@ class IndexingController extends AbstractController
         return new JsonResponse(['finish' => false, 'offset' => $message->getOffset()]);
     }
 
-    /**
-     * @Since("6.4.2.1")
-     */
     #[Route(path: '/api/_action/index-products', name: 'api.action.indexing.products', methods: ['POST'])]
     public function products(Request $request): JsonResponse
     {

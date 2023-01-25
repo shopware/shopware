@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Framework\Script;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 
 /**
- * @package core
  * This class is intended for auto completion in twig templates. So the developer can
  * set a doc block to get auto completion for all services.
  *
@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
  * @method \Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade response()
  * @method \Shopware\Core\Framework\Adapter\Cache\Script\Facade\CacheInvalidatorFacade cache()
  */
+#[Package('core')]
 final class ServiceStubs
 {
     private string $hook;

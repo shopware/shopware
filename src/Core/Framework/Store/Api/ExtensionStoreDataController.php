@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,9 +27,6 @@ class ExtensionStoreDataController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.4.0.0")
-     */
     #[Route(path: '/api/_action/extension/installed', name: 'api.extension.installed', methods: ['GET'])]
     public function getInstalledExtensions(Context $context): Response
     {

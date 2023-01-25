@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer;
@@ -28,9 +27,6 @@ class CacheController extends AbstractController
     {
     }
 
-    /**
-     * @Since("6.2.0.0")
-     */
     #[Route(path: '/api/_action/cache_info', name: 'api.action.cache.info', methods: ['GET'], defaults: ['_acl' => ['system:cache:info']])]
     public function info(): JsonResponse
     {
@@ -41,9 +37,6 @@ class CacheController extends AbstractController
         ]);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     */
     #[Route(path: '/api/_action/index', name: 'api.action.cache.index', methods: ['POST'], defaults: ['_acl' => ['api_action_cache_index']])]
     public function index(RequestDataBag $dataBag): Response
     {
@@ -55,9 +48,6 @@ class CacheController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     */
     #[Route(path: '/api/_action/cache_warmup', name: 'api.action.cache.delete_and_warmup', methods: ['DELETE'], defaults: ['_acl' => ['system:clear:cache']])]
     public function clearCacheAndScheduleWarmUp(): Response
     {
@@ -70,9 +60,6 @@ class CacheController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     */
     #[Route(path: '/api/_action/cache', name: 'api.action.cache.delete', methods: ['DELETE'], defaults: ['_acl' => ['system:clear:cache']])]
     public function clearCache(): Response
     {
@@ -81,9 +68,6 @@ class CacheController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     */
     #[Route(path: '/api/_action/cleanup', name: 'api.action.cache.cleanup', methods: ['DELETE'], defaults: ['_acl' => ['system:clear:cache']])]
     public function clearOldCacheFolders(): Response
     {
@@ -92,9 +76,6 @@ class CacheController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     */
     #[Route(path: '/api/_action/container_cache', name: 'api.action.container-cache.delete', methods: ['DELETE'], defaults: ['_acl' => ['system:clear:cache']])]
     public function clearContainerCache(): Response
     {

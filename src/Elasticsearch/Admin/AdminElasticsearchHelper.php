@@ -2,13 +2,13 @@
 
 namespace Shopware\Elasticsearch\Admin;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package system-settings
- *
  * @internal
- *
  * @final
  */
+#[Package('system-settings')]
 class AdminElasticsearchHelper
 {
     public function __construct(private bool $adminEsEnabled, private readonly bool $refreshIndices, private readonly string $adminIndexPrefix)

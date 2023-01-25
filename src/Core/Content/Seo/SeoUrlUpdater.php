@@ -9,14 +9,14 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
  * This class can be used to regenerate the seo urls for a route and an offset at ids.
- *
- * @package sales-channel
  */
+#[Package('sales-channel')]
 class SeoUrlUpdater
 {
     /**

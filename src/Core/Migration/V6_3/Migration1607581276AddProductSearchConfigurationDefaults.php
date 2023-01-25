@@ -7,16 +7,16 @@ use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchCon
 use Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\Traits\Translations;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1607581276AddProductSearchConfigurationDefaults extends MigrationStep
 {
     use ImportTranslationsTrait;

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundHttpException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,10 +19,9 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- *
- * @package core
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('core')]
 class AppUrlChangeController extends AbstractController
 {
     public function __construct(private readonly Resolver $appUrlChangeResolver, private readonly ShopIdProvider $shopIdProvider)

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Profiling\Controller;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Doctrine\ConnectionProfiler;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Profiler\Profiler;
@@ -11,9 +12,8 @@ use Twig\Environment;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class ProfilerController
 {
     /**

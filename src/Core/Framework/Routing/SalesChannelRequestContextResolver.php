@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Util\Random;
@@ -15,9 +16,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SalesChannelRequestContextResolver implements RequestContextResolverInterface
 {
     use RouteScopeCheckTrait;

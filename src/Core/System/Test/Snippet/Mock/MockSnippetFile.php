@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\System\Test\Snippet\Mock;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MockSnippetFile extends AbstractSnippetFile
 {
     private readonly string $iso;

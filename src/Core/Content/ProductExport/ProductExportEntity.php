@@ -5,13 +5,12 @@ namespace Shopware\Core\Content\ProductExport;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class ProductExportEntity extends Entity
 {
     use EntityIdTrait;

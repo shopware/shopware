@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -11,11 +12,10 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
- * @package customer-order
- *
  * @internal
  * @group store-api
  */
+#[Package('customer-order')]
 class ChangePasswordRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

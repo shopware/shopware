@@ -2,11 +2,10 @@
 
 namespace Shopware\Elasticsearch\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package core
- */
+#[Package('core')]
 class UnsupportedElasticsearchDefinitionException extends ShopwareHttpException
 {
     final public const CODE = 'ELASTICSEARCH_UNSUPPORTED_DEFINITION';

@@ -2,15 +2,14 @@
 
 namespace Shopware\Storefront\Controller\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package storefront
- */
 #[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('storefront')]
 class CaptchaController extends AbstractController
 {
     /**

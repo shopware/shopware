@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class CloneBehavior
 {
     public function __construct(private readonly array $overwrites = [], private readonly bool $cloneChildren = true)

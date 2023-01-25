@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class WriteResult
 {
     /**

@@ -5,12 +5,11 @@ namespace Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable;
 
-/**
- * @package core
- */
+#[Package('core')]
 class HookableEventFactory
 {
     /**

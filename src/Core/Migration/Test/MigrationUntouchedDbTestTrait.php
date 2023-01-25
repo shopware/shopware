@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Migration\Test;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 trait MigrationUntouchedDbTestTrait
 {
     private string $databaseName = 'shopware';

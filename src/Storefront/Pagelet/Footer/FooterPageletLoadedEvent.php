@@ -2,13 +2,12 @@
 
 namespace Shopware\Storefront\Pagelet\Footer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\PageletLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class FooterPageletLoadedEvent extends PageletLoadedEvent
 {
     /**

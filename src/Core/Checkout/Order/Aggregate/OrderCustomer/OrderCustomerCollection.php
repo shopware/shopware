@@ -5,12 +5,12 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderCustomer;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package customer-order
- *
  * @extends EntityCollection<OrderCustomerEntity>
  */
+#[Package('customer-order')]
 class OrderCustomerCollection extends EntityCollection
 {
     /**

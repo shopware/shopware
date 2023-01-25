@@ -6,14 +6,14 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Aggregate\FlowTemplate\FlowTemplateDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class Migration1659257296GenerateFlowTemplateDataFromEventAction extends MigrationStep
 {
     public function getCreationTimestamp(): int

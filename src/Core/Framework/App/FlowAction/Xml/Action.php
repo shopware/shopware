@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\App\FlowAction\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class Action extends XmlElement
 {
     protected Metadata $meta;

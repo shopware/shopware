@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SearchRequestException extends ShopwareHttpException
 {
     public function __construct(private array $exceptions = [])

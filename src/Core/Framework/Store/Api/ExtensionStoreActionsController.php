@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Store\Api;
 
 use Composer\IO\NullIO;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotAZipFileException;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -18,11 +19,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['api'], '_acl' => ['system.plugin_maintain']])]
+#[Package('merchant-services')]
 class ExtensionStoreActionsController extends AbstractController
 {
     public function __construct(private readonly AbstractExtensionLifecycle $extensionLifecycleService, private readonly ExtensionDownloader $extensionDownloader, private readonly PluginService $pluginService, private readonly PluginManagementService $pluginManagementService)

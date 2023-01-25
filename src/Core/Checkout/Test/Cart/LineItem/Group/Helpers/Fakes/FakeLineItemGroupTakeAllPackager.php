@@ -5,13 +5,13 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class FakeLineItemGroupTakeAllPackager implements LineItemGroupPackagerInterface
 {
     private int $sequenceCount = 1;

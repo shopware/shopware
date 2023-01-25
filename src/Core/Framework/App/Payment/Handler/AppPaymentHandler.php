@@ -28,6 +28,7 @@ use Shopware\Core\Framework\App\Payment\Response\ValidateResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -38,9 +39,8 @@ use Shopware\Core\System\StateMachine\Transition;
 
 /**
  * @internal only for use by the app-system
- *
- * @package core
  */
+#[Package('core')]
 class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymentHandlerInterface
 {
     public function __construct(protected OrderTransactionStateHandler $transactionStateHandler, protected StateMachineRegistry $stateMachineRegistry, protected PaymentPayloadService $payloadService, protected EntityRepository $refundRepository)

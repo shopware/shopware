@@ -4,6 +4,7 @@ namespace Shopware\Administration\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -11,10 +12,9 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesCha
 use Shopware\Core\System\User\UserDefinition;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1636121186CopySalesChannelIdsIntoUserConfig extends MigrationStep
 {
     private const CONFIG_KEY = 'sales-channel-favorites';

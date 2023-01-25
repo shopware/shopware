@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class UnexpectedFieldException extends ShopwareHttpException implements WriteFieldException
 {
     private readonly string $fieldName;

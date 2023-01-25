@@ -6,15 +6,15 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1643878976AddCaptureRefundStateMachines;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1643878976AddCaptureRefundStateMachinesTest extends TestCase
 {
     use KernelTestBehaviour;

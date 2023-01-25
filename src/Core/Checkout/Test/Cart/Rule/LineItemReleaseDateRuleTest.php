@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemReleaseDateRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -17,11 +18,10 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
  * @group rules
  */
+#[Package('business-ops')]
 class LineItemReleaseDateRuleTest extends TestCase
 {
     use CartRuleHelperTrait;

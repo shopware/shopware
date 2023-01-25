@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
  * @template-covariant TKey
  * @template-covariant TValue
- *
  * @implements \ArrayAccess<string|int, mixed>
  */
+#[Package('core')]
 class ArrayStruct extends Struct implements \ArrayAccess
 {
     /**

@@ -5,13 +5,12 @@ namespace Shopware\Core\Maintenance\System\Service;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\System\Exception\ShopConfigurationException;
 use Symfony\Component\Intl\Currencies;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ShopConfigurator
 {
     /**

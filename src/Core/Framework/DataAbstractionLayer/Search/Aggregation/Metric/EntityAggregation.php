@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class EntityAggregation extends Aggregation
 {
     public function __construct(string $name, string $field, private readonly string $entity)

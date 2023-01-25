@@ -3,12 +3,12 @@
 namespace Shopware\Core\Content\Seo\MainCategory;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package sales-channel
- *
  * @extends EntityCollection<MainCategoryEntity>
  */
+#[Package('sales-channel')]
 class MainCategoryCollection extends EntityCollection
 {
     public function filterBySalesChannelId(string $id): MainCategoryCollection

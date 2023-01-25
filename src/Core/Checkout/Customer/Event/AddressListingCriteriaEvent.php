@@ -6,11 +6,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class AddressListingCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     public function __construct(private readonly Criteria $criteria, private readonly SalesChannelContext $salesChannelContext)

@@ -2,11 +2,15 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\Rector;
 
-use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike;
+use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
+use Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfo;
+use Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTagRemover;
 use Rector\Core\Rector\AbstractRector;
+use Rector\PhpAttribute\NodeFactory\PhpAttributeGroupFactory;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule;
+use Shopware\Core\Framework\Log\Package;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
@@ -15,11 +19,9 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
  */
 class ClassPackageRector extends AbstractRector
 {
-    private string $template = <<<'PHP'
-/**
- * @package %s
- */
-PHP;
+    public function __construct(private PhpAttributeGroupFactory $phpAttributeGroupFactory, private PhpDocTagRemover $phpDocTagRemover)
+    {
+    }
 
     public function getNodeTypes(): array
     {
@@ -32,31 +34,19 @@ PHP;
             return null;
         }
 
-        if ($this->isTestClass($node)) {
+        /** @var PhpDocInfo $phpDocInfo */
+        $phpDocInfo = $this->phpDocInfoFactory->createFromNodeOrEmpty($node);
+
+        /** @var PhpDocTagNode $packageAnnotation */
+        $packageAnnotation = $phpDocInfo->getByName('Since');
+
+        if ($packageAnnotation === null) {
             return null;
         }
 
-        $area = $this->getArea($node);
+        $this->phpDocTagRemover->removeByName($phpDocInfo, 'Since');
 
-        if ($area === null) {
-            return null;
-        }
-
-        $doc = $node->getDocComment();
-        if ($doc === null) {
-            $node->setDocComment(new Doc(\sprintf($this->template, $area)));
-
-            return $node;
-        }
-
-        $text = $node->getDocComment()->getText();
-        if (\str_contains($text, '@package')) {
-            return null;
-        }
-
-        $text = \str_replace('*/', \sprintf(' * @package %s', $area) . \PHP_EOL . ' */', $text);
-
-        $node->setDocComment(new Doc($text));
+//        $node->attrGroups[] = $this->phpAttributeGroupFactory->createFromClassWithItems(Package::class, [$packageAnnotation->value->value]);
 
         return $node;
     }

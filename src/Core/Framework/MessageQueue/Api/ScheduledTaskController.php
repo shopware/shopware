@@ -2,16 +2,15 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package system-settings
- */
 #[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('system-settings')]
 class ScheduledTaskController extends AbstractController
 {
     /**

@@ -7,10 +7,9 @@ use Shopware\Core\Framework\Event\FlowLogEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package(null)]
 class LoggingService implements EventSubscriberInterface
 {
     /**

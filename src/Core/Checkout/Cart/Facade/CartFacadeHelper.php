@@ -12,15 +12,15 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class CartFacadeHelper implements ResetInterface
 {
     private array $currencies = [];

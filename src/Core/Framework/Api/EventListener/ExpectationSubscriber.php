@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\EventListener;
 use Composer\InstalledVersions;
 use Composer\Semver\Semver;
 use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
@@ -17,9 +18,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @internal
  *
  * @phpstan-type PluginData array{'composerName': string, 'active': bool, 'version': string}
- *
- * @package core
  */
+#[Package('core')]
 class ExpectationSubscriber implements EventSubscriberInterface
 {
     private const SHOPWARE_CORE_PACKAGES = [

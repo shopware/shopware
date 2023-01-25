@@ -5,15 +5,15 @@ namespace Shopware\Core\Content\ImportExport\ScheduledTask;
 use Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 #[AsMessageHandler(handles: CleanupImportExportFileTask::class)]
+#[Package('system-settings')]
 
 final class CleanupImportExportFileTaskHandler extends ScheduledTaskHandler
 {

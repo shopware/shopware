@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 abstract class AbstractProductVariationBuilder
 {
     abstract public function getDecorated(): AbstractProductVariationBuilder;

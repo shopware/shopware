@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\Plugin\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 
-/**
- * @package core
- */
+#[Package('core')]
 class PluginPostDeactivateEvent extends PluginLifecycleEvent
 {
     public function __construct(PluginEntity $plugin, private readonly DeactivateContext $context)

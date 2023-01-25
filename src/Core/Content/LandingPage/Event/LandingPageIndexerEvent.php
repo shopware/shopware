@@ -4,10 +4,9 @@ namespace Shopware\Core\Content\LandingPage\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('content')]
 class LandingPageIndexerEvent extends NestedEvent
 {
     /**

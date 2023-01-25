@@ -5,6 +5,7 @@ namespace Shopware\Core\Maintenance\System\Command;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Update\Api\UpdateController;
@@ -22,14 +23,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package core
- *
  * @internal should be used over the CLI only
  */
 #[AsCommand(
     name: 'system:update:finish',
     description: 'Finishes the update process',
 )]
+#[Package('core')]
 class SystemUpdateFinishCommand extends Command
 {
     public function __construct(private readonly ContainerInterface $container)

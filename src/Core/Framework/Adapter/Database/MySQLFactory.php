@@ -8,12 +8,12 @@ use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\DriverManager;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class MySQLFactory
 {
     /**

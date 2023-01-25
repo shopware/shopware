@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Content\ImportExport\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class LogNotWritableException extends ShopwareHttpException
 {
     public function __construct(array $ids)

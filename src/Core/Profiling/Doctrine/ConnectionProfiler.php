@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Middleware as MiddlewareInterface;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bridge\Doctrine\DataCollector\ObjectParameter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,13 +17,12 @@ use Symfony\Component\VarDumper\Cloner\Data;
 /**
  * @internal
  *
- * @package core
- *
  * @phpstan-import-type Backtrace from BacktraceDebugDataHolder
  * @phpstan-import-type QueryInfo from BacktraceDebugDataHolder
  * @phpstan-type SanitizedQueryInfo array{sql: string, executionMS: float, types: array<(int | string), int>, params: Data, runnable: bool, explainable: bool, backtrace?: Backtrace}
  * @phpstan-type SanitizedQueryInfoGroup array{sql: string, executionMS: float, types: array<(int | string), int>, params: Data, runnable: bool, explainable: bool, backtrace?: Backtrace, count: int, index: int, executionPercent?: float}
  */
+#[Package('core')]
 class ConnectionProfiler extends DataCollector implements LateDataCollectorInterface
 {
     private ?BacktraceDebugDataHolder $dataHolder = null;

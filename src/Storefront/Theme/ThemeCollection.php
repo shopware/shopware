@@ -3,12 +3,12 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package storefront
- *
  * @extends EntityCollection<ThemeEntity>
  */
+#[Package('storefront')]
 class ThemeCollection extends EntityCollection
 {
     public function getByTechnicalName(string $technicalName): ?ThemeEntity

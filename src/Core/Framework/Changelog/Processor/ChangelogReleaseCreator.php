@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\Changelog\Processor;
 
 use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class ChangelogReleaseCreator extends ChangelogProcessor
 {
     /**

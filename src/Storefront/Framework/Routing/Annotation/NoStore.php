@@ -3,14 +3,14 @@
 namespace Shopware\Storefront\Framework\Routing\Annotation;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package storefront
- *
  * @Annotation
  *
  * @deprecated tag:v6.6.0 - Will be removed use `defaults: {"_noStore"=true}` instead
  */
+#[Package('storefront')]
 class NoStore
 {
     final public const ALIAS = 'noStore';

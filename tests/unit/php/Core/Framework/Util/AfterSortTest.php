@@ -210,7 +210,7 @@ class TestEntity extends Entity
 
     protected string $name;
 
-    public function getAfterId(): string
+    public function getAfterId(): ?string
     {
         return $this->afterId;
     }

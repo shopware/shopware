@@ -9,14 +9,14 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Country\CountryDefinition;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class CountrySerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;

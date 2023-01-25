@@ -13,15 +13,15 @@ use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
+#[Package('sales-channel')]
 class SeoUrlUpdateListener implements EventSubscriberInterface
 {
     final public const CATEGORY_SEO_URL_UPDATER = 'category.seo-url';

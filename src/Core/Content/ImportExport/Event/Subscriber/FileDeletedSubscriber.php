@@ -7,14 +7,14 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFi
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Message\DeleteFileMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class FileDeletedSubscriber implements EventSubscriberInterface
 {
     /**

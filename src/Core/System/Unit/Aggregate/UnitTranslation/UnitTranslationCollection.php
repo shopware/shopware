@@ -3,12 +3,12 @@
 namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<UnitTranslationEntity>
- *
- * @package inventory
  */
+#[Package('inventory')]
 class UnitTranslationCollection extends EntityCollection
 {
     public function getUnitIds(): array

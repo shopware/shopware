@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraints\All;
@@ -30,9 +31,8 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class RuleConditionPersister
 {
     private const CONDITION_SCRIPT_DIR = '/rule-conditions/';

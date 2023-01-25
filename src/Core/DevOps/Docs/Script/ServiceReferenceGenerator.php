@@ -12,6 +12,7 @@ use phpDocumentor\Reflection\DocBlock\Tags\Param;
 use phpDocumentor\Reflection\DocBlock\Tags\Return_;
 use phpDocumentor\Reflection\DocBlock\Tags\TagWithType;
 use phpDocumentor\Reflection\DocBlockFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ServiceStubs;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -20,9 +21,8 @@ use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class ServiceReferenceGenerator implements ScriptReferenceGenerator
 {
     final public const GROUP_DATA_LOADING = 'data_loading';

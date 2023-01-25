@@ -8,10 +8,9 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class DiscountPackage
 {
     private LineItemFlatCollection $cartItems;

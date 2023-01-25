@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Checkout\Cart\Error;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\AssignArrayTrait;
 use Shopware\Core\Framework\Struct\CreateFromTrait;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 abstract class Error extends \Exception implements \JsonSerializable
 {
     //allows json_encode and to decode object via json serializer

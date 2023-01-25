@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\ProductExport\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class ProductExportRenderFooterContextEvent extends Event
 {
     final public const NAME = 'product_export.render.footer_context';

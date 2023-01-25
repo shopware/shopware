@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package merchant-services
- *
  * @codeCoverageIgnore
- *
- * @package inventory
  */
+#[Package('merchant-services')]
 class VariantCollection extends StoreCollection
 {
     protected function getExpectedClass(): ?string

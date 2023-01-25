@@ -3,13 +3,12 @@
 namespace Shopware\Administration\Snippet;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 
-/**
- * @package administration
- */
+#[Package('administration')]
 class SnippetFinder implements SnippetFinderInterface
 {
     /**

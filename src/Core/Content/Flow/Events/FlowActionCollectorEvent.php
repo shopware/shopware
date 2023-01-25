@@ -5,10 +5,9 @@ namespace Shopware\Core\Content\Flow\Events;
 use Shopware\Core\Content\Flow\Api\FlowActionCollectorResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class FlowActionCollectorEvent extends NestedEvent
 {
     public function __construct(private readonly FlowActionCollectorResponse $flowActionCollectorResponse, private readonly Context $context)

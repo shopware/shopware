@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\Script\Execution;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 abstract class Hook
 {
     protected Context $context;

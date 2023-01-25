@@ -5,11 +5,10 @@ namespace Shopware\Core\Checkout\Document\Event;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 abstract class DocumentOrderEvent extends Event
 {
     /**

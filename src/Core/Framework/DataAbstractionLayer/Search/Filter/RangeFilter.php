@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class RangeFilter extends SingleFieldFilter
 {
     final public const LTE = 'lte';

@@ -8,11 +8,10 @@ use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Core\Content\Media\Exception\EmptyMediaIdException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @package content
- */
+#[Package('content')]
 class UrlGenerator implements UrlGeneratorInterface, ResetInterface
 {
     /**

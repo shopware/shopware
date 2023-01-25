@@ -4,13 +4,13 @@ namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1670090989AddIndexOrderOrderNumber extends MigrationStep
 {
     public function getCreationTimestamp(): int

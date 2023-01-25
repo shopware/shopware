@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 abstract class RefundProcessException extends ShopwareHttpException
 {
     public function __construct(private readonly string $refundId, string $message, array $parameters = [], ?\Throwable $e = null)

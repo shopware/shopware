@@ -3,10 +3,9 @@
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class LineItemGroupDefinition
 {
     public function __construct(private readonly string $id, private readonly string $packagerKey, private readonly float $value, private readonly string $sorterKey, private readonly RuleCollection $rules)

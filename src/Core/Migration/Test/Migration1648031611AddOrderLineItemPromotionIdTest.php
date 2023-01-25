@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1648031611AddOrderLineItemPromotionId;
@@ -23,10 +24,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1648031611AddOrderLineItemPromotionIdTest extends TestCase
 {
     use KernelTestBehaviour;

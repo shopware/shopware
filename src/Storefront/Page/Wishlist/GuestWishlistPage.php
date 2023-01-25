@@ -2,11 +2,10 @@
 
 namespace Shopware\Storefront\Page\Wishlist;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class GuestWishlistPage extends Page
 {
 }

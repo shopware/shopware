@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\CmsAware;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Field\Field;
 use Shopware\Core\System\CustomEntity\Xml\Field\JsonField;
 use Shopware\Core\System\CustomEntity\Xml\Field\ManyToManyField;
@@ -10,10 +11,9 @@ use Shopware\Core\System\CustomEntity\Xml\Field\StringField;
 use Shopware\Core\System\CustomEntity\Xml\Field\TextField;
 
 /**
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 class CmsAwareFields
 {
     /**

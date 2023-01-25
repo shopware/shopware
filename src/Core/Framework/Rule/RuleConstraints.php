@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Symfony\Component\Validator\Constraint;
@@ -10,9 +11,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class RuleConstraints
 {
     /**

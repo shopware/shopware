@@ -5,10 +5,9 @@ namespace Shopware\Core\Framework\Webhook\EventLog;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class WebhookEventLogEntity extends Entity
 {
     use EntityIdTrait;

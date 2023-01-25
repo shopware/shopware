@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -28,9 +29,8 @@ use Shopware\Core\System\Language\LanguageDefinition;
  * Used to determines which associated will be deleted to or which associated data would restrict a delete operation.
  *
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class EntityForeignKeyResolver
 {
     /**

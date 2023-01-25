@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminSearchIndexingMessage;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -15,14 +16,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @package system-settings
- *
  * @internal
  */
 #[AsCommand(
     name: 'es:admin:reset',
     description: 'Reset Admin Elasticsearch indexing',
 )]
+#[Package('system-settings')]
 class ElasticsearchAdminResetCommand extends Command
 {
     /**

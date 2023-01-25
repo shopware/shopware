@@ -5,12 +5,11 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class PasswordRecoveryUrlEvent extends Event implements ShopwareSalesChannelEvent
 {
     public function __construct(private readonly SalesChannelContext $salesChannelContext, private string $recoveryUrl, private readonly string $hash, private readonly string $storefrontUrl, private readonly CustomerRecoveryEntity $customerRecovery)

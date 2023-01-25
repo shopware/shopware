@@ -6,13 +6,13 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPri
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @deprecated tag:v6.6.0 - reason:becomes-final - DTO will become internal in v6.6.0
- *
- * @package inventory
  */
+#[Package('inventory')]
 class ReferencePriceDto extends Struct
 {
     /**

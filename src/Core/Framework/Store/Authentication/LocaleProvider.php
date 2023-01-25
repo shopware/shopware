@@ -7,14 +7,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\User\UserDefinition;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
+#[Package('merchant-services')]
 class LocaleProvider
 {
     public function __construct(private readonly EntityRepository $userRepository)

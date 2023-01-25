@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Content\Seo\AbstractSeoResolver;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -10,11 +11,10 @@ use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package storefront
- *
  * @phpstan-import-type Domain from AbstractDomainLoader
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
+#[Package('storefront')]
 class RequestTransformer implements RequestTransformerInterface
 {
     final public const REQUEST_TRANSFORMER_CACHE_KEY = CachedDomainLoader::CACHE_KEY;

@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Mapping;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @package system-settings
- *
  * @phpstan-type MappingArray array{key: string, mappedKey?: string, position?: int, default?: mixed, mappedDefault?: mixed, requiredByUser?: bool, useDefaultValue?: bool, defaultValue?: mixed}
  */
+#[Package('system-settings')]
 class Mapping extends Struct
 {
     protected string $mappedKey;

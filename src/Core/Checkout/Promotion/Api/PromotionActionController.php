@@ -5,15 +5,14 @@ namespace Shopware\Core\Checkout\Promotion\Api;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package checkout
- */
 #[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('checkout')]
 class PromotionActionController extends AbstractController
 {
     /**

@@ -4,15 +4,15 @@ namespace Shopware\Core\Checkout\Test\Cart\Facade;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Hook\CartAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class CartTestHook extends Hook implements CartAware
 {
     use SalesChannelContextAwareTrait;

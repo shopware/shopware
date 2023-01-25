@@ -3,14 +3,13 @@
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection as RawPriceCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class CurrencyPriceDefinition extends Struct implements PriceDefinitionInterface
 {
     final public const TYPE = 'currency-price';

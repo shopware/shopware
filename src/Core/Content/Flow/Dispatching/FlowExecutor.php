@@ -14,14 +14,14 @@ use Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
  * @internal not intended for decoration or replacement
  */
+#[Package('business-ops')]
 class FlowExecutor
 {
     /**

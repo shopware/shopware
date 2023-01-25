@@ -4,13 +4,13 @@ namespace Shopware\Core\Profiling\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class DebugStackTest extends TestCase
 {
     use IntegrationTestBehaviour;

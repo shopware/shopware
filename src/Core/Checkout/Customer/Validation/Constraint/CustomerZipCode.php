@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @package customer-order
- *
  * @Annotation
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
+#[Package('customer-order')]
 class CustomerZipCode extends Constraint
 {
     final public const ZIP_CODE_INVALID = 'ZIP_CODE_INVALID';

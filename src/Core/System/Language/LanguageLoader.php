@@ -4,11 +4,12 @@ namespace Shopware\Core\System\Language;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
  * @phpstan-import-type LanguageData from LanguageLoaderInterface
  */
+#[Package('core')]
 class LanguageLoader implements LanguageLoaderInterface
 {
     /**

@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\Routing\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class InvalidRouteScopeException extends ShopwareHttpException
 {
     public function __construct(string $routeName)

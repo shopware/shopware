@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\Error;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package checkout
- *
  * @extends Collection<Error>
  */
+#[Package('checkout')]
 class ErrorCollection extends Collection
 {
     /**

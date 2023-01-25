@@ -8,11 +8,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class ProductExportProductCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     public function __construct(protected Criteria $criteria, protected ProductExportEntity $productExport, protected ExportBehavior $exportBehaviour, protected SalesChannelContext $salesChannelContext)

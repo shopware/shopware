@@ -10,14 +10,13 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package system-settings
- *
  * @internal
- *
  * @final
  */
+#[Package('system-settings')]
 class AdminSearcher
 {
     public function __construct(private readonly Client $client, private readonly AdminSearchRegistry $registry, private readonly AdminElasticsearchHelper $adminEsHelper)

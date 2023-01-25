@@ -3,14 +3,14 @@
 namespace Shopware\Storefront\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1565640170ThemeMigrateMedia extends MigrationStep
 {
     public function getCreationTimestamp(): int

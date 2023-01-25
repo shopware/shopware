@@ -34,6 +34,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -47,10 +48,9 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class GenerateDocumentActionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -521,10 +521,9 @@ class GenerateDocumentActionTest extends TestCase
 }
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class CustomDocRenderer extends AbstractDocumentRenderer
 {
     final public const TYPE = 'customDoc';

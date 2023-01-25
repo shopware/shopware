@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\Sitemap\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SitemapGenerationResult extends Struct
 {
     public function __construct(private readonly bool $finish, private readonly ?string $provider, private readonly ?int $offset, private readonly ?string $lastSalesChannelId, private readonly string $lastLanguageId)

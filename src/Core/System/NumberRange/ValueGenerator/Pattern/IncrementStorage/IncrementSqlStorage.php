@@ -4,12 +4,11 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStora
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class IncrementSqlStorage extends AbstractIncrementStorage
 {
     /**

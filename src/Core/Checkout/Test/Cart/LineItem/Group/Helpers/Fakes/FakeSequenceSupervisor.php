@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class FakeSequenceSupervisor
 {
     private int $count;

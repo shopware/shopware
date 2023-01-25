@@ -19,14 +19,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal only for use by the app-system
- *
- * @package core
  */
+#[Package('core')]
 class PayloadService
 {
     public function __construct(private readonly JsonEntityEncoder $entityEncoder, private readonly DefinitionInstanceRegistry $definitionRegistry, protected Client $client, protected ShopIdProvider $shopIdProvider, private readonly string $shopUrl)

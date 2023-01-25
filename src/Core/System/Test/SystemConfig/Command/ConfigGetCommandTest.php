@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Test\SystemConfig\Command;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\Command\ConfigGet;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -11,9 +12,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class ConfigGetCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

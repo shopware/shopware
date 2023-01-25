@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package core
- */
+#[Package('core')]
 class AssociationNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $field)

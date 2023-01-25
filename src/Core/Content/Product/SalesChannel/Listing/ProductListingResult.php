@@ -4,11 +4,10 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductListingResult extends EntitySearchResult
 {
     use StateAwareTrait;

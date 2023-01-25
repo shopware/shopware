@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Exception\VerificationHashNotConfiguredException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -9,11 +10,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package storefront
- *
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('storefront')]
 class VerificationHashController extends AbstractController
 {
     /**

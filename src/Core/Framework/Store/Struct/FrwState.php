@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package merchant-services
- *
  * @codeCoverageIgnore
  */
+#[Package('merchant-services')]
 final class FrwState
 {
     private function __construct(private readonly ?\DateTimeImmutable $completedAt = null, private readonly ?\DateTimeImmutable $failedAt = null, private readonly int $failureCount = 0)

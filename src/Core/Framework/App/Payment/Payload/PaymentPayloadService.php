@@ -14,13 +14,13 @@ use Shopware\Core\Framework\App\Payment\Payload\Struct\PaymentPayloadInterface;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\SourcedPayloadInterface;
 use Shopware\Core\Framework\App\Payment\Response\AbstractResponse;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal only for use by the app-systems
- *
- * @package core
  */
+#[Package('core')]
 class PaymentPayloadService
 {
     public function __construct(private readonly AppPayloadServiceHelper $helper, private readonly Client $client, private readonly string $shopUrl)

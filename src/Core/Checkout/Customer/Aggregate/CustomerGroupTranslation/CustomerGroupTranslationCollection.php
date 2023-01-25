@@ -3,12 +3,12 @@
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package customer-order
- *
  * @extends EntityCollection<CustomerGroupTranslationEntity>
  */
+#[Package('customer-order')]
 class CustomerGroupTranslationCollection extends EntityCollection
 {
     /**

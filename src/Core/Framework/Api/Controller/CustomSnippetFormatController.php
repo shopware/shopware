@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Component\Finder\Finder;
@@ -11,11 +12,10 @@ use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
 
 /**
- * @package customer-order
- *
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('customer-order')]
 class CustomSnippetFormatController
 {
     /**

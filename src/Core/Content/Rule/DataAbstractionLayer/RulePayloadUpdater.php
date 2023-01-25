@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Event\AppScriptConditionEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\ContainerInterface;
@@ -17,10 +18,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class RulePayloadUpdater implements EventSubscriberInterface
 {
     /**

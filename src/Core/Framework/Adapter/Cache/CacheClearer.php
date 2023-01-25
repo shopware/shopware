@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -12,10 +13,9 @@ use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package core
- *
  * @final
  */
+#[Package('core')]
 class CacheClearer
 {
     /**

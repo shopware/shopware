@@ -19,10 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class MailTemplateDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'mail_template';

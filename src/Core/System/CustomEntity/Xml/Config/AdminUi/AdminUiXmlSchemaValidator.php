@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\CardField;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Column;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Detail;
@@ -11,10 +12,9 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityConfigurationExcept
 use Shopware\Core\System\CustomEntity\Xml\Entity;
 
 /**
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 class AdminUiXmlSchemaValidator
 {
     public function validateConfigurations(AdminUiEntity $adminUiEntity, Entity $entity): void

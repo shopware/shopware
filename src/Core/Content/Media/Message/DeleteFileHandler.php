@@ -5,14 +5,14 @@ namespace Shopware\Core\Content\Media\Message;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToDeleteFile;
 use League\Flysystem\Visibility;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package content
- *
  * @internal
  */
 #[AsMessageHandler]
+#[Package('content')]
 final class DeleteFileHandler
 {
     /**

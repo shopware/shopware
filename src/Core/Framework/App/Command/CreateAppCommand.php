@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -20,10 +21,9 @@ use function Symfony\Component\String\u;
 /**
  * @interal
  * @phpstan-type PropertyDefinitions array<string, array{name: string, description: string, prompt: string, default: string, validator?: callable}>
- *
- * @package core
  */
 #[AsCommand(name: 'app:create', description: 'Creates an app skeleton')]
+#[Package('core')]
 class CreateAppCommand extends Command
 {
     /**

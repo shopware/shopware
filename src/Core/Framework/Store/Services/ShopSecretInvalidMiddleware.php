@@ -4,15 +4,15 @@ namespace Shopware\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
 use Psr\Http\Message\ResponseInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Exception\ShopSecretInvalidException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
+#[Package('merchant-services')]
 class ShopSecretInvalidMiddleware implements MiddlewareInterface
 {
     private const INVALID_SHOP_SECRET = 'ShopwarePlatformException-68';

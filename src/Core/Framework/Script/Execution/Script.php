@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal only for use by the app-system
- *
- * @package core
  */
+#[Package('core')]
 class Script extends Struct
 {
     public function __construct(protected string $name, protected string $script, protected \DateTimeInterface $lastModified, private readonly ?ScriptAppInformation $scriptAppInformation = null, protected array $twigOptions = [], protected array $includes = [], private readonly bool $active = true)

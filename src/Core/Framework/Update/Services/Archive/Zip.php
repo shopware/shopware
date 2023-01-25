@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Framework\Update\Services\Archive;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class Zip extends Adapter
 {
     /**

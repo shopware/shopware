@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class WebhookCacheClearer implements EventSubscriberInterface, ResetInterface
 {
     /**

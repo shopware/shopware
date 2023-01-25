@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Facade;
 
 use Shopware\Core\Checkout\Cart\Facade\Traits\PriceFactoryTrait;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @package checkout
@@ -12,9 +13,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
  * The PriceFacade is a wrapper around a price.
  *
  * @script-service cart_manipulation
- *
- * @package checkout
  */
+#[Package('checkout')]
 class PriceFacade
 {
     use PriceFactoryTrait;

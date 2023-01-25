@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -14,9 +15,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
- *
- * @package storefront
  */
+#[Package('storefront')]
 class CaptchaRouteListener implements EventSubscriberInterface
 {
     /**

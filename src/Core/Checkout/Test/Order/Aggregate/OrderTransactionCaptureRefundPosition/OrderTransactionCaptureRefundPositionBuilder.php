@@ -6,14 +6,14 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Test\TestBuilderTrait;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('customer-order')]
 class OrderTransactionCaptureRefundPositionBuilder
 {
     use TestBuilderTrait;

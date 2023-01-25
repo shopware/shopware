@@ -5,13 +5,13 @@ namespace Shopware\Core\Framework\Store\Services;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
+#[Package('merchant-services')]
 class StoreService
 {
     final public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';

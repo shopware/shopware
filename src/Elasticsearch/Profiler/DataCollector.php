@@ -4,15 +4,16 @@ namespace Shopware\Elasticsearch\Profiler;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector as BaseDataCollector;
 
 /**
- * @package core
  * @phpstan-import-type RequestInfo from ClientProfiler
  */
+#[Package('core')]
 class DataCollector extends BaseDataCollector
 {
     /**

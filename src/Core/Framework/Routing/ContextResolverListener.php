@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class ContextResolverListener implements EventSubscriberInterface
 {
     /**

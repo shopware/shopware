@@ -1,15 +1,13 @@
 <?php declare(strict_types=1);
-
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SimpleShopwareHttpException extends ShopwareHttpException
 {
     final public const EXCEPTION_CODE = 'FRAMEWORK__TEST_EXCEPTION';

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\DevOps\Environment;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 interface EnvironmentHelperTransformerInterface
 {
     public static function transform(EnvironmentHelperTransformerData $data): void;

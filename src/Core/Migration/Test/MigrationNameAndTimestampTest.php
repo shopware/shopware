@@ -3,14 +3,14 @@
 namespace Shopware\Core\Migration\Test;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class MigrationNameAndTimestampTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\Test;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -13,11 +14,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_3\Migration1536233560BasicData;
 
 /**
- * @package core
- *
  * @internal
  * @group slow
  */
+#[Package('core')]
 class MigrationForeignDefaultLanguageTest extends TestCase
 {
     use KernelTestBehaviour;

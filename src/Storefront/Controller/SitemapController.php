@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Sitemap\SitemapPageLoadedHook;
 use Shopware\Storefront\Page\Sitemap\SitemapPageLoader;
@@ -10,11 +11,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('sales-channel')]
 class SitemapController extends StorefrontController
 {
     /**

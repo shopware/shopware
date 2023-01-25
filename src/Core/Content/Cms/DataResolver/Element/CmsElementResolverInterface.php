@@ -5,10 +5,9 @@ namespace Shopware\Core\Content\Cms\DataResolver\Element;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('content')]
 interface CmsElementResolverInterface
 {
     public function getType(): string;

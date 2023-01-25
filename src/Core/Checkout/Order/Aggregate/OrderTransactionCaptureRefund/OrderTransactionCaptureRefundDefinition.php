@@ -18,11 +18,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class OrderTransactionCaptureRefundDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'order_transaction_capture_refund';

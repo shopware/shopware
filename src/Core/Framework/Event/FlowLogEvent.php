@@ -4,11 +4,10 @@ namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class FlowLogEvent extends Event implements FlowEventAware
 {
     final public const NAME = 'flow.log';

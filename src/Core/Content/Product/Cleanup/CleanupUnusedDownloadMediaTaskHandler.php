@@ -6,14 +6,14 @@ use Shopware\Core\Content\Media\DeleteNotUsedMediaService;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
 /**
  * @internal
- *
- * @package inventory
  */
+#[Package('inventory')]
 final class CleanupUnusedDownloadMediaTaskHandler extends ScheduledTaskHandler
 {
     public function __construct(

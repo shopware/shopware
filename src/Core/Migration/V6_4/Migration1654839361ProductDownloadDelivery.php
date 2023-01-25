@@ -4,6 +4,7 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
@@ -11,9 +12,8 @@ use Shopware\Core\Migration\Traits\Translations;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class Migration1654839361ProductDownloadDelivery extends MigrationStep
 {
     use ImportTranslationsTrait;

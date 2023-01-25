@@ -12,14 +12,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
 /**
  * @internal
  * @phpstan-import-type OpenApiSpec from DefinitionService
- *
- * @package core
  */
+#[Package('core')]
 class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 {
     final public const FORMAT = 'openapi-3';

@@ -6,14 +6,14 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1599822061MigrateOrderMails extends MigrationStep
 {
     public function getCreationTimestamp(): int

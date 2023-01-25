@@ -4,19 +4,18 @@ namespace Shopware\Elasticsearch\Framework\Command;
 
 use OpenSearch\Client;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'es:test:analyzer',
     description: 'Test the elasticsearch analyzer',
 )]
+#[Package('core')]
 class ElasticsearchTestAnalyzerCommand extends Command
 {
     private ?ShopwareStyle $io = null;

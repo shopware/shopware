@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal only for use by the app-system
- *
- * @package core
  */
+#[Package('core')]
 class UnallowedHostException extends \RuntimeException
 {
     public function __construct(string $host, private readonly array $allowedHosts, string $appName, ?\Throwable $previous = null)

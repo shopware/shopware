@@ -7,10 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductSortingTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'product_sorting_translation';

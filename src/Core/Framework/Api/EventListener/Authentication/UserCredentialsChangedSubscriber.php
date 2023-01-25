@@ -7,15 +7,15 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class UserCredentialsChangedSubscriber implements EventSubscriberInterface
 {
     /**

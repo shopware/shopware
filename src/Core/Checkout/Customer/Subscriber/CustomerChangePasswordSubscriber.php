@@ -5,14 +5,14 @@ namespace Shopware\Core\Checkout\Customer\Subscriber;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('customer-order')]
 class CustomerChangePasswordSubscriber implements EventSubscriberInterface
 {
     /**

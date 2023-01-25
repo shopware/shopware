@@ -4,14 +4,14 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class Migration1672743034AddDefaultAdminUserPasswordMinLength extends MigrationStep
 {
     private const CONFIG_KEY = 'core.userPermission.passwordMinLength';

@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Mapping;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @extends Collection<Mapping>
  * @phpstan-import-type MappingArray from Mapping
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MappingCollection extends Collection
 {
     /**

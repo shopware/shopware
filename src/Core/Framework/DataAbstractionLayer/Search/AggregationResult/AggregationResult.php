@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 abstract class AggregationResult extends Struct
 {
     public function __construct(protected string $name)

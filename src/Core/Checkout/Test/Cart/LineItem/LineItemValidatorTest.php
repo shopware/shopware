@@ -11,13 +11,13 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemValidator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class LineItemValidatorTest extends TestCase
 {
     public function testValidateEmptyCart(): void

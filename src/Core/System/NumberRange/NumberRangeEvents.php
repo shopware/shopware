@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\NumberRange;
 
-/**
- * @package checkout
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class NumberRangeEvents
 {
     /**

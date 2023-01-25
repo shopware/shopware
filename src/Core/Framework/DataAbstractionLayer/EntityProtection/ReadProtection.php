@@ -2,14 +2,15 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\EntityProtection;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @experimental
  *
  * Read protection is currently experimental, as it is not guaranteed that the right scope is consistently
  * This can lead to unexpected side effects
- *
- * @package core
  */
+#[Package('core')]
 class ReadProtection extends EntityProtection
 {
     final public const PROTECTION = 'read_protection';

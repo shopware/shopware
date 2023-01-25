@@ -5,14 +5,14 @@ namespace Shopware\Core\Framework\Webhook\Service;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class WebhookCleanup
 {
     /**

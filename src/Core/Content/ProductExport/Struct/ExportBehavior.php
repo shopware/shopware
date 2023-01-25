@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\ProductExport\Struct;
 
-/**
- * @package sales-channel
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('sales-channel')]
 class ExportBehavior
 {
     public function __construct(private readonly bool $ignoreCache = false, private readonly bool $includeInactive = false, private readonly bool $batchMode = false, private readonly bool $generateHeader = true, private readonly bool $generateFooter = true, private readonly int $offset = 0)

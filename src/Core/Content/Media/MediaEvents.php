@@ -5,10 +5,9 @@ namespace Shopware\Core\Content\Media;
 use Shopware\Core\Content\Media\Event\MediaFolderConfigurationIndexerEvent;
 use Shopware\Core\Content\Media\Event\MediaFolderIndexerEvent;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('content')]
 class MediaEvents
 {
     /**

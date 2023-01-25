@@ -10,12 +10,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class SetCustomerGroupCustomFieldAction extends FlowAction implements DelayableAction
 {
     use CustomFieldActionTrait;

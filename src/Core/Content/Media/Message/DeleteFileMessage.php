@@ -3,11 +3,10 @@
 namespace Shopware\Core\Content\Media\Message;
 
 use League\Flysystem\Visibility;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-/**
- * @package content
- */
+#[Package('content')]
 class DeleteFileMessage implements AsyncMessageInterface
 {
     public function __construct(private array $files = [], private string $visibility = Visibility::PUBLIC)

@@ -3,12 +3,11 @@
 namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class DataMappingEvent extends Event implements ShopwareEvent
 {
     public function __construct(private readonly DataBag $input, private array $output, private readonly Context $context)

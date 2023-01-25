@@ -6,6 +6,7 @@ use Composer\IO\NullIO;
 use GuzzleHttp\Client;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\NoPluginFoundInZipException;
 use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 use Shopware\Core\Framework\Store\Exception\StoreNotAvailableException;
@@ -15,10 +16,9 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class PluginManagementService
 {
     final public const PLUGIN = 'plugin';

@@ -6,10 +6,9 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class CriteriaBuilder
 {
     public function __construct(private readonly EntityDefinition $definition)

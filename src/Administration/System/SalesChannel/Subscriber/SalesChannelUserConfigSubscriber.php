@@ -7,14 +7,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class SalesChannelUserConfigSubscriber implements EventSubscriberInterface
 {
     final public const CONFIG_KEY = 'sales-channel-favorites';

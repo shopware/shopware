@@ -3,12 +3,12 @@
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<MailTemplateTranslationEntity>
- *
- * @package sales-channel
  */
+#[Package('sales-channel')]
 class MailTemplateTranslationCollection extends EntityCollection
 {
     /**

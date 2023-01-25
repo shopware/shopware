@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package checkout
- *
  * @internal only for use by the app-system
  */
+#[Package('checkout')]
 class TaxProvider extends XmlElement
 {
     final public const REQUIRED_FIELDS = [

@@ -3,12 +3,11 @@
 namespace Shopware\Core\System\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class StoreApiCustomFieldMapper implements ResetInterface
 {
     private ?array $mapping = null;

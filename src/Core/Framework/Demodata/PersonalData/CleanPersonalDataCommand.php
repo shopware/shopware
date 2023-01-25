@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -18,13 +19,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @internal
- *
- * @package core
  */
 #[AsCommand(
     name: 'database:clean-personal-data',
     description: 'Cleans personal data from the database',
 )]
+#[Package('core')]
 class CleanPersonalDataCommand extends Command
 {
     protected const VALID_TYPES = [

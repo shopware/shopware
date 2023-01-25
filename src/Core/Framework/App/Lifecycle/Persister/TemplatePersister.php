@@ -10,12 +10,12 @@ use Shopware\Core\Framework\App\Template\TemplateEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- *
- * @package core
  */
+#[Package('core')]
 class TemplatePersister
 {
     public function __construct(private readonly AbstractTemplateLoader $templateLoader, private readonly EntityRepository $templateRepository, private readonly EntityRepository $appRepository)

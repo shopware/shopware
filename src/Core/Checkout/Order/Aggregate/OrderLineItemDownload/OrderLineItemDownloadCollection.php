@@ -3,12 +3,12 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<OrderLineItemDownloadEntity>
- *
- * @package customer-order
  */
+#[Package('customer-order')]
 class OrderLineItemDownloadCollection extends EntityCollection
 {
     public function filterByOrderLineItemId(string $id): self

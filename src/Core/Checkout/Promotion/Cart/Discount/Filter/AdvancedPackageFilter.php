@@ -9,11 +9,10 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Applier\Applier;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\MaxUsage\MaxUsage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class AdvancedPackageFilter extends PackageFilter
 {
     final public const APPLIER_ALL = 'ALL';

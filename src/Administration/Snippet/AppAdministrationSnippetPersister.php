@@ -8,14 +8,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleException;
 
 /**
  * @internal
- *
- * @package administration
  */
+#[Package('administration')]
 class AppAdministrationSnippetPersister
 {
     public function __construct(private readonly EntityRepository $appAdministrationSnippetRepository, private readonly EntityRepository $localeRepository)

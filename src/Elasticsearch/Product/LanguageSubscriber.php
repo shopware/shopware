@@ -6,18 +6,17 @@ use OpenSearch\Client;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchLanguageIndexIteratorMessage;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package core
- *
  * @internal
- *
  * When an language is created, we need to trigger an indexing for that
  */
+#[Package('core')]
 class LanguageSubscriber implements EventSubscriberInterface
 {
     public function __construct(private readonly ElasticsearchHelper $elasticsearchHelper, private readonly ProductDefinition $productDefinition, private readonly Client $client, private readonly MessageBusInterface $bus)

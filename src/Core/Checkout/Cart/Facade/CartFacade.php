@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsHasTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsRemoveTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\SurchargeTrait;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -21,9 +22,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * You can use the cart service to add line-items, change prices, add discounts, etc. to the cart.
  *
  * @script-service cart_manipulation
- *
- * @package checkout
  */
+#[Package('checkout')]
 class CartFacade
 {
     use DiscountTrait;

@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\Flow;
 
 use Shopware\Core\Content\Flow\Events\FlowIndexerEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class FlowEvents
 {
     /**

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Media\File;
 
-/**
- * @package content
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('content')]
 interface FileUrlValidatorInterface
 {
     public function isValid(string $source): bool;

@@ -4,14 +4,13 @@ namespace Shopware\Core\Framework\Adapter\Twig\Filter;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyFormatter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CurrencyFilter extends AbstractExtension
 {
     /**

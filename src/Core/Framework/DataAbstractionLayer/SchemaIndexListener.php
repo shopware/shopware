@@ -4,10 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 use Doctrine\DBAL\Schema\Index;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SchemaIndexListener
 {
     /** Doctrine has its own format for foreign keys. fk.test.column will be split into:

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\MailTemplate;
 
-/**
- * @package sales-channel
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('sales-channel')]
 class MailTemplateTypes
 {
     final public const MAILTYPE_NEWSLETTER = 'newsletter';

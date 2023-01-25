@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package core
- */
+#[Package('core')]
 abstract class NestedEvent extends Event implements ShopwareEvent
 {
     use JsonSerializableTrait;

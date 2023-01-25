@@ -5,12 +5,12 @@ namespace Shopware\Core\Framework\App\Lifecycle\Registration;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\RequestInterface;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
- *
- * @package core
  */
+#[Package('core')]
 class PrivateHandshake implements AppHandshakeInterface
 {
     public function __construct(private readonly string $shopUrl, private readonly string $secret, private readonly string $appEndpoint, private readonly string $appName, private readonly string $shopId, private readonly string $shopwareVersion)

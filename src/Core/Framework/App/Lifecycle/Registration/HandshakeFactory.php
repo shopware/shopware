@@ -6,13 +6,13 @@ use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- *
- * @package core
  */
+#[Package('core')]
 final class HandshakeFactory
 {
     public function __construct(private readonly string $shopUrl, private readonly ShopIdProvider $shopIdProvider, private readonly StoreClient $storeClient, private readonly string $shopwareVersion)

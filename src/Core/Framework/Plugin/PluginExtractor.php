@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class PluginExtractor
 {
     public function __construct(private readonly array $extensionDirectories, private readonly Filesystem $filesystem)

@@ -20,13 +20,11 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- *
  * Calculates discounts on deliveries
- *
  * as calculation base we are always taking the delivery costs coming from the delivery calculator
  * this means if we have an absolute and percentage discount, the percentage discount is always
  * calculated with the deliveries coming from DeliveryCalculator even if absolute discounts have
@@ -35,6 +33,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Absolute discount is 10 => Shippingcosts = 90
  * Percentage discount is 30 => Shippingcosts = 60 (Shippingcosts = 100 - (10 + 100 * 0.3))
  */
+#[Package('checkout')]
 class PromotionDeliveryCalculator
 {
     use PromotionCartInformationTrait;

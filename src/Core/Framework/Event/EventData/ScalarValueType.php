@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
-/**
- * @package business-ops
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('business-ops')]
 class ScalarValueType implements EventDataType
 {
     final public const TYPE_STRING = 'string';

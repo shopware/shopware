@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Product;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedHook;
@@ -9,12 +10,11 @@ use Shopware\Storefront\Page\PageLoadedHook;
 /**
  * Triggered when the ProductPage is loaded
  *
- * @package storefront
- *
  * @hook-use-case data_loading
  *
  * @since 6.4.8.0
  */
+#[Package('storefront')]
 class ProductPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;

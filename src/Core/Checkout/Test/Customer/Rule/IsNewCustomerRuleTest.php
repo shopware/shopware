@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,10 +16,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @deprecated tag:v6.6.0 - will be removed, use DaysSinceFirstLoginRuleTest instead
  *
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class IsNewCustomerRuleTest extends TestCase
 {
     use KernelTestBehaviour;

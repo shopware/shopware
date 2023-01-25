@@ -2,16 +2,16 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator;
 use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareFields;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 
 /**
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 class CustomEntityEnrichmentService
 {
     public function __construct(private readonly AdminUiXmlSchemaValidator $adminUiXmlSchemaValidator)

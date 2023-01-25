@@ -3,12 +3,12 @@
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package checkout
- *
  * @extends EntityCollection<ShippingMethodTranslationEntity>
  */
+#[Package('checkout')]
 class ShippingMethodTranslationCollection extends EntityCollection
 {
     /**

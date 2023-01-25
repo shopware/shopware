@@ -8,11 +8,10 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Serialize
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class EntityPipe extends AbstractPipe
 {
     public function __construct(private readonly DefinitionInstanceRegistry $definitionInstanceRegistry, private readonly SerializerRegistry $serializerRegistry, private ?EntityDefinition $definition = null, private ?AbstractEntitySerializer $entitySerializer = null, private readonly ?PrimaryKeyResolver $primaryKeyResolver = null)

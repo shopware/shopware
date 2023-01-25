@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Mail\Service;
 use Doctrine\DBAL\Exception\DriverException;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Transport\Dsn;
@@ -14,9 +15,8 @@ use Symfony\Component\Mailer\Transport\Transports;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MailerTransportLoader
 {
     /**

@@ -4,13 +4,13 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1620376945AddCompanyTaxAndCustomerTaxToCountry extends MigrationStep
 {
     public function getCreationTimestamp(): int

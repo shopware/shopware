@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\ImportExport\Message;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class DeleteFileMessage implements AsyncMessageInterface
 {
     private array $files = [];

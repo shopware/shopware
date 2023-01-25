@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\Country\Event\CountryStateRouteCacheKeyEvent;
 use Shopware\Core\System\Country\Event\CountryStateRouteCacheTagsEvent;
@@ -18,10 +19,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package system-settings
- */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('system-settings')]
 class CachedCountryStateRoute extends AbstractCountryStateRoute
 {
     final public const ALL_TAG = 'country-state-route';

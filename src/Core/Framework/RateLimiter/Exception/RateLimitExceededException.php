@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\RateLimiter\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class RateLimitExceededException extends ShopwareHttpException
 {
     private readonly int $now;

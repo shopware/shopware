@@ -6,13 +6,13 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
- * @package customer-order
- *
  * @extends EntityCollection<CustomerEntity>
  */
+#[Package('customer-order')]
 class CustomerCollection extends EntityCollection
 {
     /**

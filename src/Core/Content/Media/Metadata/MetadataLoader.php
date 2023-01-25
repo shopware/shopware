@@ -5,15 +5,16 @@ namespace Shopware\Core\Content\Media\Metadata;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Handler;
 
 /**
- * @package content
  * @Handler(
  *     servcieTag="shopware.metadata.loader",
  *     handlerInterface="MetadataLoaderInterface"
  * )
  */
+#[Package('content')]
 class MetadataLoader
 {
     /**

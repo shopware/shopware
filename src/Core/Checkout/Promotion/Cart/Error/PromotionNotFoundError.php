@@ -3,10 +3,9 @@
 namespace Shopware\Core\Checkout\Promotion\Cart\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PromotionNotFoundError extends Error
 {
     private const KEY = 'promotion-not-found';

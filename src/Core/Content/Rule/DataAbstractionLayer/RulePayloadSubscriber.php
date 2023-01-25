@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Content\Rule\RuleEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Container\FilterRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -13,10 +14,9 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class RulePayloadSubscriber implements EventSubscriberInterface
 {
     /**

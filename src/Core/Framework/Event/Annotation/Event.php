@@ -3,13 +3,13 @@
 namespace Shopware\Core\Framework\Event\Annotation;
 
 use Doctrine\Common\Annotations\Annotation;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @Annotation
  * @Target("ALL")
- *
- * @package business-ops
  */
+#[Package('business-ops')]
 class Event
 {
     private string $eventClass;

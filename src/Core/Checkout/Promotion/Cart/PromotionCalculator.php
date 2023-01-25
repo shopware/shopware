@@ -41,13 +41,13 @@ use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundExcepti
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\SetGroupNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- *
  * Cart Promotion Calculator
  */
+#[Package('checkout')]
 class PromotionCalculator
 {
     use PromotionCartInformationTrait;

@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package core
- * This event is also called on cached responses.
- */
+#[Package('core
+This event is also called on cached responses.')]
 class BeforeSendResponseEvent extends Event
 {
     /**

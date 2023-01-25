@@ -7,14 +7,14 @@ use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1567431050ContactFormTemplate extends MigrationStep
 {
     public function getCreationTimestamp(): int

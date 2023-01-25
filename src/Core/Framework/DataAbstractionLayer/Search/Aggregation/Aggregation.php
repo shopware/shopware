@@ -3,13 +3,13 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 abstract class Aggregation extends Struct implements CriteriaPartInterface
 {
     public function __construct(protected string $name, protected string $field)

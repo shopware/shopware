@@ -6,6 +6,7 @@ use Defuse\Crypto\Key;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -19,14 +20,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Dotenv\Command\DotenvDumpCommand;
 
 /**
- * @package core
- *
  * @internal should be used over the CLI only
  */
 #[AsCommand(
     name: 'system:setup',
     description: 'Setup the system',
 )]
+#[Package('core')]
 class SystemSetupCommand extends Command
 {
     public function __construct(private readonly string $projectDir, private readonly JwtCertificateGenerator $jwtCertificateGenerator, private readonly DotenvDumpCommand $dumpEnvCommand)

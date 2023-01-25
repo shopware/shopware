@@ -4,13 +4,12 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
     final public const ALL_TAG = 'sales-channel-context';

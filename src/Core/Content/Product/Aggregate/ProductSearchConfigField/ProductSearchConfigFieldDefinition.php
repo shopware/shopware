@@ -13,11 +13,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductSearchConfigFieldDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'product_search_config_field';

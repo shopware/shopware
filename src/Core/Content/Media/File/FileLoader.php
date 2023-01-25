@@ -11,10 +11,9 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('content')]
 class FileLoader
 {
     private readonly FileNameValidator $fileNameValidator;

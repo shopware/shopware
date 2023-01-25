@@ -4,10 +4,9 @@ namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
 use OpenSearchDSL\BuilderInterface;
 use OpenSearchDSL\ParametersTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ScriptIdQuery implements BuilderInterface
 {
     use ParametersTrait;

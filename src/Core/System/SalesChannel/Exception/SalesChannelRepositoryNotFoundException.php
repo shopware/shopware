@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\System\SalesChannel\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SalesChannelRepositoryNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $entity)

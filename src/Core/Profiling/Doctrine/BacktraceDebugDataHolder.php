@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Profiling\Doctrine;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bridge\Doctrine\Middleware\Debug\DebugDataHolder;
 use Symfony\Bridge\Doctrine\Middleware\Debug\Query;
 use function array_slice;
@@ -17,9 +18,8 @@ use const DEBUG_BACKTRACE_IGNORE_ARGS;
  *     params:  array<mixed>,
  *     backtrace?: Backtrace
  * }
- *
- * @package core
  */
+#[Package('core')]
 class BacktraceDebugDataHolder extends DebugDataHolder
 {
     /**

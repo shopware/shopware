@@ -42,6 +42,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -60,10 +61,9 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 
 /**
  * @phpstan-type EntityPathSegment array{entity: string, value: ?string, definition: EntityDefinition, field: ?Field}
- *
- * @package core
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('core')]
 class ApiController extends AbstractController
 {
     final public const WRITE_UPDATE = 'update';

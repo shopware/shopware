@@ -8,11 +8,10 @@ use Shopware\Core\Content\MailTemplate\Service\Event\AttachmentLoaderCriteriaEve
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class AttachmentLoader
 {
     /**

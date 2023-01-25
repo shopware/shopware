@@ -6,10 +6,9 @@ use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToDeleteFile;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class ProductExportFileHandler implements ProductExportFileHandlerInterface
 {
     /**

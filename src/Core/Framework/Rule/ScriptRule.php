@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
 use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\App\Event\Hooks\AppScriptConditionHook;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
@@ -21,10 +22,9 @@ use Twig\Error\SyntaxError;
 use Twig\Extension\DebugExtension;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class ScriptRule extends Rule
 {
     final public const RULE_NAME = 'scriptRule';

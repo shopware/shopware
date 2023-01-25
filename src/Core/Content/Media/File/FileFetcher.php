@@ -6,11 +6,10 @@ use Shopware\Core\Content\Media\Exception\DisabledUrlUploadFeatureException;
 use Shopware\Core\Content\Media\Exception\IllegalUrlException;
 use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\Exception\UploadException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package content
- */
+#[Package('content')]
 class FileFetcher
 {
     private const ALLOWED_PROTOCOLS = ['http', 'https', 'ftp', 'sftp'];

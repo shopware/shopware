@@ -2,19 +2,18 @@
 
 namespace Shopware\Core\DevOps\System\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use const PHP_EOL;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'sync:composer:version',
     description: 'Syncs the composer version with the shopware version',
 )]
+#[Package('core')]
 class SyncComposerVersionCommand extends Command
 {
     /**

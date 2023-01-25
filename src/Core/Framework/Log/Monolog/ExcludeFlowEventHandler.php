@@ -4,10 +4,9 @@ namespace Shopware\Core\Framework\Log\Monolog;
 
 use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\HandlerInterface;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ExcludeFlowEventHandler extends AbstractHandler
 {
     /**

@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
+#[Package('merchant-services')]
 class InstanceService
 {
     public function __construct(private readonly string $shopwareVersion, private readonly ?string $instanceId)

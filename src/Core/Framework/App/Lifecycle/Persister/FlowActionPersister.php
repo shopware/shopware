@@ -7,13 +7,13 @@ use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class FlowActionPersister
 {
     public function __construct(private readonly EntityRepository $flowActionsRepository, private readonly AbstractAppLoader $appLoader, private readonly Connection $connection)

@@ -2,15 +2,14 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class Validator
 {
     private array $data = [];

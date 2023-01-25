@@ -12,14 +12,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\SetNullOnDeleteCo
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package inventory
- *
  * @internal
  */
+#[Package('inventory')]
 class ProductLineItemCommandValidator implements EventSubscriberInterface
 {
     /**

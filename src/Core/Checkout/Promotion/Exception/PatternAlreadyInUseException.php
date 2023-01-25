@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Checkout\Promotion\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PatternAlreadyInUseException extends ShopwareHttpException
 {
     final public const ERROR_CODE = 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE';

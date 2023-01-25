@@ -5,10 +5,9 @@ namespace Shopware\Elasticsearch\Framework;
 use OpenSearch\Client;
 use OpenSearch\ClientBuilder;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ClientFactory
 {
     /**

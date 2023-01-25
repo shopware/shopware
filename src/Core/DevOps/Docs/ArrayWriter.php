@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\DevOps\Docs;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class ArrayWriter
 {
     /**

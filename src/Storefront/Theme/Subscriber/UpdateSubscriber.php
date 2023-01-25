@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Theme\Subscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -15,9 +16,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
- *
- * @package storefront
  */
+#[Package('storefront')]
 class UpdateSubscriber implements EventSubscriberInterface
 {
     /**

@@ -4,12 +4,11 @@ namespace Shopware\Core\Profiling\Doctrine;
 
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Middleware;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bridge\Doctrine\Middleware\Debug\Driver as DebugDriver;
 use Symfony\Component\Stopwatch\Stopwatch;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ProfilingMiddleware implements Middleware
 {
     private const CONNECTION = 'default';

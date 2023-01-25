@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\ProductExport\Struct;
 
 use Shopware\Core\Content\ProductExport\Error\Error;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class ProductExportResult
 {
     /**

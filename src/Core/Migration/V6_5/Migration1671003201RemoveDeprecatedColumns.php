@@ -3,13 +3,13 @@
 namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package system-settings
- *
  * @internal
  */
+#[Package('system-settings')]
 class Migration1671003201RemoveDeprecatedColumns extends MigrationStep
 {
     public function getCreationTimestamp(): int

@@ -3,15 +3,15 @@
 namespace Shopware\Core\System\Test\Snippet;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\SnippetFileHandler;
 use Shopware\Core\System\Snippet\SnippetValidator;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class SnippetValidatorTest extends TestCase
 {
     public function testValidateShouldFindMissingSnippets(): void

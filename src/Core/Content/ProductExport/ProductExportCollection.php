@@ -3,12 +3,12 @@
 namespace Shopware\Core\Content\ProductExport;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductExportEntity>
- *
- * @package sales-channel
  */
+#[Package('sales-channel')]
 class ProductExportCollection extends EntityCollection
 {
     public function getApiAlias(): string

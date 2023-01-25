@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 use Symfony\Component\Cache\Marshaller\MarshallerInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class ShopwareRedisAdapter extends RedisAdapter
 {
     public function __construct($redis, string $namespace = '', int $defaultLifetime = 0, ?MarshallerInterface $marshaller = null, ?string $prefix = null)

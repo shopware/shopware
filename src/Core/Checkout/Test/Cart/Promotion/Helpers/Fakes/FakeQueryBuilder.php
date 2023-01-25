@@ -6,12 +6,12 @@ use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class FakeQueryBuilder extends QueryBuilder
 {
     private readonly Connection $connection;

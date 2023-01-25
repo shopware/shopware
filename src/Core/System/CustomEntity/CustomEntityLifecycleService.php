@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\System\CustomEntity;
 
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
@@ -14,9 +15,8 @@ use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class CustomEntityLifecycleService
 {
     public function __construct(

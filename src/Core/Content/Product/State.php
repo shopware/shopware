@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Product;
 
-/**
- * @package inventory
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('inventory')]
 final class State
 {
     public const IS_PHYSICAL = 'is-physical';

@@ -11,11 +11,10 @@ use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Log\LogAware;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class MailSentEvent extends Event implements LogAware, SubjectAware, ContentsAware, RecipientsAware
 {
     final public const EVENT_NAME = 'mail.sent';

@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class ContainsFilter extends SingleFieldFilter
 {
     public function __construct(private readonly string $field, private readonly mixed $value)

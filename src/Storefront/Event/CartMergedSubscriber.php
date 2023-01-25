@@ -3,15 +3,15 @@
 namespace Shopware\Storefront\Event;
 
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
- *
- * @package storefront
  */
+#[Package('storefront')]
 class CartMergedSubscriber implements EventSubscriberInterface
 {
     /**

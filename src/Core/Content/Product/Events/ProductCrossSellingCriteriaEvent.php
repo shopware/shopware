@@ -6,12 +6,11 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 abstract class ProductCrossSellingCriteriaEvent extends Event implements ShopwareSalesChannelEvent
 {
     public function __construct(private readonly ProductCrossSellingEntity $crossSelling, private readonly Criteria $criteria, private readonly SalesChannelContext $salesChannelContext)

@@ -11,12 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @package administration
  */
+#[Package('administration')]
 class NotificationService
 {
     public function __construct(private readonly EntityRepository $notificationRepository)

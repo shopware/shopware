@@ -4,12 +4,12 @@ namespace Shopware\Core\Checkout\Test\Cart\Rule\Helper;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\LineItemPropertyRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class CartRuleScopeCase
 {
     /**

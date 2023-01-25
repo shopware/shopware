@@ -5,14 +5,14 @@ namespace Shopware\Core\Content\Test\Flow\Indexing;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Indexing\FlowIndexer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class FlowIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;

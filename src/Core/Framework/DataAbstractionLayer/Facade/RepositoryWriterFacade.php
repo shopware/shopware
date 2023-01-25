@@ -9,15 +9,15 @@ use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * The `writer` service allows you to write data, that is stored inside shopware.
  * Keep in mind that your app needs to have the correct permissions for the data it writes through this service.
  *
  * @script-service custom_endpoint
- *
- * @package core
  */
+#[Package('core')]
 class RepositoryWriterFacade
 {
     /**

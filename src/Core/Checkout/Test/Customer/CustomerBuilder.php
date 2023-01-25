@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Customer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -10,17 +11,15 @@ use Shopware\Core\Test\TestBuilderTrait;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package customer-order
- *
  * @internal
  * How to use:
- *
  * $x = (new CustomerBuilder(new IdsCollection(), 'p1'))
  *          ->firstName('Max')
  *          ->lastName('Muster')
  *          ->group('standard')
  *          ->build();
  */
+#[Package('customer-order')]
 class CustomerBuilder
 {
     use TestBuilderTrait;

@@ -7,14 +7,15 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package core
  * @implements Rule<InClassNode>
  *
  * @internal
  */
+#[Package('core')]
 class FinalClassRule implements Rule
 {
     public function getNodeType(): string

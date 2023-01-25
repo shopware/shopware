@@ -7,6 +7,7 @@ use League\Flysystem\UnableToRetrieveMetadata;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\TransportInterface;
@@ -14,9 +15,8 @@ use Symfony\Component\Mime\RawMessage;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MailerTransportDecorator implements TransportInterface, \Stringable
 {
     public function __construct(private readonly TransportInterface $decorated, private readonly MailAttachmentsBuilder $attachmentsBuilder, private readonly FilesystemOperator $filesystem, private readonly EntityRepository $documentRepository)

@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package content
- */
+#[Package('content')]
 class IllegalFileNameException extends ShopwareHttpException
 {
     public function __construct(string $filename, string $cause)

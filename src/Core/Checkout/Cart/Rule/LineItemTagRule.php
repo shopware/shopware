@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -11,9 +12,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tag\TagDefinition;
 use Symfony\Component\Validator\Constraint;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class LineItemTagRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemTag';

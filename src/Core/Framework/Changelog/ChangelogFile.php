@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\Changelog;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class ChangelogFile extends Struct
 {
     protected string $name;

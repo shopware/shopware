@@ -8,16 +8,16 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package core
- *
  * @internal
  */
 #[AsMessageHandler]
+#[Package('core')]
 final class WebhookEventMessageHandler
 {
     private const TIMEOUT = 20;

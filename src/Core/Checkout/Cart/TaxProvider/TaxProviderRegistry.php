@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\TaxProvider;
 
-/**
- * @package checkout
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class TaxProviderRegistry
 {
     /**

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
-/**
- * @package checkout
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class CartEvents
 {
     /**

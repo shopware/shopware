@@ -7,14 +7,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Cms\DefaultMediaResolver;
 
 /**
  * @internal
- *
- * @package content
  */
+#[Package('content')]
 class DefaultMediaResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;

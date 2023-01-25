@@ -3,14 +3,14 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class IdSearchResult extends Struct
 {
     use StateAwareTrait;

@@ -3,14 +3,14 @@
 namespace Shopware\Core\Installer\License;
 
 use GuzzleHttp\Client;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Subscriber\InstallerLocaleListener;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class LicenseFetcher
 {
     /**

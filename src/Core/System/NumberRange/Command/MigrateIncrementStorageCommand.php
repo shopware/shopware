@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\NumberRange\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -10,13 +11,11 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package checkout
- */
 #[AsCommand(
     name: 'number-range:migrate',
     description: 'Migrate the increment storage of a number range',
 )]
+#[Package('checkout')]
 class MigrateIncrementStorageCommand extends Command
 {
     /**

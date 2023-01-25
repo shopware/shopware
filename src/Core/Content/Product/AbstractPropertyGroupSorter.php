@@ -6,10 +6,9 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 abstract class AbstractPropertyGroupSorter
 {
     abstract public function getDecorated(): AbstractPropertyGroupSorter;

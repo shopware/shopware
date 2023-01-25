@@ -4,11 +4,10 @@ namespace Shopware\Core\Content\Seo\SeoUrlRoute;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 interface SeoUrlRouteInterface
 {
     public function getConfig(): SeoUrlRouteConfig;

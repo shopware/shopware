@@ -15,12 +15,12 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- *
- * @package core
  */
+#[Package('core')]
 class AppRegistrationService
 {
     public function __construct(private readonly HandshakeFactory $handshakeFactory, private readonly Client $httpClient, private readonly EntityRepository $appRepository, private readonly string $shopUrl, private readonly ShopIdProvider $shopIdProvider, private readonly string $shopwareVersion)

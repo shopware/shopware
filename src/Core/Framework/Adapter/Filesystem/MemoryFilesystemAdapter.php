@@ -15,14 +15,14 @@ use League\Flysystem\UnableToSetVisibility;
 use League\Flysystem\Visibility;
 use League\MimeTypeDetection\FinfoMimeTypeDetector;
 use League\MimeTypeDetection\MimeTypeDetector;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @see https://github.com/thephpleague/flysystem/issues/1477
- *
- * @package core
  */
+#[Package('core')]
 class MemoryFilesystemAdapter implements FilesystemAdapter
 {
     final public const DUMMY_FILE_FOR_FORCED_LISTING_IN_FLYSYSTEM_TEST = '______DUMMY_FILE_FOR_FORCED_LISTING_IN_FLYSYSTEM_TEST';

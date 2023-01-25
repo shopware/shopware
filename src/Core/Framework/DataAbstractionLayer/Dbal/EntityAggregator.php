@@ -51,14 +51,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * Allows to execute aggregated queries for all entities in the system
  *
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class EntityAggregator implements EntityAggregatorInterface
 {
     public function __construct(

@@ -3,11 +3,12 @@
 namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
  * @extends EntityCollection<MediaTranslationEntity>
  */
+#[Package('content')]
 class MediaTranslationCollection extends EntityCollection
 {
     /**

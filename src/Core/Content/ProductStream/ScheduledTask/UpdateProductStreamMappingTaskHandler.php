@@ -7,15 +7,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package business-ops
- *
  * @internal
  */
 #[AsMessageHandler(handles: UpdateProductStreamMappingTask::class)]
+#[Package('business-ops')]
 final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
 {
     /**

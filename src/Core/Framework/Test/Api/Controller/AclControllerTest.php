@@ -5,14 +5,14 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Event\AclGetAdditionalPrivilegesEvent;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class AclControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

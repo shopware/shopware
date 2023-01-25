@@ -39,12 +39,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class RuleDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'rule';

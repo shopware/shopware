@@ -8,12 +8,11 @@ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementC
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ProductPage extends Page
 {
     /**

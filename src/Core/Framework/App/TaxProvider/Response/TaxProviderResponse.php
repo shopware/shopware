@@ -5,16 +5,16 @@ namespace Shopware\Core\Framework\App\TaxProvider\Response;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\TaxProvider\Struct\TaxProviderResult;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package checkout
- *
  * @internal only for use by the app-system
  *
  * @phpstan-type TaxResponse = array{ tax: float, taxRate: float, price: float }
  * @phpstan-type CalculatedTaxesCollectionResponse  array<string, TaxResponse[]>
  * @phpstan-type CartPriceTaxesResponse             array<TaxResponse>
  */
+#[Package('checkout')]
 class TaxProviderResponse extends TaxProviderResult
 {
     /**

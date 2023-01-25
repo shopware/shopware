@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern;
 
-/**
- * @package checkout
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class ValueGeneratorPatternRegistry
 {
     /**

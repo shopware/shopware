@@ -4,13 +4,12 @@ namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 use Shopware\Core\System\User\UserEntity;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class StateMachineHistoryEntity extends Entity
 {
     use EntityIdTrait;

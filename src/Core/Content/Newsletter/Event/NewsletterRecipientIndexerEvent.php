@@ -4,10 +4,9 @@ namespace Shopware\Core\Content\Newsletter\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class NewsletterRecipientIndexerEvent extends NestedEvent
 {
     public function __construct(private readonly array $ids, private readonly Context $context, private readonly array $skip = [])

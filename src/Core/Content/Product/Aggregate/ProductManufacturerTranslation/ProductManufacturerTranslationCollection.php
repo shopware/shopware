@@ -3,12 +3,12 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductManufacturerTranslationEntity>
- *
- * @package inventory
  */
+#[Package('inventory')]
 class ProductManufacturerTranslationCollection extends EntityCollection
 {
     /**

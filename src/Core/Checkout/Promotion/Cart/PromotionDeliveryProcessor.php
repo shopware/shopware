@@ -8,11 +8,10 @@ use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PromotionDeliveryProcessor implements CartProcessorInterface
 {
     final public const SKIP_DELIVERY_RECALCULATION = 'skipDeliveryRecalculation';

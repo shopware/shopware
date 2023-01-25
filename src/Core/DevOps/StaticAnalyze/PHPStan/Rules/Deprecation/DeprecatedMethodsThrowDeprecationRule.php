@@ -9,13 +9,14 @@ use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
  * @implements Rule<ClassMethod>
  *
  * @internal
  */
+#[Package('core')]
 class DeprecatedMethodsThrowDeprecationRule implements Rule
 {
     /**

@@ -4,14 +4,14 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package core
- *
  * @final
  */
+#[Package('core')]
 class CacheInvalidator
 {
     private const CACHE_KEY = 'invalidation';

@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -29,9 +30,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * It knows how an association should be joined, how a parent-child inheritance should act, how translation chains work, ...
  *
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class EntityDefinitionQueryHelper
 {
     final public const HAS_TO_MANY_JOIN = 'has_to_many_join';

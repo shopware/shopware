@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Migration;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class MigrationSource
 {
     private const PHP_CLASS_NAME_REGEX = '[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$';

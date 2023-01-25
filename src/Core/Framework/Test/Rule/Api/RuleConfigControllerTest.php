@@ -5,14 +5,14 @@ namespace Shopware\Core\Framework\Test\Rule\Api;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class RuleConfigControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

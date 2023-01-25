@@ -7,13 +7,13 @@ use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\UpdateBy;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\UpdateByCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
 /**
  * @phpstan-import-type MappingArray from Mapping
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class Config
 {
     use JsonSerializableTrait;

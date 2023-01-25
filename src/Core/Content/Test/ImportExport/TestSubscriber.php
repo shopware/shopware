@@ -5,14 +5,14 @@ namespace Shopware\Core\Content\Test\ImportExport;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class TestSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

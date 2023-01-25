@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Framework\Update\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class UpdateHtaccess implements EventSubscriberInterface
 {
     private const MARKER_START = '# BEGIN Shopware';

@@ -4,14 +4,14 @@ namespace Shopware\Core\Framework\Demodata\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class DemodataRequestCreatedEvent extends Event
 {
     public function __construct(private readonly DemodataRequest $request, private readonly Context $context, private readonly InputInterface $input)

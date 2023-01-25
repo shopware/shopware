@@ -3,13 +3,13 @@
 namespace Shopware\Core\Checkout\Cart\TaxProvider\Struct;
 
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @package checkout
- *
  * @interal
  */
+#[Package('checkout')]
 class TaxProviderResult extends Struct
 {
     /**

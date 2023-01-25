@@ -6,10 +6,9 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\Ab
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 abstract class AbstractFieldSerializer
 {
     protected SerializerRegistry $serializerRegistry;

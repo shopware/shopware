@@ -3,10 +3,9 @@
 namespace Shopware\Core\Framework\Update\Event;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class UpdatePreFinishEvent extends UpdateEvent
 {
     public function __construct(Context $context, private readonly string $oldVersion, private readonly string $newVersion)

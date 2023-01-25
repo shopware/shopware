@@ -4,12 +4,11 @@ namespace Shopware\Core\Content\Sitemap\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SitemapGeneratedEvent extends Event implements ShopwareEvent
 {
     public function __construct(private readonly SalesChannelContext $context)

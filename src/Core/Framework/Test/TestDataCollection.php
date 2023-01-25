@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\Test;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class TestDataCollection extends IdsCollection
 {
 }

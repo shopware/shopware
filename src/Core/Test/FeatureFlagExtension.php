@@ -6,16 +6,15 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use PHPUnit\Runner\AfterTestHook;
 use PHPUnit\Runner\BeforeTestHook;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Tests\Unit\Core\Test\FeatureFlagExtensionTest;
 
 /**
- * @package core
- *
  * @internal
- *
  * This extension guarantees a clean feature environment for pure unit tests
  */
+#[Package('core')]
 class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
 {
     private readonly AnnotationReader $annotationReader;

@@ -4,10 +4,9 @@ namespace Shopware\Core\Framework\Log;
 
 /**
  * @interal
- *
- * @package core
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
+#[\Shopware\Core\Framework\Log\Package(null)]
 final class Package
 {
     public const PACKAGE_TRACE_ATTRIBUTE_KEY = 'pTrace';
@@ -23,9 +22,6 @@ final class Package
         }
 
         $reflection = new \ReflectionClass($class);
-        if (!method_exists($reflection, 'getAttributes')) {
-            return null;
-        }
 
         $attrs = $reflection->getAttributes(Package::class);
 

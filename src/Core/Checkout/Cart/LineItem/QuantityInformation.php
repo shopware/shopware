@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class QuantityInformation extends Struct
 {
     /**

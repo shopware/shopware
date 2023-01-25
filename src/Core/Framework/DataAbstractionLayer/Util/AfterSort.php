@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Util;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package core
- */
+#[Package('core')]
 class AfterSort
 {
     public static function sort(array $elements, string $propertyName = 'afterId'): array

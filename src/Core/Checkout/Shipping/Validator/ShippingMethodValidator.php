@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -16,9 +17,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
- *
- * @package checkout
  */
+#[Package('checkout')]
 class ShippingMethodValidator implements EventSubscriberInterface
 {
     final public const VIOLATION_TAX_TYPE_INVALID = 'tax_type_invalid';

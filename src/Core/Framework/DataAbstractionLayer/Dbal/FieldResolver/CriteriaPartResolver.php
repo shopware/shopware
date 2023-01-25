@@ -21,12 +21,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal This class is not intended for service decoration
- *
- * @package core
  */
+#[Package('core')]
 class CriteriaPartResolver
 {
     public function __construct(private readonly Connection $connection, private readonly SqlQueryParser $parser)

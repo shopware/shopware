@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class CachedEntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 {
     final public const CACHE_KEY = 'core_framework_api_entity_schema';

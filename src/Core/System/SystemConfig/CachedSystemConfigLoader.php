@@ -3,12 +3,11 @@
 namespace Shopware\Core\System\SystemConfig;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class CachedSystemConfigLoader extends AbstractSystemConfigLoader
 {
     final public const CACHE_TAG = 'system-config';

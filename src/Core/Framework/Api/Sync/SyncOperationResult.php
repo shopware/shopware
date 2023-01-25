@@ -3,13 +3,13 @@
 namespace Shopware\Core\Framework\Api\Sync;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @package core
- *
  * @deprecated tag:v6.6.0 - Will be removed, as it is not used anymore
  */
+#[Package('core')]
 class SyncOperationResult extends Struct
 {
     /**

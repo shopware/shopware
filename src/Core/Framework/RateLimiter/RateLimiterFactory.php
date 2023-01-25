@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\RateLimiter;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Policy\SystemConfigLimiter;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoffLimiter;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -13,10 +14,7 @@ use Symfony\Component\RateLimiter\RateLimiterFactory as SymfonyRateLimiterFactor
 use Symfony\Component\RateLimiter\Storage\StorageInterface;
 
 /**
- * @package core
- *
  * @phpstan-type TimeBackoffLimit array{limit: int, interval: string}
- *
  * @phpstan-type RateLimiterConfig array{
  *  enabled: bool,
  *  id: string,
@@ -27,6 +25,7 @@ use Symfony\Component\RateLimiter\Storage\StorageInterface;
  *  rate?: array<string, string>
  * }
  */
+#[Package('core')]
 class RateLimiterFactory
 {
     /**

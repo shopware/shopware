@@ -5,12 +5,11 @@ namespace Shopware\Core\Content\Category\Service;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-/**
- * @package content
- */
+#[Package('content')]
 class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
 {
     /**

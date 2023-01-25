@@ -2,11 +2,10 @@
 
 namespace Shopware\Storefront\Framework\Routing\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class SalesChannelMappingException extends ShopwareHttpException
 {
     public function __construct(string $url)

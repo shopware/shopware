@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -10,11 +11,10 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Finder\Finder;
 
 /**
- * @package core
- *
  * @internal
  * @group slow
  */
+#[Package('core')]
 class ServiceDefinitionTest extends TestCase
 {
     use KernelTestBehaviour;

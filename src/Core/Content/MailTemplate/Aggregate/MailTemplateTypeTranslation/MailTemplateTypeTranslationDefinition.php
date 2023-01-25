@@ -9,10 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class MailTemplateTypeTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'mail_template_type_translation';

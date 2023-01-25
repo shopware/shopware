@@ -14,6 +14,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheTracer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -26,12 +27,11 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package sales-channel
- *
  * @internal
  * @group cache
  * @group store-api
  */
+#[Package('sales-channel')]
 class CachedSitemapRouteTest extends TestCase
 {
     use KernelTestBehaviour;

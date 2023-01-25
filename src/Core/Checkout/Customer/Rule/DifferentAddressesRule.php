@@ -3,15 +3,14 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class DifferentAddressesRule extends Rule
 {
     final public const RULE_NAME = 'customerDifferentAddresses';

@@ -9,15 +9,15 @@ use Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * @internal We might break this in v6.2
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class DownloadService
 {
     public function __construct(private readonly FilesystemOperator $filesystem, private readonly EntityRepository $fileRepository)

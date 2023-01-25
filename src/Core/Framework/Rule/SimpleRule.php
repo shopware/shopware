@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Rule;
 
-/**
- * @package business-ops
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('business-ops')]
 class SimpleRule extends Rule
 {
     final public const RULE_NAME = 'simple';

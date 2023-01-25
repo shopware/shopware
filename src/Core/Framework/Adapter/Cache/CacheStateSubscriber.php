@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -13,10 +14,9 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class CacheStateSubscriber implements EventSubscriberInterface
 {
     final public const STATE_LOGGED_IN = 'logged-in';

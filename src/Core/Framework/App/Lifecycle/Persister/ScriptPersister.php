@@ -8,14 +8,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Script\ScriptEntity;
 
 /**
  * @internal only for use by the app-system
- *
- * @package core
  */
+#[Package('core')]
 class ScriptPersister
 {
     public function __construct(private readonly ScriptFileReaderInterface $scriptReader, private readonly EntityRepository $scriptRepository, private readonly EntityRepository $appRepository)

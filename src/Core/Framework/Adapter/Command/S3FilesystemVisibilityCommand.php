@@ -5,19 +5,18 @@ namespace Shopware\Core\Framework\Adapter\Command;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\StorageAttributes;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 's3:set-visibility',
     description: 'Sets the visibility of all files in the s3 filesystem to public',
 )]
+#[Package('core')]
 class S3FilesystemVisibilityCommand extends Command
 {
     /**

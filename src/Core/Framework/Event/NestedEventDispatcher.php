@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class NestedEventDispatcher implements EventDispatcherInterface
 {
     /**

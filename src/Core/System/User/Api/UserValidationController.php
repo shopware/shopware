@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\User\Api;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\User\Service\UserValidationService;
@@ -11,10 +12,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package system-settings
- */
 #[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('system-settings')]
 class UserValidationController extends AbstractController
 {
     /**

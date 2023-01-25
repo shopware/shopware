@@ -4,12 +4,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class DateHistogramAggregation extends BucketAggregation
 {
     final public const PER_MINUTE = 'minute';

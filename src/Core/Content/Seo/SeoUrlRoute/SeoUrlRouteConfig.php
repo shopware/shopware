@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\Seo\SeoUrlRoute;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SeoUrlRouteConfig
 {
     public function __construct(private readonly EntityDefinition $definition, private readonly string $routeName, private string $template, private bool $skipInvalid = true)

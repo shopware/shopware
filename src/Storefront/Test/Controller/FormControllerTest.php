@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Test\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Storefront\Controller\FormController;
@@ -15,9 +16,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @package content
  */
+#[Package('content')]
 class FormControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

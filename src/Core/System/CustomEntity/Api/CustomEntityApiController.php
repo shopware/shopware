@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Exception\CustomEntityNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,10 +14,9 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
- *
- * @package core
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('core')]
 class CustomEntityApiController extends ApiController
 {
     #[Route(path: '/api/custom-entity-{entityName}/{path}', name: 'api.custom_entity_entity.detail', requirements: ['path' => '[0-9a-f]{32}(\/(extensions\/)?[a-zA-Z-]+\/[0-9a-f]{32})*\/?$'], methods: ['GET'])]

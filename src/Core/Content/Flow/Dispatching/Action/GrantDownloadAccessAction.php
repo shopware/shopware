@@ -10,12 +10,12 @@ use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class GrantDownloadAccessAction extends FlowAction implements DelayableAction
 {
     public function __construct(private readonly EntityRepository $orderLineItemDownloadRepository)

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\StateMachine;
 
-/**
- * @package checkout
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class Transition
 {
     public function __construct(private readonly string $entityName, private readonly string $entityId, private readonly string $transitionName, private readonly string $stateFieldName)

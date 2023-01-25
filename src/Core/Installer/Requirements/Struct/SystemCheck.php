@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Installer\Requirements\Struct;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class SystemCheck extends RequirementCheck
 {
     public function __construct(string $name, string $status, private readonly string $requiredValue, private readonly string $installedValue)

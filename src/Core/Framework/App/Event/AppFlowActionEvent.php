@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\App\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package core
- */
+#[Package('core')]
 class AppFlowActionEvent extends Event implements Hookable
 {
     /**

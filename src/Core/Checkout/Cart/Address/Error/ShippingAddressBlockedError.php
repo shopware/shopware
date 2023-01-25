@@ -3,10 +3,9 @@
 namespace Shopware\Core\Checkout\Cart\Address\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class ShippingAddressBlockedError extends Error
 {
     private const KEY = 'shipping-address-blocked';

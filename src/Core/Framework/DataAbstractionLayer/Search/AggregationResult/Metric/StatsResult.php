@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class StatsResult extends AggregationResult
 {
     public function __construct(

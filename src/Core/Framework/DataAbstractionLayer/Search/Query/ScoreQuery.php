@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Query;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class ScoreQuery extends Filter
 {
     public function __construct(private readonly Filter $query, private readonly float $score, private readonly ?string $scoreField = null)

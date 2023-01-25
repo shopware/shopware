@@ -7,6 +7,7 @@ use Shopware\Administration\Notification\NotificationService;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -17,10 +18,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package administration
- */
 #[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('administration')]
 class NotificationController extends AbstractController
 {
     final public const NOTIFICATION = 'notification';

@@ -4,12 +4,12 @@ namespace Shopware\Core\Framework\Struct;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @implements \ArrayAccess<string, mixed>
  */
+#[Package('core')]
 class ArrayEntity extends Entity implements \ArrayAccess
 {
     protected ?string $_entityName = 'array-entity';

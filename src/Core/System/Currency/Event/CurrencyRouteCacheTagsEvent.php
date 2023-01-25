@@ -3,10 +3,9 @@
 namespace Shopware\Core\System\Currency\Event;
 
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheTagsEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class CurrencyRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
 }

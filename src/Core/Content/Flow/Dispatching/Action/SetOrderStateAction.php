@@ -11,6 +11,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
@@ -18,10 +19,9 @@ use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class SetOrderStateAction extends FlowAction implements DelayableAction
 {
     final public const FORCE_TRANSITION = 'force_transition';

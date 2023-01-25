@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class Deprecated extends Flag
 {
     public function __construct(private readonly string $deprecatedSince, private readonly string $willBeRemovedIn, private readonly ?string $replacedBy = null)

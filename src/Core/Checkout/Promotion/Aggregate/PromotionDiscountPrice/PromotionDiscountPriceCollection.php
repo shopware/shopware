@@ -3,12 +3,12 @@
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package checkout
- *
  * @extends EntityCollection<PromotionDiscountPriceEntity>
  */
+#[Package('checkout')]
 class PromotionDiscountPriceCollection extends EntityCollection
 {
     public function getExpectedClass(): string

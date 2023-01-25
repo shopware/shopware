@@ -9,11 +9,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class DeleteUnusedGuestCustomerService
 {
     final public const DELETE_CUSTOMERS_BATCH_SIZE = 100;

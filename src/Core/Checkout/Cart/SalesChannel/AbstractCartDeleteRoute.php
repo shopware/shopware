@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- *
  * This route can be used to delete the entire cart
  */
+#[Package('checkout')]
 abstract class AbstractCartDeleteRoute
 {
     abstract public function getDecorated(): AbstractCartDeleteRoute;

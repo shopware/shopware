@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Api\ScriptResponseEncoder;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
@@ -14,12 +15,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package core
- *
  * @internal
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('core')]
 class ScriptController extends StorefrontController
 {
     public function __construct(private readonly GenericPageLoaderInterface $pageLoader, private readonly ScriptResponseEncoder $scriptResponseEncoder)

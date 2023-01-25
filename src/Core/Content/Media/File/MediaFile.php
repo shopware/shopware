@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Media\File;
 
-/**
- * @package content
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('content')]
 class MediaFile
 {
     public function __construct(private readonly string $fileName, private readonly string $mimeType, private readonly string $fileExtension, private readonly int $fileSize, private readonly ?string $hash = null)

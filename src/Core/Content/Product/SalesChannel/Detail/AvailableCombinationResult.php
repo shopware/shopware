@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @package inventory
- *
  * @phpstan-type combination array<string, bool>
  */
+#[Package('inventory')]
 class AvailableCombinationResult extends Struct
 {
     /**

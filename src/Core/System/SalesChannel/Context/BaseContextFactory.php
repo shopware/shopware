@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -30,10 +31,9 @@ use Shopware\Core\System\Tax\TaxCollection;
 use function array_unique;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class BaseContextFactory extends AbstractBaseContextFactory
 {
     public function __construct(private readonly EntityRepository $salesChannelRepository, private readonly EntityRepository $currencyRepository, private readonly EntityRepository $customerGroupRepository, private readonly EntityRepository $countryRepository, private readonly EntityRepository $taxRepository, private readonly EntityRepository $paymentMethodRepository, private readonly EntityRepository $shippingMethodRepository, private readonly Connection $connection, private readonly EntityRepository $countryStateRepository, private readonly EntityRepository $currencyCountryRepository)

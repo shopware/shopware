@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\ProductExport\Error;
 
-/**
- * @package sales-channel
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('sales-channel')]
 class XmlValidationError extends Error
 {
     /**

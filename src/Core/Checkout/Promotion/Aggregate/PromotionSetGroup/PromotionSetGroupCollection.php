@@ -3,12 +3,12 @@
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package checkout
- *
  * @extends EntityCollection<PromotionSetGroupEntity>
  */
+#[Package('checkout')]
 class PromotionSetGroupCollection extends EntityCollection
 {
     public function getApiAlias(): string

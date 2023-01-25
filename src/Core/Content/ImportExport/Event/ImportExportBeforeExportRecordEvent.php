@@ -3,11 +3,10 @@
 namespace Shopware\Core\Content\ImportExport\Event;
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class ImportExportBeforeExportRecordEvent extends Event
 {
     public function __construct(private readonly Config $config, private array $record, private readonly array $originalRecord)

@@ -3,17 +3,17 @@
 namespace Shopware\Core\System\Test\SalesChannel\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
- * @package sales-channel
- *
  * @internal
  * @group store-api
  */
+#[Package('sales-channel')]
 class ContextLoadRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

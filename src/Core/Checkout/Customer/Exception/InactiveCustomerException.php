@@ -3,13 +3,13 @@
 namespace Shopware\Core\Checkout\Customer\Exception;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package customer-order
- *
  * @deprecated tag:v6.6.0 Will be removed without replacement, not in use any more. Use `BadCredentialsException` or `CustomerOptinNotCompletedException` instead
  */
+#[Package('customer-order')]
 class InactiveCustomerException extends CustomerOptinNotCompletedException
 {
     public function __construct(string $id)

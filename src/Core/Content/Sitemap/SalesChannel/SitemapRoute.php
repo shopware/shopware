@@ -6,6 +6,7 @@ use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
 use Shopware\Core\Content\Sitemap\Service\SitemapListerInterface;
 use Shopware\Core\Content\Sitemap\Struct\SitemapCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -13,10 +14,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package sales-channel
- */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('sales-channel')]
 class SitemapRoute extends AbstractSitemapRoute
 {
     /**

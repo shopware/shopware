@@ -7,6 +7,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Shopware\Core\Framework\Log\Package;
 use function array_map;
 use function crc32;
 use function dechex;
@@ -22,12 +23,11 @@ if (class_exists('\\' . \Doctrine\DBAL\Schema\AbstractAsset::class, false)) {
 }
 
 /**
- * @package core
- * The abstract asset allows to reset the name of all assets without publishing this to the public userland.
- *
  * This encapsulation hack is necessary to keep a consistent state of the database schema. Say we have a list of tables
  * array($tableName => Table($tableName)); if you want to rename the table, you have to make sure
  */
+#[Package('core
+The abstract asset allows to reset the name of all assets without publishing this to the public userland.')]
 abstract class AbstractAsset
 {
     /**

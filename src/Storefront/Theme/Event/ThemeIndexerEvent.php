@@ -4,10 +4,9 @@ namespace Shopware\Storefront\Theme\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeIndexerEvent extends NestedEvent
 {
     public function __construct(private readonly array $ids, private readonly Context $context, private readonly array $skip = [])

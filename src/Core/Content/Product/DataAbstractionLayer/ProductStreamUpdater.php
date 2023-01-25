@@ -20,13 +20,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdat
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ProductStreamUpdater extends EntityIndexer
 {
     /**

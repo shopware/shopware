@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TaxFreeConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition;
@@ -29,9 +30,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannel
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleDefinition;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class CountryDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'country';

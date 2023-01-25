@@ -3,12 +3,12 @@
 namespace Shopware\Core\Content\Seo\SeoUrl;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package sales-channel
- *
  * @extends EntityCollection<SeoUrlEntity>
  */
+#[Package('sales-channel')]
 class SeoUrlCollection extends EntityCollection
 {
     public function filterBySalesChannelId(string $id): SeoUrlCollection

@@ -3,14 +3,14 @@
 namespace Shopware\Core\Framework\Routing\Annotation;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @Annotation
  *
- * @package core
- *
  * @deprecated tag:v6.6.0 - Will be removed use `defaults: {"_entity"="entityName"}` instead
  */
+#[Package('core')]
 class Entity
 {
     private string $value;

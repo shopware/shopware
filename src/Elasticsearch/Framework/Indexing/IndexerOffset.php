@@ -3,13 +3,13 @@
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
 /**
- * @package core
- *
  * @phpstan-import-type Offset from IterableQuery
  */
+#[Package('core')]
 class IndexerOffset
 {
     /**

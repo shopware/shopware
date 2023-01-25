@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\EventListener\Authentication;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RouteScopeCheckTrait;
@@ -18,9 +19,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class SalesChannelAuthenticationListener implements EventSubscriberInterface
 {
     use RouteScopeCheckTrait;

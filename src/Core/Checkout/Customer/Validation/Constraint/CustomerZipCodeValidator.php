@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Symfony\Component\Validator\Constraint;
@@ -13,11 +14,10 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * @package customer-order
- *
  * @Annotation
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
+#[Package('customer-order')]
 class CustomerZipCodeValidator extends ConstraintValidator
 {
     /**

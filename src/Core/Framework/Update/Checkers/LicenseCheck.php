@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\Update\Checkers;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Update\Struct\ValidationResult;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class LicenseCheck implements CheckerInterface
 {
     /**

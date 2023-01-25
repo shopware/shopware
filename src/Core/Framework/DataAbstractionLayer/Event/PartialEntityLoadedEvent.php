@@ -5,12 +5,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class PartialEntityLoadedEvent extends EntityLoadedEvent
 {
     /**

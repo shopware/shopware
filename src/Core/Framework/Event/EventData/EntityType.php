@@ -3,10 +3,9 @@
 namespace Shopware\Core\Framework\Event\EventData;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class EntityType implements EventDataType
 {
     final public const TYPE = 'entity';

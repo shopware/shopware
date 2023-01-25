@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @package business-ops
- *
  * @internal not intended for decoration or replacement
  */
+#[Package('business-ops')]
 class Flow extends Struct
 {
     public function __construct(protected string $id, protected array $sequences = [], protected array $flat = [])

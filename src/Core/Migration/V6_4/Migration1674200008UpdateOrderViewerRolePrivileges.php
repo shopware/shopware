@@ -8,10 +8,9 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @package core
  */
 #[Package('core')]
+#[Package(null)]
 class Migration1674200008UpdateOrderViewerRolePrivileges extends MigrationStep
 {
     final public const NEW_PRIVILEGES = [

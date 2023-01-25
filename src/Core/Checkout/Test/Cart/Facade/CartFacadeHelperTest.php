@@ -7,13 +7,13 @@ use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class CartFacadeHelperTest extends TestCase
 {
     use IntegrationTestBehaviour;

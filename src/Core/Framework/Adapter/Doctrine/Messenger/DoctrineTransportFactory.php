@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Doctrine\Messenger;
 
 use Doctrine\DBAL\Connection as DBALConnection;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Bridge\Doctrine\Transport\Connection;
 use Symfony\Component\Messenger\Bridge\Doctrine\Transport\DoctrineTransport;
 use Symfony\Component\Messenger\Bridge\Doctrine\Transport\PostgreSqlConnection;
@@ -10,9 +11,7 @@ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class DoctrineTransportFactory implements TransportFactoryInterface
 {
     public function __construct(private readonly DBALConnection $connection)

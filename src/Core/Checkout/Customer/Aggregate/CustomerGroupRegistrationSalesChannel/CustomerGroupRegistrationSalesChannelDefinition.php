@@ -10,11 +10,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class CustomerGroupRegistrationSalesChannelDefinition extends MappingEntityDefinition
 {
     final public const ENTITY_NAME = 'customer_group_registration_sales_channels';

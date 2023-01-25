@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoadWishlistRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractMergeWishlistProductRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRemoveWishlistProductRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -29,11 +30,10 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package storefront
- *
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('storefront')]
 class WishlistController extends StorefrontController
 {
     /**

@@ -4,10 +4,9 @@ namespace Shopware\Core\Content\Media\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('content')]
 class MediaFolderConfigurationIndexerEvent extends NestedEvent
 {
     public function __construct(private readonly array $ids, private readonly Context $context, private readonly array $skip = [])

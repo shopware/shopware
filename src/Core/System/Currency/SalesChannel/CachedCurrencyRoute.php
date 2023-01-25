@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\Currency\Event\CurrencyRouteCacheKeyEvent;
 use Shopware\Core\System\Currency\Event\CurrencyRouteCacheTagsEvent;
@@ -18,10 +19,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package inventory
- */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('inventory')]
 class CachedCurrencyRoute extends AbstractCurrencyRoute
 {
     final public const ALL_TAG = 'currency-route';

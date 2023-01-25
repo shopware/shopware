@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\Product\Cleanup;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class CleanupUnusedDownloadMediaTask extends ScheduledTask
 {
     public static function getTaskName(): string

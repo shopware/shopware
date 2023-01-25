@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\Unit;
 
-/**
- * @package inventory
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('inventory')]
 class UnitEvents
 {
     /**

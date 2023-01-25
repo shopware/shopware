@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 abstract class HttpException extends ShopwareHttpException
 {
     protected function __construct(protected int $statusCode, protected string $errorCode, string $message, array $parameters = [], ?\Throwable $previous = null)

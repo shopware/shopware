@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
-/**
- * @package core
- */
+#[Package('core')]
 class RawUrlFunctionExtension extends AbstractExtension
 {
     /**

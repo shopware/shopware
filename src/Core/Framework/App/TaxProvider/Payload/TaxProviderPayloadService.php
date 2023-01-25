@@ -11,13 +11,13 @@ use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\TaxProvider\Response\TaxProviderResponse;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * @package checkout
- *
  * @internal only for use by the app-system
  */
+#[Package('checkout')]
 class TaxProviderPayloadService
 {
     public function __construct(private readonly AppPayloadServiceHelper $helper, private readonly Client $client, private readonly string $shopUrl)

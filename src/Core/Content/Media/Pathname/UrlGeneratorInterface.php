@@ -4,10 +4,9 @@ namespace Shopware\Core\Content\Media\Pathname;
 
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('content')]
 interface UrlGeneratorInterface
 {
     public function getAbsoluteMediaUrl(MediaEntity $media): string;

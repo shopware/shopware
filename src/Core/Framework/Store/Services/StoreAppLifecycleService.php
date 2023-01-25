@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Store\Exception\ExtensionInstallException;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
@@ -21,10 +22,9 @@ use Shopware\Core\Framework\Store\Exception\ExtensionThemeStillInUseException;
 use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
 
 /**
- * @package merchant-services
- *
  * @internal - only for use by the app-system
  */
+#[Package('merchant-services')]
 class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 {
     public function __construct(private readonly StoreClient $storeClient, private readonly AbstractAppLoader $appLoader, private readonly AbstractAppLifecycle $appLifecycle, private readonly EntityRepository $appRepository, private readonly EntityRepository $salesChannelRepository, private readonly ?EntityRepository $themeRepository, private readonly AppStateService $appStateService, private readonly AppConfirmationDeltaProvider $appDeltaService)

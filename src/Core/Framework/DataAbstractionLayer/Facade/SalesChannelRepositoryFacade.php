@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -19,9 +20,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * this means that e.g. product prices are already calculated based on the current context.
  *
  * @script-service data_loading
- *
- * @package core
  */
+#[Package('core')]
 class SalesChannelRepositoryFacade
 {
     /**

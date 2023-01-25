@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Changelog\ChangelogFile;
 use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
 use Shopware\Core\Framework\Changelog\ChangelogParser;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -19,9 +20,8 @@ use function sprintf;
  * @internal
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
- *
- * @package core
  */
+#[Package('core')]
 class ChangelogProcessor
 {
     private ?string $platformRoot = null;

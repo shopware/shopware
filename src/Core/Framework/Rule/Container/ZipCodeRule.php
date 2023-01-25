@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Rule\Container;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -11,9 +12,7 @@ use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 abstract class ZipCodeRule extends Rule
 {
     /**

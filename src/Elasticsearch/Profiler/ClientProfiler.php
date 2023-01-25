@@ -5,11 +5,12 @@ namespace Shopware\Elasticsearch\Profiler;
 use OpenSearch\Client;
 use OpenSearch\Connections\ConnectionInterface;
 use OpenSearch\Namespaces\NamespaceBuilderInterface;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
  * @phpstan-type RequestInfo array{url: string, request: array<mixed>, response: array<mixed>, time: float, backtrace: string}
  */
+#[Package('core')]
 class ClientProfiler extends Client
 {
     /**

@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\Demodata;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 interface DemodataGeneratorInterface
 {
     public function getDefinition(): string;

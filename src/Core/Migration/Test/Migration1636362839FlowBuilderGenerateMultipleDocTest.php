@@ -8,16 +8,16 @@ use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1636362839FlowBuilderGenerateMultipleDoc;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
 {
     use IntegrationTestBehaviour;

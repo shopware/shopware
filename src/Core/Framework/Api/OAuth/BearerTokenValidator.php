@@ -8,12 +8,11 @@ use Lcobucci\JWT\UnencryptedToken;
 use League\OAuth2\Server\AuthorizationValidators\AuthorizationValidatorInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Psr\Http\Message\ServerRequestInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 
-/**
- * @package core
- */
+#[Package('core')]
 class BearerTokenValidator implements AuthorizationValidatorInterface
 {
     /**

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\SendMessageToTransportsEvent;
@@ -10,10 +11,9 @@ use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 
 /**
- * @package system-settings
- *
  * @internal
  */
+#[Package('system-settings')]
 class MessageQueueStatsSubscriber implements EventSubscriberInterface
 {
     /**

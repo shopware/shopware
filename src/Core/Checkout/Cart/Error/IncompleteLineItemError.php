@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Error;
 
-/**
- * @package checkout
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class IncompleteLineItemError extends Error
 {
     public function __construct(private string $key, private readonly string $property)

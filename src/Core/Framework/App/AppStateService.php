@@ -14,14 +14,14 @@ use Shopware\Core\Framework\App\Template\TemplateStateService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package core
- *
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class AppStateService
 {
     public function __construct(private readonly EntityRepository $appRepo, private readonly EventDispatcherInterface $eventDispatcher, private readonly ActiveAppsLoader $activeAppsLoader, private readonly TemplateStateService $templateStateService, private readonly ScriptPersister $scriptPersister, private readonly PaymentMethodStateService $paymentMethodStateService, private readonly ScriptExecutor $scriptExecutor, private readonly RuleConditionPersister $ruleConditionPersister)

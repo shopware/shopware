@@ -3,12 +3,11 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class UnmappedFieldException extends ShopwareHttpException
 {
     public function __construct(string $field, EntityDefinition $definition)

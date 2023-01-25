@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Version;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<VersionEntity>
- *
- * @package core
  */
+#[Package('core')]
 class VersionCollection extends EntityCollection
 {
     public function getApiAlias(): string

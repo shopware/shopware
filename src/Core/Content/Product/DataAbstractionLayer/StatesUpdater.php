@@ -8,12 +8,11 @@ use Shopware\Core\Content\Product\Events\ProductStatesChangedEvent;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class StatesUpdater
 {
     /**

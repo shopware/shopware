@@ -3,16 +3,16 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
+#[Package('merchant-services')]
 class ExtensionLifecycleService extends AbstractExtensionLifecycle
 {
     public function __construct(private readonly AbstractStoreAppLifecycleService $storeAppLifecycleService, private readonly PluginService $pluginService, private readonly PluginLifecycleService $pluginLifecycleService, private readonly PluginManagementService $pluginManagementService)

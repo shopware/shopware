@@ -2,9 +2,9 @@
 
 namespace Shopware\Elasticsearch\Admin;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class AdminIndexingBehavior
 {
     /**

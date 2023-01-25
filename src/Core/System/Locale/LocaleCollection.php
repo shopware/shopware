@@ -3,11 +3,12 @@
 namespace Shopware\Core\System\Locale;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
  * @extends EntityCollection<LocaleEntity>
  */
+#[Package('core')]
 class LocaleCollection extends EntityCollection
 {
     public function getApiAlias(): string

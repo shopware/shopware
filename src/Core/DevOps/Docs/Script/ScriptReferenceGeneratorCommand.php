@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\DevOps\Docs\Script;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -10,13 +11,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
- *
- * @package core
  */
 #[AsCommand(
     name: 'docs:generate-scripts-reference',
     description: 'Generate the script reference',
 )]
+#[Package('core')]
 class ScriptReferenceGeneratorCommand extends Command
 {
     /**

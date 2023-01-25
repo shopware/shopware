@@ -5,12 +5,11 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStora
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\Lock\LockFactory;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class IncrementRedisStorage extends AbstractIncrementStorage
 {
     /**

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\Currency;
 
-/**
- * @package inventory
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('inventory')]
 class CurrencyEvents
 {
     /**

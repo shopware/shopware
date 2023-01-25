@@ -3,10 +3,9 @@
 namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 interface FlowEventAware extends ShopwareEvent
 {
     public static function getAvailableData(): EventDataCollection;

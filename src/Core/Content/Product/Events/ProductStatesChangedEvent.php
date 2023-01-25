@@ -5,11 +5,10 @@ namespace Shopware\Core\Content\Product\Events;
 use Shopware\Core\Content\Product\DataAbstractionLayer\UpdatedStates;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductStatesChangedEvent extends Event implements ShopwareEvent
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Exception\HookMethodException;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Awareness\ScriptResponseAwareTrait;
@@ -15,9 +16,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @hook-use-case custom_endpoint
  *
  * @since 6.4.9.0
- *
- * @package core
  */
+#[Package('core')]
 class StoreApiHook extends InterfaceHook implements SalesChannelContextAware
 {
     use ScriptResponseAwareTrait;

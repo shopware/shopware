@@ -14,11 +14,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CustomEntityDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'custom_entity';

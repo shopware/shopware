@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -26,10 +27,9 @@ use Shopware\Core\System\Country\CountryEntity;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class CartSerializationCleanerTest extends TestCase
 {
     use EventDispatcherBehaviour;

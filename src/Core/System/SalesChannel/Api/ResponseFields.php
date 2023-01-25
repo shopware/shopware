@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\SalesChannel\Api;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class ResponseFields
 {
     /**

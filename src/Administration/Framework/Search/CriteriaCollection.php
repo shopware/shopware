@@ -3,13 +3,13 @@
 namespace Shopware\Administration\Framework\Search;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<Criteria>
- *
- * @package administration
  */
+#[Package('administration')]
 class CriteriaCollection extends Collection
 {
     protected function getExpectedClass(): ?string

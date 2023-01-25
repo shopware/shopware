@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\Update\Steps;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 use Shopware\Core\Framework\Update\Services\Archive\Zip;
 use Symfony\Component\Filesystem\Filesystem;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class UnpackStep
 {
     private readonly string $destinationDir;

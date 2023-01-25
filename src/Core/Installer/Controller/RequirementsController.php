@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Installer\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Installer\Requirements\RequirementsValidatorInterface;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
@@ -11,10 +12,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class RequirementsController extends InstallerController
 {
     private readonly string $jwtDir;

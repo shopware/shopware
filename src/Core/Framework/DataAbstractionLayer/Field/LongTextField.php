@@ -3,10 +3,9 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\LongTextFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class LongTextField extends Field implements StorageAware
 {
     public function __construct(private readonly string $storageName, string $propertyName)

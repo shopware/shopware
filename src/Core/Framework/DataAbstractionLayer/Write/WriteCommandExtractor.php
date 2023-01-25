@@ -33,6 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -44,9 +45,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * Builds the command queue for write operations.
  *
  * Contains recursive calls from extract->map->AssociationInterface->extract->map->....
- *
- * @package core
  */
+#[Package('core')]
 class WriteCommandExtractor
 {
     /**

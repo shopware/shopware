@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme\Controller;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -10,10 +11,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package storefront
- */
 #[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('storefront')]
 class ThemeController extends AbstractController
 {
     /**

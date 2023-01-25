@@ -40,12 +40,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class SchemaGenerator
 {
     private string $tableTemplate = <<<EOL

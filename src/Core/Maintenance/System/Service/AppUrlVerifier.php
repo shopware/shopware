@@ -7,14 +7,14 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class AppUrlVerifier
 {
     public function __construct(private readonly Client $guzzle, private readonly Connection $connection, private readonly string $appEnv, private readonly bool $appUrlCheckDisabled)

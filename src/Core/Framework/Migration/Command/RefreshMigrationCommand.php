@@ -2,19 +2,18 @@
 
 namespace Shopware\Core\Framework\Migration\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'database:refresh-migration',
     description: 'Refreshes the migration state',
 )]
+#[Package('core')]
 class RefreshMigrationCommand extends Command
 {
     protected function configure(): void

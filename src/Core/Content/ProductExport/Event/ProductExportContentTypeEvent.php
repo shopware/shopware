@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\ProductExport\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class ProductExportContentTypeEvent extends Event
 {
     public function __construct(private readonly string $fileFormat, private string $contentType)

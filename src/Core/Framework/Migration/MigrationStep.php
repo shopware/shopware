@@ -7,10 +7,9 @@ use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 abstract class MigrationStep
 {
     final public const INSTALL_ENVIRONMENT_VARIABLE = 'SHOPWARE_INSTALL';

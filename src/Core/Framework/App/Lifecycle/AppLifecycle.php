@@ -40,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -54,9 +55,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class AppLifecycle extends AbstractAppLifecycle
 {
     public function __construct(private readonly EntityRepository $appRepository, private readonly PermissionPersister $permissionPersister, private readonly CustomFieldPersister $customFieldPersister, private readonly ActionButtonPersister $actionButtonPersister, private readonly TemplatePersister $templatePersister, private readonly ScriptPersister $scriptPersister, private readonly WebhookPersister $webhookPersister, private readonly PaymentMethodPersister $paymentMethodPersister, private readonly TaxProviderPersister $taxProviderPersister, private readonly RuleConditionPersister $ruleConditionPersister, private readonly CmsBlockPersister $cmsBlockPersister, private readonly AbstractAppLoader $appLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AppRegistrationService $registrationService, private readonly AppStateService $appStateService, private readonly EntityRepository $languageRepository, private readonly SystemConfigService $systemConfigService, private readonly ConfigValidator $configValidator, private readonly EntityRepository $integrationRepository, private readonly EntityRepository $aclRoleRepository, private readonly AssetService $assetService, private readonly ScriptExecutor $scriptExecutor, private readonly string $projectDir, private readonly Connection $connection, private readonly FlowActionPersister $flowBuilderActionPersister, private readonly ?AppAdministrationSnippetPersister $appAdministrationSnippetPersister, private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater, private readonly CustomEntityLifecycleService $customEntityLifecycleService)

@@ -2,15 +2,14 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package merchant-services
- *
  * @codeCoverageIgnore
- *
  * @extends Collection<ExtensionStruct>
  */
+#[Package('merchant-services')]
 class ExtensionCollection extends Collection
 {
     private int $total = 0;

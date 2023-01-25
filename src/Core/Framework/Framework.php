@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentComp
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Core\Framework\Increment\IncrementerGatewayCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCompilerPass;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
@@ -40,10 +41,9 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Framework extends Bundle
 {
     public function getTemplatePriority(): int

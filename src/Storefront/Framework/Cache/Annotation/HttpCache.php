@@ -3,14 +3,14 @@
 namespace Shopware\Storefront\Framework\Cache\Annotation;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package storefront
- *
  * @Annotation
  *
  * @deprecated tag:v6.6.0 - Will be removed use `defaults: {"_httpCache"=true}` or `{"_httpCache"={"maxAge": 360, "states": {"logged-in", "cart-filled"}}}` instead
  */
+#[Package('storefront')]
 class HttpCache
 {
     final public const ALIAS = 'httpCache';

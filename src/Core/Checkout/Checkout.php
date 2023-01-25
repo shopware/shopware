@@ -4,16 +4,16 @@ namespace Shopware\Core\Checkout;
 
 use Shopware\Core\Checkout\DependencyInjection\CompilerPass\CartRedisCompilerPass;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Checkout extends Bundle
 {
     /**

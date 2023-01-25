@@ -8,11 +8,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Unit\UnitDefinition;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class UnitTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'unit_translation';

@@ -2,11 +2,10 @@
 
 namespace Shopware\Storefront\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeCompilerConcatenatedScriptsEvent extends Event
 {
     public function __construct(private string $concatenatedScripts, private readonly string $salesChannelId)

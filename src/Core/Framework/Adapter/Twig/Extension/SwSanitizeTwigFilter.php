@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SwSanitizeTwigFilter extends AbstractExtension
 {
     /**

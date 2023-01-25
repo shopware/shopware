@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 interface ExceptionHandlerInterface
 {
     public const PRIORITY_DEFAULT = 0;

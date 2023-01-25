@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Api\Context;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class AdminApiSource implements ContextSource
 {
     public string $type = 'admin-api';

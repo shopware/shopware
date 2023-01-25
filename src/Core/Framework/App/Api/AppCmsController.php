@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,10 +18,9 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
- *
- * @package core
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('core')]
 class AppCmsController extends AbstractController
 {
     public function __construct(private readonly EntityRepository $cmsBlockRepository)

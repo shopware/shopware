@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -10,9 +11,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class BasicCaptcha extends AbstractCaptcha
 {
     final public const CAPTCHA_NAME = 'basicCaptcha';

@@ -13,12 +13,11 @@ use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\ProductAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package content
- */
+#[Package('content')]
 final class ReviewFormEvent extends Event implements SalesChannelAware, MailAware, ReviewFormDataAware, ProductAware, CustomerAware
 {
     public const EVENT_NAME = 'review_form.send';

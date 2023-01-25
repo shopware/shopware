@@ -2,15 +2,14 @@
 
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\Test\TestDefaults;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 trait CustomerTestTrait
 {
     use IntegrationTestBehaviour;

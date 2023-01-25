@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Installer\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Installer\License\LicenseFetcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -9,10 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class LicenseController extends InstallerController
 {
     public function __construct(private readonly LicenseFetcher $licenseFetcher)

@@ -5,11 +5,10 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package core
- */
+#[Package('core')]
 class WriteCommandExceptionEvent extends Event implements ShopwareEvent
 {
     /**

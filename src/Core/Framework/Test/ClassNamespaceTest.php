@@ -3,14 +3,14 @@
 namespace Shopware\Core\Framework\Test;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class ClassNamespaceTest extends TestCase
 {
     public function testAllProductionFilesAreNamespacedCorrectly(): void

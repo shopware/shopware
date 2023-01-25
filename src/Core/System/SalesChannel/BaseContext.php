@@ -8,14 +8,14 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 
 /**
- * @package core
- *
  * @internal Use SalesChannelContext for extensions
  */
+#[Package('core')]
 class BaseContext
 {
     public function __construct(protected Context $context, protected SalesChannelEntity $salesChannel, protected CurrencyEntity $currency, protected CustomerGroupEntity $currentCustomerGroup, protected TaxCollection $taxRules, protected PaymentMethodEntity $paymentMethod, protected ShippingMethodEntity $shippingMethod, protected ShippingLocation $shippingLocation, private readonly CashRoundingConfig $itemRounding, private readonly CashRoundingConfig $totalRounding)

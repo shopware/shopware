@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Framework\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Admin\AdminIndexingBehavior;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -14,14 +15,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package system-settings
- *
  * @internal
  */
 #[AsCommand(
     name: 'es:admin:index',
     description: 'Index the elasticsearch for the admin search',
 )]
+#[Package('system-settings')]
 final class ElasticsearchAdminIndexingCommand extends Command implements EventSubscriberInterface
 {
     use ConsoleProgressTrait;

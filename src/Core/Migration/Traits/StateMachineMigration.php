@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Migration\Traits;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class StateMachineMigration
 {
     public function __construct(private string $technicalName, private string $de, private string $en, private array $states = [], private array $transitions = [], private ?string $initialState = null)

@@ -4,12 +4,12 @@ namespace Shopware\Core\Content\Cms\DataResolver;
 
 use Shopware\Core\Content\Cms\Exception\DuplicateCriteriaKeyException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
- *
  * @implements \IteratorAggregate<string, array<string, Criteria>>
  */
+#[Package('content')]
 class CriteriaCollection implements \IteratorAggregate
 {
     /**

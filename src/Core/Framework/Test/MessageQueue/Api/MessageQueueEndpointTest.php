@@ -4,14 +4,14 @@ namespace Shopware\Core\Framework\Test\MessageQueue\Api;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MessageQueueEndpointTest extends TestCase
 {
     use IntegrationTestBehaviour;

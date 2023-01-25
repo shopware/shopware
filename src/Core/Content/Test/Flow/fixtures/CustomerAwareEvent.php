@@ -5,12 +5,12 @@ namespace Shopware\Core\Content\Test\Flow\fixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class CustomerAwareEvent implements CustomerAware
 {
     public function __construct(protected string $customerId, protected ?Context $context = null)

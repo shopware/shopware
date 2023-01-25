@@ -7,12 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class RepositorySearchDetector
 {
     public static function isSearchRequired(EntityDefinition $definition, Criteria $criteria): bool

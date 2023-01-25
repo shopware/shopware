@@ -7,13 +7,13 @@ use Shopware\Core\Content\ImportExport\Processing\Mapping\CriteriaBuilder;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class CriteriaBuilderTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
-/**
- * @package checkout
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class SyncPaymentProcessException extends PaymentProcessException
 {
     public function __construct(string $orderTransactionId, string $errorMessage, ?\Throwable $e = null)

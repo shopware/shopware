@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package content
- */
+#[Package('content')]
 class UploadException extends ShopwareHttpException
 {
     public function __construct(string $message = '')

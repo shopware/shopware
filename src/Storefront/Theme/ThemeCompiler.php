@@ -25,9 +25,7 @@ use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
 
-/**
- * @package storefront
- */
+#[\Shopware\Core\Framework\Log\Package(null)]
 class ThemeCompiler implements ThemeCompilerInterface
 {
     /**

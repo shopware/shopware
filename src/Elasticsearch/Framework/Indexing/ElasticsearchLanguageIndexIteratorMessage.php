@@ -2,13 +2,13 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class ElasticsearchLanguageIndexIteratorMessage implements AsyncMessageInterface
 {
     /**

@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -42,9 +43,8 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 abstract class AbstractImportExportTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\RateLimiter\Policy;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\RateLimiter\LimiterStateInterface;
 use Symfony\Component\RateLimiter\Util\TimeUtil;
 
@@ -9,9 +10,8 @@ use Symfony\Component\RateLimiter\Util\TimeUtil;
  * @internal
  *
  * @phpstan-type TimeBackoffLimit array{limit: int, interval: string}
- *
- * @package core
  */
+#[Package('core')]
 class TimeBackoff implements LimiterStateInterface
 {
     private int $attempts;

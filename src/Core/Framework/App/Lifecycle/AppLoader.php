@@ -6,6 +6,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
@@ -16,9 +17,8 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class AppLoader extends AbstractAppLoader
 {
     public function __construct(private readonly string $appDir, private readonly string $projectDir, private readonly ConfigReader $configReader, private readonly CustomEntityXmlSchemaValidator $customEntityXmlValidator)

@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Checkout\Cart\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class TaxProviderExceptions extends ShopwareHttpException
 {
     final public const ERROR_CODE = 'CHECKOUT__TAX_PROVIDER_EXCEPTION';

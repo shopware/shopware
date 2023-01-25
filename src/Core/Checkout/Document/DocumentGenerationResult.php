@@ -3,13 +3,13 @@
 namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @package customer-order
- *
  * @final
  */
+#[Package('customer-order')]
 class DocumentGenerationResult extends Struct
 {
     private readonly DocumentIdCollection $success;

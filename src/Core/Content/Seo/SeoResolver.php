@@ -4,14 +4,14 @@ namespace Shopware\Core\Content\Seo;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package sales-channel
- *
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
+#[Package('sales-channel')]
 class SeoResolver extends AbstractSeoResolver
 {
     /**

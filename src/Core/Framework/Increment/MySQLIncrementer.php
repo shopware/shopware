@@ -5,11 +5,10 @@ namespace Shopware\Core\Framework\Increment;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-/**
- * @package core
- */
+#[Package('core')]
 class MySQLIncrementer extends AbstractIncrementer
 {
     /**

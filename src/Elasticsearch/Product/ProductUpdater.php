@@ -4,14 +4,14 @@ namespace Shopware\Elasticsearch\Product;
 
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class ProductUpdater implements EventSubscriberInterface
 {
     /**

@@ -9,15 +9,15 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Demodata\Faker\Commerce;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class DemodataService
 {
     /**

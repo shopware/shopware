@@ -4,17 +4,13 @@ namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @package storefront
- *
- * @Decoratable
- */
+#[Package('storefront')]
 class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface, ResetInterface
 {
     final public const BASE_THEME_NAME = 'Storefront';

@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\NumberRange\Api;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -11,10 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\Cache;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package checkout
- */
 #[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('checkout')]
 class NumberRangeController extends AbstractController
 {
     /**

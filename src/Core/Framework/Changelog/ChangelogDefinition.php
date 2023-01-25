@@ -3,14 +3,14 @@
 namespace Shopware\Core\Framework\Changelog;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class ChangelogDefinition
 {
     #[Assert\NotBlank(message: 'The title should not be blank')]

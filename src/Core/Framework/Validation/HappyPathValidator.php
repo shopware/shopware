@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Validation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Collection;
@@ -20,11 +21,9 @@ use Symfony\Component\Validator\Mapping\MetadataInterface;
 use Symfony\Component\Validator\Validator\ContextualValidatorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * @package core
- * calling into the validator machinery has a considerable overhead. Doing that thousands of time is notable.
- * this validator implements a subset of the functionality and calls into the real validator if needed.
- */
+#[Package('core
+calling into the validator machinery has a considerable overhead. Doing that thousands of time is notable.
+this validator implements a subset of the functionality and calls into the real validator if needed.')]
 class HappyPathValidator implements ValidatorInterface
 {
     /**

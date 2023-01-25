@@ -12,14 +12,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\Struct\FilteredTagIdsStruct;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @package business-ops
  */
+#[Package('business-ops')]
 class FilterTagIdsService
 {
     public function __construct(private readonly EntityDefinition $tagDefinition, private readonly Connection $connection, private readonly CriteriaQueryBuilder $criteriaQueryBuilder)

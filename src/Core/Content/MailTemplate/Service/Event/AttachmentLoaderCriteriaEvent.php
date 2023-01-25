@@ -3,11 +3,10 @@
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class AttachmentLoaderCriteriaEvent extends Event
 {
     final public const EVENT_NAME = 'mail.after.create.message';

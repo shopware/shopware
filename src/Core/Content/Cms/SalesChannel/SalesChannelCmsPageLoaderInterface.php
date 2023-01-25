@@ -5,12 +5,11 @@ namespace Shopware\Core\Content\Cms\SalesChannel;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package content
- */
+#[Package('content')]
 interface SalesChannelCmsPageLoaderInterface
 {
     public function load(

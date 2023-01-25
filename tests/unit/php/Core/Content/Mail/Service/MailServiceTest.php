@@ -98,7 +98,7 @@ class MailServiceTest extends TestCase
             'salesChannelId' => $salesChannelId,
         ];
 
-        $this->mailService->send($data, Context::createDefaultContext(), []);
+        $this->mailService->send($data, Context::createDefaultContext());
     }
 
     public function testSendMailSuccess(): void
@@ -143,7 +143,7 @@ class MailServiceTest extends TestCase
             static::isInstanceOf(MailBeforeSentEvent::class),
             static::isInstanceOf(MailSentEvent::class)
         );
-        $email = $this->mailService->send($data, Context::createDefaultContext(), []);
+        $email = $this->mailService->send($data, Context::createDefaultContext());
 
         static::assertInstanceOf(Email::class, $email);
     }
@@ -204,7 +204,7 @@ class MailServiceTest extends TestCase
 
         $this->templateRenderer->expects(static::exactly(1))->method('render')->willThrowException(new \Exception('cannot render'));
 
-        $email = $this->mailService->send($data, Context::createDefaultContext(), []);
+        $email = $this->mailService->send($data, Context::createDefaultContext());
 
         static::assertNull($email);
         static::assertNotNull($beforeValidateEvent);
@@ -265,7 +265,7 @@ class MailServiceTest extends TestCase
 
         $this->mailFactory->expects(static::once())->method('create')->willReturn($email);
 
-        $email = $this->mailService->send($data, Context::createDefaultContext(), []);
+        $email = $this->mailService->send($data, Context::createDefaultContext());
 
         static::assertInstanceOf(Email::class, $email);
     }

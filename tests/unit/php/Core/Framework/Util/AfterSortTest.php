@@ -206,15 +206,9 @@ class TestEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $afterId;
+    protected ?string $afterId = null;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
     public function getAfterId(): string
     {

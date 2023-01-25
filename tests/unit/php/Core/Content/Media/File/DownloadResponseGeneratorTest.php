@@ -32,8 +32,6 @@ class DownloadResponseGeneratorTest extends TestCase
 
     private Filesystem&MockObject $privateFilesystem;
 
-    private Filesystem&MockObject $publicFilesystem;
-
     private MockObject&UrlGeneratorInterface $urlGenerator;
 
     private DownloadResponseGenerator $downloadResponseGenerator;
@@ -44,13 +42,13 @@ class DownloadResponseGeneratorTest extends TestCase
     {
         $this->mediaService = $this->createMock(MediaService::class);
         $this->privateFilesystem = $this->createMock(Filesystem::class);
-        $this->publicFilesystem = $this->createMock(Filesystem::class);
+        $publicFilesystem = $this->createMock(Filesystem::class);
         $this->urlGenerator = $this->createMock(UrlGeneratorInterface::class);
         $this->urlGenerator->method('getAbsoluteMediaUrl')->willReturn('foobar.txt');
         $this->urlGenerator->method('getRelativeMediaUrl')->willReturn('foobar.txt');
 
         $this->downloadResponseGenerator = new DownloadResponseGenerator(
-            $this->publicFilesystem,
+            $publicFilesystem,
             $this->privateFilesystem,
             $this->urlGenerator,
             $this->mediaService,

@@ -364,20 +364,14 @@ class ProductControllerTest extends TestCase
  */
 class ProductControllerTestClass extends ProductController
 {
-    /**
-     * @var mixed
-     */
-    public $renderStorefrontView;
+    public string $renderStorefrontView;
 
     /**
-     * @var mixed
+     * @var array<mixed>
      */
-    public $renderStorefrontParameters;
+    public array $renderStorefrontParameters;
 
-    /**
-     * @var Hook
-     */
-    public $calledHook;
+    public Hook $calledHook;
 
     public string $forwardToRoute;
 

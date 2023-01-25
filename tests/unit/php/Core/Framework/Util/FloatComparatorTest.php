@@ -90,7 +90,7 @@ class FloatComparatorTest extends TestCase
             [1, 2, true],
             [1, 1.0001, true],
             [0, 0.00001, true],
-            [0 - 0.1, 0 + 0.1, true],
+            [0 - 0.1, 0.1, true],
             [42.000001, 42.00001, true],
             [0, 0, false],
             [42, 42, false],
@@ -126,7 +126,7 @@ class FloatComparatorTest extends TestCase
             [2, 1, true],
             [1.00001, 1, true],
             [0.00001, 0, true],
-            [0 + 0.1, 0 - 0.1, true],
+            [0.1, 0 - 0.1, true],
             [42.00001, 42.000001, true],
             [0, 0, false],
             [42, 42, false],
@@ -175,7 +175,7 @@ class FloatComparatorTest extends TestCase
             [2, 1, false],
             [1.00001, 1, false],
             [0.00001, 0, false],
-            [0 + 0.1, 0 - 0.1, false],
+            [0.1, 0 - 0.1, false],
         ];
     }
 
@@ -208,7 +208,7 @@ class FloatComparatorTest extends TestCase
             [2, 1, true],
             [1.00001, 1, true],
             [0.00001, 0, true],
-            [0 + 0.1, 0 - 0.1, true],
+            [0.1, 0 - 0.1, true],
             [1, 1.0001, false],
             [0, 0.00001, false],
             [23, 42, false],

@@ -45,21 +45,6 @@ class ProductDetailRouteTest extends TestCase
      */
     private SystemConfigService $systemConfig;
 
-    /**
-     * @var MockObject&ProductConfiguratorLoader
-     */
-    private ProductConfiguratorLoader $configuratorLoader;
-
-    /**
-     * @var MockObject&CategoryBreadcrumbBuilder
-     */
-    private CategoryBreadcrumbBuilder $breadcrumbBuilder;
-
-    /**
-     * @var MockObject&SalesChannelCmsPageLoader
-     */
-    private SalesChannelCmsPageLoader $cmsPageLoader;
-
     private ProductDetailRoute $route;
 
     /**
@@ -78,17 +63,17 @@ class ProductDetailRouteTest extends TestCase
         $this->idsCollection = new IdsCollection();
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
         $this->systemConfig = $this->createMock(SystemConfigService::class);
-        $this->configuratorLoader = $this->createMock(ProductConfiguratorLoader::class);
-        $this->breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
-        $this->cmsPageLoader = $this->createMock(SalesChannelCmsPageLoader::class);
+        $configuratorLoader = $this->createMock(ProductConfiguratorLoader::class);
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $cmsPageLoader = $this->createMock(SalesChannelCmsPageLoader::class);
         $this->productCloseoutFilterFactory = new ProductCloseoutFilterFactory();
 
         $this->route = new ProductDetailRoute(
             $this->productRepository,
             $this->systemConfig,
-            $this->configuratorLoader,
-            $this->breadcrumbBuilder,
-            $this->cmsPageLoader,
+            $configuratorLoader,
+            $breadcrumbBuilder,
+            $cmsPageLoader,
             new SalesChannelProductDefinition(),
             $this->productCloseoutFilterFactory
         );

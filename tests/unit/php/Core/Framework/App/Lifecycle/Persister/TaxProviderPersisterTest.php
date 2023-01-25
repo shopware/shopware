@@ -47,7 +47,7 @@ class TaxProviderPersisterTest extends TestCase
         ]);
 
         $manifest = $this->createManifest($provider);
-        $existing = $this->existingProviders([]);
+        $existing = $this->existingProviders();
 
         $repo = $this->createMock(EntityRepository::class);
         $repo

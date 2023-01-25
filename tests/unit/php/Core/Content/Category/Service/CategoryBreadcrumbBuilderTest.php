@@ -32,10 +32,7 @@ use Shopware\Core\System\Tax\TaxCollection;
  */
 class CategoryBreadcrumbBuilderTest extends TestCase
 {
-    /**
-     * @var SalesChannelContext
-     */
-    protected $context;
+    protected SalesChannelContext $context;
 
     public function setUp(): void
     {

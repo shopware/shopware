@@ -174,7 +174,7 @@ class SwEscapeFilterTest extends TestCase
     {
         $twig = new Environment($this->createMock(LoaderInterface::class));
         foreach ($this->htmlSpecialChars as $key => $value) {
-            static::assertEquals($value, sw_escape_filter($twig, $key, 'html'), 'Failed to escape: ' . $key);
+            static::assertEquals($value, sw_escape_filter($twig, $key), 'Failed to escape: ' . $key);
         }
     }
 
@@ -399,10 +399,10 @@ class SwEscapeFilterTest extends TestCase
     public function provideObjectsForEscaping(): array
     {
         return [
-            ['&lt;br /&gt;', '<br />', ['\\' . \Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension_TestClass::class => ['js']]],
-            ['<br />', '\u003Cbr\u0020\/\u003E', ['\\' . \Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension_TestClass::class => ['html']]],
-            ['&lt;br /&gt;', '<br />', ['\\' . \Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension_TestClass::class => ['js']]],
-            ['<br />', '<br />', ['\\' . \Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension_TestClass::class => ['all']]],
+            ['&lt;br /&gt;', '<br />', ['\\' . Extension_TestClass::class => ['js']]],
+            ['<br />', '\u003Cbr\u0020\/\u003E', ['\\' . Extension_TestClass::class => ['html']]],
+            ['&lt;br /&gt;', '<br />', ['\\' . Extension_TestClass::class => ['js']]],
+            ['<br />', '<br />', ['\\' . Extension_TestClass::class => ['all']]],
         ];
     }
 

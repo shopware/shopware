@@ -33,7 +33,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
 
         $expectsClosure(
             $connection,
-            $newsletterIds ? array_keys(json_decode((string) $newsletterIds, true, 512, \JSON_THROW_ON_ERROR)) : null
+            $newsletterIds ? array_keys(json_decode($newsletterIds, true, 512, \JSON_THROW_ON_ERROR)) : null
         );
 
         $indexing = new CustomerNewsletterSalesChannelsUpdater($connection);

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace unit\php\Storefront\Page\Checkout\Finish;
+namespace Shopware\Tests\Unit\Storefront\Page\Account\Overview;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

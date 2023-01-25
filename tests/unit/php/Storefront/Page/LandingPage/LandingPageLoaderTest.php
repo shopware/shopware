@@ -54,7 +54,7 @@ class LandingPageLoaderTest extends TestCase
         );
 
         $request = new Request([], [], []);
-        $salesChannelContext = $this->getSalesChannelContext('salesChannelId');
+        $salesChannelContext = $this->getSalesChannelContext();
 
         static::expectExceptionObject(new MissingRequestParameterException('landingPageId', '/landingPageId'));
         $landingPageLoader->load($request, $salesChannelContext);
@@ -73,7 +73,7 @@ class LandingPageLoaderTest extends TestCase
 
         $landingPageId = Uuid::randomHex();
         $request = new Request([], [], ['landingPageId' => $landingPageId]);
-        $salesChannelContext = $this->getSalesChannelContext('salesChannelId');
+        $salesChannelContext = $this->getSalesChannelContext();
 
         static::expectExceptionObject(new PageNotFoundException($landingPageId));
         $landingPageLoader->load($request, $salesChannelContext);
@@ -84,7 +84,7 @@ class LandingPageLoaderTest extends TestCase
         $productId = Uuid::randomHex();
         $landingPageId = Uuid::randomHex();
         $request = new Request([], [], ['landingPageId' => $landingPageId]);
-        $salesChannelContext = $this->getSalesChannelContext('salesChannelId');
+        $salesChannelContext = $this->getSalesChannelContext();
 
         $product = $this->getProduct($productId);
         $cmsPage = $this->getCmsPage($product);
@@ -126,10 +126,10 @@ class LandingPageLoaderTest extends TestCase
         return $product;
     }
 
-    private function getSalesChannelContext(string $salesChanelId): SalesChannelContext
+    private function getSalesChannelContext(): SalesChannelContext
     {
         $salesChannelEntity = new SalesChannelEntity();
-        $salesChannelEntity->setId($salesChanelId);
+        $salesChannelEntity->setId('salesChannelId');
 
         return new SalesChannelContext(
             Context::createDefaultContext(),

@@ -37,8 +37,6 @@ class FlowDispatcherTest extends TestCase
 
     private MockObject&EventDispatcherInterface $dispatcher;
 
-    private MockObject&LoggerInterface $logger;
-
     private MockObject&FlowFactory $flowFactory;
 
     private FlowDispatcher $flowDispatcher;
@@ -48,10 +46,10 @@ class FlowDispatcherTest extends TestCase
         $this->ids = new TestDataCollection();
         $this->container = $this->createMock(ContainerInterface::class);
         $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createMock(LoggerInterface::class);
         $this->flowFactory = $this->createMock(FlowFactory::class);
 
-        $this->flowDispatcher = new FlowDispatcher($this->dispatcher, $this->logger, $this->flowFactory);
+        $this->flowDispatcher = new FlowDispatcher($this->dispatcher, $logger, $this->flowFactory);
         $this->flowDispatcher->setContainer($this->container);
     }
 

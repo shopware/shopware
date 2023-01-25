@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Store\Checkout\Shipping;
+namespace Shopware\Tests\Unit\Storefront\Checkout\Shipping;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;

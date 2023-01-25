@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
@@ -122,7 +123,7 @@ class ShopConfigurationControllerTest extends TestCase
         $request->setSession($session);
 
         $this->router->expects(static::once())->method('generate')
-            ->with('installer.database-configuration', [], RouterInterface::ABSOLUTE_PATH)
+            ->with('installer.database-configuration', [], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/database-configuration');
 
         $this->twig->expects(static::never())->method('render');
@@ -191,7 +192,7 @@ class ShopConfigurationControllerTest extends TestCase
         $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
 
         $this->router->expects(static::once())->method('generate')
-            ->with('installer.finish', [], RouterInterface::ABSOLUTE_PATH)
+            ->with('installer.finish', [], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/finish');
 
         $this->twig->expects(static::never())->method('render');

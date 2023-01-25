@@ -2,7 +2,6 @@
 
 namespace unit\php\Core\Content\Flow\Dispatching\Action;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
@@ -28,8 +27,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class GrantDownloadAccessActionTest extends TestCase
 {
-    private MockObject&EntityRepository $orderLineItemDownloadRepository;
-
     private GrantDownloadAccessAction $action;
 
     /**
@@ -39,15 +36,15 @@ class GrantDownloadAccessActionTest extends TestCase
 
     public function setUp(): void
     {
-        $this->orderLineItemDownloadRepository = $this->createMock(EntityRepository::class);
-        $this->orderLineItemDownloadRepository->method('update')->willReturnCallback(
+        $orderLineItemDownloadRepository = $this->createMock(EntityRepository::class);
+        $orderLineItemDownloadRepository->method('update')->willReturnCallback(
             function (array $payload, Context $context): EntityWrittenContainerEvent {
                 $this->updatePayload = $payload;
 
                 return new EntityWrittenContainerEvent($context, new NestedEventCollection([]), []);
             }
         );
-        $this->action = new GrantDownloadAccessAction($this->orderLineItemDownloadRepository);
+        $this->action = new GrantDownloadAccessAction($orderLineItemDownloadRepository);
 
         $this->updatePayload = [];
     }

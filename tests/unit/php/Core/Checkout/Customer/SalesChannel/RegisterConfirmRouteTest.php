@@ -33,40 +33,19 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class RegisterConfirmRouteTest extends TestCase
 {
-    /**
-     * @var MockObject&SalesChannelContext
-     */
-    protected $context;
+    protected SalesChannelContext&MockObject $context;
 
-    /**
-     * @var MockObject&EventDispatcherInterface
-     */
-    protected $eventDispatcher;
+    protected EventDispatcherInterface&MockObject $eventDispatcher;
 
-    /**
-     * @var MockObject&EntityRepository
-     */
-    protected $customerRepository;
+    protected EntityRepository&MockObject $customerRepository;
 
-    /**
-     * @var MockObject&DataValidator
-     */
-    protected $validator;
+    protected DataValidator&MockObject $validator;
 
-    /**
-     * @var MockObject&SalesChannelContextPersister
-     */
-    protected $salesChannelContextPersister;
+    protected SalesChannelContextPersister&MockObject $salesChannelContextPersister;
 
-    /**
-     * @var Stub|SalesChannelContextServiceInterface
-     */
-    protected $salesChannelContextService;
+    protected SalesChannelContextServiceInterface&Stub $salesChannelContextService;
 
-    /**
-     * @var RegisterConfirmRoute
-     */
-    protected $route;
+    protected RegisterConfirmRoute $route;
 
     public function setUp(): void
     {

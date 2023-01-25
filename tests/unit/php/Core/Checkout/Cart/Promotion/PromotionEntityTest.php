@@ -16,6 +16,7 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
+use Shopware\Core\Framework\Rule\Rule;
 
 /**
  * @internal
@@ -98,10 +99,10 @@ class PromotionEntityTest extends TestCase
         $promotion->setPersonaCustomers(new CustomerCollection([$customer1, $customer2]));
 
         $custRule1 = new CustomerNumberRule();
-        $custRule1->assign(['numbers' => ['C1'], 'operator' => CustomerNumberRule::OPERATOR_EQ]);
+        $custRule1->assign(['numbers' => ['C1'], 'operator' => Rule::OPERATOR_EQ]);
 
         $custRule2 = new CustomerNumberRule();
-        $custRule2->assign(['numbers' => ['C2'], 'operator' => CustomerNumberRule::OPERATOR_EQ]);
+        $custRule2->assign(['numbers' => ['C2'], 'operator' => Rule::OPERATOR_EQ]);
 
         $expected = new AndRule(
             [
@@ -201,7 +202,7 @@ class PromotionEntityTest extends TestCase
         $customer->setId('CUST1');
         $customer->setCustomerNumber('CUST1');
         $custRule = new CustomerNumberRule();
-        $custRule->assign(['numbers' => ['CUST1'], 'operator' => CustomerNumberRule::OPERATOR_EQ]);
+        $custRule->assign(['numbers' => ['CUST1'], 'operator' => Rule::OPERATOR_EQ]);
 
         $fakeCartRule = new AndRule();
         $cartRuleEntity = new RuleEntity();

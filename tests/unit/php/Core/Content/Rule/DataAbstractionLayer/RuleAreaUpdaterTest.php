@@ -50,8 +50,6 @@ class RuleAreaUpdaterTest extends TestCase
 
     private MockObject&RuleConditionRegistry $conditionRegistry;
 
-    private MockObject&CacheInvalidator $cacheInvalidator;
-
     private RuleAreaUpdater $areaUpdater;
 
     public function setUp(): void
@@ -75,12 +73,12 @@ class RuleAreaUpdaterTest extends TestCase
         $entityDefinition = $registry->getByEntityName('rule');
         $this->definition = $entityDefinition;
 
-        $this->cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $this->areaUpdater = new RuleAreaUpdater(
             $this->connection,
             $this->definition,
             $this->conditionRegistry,
-            $this->cacheInvalidator
+            $cacheInvalidator
         );
     }
 

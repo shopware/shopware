@@ -37,11 +37,6 @@ class PromotionItemBuilderPayloadTest extends TestCase
      */
     private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var MockObject&Context
-     */
-    private Context $context;
-
     public function setUp(): void
     {
         $this->promotion = new PromotionEntity();
@@ -51,9 +46,9 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $this->promotion->setUseSetGroups(false);
 
         $this->salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
-        $this->context = $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock();
+        $context = $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock();
 
-        $this->salesChannelContext->method('getContext')->willReturn($this->context);
+        $this->salesChannelContext->method('getContext')->willReturn($context);
     }
 
     /**
@@ -261,7 +256,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $rule = new RuleEntity();
         $rule->setId('R1');
-        $rule->setPayload($this->getFakeRule(10, '='));
+        $rule->setPayload($this->getFakeRule());
 
         $ruleCollection = new RuleCollection([$rule]);
 
@@ -499,8 +494,8 @@ class PromotionItemBuilderPayloadTest extends TestCase
     /**
      * just get a ruleEntity with ID R1
      */
-    private function getFakeRule(int $amount, string $operator): LineItemUnitPriceRule
+    private function getFakeRule(): LineItemUnitPriceRule
     {
-        return (new LineItemUnitPriceRule())->assign(['amount' => $amount, 'operator' => $operator]);
+        return (new LineItemUnitPriceRule())->assign(['amount' => 10, 'operator' => '=']);
     }
 }

@@ -37,8 +37,6 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CmsControllerTest extends TestCase
 {
-    private MockObject&EventDispatcher $eventDispatcherMock;
-
     private MockObject&CmsRoute $cmsRouteMock;
 
     private MockObject&CategoryRoute $categoryRouteMock;
@@ -49,7 +47,7 @@ class CmsControllerTest extends TestCase
 
     public function setUp(): void
     {
-        $this->eventDispatcherMock = $this->createMock(EventDispatcher::class);
+        $eventDispatcherMock = $this->createMock(EventDispatcher::class);
         $this->cmsRouteMock = $this->createMock(CmsRoute::class);
         $this->categoryRouteMock = $this->createMock(CategoryRoute::class);
         $this->productListingRouteMock = $this->createMock(ProductListingRoute::class);
@@ -61,7 +59,7 @@ class CmsControllerTest extends TestCase
             $this->createMock(ProductDetailRoute::class),
             $this->createMock(ProductReviewLoader::class),
             $this->createMock(FindProductVariantRoute::class),
-            $this->eventDispatcherMock
+            $eventDispatcherMock
         );
     }
 

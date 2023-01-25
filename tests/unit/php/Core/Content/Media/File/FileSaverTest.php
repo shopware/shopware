@@ -32,46 +32,32 @@ class FileSaverTest extends TestCase
 {
     private MockObject&EntityRepository $mediaRepository;
 
-    private FilesystemOperator&MockObject $filesystemPublic;
-
-    private MockObject&UrlGeneratorInterface $urlGenerator;
-
-    private MockObject&ThumbnailService $thumbnailService;
-
     private CollectingMessageBus $messageBus;
-
-    private MockObject&MetadataLoader $metadataLoader;
-
-    private MockObject&TypeDetector $typeDetector;
-
-    private FilesystemOperator&MockObject $filesystemPrivate;
-
-    private MockObject&EventDispatcherInterface $eventDispatcher;
 
     private FileSaver $fileSaver;
 
     public function setUp(): void
     {
         $this->mediaRepository = $this->createMock(EntityRepository::class);
-        $this->filesystemPublic = $this->createMock(FilesystemOperator::class);
-        $this->urlGenerator = $this->createMock(UrlGeneratorInterface::class);
-        $this->thumbnailService = $this->createMock(ThumbnailService::class);
+        $filesystemPublic = $this->createMock(FilesystemOperator::class);
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $thumbnailService = $this->createMock(ThumbnailService::class);
         $this->messageBus = new CollectingMessageBus();
-        $this->metadataLoader = $this->createMock(MetadataLoader::class);
-        $this->typeDetector = $this->createMock(TypeDetector::class);
-        $this->filesystemPrivate = $this->createMock(FilesystemOperator::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $metadataLoader = $this->createMock(MetadataLoader::class);
+        $typeDetector = $this->createMock(TypeDetector::class);
+        $filesystemPrivate = $this->createMock(FilesystemOperator::class);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $this->fileSaver = new FileSaver(
             $this->mediaRepository,
-            $this->filesystemPublic,
-            $this->filesystemPrivate,
-            $this->urlGenerator,
-            $this->thumbnailService,
-            $this->metadataLoader,
-            $this->typeDetector,
+            $filesystemPublic,
+            $filesystemPrivate,
+            $urlGenerator,
+            $thumbnailService,
+            $metadataLoader,
+            $typeDetector,
             $this->messageBus,
-            $this->eventDispatcher,
+            $eventDispatcher,
             ['png'],
             ['png']
         );

@@ -32,7 +32,7 @@ class StoreApiTestOtherRoute
      *     )
      * )
      */
-    #[Route(path: '/api/test', name: 'api.test', methods: ['GET'], defaults: ['_loginRequired' => true])]
+    #[Route(path: '/api/test', name: 'api.test', defaults: ['_loginRequired' => true], methods: ['GET'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): Response
     {
         return new Response();

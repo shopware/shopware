@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Store\Checkout\Payment;
+namespace Shopware\Tests\Unit\Storefront\Checkout\Payment;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;

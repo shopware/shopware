@@ -61,8 +61,6 @@ class ElasticsearchIndexerTest extends TestCase
 
     private LanguageEntity $language1;
 
-    private LanguageEntity $language2;
-
     private IndicesNamespace&MockObject $indices;
 
     public function setUp(): void
@@ -83,13 +81,13 @@ class ElasticsearchIndexerTest extends TestCase
         $this->language1->setId(Defaults::LANGUAGE_SYSTEM);
         $this->language1->setUniqueIdentifier(Defaults::LANGUAGE_SYSTEM);
 
-        $this->language2 = new LanguageEntity();
-        $this->language2->setId('2');
-        $this->language2->setUniqueIdentifier('2');
+        $language2 = new LanguageEntity();
+        $language2->setId('2');
+        $language2->setUniqueIdentifier('2');
 
         $this->languageRepository
             ->method('search')
-            ->willReturn(new EntitySearchResult('language', 1, new LanguageCollection([$this->language1, $this->language2]), null, new Criteria(), Context::createDefaultContext()));
+            ->willReturn(new EntitySearchResult('language', 1, new LanguageCollection([$this->language1, $language2]), null, new Criteria(), Context::createDefaultContext()));
 
         $this->indices = $this->createMock(IndicesNamespace::class);
         $this->client->method('indices')->willReturn($this->indices);

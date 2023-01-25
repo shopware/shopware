@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Symfony\Component\Validator\Validation;
@@ -26,18 +27,16 @@ use Symfony\Component\Validator\Validation;
  */
 class PriceDefinitionFieldSerializerTest extends TestCase
 {
-    private MockObject&DefinitionInstanceRegistry $definitionInstanceRegistry;
-
     private MockObject&RuleConditionRegistry $ruleConditionRegistry;
 
     private PriceDefinitionFieldSerializer $fieldSerializer;
 
     public function setUp(): void
     {
-        $this->definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $this->ruleConditionRegistry = $this->createMock(RuleConditionRegistry::class);
         $this->fieldSerializer = new PriceDefinitionFieldSerializer(
-            $this->definitionInstanceRegistry,
+            $definitionInstanceRegistry,
             Validation::createValidator(),
             $this->ruleConditionRegistry
         );
@@ -48,7 +47,7 @@ class PriceDefinitionFieldSerializerTest extends TestCase
         static::expectException(WriteConstraintViolationException::class);
 
         $rule = new LineItemListPriceRule();
-        $rule->assign(['operator' => LineItemListPriceRule::OPERATOR_EQ]);
+        $rule->assign(['operator' => Rule::OPERATOR_EQ]);
 
         $this->ruleConditionRegistry->method('getRuleInstance')->willReturn(new LineItemListPriceRule());
 
@@ -66,7 +65,7 @@ class PriceDefinitionFieldSerializerTest extends TestCase
     public function testEncodeDecodeWithEmptyOperatorCondition(): void
     {
         $rule = new LineItemListPriceRule();
-        $rule->assign(['operator' => LineItemListPriceRule::OPERATOR_EMPTY]);
+        $rule->assign(['operator' => Rule::OPERATOR_EMPTY]);
 
         $this->ruleConditionRegistry->method('getRuleInstance')->willReturn(new LineItemListPriceRule());
         $this->ruleConditionRegistry->method('has')->willReturn(true);

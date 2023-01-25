@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
@@ -53,12 +52,10 @@ class ThemeCompilerTest extends TestCase
 
     private string $mockSalesChannelId;
 
-    private MockObject&EventDispatcher $eventDispatcher;
-
     public function setUp(): void
     {
         $mockThemeFileResolver = $this->createMock(ThemeFileResolver::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcher::class);
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
 
         // Avoid filesystem operations
         $mockFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
@@ -70,7 +67,7 @@ class ThemeCompilerTest extends TestCase
             $mockFilesystem,
             $mockThemeFileResolver,
             true,
-            $this->eventDispatcher,
+            $eventDispatcher,
             $this->createMock(ThemeFileImporter::class),
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
             $this->createMock(CacheInvalidator::class),

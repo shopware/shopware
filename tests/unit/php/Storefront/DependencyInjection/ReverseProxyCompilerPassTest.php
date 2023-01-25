@@ -24,7 +24,7 @@ class ReverseProxyCompilerPassTest extends TestCase
     {
         $container = $this->getContainer();
 
-        $container->compile(false);
+        $container->compile();
 
         static::assertTrue($container->has('shopware.cache.reverse_proxy.redis'));
         static::assertTrue($container->has(ReverseProxyCache::class));
@@ -45,7 +45,7 @@ class ReverseProxyCompilerPassTest extends TestCase
             ->setPublic(true)
             ->setDecoratedService(FastlyReverseProxyGateway::class);
 
-        $container->compile(false);
+        $container->compile();
 
         static::assertTrue($container->has('shopware.cache.reverse_proxy.redis'));
         static::assertTrue($container->has(ReverseProxyCache::class));
@@ -65,7 +65,7 @@ class ReverseProxyCompilerPassTest extends TestCase
         $container = $this->getContainer();
         $container->setParameter('storefront.reverse_proxy.fastly.enabled', false);
 
-        $container->compile(false);
+        $container->compile();
 
         static::assertTrue($container->has('shopware.cache.reverse_proxy.redis'));
         static::assertTrue($container->has(ReverseProxyCache::class));
@@ -83,7 +83,7 @@ class ReverseProxyCompilerPassTest extends TestCase
         $container = $this->getContainer();
         $container->setParameter('storefront.reverse_proxy.enabled', false);
 
-        $container->compile(false);
+        $container->compile();
 
         static::assertFalse($container->has('shopware.cache.reverse_proxy.redis'));
         static::assertFalse($container->has(ReverseProxyCache::class));
@@ -98,7 +98,7 @@ class ReverseProxyCompilerPassTest extends TestCase
         $container->setParameter('storefront.reverse_proxy.fastly.enabled', false);
         $container->setParameter('storefront.reverse_proxy.use_varnish_xkey', true);
 
-        $container->compile(false);
+        $container->compile();
 
         /** @var DummyService $dummy */
         $dummy = $container->get(DummyService::class);
@@ -145,7 +145,7 @@ class ReverseProxyCompilerPassTest extends TestCase
             ->setPublic(true)
             ->addArgument(new Reference(AbstractReverseProxyGateway::class, ContainerInterface::NULL_ON_INVALID_REFERENCE));
 
-        $container->addCompilerPass(new ReverseProxyCompilerPass(), \Symfony\Component\DependencyInjection\Compiler\PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new ReverseProxyCompilerPass());
 
         return $container;
     }

@@ -36,11 +36,6 @@ class ThemeLifecycleHandlerTest extends TestCase
     private StorefrontPluginRegistryInterface $configurationRegistryMock;
 
     /**
-     * @var MockObject&ThemeLifecycleService
-     */
-    private ThemeLifecycleService $themeLifecycleServiceMock;
-
-    /**
      * @var MockObject&EntityRepository
      */
     private EntityRepository $themeRepositoryMock;
@@ -58,12 +53,12 @@ class ThemeLifecycleHandlerTest extends TestCase
     {
         $this->themeServiceMock = $this->createMock(ThemeService::class);
         $this->configurationRegistryMock = $this->createMock(StorefrontPluginRegistryInterface::class);
-        $this->themeLifecycleServiceMock = $this->createMock(ThemeLifecycleService::class);
+        $themeLifecycleServiceMock = $this->createMock(ThemeLifecycleService::class);
         $this->themeRepositoryMock = $this->createMock(EntityRepository::class);
         $this->connectionsMock = $this->createMock(Connection::class);
 
         $this->themeLifecycleHandler = new ThemeLifecycleHandler(
-            $this->themeLifecycleServiceMock,
+            $themeLifecycleServiceMock,
             $this->themeServiceMock,
             $this->themeRepositoryMock,
             $this->configurationRegistryMock,

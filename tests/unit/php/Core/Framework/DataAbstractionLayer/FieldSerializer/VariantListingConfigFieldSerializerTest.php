@@ -138,6 +138,6 @@ class VariantListingConfigFieldSerializerTest extends TestCase
             new WriteCommandQueue()
         );
 
-        return iterator_to_array($this->serializer->encode($field, $existence, $keyPair, $bag), true);
+        return iterator_to_array($this->serializer->encode($field, $existence, $keyPair, $bag));
     }
 }

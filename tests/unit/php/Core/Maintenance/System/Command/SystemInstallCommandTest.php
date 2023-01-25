@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Maintenance\System\Command\SystemInstallCommand;
@@ -26,8 +25,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SystemInstallCommandTest extends TestCase
 {
-    private Application&MockObject $application;
-
     protected function tearDown(): void
     {
         @unlink(__DIR__ . '/install.lock');
@@ -169,8 +166,8 @@ class SystemInstallCommandTest extends TestCase
         $setupDatabaseAdapterMock = $this->createMock(SetupDatabaseAdapter::class);
         $systemInstallCmd = new SystemInstallCommand(__DIR__, $setupDatabaseAdapterMock, $connectionFactory);
 
-        $this->application = $this->createMock(Application::class);
-        $this->application->method('has')
+        $application = $this->createMock(Application::class);
+        $application->method('has')
             ->willReturn(true);
 
         $mockCommand = $this->getMockBuilder(Command::class)
@@ -189,13 +186,13 @@ class SystemInstallCommandTest extends TestCase
         $mockCommand->method('getDefinition')
             ->willReturn($inputDefinitionMock);
 
-        $this->application
+        $application
             ->expects(static::exactly(\count($expectedCommands)))
             ->method('find')
             ->withConsecutive(...array_map(fn (string $cmd) => [$cmd], $expectedCommands))
             ->willReturn($mockCommand);
 
-        $systemInstallCmd->setApplication($this->application);
+        $systemInstallCmd->setApplication($application);
 
         return $systemInstallCmd;
     }

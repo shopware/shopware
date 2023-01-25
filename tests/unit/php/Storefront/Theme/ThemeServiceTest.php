@@ -58,11 +58,6 @@ class ThemeServiceTest extends TestCase
      */
     private EventDispatcher $eventDispatcherMock;
 
-    /**
-     * @var DatabaseConfigLoader&MockObject
-     */
-    private DatabaseConfigLoader $databaseConfigLoaderMock;
-
     private ThemeService $themeService;
 
     private Context $context;
@@ -75,7 +70,7 @@ class ThemeServiceTest extends TestCase
         $this->themeSalesChannelRepositoryMock = $this->createMock(EntityRepository::class);
         $this->themeCompilerMock = $this->createMock(ThemeCompiler::class);
         $this->eventDispatcherMock = $this->createMock(EventDispatcher::class);
-        $this->databaseConfigLoaderMock = $this->createMock(DatabaseConfigLoader::class);
+        $databaseConfigLoaderMock = $this->createMock(DatabaseConfigLoader::class);
         $this->context = Context::createDefaultContext();
 
         $this->themeService = new ThemeService(
@@ -84,7 +79,7 @@ class ThemeServiceTest extends TestCase
             $this->themeSalesChannelRepositoryMock,
             $this->themeCompilerMock,
             $this->eventDispatcherMock,
-            $this->databaseConfigLoaderMock,
+            $databaseConfigLoaderMock,
             $this->connectionMock
         );
     }

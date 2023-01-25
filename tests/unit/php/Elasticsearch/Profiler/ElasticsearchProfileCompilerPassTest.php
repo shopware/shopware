@@ -55,7 +55,7 @@ class ElasticsearchProfileCompilerPassTest extends TestCase
         $compilerPass = new ElasticsearchProfileCompilerPass();
         $compilerPass->process($container);
 
-        $container->compile(false);
+        $container->compile();
 
         static::assertTrue($container->hasDefinition(Client::class));
         static::assertTrue($container->hasDefinition('admin.openSearch.client'));

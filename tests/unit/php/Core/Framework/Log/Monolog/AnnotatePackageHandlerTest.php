@@ -221,7 +221,7 @@ class TestCommand extends Command
         $testCause = new TestCause();
         $testCause->throw(new TestException('test'));
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }
 

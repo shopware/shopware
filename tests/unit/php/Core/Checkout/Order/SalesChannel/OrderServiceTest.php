@@ -29,30 +29,26 @@ use Symfony\Component\Validator\Validation;
  */
 class OrderServiceTest extends TestCase
 {
-    private MockObject&EventDispatcherInterface $eventDispatcher;
-
     private MockObject&CartService $cartService;
 
     private MockObject&EntityRepository $paymentMethodRepository;
-
-    private MockObject&StateMachineRegistry $stateMachineRegistry;
 
     private OrderService $orderService;
 
     public function setUp(): void
     {
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->cartService = $this->createMock(CartService::class);
         $this->paymentMethodRepository = $this->createMock(EntityRepository::class);
-        $this->stateMachineRegistry = $this->createMock(StateMachineRegistry::class);
+        $stateMachineRegistry = $this->createMock(StateMachineRegistry::class);
 
         $this->orderService = new OrderService(
             new DataValidator(Validation::createValidatorBuilder()->getValidator()),
             new OrderValidationFactory(),
-            $this->eventDispatcher,
+            $eventDispatcher,
             $this->cartService,
             $this->paymentMethodRepository,
-            $this->stateMachineRegistry
+            $stateMachineRegistry
         );
     }
 

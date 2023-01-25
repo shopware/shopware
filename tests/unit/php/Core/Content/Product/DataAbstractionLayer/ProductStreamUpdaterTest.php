@@ -30,10 +30,6 @@ class ProductStreamUpdaterTest extends TestCase
 
     private MockObject&EntityRepository $repository;
 
-    private MockObject&MessageBusInterface $messageBus;
-
-    private MockObject&ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater;
-
     private ProductStreamUpdater $updater;
 
     protected function setUp(): void
@@ -41,15 +37,15 @@ class ProductStreamUpdaterTest extends TestCase
         $this->connection = $this->createMock(Connection::class);
         $this->productDefinition = $this->createMock(ProductDefinition::class);
         $this->repository = $this->createMock(EntityRepository::class);
-        $this->messageBus = $this->createMock(MessageBusInterface::class);
-        $this->manyToManyIdFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $manyToManyIdFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
 
         $this->updater = new ProductStreamUpdater(
             $this->connection,
             $this->productDefinition,
             $this->repository,
-            $this->messageBus,
-            $this->manyToManyIdFieldUpdater
+            $messageBus,
+            $manyToManyIdFieldUpdater
         );
     }
 

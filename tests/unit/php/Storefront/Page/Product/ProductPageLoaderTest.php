@@ -45,7 +45,7 @@ class ProductPageLoaderTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $request = new Request([], [], ['productId' => $productId]);
-        $salesChannelContext = $this->getSalesChannelContext('salesChannelId');
+        $salesChannelContext = $this->getSalesChannelContext();
         $reviews = $this->getCmsSlotConfig();
 
         $productPageLoader = $this->getProductPageLoaderWithProduct($productId, $reviews, $request, $salesChannelContext);
@@ -104,10 +104,10 @@ class ProductPageLoaderTest extends TestCase
         return $product;
     }
 
-    private function getSalesChannelContext(string $salesChanelId): SalesChannelContext
+    private function getSalesChannelContext(): SalesChannelContext
     {
         $salesChannelEntity = new SalesChannelEntity();
-        $salesChannelEntity->setId($salesChanelId);
+        $salesChannelEntity->setId('salesChannelId');
 
         return new SalesChannelContext(
             Context::createDefaultContext(),

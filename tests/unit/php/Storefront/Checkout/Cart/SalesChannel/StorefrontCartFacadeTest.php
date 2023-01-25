@@ -401,7 +401,7 @@ class StorefrontCartFacadeTest extends TestCase
         return $cart;
     }
 
-    private function getCartErrorCollection(bool $blockShippingMethod = false, bool $blockPaymentMethod = false, bool $changedShippingMethod = false, bool $changedPaymentMethod = false): ErrorCollection
+    private function getCartErrorCollection(bool $blockShippingMethod = false, bool $blockPaymentMethod = false): ErrorCollection
     {
         $cartErrors = new ErrorCollection();
         if ($blockShippingMethod) {
@@ -417,24 +417,6 @@ class StorefrontCartFacadeTest extends TestCase
                 new PaymentMethodBlockedError(
                     'original-payment-method-name',
                     ''
-                )
-            );
-        }
-
-        if ($changedShippingMethod) {
-            $cartErrors->add(
-                new ShippingMethodChangedError(
-                    'original-shipping-method-name',
-                    'changed-shipping-method-name'
-                )
-            );
-        }
-
-        if ($changedPaymentMethod) {
-            $cartErrors->add(
-                new PaymentMethodChangedError(
-                    'original-payment-method-name',
-                    'changed-payment-method-name'
                 )
             );
         }

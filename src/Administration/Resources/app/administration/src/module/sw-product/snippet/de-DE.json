@@ -331,7 +331,7 @@
       }
     },
     "variations": {
-      "generatedListColumnDownload": "Datein",
+      "generatedListColumnDownload": "Dateien",
       "emptyStateTitle": "Dieses Produkt hat noch keine Varianten",
       "emptyStateDescription": "Verwaltung der Varianten von Produkten.",
       "emptyStatePropertyTitle": "Es wurden noch keine Eigenschaften angelegt",

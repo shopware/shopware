@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\LineItem;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -9,6 +9,8 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @covers \Shopware\Core\Checkout\Cart\LineItem\LineItem
+ *
  * @internal
  */
 #[Package('checkout')]

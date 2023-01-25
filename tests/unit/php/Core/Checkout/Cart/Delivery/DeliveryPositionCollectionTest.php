@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\Delivery;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Delivery;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @covers \Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection
+ *
  * @internal
  */
 #[Package('checkout')]
@@ -26,12 +28,14 @@ class DeliveryPositionCollectionTest extends TestCase
 
         $lineItem = $this->getLineItem(10, 2);
 
+        /** @var CalculatedPrice $price */
+        $price = $lineItem->getPrice();
         $deliveryPositionCollection->add(
             new DeliveryPosition(
                 Uuid::randomHex(),
                 $lineItem,
                 $lineItem->getQuantity(),
-                $lineItem->getPrice(),
+                $price,
                 new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
@@ -46,22 +50,28 @@ class DeliveryPositionCollectionTest extends TestCase
         $lineItem1 = $this->getLineItem(10, 1);
         $lineItem2 = $this->getLineItem(20, 1);
 
+        $price = $lineItem1->getPrice();
+        static::assertNotNull($price);
+
         $deliveryPositionCollection->add(
             new DeliveryPosition(
                 Uuid::randomHex(),
                 $lineItem1,
                 $lineItem1->getQuantity(),
-                $lineItem1->getPrice(),
+                $price,
                 new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
+
+        $price = $lineItem2->getPrice();
+        static::assertNotNull($price);
 
         $deliveryPositionCollection->add(
             new DeliveryPosition(
                 Uuid::randomHex(),
                 $lineItem2,
                 $lineItem2->getQuantity(),
-                $lineItem2->getPrice(),
+                $price,
                 new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
@@ -76,22 +86,26 @@ class DeliveryPositionCollectionTest extends TestCase
         $lineItem1 = $this->getLineItem(10, 2);
         $lineItem2 = $this->getLineItem(20, 4);
 
+        $price = $lineItem1->getPrice();
+        static::assertNotNull($price);
+
         $deliveryPositionCollection->add(
             new DeliveryPosition(
                 Uuid::randomHex(),
                 $lineItem1,
                 $lineItem1->getQuantity(),
-                $lineItem1->getPrice(),
+                $price,
                 new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
-
+        $price = $lineItem2->getPrice();
+        static::assertNotNull($price);
         $deliveryPositionCollection->add(
             new DeliveryPosition(
                 Uuid::randomHex(),
                 $lineItem2,
                 $lineItem2->getQuantity(),
-                $lineItem2->getPrice(),
+                $price,
                 new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
@@ -106,22 +120,26 @@ class DeliveryPositionCollectionTest extends TestCase
         $lineItem1 = $this->getLineItem(10, 2);
         $lineItem2 = $this->getLineItem(20, 4, false);
 
+        $price = $lineItem2->getPrice();
+        static::assertNotNull($price);
         $deliveryPositionCollection->add(
             new DeliveryPosition(
                 Uuid::randomHex(),
                 $lineItem1,
                 $lineItem1->getQuantity(),
-                $lineItem1->getPrice(),
+                $price,
                 new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
 
+        $price = $lineItem2->getPrice();
+        static::assertNotNull($price);
         $deliveryPositionCollection->add(
             new DeliveryPosition(
                 Uuid::randomHex(),
                 $lineItem2,
                 $lineItem2->getQuantity(),
-                $lineItem2->getPrice(),
+                $price,
                 new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
@@ -143,22 +161,26 @@ class DeliveryPositionCollectionTest extends TestCase
         $lineItem1 = $this->getLineItem(10, 1, true, $height, $width, $length);
         $lineItem2 = $this->getLineItem(20, 2, true, $height, $width, $length);
 
+        $price = $lineItem1->getPrice();
+        static::assertNotNull($price);
         $deliveryPositionCollection->add(
             new DeliveryPosition(
                 Uuid::randomHex(),
                 $lineItem1,
                 $lineItem1->getQuantity(),
-                $lineItem1->getPrice(),
+                $price,
                 new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
 
+        $price = $lineItem2->getPrice();
+        static::assertNotNull($price);
         $deliveryPositionCollection->add(
             new DeliveryPosition(
                 Uuid::randomHex(),
                 $lineItem2,
                 $lineItem2->getQuantity(),
-                $lineItem2->getPrice(),
+                $price,
                 new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
@@ -166,42 +188,37 @@ class DeliveryPositionCollectionTest extends TestCase
         static::assertEquals($expect, $deliveryPositionCollection->getVolume());
     }
 
-    public static function volumeDataProvider(): array
+    public static function volumeDataProvider(): \Generator
     {
-        return [
-            'test height/width/length: -1, -1, -1' => [-1, -1, -1, 0],
-            'test height/width/length: -1, -1, 1' => [-1, -1, 1, 0],
-            'test height/width/length: -1, 1, -1' => [-1, 1, -1, 0],
-            'test height/width/length: -1, 1, 1' => [-1, 1, 1, 0],
-            'test height/width/length: 1, -1, -1' => [1, -1, -1, 0],
-            'test height/width/length: 1, -1, 1' => [1, -1, 1, 0],
-            'test height/width/length: 1, 1, -1' => [1, 1, -1, 0],
-
-            'test height/width/length: 0.5, 0.5, 0.5' => [0.5, 0.5, 0.5, 0.375],
-            'test height/width/length: 0.5, 0.5, 1' => [0.5, 0.5, 1, 0.75],
-            'test height/width/length: 0.5, 1, 0.5' => [0.5, 1, 0.5, 0.75],
-            'test height/width/length: 0.5, 1, 1' => [0.5, 1, 1, 1.5],
-            'test height/width/length: 1, 0.5, 0.5' => [1, 0.5, 0.5, 0.75],
-            'test height/width/length: 1, 0.5, 1' => [1, 0.5, 1, 1.5],
-            'test height/width/length: 1, 1, 0.5' => [1, 1, 0.5, 1.5],
-
-            'test height/width/length: 0, 0, 0' => [0, 0, 0, 0],
-            'test height/width/length: 0, 0, 1' => [0, 0, 1, 0],
-            'test height/width/length: 0, 1, 0' => [0, 1, 0, 0],
-            'test height/width/length: 0, 1, 1' => [0, 1, 1, 0],
-            'test height/width/length: 1, 0, 0' => [1, 0, 0, 0],
-            'test height/width/length: 1, 0, 1' => [1, 0, 1, 0],
-            'test height/width/length: 1, 1, 0' => [1, 1, 0, 0],
-            'test height/width/length: 1, 1, 1' => [1, 1, 1, 3],
-
-            'test height/width/length: null, null, null' => [null, null, null, 0],
-            'test height/width/length: null, null, 1' => [null, null, 1, 0],
-            'test height/width/length: null, 1, null' => [null, 1, null, 0],
-            'test height/width/length: null, 1, 1' => [null, 1, 1, 0],
-            'test height/width/length: 1, null, null' => [1, null, null, 0],
-            'test height/width/length: 1, null, 1' => [1, null, 1, 0],
-            'test height/width/length: 1, 1, null' => [1, 1, null, 0],
-        ];
+        yield 'test height/width/length: -1, -1, -1' => [-1, -1, -1, 0];
+        yield 'test height/width/length: -1, -1, 1' => [-1, -1, 1, 0];
+        yield 'test height/width/length: -1, 1, -1' => [-1, 1, -1, 0];
+        yield 'test height/width/length: -1, 1, 1' => [-1, 1, 1, 0];
+        yield 'test height/width/length: 1, -1, -1' => [1, -1, -1, 0];
+        yield 'test height/width/length: 1, -1, 1' => [1, -1, 1, 0];
+        yield 'test height/width/length: 1, 1, -1' => [1, 1, -1, 0];
+        yield 'test height/width/length: 0.5, 0.5, 0.5' => [0.5, 0.5, 0.5, 0.375];
+        yield 'test height/width/length: 0.5, 0.5, 1' => [0.5, 0.5, 1, 0.75];
+        yield 'test height/width/length: 0.5, 1, 0.5' => [0.5, 1, 0.5, 0.75];
+        yield 'test height/width/length: 0.5, 1, 1' => [0.5, 1, 1, 1.5];
+        yield 'test height/width/length: 1, 0.5, 0.5' => [1, 0.5, 0.5, 0.75];
+        yield 'test height/width/length: 1, 0.5, 1' => [1, 0.5, 1, 1.5];
+        yield 'test height/width/length: 1, 1, 0.5' => [1, 1, 0.5, 1.5];
+        yield 'test height/width/length: 0, 0, 0' => [0, 0, 0, 0];
+        yield 'test height/width/length: 0, 0, 1' => [0, 0, 1, 0];
+        yield 'test height/width/length: 0, 1, 0' => [0, 1, 0, 0];
+        yield 'test height/width/length: 0, 1, 1' => [0, 1, 1, 0];
+        yield 'test height/width/length: 1, 0, 0' => [1, 0, 0, 0];
+        yield 'test height/width/length: 1, 0, 1' => [1, 0, 1, 0];
+        yield 'test height/width/length: 1, 1, 0' => [1, 1, 0, 0];
+        yield 'test height/width/length: 1, 1, 1' => [1, 1, 1, 3];
+        yield 'test height/width/length: null, null, null' => [null, null, null, 0];
+        yield 'test height/width/length: null, null, 1' => [null, null, 1, 0];
+        yield 'test height/width/length: null, 1, null' => [null, 1, null, 0];
+        yield 'test height/width/length: null, 1, 1' => [null, 1, 1, 0];
+        yield 'test height/width/length: 1, null, null' => [1, null, null, 0];
+        yield 'test height/width/length: 1, null, 1' => [1, null, 1, 0];
+        yield 'test height/width/length: 1, 1, null' => [1, 1, null, 0];
     }
 
     private function getLineItem(

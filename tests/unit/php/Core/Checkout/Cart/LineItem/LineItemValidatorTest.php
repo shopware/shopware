@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\LineItem;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @covers \Shopware\Core\Checkout\Cart\LineItem\LineItemValidator
+ *
  * @internal
  */
 #[Package('checkout')]

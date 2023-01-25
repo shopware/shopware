@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StockUpdate;
+namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer\StockUpdate;
 
 use Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\AbstractStockUpdateFilter;
 use Shopware\Core\Framework\Context;

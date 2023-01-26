@@ -5,10 +5,9 @@
 [![Latest Stable Version](https://poser.pugx.org/shopware/platform/v/stable)](https://packagist.org/packages/shopware/platform)
 [![Total Downloads](https://poser.pugx.org/shopware/platform/downloads)](https://packagist.org/packages/shopware/platform)
 [![Crowdin](https://badges.crowdin.net/shopware6/localized.svg)](https://translate.shopware.com/project/shopware6)
-[![License](https://img.shields.io/github/license/shopware/platform.svg)](https://github.com/shopware/platform/blob/trunk/license.txt)
+[![License](https://img.shields.io/github/license/shopware/platform.svg)](https://github.com/shopware/platform/blob/trunk/LICENSE)
 [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/shopware/platform.svg)](https://github.com/shopware/platform/pulls)
 [![Slack](https://img.shields.io/badge/chat-on%20slack-%23ECB22E)](https://slack.shopware.com?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-[![Development Template](https://img.shields.io/badge/start%20with-shopware%2Fdevelopment-blue.svg)](https://github.com/shopware/development)
 
 </div>
 

@@ -127,9 +127,8 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_customer_card_metadata_customer_name_editor_company %}
                             <sw-text-field
-                                v-if="isBusinessAccountType"
                                 v-model="customer.company"
-                                required
+                                :required="isBusinessAccountType"
                                 :error="customerCompanyError"
                                 :label="$tc('sw-customer.card.labelCompany')"
                                 :placeholder="$tc('sw-customer.card.placeholderCompany')"
@@ -186,6 +185,7 @@
                             v-if="editMode"
                             v-model="customer.passwordNew"
                             autocomplete="new-password"
+                            :disabled="customer.guest"
                             :label="$tc('sw-profile.index.labelNewPassword')"
                             :placeholder="$tc('sw-customer.card.placeholderNewPassword')"
                             :error="customerPasswordError"
@@ -198,8 +198,10 @@
                             v-if="editMode"
                             v-model="customer.passwordConfirm"
                             autocomplete="new-password"
+                            :disabled="customer.guest"
                             :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
                             :placeholder="$tc('sw-customer.card.placeholderNewPasswordConfirm')"
+                            :error="customerPasswordConfirmError"
                         />
                         {% endblock %}
 

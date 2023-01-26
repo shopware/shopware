@@ -1,11 +1,13 @@
 import template from './sw-customer-base-info.html.twig';
 import './sw-customer-base-info.scss';
+import errorConfig from '../../error-config.json';
 
 /**
  * @package customer-order
  */
 
 const { Criteria } = Shopware.Data;
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -76,6 +78,11 @@ export default {
 
             return criteria;
         },
+
+        ...mapPropertyErrors(
+            'customer',
+            [...errorConfig['sw.customer.detail.base'].customer],
+        ),
     },
 
     watch: {

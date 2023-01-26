@@ -7916,11 +7916,6 @@ parameters:
 			path: src/Core/Content/Test/Media/MediaEntityTest.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\MediaEntityTest\\:\\:\\$repository \\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\) does not accept Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaRepositoryDecorator\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/MediaEntityTest.php
-
-		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getConfigurationId\\(\\)\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
@@ -9199,11 +9194,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Validator\\\\XmlValidatorTest\\:\\:createTestXmlFixture\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ProductExport/Validator/XmlValidatorTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\ProductStream\\\\DataAbstractionLayer\\\\ProductStreamIndexerTest\\:\\:\\$productStreamRepository \\(PHPUnit\\\\Framework\\\\MockObject\\\\MockObject&Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\) does not accept Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductStream/DataAbstractionLayer/ProductStreamIndexerTest.php
 
 		-
 			message: "#^Cannot call method filterByProperty\\(\\) on Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Aggregate\\\\ProductStreamFilter\\\\ProductStreamFilterCollection\\|null\\.$#"

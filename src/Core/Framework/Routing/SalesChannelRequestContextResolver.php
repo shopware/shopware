@@ -22,11 +22,6 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
     use RouteScopeCheckTrait;
 
     /**
-     * @var SalesChannelContext[]
-     */
-    private array $cache = [];
-
-    /**
      * @internal
      */
     public function __construct(
@@ -49,45 +44,35 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
             return;
         }
 
-        if (
-            $this->contextTokenRequired($request) === true
-            && !$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)
-        ) {
-            throw new MissingRequestParameterException(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        }
+        if (!$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
+            if ($this->contextTokenRequired($request)) {
+                throw new MissingRequestParameterException(PlatformRequest::HEADER_CONTEXT_TOKEN);
+            }
 
-        if (
-            $this->contextTokenRequired($request) === false
-            && !$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)
-        ) {
             $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Random::getAlphanumericString(32));
         }
 
-        $contextToken = $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
-        $language = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
-        $currencyId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID);
-        $domainId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID);
+        // Retrieve context for current request
+        $usedContextToken = (string) $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $contextServiceParameters = new SalesChannelContextServiceParameters(
+            (string) $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID),
+            $usedContextToken,
+            $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
+            $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID),
+            $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID)
+        );
+        $context = $this->contextService->get($contextServiceParameters);
 
-        $cacheKey = $salesChannelId . $contextToken . $language . $currencyId . $domainId;
-
-        if (!empty($this->cache[$cacheKey])) {
-            $context = $this->cache[$cacheKey];
-        } else {
-            $context = $this->contextService->get(
-                new SalesChannelContextServiceParameters((string) $salesChannelId, (string) $contextToken, $language, $currencyId, $domainId)
-            );
-            $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
-        }
-
+        // Validate if a customer login is required for the current request
         $this->validateLogin($request, $context);
 
+        // Update attributes and headers of the current request
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
         $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
 
         $this->eventDispatcher->dispatch(
-            new SalesChannelContextResolvedEvent($context, (string) $contextToken)
+            new SalesChannelContextResolvedEvent($context, $usedContextToken)
         );
     }
 
@@ -110,7 +95,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
 
     private function contextTokenRequired(Request $request): bool
     {
-        return $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED, false);
+        return (bool) $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED, false);
     }
 
     private function validateLogin(Request $request, SalesChannelContext $context): void

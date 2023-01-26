@@ -2,6 +2,10 @@
  * @package admin
  */
 
+// @deprecated tag:v6.5.0 - the import of the regenerator runtime will be removed
+// eslint-disable-next-line import/no-extraneous-dependencies
+import 'regenerator-runtime/runtime';
+
 /** Initializer */
 import initializers from 'src/app/init';
 import preInitializer from 'src/app/init-pre/';

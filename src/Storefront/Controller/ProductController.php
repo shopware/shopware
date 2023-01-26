@@ -24,7 +24,6 @@ use Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -108,13 +107,10 @@ class ProductController extends StorefrontController
             $salesChannelContext
         );
 
-        $response = new JsonResponse([
+        return new JsonResponse([
             'url' => $url,
             'productId' => $productId,
         ]);
-        $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
-
-        return $response;
     }
 
     #[Route(path: '/quickview/{productId}', name: 'widgets.quickview.minimal', defaults: ['XmlHttpRequest' => true], methods: ['GET'])]

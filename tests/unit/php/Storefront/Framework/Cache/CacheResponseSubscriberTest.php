@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -45,6 +46,7 @@ class CacheResponseSubscriberTest extends TestCase
             KernelEvents::REQUEST => 'addHttpCacheToCoreRoutes',
             KernelEvents::RESPONSE => [
                 ['setResponseCache', -1500],
+                ['setResponseCacheHeader', 1500],
             ],
             BeforeSendResponseEvent::class => 'updateCacheControlForBrowser',
         ];
@@ -84,6 +86,93 @@ class CacheResponseSubscriberTest extends TestCase
         $subscriber->setResponseCache($event);
 
         static::assertSame($expectedHeaders, $response->headers->all());
+    }
+
+    public function testNoAutoCacheControlHeader(): void
+    {
+        $subscriber = new CacheResponseSubscriber(
+            $this->createMock(CartService::class),
+            100,
+            true,
+            new MaintenanceModeResolver(new RequestStack()),
+            false,
+            null,
+            null
+        );
+
+        $request = new Request();
+        $request->attributes->add([PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]);
+
+        $response = new Response();
+
+        $event = new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        );
+
+        $subscriber->setResponseCacheHeader($event);
+
+        static::assertSame('1', $event->getResponse()->headers->get(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER));
+    }
+
+    public function testNoAutoCacheControlHeaderCacheDisabled(): void
+    {
+        $subscriber = new CacheResponseSubscriber(
+            $this->createMock(CartService::class),
+            100,
+            false,
+            new MaintenanceModeResolver(new RequestStack()),
+            false,
+            null,
+            null
+        );
+
+        $request = new Request();
+        $request->attributes->add([PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]);
+
+        $response = new Response();
+
+        $event = new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        );
+
+        $subscriber->setResponseCacheHeader($event);
+
+        static::assertNull($event->getResponse()->headers->get(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER));
+    }
+
+    public function testNoAutoCacheControlHeaderNoHttpCacheRoute(): void
+    {
+        $subscriber = new CacheResponseSubscriber(
+            $this->createMock(CartService::class),
+            100,
+            true,
+            new MaintenanceModeResolver(new RequestStack()),
+            false,
+            null,
+            null
+        );
+
+        $request = new Request();
+        $request->attributes->add([PlatformRequest::ATTRIBUTE_HTTP_CACHE => false]);
+
+        $response = new Response();
+
+        $event = new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        );
+
+        $subscriber->setResponseCacheHeader($event);
+
+        static::assertNull($event->getResponse()->headers->get(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER));
     }
 
     /**

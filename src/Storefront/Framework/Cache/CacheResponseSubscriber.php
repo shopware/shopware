@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
@@ -60,6 +61,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             KernelEvents::REQUEST => 'addHttpCacheToCoreRoutes',
             KernelEvents::RESPONSE => [
                 ['setResponseCache', -1500],
+                ['setResponseCacheHeader', 1500],
             ],
             BeforeSendResponseEvent::class => 'updateCacheControlForBrowser',
         ];
@@ -153,6 +155,25 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         if ($this->staleWhileRevalidate !== null) {
             $response->headers->addCacheControlDirective('stale-while-revalidate', $this->staleWhileRevalidate);
         }
+    }
+
+    public function setResponseCacheHeader(ResponseEvent $event): void
+    {
+        if (!$this->httpCacheEnabled) {
+            return;
+        }
+
+        $response = $event->getResponse();
+
+        $request = $event->getRequest();
+
+        /** @var bool|array{maxAge?: int, states?: list<string>}|null $cache */
+        $cache = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
+        if (!$cache) {
+            return;
+        }
+
+        $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
     }
 
     /**

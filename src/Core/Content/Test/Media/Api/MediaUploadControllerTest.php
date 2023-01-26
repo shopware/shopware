@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
+ * @covers \Shopware\Core\Content\Media\Api\MediaUploadController
  * @group needsWebserver
  */
 class MediaUploadControllerTest extends TestCase

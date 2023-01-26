@@ -6,11 +6,10 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\MediaUploadedAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package content
- */
+#[Package('content')]
 class MediaUploadedEvent extends Event implements MediaUploadedAware
 {
     public const EVENT_NAME = 'media.uploaded';

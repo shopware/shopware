@@ -26,7 +26,7 @@ class ShippingMethodEntity extends Entity
     final public const TAX_TYPE_FIXED = 'fixed';
     final public const TAX_TYPE_HIGHEST = 'highest';
     final public const POSITION_DEFAULT = 1;
-    final public const ACTIVE_DEFAULT = true;
+    final public const ACTIVE_DEFAULT = false;
 
     /**
      * @var string|null

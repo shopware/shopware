@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryForwardCompatibilityDecorator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -80,6 +81,19 @@ class EntityCompilerPass implements CompilerPassInterface
             $repository->setPublic(true);
             $container->registerAliasForArgument($repositoryId, EntityRepositoryInterface::class);
             $container->registerAliasForArgument($repositoryId, EntityRepository::class);
+
+            $decorator = new Definition(
+                EntityRepositoryForwardCompatibilityDecorator::class,
+                [
+                    new Reference($repositoryId . '.inner'),
+                ]
+            );
+            $decorator->setDecoratedService(
+                $repositoryId,
+                $repositoryId . '.inner',
+                \PHP_INT_MIN
+            );
+            $container->setDefinition($repositoryId . '.decorator', $decorator);
 
             $repositoryNameMap[$entity] = $repositoryId;
         }

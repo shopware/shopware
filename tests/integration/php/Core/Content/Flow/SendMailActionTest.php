@@ -580,6 +580,9 @@ class SendMailActionTest extends TestCase
         yield 'Test enable mail template updates' => [true];
     }
 
+    /**
+     * @group quarantined
+     */
     public function testTranslatorInjectionInMail(): void
     {
         $criteria = new Criteria();

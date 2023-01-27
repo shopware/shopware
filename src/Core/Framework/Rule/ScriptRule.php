@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension;
+use Shopware\Core\Framework\Adapter\Twig\Extension\PcreExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
+use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
 use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\App\Event\Hooks\AppScriptConditionHook;
@@ -88,6 +90,9 @@ class ScriptRule extends Rule
 
         $twig->addExtension(new PhpSyntaxExtension());
         $twig->addExtension(new ComparisonExtension());
+        $twig->addExtension(new PcreExtension());
+        $twig->addExtension(new ReplaceRecursiveFilter());
+
         if ($this->debug) {
             $twig->addExtension(new DebugExtension());
         }

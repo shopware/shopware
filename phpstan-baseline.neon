@@ -7317,15 +7317,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Adapter/Twig/Filter/CurrencyFilter.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Filter\\\\ReplaceRecursiveFilter\\:\\:replaceRecursive\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/Filter/ReplaceRecursiveFilter.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Filter\\\\ReplaceRecursiveFilter\\:\\:replaceRecursive\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/Filter/ReplaceRecursiveFilter.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\NamespaceHierarchy\\\\BundleHierarchyBuilder\\:\\:getAppTemplateNamespaces\\(\\) return type has no value type specified in iterable type array\\.$#"

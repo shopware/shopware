@@ -4,7 +4,9 @@ namespace Shopware\Core\Framework\Script\Execution;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\Twig\Extension\PcreExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
+use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
 use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\App\Event\Hooks\AppLifecycleHook;
@@ -142,6 +144,8 @@ class ScriptExecutor
         $twig->addExtension(new PhpSyntaxExtension());
         $twig->addExtension($this->translationExtension);
         $twig->addExtension(new SecurityExtension([]));
+        $twig->addExtension(new PcreExtension());
+        $twig->addExtension(new ReplaceRecursiveFilter());
 
         if ($script->getTwigOptions()['debug'] ?? false) {
             $twig->addExtension(new DebugExtension());

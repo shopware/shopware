@@ -92,7 +92,7 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
                 /** @var ProductEntity $productEntity */
                 $productEntity = $resolverContext->getEntity();
 
-                if ($productEntity->getCoverId()) {
+                if ($productEntity->getCover()) {
                     /** @var ProductMediaCollection $sliderItems */
                     $sliderItems = new ProductMediaCollection(array_merge(
                         [$productEntity->getCoverId() => $productEntity->getCover()],
@@ -118,13 +118,16 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
         $sliderItems->sort(static fn (ProductMediaEntity $a, ProductMediaEntity $b) => $a->get('position') - $b->get('position'));
     }
 
+    /**
+     * @param array{url?: string, newTab?: bool, mediaId: string} $config
+     */
     private function addMedia(CmsSlotEntity $slot, ImageSliderStruct $imageSlider, ElementDataCollection $result, array $config): void
     {
         $imageSliderItem = new ImageSliderItemStruct();
 
         if (!empty($config['url'])) {
             $imageSliderItem->setUrl($config['url']);
-            $imageSliderItem->setNewTab($config['newTab']);
+            $imageSliderItem->setNewTab($config['newTab'] ?? false);
         }
 
         $searchResult = $result->get('media_' . $slot->getUniqueIdentifier());
@@ -142,6 +145,9 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
         $imageSlider->addSliderItem($imageSliderItem);
     }
 
+    /**
+     * @param array{fileName: string} $config
+     */
     private function addDefaultMediaToImageSlider(ImageSliderStruct $imageSlider, array $config): void
     {
         $media = $this->mediaResolver->getDefaultCmsMediaEntity($config['fileName']);

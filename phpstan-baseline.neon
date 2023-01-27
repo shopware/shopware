@@ -3621,16 +3621,6 @@ parameters:
 			path: src/Core/Content/Media/Api/MediaUploadController.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Cms\\\\Type\\\\ImageSliderTypeDataResolver\\:\\:addDefaultMediaToImageSlider\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Cms/Type/ImageSliderTypeDataResolver.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Cms\\\\Type\\\\ImageSliderTypeDataResolver\\:\\:addMedia\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Cms/Type/ImageSliderTypeDataResolver.php
-
-		-
 			message: "#^Parameter \\#2 \\$media of method Shopware\\\\Core\\\\Content\\\\Media\\\\Commands\\\\GenerateMediaTypesCommand\\:\\:detectMediaType\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Commands/GenerateMediaTypesCommand.php
@@ -5751,76 +5741,6 @@ parameters:
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getMediaThumbnailSizes\\(\\)\\.$#"
 			count: 2
 			path: src/Core/Content/Test/Media/Aggregate/MediaFolderConfigurationThumbnailSize/MediaFolderConfigurationMediaThumbnailSizeTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\:\\:getMedia\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Cannot call method all\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\CriteriaCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Cannot call method getFileExtension\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Cannot call method getFileName\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null\\.$#"
-			count: 7
-			path: src/Core/Content/Test/Media/Cms/Type/ImageSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Cannot call method getMimeType\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Constant Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Cms\\\\Type\\\\ImageSliderTypeDataResolverTest\\:\\:FIXTURES_DIRECTORY is unused\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Offset 0 might not exist on array\\<Shopware\\\\Core\\\\Content\\\\Cms\\\\SalesChannel\\\\Struct\\\\ImageSliderItemStruct\\>\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Offset 1 might not exist on array\\<Shopware\\\\Core\\\\Content\\\\Cms\\\\SalesChannel\\\\Struct\\\\ImageSliderItemStruct\\>\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Offset 2 might not exist on array\\<Shopware\\\\Core\\\\Content\\\\Cms\\\\SalesChannel\\\\Struct\\\\ImageSliderItemStruct\\>\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Offset 3 might not exist on array\\<Shopware\\\\Core\\\\Content\\\\Cms\\\\SalesChannel\\\\Struct\\\\ImageSliderItemStruct\\>\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Offset 4 might not exist on array\\<Shopware\\\\Core\\\\Content\\\\Cms\\\\SalesChannel\\\\Struct\\\\ImageSliderItemStruct\\>\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Offset int\\<0, 4\\> might not exist on array\\<Shopware\\\\Core\\\\Content\\\\Cms\\\\SalesChannel\\\\Struct\\\\ImageSliderItemStruct\\>\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\CriteriaCollection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageSliderTypeDataResolverTest.php
 
 		-
 			message: "#^Cannot call method all\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\CriteriaCollection\\|null\\.$#"

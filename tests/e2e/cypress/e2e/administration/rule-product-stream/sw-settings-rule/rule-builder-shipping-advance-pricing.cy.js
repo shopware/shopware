@@ -90,6 +90,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
         cy.url().should('include', 'settings/shipping/index');
         cy.get('a[href="#/sw/settings/shipping/create"]').click();
         cy.get('input[name=sw-field--shippingMethod-name]').typeAndCheck('Shipping to Netherlands');
+        cy.get('input[name=sw-field--shippingMethod-active]').check();
         cy.get('.sw-settings-shipping-detail__delivery-time').typeSingleSelectAndCheck(
             '1-3 days',
             '.sw-settings-shipping-detail__delivery-time',

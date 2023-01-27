@@ -147,6 +147,10 @@
             </sw-card>
         </template>
 
+        <sw-extension-component-section
+            position-identifier="sw-chart-card__before"
+        />
+
         <template v-if="hasOrderInMonth">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_dashboard_statistics_count %}
@@ -159,6 +163,7 @@
                 :fill-empty-values="ordersDateRange.aggregate"
                 type="line"
                 sort
+                position-identifier="sw-chart-card__statistics-count"
                 @sw-chart-card-range-update="onOrdersRangeUpdate"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -188,6 +193,7 @@
                 :fill-empty-values="turnoverDateRange.aggregate"
                 type="line"
                 sort
+                position-identifier="sw-chart-card__statistics-sum"
                 @sw-chart-card-range-update="onTurnoverRangeUpdate"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -210,6 +216,10 @@
             </sw-chart-card>
             {% endblock %}
         </template>
+
+        <sw-extension-component-section
+            position-identifier="sw-chart-card__after"
+        />
     </template>
 </div>
 {% endblock %}

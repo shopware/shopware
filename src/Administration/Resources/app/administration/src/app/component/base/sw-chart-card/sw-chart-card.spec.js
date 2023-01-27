@@ -10,6 +10,9 @@ async function createWrapper(additionalOptions = {}) {
 
     return shallowMount(await Shopware.Component.build('sw-chart-card'), {
         localVue,
+        propsData: {
+            positionIdentifier: 'sw-chart-card__statistics-count',
+        },
         stubs: {
             'sw-card': true,
             'sw-select-field': true,
@@ -39,5 +42,18 @@ describe('src/app/component/base/sw-chart-card', () => {
         wrapper.vm.dispatchRangeUpdate();
 
         expect(wrapper.vm.$emit).toBeCalledWith(expectedEvent, expectedValue);
+    });
+
+    it('should set the correct the position identifier from the prop to the card', async () => {
+        const wrapper = await createWrapper();
+        const swCard = wrapper.find('sw-card-stub');
+
+        expect(swCard.attributes('position-identifier')).toBe('sw-chart-card__statistics-count');
+
+        await wrapper.setProps({
+            positionIdentifier: 'sw-dashboard-statistics__statistics-sum'
+        });
+
+        expect(swCard.attributes('position-identifier')).toBe('sw-dashboard-statistics__statistics-sum');
     });
 });

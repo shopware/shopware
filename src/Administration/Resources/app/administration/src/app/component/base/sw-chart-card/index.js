@@ -24,10 +24,22 @@ Shopware.Component.register('sw-chart-card', {
             default: () => {
                 return defaultRanges;
             },
+            required: false,
+        },
+        cardTitle: {
+            type: String,
+            default: '',
+            required: false,
         },
         cardSubtitle: {
             type: String,
             default: '',
+            required: false,
+        },
+        positionIdentifier: {
+            type: String,
+            default: '',
+            required: true,
         },
     },
     data() {

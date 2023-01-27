@@ -35,8 +35,13 @@ class CartMigrateCommand extends Command
      *
      * @param \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy|null $redis
      */
-    public function __construct(protected $redis, protected Connection $connection, private readonly bool $compress, private readonly int $expireDays, private readonly RedisConnectionFactory $factory)
-    {
+    public function __construct(
+        protected $redis,
+        protected Connection $connection,
+        private readonly bool $compress,
+        private readonly int $expireDays,
+        private readonly RedisConnectionFactory $factory
+    ) {
         parent::__construct();
     }
 

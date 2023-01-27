@@ -35,8 +35,13 @@ class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly FlowPayloadUpdater $payloadUpdater, private readonly EventDispatcherInterface $eventDispatcher, private readonly MessageBusInterface $messageBus)
-    {
+    public function __construct(
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly FlowPayloadUpdater $payloadUpdater,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly MessageBusInterface $messageBus
+    ) {
     }
 
     public function getName(): string

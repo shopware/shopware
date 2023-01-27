@@ -21,8 +21,10 @@ class WishlistMergedEvent extends Event implements ShopwareSalesChannelEvent
      */
     protected $context;
 
-    public function __construct(array $product, SalesChannelContext $context)
-    {
+    public function __construct(
+        array $product,
+        SalesChannelContext $context
+    ) {
         $this->products = $product;
         $this->context = $context;
     }

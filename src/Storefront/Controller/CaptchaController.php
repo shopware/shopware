@@ -24,8 +24,10 @@ class CaptchaController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractBasicCaptchaPageletLoader $basicCaptchaPageletLoader, private readonly AbstractCaptcha $basicCaptcha)
-    {
+    public function __construct(
+        private readonly AbstractBasicCaptchaPageletLoader $basicCaptchaPageletLoader,
+        private readonly AbstractCaptcha $basicCaptcha
+    ) {
     }
 
     #[Route(path: '/basic-captcha', name: 'frontend.captcha.basic-captcha.load', defaults: ['XmlHttpRequest' => true], methods: ['GET'])]

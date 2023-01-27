@@ -14,8 +14,10 @@ class GuestWishlistPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly GenericPageLoaderInterface $genericPageLoader, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly GenericPageLoaderInterface $genericPageLoader,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function load(Request $request, SalesChannelContext $context): GuestWishlistPage

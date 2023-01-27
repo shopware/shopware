@@ -21,8 +21,10 @@ class LoadWishlistRouteResponse extends StoreApiResponse
      */
     protected $productListing;
 
-    public function __construct(CustomerWishlistEntity $wishlist, EntitySearchResult $listing)
-    {
+    public function __construct(
+        CustomerWishlistEntity $wishlist,
+        EntitySearchResult $listing
+    ) {
         $this->wishlist = $wishlist;
         $this->productListing = $listing;
         parent::__construct(new ArrayStruct([

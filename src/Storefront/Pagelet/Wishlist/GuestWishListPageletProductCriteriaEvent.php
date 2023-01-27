@@ -13,8 +13,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('storefront')]
 class GuestWishListPageletProductCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    public function __construct(private readonly Criteria $criteria, private readonly SalesChannelContext $salesChannelContext, private readonly Request $request)
-    {
+    public function __construct(
+        private readonly Criteria $criteria,
+        private readonly SalesChannelContext $salesChannelContext,
+        private readonly Request $request
+    ) {
     }
 
     public function getCriteria(): Criteria

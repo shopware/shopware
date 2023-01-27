@@ -23,8 +23,11 @@ class PaymentRefundProcessor
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly OrderTransactionCaptureRefundStateHandler $stateHandler, private readonly PaymentHandlerRegistry $paymentHandlerRegistry)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly OrderTransactionCaptureRefundStateHandler $stateHandler,
+        private readonly PaymentHandlerRegistry $paymentHandlerRegistry
+    ) {
     }
 
     public function processRefund(string $refundId, Context $context): void

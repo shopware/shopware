@@ -8,8 +8,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class RuleLoaderResult
 {
-    public function __construct(private readonly Cart $cart, private readonly RuleCollection $matchingRules)
-    {
+    public function __construct(
+        private readonly Cart $cart,
+        private readonly RuleCollection $matchingRules
+    ) {
     }
 
     public function getCart(): Cart

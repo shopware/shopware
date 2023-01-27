@@ -27,8 +27,11 @@ class LineItemFactoryRegistry
      *
      * @internal
      */
-    public function __construct(private readonly iterable $handlers, private readonly DataValidator $validator, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly iterable $handlers,
+        private readonly DataValidator $validator,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
         $this->validatorDefinition = $this->createValidatorDefinition();
     }
 

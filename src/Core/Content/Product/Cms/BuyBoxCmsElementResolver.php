@@ -24,8 +24,10 @@ class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
     /**
      * @internal
      */
-    public function __construct(private readonly ProductConfiguratorLoader $configuratorLoader, private readonly EntityRepository $repository)
-    {
+    public function __construct(
+        private readonly ProductConfiguratorLoader $configuratorLoader,
+        private readonly EntityRepository $repository
+    ) {
     }
 
     public function getType(): string

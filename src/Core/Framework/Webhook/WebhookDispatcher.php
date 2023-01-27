@@ -45,8 +45,17 @@ class WebhookDispatcher implements EventDispatcherInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $dispatcher, private readonly Connection $connection, private readonly Client $guzzle, private readonly string $shopUrl, private readonly ContainerInterface $container, private readonly HookableEventFactory $eventFactory, private readonly string $shopwareVersion, private readonly MessageBusInterface $bus, private readonly bool $isAdminWorkerEnabled)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly Connection $connection,
+        private readonly Client $guzzle,
+        private readonly string $shopUrl,
+        private readonly ContainerInterface $container,
+        private readonly HookableEventFactory $eventFactory,
+        private readonly string $shopwareVersion,
+        private readonly MessageBusInterface $bus,
+        private readonly bool $isAdminWorkerEnabled
+    ) {
     }
 
     public function dispatch(object $event, ?string $eventName = null): object

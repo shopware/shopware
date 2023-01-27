@@ -15,8 +15,12 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
 #[Package('core')]
 final class HandshakeFactory
 {
-    public function __construct(private readonly string $shopUrl, private readonly ShopIdProvider $shopIdProvider, private readonly StoreClient $storeClient, private readonly string $shopwareVersion)
-    {
+    public function __construct(
+        private readonly string $shopUrl,
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly StoreClient $storeClient,
+        private readonly string $shopwareVersion
+    ) {
     }
 
     public function create(Manifest $manifest): AppHandshakeInterface

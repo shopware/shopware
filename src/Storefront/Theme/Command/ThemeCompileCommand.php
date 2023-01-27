@@ -25,8 +25,10 @@ class ThemeCompileCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly ThemeService $themeService, private readonly AbstractAvailableThemeProvider $themeProvider)
-    {
+    public function __construct(
+        private readonly ThemeService $themeService,
+        private readonly AbstractAvailableThemeProvider $themeProvider
+    ) {
         parent::__construct();
     }
 

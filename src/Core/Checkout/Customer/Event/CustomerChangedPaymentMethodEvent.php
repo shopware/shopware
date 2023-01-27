@@ -22,8 +22,11 @@ class CustomerChangedPaymentMethodEvent extends Event implements SalesChannelAwa
 {
     final public const EVENT_NAME = 'checkout.customer.changed-payment-method';
 
-    public function __construct(private readonly SalesChannelContext $salesChannelContext, private readonly CustomerEntity $customer, private readonly RequestDataBag $requestDataBag)
-    {
+    public function __construct(
+        private readonly SalesChannelContext $salesChannelContext,
+        private readonly CustomerEntity $customer,
+        private readonly RequestDataBag $requestDataBag
+    ) {
     }
 
     public function getName(): string

@@ -19,8 +19,11 @@ class LineItemPurchasePriceRule extends Rule
     /**
      * @internal
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?float $amount = null, protected bool $isNet = true)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?float $amount = null,
+        protected bool $isNet = true
+    ) {
         parent::__construct();
     }
 

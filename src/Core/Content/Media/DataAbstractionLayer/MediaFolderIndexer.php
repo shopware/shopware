@@ -27,8 +27,14 @@ class MediaFolderIndexer extends EntityIndexer
     /**
      * @internal
      */
-    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $folderRepository, private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher, private readonly ChildCountUpdater $childCountUpdater, private readonly TreeUpdater $treeUpdater)
-    {
+    public function __construct(
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $folderRepository,
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ChildCountUpdater $childCountUpdater,
+        private readonly TreeUpdater $treeUpdater
+    ) {
     }
 
     public function getName(): string

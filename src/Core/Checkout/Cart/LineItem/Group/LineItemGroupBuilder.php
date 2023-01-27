@@ -16,8 +16,12 @@ class LineItemGroupBuilder
     /**
      * @internal
      */
-    public function __construct(private readonly LineItemGroupServiceRegistry $registry, private readonly LineItemGroupRuleMatcherInterface $ruleMatcher, private readonly LineItemQuantitySplitter $quantitySplitter, private readonly AbstractProductLineItemProvider $lineItemProvider)
-    {
+    public function __construct(
+        private readonly LineItemGroupServiceRegistry $registry,
+        private readonly LineItemGroupRuleMatcherInterface $ruleMatcher,
+        private readonly LineItemQuantitySplitter $quantitySplitter,
+        private readonly AbstractProductLineItemProvider $lineItemProvider
+    ) {
     }
 
     /**

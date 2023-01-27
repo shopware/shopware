@@ -44,8 +44,10 @@ class Record implements \JsonSerializable
      */
     protected $meta;
 
-    public function __construct(string $id = '', string $type = '')
-    {
+    public function __construct(
+        string $id = '',
+        string $type = ''
+    ) {
         $this->id = $id;
         $this->type = $type;
     }

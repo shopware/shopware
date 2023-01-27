@@ -24,8 +24,11 @@ class ValidResult
      * @param int   $total
      * @param array $args
      */
-    public function __construct($offset, $total, $args = [])
-    {
+    public function __construct(
+        $offset,
+        $total,
+        $args = []
+    ) {
         $this->offset = (int) $offset;
         $this->total = (int) $total;
         $this->args = $args;

@@ -27,8 +27,10 @@ class InstallerKernel extends HttpKernel
 
     private readonly ?string $shopwareVersionRevision;
 
-    public function __construct(string $environment, bool $debug)
-    {
+    public function __construct(
+        string $environment,
+        bool $debug
+    ) {
         parent::__construct($environment, $debug);
 
         // @codeCoverageIgnoreStart - not testable, as static calls cannot be mocked

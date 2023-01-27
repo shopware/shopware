@@ -34,8 +34,15 @@ class AccountEditOrderPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractOrderRoute $orderRoute, private readonly RequestCriteriaBuilder $requestCriteriaBuilder, private readonly AbstractPaymentMethodRoute $paymentMethodRoute, private readonly OrderConverter $orderConverter, private readonly OrderService $orderService)
-    {
+    public function __construct(
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractOrderRoute $orderRoute,
+        private readonly RequestCriteriaBuilder $requestCriteriaBuilder,
+        private readonly AbstractPaymentMethodRoute $paymentMethodRoute,
+        private readonly OrderConverter $orderConverter,
+        private readonly OrderService $orderService
+    ) {
     }
 
     /**

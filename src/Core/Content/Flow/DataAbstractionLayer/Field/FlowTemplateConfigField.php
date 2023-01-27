@@ -12,8 +12,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('business-ops')]
 class FlowTemplateConfigField extends JsonField
 {
-    public function __construct(string $storageName, string $propertyName)
-    {
+    public function __construct(
+        string $storageName,
+        string $propertyName
+    ) {
         $this->storageName = $storageName;
         parent::__construct($storageName, $propertyName);
     }

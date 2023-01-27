@@ -47,8 +47,14 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     /**
      * @internal
      */
-    public function __construct(private readonly ProductGatewayInterface $productGateway, private readonly QuantityPriceCalculator $calculator, private readonly ProductFeatureBuilder $featureBuilder, private readonly AbstractProductPriceCalculator $priceCalculator, private readonly EntityCacheKeyGenerator $generator, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly ProductGatewayInterface $productGateway,
+        private readonly QuantityPriceCalculator $calculator,
+        private readonly ProductFeatureBuilder $featureBuilder,
+        private readonly AbstractProductPriceCalculator $priceCalculator,
+        private readonly EntityCacheKeyGenerator $generator,
+        private readonly Connection $connection
+    ) {
     }
 
     public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void

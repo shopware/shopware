@@ -28,8 +28,11 @@ class PluginZipImportCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly PluginManagementService $pluginManagementService, private readonly PluginService $pluginService, protected CacheClearer $cacheClearer)
-    {
+    public function __construct(
+        private readonly PluginManagementService $pluginManagementService,
+        private readonly PluginService $pluginService,
+        protected CacheClearer $cacheClearer
+    ) {
         parent::__construct();
     }
 

@@ -28,8 +28,14 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
      * @param AbstractCacheTracer<ProductDetailRouteResponse> $tracer
      * @param array<string, string> $states
      */
-    public function __construct(private readonly AbstractProductDetailRoute $decorated, private readonly CacheInterface $cache, private readonly EntityCacheKeyGenerator $generator, private readonly AbstractCacheTracer $tracer, private readonly EventDispatcherInterface $dispatcher, private readonly array $states)
-    {
+    public function __construct(
+        private readonly AbstractProductDetailRoute $decorated,
+        private readonly CacheInterface $cache,
+        private readonly EntityCacheKeyGenerator $generator,
+        private readonly AbstractCacheTracer $tracer,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly array $states
+    ) {
     }
 
     public function getDecorated(): AbstractProductDetailRoute

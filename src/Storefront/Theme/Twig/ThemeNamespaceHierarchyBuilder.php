@@ -28,8 +28,10 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
     /**
      * @internal
      */
-    public function __construct(private readonly ThemeInheritanceBuilderInterface $themeInheritanceBuilder, private readonly SalesChannelThemeLoader $salesChannelThemeLoader)
-    {
+    public function __construct(
+        private readonly ThemeInheritanceBuilderInterface $themeInheritanceBuilder,
+        private readonly SalesChannelThemeLoader $salesChannelThemeLoader
+    ) {
     }
 
     /**

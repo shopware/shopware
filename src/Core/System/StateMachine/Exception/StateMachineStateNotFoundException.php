@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('checkout')]
 class StateMachineStateNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $stateMachineName, string $technicalPlaceName)
-    {
+    public function __construct(
+        string $stateMachineName,
+        string $technicalPlaceName
+    ) {
         parent::__construct(
             'The place "{{ place }}" for state machine named "{{ stateMachine }}" was not found.',
             [

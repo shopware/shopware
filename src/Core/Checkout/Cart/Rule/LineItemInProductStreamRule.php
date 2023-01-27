@@ -23,8 +23,10 @@ class LineItemInProductStreamRule extends Rule
      *
      * @param list<string> $streamIds
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected array $streamIds = [])
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected array $streamIds = []
+    ) {
         parent::__construct();
     }
 

@@ -22,8 +22,10 @@ class StructEncoder
     /**
      * @internal
      */
-    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly NormalizerInterface $serializer)
-    {
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly NormalizerInterface $serializer
+    ) {
     }
 
     public function encode(Struct $struct, ResponseFields $fields): array

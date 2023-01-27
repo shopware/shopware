@@ -121,8 +121,10 @@ class DefinitionValidator
     /**
      * @internal
      */
-    public function __construct(private readonly DefinitionInstanceRegistry $registry, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly Connection $connection
+    ) {
         $this->connection->getEventManager()->addEventListener(Events::onSchemaIndexDefinition, new SchemaIndexListener());
     }
 

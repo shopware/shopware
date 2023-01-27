@@ -31,8 +31,18 @@ class ImportExportFactory
      * @param \IteratorAggregate<mixed, AbstractWriterFactory> $writerFactories
      * @param \IteratorAggregate<mixed, AbstractPipeFactory> $pipeFactories
      */
-    public function __construct(private readonly ImportExportService $importExportService, private readonly DefinitionInstanceRegistry $definitionInstanceRegistry, private readonly FilesystemOperator $filesystem, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityRepository $logRepository, private readonly Connection $connection, private readonly AbstractFileService $fileService, private readonly \IteratorAggregate $readerFactories, private readonly \IteratorAggregate $writerFactories, private readonly \IteratorAggregate $pipeFactories)
-    {
+    public function __construct(
+        private readonly ImportExportService $importExportService,
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly FilesystemOperator $filesystem,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $logRepository,
+        private readonly Connection $connection,
+        private readonly AbstractFileService $fileService,
+        private readonly \IteratorAggregate $readerFactories,
+        private readonly \IteratorAggregate $writerFactories,
+        private readonly \IteratorAggregate $pipeFactories
+    ) {
     }
 
     public function create(string $logId, int $importBatchSize = 250, int $exportBatchSize = 250): ImportExport

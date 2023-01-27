@@ -15,8 +15,10 @@ class CacheIdLoader
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly ?CacheItemPoolInterface $restartSignalCachePool = null)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ?CacheItemPoolInterface $restartSignalCachePool = null
+    ) {
     }
 
     public function load(): string

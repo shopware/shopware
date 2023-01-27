@@ -25,8 +25,12 @@ class ElasticsearchResetCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly Client $client, private readonly ElasticsearchOutdatedIndexDetector $detector, private readonly Connection $connection, private readonly IncrementGatewayRegistry $gatewayRegistry)
-    {
+    public function __construct(
+        private readonly Client $client,
+        private readonly ElasticsearchOutdatedIndexDetector $detector,
+        private readonly Connection $connection,
+        private readonly IncrementGatewayRegistry $gatewayRegistry
+    ) {
         parent::__construct();
     }
 

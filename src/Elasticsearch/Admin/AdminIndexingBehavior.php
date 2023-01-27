@@ -11,8 +11,11 @@ class AdminIndexingBehavior
      * @param array<int, string|null> $skipEntities
      * @param array<int, string|null> $onlyEntities
      */
-    public function __construct(protected bool $noQueue = false, protected array $skipEntities = [], private readonly array $onlyEntities = [])
-    {
+    public function __construct(
+        protected bool $noQueue = false,
+        protected array $skipEntities = [],
+        private readonly array $onlyEntities = []
+    ) {
     }
 
     public function getNoQueue(): bool

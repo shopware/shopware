@@ -17,8 +17,10 @@ class CategoryUrlExtension extends AbstractExtension
     /**
      * @internal
      */
-    public function __construct(private readonly RoutingExtension $routingExtension, private readonly AbstractCategoryUrlGenerator $categoryUrlGenerator)
-    {
+    public function __construct(
+        private readonly RoutingExtension $routingExtension,
+        private readonly AbstractCategoryUrlGenerator $categoryUrlGenerator
+    ) {
     }
 
     public function getFunctions(): array

@@ -23,8 +23,11 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly CartCalculator $cartCalculator, private readonly AbstractCartPersister $cartPersister)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CartCalculator $cartCalculator,
+        private readonly AbstractCartPersister $cartPersister
+    ) {
     }
 
     public function getDecorated(): AbstractCartItemRemoveRoute

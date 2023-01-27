@@ -34,8 +34,10 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
     /**
      * @internal
      */
-    public function __construct(private readonly ProductStreamBuilderInterface $productStreamBuilder, private readonly SystemConfigService $systemConfigService)
-    {
+    public function __construct(
+        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly SystemConfigService $systemConfigService
+    ) {
     }
 
     public function getType(): string

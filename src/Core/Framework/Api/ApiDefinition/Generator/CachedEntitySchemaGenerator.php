@@ -16,8 +16,10 @@ class CachedEntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 {
     final public const CACHE_KEY = 'core_framework_api_entity_schema';
 
-    public function __construct(private readonly EntitySchemaGenerator $innerService, private readonly CacheInterface $cache)
-    {
+    public function __construct(
+        private readonly EntitySchemaGenerator $innerService,
+        private readonly CacheInterface $cache
+    ) {
     }
 
     public function supports(string $format, string $api): bool

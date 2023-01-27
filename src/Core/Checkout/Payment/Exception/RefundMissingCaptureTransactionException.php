@@ -7,8 +7,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class RefundMissingCaptureTransactionException extends PaymentProcessException
 {
-    public function __construct(string $refundId, ?\Throwable $e = null)
-    {
+    public function __construct(
+        string $refundId,
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             $refundId,
             'The refund with id {{ refundId }} has no capture transaction associated',

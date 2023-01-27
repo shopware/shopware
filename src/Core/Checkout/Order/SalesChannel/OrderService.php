@@ -47,8 +47,14 @@ class OrderService
     /**
      * @internal
      */
-    public function __construct(private readonly DataValidator $dataValidator, private readonly DataValidationFactoryInterface $orderValidationFactory, private readonly EventDispatcherInterface $eventDispatcher, private readonly CartService $cartService, private readonly EntityRepository $paymentMethodRepository, private readonly StateMachineRegistry $stateMachineRegistry)
-    {
+    public function __construct(
+        private readonly DataValidator $dataValidator,
+        private readonly DataValidationFactoryInterface $orderValidationFactory,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CartService $cartService,
+        private readonly EntityRepository $paymentMethodRepository,
+        private readonly StateMachineRegistry $stateMachineRegistry
+    ) {
     }
 
     /**

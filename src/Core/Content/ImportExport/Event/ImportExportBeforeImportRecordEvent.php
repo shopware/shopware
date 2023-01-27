@@ -10,8 +10,12 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('system-settings')]
 class ImportExportBeforeImportRecordEvent extends Event
 {
-    public function __construct(private array $record, private readonly array $row, private readonly Config $config, private readonly Context $context)
-    {
+    public function __construct(
+        private array $record,
+        private readonly array $row,
+        private readonly Config $config,
+        private readonly Context $context
+    ) {
     }
 
     public function getRecord(): array

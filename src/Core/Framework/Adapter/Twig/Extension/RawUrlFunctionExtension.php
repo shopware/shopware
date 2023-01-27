@@ -14,8 +14,10 @@ class RawUrlFunctionExtension extends AbstractExtension
     /**
      * @internal
      */
-    public function __construct(private readonly RouterInterface $router, private readonly RequestStack $stack)
-    {
+    public function __construct(
+        private readonly RouterInterface $router,
+        private readonly RequestStack $stack
+    ) {
     }
 
     public function getFunctions(): array

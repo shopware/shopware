@@ -21,8 +21,10 @@ class CheckoutInfoWidgetLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'checkout-info-widget-loaded';
 
-    public function __construct(private readonly OffcanvasCartPage $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly OffcanvasCartPage $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

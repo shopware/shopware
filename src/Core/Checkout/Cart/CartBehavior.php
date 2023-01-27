@@ -11,8 +11,10 @@ class CartBehavior extends Struct
     /**
      * @param array<mixed> $permissions
      */
-    public function __construct(private readonly array $permissions = [], private bool $hookAware = true)
-    {
+    public function __construct(
+        private readonly array $permissions = [],
+        private bool $hookAware = true
+    ) {
     }
 
     public function hasPermission(string $permission): bool

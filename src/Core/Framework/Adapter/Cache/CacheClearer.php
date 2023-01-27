@@ -23,8 +23,14 @@ class CacheClearer
      *
      * @param CacheItemPoolInterface[] $adapters
      */
-    public function __construct(private readonly array $adapters, private readonly CacheClearerInterface $cacheClearer, private readonly Filesystem $filesystem, private readonly string $cacheDir, private readonly string $environment, private readonly MessageBusInterface $messageBus)
-    {
+    public function __construct(
+        private readonly array $adapters,
+        private readonly CacheClearerInterface $cacheClearer,
+        private readonly Filesystem $filesystem,
+        private readonly string $cacheDir,
+        private readonly string $environment,
+        private readonly MessageBusInterface $messageBus
+    ) {
     }
 
     public function clear(): void

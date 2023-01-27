@@ -11,8 +11,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('storefront')]
 class CheckoutFinishPageOrderCriteriaEvent implements ShopwareSalesChannelEvent
 {
-    public function __construct(protected Criteria $criteria, protected SalesChannelContext $context)
-    {
+    public function __construct(
+        protected Criteria $criteria,
+        protected SalesChannelContext $context
+    ) {
     }
 
     public function getCriteria(): Criteria

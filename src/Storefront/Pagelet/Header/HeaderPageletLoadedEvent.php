@@ -15,8 +15,11 @@ class HeaderPageletLoadedEvent extends PageletLoadedEvent
      */
     protected $pagelet;
 
-    public function __construct(HeaderPagelet $pagelet, SalesChannelContext $salesChannelContext, Request $request)
-    {
+    public function __construct(
+        HeaderPagelet $pagelet,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
         $this->pagelet = $pagelet;
         parent::__construct($salesChannelContext, $request);
     }

@@ -8,8 +8,12 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('sales-channel')]
 class SeoUrlMapping
 {
-    public function __construct(private readonly Entity $entity, private readonly array $infoPathContext, private readonly array $seoPathInfoContext, private readonly ?string $error = null)
-    {
+    public function __construct(
+        private readonly Entity $entity,
+        private readonly array $infoPathContext,
+        private readonly array $seoPathInfoContext,
+        private readonly ?string $error = null
+    ) {
     }
 
     public function getEntity(): Entity

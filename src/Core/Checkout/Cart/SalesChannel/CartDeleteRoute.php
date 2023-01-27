@@ -18,8 +18,10 @@ class CartDeleteRoute extends AbstractCartDeleteRoute
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractCartPersister $cartPersister, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly AbstractCartPersister $cartPersister,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function getDecorated(): AbstractCartDeleteRoute

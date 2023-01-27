@@ -42,8 +42,19 @@ class ImportExportActionController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly SupportedFeaturesService $supportedFeaturesService, private readonly ImportExportService $importExportService, private readonly DownloadService $downloadService, private readonly EntityRepository $profileRepository, private readonly DataValidator $dataValidator, private readonly ImportExportLogDefinition $logDefinition, private readonly ApiVersionConverter $apiVersionConverter, private readonly ImportExportFactory $importExportFactory, private readonly DefinitionInstanceRegistry $definitionInstanceRegistry, private readonly MessageBusInterface $messageBus, private readonly AbstractMappingService $mappingService)
-    {
+    public function __construct(
+        private readonly SupportedFeaturesService $supportedFeaturesService,
+        private readonly ImportExportService $importExportService,
+        private readonly DownloadService $downloadService,
+        private readonly EntityRepository $profileRepository,
+        private readonly DataValidator $dataValidator,
+        private readonly ImportExportLogDefinition $logDefinition,
+        private readonly ApiVersionConverter $apiVersionConverter,
+        private readonly ImportExportFactory $importExportFactory,
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly MessageBusInterface $messageBus,
+        private readonly AbstractMappingService $mappingService
+    ) {
     }
 
     #[Route(path: '/api/_action/import-export/features', name: 'api.action.import_export.features', methods: ['GET'])]

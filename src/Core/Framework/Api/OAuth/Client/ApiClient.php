@@ -11,8 +11,11 @@ class ApiClient implements ClientEntityInterface
 {
     use ClientTrait;
 
-    public function __construct(private readonly string $identifier, private readonly bool $writeAccess, string $name = '')
-    {
+    public function __construct(
+        private readonly string $identifier,
+        private readonly bool $writeAccess,
+        string $name = ''
+    ) {
         $this->name = $name;
     }
 

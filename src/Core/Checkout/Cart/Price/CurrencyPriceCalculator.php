@@ -18,8 +18,10 @@ class CurrencyPriceCalculator
     /**
      * @internal
      */
-    public function __construct(private readonly QuantityPriceCalculator $priceCalculator, private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder)
-    {
+    public function __construct(
+        private readonly QuantityPriceCalculator $priceCalculator,
+        private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder
+    ) {
     }
 
     public function calculate(PriceCollection $price, CalculatedPriceCollection $prices, SalesChannelContext $context, int $quantity = 1): CalculatedPrice

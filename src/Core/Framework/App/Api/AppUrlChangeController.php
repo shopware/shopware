@@ -23,8 +23,10 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Package('core')]
 class AppUrlChangeController extends AbstractController
 {
-    public function __construct(private readonly Resolver $appUrlChangeResolver, private readonly ShopIdProvider $shopIdProvider)
-    {
+    public function __construct(
+        private readonly Resolver $appUrlChangeResolver,
+        private readonly ShopIdProvider $shopIdProvider
+    ) {
     }
 
     #[Route(path: 'api/app-system/app-url-change/strategies', name: 'api.app_system.app-url-change-strategies', methods: ['GET'])]

@@ -22,8 +22,10 @@ abstract class PageletLoadedEvent extends NestedEvent implements ShopwareSalesCh
      */
     protected $request;
 
-    public function __construct(SalesChannelContext $salesChannelContext, Request $request)
-    {
+    public function __construct(
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
         $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
     }

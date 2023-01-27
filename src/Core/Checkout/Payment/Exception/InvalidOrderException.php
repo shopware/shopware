@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('checkout')]
 class InvalidOrderException extends ShopwareHttpException
 {
-    public function __construct(string $orderId, ?\Throwable $e = null)
-    {
+    public function __construct(
+        string $orderId,
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             'The order with id {{ orderId }} is invalid or could not be found.',
             ['orderId' => $orderId],

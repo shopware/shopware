@@ -73,8 +73,14 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $newsletterRecipientRepository, private readonly DataValidator $validator, private readonly EventDispatcherInterface $eventDispatcher, private readonly SystemConfigService $systemConfigService, private readonly RateLimiter $rateLimiter, private readonly RequestStack $requestStack)
-    {
+    public function __construct(
+        private readonly EntityRepository $newsletterRecipientRepository,
+        private readonly DataValidator $validator,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly RateLimiter $rateLimiter,
+        private readonly RequestStack $requestStack
+    ) {
     }
 
     public function getDecorated(): AbstractNewsletterSubscribeRoute

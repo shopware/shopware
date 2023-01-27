@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('core')]
 class InvalidFilterQueryException extends ShopwareHttpException
 {
-    public function __construct(string $message, private readonly string $path = '')
-    {
+    public function __construct(
+        string $message,
+        private readonly string $path = ''
+    ) {
         parent::__construct('{{ message }}', ['message' => $message]);
     }
 

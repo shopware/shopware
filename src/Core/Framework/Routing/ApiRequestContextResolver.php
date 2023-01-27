@@ -28,8 +28,10 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly RouteScopeRegistry $routeScopeRegistry)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly RouteScopeRegistry $routeScopeRegistry
+    ) {
     }
 
     public function resolve(Request $request): void

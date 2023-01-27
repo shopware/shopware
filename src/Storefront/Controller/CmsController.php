@@ -32,8 +32,15 @@ class CmsController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractCmsRoute $cmsRoute, private readonly AbstractCategoryRoute $categoryRoute, private readonly AbstractProductListingRoute $listingRoute, private readonly AbstractProductDetailRoute $productRoute, private readonly ProductReviewLoader $productReviewLoader, private readonly AbstractFindProductVariantRoute $findVariantRoute, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly AbstractCmsRoute $cmsRoute,
+        private readonly AbstractCategoryRoute $categoryRoute,
+        private readonly AbstractProductListingRoute $listingRoute,
+        private readonly AbstractProductDetailRoute $productRoute,
+        private readonly ProductReviewLoader $productReviewLoader,
+        private readonly AbstractFindProductVariantRoute $findVariantRoute,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     #[Route(path: '/widgets/cms/{id}', name: 'frontend.cms.page', defaults: ['id' => null, 'XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]

@@ -28,8 +28,11 @@ class ProductListingResultEvent extends NestedEvent implements ShopwareSalesChan
      */
     protected $result;
 
-    public function __construct(Request $request, ProductListingResult $result, SalesChannelContext $context)
-    {
+    public function __construct(
+        Request $request,
+        ProductListingResult $result,
+        SalesChannelContext $context
+    ) {
         $this->request = $request;
         $this->context = $context;
         $this->result = $result;

@@ -15,8 +15,11 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
      * @param string[] $ids
      * @param string[] $skip
      */
-    public function __construct(private readonly array $ids, private readonly Context $context, private readonly array $skip = [])
-    {
+    public function __construct(
+        private readonly array $ids,
+        private readonly Context $context,
+        private readonly array $skip = []
+    ) {
     }
 
     /**

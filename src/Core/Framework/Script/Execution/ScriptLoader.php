@@ -22,8 +22,13 @@ class ScriptLoader implements EventSubscriberInterface
 
     private readonly string $cacheDir;
 
-    public function __construct(private readonly Connection $connection, private readonly ScriptPersister $scriptPersister, private readonly TagAwareAdapterInterface $cache, string $cacheDir, private readonly bool $debug)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ScriptPersister $scriptPersister,
+        private readonly TagAwareAdapterInterface $cache,
+        string $cacheDir,
+        private readonly bool $debug
+    ) {
         $this->cacheDir = $cacheDir . '/twig/scripts';
     }
 

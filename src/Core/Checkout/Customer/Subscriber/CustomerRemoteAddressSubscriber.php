@@ -17,8 +17,10 @@ class CustomerRemoteAddressSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerRepository, private readonly RequestStack $requestStack)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerRepository,
+        private readonly RequestStack $requestStack
+    ) {
     }
 
     public static function getSubscribedEvents(): array

@@ -17,8 +17,10 @@ class CacheTracer extends AbstractCacheTracer
      *
      * @param AbstractCacheTracer<mixed|null> $decorated
      */
-    public function __construct(private readonly AbstractCacheTracer $decorated, private readonly ThemeConfigValueAccessor $themeConfigAccessor)
-    {
+    public function __construct(
+        private readonly AbstractCacheTracer $decorated,
+        private readonly ThemeConfigValueAccessor $themeConfigAccessor
+    ) {
     }
 
     public function getDecorated(): AbstractCacheTracer

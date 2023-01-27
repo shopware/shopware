@@ -29,8 +29,10 @@ class CreateAppCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractAppLifecycle $appLifecycle, private readonly string $appDir)
-    {
+    public function __construct(
+        private readonly AbstractAppLifecycle $appLifecycle,
+        private readonly string $appDir
+    ) {
         parent::__construct();
     }
 

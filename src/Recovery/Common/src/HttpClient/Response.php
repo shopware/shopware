@@ -24,8 +24,11 @@ class Response
      * @param int    $code
      * @param string $header
      */
-    public function __construct($body, $code, $header)
-    {
+    public function __construct(
+        $body,
+        $code,
+        $header
+    ) {
         $this->body = $body;
         $this->code = $code;
         $this->header = $header;

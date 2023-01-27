@@ -21,8 +21,11 @@ class RepositoryIterator
 
     private bool $autoIncrement = false;
 
-    public function __construct(EntityRepository $repository, Context $context, ?Criteria $criteria = null)
-    {
+    public function __construct(
+        EntityRepository $repository,
+        Context $context,
+        ?Criteria $criteria = null
+    ) {
         if ($criteria === null) {
             $criteria = new Criteria();
             $criteria->setOffset(0);

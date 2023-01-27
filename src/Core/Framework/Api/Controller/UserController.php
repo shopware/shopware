@@ -30,8 +30,13 @@ class UserController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $userRepository, private readonly EntityRepository $userRoleRepository, private readonly EntityRepository $roleRepository, private readonly EntityRepository $keyRepository, private readonly UserDefinition $userDefinition)
-    {
+    public function __construct(
+        private readonly EntityRepository $userRepository,
+        private readonly EntityRepository $userRoleRepository,
+        private readonly EntityRepository $roleRepository,
+        private readonly EntityRepository $keyRepository,
+        private readonly UserDefinition $userDefinition
+    ) {
     }
 
     #[Route(path: '/api/_info/me', name: 'api.info.me', methods: ['GET'])]

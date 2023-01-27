@@ -28,8 +28,11 @@ class CartFacadeHelper implements ResetInterface
     /**
      * @internal
      */
-    public function __construct(private readonly LineItemFactoryRegistry $factory, private readonly Processor $processor, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly LineItemFactoryRegistry $factory,
+        private readonly Processor $processor,
+        private readonly Connection $connection
+    ) {
     }
 
     public function product(string $productId, int $quantity, SalesChannelContext $context): LineItem

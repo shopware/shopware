@@ -19,8 +19,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 abstract class AbstractAppUrlChangeStrategy
 {
-    public function __construct(private readonly AbstractAppLoader $appLoader, private readonly EntityRepository $appRepository, private readonly AppRegistrationService $registrationService)
-    {
+    public function __construct(
+        private readonly AbstractAppLoader $appLoader,
+        private readonly EntityRepository $appRepository,
+        private readonly AppRegistrationService $registrationService
+    ) {
     }
 
     abstract public function getName(): string;

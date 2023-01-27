@@ -21,8 +21,10 @@ class AccountGuestLoginPageLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'account-guest-login-page-loaded';
 
-    public function __construct(private readonly AccountLoginPage $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly AccountLoginPage $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

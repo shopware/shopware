@@ -10,8 +10,10 @@ class ProgressStartedEvent extends Event
 {
     final public const NAME = self::class;
 
-    public function __construct(private readonly string $message, private readonly int $total)
-    {
+    public function __construct(
+        private readonly string $message,
+        private readonly int $total
+    ) {
     }
 
     public function getMessage(): string

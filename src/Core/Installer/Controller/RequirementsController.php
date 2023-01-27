@@ -21,8 +21,11 @@ class RequirementsController extends InstallerController
     /**
      * @param iterable|RequirementsValidatorInterface[] $validators
      */
-    public function __construct(private readonly iterable $validators, private readonly JwtCertificateGenerator $jwtCertificateGenerator, string $projectDir)
-    {
+    public function __construct(
+        private readonly iterable $validators,
+        private readonly JwtCertificateGenerator $jwtCertificateGenerator,
+        string $projectDir
+    ) {
         $this->jwtDir = $projectDir . '/config/jwt';
     }
 

@@ -24,8 +24,11 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $cmsPageRepository, private readonly CmsSlotsDataResolver $slotDataResolver, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly EntityRepository $cmsPageRepository,
+        private readonly CmsSlotsDataResolver $slotDataResolver,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function load(

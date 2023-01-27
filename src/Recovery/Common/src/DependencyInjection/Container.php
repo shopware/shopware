@@ -12,8 +12,10 @@ abstract class Container implements ContainerInterface
     /**
      * @param array $config
      */
-    public function __construct(\Pimple\Container $pimple, $config)
-    {
+    public function __construct(
+        \Pimple\Container $pimple,
+        $config
+    ) {
         $this->pimple = $pimple;
         $this->pimple['config'] = $config;
 

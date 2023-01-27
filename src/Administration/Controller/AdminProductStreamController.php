@@ -25,8 +25,12 @@ class AdminProductStreamController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly ProductDefinition $productDefinition, private readonly SalesChannelRepository $salesChannelProductRepository, private readonly SalesChannelContextServiceInterface $salesChannelContextService, private readonly RequestCriteriaBuilder $criteriaBuilder)
-    {
+    public function __construct(
+        private readonly ProductDefinition $productDefinition,
+        private readonly SalesChannelRepository $salesChannelProductRepository,
+        private readonly SalesChannelContextServiceInterface $salesChannelContextService,
+        private readonly RequestCriteriaBuilder $criteriaBuilder
+    ) {
     }
 
     #[Route(path: '/api/_admin/product-stream-preview/{salesChannelId}', name: 'api.admin.product-stream-preview', defaults: ['_routeScope' => ['administration']], methods: ['POST'])]

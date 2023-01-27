@@ -42,8 +42,11 @@ class PromotionCollector implements CartDataCollectorInterface
     /**
      * @internal
      */
-    public function __construct(private readonly PromotionGatewayInterface $gateway, private readonly PromotionItemBuilder $itemBuilder, private readonly HtmlSanitizer $htmlSanitizer)
-    {
+    public function __construct(
+        private readonly PromotionGatewayInterface $gateway,
+        private readonly PromotionItemBuilder $itemBuilder,
+        private readonly HtmlSanitizer $htmlSanitizer
+    ) {
         $this->requiredDalAssociations = [
             'personaRules',
             'personaCustomers',

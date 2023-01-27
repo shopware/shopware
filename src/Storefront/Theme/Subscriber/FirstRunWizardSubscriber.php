@@ -22,8 +22,13 @@ class FirstRunWizardSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly ThemeService $themeService, private readonly ThemeLifecycleService $themeLifecycleService, private readonly EntityRepository $themeRepository, private readonly EntityRepository $themeSalesChannelRepository, private readonly EntityRepository $salesChannelRepository)
-    {
+    public function __construct(
+        private readonly ThemeService $themeService,
+        private readonly ThemeLifecycleService $themeLifecycleService,
+        private readonly EntityRepository $themeRepository,
+        private readonly EntityRepository $themeSalesChannelRepository,
+        private readonly EntityRepository $salesChannelRepository
+    ) {
     }
 
     /**

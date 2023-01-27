@@ -12,8 +12,11 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  */
 class TestUser
 {
-    private function __construct(private readonly string $password, private readonly string $name, private readonly ?string $userId = null)
-    {
+    private function __construct(
+        private readonly string $password,
+        private readonly string $name,
+        private readonly ?string $userId = null
+    ) {
     }
 
     public static function getAdmin(): TestUser

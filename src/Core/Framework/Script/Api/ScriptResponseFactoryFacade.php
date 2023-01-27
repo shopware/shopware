@@ -21,8 +21,11 @@ class ScriptResponseFactoryFacade
     /**
      * @internal
      */
-    public function __construct(private readonly RouterInterface $router, private readonly ?ScriptController $scriptController, private readonly ?SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        private readonly RouterInterface $router,
+        private readonly ?ScriptController $scriptController,
+        private readonly ?SalesChannelContext $salesChannelContext
+    ) {
     }
 
     /**

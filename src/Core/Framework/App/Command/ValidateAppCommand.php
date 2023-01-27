@@ -27,8 +27,10 @@ use Symfony\Component\Finder\Finder;
 #[Package('core')]
 class ValidateAppCommand extends Command
 {
-    public function __construct(private readonly string $appDir, private readonly ManifestValidator $manifestValidator)
-    {
+    public function __construct(
+        private readonly string $appDir,
+        private readonly ManifestValidator $manifestValidator
+    ) {
         parent::__construct();
     }
 

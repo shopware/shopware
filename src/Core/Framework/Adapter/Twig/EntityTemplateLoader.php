@@ -26,8 +26,10 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly string $environment)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly string $environment
+    ) {
     }
 
     public static function getSubscribedEvents(): array

@@ -14,8 +14,15 @@ class NavigationRouteCacheKeyEvent extends StoreApiRouteCacheKeyEvent
     /**
      * @param array<mixed> $parts
      */
-    public function __construct(array $parts, protected string $active, protected string $rootId, protected int $depth, Request $request, SalesChannelContext $context, Criteria $criteria)
-    {
+    public function __construct(
+        array $parts,
+        protected string $active,
+        protected string $rootId,
+        protected int $depth,
+        Request $request,
+        SalesChannelContext $context,
+        Criteria $criteria
+    ) {
         parent::__construct($parts, $request, $context, $criteria);
     }
 

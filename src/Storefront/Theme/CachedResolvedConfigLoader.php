@@ -14,8 +14,10 @@ class CachedResolvedConfigLoader extends AbstractResolvedConfigLoader
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractResolvedConfigLoader $decorated, private readonly CacheInterface $cache)
-    {
+    public function __construct(
+        private readonly AbstractResolvedConfigLoader $decorated,
+        private readonly CacheInterface $cache
+    ) {
     }
 
     public function getDecorated(): AbstractResolvedConfigLoader

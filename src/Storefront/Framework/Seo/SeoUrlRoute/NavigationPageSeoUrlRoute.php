@@ -25,8 +25,10 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
     /**
      * @internal
      */
-    public function __construct(private readonly CategoryDefinition $categoryDefinition, private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder)
-    {
+    public function __construct(
+        private readonly CategoryDefinition $categoryDefinition,
+        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder
+    ) {
     }
 
     public function getConfig(): SeoUrlRouteConfig

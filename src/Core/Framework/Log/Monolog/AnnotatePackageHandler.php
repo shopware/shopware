@@ -18,8 +18,10 @@ class AnnotatePackageHandler extends AbstractHandler
     /**
      * @internal
      */
-    public function __construct(private readonly HandlerInterface $handler, private readonly RequestStack $requestStack)
-    {
+    public function __construct(
+        private readonly HandlerInterface $handler,
+        private readonly RequestStack $requestStack
+    ) {
         parent::__construct();
     }
 

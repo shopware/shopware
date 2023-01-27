@@ -25,8 +25,10 @@ class SearchRanking extends Flag
      */
     protected $tokenize;
 
-    public function __construct(float $ranking, bool $tokenize = true)
-    {
+    public function __construct(
+        float $ranking,
+        bool $tokenize = true
+    ) {
         $this->ranking = $ranking;
         $this->tokenize = $tokenize;
     }

@@ -26,8 +26,11 @@ class ContainerCartProcessor implements CartProcessorInterface
     /**
      * @internal
      */
-    public function __construct(private readonly PercentagePriceCalculator $percentageCalculator, private readonly QuantityPriceCalculator $quantityCalculator, private readonly CurrencyPriceCalculator $currencyCalculator)
-    {
+    public function __construct(
+        private readonly PercentagePriceCalculator $percentageCalculator,
+        private readonly QuantityPriceCalculator $quantityCalculator,
+        private readonly CurrencyPriceCalculator $currencyCalculator
+    ) {
     }
 
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void

@@ -20,8 +20,12 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractProductSearchRoute $decorated, private readonly EventDispatcherInterface $eventDispatcher, private readonly DefinitionInstanceRegistry $registry, private readonly RequestCriteriaBuilder $criteriaBuilder)
-    {
+    public function __construct(
+        private readonly AbstractProductSearchRoute $decorated,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly RequestCriteriaBuilder $criteriaBuilder
+    ) {
     }
 
     public function getDecorated(): AbstractProductSearchRoute

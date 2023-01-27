@@ -22,8 +22,10 @@ class ProductFeatureBuilder
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customFieldRepository, private readonly LanguageLocaleCodeProvider $languageLocaleProvider)
-    {
+    public function __construct(
+        private readonly EntityRepository $customFieldRepository,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider
+    ) {
     }
 
     public function prepare(iterable $lineItems, CartDataCollection $data, SalesChannelContext $context): void

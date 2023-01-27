@@ -10,8 +10,10 @@ class BusinessEventCollectorEvent extends NestedEvent
 {
     final public const NAME = 'collect.business-events';
 
-    public function __construct(private readonly BusinessEventCollectorResponse $events, private readonly Context $context)
-    {
+    public function __construct(
+        private readonly BusinessEventCollectorResponse $events,
+        private readonly Context $context
+    ) {
     }
 
     public function getCollection(): BusinessEventCollectorResponse

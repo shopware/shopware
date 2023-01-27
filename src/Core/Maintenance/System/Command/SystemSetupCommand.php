@@ -29,8 +29,11 @@ use Symfony\Component\Dotenv\Command\DotenvDumpCommand;
 #[Package('core')]
 class SystemSetupCommand extends Command
 {
-    public function __construct(private readonly string $projectDir, private readonly JwtCertificateGenerator $jwtCertificateGenerator, private readonly DotenvDumpCommand $dumpEnvCommand)
-    {
+    public function __construct(
+        private readonly string $projectDir,
+        private readonly JwtCertificateGenerator $jwtCertificateGenerator,
+        private readonly DotenvDumpCommand $dumpEnvCommand
+    ) {
         parent::__construct();
     }
 

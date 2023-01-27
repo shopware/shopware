@@ -25,8 +25,10 @@ class DeprecationTagTester
      */
     private const MANIFEST_VERSION_SCHEMA = '\d+\.\d+';
 
-    public function __construct(private readonly string $shopwareVersion, private readonly string $manifestVersion)
-    {
+    public function __construct(
+        private readonly string $shopwareVersion,
+        private readonly string $manifestVersion
+    ) {
     }
 
     /**

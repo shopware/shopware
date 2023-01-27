@@ -39,8 +39,11 @@ class ReferencePriceDto extends Struct
     /**
      * @deprecated tag:v6.6.0 - Will be changed to new __constructor signature with native types
      */
-    public function __construct(?float $purchase, ?float $reference, ?string $unitId)
-    {
+    public function __construct(
+        ?float $purchase,
+        ?float $reference,
+        ?string $unitId
+    ) {
         $this->purchase = $purchase;
         $this->reference = $reference;
         $this->unitId = $unitId;

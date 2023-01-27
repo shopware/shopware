@@ -12,8 +12,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('sales-channel')]
 class SalesChannelEntityIdSearchResultLoadedEvent extends EntityIdSearchResultLoadedEvent implements ShopwareSalesChannelEvent
 {
-    public function __construct(EntityDefinition $definition, IdSearchResult $result, private readonly SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        EntityDefinition $definition,
+        IdSearchResult $result,
+        private readonly SalesChannelContext $salesChannelContext
+    ) {
         parent::__construct($definition, $result);
     }
 

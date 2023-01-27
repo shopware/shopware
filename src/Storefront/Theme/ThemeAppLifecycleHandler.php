@@ -19,8 +19,11 @@ class ThemeAppLifecycleHandler implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly StorefrontPluginRegistryInterface $themeRegistry, private readonly AbstractStorefrontPluginConfigurationFactory $themeConfigFactory, private readonly ThemeLifecycleHandler $themeLifecycleHandler)
-    {
+    public function __construct(
+        private readonly StorefrontPluginRegistryInterface $themeRegistry,
+        private readonly AbstractStorefrontPluginConfigurationFactory $themeConfigFactory,
+        private readonly ThemeLifecycleHandler $themeLifecycleHandler
+    ) {
     }
 
     public static function getSubscribedEvents(): array

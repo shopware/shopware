@@ -15,8 +15,11 @@ class LandingPageLoadedEvent extends PageLoadedEvent
      */
     protected $page;
 
-    public function __construct(LandingPage $page, SalesChannelContext $salesChannelContext, Request $request)
-    {
+    public function __construct(
+        LandingPage $page,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
         $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }

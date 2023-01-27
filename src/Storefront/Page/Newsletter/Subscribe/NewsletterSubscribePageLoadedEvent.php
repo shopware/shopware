@@ -15,8 +15,11 @@ class NewsletterSubscribePageLoadedEvent extends PageLoadedEvent
      */
     protected $page;
 
-    public function __construct(NewsletterSubscribePage $page, SalesChannelContext $salesChannelContext, Request $request)
-    {
+    public function __construct(
+        NewsletterSubscribePage $page,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
         $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }

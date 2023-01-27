@@ -11,8 +11,13 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('system-settings')]
 class ImportExportAfterImportRecordEvent extends Event
 {
-    public function __construct(private readonly EntityWrittenContainerEvent $result, private readonly array $record, private readonly array $row, private readonly Config $config, private readonly Context $context)
-    {
+    public function __construct(
+        private readonly EntityWrittenContainerEvent $result,
+        private readonly array $record,
+        private readonly array $row,
+        private readonly Config $config,
+        private readonly Context $context
+    ) {
     }
 
     public function getResult(): EntityWrittenContainerEvent

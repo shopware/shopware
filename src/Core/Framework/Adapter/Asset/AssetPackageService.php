@@ -13,8 +13,11 @@ class AssetPackageService
     /**
      * @internal
      */
-    public function __construct(private readonly Packages $packages, private readonly Package $package, private readonly VersionStrategyInterface $versionStrategy)
-    {
+    public function __construct(
+        private readonly Packages $packages,
+        private readonly Package $package,
+        private readonly VersionStrategyInterface $versionStrategy
+    ) {
     }
 
     public function addAssetPackage(string $bundleName, string $bundlePath): void

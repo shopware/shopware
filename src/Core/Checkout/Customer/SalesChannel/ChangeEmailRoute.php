@@ -32,8 +32,11 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly DataValidator $validator)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DataValidator $validator
+    ) {
     }
 
     public function getDecorated(): AbstractChangeEmailRoute

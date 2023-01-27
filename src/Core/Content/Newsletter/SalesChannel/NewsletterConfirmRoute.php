@@ -28,8 +28,11 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $newsletterRecipientRepository, private readonly DataValidator $validator, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly EntityRepository $newsletterRecipientRepository,
+        private readonly DataValidator $validator,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function getDecorated(): AbstractNewsletterConfirmRoute

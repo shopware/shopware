@@ -22,8 +22,10 @@ class ProductConfiguratorLoader
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $configuratorRepository, private readonly AbstractAvailableCombinationLoader $combinationLoader)
-    {
+    public function __construct(
+        private readonly EntityRepository $configuratorRepository,
+        private readonly AbstractAvailableCombinationLoader $combinationLoader
+    ) {
     }
 
     /**

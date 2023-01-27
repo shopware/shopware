@@ -22,8 +22,11 @@ class ItemFacade
     /**
      * @internal
      */
-    public function __construct(private readonly LineItem $item, private readonly CartFacadeHelper $helper, private readonly SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly LineItem $item,
+        private readonly CartFacadeHelper $helper,
+        private readonly SalesChannelContext $context
+    ) {
     }
 
     /**

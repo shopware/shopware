@@ -12,8 +12,10 @@ class ErrorRoute
 {
     private readonly array $params;
 
-    public function __construct(private readonly string $key, ?array $params = null)
-    {
+    public function __construct(
+        private readonly string $key,
+        ?array $params = null
+    ) {
         $this->params = $params ?? [];
     }
 

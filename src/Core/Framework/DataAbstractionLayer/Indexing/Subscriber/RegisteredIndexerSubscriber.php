@@ -18,8 +18,10 @@ class RegisteredIndexerSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly IndexerQueuer $indexerQueuer, private readonly EntityIndexerRegistry $indexerRegistry)
-    {
+    public function __construct(
+        private readonly IndexerQueuer $indexerQueuer,
+        private readonly EntityIndexerRegistry $indexerRegistry
+    ) {
     }
 
     /**

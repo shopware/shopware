@@ -11,8 +11,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('system-settings')]
 class AdminElasticsearchHelper
 {
-    public function __construct(private bool $adminEsEnabled, private readonly bool $refreshIndices, private readonly string $adminIndexPrefix)
-    {
+    public function __construct(
+        private bool $adminEsEnabled,
+        private readonly bool $refreshIndices,
+        private readonly string $adminIndexPrefix
+    ) {
     }
 
     public function getEnabled(): bool

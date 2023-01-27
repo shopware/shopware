@@ -116,8 +116,10 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
     {
         if ($isTheme) {
             return new class($name, $basePath) extends Bundle implements ThemeInterface {
-                public function __construct(string $name, string $basePath)
-                {
+                public function __construct(
+                    string $name,
+                    string $basePath
+                ) {
                     $this->name = $name;
                     $this->path = $basePath;
                 }
@@ -125,8 +127,10 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
         }
 
         return new class($name, $basePath) extends Bundle {
-            public function __construct(string $name, string $basePath)
-            {
+            public function __construct(
+                string $name,
+                string $basePath
+            ) {
                 $this->name = $name;
                 $this->path = $basePath;
             }

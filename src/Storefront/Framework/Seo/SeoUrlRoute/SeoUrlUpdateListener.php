@@ -31,8 +31,11 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly SeoUrlUpdater $seoUrlUpdater, private readonly Connection $connection, private readonly EntityIndexerRegistry $indexerRegistry)
-    {
+    public function __construct(
+        private readonly SeoUrlUpdater $seoUrlUpdater,
+        private readonly Connection $connection,
+        private readonly EntityIndexerRegistry $indexerRegistry
+    ) {
     }
 
     public function detectSalesChannelEntryPoints(EntityWrittenContainerEvent $event): void

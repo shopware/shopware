@@ -22,8 +22,10 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
     /**
      * @internal
      */
-    public function __construct(private readonly OrderService $orderService, private readonly EntityRepository $orderRepository)
-    {
+    public function __construct(
+        private readonly OrderService $orderService,
+        private readonly EntityRepository $orderRepository
+    ) {
     }
 
     public function getDecorated(): AbstractCancelOrderRoute

@@ -18,8 +18,10 @@ class ErrorTemplateStruct extends Struct
      * @param string $templateName
      * @param array<string, \Throwable> $arguments
      */
-    public function __construct(protected string $templateName = '', protected array $arguments = [])
-    {
+    public function __construct(
+        protected string $templateName = '',
+        protected array $arguments = []
+    ) {
         $this->header = null;
     }
 

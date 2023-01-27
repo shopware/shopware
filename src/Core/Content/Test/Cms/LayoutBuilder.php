@@ -36,8 +36,11 @@ class LayoutBuilder
      */
     protected array $sections = [];
 
-    public function __construct(protected IdsCollection $ids, string $key, protected string $type = 'landingpage')
-    {
+    public function __construct(
+        protected IdsCollection $ids,
+        string $key,
+        protected string $type = 'landingpage'
+    ) {
         $this->id = $this->ids->create($key);
         $this->name = $key;
     }

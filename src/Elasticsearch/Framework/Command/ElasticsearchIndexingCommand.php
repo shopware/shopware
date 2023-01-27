@@ -26,8 +26,11 @@ class ElasticsearchIndexingCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly ElasticsearchIndexer $indexer, private readonly MessageBusInterface $messageBus, private readonly CreateAliasTaskHandler $aliasHandler)
-    {
+    public function __construct(
+        private readonly ElasticsearchIndexer $indexer,
+        private readonly MessageBusInterface $messageBus,
+        private readonly CreateAliasTaskHandler $aliasHandler
+    ) {
         parent::__construct();
     }
 

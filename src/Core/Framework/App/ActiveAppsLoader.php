@@ -21,8 +21,10 @@ class ActiveAppsLoader implements ResetInterface
      */
     private ?array $activeApps = null;
 
-    public function __construct(private readonly Connection $connection, private readonly AbstractAppLoader $appLoader)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly AbstractAppLoader $appLoader
+    ) {
     }
 
     /**

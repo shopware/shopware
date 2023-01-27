@@ -21,8 +21,10 @@ class UserCredentialsChangedSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly RefreshTokenRepository $refreshTokenRepository, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly RefreshTokenRepository $refreshTokenRepository,
+        private readonly Connection $connection
+    ) {
     }
 
     public static function getSubscribedEvents(): array

@@ -40,8 +40,11 @@ class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
     /**
      * @param class-string<EntityDefinition>[] $registeredDefinitions
      */
-    public function __construct(array $registeredDefinitions, private readonly ValidatorInterface $validator, private readonly EntityWriteGatewayInterface $entityWriteGateway)
-    {
+    public function __construct(
+        array $registeredDefinitions,
+        private readonly ValidatorInterface $validator,
+        private readonly EntityWriteGatewayInterface $entityWriteGateway
+    ) {
         parent::__construct(new ContainerBuilder(), [], []);
 
         $this->setUpSerializers();

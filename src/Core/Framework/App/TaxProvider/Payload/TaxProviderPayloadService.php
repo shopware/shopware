@@ -20,8 +20,11 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 #[Package('checkout')]
 class TaxProviderPayloadService
 {
-    public function __construct(private readonly AppPayloadServiceHelper $helper, private readonly Client $client, private readonly string $shopUrl)
-    {
+    public function __construct(
+        private readonly AppPayloadServiceHelper $helper,
+        private readonly Client $client,
+        private readonly string $shopUrl
+    ) {
     }
 
     public function request(

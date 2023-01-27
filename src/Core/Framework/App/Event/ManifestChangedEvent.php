@@ -13,8 +13,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 abstract class ManifestChangedEvent extends AppChangedEvent
 {
-    public function __construct(AppEntity $app, private readonly Manifest $manifest, Context $context)
-    {
+    public function __construct(
+        AppEntity $app,
+        private readonly Manifest $manifest,
+        Context $context
+    ) {
         parent::__construct($app, $context);
     }
 

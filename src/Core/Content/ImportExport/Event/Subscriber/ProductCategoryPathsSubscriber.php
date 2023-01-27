@@ -31,8 +31,10 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $categoryRepository, private readonly SyncServiceInterface $syncService)
-    {
+    public function __construct(
+        private readonly EntityRepository $categoryRepository,
+        private readonly SyncServiceInterface $syncService
+    ) {
     }
 
     /**

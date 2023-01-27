@@ -11,8 +11,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class CountResult extends AggregationResult
 {
-    public function __construct(string $name, protected int $count)
-    {
+    public function __construct(
+        string $name,
+        protected int $count
+    ) {
         parent::__construct($name);
     }
 

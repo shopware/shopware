@@ -23,8 +23,11 @@ class RepositoryWriterFacade
     /**
      * @internal
      */
-    public function __construct(private readonly DefinitionInstanceRegistry $registry, private readonly SyncService $syncService, private readonly Context $context)
-    {
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly SyncService $syncService,
+        private readonly Context $context
+    ) {
     }
 
     /**

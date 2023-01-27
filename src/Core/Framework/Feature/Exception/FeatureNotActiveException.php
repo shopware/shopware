@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('core')]
 class FeatureNotActiveException extends ShopwareHttpException
 {
-    public function __construct(string $feature, ?\Throwable $previous = null)
-    {
+    public function __construct(
+        string $feature,
+        ?\Throwable $previous = null
+    ) {
         $message = sprintf('This function can only be used with feature flag %s', $feature);
         parent::__construct($message, [], $previous);
     }

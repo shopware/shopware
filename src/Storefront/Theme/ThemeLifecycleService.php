@@ -27,8 +27,19 @@ class ThemeLifecycleService
     /**
      * @internal
      */
-    public function __construct(private readonly StorefrontPluginRegistryInterface $pluginRegistry, private readonly EntityRepository $themeRepository, private readonly EntityRepository $mediaRepository, private readonly EntityRepository $mediaFolderRepository, private readonly EntityRepository $themeMediaRepository, private readonly FileSaver $fileSaver, private readonly FileNameProvider $fileNameProvider, private readonly ThemeFileImporterInterface $themeFileImporter, private readonly EntityRepository $languageRepository, private readonly EntityRepository $themeChildRepository, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly StorefrontPluginRegistryInterface $pluginRegistry,
+        private readonly EntityRepository $themeRepository,
+        private readonly EntityRepository $mediaRepository,
+        private readonly EntityRepository $mediaFolderRepository,
+        private readonly EntityRepository $themeMediaRepository,
+        private readonly FileSaver $fileSaver,
+        private readonly FileNameProvider $fileNameProvider,
+        private readonly ThemeFileImporterInterface $themeFileImporter,
+        private readonly EntityRepository $languageRepository,
+        private readonly EntityRepository $themeChildRepository,
+        private readonly Connection $connection
+    ) {
     }
 
     public function refreshThemes(

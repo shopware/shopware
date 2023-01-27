@@ -17,8 +17,12 @@ class CacheWarmer
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $domainRepository, private readonly MessageBusInterface $bus, private readonly CacheRouteWarmerRegistry $registry, private readonly CacheIdLoader $cacheIdLoader)
-    {
+    public function __construct(
+        private readonly EntityRepository $domainRepository,
+        private readonly MessageBusInterface $bus,
+        private readonly CacheRouteWarmerRegistry $registry,
+        private readonly CacheIdLoader $cacheIdLoader
+    ) {
     }
 
     public function warmUp(?string $cacheId = null): void

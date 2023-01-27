@@ -9,8 +9,10 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 #[Package('core')]
 class PluginPostDeactivateEvent extends PluginLifecycleEvent
 {
-    public function __construct(PluginEntity $plugin, private readonly DeactivateContext $context)
-    {
+    public function __construct(
+        PluginEntity $plugin,
+        private readonly DeactivateContext $context
+    ) {
         parent::__construct($plugin);
     }
 

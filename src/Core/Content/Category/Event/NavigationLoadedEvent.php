@@ -22,8 +22,10 @@ class NavigationLoadedEvent extends NestedEvent implements ShopwareSalesChannelE
      */
     protected $salesChannelContext;
 
-    public function __construct(Tree $navigation, SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        Tree $navigation,
+        SalesChannelContext $salesChannelContext
+    ) {
         $this->navigation = $navigation;
         $this->salesChannelContext = $salesChannelContext;
     }

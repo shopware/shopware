@@ -15,8 +15,11 @@ class CartMergedEvent extends Event implements ShopwareSalesChannelEvent
     /**
      * @internal
      */
-    public function __construct(protected Cart $cart, protected SalesChannelContext $context, protected Cart $previousCart)
-    {
+    public function __construct(
+        protected Cart $cart,
+        protected SalesChannelContext $context,
+        protected Cart $previousCart
+    ) {
     }
 
     public function getCart(): Cart

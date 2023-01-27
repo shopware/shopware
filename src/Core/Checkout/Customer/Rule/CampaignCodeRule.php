@@ -19,8 +19,10 @@ class CampaignCodeRule extends Rule
     /**
      * @internal
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?string $campaignCode = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?string $campaignCode = null
+    ) {
         parent::__construct();
     }
 

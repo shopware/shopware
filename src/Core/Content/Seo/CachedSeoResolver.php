@@ -16,8 +16,10 @@ class CachedSeoResolver extends AbstractSeoResolver
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractSeoResolver $decorated, private readonly CacheInterface $cache)
-    {
+    public function __construct(
+        private readonly AbstractSeoResolver $decorated,
+        private readonly CacheInterface $cache
+    ) {
     }
 
     public function getDecorated(): AbstractSeoResolver

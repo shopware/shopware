@@ -19,8 +19,10 @@ class ShopIdProvider
 {
     final public const SHOP_ID_SYSTEM_CONFIG_KEY = 'core.app.shopId';
 
-    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly EntityRepository $appRepository)
-    {
+    public function __construct(
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EntityRepository $appRepository
+    ) {
     }
 
     /**

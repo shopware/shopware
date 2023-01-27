@@ -17,8 +17,11 @@ class SalesChannelEntityLoadedEvent extends EntityLoadedEvent implements Shopwar
     /**
      * @param Entity[] $entities
      */
-    public function __construct(EntityDefinition $definition, array $entities, SalesChannelContext $context)
-    {
+    public function __construct(
+        EntityDefinition $definition,
+        array $entities,
+        SalesChannelContext $context
+    ) {
         parent::__construct($definition, $entities, $context->getContext());
         $this->salesChannelContext = $context;
     }

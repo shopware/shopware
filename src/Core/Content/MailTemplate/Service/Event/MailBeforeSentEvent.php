@@ -23,8 +23,12 @@ class MailBeforeSentEvent extends Event implements LogAware, DataAware, MessageA
     /**
      * @param array<string, mixed> $data
      */
-    public function __construct(private readonly array $data, private readonly Email $message, private readonly Context $context, private readonly ?string $eventName = null)
-    {
+    public function __construct(
+        private readonly array $data,
+        private readonly Email $message,
+        private readonly Context $context,
+        private readonly ?string $eventName = null
+    ) {
     }
 
     public static function getAvailableData(): EventDataCollection

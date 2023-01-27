@@ -18,8 +18,10 @@ class UserRecoveryController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly UserRecoveryService $userRecoveryService, private readonly RateLimiter $rateLimiter)
-    {
+    public function __construct(
+        private readonly UserRecoveryService $userRecoveryService,
+        private readonly RateLimiter $rateLimiter
+    ) {
     }
 
     #[Route(path: '/api/_action/user/user-recovery', defaults: ['auth_required' => false], name: 'api.action.user.user-recovery', methods: ['POST'])]

@@ -17,8 +17,10 @@ class PreWriteValidationEvent extends Event implements ShopwareEvent
     /**
      * @param WriteCommand[] $commands
      */
-    public function __construct(private readonly WriteContext $writeContext, private readonly array $commands)
-    {
+    public function __construct(
+        private readonly WriteContext $writeContext,
+        private readonly array $commands
+    ) {
     }
 
     public function getContext(): Context

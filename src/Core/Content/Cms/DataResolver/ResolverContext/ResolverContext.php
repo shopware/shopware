@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('content')]
 class ResolverContext
 {
-    public function __construct(private readonly SalesChannelContext $context, private readonly Request $request)
-    {
+    public function __construct(
+        private readonly SalesChannelContext $context,
+        private readonly Request $request
+    ) {
     }
 
     public function getSalesChannelContext(): SalesChannelContext

@@ -53,8 +53,13 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 {
     private ?PrimaryKeyBag $primaryKeyBag = null;
 
-    public function __construct(private readonly int $batchSize, private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher, private readonly ExceptionHandlerRegistry $exceptionHandlerRegistry, private readonly DefinitionInstanceRegistry $definitionInstanceRegistry)
-    {
+    public function __construct(
+        private readonly int $batchSize,
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ExceptionHandlerRegistry $exceptionHandlerRegistry,
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry
+    ) {
     }
 
     public function prefetchExistences(WriteParameterBag $parameters): void

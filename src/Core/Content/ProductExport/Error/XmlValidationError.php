@@ -25,8 +25,10 @@ class XmlValidationError extends Error
     /**
      * @param \LibXMLError[] $errors
      */
-    public function __construct(string $id, array $errors = [])
-    {
+    public function __construct(
+        string $id,
+        array $errors = []
+    ) {
         $this->id = $id;
         $this->errors = $errors;
 

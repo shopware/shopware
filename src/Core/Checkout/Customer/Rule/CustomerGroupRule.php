@@ -21,8 +21,10 @@ class CustomerGroupRule extends Rule
      *
      * @param list<string>|null $customerGroupIds
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $customerGroupIds = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $customerGroupIds = null
+    ) {
         parent::__construct();
     }
 

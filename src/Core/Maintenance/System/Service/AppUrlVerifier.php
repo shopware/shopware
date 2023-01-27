@@ -17,8 +17,12 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('core')]
 class AppUrlVerifier
 {
-    public function __construct(private readonly Client $guzzle, private readonly Connection $connection, private readonly string $appEnv, private readonly bool $appUrlCheckDisabled)
-    {
+    public function __construct(
+        private readonly Client $guzzle,
+        private readonly Connection $connection,
+        private readonly string $appEnv,
+        private readonly bool $appUrlCheckDisabled
+    ) {
     }
 
     public function isAppUrlReachable(Request $request): bool

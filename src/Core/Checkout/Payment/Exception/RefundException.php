@@ -7,8 +7,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class RefundException extends RefundProcessException
 {
-    public function __construct(string $refundId, string $errorMessage, ?\Throwable $e = null)
-    {
+    public function __construct(
+        string $refundId,
+        string $errorMessage,
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             $refundId,
             'The refund process was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',

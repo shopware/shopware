@@ -7,8 +7,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('sales-channel')]
 class SeoTemplateReplacementVariable
 {
-    public function __construct(private readonly string $mappedEntityName, private readonly ?string $mappedEntityFields = null)
-    {
+    public function __construct(
+        private readonly string $mappedEntityName,
+        private readonly ?string $mappedEntityFields = null
+    ) {
     }
 
     public function hasMappedFields(): bool

@@ -23,8 +23,11 @@ class CashRoundingConfig extends Struct
      */
     protected $roundForNet;
 
-    public function __construct(int $decimals, float $interval, bool $roundForNet)
-    {
+    public function __construct(
+        int $decimals,
+        float $interval,
+        bool $roundForNet
+    ) {
         $this->decimals = $decimals;
         $this->interval = $interval;
         $this->roundForNet = $roundForNet;

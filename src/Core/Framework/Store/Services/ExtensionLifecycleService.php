@@ -15,8 +15,12 @@ use Shopware\Core\Framework\Plugin\PluginService;
 #[Package('merchant-services')]
 class ExtensionLifecycleService extends AbstractExtensionLifecycle
 {
-    public function __construct(private readonly AbstractStoreAppLifecycleService $storeAppLifecycleService, private readonly PluginService $pluginService, private readonly PluginLifecycleService $pluginLifecycleService, private readonly PluginManagementService $pluginManagementService)
-    {
+    public function __construct(
+        private readonly AbstractStoreAppLifecycleService $storeAppLifecycleService,
+        private readonly PluginService $pluginService,
+        private readonly PluginLifecycleService $pluginLifecycleService,
+        private readonly PluginManagementService $pluginManagementService
+    ) {
     }
 
     public function install(string $type, string $technicalName, Context $context): void

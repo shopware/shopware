@@ -72,8 +72,14 @@ class ApiController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly DecoderInterface $serializer, private readonly RequestCriteriaBuilder $criteriaBuilder, private readonly ApiVersionConverter $apiVersionConverter, private readonly EntityProtectionValidator $entityProtectionValidator, private readonly AclCriteriaValidator $criteriaValidator)
-    {
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly DecoderInterface $serializer,
+        private readonly RequestCriteriaBuilder $criteriaBuilder,
+        private readonly ApiVersionConverter $apiVersionConverter,
+        private readonly EntityProtectionValidator $entityProtectionValidator,
+        private readonly AclCriteriaValidator $criteriaValidator
+    ) {
     }
 
     #[Route(path: '/api/_action/clone/{entity}/{id}', name: 'api.clone', methods: ['POST'], requirements: ['version' => '\d+', 'entity' => '[a-zA-Z-]+', 'id' => '[0-9a-f]{32}'])]

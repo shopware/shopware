@@ -21,8 +21,10 @@ class BusinessEventEncoder
     /**
      * @internal
      */
-    public function __construct(private readonly JsonEntityEncoder $entityEncoder, private readonly DefinitionInstanceRegistry $definitionRegistry)
-    {
+    public function __construct(
+        private readonly JsonEntityEncoder $entityEncoder,
+        private readonly DefinitionInstanceRegistry $definitionRegistry
+    ) {
     }
 
     /**

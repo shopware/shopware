@@ -25,8 +25,12 @@ class CustomerGroupRegistrationAccepted extends Event implements SalesChannelAwa
     /**
      * @internal
      */
-    public function __construct(private readonly CustomerEntity $customer, private readonly CustomerGroupEntity $customerGroup, private readonly Context $context, private readonly ?MailRecipientStruct $mailRecipientStruct = null)
-    {
+    public function __construct(
+        private readonly CustomerEntity $customer,
+        private readonly CustomerGroupEntity $customerGroup,
+        private readonly Context $context,
+        private readonly ?MailRecipientStruct $mailRecipientStruct = null
+    ) {
     }
 
     public static function getAvailableData(): EventDataCollection

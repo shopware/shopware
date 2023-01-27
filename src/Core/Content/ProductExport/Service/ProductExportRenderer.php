@@ -24,8 +24,11 @@ class ProductExportRenderer implements ProductExportRendererInterface
     /**
      * @internal
      */
-    public function __construct(private readonly StringTemplateRenderer $templateRenderer, private readonly EventDispatcherInterface $eventDispatcher, private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler)
-    {
+    public function __construct(
+        private readonly StringTemplateRenderer $templateRenderer,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler
+    ) {
     }
 
     public function renderHeader(

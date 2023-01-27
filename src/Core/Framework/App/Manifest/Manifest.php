@@ -26,8 +26,21 @@ class Manifest
 {
     private const XSD_FILE = __DIR__ . '/Schema/manifest-2.0.xsd';
 
-    private function __construct(private string $path, private readonly Metadata $metadata, private readonly ?Setup $setup, private readonly ?Admin $admin, private ?Permissions $permissions, private readonly ?AllowedHosts $allowedHosts, private readonly ?CustomFields $customFields, private readonly ?Webhooks $webhooks, private readonly ?Cookies $cookies, private readonly ?Payments $payments, private readonly ?RuleConditions $ruleConditions, private readonly ?Storefront $storefront, private readonly ?Tax $tax)
-    {
+    private function __construct(
+        private string $path,
+        private readonly Metadata $metadata,
+        private readonly ?Setup $setup,
+        private readonly ?Admin $admin,
+        private ?Permissions $permissions,
+        private readonly ?AllowedHosts $allowedHosts,
+        private readonly ?CustomFields $customFields,
+        private readonly ?Webhooks $webhooks,
+        private readonly ?Cookies $cookies,
+        private readonly ?Payments $payments,
+        private readonly ?RuleConditions $ruleConditions,
+        private readonly ?Storefront $storefront,
+        private readonly ?Tax $tax
+    ) {
     }
 
     public static function createFromXmlFile(string $xmlFile): self

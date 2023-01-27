@@ -11,8 +11,10 @@ class FoundCombination extends Struct
     /**
      * @param string[] $options
      */
-    public function __construct(protected string $variantId, protected array $options)
-    {
+    public function __construct(
+        protected string $variantId,
+        protected array $options
+    ) {
     }
 
     public function getVariantId(): string

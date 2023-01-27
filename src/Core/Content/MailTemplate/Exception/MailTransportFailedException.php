@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('sales-channel')]
 class MailTransportFailedException extends ShopwareHttpException
 {
-    public function __construct(array $failedRecipients, ?\Throwable $e = null)
-    {
+    public function __construct(
+        array $failedRecipients,
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             'Failed sending mail to following recipients: {{ recipients }} with Error: {{ errorMessage }}',
             ['recipients' => $failedRecipients, 'recipientsString' => implode(', ', $failedRecipients), 'errorMessage' => $e ? $e->getMessage() : 'Unknown error'],

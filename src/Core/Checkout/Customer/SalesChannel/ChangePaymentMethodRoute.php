@@ -26,8 +26,11 @@ class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityRepository $paymentMethodRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $paymentMethodRepository
+    ) {
     }
 
     public function getDecorated(): AbstractChangePaymentMethodRoute

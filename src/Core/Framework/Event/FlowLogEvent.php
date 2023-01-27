@@ -14,8 +14,11 @@ class FlowLogEvent extends Event implements FlowEventAware
 
     private readonly array $config;
 
-    public function __construct(private readonly string $name, private readonly FlowEventAware $event, ?array $config = [])
-    {
+    public function __construct(
+        private readonly string $name,
+        private readonly FlowEventAware $event,
+        ?array $config = []
+    ) {
         $this->config = $config ?? [];
     }
 

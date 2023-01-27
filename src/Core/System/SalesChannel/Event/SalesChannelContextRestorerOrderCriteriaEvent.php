@@ -10,8 +10,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class SalesChannelContextRestorerOrderCriteriaEvent extends NestedEvent
 {
-    public function __construct(protected Criteria $criteria, protected Context $context)
-    {
+    public function __construct(
+        protected Criteria $criteria,
+        protected Context $context
+    ) {
     }
 
     public function getContext(): Context

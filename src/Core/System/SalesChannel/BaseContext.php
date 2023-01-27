@@ -18,8 +18,18 @@ use Shopware\Core\System\Tax\TaxCollection;
 #[Package('core')]
 class BaseContext
 {
-    public function __construct(protected Context $context, protected SalesChannelEntity $salesChannel, protected CurrencyEntity $currency, protected CustomerGroupEntity $currentCustomerGroup, protected TaxCollection $taxRules, protected PaymentMethodEntity $paymentMethod, protected ShippingMethodEntity $shippingMethod, protected ShippingLocation $shippingLocation, private readonly CashRoundingConfig $itemRounding, private readonly CashRoundingConfig $totalRounding)
-    {
+    public function __construct(
+        protected Context $context,
+        protected SalesChannelEntity $salesChannel,
+        protected CurrencyEntity $currency,
+        protected CustomerGroupEntity $currentCustomerGroup,
+        protected TaxCollection $taxRules,
+        protected PaymentMethodEntity $paymentMethod,
+        protected ShippingMethodEntity $shippingMethod,
+        protected ShippingLocation $shippingLocation,
+        private readonly CashRoundingConfig $itemRounding,
+        private readonly CashRoundingConfig $totalRounding
+    ) {
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity

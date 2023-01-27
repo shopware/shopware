@@ -22,8 +22,11 @@ class OrderConverterController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly OrderConverter $orderConverter, private readonly AbstractCartPersister $cartPersister, private readonly EntityRepository $orderRepository)
-    {
+    public function __construct(
+        private readonly OrderConverter $orderConverter,
+        private readonly AbstractCartPersister $cartPersister,
+        private readonly EntityRepository $orderRepository
+    ) {
     }
 
     #[Route(path: '/api/_action/order/{orderId}/convert-to-cart/', name: 'api.action.order.convert-to-cart', methods: ['POST'])]

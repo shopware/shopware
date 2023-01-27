@@ -21,8 +21,10 @@ abstract class RequirementCheck extends Struct
 
     private readonly string $status;
 
-    public function __construct(string $name, string $status)
-    {
+    public function __construct(
+        string $name,
+        string $status
+    ) {
         if (empty($name)) {
             throw new \RuntimeException('Empty name for RequirementCheck provided.');
         }

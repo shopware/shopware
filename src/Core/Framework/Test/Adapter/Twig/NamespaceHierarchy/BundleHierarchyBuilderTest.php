@@ -272,8 +272,11 @@ class BundleHierarchyBuilderTest extends TestCase
  */
 class MockBundle extends Bundle
 {
-    public function __construct(string $name, private readonly int $templatePriority, string $path)
-    {
+    public function __construct(
+        string $name,
+        private readonly int $templatePriority,
+        string $path
+    ) {
         $this->name = $name;
         $this->path = $path;
     }

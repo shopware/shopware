@@ -19,8 +19,11 @@ class SuggestPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractProductSuggestRoute $productSuggestRoute, private readonly GenericPageLoaderInterface $genericLoader)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractProductSuggestRoute $productSuggestRoute,
+        private readonly GenericPageLoaderInterface $genericLoader
+    ) {
     }
 
     /**

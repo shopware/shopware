@@ -21,8 +21,10 @@ class CountryStateDataPageletLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'country-sate-data-pagelet-loaded';
 
-    public function __construct(private readonly CountryStateDataPagelet $pagelet, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly CountryStateDataPagelet $pagelet,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

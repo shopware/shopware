@@ -21,8 +21,10 @@ class NavigationPageLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'navigation-page-loaded';
 
-    public function __construct(private readonly NavigationPage $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly NavigationPage $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

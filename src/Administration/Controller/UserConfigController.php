@@ -30,8 +30,10 @@ class UserConfigController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $userConfigRepository, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly EntityRepository $userConfigRepository,
+        private readonly Connection $connection
+    ) {
     }
 
     #[Route(path: '/api/_info/config-me', name: 'api.config_me.get', defaults: ['auth_required' => true, '_routeScope' => ['administration']], methods: ['GET'])]

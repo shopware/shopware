@@ -28,8 +28,11 @@ class ProductListingCriteriaEvent extends NestedEvent implements ShopwareSalesCh
      */
     protected $context;
 
-    public function __construct(Request $request, Criteria $criteria, SalesChannelContext $context)
-    {
+    public function __construct(
+        Request $request,
+        Criteria $criteria,
+        SalesChannelContext $context
+    ) {
         $this->request = $request;
         $this->criteria = $criteria;
         $this->context = $context;

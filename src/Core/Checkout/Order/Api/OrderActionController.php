@@ -28,8 +28,13 @@ class OrderActionController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly OrderService $orderService, private readonly ApiVersionConverter $apiVersionConverter, private readonly StateMachineDefinition $stateMachineDefinition, private readonly Connection $connection, private readonly PaymentRefundProcessor $paymentRefundProcessor)
-    {
+    public function __construct(
+        private readonly OrderService $orderService,
+        private readonly ApiVersionConverter $apiVersionConverter,
+        private readonly StateMachineDefinition $stateMachineDefinition,
+        private readonly Connection $connection,
+        private readonly PaymentRefundProcessor $paymentRefundProcessor
+    ) {
     }
 
     #[Route(path: '/api/_action/order/{orderId}/state/{transition}', name: 'api.action.order.state_machine.order.transition_state', methods: ['POST'])]

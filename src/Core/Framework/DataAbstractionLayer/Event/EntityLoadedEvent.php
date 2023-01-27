@@ -36,8 +36,11 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent
     /**
      * @param Entity[] $entities
      */
-    public function __construct(EntityDefinition $definition, array $entities, Context $context)
-    {
+    public function __construct(
+        EntityDefinition $definition,
+        array $entities,
+        Context $context
+    ) {
         $this->entities = $entities;
         $this->definition = $definition;
         $this->context = $context;

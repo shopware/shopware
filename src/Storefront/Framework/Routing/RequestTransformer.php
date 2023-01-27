@@ -90,8 +90,12 @@ class RequestTransformer implements RequestTransformerInterface
      *
      * @param list<string> $registeredApiPrefixes
      */
-    public function __construct(private readonly RequestTransformerInterface $decorated, private readonly AbstractSeoResolver $resolver, private readonly array $registeredApiPrefixes, private readonly AbstractDomainLoader $domainLoader)
-    {
+    public function __construct(
+        private readonly RequestTransformerInterface $decorated,
+        private readonly AbstractSeoResolver $resolver,
+        private readonly array $registeredApiPrefixes,
+        private readonly AbstractDomainLoader $domainLoader
+    ) {
     }
 
     public function transform(Request $request): Request

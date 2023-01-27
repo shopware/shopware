@@ -13,8 +13,11 @@ class SyncResult extends Struct
      * @param array<array<int, mixed>> $notFound
      * @param array<array<int, mixed>> $deleted
      */
-    public function __construct(protected array $data, protected array $notFound = [], protected array $deleted = [])
-    {
+    public function __construct(
+        protected array $data,
+        protected array $notFound = [],
+        protected array $deleted = []
+    ) {
     }
 
     /**

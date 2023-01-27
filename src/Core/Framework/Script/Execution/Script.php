@@ -11,8 +11,15 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('core')]
 class Script extends Struct
 {
-    public function __construct(protected string $name, protected string $script, protected \DateTimeInterface $lastModified, private readonly ?ScriptAppInformation $scriptAppInformation = null, protected array $twigOptions = [], protected array $includes = [], private readonly bool $active = true)
-    {
+    public function __construct(
+        protected string $name,
+        protected string $script,
+        protected \DateTimeInterface $lastModified,
+        private readonly ?ScriptAppInformation $scriptAppInformation = null,
+        protected array $twigOptions = [],
+        protected array $includes = [],
+        private readonly bool $active = true
+    ) {
     }
 
     public function getName(): string

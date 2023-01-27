@@ -31,8 +31,15 @@ class CheckoutConfirmPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly StorefrontCartFacade $cartService, private readonly AbstractShippingMethodRoute $shippingMethodRoute, private readonly AbstractPaymentMethodRoute $paymentMethodRoute, private readonly GenericPageLoaderInterface $genericPageLoader, private readonly DataValidationFactoryInterface $addressValidationFactory, private readonly DataValidator $validator)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly StorefrontCartFacade $cartService,
+        private readonly AbstractShippingMethodRoute $shippingMethodRoute,
+        private readonly AbstractPaymentMethodRoute $paymentMethodRoute,
+        private readonly GenericPageLoaderInterface $genericPageLoader,
+        private readonly DataValidationFactoryInterface $addressValidationFactory,
+        private readonly DataValidator $validator
+    ) {
     }
 
     /**

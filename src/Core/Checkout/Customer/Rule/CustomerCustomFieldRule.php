@@ -25,8 +25,10 @@ class CustomerCustomFieldRule extends Rule
      *
      * @internal
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected array $renderedField = [])
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected array $renderedField = []
+    ) {
         parent::__construct();
     }
 

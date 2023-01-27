@@ -8,8 +8,10 @@ use Shopware\Core\Framework\ShopwareHttpException;
 #[Package('content')]
 class FileTypeNotAllowedException extends ShopwareHttpException
 {
-    public function __construct(string $mimeType, string $uploadType)
-    {
+    public function __construct(
+        string $mimeType,
+        string $uploadType
+    ) {
         parent::__construct(
             'Type "{{ mimeType }}" of provided file is not allowed for {{ uploadType }}',
             ['mimeType' => $mimeType, 'uploadType' => $uploadType]

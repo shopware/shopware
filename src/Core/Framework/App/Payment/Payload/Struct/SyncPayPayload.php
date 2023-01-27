@@ -22,8 +22,10 @@ class SyncPayPayload implements PaymentPayloadInterface
 
     protected OrderTransactionEntity $orderTransaction;
 
-    public function __construct(OrderTransactionEntity $orderTransaction, protected OrderEntity $order)
-    {
+    public function __construct(
+        OrderTransactionEntity $orderTransaction,
+        protected OrderEntity $order
+    ) {
         $this->orderTransaction = $this->removeApp($orderTransaction);
     }
 

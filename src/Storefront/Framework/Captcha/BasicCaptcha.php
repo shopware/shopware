@@ -22,8 +22,10 @@ class BasicCaptcha extends AbstractCaptcha
     /**
      * @internal
      */
-    public function __construct(private readonly RequestStack $requestStack, private readonly SystemConfigService $systemConfigService)
-    {
+    public function __construct(
+        private readonly RequestStack $requestStack,
+        private readonly SystemConfigService $systemConfigService
+    ) {
     }
 
     /**

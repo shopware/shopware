@@ -37,8 +37,11 @@ class CartFacade
     /**
      * @internal
      */
-    public function __construct(CartFacadeHelper $helper, private Cart $cart, SalesChannelContext $context)
-    {
+    public function __construct(
+        CartFacadeHelper $helper,
+        private Cart $cart,
+        SalesChannelContext $context
+    ) {
         $this->helper = $helper;
         $this->context = $context;
     }

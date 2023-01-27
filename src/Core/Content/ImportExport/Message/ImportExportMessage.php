@@ -12,8 +12,12 @@ class ImportExportMessage implements AsyncMessageInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Context $context, private readonly string $logId, private readonly string $activity, private readonly int $offset = 0)
-    {
+    public function __construct(
+        private readonly Context $context,
+        private readonly string $logId,
+        private readonly string $activity,
+        private readonly int $offset = 0
+    ) {
     }
 
     public function getContext(): Context

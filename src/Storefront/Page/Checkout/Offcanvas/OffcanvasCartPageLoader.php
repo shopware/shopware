@@ -21,8 +21,12 @@ class OffcanvasCartPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly StorefrontCartFacade $cartService, private readonly GenericPageLoaderInterface $genericLoader, private readonly AbstractShippingMethodRoute $shippingMethodRoute)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly StorefrontCartFacade $cartService,
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly AbstractShippingMethodRoute $shippingMethodRoute
+    ) {
     }
 
     /**

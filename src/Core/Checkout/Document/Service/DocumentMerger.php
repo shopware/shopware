@@ -24,8 +24,12 @@ final class DocumentMerger
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $documentRepository, private readonly MediaService $mediaService, private readonly DocumentGenerator $documentGenerator, private readonly Fpdi $fpdi)
-    {
+    public function __construct(
+        private readonly EntityRepository $documentRepository,
+        private readonly MediaService $mediaService,
+        private readonly DocumentGenerator $documentGenerator,
+        private readonly Fpdi $fpdi
+    ) {
     }
 
     /**

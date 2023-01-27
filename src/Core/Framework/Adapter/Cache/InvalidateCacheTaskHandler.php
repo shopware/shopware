@@ -14,8 +14,11 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[Package('core')]
 final class InvalidateCacheTaskHandler extends ScheduledTaskHandler
 {
-    public function __construct(EntityRepository $scheduledTaskRepository, private readonly CacheInvalidator $cacheInvalidator, private readonly int $delay)
-    {
+    public function __construct(
+        EntityRepository $scheduledTaskRepository,
+        private readonly CacheInvalidator $cacheInvalidator,
+        private readonly int $delay
+    ) {
         parent::__construct($scheduledTaskRepository);
     }
 

@@ -21,8 +21,14 @@ class StoreHandshake implements AppHandshakeInterface
 
     private const SBP_EXCEPTION_NO_LICENSE = 'ShopwarePlatformException-16';
 
-    public function __construct(private readonly string $shopUrl, private readonly string $appEndpoint, private readonly string $appName, private readonly string $shopId, private readonly StoreClient $storeClient, private readonly string $shopwareVersion)
-    {
+    public function __construct(
+        private readonly string $shopUrl,
+        private readonly string $appEndpoint,
+        private readonly string $appName,
+        private readonly string $shopId,
+        private readonly StoreClient $storeClient,
+        private readonly string $shopwareVersion
+    ) {
     }
 
     public function assembleRequest(): RequestInterface

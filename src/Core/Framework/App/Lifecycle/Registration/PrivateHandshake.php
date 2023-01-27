@@ -13,8 +13,14 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class PrivateHandshake implements AppHandshakeInterface
 {
-    public function __construct(private readonly string $shopUrl, private readonly string $secret, private readonly string $appEndpoint, private readonly string $appName, private readonly string $shopId, private readonly string $shopwareVersion)
-    {
+    public function __construct(
+        private readonly string $shopUrl,
+        private readonly string $secret,
+        private readonly string $appEndpoint,
+        private readonly string $appName,
+        private readonly string $shopId,
+        private readonly string $shopwareVersion
+    ) {
     }
 
     public function assembleRequest(): RequestInterface

@@ -28,8 +28,14 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $orderRepository, private readonly EntityRepository $transactionRepository, private readonly EntityRepository $deliveryRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly BusinessEventCollector $businessEventCollector, private readonly EntityRepository $stateRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $orderRepository,
+        private readonly EntityRepository $transactionRepository,
+        private readonly EntityRepository $deliveryRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly BusinessEventCollector $businessEventCollector,
+        private readonly EntityRepository $stateRepository
+    ) {
     }
 
     public static function getSubscribedEvents(): array

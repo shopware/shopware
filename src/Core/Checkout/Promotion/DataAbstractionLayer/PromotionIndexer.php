@@ -24,8 +24,13 @@ class PromotionIndexer extends EntityIndexer
     /**
      * @internal
      */
-    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly PromotionExclusionUpdater $exclusionUpdater, private readonly PromotionRedemptionUpdater $redemptionUpdater, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly PromotionExclusionUpdater $exclusionUpdater,
+        private readonly PromotionRedemptionUpdater $redemptionUpdater,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function getName(): string

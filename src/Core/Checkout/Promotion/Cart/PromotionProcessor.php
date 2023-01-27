@@ -26,8 +26,10 @@ class PromotionProcessor implements CartProcessorInterface
     /**
      * @internal
      */
-    public function __construct(private readonly PromotionCalculator $promotionCalculator, private readonly LineItemGroupBuilder $groupBuilder)
-    {
+    public function __construct(
+        private readonly PromotionCalculator $promotionCalculator,
+        private readonly LineItemGroupBuilder $groupBuilder
+    ) {
     }
 
     /**

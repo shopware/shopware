@@ -20,8 +20,11 @@ class ValidatePayload implements SourcedPayloadInterface
 
     protected Source $source;
 
-    public function __construct(protected Cart $cart, protected array $requestData, protected SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        protected Cart $cart,
+        protected array $requestData,
+        protected SalesChannelContext $salesChannelContext
+    ) {
     }
 
     public function setSource(Source $source): void

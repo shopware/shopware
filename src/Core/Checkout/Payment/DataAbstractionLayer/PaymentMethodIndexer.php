@@ -19,8 +19,12 @@ class PaymentMethodIndexer extends EntityIndexer
     /**
      * @internal
      */
-    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityRepository $paymentMethodRepository, private readonly PaymentDistinguishableNameGenerator $distinguishableNameGenerator)
-    {
+    public function __construct(
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $paymentMethodRepository,
+        private readonly PaymentDistinguishableNameGenerator $distinguishableNameGenerator
+    ) {
     }
 
     public function getName(): string

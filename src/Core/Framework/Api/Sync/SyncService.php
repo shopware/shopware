@@ -22,8 +22,10 @@ class SyncService implements SyncServiceInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EntityWriterInterface $writer, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly EntityWriterInterface $writer,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     /**

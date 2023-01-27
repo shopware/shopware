@@ -16,8 +16,10 @@ class FakeLineItemGroupTakeAllPackager implements LineItemGroupPackagerInterface
 {
     private int $sequenceCount = 1;
 
-    public function __construct(private readonly string $key, private readonly FakeSequenceSupervisor $sequenceSupervisor)
-    {
+    public function __construct(
+        private readonly string $key,
+        private readonly FakeSequenceSupervisor $sequenceSupervisor
+    ) {
     }
 
     public function getSequenceCount(): int

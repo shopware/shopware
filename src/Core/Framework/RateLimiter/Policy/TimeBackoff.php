@@ -27,8 +27,11 @@ class TimeBackoff implements LimiterStateInterface
     /**
      * @param list<TimeBackoffLimit> $limits
      */
-    public function __construct(private readonly string $id, private array $limits, ?int $timer = null)
-    {
+    public function __construct(
+        private readonly string $id,
+        private array $limits,
+        ?int $timer = null
+    ) {
         $this->attempts = 0;
         $this->timer = $timer ?? time();
         $this->unthrottledAttempts = min(array_column($this->limits, 'limit')) ?: 0;

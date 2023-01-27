@@ -37,8 +37,11 @@ class PluginCompatibility
     /**
      * @internal
      */
-    public function __construct(private readonly StoreClient $storeClient, private readonly EntityRepository $pluginRepository, private readonly AbstractExtensionDataProvider $extensionDataProvider)
-    {
+    public function __construct(
+        private readonly StoreClient $storeClient,
+        private readonly EntityRepository $pluginRepository,
+        private readonly AbstractExtensionDataProvider $extensionDataProvider
+    ) {
     }
 
     /**

@@ -16,8 +16,10 @@ class ApiOrderCartService
     /**
      * @internal
      */
-    public function __construct(protected CartService $cartService, protected SalesChannelContextPersister $contextPersister)
-    {
+    public function __construct(
+        protected CartService $cartService,
+        protected SalesChannelContextPersister $contextPersister
+    ) {
     }
 
     public function updateShippingCosts(CalculatedPrice $calculatedPrice, SalesChannelContext $context): Cart

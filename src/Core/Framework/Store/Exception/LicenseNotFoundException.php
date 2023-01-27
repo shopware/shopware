@@ -9,8 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('merchant-services')]
 class LicenseNotFoundException extends ShopwareHttpException
 {
-    public function __construct(int $licenseId, array $parameters = [], ?\Throwable $e = null)
-    {
+    public function __construct(
+        int $licenseId,
+        array $parameters = [],
+        ?\Throwable $e = null
+    ) {
         $parameters['licenseId'] = $licenseId;
 
         parent::__construct('Could not find license with id {{licenseId}}', $parameters, $e);

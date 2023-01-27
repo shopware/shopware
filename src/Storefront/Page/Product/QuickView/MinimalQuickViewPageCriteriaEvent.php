@@ -27,8 +27,11 @@ class MinimalQuickViewPageCriteriaEvent extends Event implements ShopwareSalesCh
      */
     protected $context;
 
-    public function __construct(string $productId, Criteria $criteria, SalesChannelContext $context)
-    {
+    public function __construct(
+        string $productId,
+        Criteria $criteria,
+        SalesChannelContext $context
+    ) {
         $this->productId = $productId;
         $this->criteria = $criteria;
         $this->context = $context;

@@ -22,8 +22,10 @@ class CustomerTagRule extends Rule
      *
      * @param list<string>|null $identifiers
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $identifiers = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $identifiers = null
+    ) {
         parent::__construct();
     }
 

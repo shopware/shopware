@@ -9,8 +9,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('storefront')]
 class ThemeIndexerEvent extends NestedEvent
 {
-    public function __construct(private readonly array $ids, private readonly Context $context, private readonly array $skip = [])
-    {
+    public function __construct(
+        private readonly array $ids,
+        private readonly Context $context,
+        private readonly array $skip = []
+    ) {
     }
 
     public function getContext(): Context

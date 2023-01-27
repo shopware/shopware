@@ -23,8 +23,11 @@ class HreflangLoaderParameter
      */
     protected $salesChannelContext;
 
-    public function __construct(string $route, array $routeParameters, SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        string $route,
+        array $routeParameters,
+        SalesChannelContext $salesChannelContext
+    ) {
         $this->route = $route;
         $this->routeParameters = $routeParameters;
         $this->salesChannelContext = $salesChannelContext;

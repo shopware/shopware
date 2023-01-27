@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('core')]
 class ReadProtectedException extends ShopwareHttpException
 {
-    public function __construct(string $field, string $scope)
-    {
+    public function __construct(
+        string $field,
+        string $scope
+    ) {
         parent::__construct(
             'The field/association "{{ field }}" is read protected for your scope "{{ scope }}"',
             [

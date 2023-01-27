@@ -28,8 +28,13 @@ class ProductPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractProductDetailRoute $productDetailRoute, private readonly ProductReviewLoader $productReviewLoader, private readonly AbstractProductCrossSellingRoute $crossSellingRoute)
-    {
+    public function __construct(
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractProductDetailRoute $productDetailRoute,
+        private readonly ProductReviewLoader $productReviewLoader,
+        private readonly AbstractProductCrossSellingRoute $crossSellingRoute
+    ) {
     }
 
     /**

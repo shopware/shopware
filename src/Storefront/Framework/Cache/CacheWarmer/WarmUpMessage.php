@@ -36,8 +36,11 @@ class WarmUpMessage implements AsyncMessageInterface
     /**
      * @internal
      */
-    public function __construct(string $route, array $parameters, ?array $offset = null)
-    {
+    public function __construct(
+        string $route,
+        array $parameters,
+        ?array $offset = null
+    ) {
         $this->offset = $offset;
         $this->route = $route;
         $this->parameters = $parameters;

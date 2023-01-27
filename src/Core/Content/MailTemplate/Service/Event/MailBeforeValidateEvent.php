@@ -22,8 +22,11 @@ class MailBeforeValidateEvent extends Event implements LogAware, TemplateDataAwa
      * @param array<string, mixed> $data
      * @param array<string, mixed> $templateData
      */
-    public function __construct(private array $data, private readonly Context $context, private array $templateData = [])
-    {
+    public function __construct(
+        private array $data,
+        private readonly Context $context,
+        private array $templateData = []
+    ) {
     }
 
     public static function getAvailableData(): EventDataCollection

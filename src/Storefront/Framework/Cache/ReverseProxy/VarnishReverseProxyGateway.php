@@ -22,8 +22,11 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
      *
      * @param string[] $hosts
      */
-    public function __construct(private readonly array $hosts, private readonly int $concurrency, private readonly Client $client)
-    {
+    public function __construct(
+        private readonly array $hosts,
+        private readonly int $concurrency,
+        private readonly Client $client
+    ) {
     }
 
     public function getDecorated(): AbstractReverseProxyGateway

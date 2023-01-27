@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('inventory')]
 class VariantNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $productId, array $options)
-    {
+    public function __construct(
+        string $productId,
+        array $options
+    ) {
         parent::__construct(
             'Variant for productId {{ productId }} with options {{ options }} not found.',
             [

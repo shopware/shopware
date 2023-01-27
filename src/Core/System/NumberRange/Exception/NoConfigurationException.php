@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('checkout')]
 class NoConfigurationException extends ShopwareHttpException
 {
-    public function __construct(string $entityName, ?string $salesChannelId = null)
-    {
+    public function __construct(
+        string $entityName,
+        ?string $salesChannelId = null
+    ) {
         parent::__construct(
             'No number range configuration found for entity "{{ entity }}" with sales channel "{{ salesChannelId }}".',
             ['entity' => $entityName, 'salesChannelId' => $salesChannelId]

@@ -29,8 +29,10 @@ class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
      */
     protected ?Rule $filter;
 
-    public function __construct(float $price, ?Rule $filter = null)
-    {
+    public function __construct(
+        float $price,
+        ?Rule $filter = null
+    ) {
         $this->price = FloatComparator::cast($price);
         $this->filter = $filter;
     }

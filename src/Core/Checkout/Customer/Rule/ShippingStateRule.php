@@ -24,8 +24,10 @@ class ShippingStateRule extends Rule
      *
      * @param list<string>|null $stateIds
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $stateIds = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $stateIds = null
+    ) {
         parent::__construct();
     }
 

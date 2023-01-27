@@ -26,8 +26,12 @@ class Notification
      */
     private $shopwareVersion;
 
-    public function __construct(string $apiEndPoint, string $uniqueId, Client $client, string $shopwareVersion)
-    {
+    public function __construct(
+        string $apiEndPoint,
+        string $uniqueId,
+        Client $client,
+        string $shopwareVersion
+    ) {
         $this->apiEndPoint = $apiEndPoint;
         $this->client = $client;
         $this->uniqueId = $uniqueId;

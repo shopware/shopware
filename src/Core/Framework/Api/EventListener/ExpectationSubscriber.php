@@ -35,8 +35,10 @@ class ExpectationSubscriber implements EventSubscriberInterface
      *
      * @param list<PluginData> $plugins
      */
-    public function __construct(private readonly string $shopwareVersion, private readonly array $plugins)
-    {
+    public function __construct(
+        private readonly string $shopwareVersion,
+        private readonly array $plugins
+    ) {
     }
 
     public static function getSubscribedEvents(): array

@@ -11,8 +11,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class AvgResult extends AggregationResult
 {
-    public function __construct(string $name, protected float $avg)
-    {
+    public function __construct(
+        string $name,
+        protected float $avg
+    ) {
         parent::__construct($name);
     }
 

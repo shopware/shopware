@@ -20,8 +20,10 @@ class OrderPersister implements OrderPersisterInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $orderRepository, private readonly OrderConverter $converter)
-    {
+    public function __construct(
+        private readonly EntityRepository $orderRepository,
+        private readonly OrderConverter $converter
+    ) {
     }
 
     /**

@@ -40,8 +40,17 @@ class NotFoundSubscriber implements EventSubscriberInterface
      *
      * @param AbstractCacheTracer<Response> $cacheTracer
      */
-    public function __construct(private readonly ErrorController $controller, private readonly RequestStack $requestStack, private readonly SalesChannelContextServiceInterface $contextService, private bool $kernelDebug, private readonly CacheInterface $cache, private readonly AbstractCacheTracer $cacheTracer, private readonly EntityCacheKeyGenerator $generator, private readonly CacheInvalidator $cacheInvalidator, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly ErrorController $controller,
+        private readonly RequestStack $requestStack,
+        private readonly SalesChannelContextServiceInterface $contextService,
+        private bool $kernelDebug,
+        private readonly CacheInterface $cache,
+        private readonly AbstractCacheTracer $cacheTracer,
+        private readonly EntityCacheKeyGenerator $generator,
+        private readonly CacheInvalidator $cacheInvalidator,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public static function getSubscribedEvents(): array

@@ -16,8 +16,10 @@ class CheapestPriceUpdater
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly AbstractCheapestPriceQuantitySelector $quantitySelector)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly AbstractCheapestPriceQuantitySelector $quantitySelector
+    ) {
     }
 
     /**

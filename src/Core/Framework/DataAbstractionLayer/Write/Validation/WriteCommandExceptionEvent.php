@@ -14,8 +14,11 @@ class WriteCommandExceptionEvent extends Event implements ShopwareEvent
     /**
      * @param WriteCommand[] $commands
      */
-    public function __construct(private readonly \Throwable $exception, private readonly array $commands, private readonly Context $context)
-    {
+    public function __construct(
+        private readonly \Throwable $exception,
+        private readonly array $commands,
+        private readonly Context $context
+    ) {
     }
 
     public function getException(): \Throwable

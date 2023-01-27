@@ -21,8 +21,10 @@ class LineItemDimensionWidthRule extends Rule
     /**
      * @internal
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?float $amount = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?float $amount = null
+    ) {
         parent::__construct();
     }
 

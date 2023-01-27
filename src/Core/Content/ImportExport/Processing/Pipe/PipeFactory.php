@@ -14,8 +14,11 @@ class PipeFactory extends AbstractPipeFactory
     /**
      * @internal
      */
-    public function __construct(private readonly DefinitionInstanceRegistry $definitionInstanceRegistry, private readonly SerializerRegistry $serializerRegistry, private readonly PrimaryKeyResolver $primaryKeyResolver)
-    {
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly SerializerRegistry $serializerRegistry,
+        private readonly PrimaryKeyResolver $primaryKeyResolver
+    ) {
     }
 
     public function create(ImportExportLogEntity $logEntity): AbstractPipe

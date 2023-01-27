@@ -32,8 +32,12 @@ class ProductSerializer extends EntitySerializer
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $visibilityRepository, private readonly EntityRepository $salesChannelRepository, private readonly EntityRepository $productMediaRepository, private readonly EntityRepository $productConfiguratorSettingRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $visibilityRepository,
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly EntityRepository $productMediaRepository,
+        private readonly EntityRepository $productConfiguratorSettingRepository
+    ) {
     }
 
     /**

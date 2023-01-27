@@ -32,8 +32,10 @@ class RangeFilter extends SingleFieldFilter
      *
      * @param array<string, float|int|string> $parameters
      */
-    public function __construct(private readonly string $field, private readonly array $parameters = [])
-    {
+    public function __construct(
+        private readonly string $field,
+        private readonly array $parameters = []
+    ) {
     }
 
     public function hasParameter(string $key): bool

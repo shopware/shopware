@@ -41,8 +41,11 @@ class PromotionDeliveryCalculator
     /**
      * @internal
      */
-    public function __construct(private readonly QuantityPriceCalculator $quantityPriceCalculator, private readonly PercentagePriceCalculator $percentagePriceCalculator, private readonly PromotionItemBuilder $builder)
-    {
+    public function __construct(
+        private readonly QuantityPriceCalculator $quantityPriceCalculator,
+        private readonly PercentagePriceCalculator $percentagePriceCalculator,
+        private readonly PromotionItemBuilder $builder
+    ) {
     }
 
     /**

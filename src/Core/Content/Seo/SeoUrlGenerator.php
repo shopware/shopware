@@ -34,8 +34,13 @@ class SeoUrlGenerator
     /**
      * @internal
      */
-    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly RouterInterface $router, private readonly RequestStack $requestStack, private readonly Environment $twig, private readonly TwigVariableParser $twigVariableParser)
-    {
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly RouterInterface $router,
+        private readonly RequestStack $requestStack,
+        private readonly Environment $twig,
+        private readonly TwigVariableParser $twigVariableParser
+    ) {
     }
 
     /**

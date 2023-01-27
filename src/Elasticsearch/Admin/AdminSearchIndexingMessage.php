@@ -14,8 +14,12 @@ final class AdminSearchIndexingMessage
      * @param array<string, string> $indices
      * @param array<string> $ids
      */
-    public function __construct(private readonly string $entity, private readonly string $indexer, private readonly array $indices, private readonly array $ids)
-    {
+    public function __construct(
+        private readonly string $entity,
+        private readonly string $indexer,
+        private readonly array $indices,
+        private readonly array $ids
+    ) {
     }
 
     public function getEntity(): string

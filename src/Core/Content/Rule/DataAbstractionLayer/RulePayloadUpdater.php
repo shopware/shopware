@@ -26,8 +26,10 @@ class RulePayloadUpdater implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly RuleConditionRegistry $ruleConditionRegistry)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly RuleConditionRegistry $ruleConditionRegistry
+    ) {
     }
 
     public static function getSubscribedEvents(): array

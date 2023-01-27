@@ -23,8 +23,10 @@ class Zip
      * @param \ZipArchive $stream
      * @param int         $position
      */
-    public function __construct($stream, $position)
-    {
+    public function __construct(
+        $stream,
+        $position
+    ) {
         $this->position = $position;
         $this->stream = $stream;
         $this->name = $stream->getNameIndex($position);

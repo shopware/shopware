@@ -12,8 +12,12 @@ class CountSort extends FieldSort
     /**
      * @param array<mixed> $params
      */
-    public function __construct(string $field, ?string $order = null, ?BuilderInterface $nestedFilter = null, $params = [])
-    {
+    public function __construct(
+        string $field,
+        ?string $order = null,
+        ?BuilderInterface $nestedFilter = null,
+        $params = []
+    ) {
         $path = explode('.', $field);
         array_pop($path);
 

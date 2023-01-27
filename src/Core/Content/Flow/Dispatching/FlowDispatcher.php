@@ -23,8 +23,11 @@ class FlowDispatcher implements EventDispatcherInterface
 {
     private ContainerInterface $container;
 
-    public function __construct(private readonly EventDispatcherInterface $dispatcher, private readonly LoggerInterface $logger, private readonly FlowFactory $flowFactory)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly LoggerInterface $logger,
+        private readonly FlowFactory $flowFactory
+    ) {
     }
 
     public function setContainer(ContainerInterface $container): void

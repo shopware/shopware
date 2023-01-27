@@ -47,8 +47,15 @@ class AddressController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly AddressListingPageLoader $addressListingPageLoader, private readonly AddressDetailPageLoader $addressDetailPageLoader, private readonly AccountService $accountService, private readonly AbstractListAddressRoute $listAddressRoute, private readonly AbstractUpsertAddressRoute $updateAddressRoute, private readonly AbstractDeleteAddressRoute $deleteAddressRoute, private readonly AbstractChangeCustomerProfileRoute $updateCustomerProfileRoute)
-    {
+    public function __construct(
+        private readonly AddressListingPageLoader $addressListingPageLoader,
+        private readonly AddressDetailPageLoader $addressDetailPageLoader,
+        private readonly AccountService $accountService,
+        private readonly AbstractListAddressRoute $listAddressRoute,
+        private readonly AbstractUpsertAddressRoute $updateAddressRoute,
+        private readonly AbstractDeleteAddressRoute $deleteAddressRoute,
+        private readonly AbstractChangeCustomerProfileRoute $updateCustomerProfileRoute
+    ) {
     }
 
     #[Route(path: '/account/address', name: 'frontend.account.address.page', options: ['seo' => false], defaults: ['_loginRequired' => true, '_noStore' => true], methods: ['GET'])]

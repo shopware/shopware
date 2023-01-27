@@ -37,8 +37,15 @@ class ProductController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly ProductPageLoader $productPageLoader, private readonly AbstractFindProductVariantRoute $findVariantRoute, private readonly MinimalQuickViewPageLoader $minimalQuickViewPageLoader, private readonly AbstractProductReviewSaveRoute $productReviewSaveRoute, private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler, private readonly ProductReviewLoader $productReviewLoader, private readonly SystemConfigService $systemConfigService)
-    {
+    public function __construct(
+        private readonly ProductPageLoader $productPageLoader,
+        private readonly AbstractFindProductVariantRoute $findVariantRoute,
+        private readonly MinimalQuickViewPageLoader $minimalQuickViewPageLoader,
+        private readonly AbstractProductReviewSaveRoute $productReviewSaveRoute,
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
+        private readonly ProductReviewLoader $productReviewLoader,
+        private readonly SystemConfigService $systemConfigService
+    ) {
     }
 
     #[Route(path: '/detail/{productId}', name: 'frontend.detail.page', defaults: ['_httpCache' => true], methods: ['GET'])]

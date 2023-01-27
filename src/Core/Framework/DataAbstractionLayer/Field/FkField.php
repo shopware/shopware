@@ -36,8 +36,12 @@ class FkField extends Field implements StorageAware
 
     private ?string $referenceEntity = null;
 
-    public function __construct(string $storageName, string $propertyName, string $referenceClass, string $referenceField = 'id')
-    {
+    public function __construct(
+        string $storageName,
+        string $propertyName,
+        string $referenceClass,
+        string $referenceField = 'id'
+    ) {
         $this->referenceClass = $referenceClass;
         $this->storageName = $storageName;
         $this->referenceField = $referenceField;

@@ -9,8 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('system-settings')]
 class InvalidSettingValueException extends ShopwareHttpException
 {
-    public function __construct(string $key, ?string $neededType = null, ?string $actualType = null)
-    {
+    public function __construct(
+        string $key,
+        ?string $neededType = null,
+        ?string $actualType = null
+    ) {
         $message = 'Invalid value for \'{{ key }}\'';
         if ($neededType !== null) {
             $message .= '. Must be of type \'{{ neededType }}\'';

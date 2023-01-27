@@ -24,8 +24,11 @@ class CaptchaRouteListener implements EventSubscriberInterface
      *
      * @param iterable<AbstractCaptcha> $captchas
      */
-    public function __construct(private readonly iterable $captchas, private readonly ErrorController $errorController, private readonly SystemConfigService $systemConfigService)
-    {
+    public function __construct(
+        private readonly iterable $captchas,
+        private readonly ErrorController $errorController,
+        private readonly SystemConfigService $systemConfigService
+    ) {
     }
 
     /**

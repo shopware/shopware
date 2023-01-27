@@ -32,8 +32,10 @@ class SqlQueryParser
     /**
      * @internal
      */
-    public function __construct(private readonly EntityDefinitionQueryHelper $queryHelper, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly EntityDefinitionQueryHelper $queryHelper,
+        private readonly Connection $connection
+    ) {
     }
 
     public function parseRanking(

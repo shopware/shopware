@@ -14,8 +14,10 @@ class BasicCaptchaPageletLoader extends AbstractBasicCaptchaPageletLoader
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractBasicCaptchaGenerator $basicCaptchaGenerator)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractBasicCaptchaGenerator $basicCaptchaGenerator
+    ) {
     }
 
     public function load(Request $request, SalesChannelContext $context): BasicCaptchaPagelet

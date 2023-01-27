@@ -17,8 +17,10 @@ class IteratorFactory
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly DefinitionInstanceRegistry $registry)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly DefinitionInstanceRegistry $registry
+    ) {
     }
 
     public function createIterator(string|EntityDefinition $definition, ?array $lastId = null, int $limit = 50): IterableQuery

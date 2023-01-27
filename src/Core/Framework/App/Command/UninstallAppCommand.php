@@ -27,8 +27,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('core')]
 class UninstallAppCommand extends Command
 {
-    public function __construct(private readonly AbstractAppLifecycle $appLifecycle, private readonly EntityRepository $appRepository)
-    {
+    public function __construct(
+        private readonly AbstractAppLifecycle $appLifecycle,
+        private readonly EntityRepository $appRepository
+    ) {
         parent::__construct();
     }
 

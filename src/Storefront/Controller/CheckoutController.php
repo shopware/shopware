@@ -49,8 +49,17 @@ class CheckoutController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly CartService $cartService, private readonly CheckoutCartPageLoader $cartPageLoader, private readonly CheckoutConfirmPageLoader $confirmPageLoader, private readonly CheckoutFinishPageLoader $finishPageLoader, private readonly OrderService $orderService, private readonly PaymentService $paymentService, private readonly OffcanvasCartPageLoader $offcanvasCartPageLoader, private readonly SystemConfigService $config, private readonly AbstractLogoutRoute $logoutRoute)
-    {
+    public function __construct(
+        private readonly CartService $cartService,
+        private readonly CheckoutCartPageLoader $cartPageLoader,
+        private readonly CheckoutConfirmPageLoader $confirmPageLoader,
+        private readonly CheckoutFinishPageLoader $finishPageLoader,
+        private readonly OrderService $orderService,
+        private readonly PaymentService $paymentService,
+        private readonly OffcanvasCartPageLoader $offcanvasCartPageLoader,
+        private readonly SystemConfigService $config,
+        private readonly AbstractLogoutRoute $logoutRoute
+    ) {
     }
 
     #[Route(path: '/checkout/cart', name: 'frontend.checkout.cart.page', options: ['seo' => false], defaults: ['_noStore' => true], methods: ['GET'])]

@@ -29,8 +29,13 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $wishlistRepository, private readonly SalesChannelRepository $productRepository, private readonly SystemConfigService $systemConfigService, private readonly EventDispatcherInterface $eventDispatcher, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly EntityRepository $wishlistRepository,
+        private readonly SalesChannelRepository $productRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly Connection $connection
+    ) {
     }
 
     public function getDecorated(): AbstractMergeWishlistProductRoute

@@ -15,8 +15,10 @@ class PermittedIndividualCodePromotions extends MultiFilter
      * sales channel context, that do require an individual code
      * and have not yet been used in an order.
      */
-    public function __construct(array $codes, string $salesChannelId)
-    {
+    public function __construct(
+        array $codes,
+        string $salesChannelId
+    ) {
         $activeDateRange = new ActiveDateRange();
 
         parent::__construct(

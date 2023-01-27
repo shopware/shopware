@@ -26,8 +26,11 @@ class SalesChannelContextTokenChangeEvent extends Event implements ShopwareSales
      */
     protected $currentToken;
 
-    public function __construct(SalesChannelContext $salesChannelContext, string $previousToken, string $currentToken)
-    {
+    public function __construct(
+        SalesChannelContext $salesChannelContext,
+        string $previousToken,
+        string $currentToken
+    ) {
         $this->salesChannelContext = $salesChannelContext;
         $this->previousToken = $previousToken;
         $this->currentToken = $currentToken;

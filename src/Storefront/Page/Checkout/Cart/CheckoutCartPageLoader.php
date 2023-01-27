@@ -25,8 +25,14 @@ class CheckoutCartPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly StorefrontCartFacade $cartService, private readonly AbstractPaymentMethodRoute $paymentMethodRoute, private readonly AbstractShippingMethodRoute $shippingMethodRoute, private readonly AbstractCountryRoute $countryRoute)
-    {
+    public function __construct(
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly StorefrontCartFacade $cartService,
+        private readonly AbstractPaymentMethodRoute $paymentMethodRoute,
+        private readonly AbstractShippingMethodRoute $shippingMethodRoute,
+        private readonly AbstractCountryRoute $countryRoute
+    ) {
     }
 
     /**

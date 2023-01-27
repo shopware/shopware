@@ -31,8 +31,12 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Package('administration')]
 class AdminExtensionApiController extends AbstractController
 {
-    public function __construct(private readonly Executor $executor, private readonly ShopIdProvider $shopIdProvider, private readonly EntityRepository $appRepository, private readonly QuerySigner $querySigner)
-    {
+    public function __construct(
+        private readonly Executor $executor,
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly EntityRepository $appRepository,
+        private readonly QuerySigner $querySigner
+    ) {
     }
 
     #[Route(path: '/api/_action/extension-sdk/run-action', name: 'api.action.extension-sdk.run-action', methods: ['POST'])]

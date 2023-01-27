@@ -23,8 +23,14 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class AppRegistrationService
 {
-    public function __construct(private readonly HandshakeFactory $handshakeFactory, private readonly Client $httpClient, private readonly EntityRepository $appRepository, private readonly string $shopUrl, private readonly ShopIdProvider $shopIdProvider, private readonly string $shopwareVersion)
-    {
+    public function __construct(
+        private readonly HandshakeFactory $handshakeFactory,
+        private readonly Client $httpClient,
+        private readonly EntityRepository $appRepository,
+        private readonly string $shopUrl,
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly string $shopwareVersion
+    ) {
     }
 
     public function registerApp(Manifest $manifest, string $id, string $secretAccessKey, Context $context): void

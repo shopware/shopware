@@ -12,8 +12,10 @@ class MissingTranslationError extends Error
 {
     private const KEY = 'manifest-missing-translation';
 
-    public function __construct(string $xmlElementClass, array $missingTranslations)
-    {
+    public function __construct(
+        string $xmlElementClass,
+        array $missingTranslations
+    ) {
         $path = explode('\\', $xmlElementClass);
         $xmlClassName = array_pop($path);
 

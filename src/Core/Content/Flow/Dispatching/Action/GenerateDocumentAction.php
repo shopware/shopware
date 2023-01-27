@@ -23,8 +23,10 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
     /**
      * @internal
      */
-    public function __construct(private readonly DocumentGenerator $documentGenerator, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly DocumentGenerator $documentGenerator,
+        private readonly LoggerInterface $logger
+    ) {
     }
 
     public static function getName(): string

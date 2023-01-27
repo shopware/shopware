@@ -26,8 +26,11 @@ final class TaskScheduler
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $scheduledTaskRepository, private readonly MessageBusInterface $bus, private readonly ParameterBagInterface $parameterBag)
-    {
+    public function __construct(
+        private readonly EntityRepository $scheduledTaskRepository,
+        private readonly MessageBusInterface $bus,
+        private readonly ParameterBagInterface $parameterBag
+    ) {
     }
 
     public function queueScheduledTasks(): void

@@ -19,8 +19,10 @@ class FakeQueryBuilder extends QueryBuilder
     /**
      * @param array<mixed> $dbRows
      */
-    public function __construct(Connection $connection, private readonly array $dbRows)
-    {
+    public function __construct(
+        Connection $connection,
+        private readonly array $dbRows
+    ) {
         parent::__construct($connection);
         $this->connection = $connection;
     }

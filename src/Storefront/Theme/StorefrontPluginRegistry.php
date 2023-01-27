@@ -20,8 +20,11 @@ class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface, Res
     /**
      * @internal
      */
-    public function __construct(private readonly KernelInterface $kernel, private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory, private readonly ActiveAppsLoader $activeAppsLoader)
-    {
+    public function __construct(
+        private readonly KernelInterface $kernel,
+        private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
+        private readonly ActiveAppsLoader $activeAppsLoader
+    ) {
     }
 
     public function getConfigurations(): StorefrontPluginConfigurationCollection

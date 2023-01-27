@@ -13,8 +13,10 @@ class AdminApiSource implements ContextSource
 
     private array $permissions = [];
 
-    public function __construct(private readonly ?string $userId, private readonly ?string $integrationId = null)
-    {
+    public function __construct(
+        private readonly ?string $userId,
+        private readonly ?string $integrationId = null
+    ) {
         $this->isAdmin = false;
     }
 

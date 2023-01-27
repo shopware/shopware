@@ -23,8 +23,12 @@ class GuestWishlistPageletLoader
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractProductListRoute $productListRoute, private readonly SystemConfigService $systemConfigService, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory)
-    {
+    public function __construct(
+        private readonly AbstractProductListRoute $productListRoute,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
+    ) {
     }
 
     public function load(Request $request, SalesChannelContext $context): GuestWishlistPagelet

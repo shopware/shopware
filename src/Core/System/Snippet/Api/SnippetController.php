@@ -20,8 +20,10 @@ class SnippetController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly SnippetService $snippetService, private readonly SnippetFileCollection $snippetFileCollection)
-    {
+    public function __construct(
+        private readonly SnippetService $snippetService,
+        private readonly SnippetFileCollection $snippetFileCollection
+    ) {
     }
 
     #[Route(path: '/api/_action/snippet-set', name: 'api.action.snippet-set.getList', methods: ['POST'])]

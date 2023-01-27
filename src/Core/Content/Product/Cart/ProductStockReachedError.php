@@ -24,8 +24,12 @@ class ProductStockReachedError extends Error
      */
     protected $quantity;
 
-    public function __construct(string $id, string $name, int $quantity, protected bool $resolved = true)
-    {
+    public function __construct(
+        string $id,
+        string $name,
+        int $quantity,
+        protected bool $resolved = true
+    ) {
         $this->id = $id;
 
         $this->message = sprintf(

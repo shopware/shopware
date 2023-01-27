@@ -22,8 +22,12 @@ class ScriptStoreApiRoute
 {
     final public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
 
-    public function __construct(private readonly ScriptExecutor $executor, private readonly ScriptResponseEncoder $scriptResponseEncoder, private readonly TagAwareAdapterInterface $cache, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly ScriptExecutor $executor,
+        private readonly ScriptResponseEncoder $scriptResponseEncoder,
+        private readonly TagAwareAdapterInterface $cache,
+        private readonly LoggerInterface $logger
+    ) {
     }
 
     #[Route(path: '/store-api/script/{hook}', name: 'store-api.script_endpoint', methods: ['GET', 'POST'], requirements: ['hook' => '.+'])]

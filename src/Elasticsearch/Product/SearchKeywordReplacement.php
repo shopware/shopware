@@ -13,8 +13,10 @@ class SearchKeywordReplacement extends SearchKeywordUpdater
     /**
      * @internal
      */
-    public function __construct(private readonly SearchKeywordUpdater $decorated, private readonly ElasticsearchHelper $helper)
-    {
+    public function __construct(
+        private readonly SearchKeywordUpdater $decorated,
+        private readonly ElasticsearchHelper $helper
+    ) {
     }
 
     /**

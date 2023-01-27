@@ -24,8 +24,12 @@ class AccountLoginPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractCountryRoute $countryRoute, private readonly AbstractSalutationRoute $salutationRoute)
-    {
+    public function __construct(
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractCountryRoute $countryRoute,
+        private readonly AbstractSalutationRoute $salutationRoute
+    ) {
     }
 
     /**

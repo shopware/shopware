@@ -11,8 +11,10 @@ class IncrementStorageNotFoundException extends ShopwareHttpException
     /**
      * @param array<string> $availableStorages
      */
-    public function __construct(string $configuredStorage, array $availableStorages)
-    {
+    public function __construct(
+        string $configuredStorage,
+        array $availableStorages
+    ) {
         parent::__construct(
             'The number range increment storage "{{ configuredStorage }}" is not available. Available storages are: "{{ availableStorages }}".',
             [

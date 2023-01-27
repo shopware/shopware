@@ -29,8 +29,14 @@ class AddressListingPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly AbstractCountryRoute $countryRoute, private readonly AbstractSalutationRoute $salutationRoute, private readonly AbstractListAddressRoute $listAddressRoute, private readonly EventDispatcherInterface $eventDispatcher, private readonly CartService $cartService)
-    {
+    public function __construct(
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly AbstractCountryRoute $countryRoute,
+        private readonly AbstractSalutationRoute $salutationRoute,
+        private readonly AbstractListAddressRoute $listAddressRoute,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CartService $cartService
+    ) {
     }
 
     /**

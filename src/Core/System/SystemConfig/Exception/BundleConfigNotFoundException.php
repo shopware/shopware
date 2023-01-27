@@ -8,8 +8,10 @@ use Shopware\Core\Framework\ShopwareHttpException;
 #[Package('system-settings')]
 class BundleConfigNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $configPath, string $bundleName)
-    {
+    public function __construct(
+        string $configPath,
+        string $bundleName
+    ) {
         parent::__construct(
             'Could not find "{{ configPath }}" for bundle "{{ bundle }}".',
             [

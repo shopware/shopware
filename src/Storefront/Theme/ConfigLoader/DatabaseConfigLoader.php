@@ -24,8 +24,12 @@ class DatabaseConfigLoader extends AbstractConfigLoader
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $themeRepository, private readonly StorefrontPluginRegistryInterface $extensionRegistry, private readonly EntityRepository $mediaRepository, private readonly string $baseTheme = StorefrontPluginRegistry::BASE_THEME_NAME)
-    {
+    public function __construct(
+        private readonly EntityRepository $themeRepository,
+        private readonly StorefrontPluginRegistryInterface $extensionRegistry,
+        private readonly EntityRepository $mediaRepository,
+        private readonly string $baseTheme = StorefrontPluginRegistry::BASE_THEME_NAME
+    ) {
     }
 
     public function getDecorated(): AbstractConfigLoader

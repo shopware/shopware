@@ -18,8 +18,10 @@ class CachedDomainLoader extends AbstractDomainLoader
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractDomainLoader $decorated, private readonly CacheInterface $cache)
-    {
+    public function __construct(
+        private readonly AbstractDomainLoader $decorated,
+        private readonly CacheInterface $cache
+    ) {
     }
 
     public function getDecorated(): AbstractDomainLoader

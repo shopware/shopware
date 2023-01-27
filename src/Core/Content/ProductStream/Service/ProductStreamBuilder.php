@@ -19,8 +19,10 @@ class ProductStreamBuilder implements ProductStreamBuilderInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $repository, private readonly EntityDefinition $productDefinition)
-    {
+    public function __construct(
+        private readonly EntityRepository $repository,
+        private readonly EntityDefinition $productDefinition
+    ) {
     }
 
     public function buildFilters(string $id, Context $context): array

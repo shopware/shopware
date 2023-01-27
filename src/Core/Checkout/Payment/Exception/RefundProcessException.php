@@ -9,8 +9,12 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('checkout')]
 abstract class RefundProcessException extends ShopwareHttpException
 {
-    public function __construct(private readonly string $refundId, string $message, array $parameters = [], ?\Throwable $e = null)
-    {
+    public function __construct(
+        private readonly string $refundId,
+        string $message,
+        array $parameters = [],
+        ?\Throwable $e = null
+    ) {
         parent::__construct($message, $parameters, $e);
     }
 

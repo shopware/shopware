@@ -44,8 +44,13 @@ class ExtensionLoader
      */
     private ?array $installedThemeNames = null;
 
-    public function __construct(private readonly ?EntityRepository $themeRepository, private readonly AbstractAppLoader $appLoader, private readonly ConfigurationService $configurationService, private readonly LocaleProvider $localeProvider, private readonly LanguageLocaleCodeProvider $languageLocaleProvider)
-    {
+    public function __construct(
+        private readonly ?EntityRepository $themeRepository,
+        private readonly AbstractAppLoader $appLoader,
+        private readonly ConfigurationService $configurationService,
+        private readonly LocaleProvider $localeProvider,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider
+    ) {
     }
 
     /**

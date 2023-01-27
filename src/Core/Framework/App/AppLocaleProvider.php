@@ -18,8 +18,10 @@ class AppLocaleProvider
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $userRepository, private readonly LanguageLocaleCodeProvider $languageLocaleProvider)
-    {
+    public function __construct(
+        private readonly EntityRepository $userRepository,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider
+    ) {
     }
 
     public function getLocaleFromContext(Context $context): string

@@ -14,8 +14,10 @@ class RequirementStackException extends ShopwareHttpException
      */
     private readonly array $requirements;
 
-    public function __construct(string $method, RequirementException ...$requirements)
-    {
+    public function __construct(
+        string $method,
+        RequirementException ...$requirements
+    ) {
         $this->requirements = $requirements;
 
         parent::__construct(

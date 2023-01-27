@@ -28,8 +28,12 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $wishlistRepository, private readonly SalesChannelRepository $productRepository, private readonly SystemConfigService $systemConfigService, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly EntityRepository $wishlistRepository,
+        private readonly SalesChannelRepository $productRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function getDecorated(): AbstractAddWishlistProductRoute

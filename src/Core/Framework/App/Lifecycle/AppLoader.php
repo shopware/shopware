@@ -21,8 +21,12 @@ use Symfony\Component\Finder\Finder;
 #[Package('core')]
 class AppLoader extends AbstractAppLoader
 {
-    public function __construct(private readonly string $appDir, private readonly string $projectDir, private readonly ConfigReader $configReader, private readonly CustomEntityXmlSchemaValidator $customEntityXmlValidator)
-    {
+    public function __construct(
+        private readonly string $appDir,
+        private readonly string $projectDir,
+        private readonly ConfigReader $configReader,
+        private readonly CustomEntityXmlSchemaValidator $customEntityXmlValidator
+    ) {
     }
 
     public function getDecorated(): AbstractAppLoader

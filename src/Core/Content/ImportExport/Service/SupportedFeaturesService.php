@@ -24,8 +24,10 @@ class SupportedFeaturesService
      * @param iterable<string> $entities
      * @param iterable<string> $fileTypes
      */
-    public function __construct(iterable $entities, iterable $fileTypes)
-    {
+    public function __construct(
+        iterable $entities,
+        iterable $fileTypes
+    ) {
         foreach ($entities as $entityName) {
             if (!\is_string($entityName)) {
                 throw new \InvalidArgumentException(sprintf(

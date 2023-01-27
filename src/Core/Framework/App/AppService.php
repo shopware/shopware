@@ -14,8 +14,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class AppService
 {
-    public function __construct(private readonly AppLifecycleIterator $appLifecycleIterator, private readonly AbstractAppLifecycle $appLifecycle)
-    {
+    public function __construct(
+        private readonly AppLifecycleIterator $appLifecycleIterator,
+        private readonly AbstractAppLifecycle $appLifecycle
+    ) {
     }
 
     /**

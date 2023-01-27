@@ -21,8 +21,10 @@ class LineItemInCategoryRule extends Rule
      *
      * @param list<string> $categoryIds
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected array $categoryIds = [])
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected array $categoryIds = []
+    ) {
         parent::__construct();
     }
 

@@ -20,8 +20,10 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly CacheInvalidator $cacheInvalidator, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly CacheInvalidator $cacheInvalidator,
+        private readonly Connection $connection
+    ) {
     }
 
     public static function getSubscribedEvents(): array

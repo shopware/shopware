@@ -18,8 +18,10 @@ class ScriptResponse
     /**
      * @internal
      */
-    public function __construct(private readonly ?Response $inner = null, private int $code = Response::HTTP_OK)
-    {
+    public function __construct(
+        private readonly ?Response $inner = null,
+        private int $code = Response::HTTP_OK
+    ) {
         $this->body = new ArrayFacade([]);
         $this->cache = new ResponseCacheConfiguration();
     }

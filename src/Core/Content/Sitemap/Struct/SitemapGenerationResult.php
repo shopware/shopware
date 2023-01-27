@@ -8,8 +8,13 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('sales-channel')]
 class SitemapGenerationResult extends Struct
 {
-    public function __construct(private readonly bool $finish, private readonly ?string $provider, private readonly ?int $offset, private readonly ?string $lastSalesChannelId, private readonly string $lastLanguageId)
-    {
+    public function __construct(
+        private readonly bool $finish,
+        private readonly ?string $provider,
+        private readonly ?int $offset,
+        private readonly ?string $lastSalesChannelId,
+        private readonly string $lastLanguageId
+    ) {
     }
 
     public function isFinish(): bool

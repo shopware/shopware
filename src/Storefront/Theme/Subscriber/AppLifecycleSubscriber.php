@@ -18,8 +18,10 @@ class AppLifecycleSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly ThemeLifecycleService $themeLifecycleService, private readonly EntityRepository $appRepository)
-    {
+    public function __construct(
+        private readonly ThemeLifecycleService $themeLifecycleService,
+        private readonly EntityRepository $appRepository
+    ) {
     }
 
     /**

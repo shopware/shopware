@@ -39,8 +39,22 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
     /**
      * @internal
      */
-    public function __construct(private readonly ProductStreamBuilderInterface $productStreamBuilder, private readonly SalesChannelRepository $productRepository, private readonly ProductExportRendererInterface $productExportRender, private readonly EventDispatcherInterface $eventDispatcher, private readonly ProductExportValidatorInterface $productExportValidator, private readonly SalesChannelContextServiceInterface $salesChannelContextService, private readonly Translator $translator, private readonly SalesChannelContextPersister $contextPersister, private readonly Connection $connection, private readonly int $readBufferSize, private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler, private readonly TwigVariableParser $twigVariableParser, private readonly ProductDefinition $productDefinition, private readonly LanguageLocaleCodeProvider $languageLocaleProvider)
-    {
+    public function __construct(
+        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly SalesChannelRepository $productRepository,
+        private readonly ProductExportRendererInterface $productExportRender,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ProductExportValidatorInterface $productExportValidator,
+        private readonly SalesChannelContextServiceInterface $salesChannelContextService,
+        private readonly Translator $translator,
+        private readonly SalesChannelContextPersister $contextPersister,
+        private readonly Connection $connection,
+        private readonly int $readBufferSize,
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
+        private readonly TwigVariableParser $twigVariableParser,
+        private readonly ProductDefinition $productDefinition,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider
+    ) {
     }
 
     public function generate(ProductExportEntity $productExport, ExportBehavior $exportBehavior): ?ProductExportResult

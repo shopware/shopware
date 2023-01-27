@@ -51,8 +51,11 @@ class HttpKernel
 
     protected ?KernelInterface $kernel = null;
 
-    public function __construct(protected string $environment, protected bool $debug, protected ?ClassLoader $classLoader = null)
-    {
+    public function __construct(
+        protected string $environment,
+        protected bool $debug,
+        protected ?ClassLoader $classLoader = null
+    ) {
     }
 
     public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): HttpKernelResult

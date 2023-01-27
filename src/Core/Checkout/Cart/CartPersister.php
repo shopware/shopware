@@ -23,8 +23,12 @@ class CartPersister extends AbstractCartPersister
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher, private readonly CartSerializationCleaner $cartSerializationCleaner, private readonly bool $compress)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CartSerializationCleaner $cartSerializationCleaner,
+        private readonly bool $compress
+    ) {
     }
 
     public function getDecorated(): AbstractCartPersister

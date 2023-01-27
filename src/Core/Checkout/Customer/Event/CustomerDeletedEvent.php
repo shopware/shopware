@@ -21,8 +21,10 @@ class CustomerDeletedEvent extends Event implements ShopwareSalesChannelEvent, M
 
     private ?MailRecipientStruct $mailRecipientStruct = null;
 
-    public function __construct(private readonly SalesChannelContext $salesChannelContext, private readonly CustomerEntity $customer)
-    {
+    public function __construct(
+        private readonly SalesChannelContext $salesChannelContext,
+        private readonly CustomerEntity $customer
+    ) {
     }
 
     public function getName(): string

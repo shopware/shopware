@@ -19,8 +19,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('system-settings')]
 class AdminSearcher
 {
-    public function __construct(private readonly Client $client, private readonly AdminSearchRegistry $registry, private readonly AdminElasticsearchHelper $adminEsHelper)
-    {
+    public function __construct(
+        private readonly Client $client,
+        private readonly AdminSearchRegistry $registry,
+        private readonly AdminElasticsearchHelper $adminEsHelper
+    ) {
     }
 
     /**

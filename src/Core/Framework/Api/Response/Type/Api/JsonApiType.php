@@ -24,8 +24,10 @@ class JsonApiType extends JsonFactoryBase
     /**
      * @internal
      */
-    public function __construct(private readonly JsonApiEncoder $serializer, private readonly StructEncoder $structEncoder)
-    {
+    public function __construct(
+        private readonly JsonApiEncoder $serializer,
+        private readonly StructEncoder $structEncoder
+    ) {
     }
 
     public function supports(string $contentType, ContextSource $origin): bool

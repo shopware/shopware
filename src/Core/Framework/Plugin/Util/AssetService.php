@@ -21,8 +21,15 @@ class AssetService
     /**
      * @internal
      */
-    public function __construct(private readonly FilesystemOperator $filesystem, private readonly KernelInterface $kernel, private readonly KernelPluginLoader $pluginLoader, private readonly CacheInvalidator $cacheInvalidator, private readonly AbstractAppLoader $appLoader, private readonly string $coreDir, private readonly ParameterBagInterface $parameterBag)
-    {
+    public function __construct(
+        private readonly FilesystemOperator $filesystem,
+        private readonly KernelInterface $kernel,
+        private readonly KernelPluginLoader $pluginLoader,
+        private readonly CacheInvalidator $cacheInvalidator,
+        private readonly AbstractAppLoader $appLoader,
+        private readonly string $coreDir,
+        private readonly ParameterBagInterface $parameterBag
+    ) {
     }
 
     /**

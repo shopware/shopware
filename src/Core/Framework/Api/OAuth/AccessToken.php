@@ -23,8 +23,11 @@ class AccessToken implements AccessTokenEntityInterface
      * @param string $userIdentifier
      * @param ScopeEntityInterface[] $scopes
      */
-    public function __construct(private ClientEntityInterface $client, private array $scopes, private $userIdentifier = null)
-    {
+    public function __construct(
+        private ClientEntityInterface $client,
+        private array $scopes,
+        private $userIdentifier = null
+    ) {
     }
 
     public function getClient(): ClientEntityInterface

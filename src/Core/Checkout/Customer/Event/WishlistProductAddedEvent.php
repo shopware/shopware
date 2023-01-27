@@ -10,8 +10,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('customer-order')]
 class WishlistProductAddedEvent implements ShopwareSalesChannelEvent
 {
-    public function __construct(protected string $wishlistId, protected string $productId, protected SalesChannelContext $context)
-    {
+    public function __construct(
+        protected string $wishlistId,
+        protected string $productId,
+        protected SalesChannelContext $context
+    ) {
     }
 
     public function getWishlistId(): string

@@ -13,8 +13,12 @@ class ReferencePrice extends ReferencePriceDefinition
      */
     protected $price;
 
-    public function __construct(float $price, float $purchaseUnit, float $referenceUnit, string $unitName)
-    {
+    public function __construct(
+        float $price,
+        float $purchaseUnit,
+        float $referenceUnit,
+        string $unitName
+    ) {
         parent::__construct($purchaseUnit, $referenceUnit, $unitName);
 
         $this->price = FloatComparator::cast($price);

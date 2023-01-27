@@ -37,8 +37,11 @@ class RuleConditionPersister
 {
     private const CONDITION_SCRIPT_DIR = '/rule-conditions/';
 
-    public function __construct(private readonly ScriptFileReaderInterface $scriptReader, private readonly EntityRepository $appScriptConditionRepository, private readonly EntityRepository $appRepository)
-    {
+    public function __construct(
+        private readonly ScriptFileReaderInterface $scriptReader,
+        private readonly EntityRepository $appScriptConditionRepository,
+        private readonly EntityRepository $appRepository
+    ) {
     }
 
     public function updateConditions(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void

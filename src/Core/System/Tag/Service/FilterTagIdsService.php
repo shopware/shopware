@@ -22,8 +22,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('business-ops')]
 class FilterTagIdsService
 {
-    public function __construct(private readonly EntityDefinition $tagDefinition, private readonly Connection $connection, private readonly CriteriaQueryBuilder $criteriaQueryBuilder)
-    {
+    public function __construct(
+        private readonly EntityDefinition $tagDefinition,
+        private readonly Connection $connection,
+        private readonly CriteriaQueryBuilder $criteriaQueryBuilder
+    ) {
     }
 
     public function filterIds(Request $request, Criteria $criteria, Context $context): FilteredTagIdsStruct

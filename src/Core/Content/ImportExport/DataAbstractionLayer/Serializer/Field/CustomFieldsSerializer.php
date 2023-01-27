@@ -16,8 +16,10 @@ class CustomFieldsSerializer extends FieldSerializer
     /**
      * @internal
      */
-    public function __construct(private readonly DalCustomFieldsSerializer $customFieldsSerializer, private readonly CustomFieldService $customFieldService)
-    {
+    public function __construct(
+        private readonly DalCustomFieldsSerializer $customFieldsSerializer,
+        private readonly CustomFieldService $customFieldService
+    ) {
     }
 
     /**

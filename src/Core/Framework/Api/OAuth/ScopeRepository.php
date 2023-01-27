@@ -25,8 +25,10 @@ class ScopeRepository implements ScopeRepositoryInterface
      *
      * @param ScopeEntityInterface[] $scopes
      */
-    public function __construct(iterable $scopes, private readonly Connection $connection)
-    {
+    public function __construct(
+        iterable $scopes,
+        private readonly Connection $connection
+    ) {
         $scopeIndex = [];
         foreach ($scopes as $scope) {
             $scopeIndex[$scope->getIdentifier()] = $scope;

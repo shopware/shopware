@@ -21,8 +21,12 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Package('core')]
 class AppActionController extends AbstractController
 {
-    public function __construct(private readonly ActionButtonLoader $actionButtonLoader, private readonly AppActionLoader $appActionFactory, private readonly Executor $executor, private readonly ModuleLoader $moduleLoader)
-    {
+    public function __construct(
+        private readonly ActionButtonLoader $actionButtonLoader,
+        private readonly AppActionLoader $appActionFactory,
+        private readonly Executor $executor,
+        private readonly ModuleLoader $moduleLoader
+    ) {
     }
 
     #[Route(path: 'api/app-system/action-button/{entity}/{view}', name: 'api.app_system.action_buttons', methods: ['GET'])]

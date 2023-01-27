@@ -38,8 +38,12 @@ class SearchKeywordUpdater implements ResetInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly EntityRepository $languageRepository, private readonly EntityRepository $productRepository, private readonly ProductSearchKeywordAnalyzerInterface $analyzer)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EntityRepository $languageRepository,
+        private readonly EntityRepository $productRepository,
+        private readonly ProductSearchKeywordAnalyzerInterface $analyzer
+    ) {
     }
 
     public function update(array $ids, Context $context): void

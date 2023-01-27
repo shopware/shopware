@@ -8,8 +8,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class PriceDefinitionField extends JsonField
 {
-    public function __construct(string $storageName, string $propertyName)
-    {
+    public function __construct(
+        string $storageName,
+        string $propertyName
+    ) {
         parent::__construct($storageName, $propertyName);
     }
 

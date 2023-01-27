@@ -20,8 +20,13 @@ use Symfony\Component\Routing\RouterInterface;
 #[Package('storefront')]
 final class CacheWarmerTaskHandler
 {
-    public function __construct(private readonly Kernel $kernel, private readonly RouterInterface $router, private readonly RequestTransformerInterface $requestTransformer, private readonly CacheIdLoader $cacheIdLoader, private readonly CacheTagCollection $cacheTagCollection)
-    {
+    public function __construct(
+        private readonly Kernel $kernel,
+        private readonly RouterInterface $router,
+        private readonly RequestTransformerInterface $requestTransformer,
+        private readonly CacheIdLoader $cacheIdLoader,
+        private readonly CacheTagCollection $cacheTagCollection
+    ) {
     }
 
     public function __invoke(WarmUpMessage $message): void

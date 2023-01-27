@@ -34,8 +34,10 @@ class BeforeDeleteEvent extends Event implements ShopwareEvent
     /**
      * @param WriteCommand[] $commands
      */
-    private function __construct(private readonly WriteContext $writeContext, private readonly array $commands)
-    {
+    private function __construct(
+        private readonly WriteContext $writeContext,
+        private readonly array $commands
+    ) {
     }
 
     public static function create(WriteContext $writeContext, array $commands): self

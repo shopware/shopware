@@ -8,8 +8,10 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('storefront')]
 class ThemeSalesChannel extends Struct
 {
-    public function __construct(protected string $themeId, protected string $salesChannelId)
-    {
+    public function __construct(
+        protected string $themeId,
+        protected string $salesChannelId
+    ) {
     }
 
     public function getThemeId(): string

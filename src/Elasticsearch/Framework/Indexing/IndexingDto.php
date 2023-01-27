@@ -9,8 +9,11 @@ class IndexingDto
 {
     protected array $ids;
 
-    public function __construct(array $ids, protected string $index, protected string $entity)
-    {
+    public function __construct(
+        array $ids,
+        protected string $index,
+        protected string $entity
+    ) {
         $this->ids = array_values($ids);
     }
 

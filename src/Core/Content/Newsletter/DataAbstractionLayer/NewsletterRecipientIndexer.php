@@ -22,8 +22,12 @@ class NewsletterRecipientIndexer extends EntityIndexer
     /**
      * @internal
      */
-    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function getName(): string

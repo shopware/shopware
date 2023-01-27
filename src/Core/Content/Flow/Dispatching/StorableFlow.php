@@ -23,8 +23,12 @@ class StorableFlow
      * @param array<string, mixed> $store
      * @param array<string, mixed> $data
      */
-    public function __construct(protected string $name, protected Context $context, protected array $store = [], protected array $data = [])
-    {
+    public function __construct(
+        protected string $name,
+        protected Context $context,
+        protected array $store = [],
+        protected array $data = []
+    ) {
     }
 
     public function getName(): string

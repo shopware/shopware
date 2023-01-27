@@ -55,8 +55,20 @@ class PromotionCalculator
     /**
      * @internal
      */
-    public function __construct(private readonly AmountCalculator $amountCalculator, private readonly AbsolutePriceCalculator $absolutePriceCalculator, private readonly LineItemGroupBuilder $groupBuilder, private readonly DiscountCompositionBuilder $discountCompositionBuilder, private readonly PackageFilter $advancedFilter, private readonly AdvancedPackagePicker $advancedPicker, private readonly SetGroupScopeFilter $advancedRules, private readonly LineItemQuantitySplitter $lineItemQuantitySplitter, private readonly PercentagePriceCalculator $percentagePriceCalculator, private readonly DiscountPackager $cartScopeDiscountPackager, private readonly DiscountPackager $setGroupScopeDiscountPackager, private readonly DiscountPackager $setScopeDiscountPackager)
-    {
+    public function __construct(
+        private readonly AmountCalculator $amountCalculator,
+        private readonly AbsolutePriceCalculator $absolutePriceCalculator,
+        private readonly LineItemGroupBuilder $groupBuilder,
+        private readonly DiscountCompositionBuilder $discountCompositionBuilder,
+        private readonly PackageFilter $advancedFilter,
+        private readonly AdvancedPackagePicker $advancedPicker,
+        private readonly SetGroupScopeFilter $advancedRules,
+        private readonly LineItemQuantitySplitter $lineItemQuantitySplitter,
+        private readonly PercentagePriceCalculator $percentagePriceCalculator,
+        private readonly DiscountPackager $cartScopeDiscountPackager,
+        private readonly DiscountPackager $setGroupScopeDiscountPackager,
+        private readonly DiscountPackager $setScopeDiscountPackager
+    ) {
     }
 
     /**

@@ -40,8 +40,11 @@ class ContainerFacade extends ItemFacade
     /**
      * @internal
      */
-    public function __construct(LineItem $item, CartFacadeHelper $helper, SalesChannelContext $context)
-    {
+    public function __construct(
+        LineItem $item,
+        CartFacadeHelper $helper,
+        SalesChannelContext $context
+    ) {
         parent::__construct($item, $helper, $context);
 
         $this->item = $item;

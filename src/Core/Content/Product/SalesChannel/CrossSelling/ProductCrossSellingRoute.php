@@ -35,8 +35,15 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $crossSellingRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly ProductStreamBuilderInterface $productStreamBuilder, private readonly SalesChannelRepository $productRepository, private readonly SystemConfigService $systemConfigService, private readonly ProductListingLoader $listingLoader, private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory)
-    {
+    public function __construct(
+        private readonly EntityRepository $crossSellingRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly SalesChannelRepository $productRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly ProductListingLoader $listingLoader,
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
+    ) {
     }
 
     public function getDecorated(): AbstractProductCrossSellingRoute

@@ -14,8 +14,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('checkout')]
 class QuantityItem extends LineItem
 {
-    public function __construct(float $price, TaxRuleCollection $taxes, bool $good = true, int $quantity = 1)
-    {
+    public function __construct(
+        float $price,
+        TaxRuleCollection $taxes,
+        bool $good = true,
+        int $quantity = 1
+    ) {
         parent::__construct(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, null, $quantity);
 
         $this->priceDefinition = new QuantityPriceDefinition($price, $taxes, $quantity);

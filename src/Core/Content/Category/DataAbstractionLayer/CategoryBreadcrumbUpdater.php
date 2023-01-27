@@ -21,8 +21,11 @@ class CategoryBreadcrumbUpdater
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly EntityRepository $categoryRepository, private readonly EntityRepository $languageRepository)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EntityRepository $categoryRepository,
+        private readonly EntityRepository $languageRepository
+    ) {
     }
 
     public function update(array $ids, Context $context): void

@@ -19,8 +19,10 @@ class CustomerAgeRule extends Rule
     /**
      * @internal
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?float $age = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?float $age = null
+    ) {
         parent::__construct();
     }
 

@@ -10,8 +10,12 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class SystemCheck extends RequirementCheck
 {
-    public function __construct(string $name, string $status, private readonly string $requiredValue, private readonly string $installedValue)
-    {
+    public function __construct(
+        string $name,
+        string $status,
+        private readonly string $requiredValue,
+        private readonly string $installedValue
+    ) {
         parent::__construct($name, $status);
     }
 

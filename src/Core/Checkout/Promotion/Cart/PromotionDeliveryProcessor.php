@@ -19,8 +19,10 @@ class PromotionDeliveryProcessor implements CartProcessorInterface
     /**
      * @internal
      */
-    public function __construct(private readonly PromotionDeliveryCalculator $calculator, private readonly LineItemGroupBuilder $groupBuilder)
-    {
+    public function __construct(
+        private readonly PromotionDeliveryCalculator $calculator,
+        private readonly LineItemGroupBuilder $groupBuilder
+    ) {
     }
 
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void

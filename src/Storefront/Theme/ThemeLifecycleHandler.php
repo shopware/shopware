@@ -20,8 +20,13 @@ class ThemeLifecycleHandler
     /**
      * @internal
      */
-    public function __construct(private readonly ThemeLifecycleService $themeLifecycleService, private readonly ThemeService $themeService, private readonly EntityRepository $themeRepository, private readonly StorefrontPluginRegistryInterface $storefrontPluginRegistry, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly ThemeLifecycleService $themeLifecycleService,
+        private readonly ThemeService $themeService,
+        private readonly EntityRepository $themeRepository,
+        private readonly StorefrontPluginRegistryInterface $storefrontPluginRegistry,
+        private readonly Connection $connection
+    ) {
     }
 
     public function handleThemeInstallOrUpdate(

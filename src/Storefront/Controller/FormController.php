@@ -28,8 +28,11 @@ class FormController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractContactFormRoute $contactFormRoute, private readonly AbstractNewsletterSubscribeRoute $subscribeRoute, private readonly AbstractNewsletterUnsubscribeRoute $unsubscribeRoute)
-    {
+    public function __construct(
+        private readonly AbstractContactFormRoute $contactFormRoute,
+        private readonly AbstractNewsletterSubscribeRoute $subscribeRoute,
+        private readonly AbstractNewsletterUnsubscribeRoute $unsubscribeRoute
+    ) {
     }
 
     #[Route(path: '/form/contact', name: 'frontend.form.contact.send', defaults: ['XmlHttpRequest' => true, '_captcha' => true], methods: ['POST'])]

@@ -14,8 +14,10 @@ class SnippetFinder implements SnippetFinderInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Kernel $kernel, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Kernel $kernel,
+        private readonly Connection $connection
+    ) {
     }
 
     /**

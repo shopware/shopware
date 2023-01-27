@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('inventory')]
 class DuplicateProductSortingKeyException extends ShopwareHttpException
 {
-    public function __construct(string $key, \Throwable $e)
-    {
+    public function __construct(
+        string $key,
+        \Throwable $e
+    ) {
         parent::__construct(
             'Sorting with key "{{ key }}" already exists.',
             ['key' => $key],

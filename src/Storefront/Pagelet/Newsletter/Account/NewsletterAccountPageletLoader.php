@@ -24,8 +24,14 @@ class NewsletterAccountPageletLoader
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractNewsletterSubscribeRoute $newsletterSubscribeRoute, private readonly AbstractNewsletterUnsubscribeRoute $newsletterUnsubscribeRoute, private readonly AbstractAccountNewsletterRecipientRoute $newsletterRecipientRoute, private readonly Translator $translator, private readonly SystemConfigService $systemConfigService)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractNewsletterSubscribeRoute $newsletterSubscribeRoute,
+        private readonly AbstractNewsletterUnsubscribeRoute $newsletterUnsubscribeRoute,
+        private readonly AbstractAccountNewsletterRecipientRoute $newsletterRecipientRoute,
+        private readonly Translator $translator,
+        private readonly SystemConfigService $systemConfigService
+    ) {
     }
 
     public function load(

@@ -8,8 +8,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class StaticKernelPluginLoader extends KernelPluginLoader
 {
-    public function __construct(ClassLoader $classLoader, ?string $pluginDir = null, array $plugins = [])
-    {
+    public function __construct(
+        ClassLoader $classLoader,
+        ?string $pluginDir = null,
+        array $plugins = []
+    ) {
         parent::__construct($classLoader, $pluginDir);
 
         $this->pluginInfos = $plugins;

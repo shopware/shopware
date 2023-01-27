@@ -21,8 +21,11 @@ class AuthController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly AuthorizationServer $authorizationServer, private readonly PsrHttpFactory $psrHttpFactory, private readonly RateLimiter $rateLimiter)
-    {
+    public function __construct(
+        private readonly AuthorizationServer $authorizationServer,
+        private readonly PsrHttpFactory $psrHttpFactory,
+        private readonly RateLimiter $rateLimiter
+    ) {
     }
 
     #[Route(path: '/api/oauth/authorize', name: 'api.oauth.authorize', defaults: ['auth_required' => false], methods: ['POST'])]

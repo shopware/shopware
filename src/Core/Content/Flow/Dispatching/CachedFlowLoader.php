@@ -20,8 +20,10 @@ class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInte
 
     private array $flows = [];
 
-    public function __construct(private readonly AbstractFlowLoader $decorated, private readonly CacheInterface $cache)
-    {
+    public function __construct(
+        private readonly AbstractFlowLoader $decorated,
+        private readonly CacheInterface $cache
+    ) {
     }
 
     /**

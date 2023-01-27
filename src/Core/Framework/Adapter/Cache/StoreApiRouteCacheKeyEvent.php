@@ -16,8 +16,12 @@ class StoreApiRouteCacheKeyEvent extends Event
     /**
      * @param array<mixed> $parts
      */
-    public function __construct(protected array $parts, protected Request $request, protected SalesChannelContext $context, protected ?Criteria $criteria)
-    {
+    public function __construct(
+        protected array $parts,
+        protected Request $request,
+        protected SalesChannelContext $context,
+        protected ?Criteria $criteria
+    ) {
     }
 
     /**

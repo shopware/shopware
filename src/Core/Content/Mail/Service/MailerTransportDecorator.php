@@ -19,8 +19,12 @@ use Symfony\Component\Mime\RawMessage;
 #[Package('system-settings')]
 class MailerTransportDecorator implements TransportInterface, \Stringable
 {
-    public function __construct(private readonly TransportInterface $decorated, private readonly MailAttachmentsBuilder $attachmentsBuilder, private readonly FilesystemOperator $filesystem, private readonly EntityRepository $documentRepository)
-    {
+    public function __construct(
+        private readonly TransportInterface $decorated,
+        private readonly MailAttachmentsBuilder $attachmentsBuilder,
+        private readonly FilesystemOperator $filesystem,
+        private readonly EntityRepository $documentRepository
+    ) {
     }
 
     public function __toString(): string

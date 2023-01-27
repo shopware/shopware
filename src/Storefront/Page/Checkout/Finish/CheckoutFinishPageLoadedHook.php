@@ -21,8 +21,10 @@ class CheckoutFinishPageLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'checkout-finish-page-loaded';
 
-    public function __construct(private readonly CheckoutFinishPage $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly CheckoutFinishPage $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

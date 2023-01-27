@@ -37,8 +37,17 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
      *
      * @param iterable<TaxRuleTypeFilterInterface> $taxRuleTypeFilter
      */
-    public function __construct(private readonly EntityRepository $customerRepository, private readonly EntityRepository $customerGroupRepository, private readonly EntityRepository $addressRepository, private readonly EntityRepository $paymentMethodRepository, private readonly TaxDetector $taxDetector, private readonly iterable $taxRuleTypeFilter, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityRepository $currencyCountryRepository, private readonly AbstractBaseContextFactory $baseContextFactory)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerRepository,
+        private readonly EntityRepository $customerGroupRepository,
+        private readonly EntityRepository $addressRepository,
+        private readonly EntityRepository $paymentMethodRepository,
+        private readonly TaxDetector $taxDetector,
+        private readonly iterable $taxRuleTypeFilter,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $currencyCountryRepository,
+        private readonly AbstractBaseContextFactory $baseContextFactory
+    ) {
     }
 
     public function getDecorated(): AbstractSalesChannelContextFactory

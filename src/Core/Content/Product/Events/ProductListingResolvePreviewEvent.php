@@ -12,8 +12,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('inventory')]
 class ProductListingResolvePreviewEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    public function __construct(protected SalesChannelContext $context, protected Criteria $criteria, protected array $mapping, protected bool $hasOptionFilter)
-    {
+    public function __construct(
+        protected SalesChannelContext $context,
+        protected Criteria $criteria,
+        protected array $mapping,
+        protected bool $hasOptionFilter
+    ) {
     }
 
     public function getCriteria(): Criteria

@@ -11,8 +11,10 @@ class TranslationWriteResult
      * @param string[] $englishLanguages
      * @param string[] $germanLanguages
      */
-    public function __construct(private readonly array $englishLanguages, private readonly array $germanLanguages)
-    {
+    public function __construct(
+        private readonly array $englishLanguages,
+        private readonly array $germanLanguages
+    ) {
     }
 
     /**

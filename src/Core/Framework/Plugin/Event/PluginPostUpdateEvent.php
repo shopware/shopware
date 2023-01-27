@@ -9,8 +9,10 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 #[Package('core')]
 class PluginPostUpdateEvent extends PluginLifecycleEvent
 {
-    public function __construct(PluginEntity $plugin, private readonly UpdateContext $context)
-    {
+    public function __construct(
+        PluginEntity $plugin,
+        private readonly UpdateContext $context
+    ) {
         parent::__construct($plugin);
     }
 

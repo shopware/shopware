@@ -56,8 +56,11 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
      */
     protected $regulationPrice;
 
-    public function __construct(float $price, TaxRuleCollection $taxRules, int $quantity = 1)
-    {
+    public function __construct(
+        float $price,
+        TaxRuleCollection $taxRules,
+        int $quantity = 1
+    ) {
         $this->price = FloatComparator::cast($price);
         $this->taxRules = $taxRules;
         $this->quantity = $quantity;

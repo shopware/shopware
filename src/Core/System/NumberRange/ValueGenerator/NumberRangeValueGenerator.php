@@ -17,8 +17,11 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
     /**
      * @internal
      */
-    public function __construct(private readonly ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry, private readonly EventDispatcherInterface $eventDispatcher, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly Connection $connection
+    ) {
     }
 
     public function getValue(string $type, Context $context, ?string $salesChannelId, bool $preview = false): string

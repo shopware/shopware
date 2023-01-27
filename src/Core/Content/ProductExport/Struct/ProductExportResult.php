@@ -11,8 +11,11 @@ class ProductExportResult
     /**
      * @param Error[] $errors
      */
-    public function __construct(private readonly string $content, private readonly array $errors, private readonly int $total)
-    {
+    public function __construct(
+        private readonly string $content,
+        private readonly array $errors,
+        private readonly int $total
+    ) {
     }
 
     public function getContent(): string

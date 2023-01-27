@@ -18,8 +18,10 @@ class NetPriceCalculator
     /**
      * @internal
      */
-    public function __construct(private readonly TaxCalculator $taxCalculator, private readonly CashRounding $priceRounding)
-    {
+    public function __construct(
+        private readonly TaxCalculator $taxCalculator,
+        private readonly CashRounding $priceRounding
+    ) {
     }
 
     public function calculate(QuantityPriceDefinition $definition, CashRoundingConfig $config): CalculatedPrice

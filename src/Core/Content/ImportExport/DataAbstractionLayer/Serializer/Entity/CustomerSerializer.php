@@ -36,8 +36,11 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerGroupRepository, private readonly EntityRepository $paymentMethodRepository, private readonly EntityRepository $salesChannelRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerGroupRepository,
+        private readonly EntityRepository $paymentMethodRepository,
+        private readonly EntityRepository $salesChannelRepository
+    ) {
     }
 
     /**

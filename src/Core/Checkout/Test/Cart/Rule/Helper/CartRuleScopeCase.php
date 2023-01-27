@@ -15,7 +15,11 @@ class CartRuleScopeCase
     /**
      * @param LineItem[] $lineItems
      */
-    public function __construct(public string $description, public bool $match, public LineItemPropertyRule $rule, public array $lineItems)
-    {
+    public function __construct(
+        public string $description,
+        public bool $match,
+        public LineItemPropertyRule $rule,
+        public array $lineItems
+    ) {
     }
 }

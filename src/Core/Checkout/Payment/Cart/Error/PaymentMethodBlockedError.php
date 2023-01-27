@@ -10,8 +10,10 @@ class PaymentMethodBlockedError extends Error
 {
     private const KEY = 'payment-method-blocked';
 
-    public function __construct(private readonly string $name, ?string $reason = null)
-    {
+    public function __construct(
+        private readonly string $name,
+        ?string $reason = null
+    ) {
         $this->message = sprintf(
             'Payment method %s not available. Reason: %s',
             $name,

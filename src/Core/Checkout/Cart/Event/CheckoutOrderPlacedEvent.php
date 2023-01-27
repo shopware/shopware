@@ -21,8 +21,12 @@ class CheckoutOrderPlacedEvent extends Event implements SalesChannelAware, Order
 {
     final public const EVENT_NAME = 'checkout.order.placed';
 
-    public function __construct(private readonly Context $context, private readonly OrderEntity $order, private readonly string $salesChannelId, private ?MailRecipientStruct $mailRecipientStruct = null)
-    {
+    public function __construct(
+        private readonly Context $context,
+        private readonly OrderEntity $order,
+        private readonly string $salesChannelId,
+        private ?MailRecipientStruct $mailRecipientStruct = null
+    ) {
     }
 
     public function getName(): string

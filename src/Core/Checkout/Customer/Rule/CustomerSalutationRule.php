@@ -21,8 +21,10 @@ class CustomerSalutationRule extends Rule
      *
      * @param list<string>|null $salutationIds
      */
-    public function __construct(public string $operator = self::OPERATOR_EQ, public ?array $salutationIds = null)
-    {
+    public function __construct(
+        public string $operator = self::OPERATOR_EQ,
+        public ?array $salutationIds = null
+    ) {
         parent::__construct();
     }
 

@@ -20,8 +20,10 @@ class DeleteUnusedGuestCustomerService
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerRepository, private readonly SystemConfigService $systemConfigService)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerRepository,
+        private readonly SystemConfigService $systemConfigService
+    ) {
     }
 
     public function countUnusedCustomers(Context $context): int

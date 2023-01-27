@@ -29,8 +29,11 @@ class ContextController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractContextSwitchRoute $contextSwitchRoute, private readonly RequestStack $requestStack, private readonly RouterInterface $router)
-    {
+    public function __construct(
+        private readonly AbstractContextSwitchRoute $contextSwitchRoute,
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router
+    ) {
     }
 
     #[Route(path: '/checkout/configure', name: 'frontend.checkout.configure', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['POST'])]

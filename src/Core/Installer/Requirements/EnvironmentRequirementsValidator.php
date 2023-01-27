@@ -15,8 +15,10 @@ use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 #[Package('core')]
 class EnvironmentRequirementsValidator implements RequirementsValidatorInterface
 {
-    public function __construct(private readonly Composer $composer, private readonly PlatformRepository $systemEnvironment)
-    {
+    public function __construct(
+        private readonly Composer $composer,
+        private readonly PlatformRepository $systemEnvironment
+    ) {
     }
 
     public function validateRequirements(RequirementsCheckCollection $checks): RequirementsCheckCollection

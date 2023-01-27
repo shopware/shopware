@@ -12,8 +12,10 @@ class BusinessEventCollector
     /**
      * @internal
      */
-    public function __construct(private readonly BusinessEventRegistry $registry, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly BusinessEventRegistry $registry,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function collect(Context $context): BusinessEventCollectorResponse

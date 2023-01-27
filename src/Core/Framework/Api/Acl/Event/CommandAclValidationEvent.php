@@ -10,8 +10,11 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('core')]
 class CommandAclValidationEvent extends Event
 {
-    public function __construct(private array $missingPrivileges, private readonly AdminApiSource $source, private readonly WriteCommand $command)
-    {
+    public function __construct(
+        private array $missingPrivileges,
+        private readonly AdminApiSource $source,
+        private readonly WriteCommand $command
+    ) {
     }
 
     public function getMissingPrivileges(): array

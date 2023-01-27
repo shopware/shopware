@@ -10,8 +10,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class EntityLoadedContainerEvent extends NestedEvent
 {
-    public function __construct(private readonly Context $context, private readonly array $events)
-    {
+    public function __construct(
+        private readonly Context $context,
+        private readonly array $events
+    ) {
     }
 
     public function getContext(): Context

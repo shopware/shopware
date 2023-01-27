@@ -24,8 +24,11 @@ class NewsletterUnsubscribeEvent extends Event implements SalesChannelAware, Mai
 
     private ?MailRecipientStruct $mailRecipientStruct = null;
 
-    public function __construct(private readonly Context $context, private readonly NewsletterRecipientEntity $newsletterRecipient, private readonly string $salesChannelId)
-    {
+    public function __construct(
+        private readonly Context $context,
+        private readonly NewsletterRecipientEntity $newsletterRecipient,
+        private readonly string $salesChannelId
+    ) {
     }
 
     public function getName(): string

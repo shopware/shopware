@@ -25,8 +25,11 @@ class FlowRuleScopeBuilder implements ResetInterface
     /**
      * @param iterable<CartDataCollectorInterface> $collectors
      */
-    public function __construct(private readonly OrderConverter $orderConverter, private readonly DeliveryBuilder $deliveryBuilder, private readonly iterable $collectors)
-    {
+    public function __construct(
+        private readonly OrderConverter $orderConverter,
+        private readonly DeliveryBuilder $deliveryBuilder,
+        private readonly iterable $collectors
+    ) {
     }
 
     public function reset(): void

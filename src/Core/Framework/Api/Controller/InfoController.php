@@ -36,8 +36,19 @@ class InfoController extends AbstractController
      *
      * @internal
      */
-    public function __construct(private readonly DefinitionService $definitionService, private readonly ParameterBagInterface $params, private readonly Kernel $kernel, private readonly Packages $packages, private readonly BusinessEventCollector $eventCollector, private readonly IncrementGatewayRegistry $incrementGatewayRegistry, private readonly Connection $connection, private readonly AppUrlVerifier $appUrlVerifier, private readonly ?FlowActionCollector $flowActionCollector = null, private readonly bool $enableUrlFeature = true, private readonly array $cspTemplates = [])
-    {
+    public function __construct(
+        private readonly DefinitionService $definitionService,
+        private readonly ParameterBagInterface $params,
+        private readonly Kernel $kernel,
+        private readonly Packages $packages,
+        private readonly BusinessEventCollector $eventCollector,
+        private readonly IncrementGatewayRegistry $incrementGatewayRegistry,
+        private readonly Connection $connection,
+        private readonly AppUrlVerifier $appUrlVerifier,
+        private readonly ?FlowActionCollector $flowActionCollector = null,
+        private readonly bool $enableUrlFeature = true,
+        private readonly array $cspTemplates = []
+    ) {
     }
 
     #[Route(path: '/api/_info/openapi3.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.openapi3', methods: ['GET'])]

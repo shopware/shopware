@@ -15,8 +15,10 @@ class ProductRouteWarmer implements CacheRouteWarmer
     /**
      * @internal
      */
-    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly ProductDefinition $definition)
-    {
+    public function __construct(
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly ProductDefinition $definition
+    ) {
     }
 
     public function createMessage(SalesChannelDomainEntity $domain, ?array $offset): ?WarmUpMessage

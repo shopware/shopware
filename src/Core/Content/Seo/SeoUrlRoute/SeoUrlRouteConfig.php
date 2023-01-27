@@ -8,8 +8,12 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('sales-channel')]
 class SeoUrlRouteConfig
 {
-    public function __construct(private readonly EntityDefinition $definition, private readonly string $routeName, private string $template, private bool $skipInvalid = true)
-    {
+    public function __construct(
+        private readonly EntityDefinition $definition,
+        private readonly string $routeName,
+        private string $template,
+        private bool $skipInvalid = true
+    ) {
     }
 
     public function getDefinition(): EntityDefinition

@@ -23,8 +23,11 @@ class StaticFileConfigDumper implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractConfigLoader $configLoader, private readonly AbstractAvailableThemeProvider $availableThemeProvider, private readonly FilesystemOperator $filesystem)
-    {
+    public function __construct(
+        private readonly AbstractConfigLoader $configLoader,
+        private readonly AbstractAvailableThemeProvider $availableThemeProvider,
+        private readonly FilesystemOperator $filesystem
+    ) {
     }
 
     public static function getSubscribedEvents(): array

@@ -36,8 +36,12 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $repository, private readonly DataValidator $validator, private readonly SystemConfigService $config, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly EntityRepository $repository,
+        private readonly DataValidator $validator,
+        private readonly SystemConfigService $config,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function getDecorated(): AbstractProductReviewSaveRoute

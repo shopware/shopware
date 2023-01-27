@@ -30,8 +30,14 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
      * @param AbstractCacheTracer<CurrencyRouteResponse> $tracer
      * @param array<string> $states
      */
-    public function __construct(private readonly AbstractCurrencyRoute $decorated, private readonly CacheInterface $cache, private readonly EntityCacheKeyGenerator $generator, private readonly AbstractCacheTracer $tracer, private readonly EventDispatcherInterface $dispatcher, private readonly array $states)
-    {
+    public function __construct(
+        private readonly AbstractCurrencyRoute $decorated,
+        private readonly CacheInterface $cache,
+        private readonly EntityCacheKeyGenerator $generator,
+        private readonly AbstractCacheTracer $tracer,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly array $states
+    ) {
     }
 
     public static function buildName(string $salesChannelId): string

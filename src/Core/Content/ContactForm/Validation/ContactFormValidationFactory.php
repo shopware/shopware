@@ -26,8 +26,10 @@ class ContactFormValidationFactory implements DataValidationFactoryInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly SystemConfigService $systemConfigService)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService
+    ) {
     }
 
     public function create(SalesChannelContext $context): DataValidationDefinition

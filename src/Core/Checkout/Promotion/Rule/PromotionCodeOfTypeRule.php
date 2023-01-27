@@ -20,8 +20,10 @@ class PromotionCodeOfTypeRule extends Rule
     /**
      * @internal
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?string $promotionCodeType = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?string $promotionCodeType = null
+    ) {
         parent::__construct();
     }
 

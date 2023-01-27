@@ -30,8 +30,12 @@ class PreparedPaymentService
     /**
      * @internal
      */
-    public function __construct(private readonly PaymentHandlerRegistry $paymentHandlerRegistry, private readonly EntityRepository $appPaymentMethodRepository, private readonly LoggerInterface $logger, private readonly InitialStateIdLoader $initialStateIdLoader)
-    {
+    public function __construct(
+        private readonly PaymentHandlerRegistry $paymentHandlerRegistry,
+        private readonly EntityRepository $appPaymentMethodRepository,
+        private readonly LoggerInterface $logger,
+        private readonly InitialStateIdLoader $initialStateIdLoader
+    ) {
     }
 
     public function handlePreOrderPayment(

@@ -27,8 +27,15 @@ class ShopConfigurationController extends InstallerController
      * @param array<string, string> $supportedLanguages
      * @param list<string> $supportedCurrencies
      */
-    public function __construct(private readonly DatabaseConnectionFactory $connectionFactory, private readonly EnvConfigWriter $envConfigWriter, private readonly ShopConfigurationService $shopConfigurationService, private readonly AdminConfigurationService $adminConfigurationService, private readonly TranslatorInterface $translator, private readonly array $supportedLanguages, private readonly array $supportedCurrencies)
-    {
+    public function __construct(
+        private readonly DatabaseConnectionFactory $connectionFactory,
+        private readonly EnvConfigWriter $envConfigWriter,
+        private readonly ShopConfigurationService $shopConfigurationService,
+        private readonly AdminConfigurationService $adminConfigurationService,
+        private readonly TranslatorInterface $translator,
+        private readonly array $supportedLanguages,
+        private readonly array $supportedCurrencies
+    ) {
     }
 
     #[Route(path: '/installer/configuration', name: 'installer.configuration', methods: ['GET', 'POST'])]

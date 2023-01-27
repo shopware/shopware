@@ -41,8 +41,14 @@ LUA;
      * @param array{'method': string, 'headers': array<string, string>} $singlePurge
      * @param array{'method': string, 'headers': array<string, string>, 'urls': array<string>} $entirePurge
      */
-    public function __construct(private readonly array $hosts, protected array $singlePurge, protected array $entirePurge, private readonly int $concurrency, private $redis, private readonly Client $client)
-    {
+    public function __construct(
+        private readonly array $hosts,
+        protected array $singlePurge,
+        protected array $entirePurge,
+        private readonly int $concurrency,
+        private $redis,
+        private readonly Client $client
+    ) {
     }
 
     /**

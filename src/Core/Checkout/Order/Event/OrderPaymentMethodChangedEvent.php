@@ -25,8 +25,13 @@ class OrderPaymentMethodChangedEvent extends Event implements SalesChannelAware,
 {
     final public const EVENT_NAME = 'checkout.order.payment_method.changed';
 
-    public function __construct(private readonly OrderEntity $order, private readonly OrderTransactionEntity $orderTransaction, private readonly Context $context, private readonly string $salesChannelId, private ?MailRecipientStruct $mailRecipientStruct = null)
-    {
+    public function __construct(
+        private readonly OrderEntity $order,
+        private readonly OrderTransactionEntity $orderTransaction,
+        private readonly Context $context,
+        private readonly string $salesChannelId,
+        private ?MailRecipientStruct $mailRecipientStruct = null
+    ) {
     }
 
     public function getName(): string

@@ -8,8 +8,10 @@ use Shopware\Core\Framework\ShopwareHttpException;
 #[Package('checkout')]
 class ValidatePreparedPaymentException extends ShopwareHttpException
 {
-    public function __construct(string $errorMessage, ?\Throwable $e = null)
-    {
+    public function __construct(
+        string $errorMessage,
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             'The validation process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
             ['errorMessage' => $errorMessage],

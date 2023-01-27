@@ -16,8 +16,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('core')]
 class FlowActionPersister
 {
-    public function __construct(private readonly EntityRepository $flowActionsRepository, private readonly AbstractAppLoader $appLoader, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly EntityRepository $flowActionsRepository,
+        private readonly AbstractAppLoader $appLoader,
+        private readonly Connection $connection
+    ) {
     }
 
     public function updateActions(FlowAction $flowAction, string $appId, Context $context, string $defaultLocale): void

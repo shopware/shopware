@@ -16,8 +16,11 @@ class PercentagePriceCalculator
     /**
      * @internal
      */
-    public function __construct(private readonly CashRounding $rounding, private readonly QuantityPriceCalculator $priceCalculator, private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder)
-    {
+    public function __construct(
+        private readonly CashRounding $rounding,
+        private readonly QuantityPriceCalculator $priceCalculator,
+        private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder
+    ) {
     }
 
     /**

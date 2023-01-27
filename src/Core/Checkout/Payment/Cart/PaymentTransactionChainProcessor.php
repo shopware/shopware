@@ -30,8 +30,14 @@ class PaymentTransactionChainProcessor
     /**
      * @internal
      */
-    public function __construct(private readonly TokenFactoryInterfaceV2 $tokenFactory, private readonly EntityRepository $orderRepository, private readonly RouterInterface $router, private readonly PaymentHandlerRegistry $paymentHandlerRegistry, private readonly SystemConfigService $systemConfigService, private readonly InitialStateIdLoader $initialStateIdLoader)
-    {
+    public function __construct(
+        private readonly TokenFactoryInterfaceV2 $tokenFactory,
+        private readonly EntityRepository $orderRepository,
+        private readonly RouterInterface $router,
+        private readonly PaymentHandlerRegistry $paymentHandlerRegistry,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly InitialStateIdLoader $initialStateIdLoader
+    ) {
     }
 
     /**

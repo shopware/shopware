@@ -15,8 +15,11 @@ class SearchPageLoadedEvent extends PageLoadedEvent
      */
     protected $page;
 
-    public function __construct(SearchPage $page, SalesChannelContext $salesChannelContext, Request $request)
-    {
+    public function __construct(
+        SearchPage $page,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
         $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }

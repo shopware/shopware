@@ -31,8 +31,11 @@ class OrderConvertedEvent extends NestedEvent
      */
     private $convertedCart;
 
-    public function __construct(OrderEntity $order, Cart $cart, Context $context)
-    {
+    public function __construct(
+        OrderEntity $order,
+        Cart $cart,
+        Context $context
+    ) {
         $this->context = $context;
         $this->order = $order;
         $this->cart = $cart;

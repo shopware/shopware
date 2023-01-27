@@ -38,8 +38,16 @@ class PaymentService
     /**
      * @internal
      */
-    public function __construct(private readonly PaymentTransactionChainProcessor $paymentProcessor, private readonly TokenFactoryInterfaceV2 $tokenFactory, private readonly PaymentHandlerRegistry $paymentHandlerRegistry, private readonly EntityRepository $orderTransactionRepository, private readonly OrderTransactionStateHandler $transactionStateHandler, private readonly LoggerInterface $logger, private readonly EntityRepository $orderRepository, private readonly SalesChannelContextServiceInterface $contextService)
-    {
+    public function __construct(
+        private readonly PaymentTransactionChainProcessor $paymentProcessor,
+        private readonly TokenFactoryInterfaceV2 $tokenFactory,
+        private readonly PaymentHandlerRegistry $paymentHandlerRegistry,
+        private readonly EntityRepository $orderTransactionRepository,
+        private readonly OrderTransactionStateHandler $transactionStateHandler,
+        private readonly LoggerInterface $logger,
+        private readonly EntityRepository $orderRepository,
+        private readonly SalesChannelContextServiceInterface $contextService
+    ) {
     }
 
     /**

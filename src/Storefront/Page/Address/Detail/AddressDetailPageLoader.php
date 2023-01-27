@@ -30,8 +30,13 @@ class AddressDetailPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly AbstractCountryRoute $countryRoute, private readonly AbstractSalutationRoute $salutationRoute, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractListAddressRoute $listAddressRoute)
-    {
+    public function __construct(
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly AbstractCountryRoute $countryRoute,
+        private readonly AbstractSalutationRoute $salutationRoute,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractListAddressRoute $listAddressRoute
+    ) {
     }
 
     /**

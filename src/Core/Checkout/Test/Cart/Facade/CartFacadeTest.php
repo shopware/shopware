@@ -446,8 +446,13 @@ class CartFacadeTest extends TestCase
  */
 class ExpectedPrice extends CalculatedPrice
 {
-    public function __construct(float $unitPrice, ?float $totalPrice = null, ?CalculatedTaxCollection $calculatedTaxes = null, ?TaxRuleCollection $taxRules = null, int $quantity = 1)
-    {
+    public function __construct(
+        float $unitPrice,
+        ?float $totalPrice = null,
+        ?CalculatedTaxCollection $calculatedTaxes = null,
+        ?TaxRuleCollection $taxRules = null,
+        int $quantity = 1
+    ) {
         $totalPrice ??= $unitPrice;
         $calculatedTaxes ??= new CalculatedTaxCollection([]);
         $taxRules ??= new TaxRuleCollection([]);

@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('sales-channel')]
 class ExportNotFoundException extends ShopwareHttpException
 {
-    public function __construct(?string $id = null, ?string $fileName = null)
-    {
+    public function __construct(
+        ?string $id = null,
+        ?string $fileName = null
+    ) {
         $message = 'No product exports found';
 
         if ($id) {

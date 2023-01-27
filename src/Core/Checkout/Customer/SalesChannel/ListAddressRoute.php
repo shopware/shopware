@@ -20,8 +20,10 @@ class ListAddressRoute extends AbstractListAddressRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $addressRepository, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly EntityRepository $addressRepository,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function getDecorated(): AbstractListAddressRoute

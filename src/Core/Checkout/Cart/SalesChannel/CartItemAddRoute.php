@@ -25,8 +25,13 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
     /**
      * @internal
      */
-    public function __construct(private readonly CartCalculator $cartCalculator, private readonly AbstractCartPersister $cartPersister, private readonly EventDispatcherInterface $eventDispatcher, private readonly LineItemFactoryRegistry $lineItemFactory, private readonly RateLimiter $rateLimiter)
-    {
+    public function __construct(
+        private readonly CartCalculator $cartCalculator,
+        private readonly AbstractCartPersister $cartPersister,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LineItemFactoryRegistry $lineItemFactory,
+        private readonly RateLimiter $rateLimiter
+    ) {
     }
 
     public function getDecorated(): AbstractCartItemAddRoute

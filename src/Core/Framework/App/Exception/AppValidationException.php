@@ -11,8 +11,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class AppValidationException extends \RuntimeException
 {
-    public function __construct(string $appName, ErrorCollection $errors)
-    {
+    public function __construct(
+        string $appName,
+        ErrorCollection $errors
+    ) {
         $message = sprintf(
             "The app \"%s\" is invalid:\n",
             $appName

@@ -17,8 +17,10 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractProductListingRoute $decorated, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly AbstractProductListingRoute $decorated,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function getDecorated(): AbstractProductListingRoute

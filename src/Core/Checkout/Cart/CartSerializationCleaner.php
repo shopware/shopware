@@ -15,8 +15,10 @@ class CartSerializationCleaner
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function cleanupCart(Cart $cart): void

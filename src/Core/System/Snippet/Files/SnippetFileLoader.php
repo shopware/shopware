@@ -21,8 +21,12 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     /**
      * @internal
      */
-    public function __construct(private readonly KernelInterface $kernel, private readonly Connection $connection, private readonly AppSnippetFileLoader $appSnippetFileLoader, private readonly ActiveAppsLoader $activeAppsLoader)
-    {
+    public function __construct(
+        private readonly KernelInterface $kernel,
+        private readonly Connection $connection,
+        private readonly AppSnippetFileLoader $appSnippetFileLoader,
+        private readonly ActiveAppsLoader $activeAppsLoader
+    ) {
     }
 
     public function loadSnippetFilesIntoCollection(SnippetFileCollection $snippetFileCollection): void

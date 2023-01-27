@@ -8,8 +8,11 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('core')]
 class ConflictingPackageException extends RequirementException
 {
-    public function __construct(string $conflictSource, string $conflictTarget, string $actualVersion)
-    {
+    public function __construct(
+        string $conflictSource,
+        string $conflictTarget,
+        string $actualVersion
+    ) {
         parent::__construct(
             '"{{ conflictSource }}" conflicts with plugin/package "{{ conflictTarget }} {{ version }}"',
             [

@@ -19,8 +19,10 @@ class Tree extends Struct
      */
     protected $active;
 
-    public function __construct(?CategoryEntity $active, array $tree)
-    {
+    public function __construct(
+        ?CategoryEntity $active,
+        array $tree
+    ) {
         $this->tree = $tree;
         $this->active = $active;
     }

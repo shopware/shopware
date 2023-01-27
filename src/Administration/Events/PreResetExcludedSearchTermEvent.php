@@ -15,8 +15,11 @@ class PreResetExcludedSearchTermEvent extends Event implements ShopwareEvent
      * @param array<string> $excludedTerms
      * @param Context $context
      */
-    public function __construct(private string $searchConfigId, private array $excludedTerms, private Context $context)
-    {
+    public function __construct(
+        private string $searchConfigId,
+        private array $excludedTerms,
+        private Context $context
+    ) {
     }
 
     public function getSearchConfigId(): string

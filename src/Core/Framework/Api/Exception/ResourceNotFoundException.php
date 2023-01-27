@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('core')]
 class ResourceNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $resourceType, array $primaryKey)
-    {
+    public function __construct(
+        string $resourceType,
+        array $primaryKey
+    ) {
         $resourceIds = [];
         foreach ($primaryKey as $key => $value) {
             $resourceIds[] = $key . '(' . $value . ')';

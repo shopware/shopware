@@ -29,8 +29,12 @@ class StoreApiHook extends InterfaceHook implements SalesChannelContextAware
         StoreApiResponseHook::FUNCTION_NAME => StoreApiResponseHook::class,
     ];
 
-    public function __construct(private readonly string $script, private readonly array $request, private readonly array $query, private readonly SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        private readonly string $script,
+        private readonly array $request,
+        private readonly array $query,
+        private readonly SalesChannelContext $salesChannelContext
+    ) {
         parent::__construct($salesChannelContext->getContext());
     }
 

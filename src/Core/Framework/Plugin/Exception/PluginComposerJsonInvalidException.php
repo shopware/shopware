@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('core')]
 class PluginComposerJsonInvalidException extends ShopwareHttpException
 {
-    public function __construct(string $composerJsonPath, array $errors)
-    {
+    public function __construct(
+        string $composerJsonPath,
+        array $errors
+    ) {
         parent::__construct(
             'The file "{{ composerJsonPath }}" is invalid. Errors:' . \PHP_EOL . '{{ errorsString }}',
             ['composerJsonPath' => $composerJsonPath, 'errorsString' => implode(\PHP_EOL, $errors), 'errors' => $errors]

@@ -39,8 +39,16 @@ class WishlistController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly WishlistPageLoader $wishlistPageLoader, private readonly AbstractLoadWishlistRoute $wishlistLoadRoute, private readonly AbstractAddWishlistProductRoute $addWishlistRoute, private readonly AbstractRemoveWishlistProductRoute $removeWishlistProductRoute, private readonly AbstractMergeWishlistProductRoute $mergeWishlistProductRoute, private readonly GuestWishlistPageLoader $guestPageLoader, private readonly GuestWishlistPageletLoader $guestPageletLoader, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly WishlistPageLoader $wishlistPageLoader,
+        private readonly AbstractLoadWishlistRoute $wishlistLoadRoute,
+        private readonly AbstractAddWishlistProductRoute $addWishlistRoute,
+        private readonly AbstractRemoveWishlistProductRoute $removeWishlistProductRoute,
+        private readonly AbstractMergeWishlistProductRoute $mergeWishlistProductRoute,
+        private readonly GuestWishlistPageLoader $guestPageLoader,
+        private readonly GuestWishlistPageletLoader $guestPageletLoader,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     #[Route(path: '/wishlist', name: 'frontend.wishlist.page', options: ['seo' => false], defaults: ['_noStore' => true], methods: ['GET'])]

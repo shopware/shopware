@@ -33,8 +33,13 @@ class ScriptExecutor
     /**
      * @internal
      */
-    public function __construct(private readonly ScriptLoader $loader, private readonly LoggerInterface $logger, private readonly ScriptTraces $traces, private readonly ContainerInterface $container, private readonly TranslationExtension $translationExtension)
-    {
+    public function __construct(
+        private readonly ScriptLoader $loader,
+        private readonly LoggerInterface $logger,
+        private readonly ScriptTraces $traces,
+        private readonly ContainerInterface $container,
+        private readonly TranslationExtension $translationExtension
+    ) {
     }
 
     public function execute(Hook $hook): void

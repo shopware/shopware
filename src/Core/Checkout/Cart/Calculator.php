@@ -22,8 +22,11 @@ class Calculator
     /**
      * @internal
      */
-    public function __construct(private readonly QuantityPriceCalculator $quantityPriceCalculator, private readonly PercentagePriceCalculator $percentagePriceCalculator, private readonly AbsolutePriceCalculator $absolutePriceCalculator)
-    {
+    public function __construct(
+        private readonly QuantityPriceCalculator $quantityPriceCalculator,
+        private readonly PercentagePriceCalculator $percentagePriceCalculator,
+        private readonly AbsolutePriceCalculator $absolutePriceCalculator
+    ) {
     }
 
     public function calculate(LineItemCollection $lineItems, SalesChannelContext $context, CartBehavior $behavior): LineItemCollection

@@ -11,8 +11,10 @@ use Shopware\Core\Kernel;
 #[Package('merchant-services')]
 class InstanceService
 {
-    public function __construct(private readonly string $shopwareVersion, private readonly ?string $instanceId)
-    {
+    public function __construct(
+        private readonly string $shopwareVersion,
+        private readonly ?string $instanceId
+    ) {
     }
 
     public function getShopwareVersion(): string

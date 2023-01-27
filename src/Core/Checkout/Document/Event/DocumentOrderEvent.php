@@ -14,8 +14,11 @@ abstract class DocumentOrderEvent extends Event
     /**
      * @param DocumentGenerateOperation[] $operations
      */
-    public function __construct(private readonly OrderCollection $orders, private readonly Context $context, private readonly array $operations = [])
-    {
+    public function __construct(
+        private readonly OrderCollection $orders,
+        private readonly Context $context,
+        private readonly array $operations = []
+    ) {
     }
 
     /**

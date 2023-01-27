@@ -29,8 +29,19 @@ class ContactFormRoute extends AbstractContactFormRoute
     /**
      * @internal
      */
-    public function __construct(private readonly DataValidationFactoryInterface $contactFormValidationFactory, private readonly DataValidator $validator, private readonly EventDispatcherInterface $eventDispatcher, private readonly SystemConfigService $systemConfigService, private readonly EntityRepository $cmsSlotRepository, private readonly EntityRepository $salutationRepository, private readonly EntityRepository $categoryRepository, private readonly EntityRepository $landingPageRepository, private readonly EntityRepository $productRepository, private readonly RequestStack $requestStack, private readonly RateLimiter $rateLimiter)
-    {
+    public function __construct(
+        private readonly DataValidationFactoryInterface $contactFormValidationFactory,
+        private readonly DataValidator $validator,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EntityRepository $cmsSlotRepository,
+        private readonly EntityRepository $salutationRepository,
+        private readonly EntityRepository $categoryRepository,
+        private readonly EntityRepository $landingPageRepository,
+        private readonly EntityRepository $productRepository,
+        private readonly RequestStack $requestStack,
+        private readonly RateLimiter $rateLimiter
+    ) {
     }
 
     public function getDecorated(): AbstractContactFormRoute

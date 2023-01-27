@@ -10,8 +10,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('core')]
 class UnmappedFieldException extends ShopwareHttpException
 {
-    public function __construct(string $field, EntityDefinition $definition)
-    {
+    public function __construct(
+        string $field,
+        EntityDefinition $definition
+    ) {
         $fieldParts = explode('.', $field);
         $name = array_pop($fieldParts);
 

@@ -26,8 +26,10 @@ class ValidateSnippetsCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly SnippetValidatorInterface $snippetValidator, private readonly SnippetFixer $snippetFixer)
-    {
+    public function __construct(
+        private readonly SnippetValidatorInterface $snippetValidator,
+        private readonly SnippetFixer $snippetFixer
+    ) {
         parent::__construct();
     }
 

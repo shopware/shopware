@@ -26,8 +26,11 @@ class ShippingLocation extends Struct
      */
     protected $address;
 
-    public function __construct(CountryEntity $country, ?CountryStateEntity $state, ?CustomerAddressEntity $address)
-    {
+    public function __construct(
+        CountryEntity $country,
+        ?CountryStateEntity $state,
+        ?CustomerAddressEntity $address
+    ) {
         $this->country = $country;
         $this->state = $state;
         $this->address = $address;

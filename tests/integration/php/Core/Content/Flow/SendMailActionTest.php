@@ -788,8 +788,10 @@ class TestEmailService extends MailService
      */
     public ?array $data = null;
 
-    public function __construct(private readonly ?MailFactory $mailFactory = null, private readonly ?MailerTransportDecorator $decorator = null)
-    {
+    public function __construct(
+        private readonly ?MailFactory $mailFactory = null,
+        private readonly ?MailerTransportDecorator $decorator = null
+    ) {
     }
 
     /**

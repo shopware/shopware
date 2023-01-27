@@ -21,8 +21,10 @@ class TaxProviderPayload implements SourcedPayloadInterface
 
     private Source $source;
 
-    public function __construct(private readonly Cart $cart, private readonly SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly Cart $cart,
+        private readonly SalesChannelContext $context
+    ) {
     }
 
     public function getCart(): Cart

@@ -29,8 +29,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('core')]
 class PayloadService
 {
-    public function __construct(private readonly JsonEntityEncoder $entityEncoder, private readonly DefinitionInstanceRegistry $definitionRegistry, protected Client $client, protected ShopIdProvider $shopIdProvider, private readonly string $shopUrl)
-    {
+    public function __construct(
+        private readonly JsonEntityEncoder $entityEncoder,
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        protected Client $client,
+        protected ShopIdProvider $shopIdProvider,
+        private readonly string $shopUrl
+    ) {
     }
 
     /**

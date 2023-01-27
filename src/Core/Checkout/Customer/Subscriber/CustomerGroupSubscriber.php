@@ -30,8 +30,13 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerGroupRepository, private readonly EntityRepository $seoUrlRepository, private readonly EntityRepository $languageRepository, private readonly SeoUrlPersister $persister, private readonly SlugifyInterface $slugify)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerGroupRepository,
+        private readonly EntityRepository $seoUrlRepository,
+        private readonly EntityRepository $languageRepository,
+        private readonly SeoUrlPersister $persister,
+        private readonly SlugifyInterface $slugify
+    ) {
     }
 
     public static function getSubscribedEvents(): array

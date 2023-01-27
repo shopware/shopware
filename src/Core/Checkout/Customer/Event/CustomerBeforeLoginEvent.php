@@ -20,8 +20,10 @@ class CustomerBeforeLoginEvent extends Event implements SalesChannelAware, Shopw
 {
     final public const EVENT_NAME = 'checkout.customer.before.login';
 
-    public function __construct(private readonly SalesChannelContext $salesChannelContext, private readonly string $email)
-    {
+    public function __construct(
+        private readonly SalesChannelContext $salesChannelContext,
+        private readonly string $email
+    ) {
     }
 
     public function getName(): string

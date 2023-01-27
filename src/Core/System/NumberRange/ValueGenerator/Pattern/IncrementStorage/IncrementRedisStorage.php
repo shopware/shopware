@@ -15,8 +15,11 @@ class IncrementRedisStorage extends AbstractIncrementStorage
     /**
      * @param \Redis|\RedisCluster $redis
      */
-    public function __construct(private $redis, private readonly LockFactory $lockFactory, private readonly EntityRepository $numberRangeRepository)
-    {
+    public function __construct(
+        private $redis,
+        private readonly LockFactory $lockFactory,
+        private readonly EntityRepository $numberRangeRepository
+    ) {
     }
 
     /**

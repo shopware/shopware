@@ -21,8 +21,10 @@ class CustomerNumberRule extends Rule
      *
      * @param list<string>|null $numbers
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $numbers = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $numbers = null
+    ) {
         parent::__construct();
     }
 

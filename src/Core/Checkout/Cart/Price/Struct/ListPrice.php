@@ -24,8 +24,11 @@ class ListPrice extends Struct
      */
     protected $percentage;
 
-    private function __construct(float $price, float $discount, float $percentage)
-    {
+    private function __construct(
+        float $price,
+        float $discount,
+        float $percentage
+    ) {
         $this->price = FloatComparator::cast($price);
         $this->discount = FloatComparator::cast($discount);
         $this->percentage = FloatComparator::cast($percentage);

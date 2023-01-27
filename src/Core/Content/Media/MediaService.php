@@ -21,8 +21,13 @@ class MediaService
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $mediaRepository, private readonly EntityRepository $mediaFolderRepository, private readonly FileLoader $fileLoader, private readonly FileSaver $fileSaver, private readonly FileFetcher $fileFetcher)
-    {
+    public function __construct(
+        private readonly EntityRepository $mediaRepository,
+        private readonly EntityRepository $mediaFolderRepository,
+        private readonly FileLoader $fileLoader,
+        private readonly FileSaver $fileSaver,
+        private readonly FileFetcher $fileFetcher
+    ) {
     }
 
     public function createMediaInFolder(string $folder, Context $context, bool $private = true): string

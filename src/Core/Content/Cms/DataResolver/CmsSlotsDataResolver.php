@@ -33,8 +33,11 @@ class CmsSlotsDataResolver
      *
      * @param CmsElementResolverInterface[] $resolvers
      */
-    public function __construct(iterable $resolvers, array $repositories, private readonly DefinitionInstanceRegistry $definitionRegistry)
-    {
+    public function __construct(
+        iterable $resolvers,
+        array $repositories,
+        private readonly DefinitionInstanceRegistry $definitionRegistry
+    ) {
         foreach ($repositories as $entityName => $repository) {
             $this->repositories[$entityName] = $repository;
         }

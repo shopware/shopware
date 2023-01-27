@@ -33,8 +33,12 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly SystemConfigService $systemConfigService, private readonly DataValidator $validator)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly DataValidator $validator
+    ) {
     }
 
     public function getDecorated(): AbstractChangePasswordRoute

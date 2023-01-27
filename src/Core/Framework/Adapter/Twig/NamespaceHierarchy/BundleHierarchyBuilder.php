@@ -13,8 +13,10 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
     /**
      * @internal
      */
-    public function __construct(private readonly KernelInterface $kernel, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly KernelInterface $kernel,
+        private readonly Connection $connection
+    ) {
     }
 
     public function buildNamespaceHierarchy(array $namespaceHierarchy): array

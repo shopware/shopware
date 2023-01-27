@@ -14,8 +14,12 @@ class HttpCacheItemWrittenEvent extends Event
     /**
      * @param string[] $tags
      */
-    public function __construct(private readonly CacheItemInterface $item, private readonly array $tags, private readonly Request $request, private readonly Response $response)
-    {
+    public function __construct(
+        private readonly CacheItemInterface $item,
+        private readonly array $tags,
+        private readonly Request $request,
+        private readonly Response $response
+    ) {
     }
 
     public function getItem(): CacheItemInterface

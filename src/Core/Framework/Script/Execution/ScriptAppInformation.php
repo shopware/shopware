@@ -10,8 +10,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class ScriptAppInformation
 {
-    public function __construct(private readonly string $id, private readonly string $name, private readonly string $integrationId)
-    {
+    public function __construct(
+        private readonly string $id,
+        private readonly string $name,
+        private readonly string $integrationId
+    ) {
     }
 
     public function getAppId(): string

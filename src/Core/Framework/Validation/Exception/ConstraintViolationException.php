@@ -13,8 +13,10 @@ class ConstraintViolationException extends ShopwareHttpException
 {
     private readonly ConstraintViolationList $violations;
 
-    public function __construct(ConstraintViolationList $violations, private readonly array $inputData)
-    {
+    public function __construct(
+        ConstraintViolationList $violations,
+        private readonly array $inputData
+    ) {
         $this->mapErrorCodes($violations);
 
         $this->violations = $violations;

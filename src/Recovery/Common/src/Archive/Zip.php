@@ -14,8 +14,10 @@ class Zip extends Adapter
      *
      * @throws \Exception
      */
-    public function __construct($fileName = null, $flags = null)
-    {
+    public function __construct(
+        $fileName = null,
+        $flags = null
+    ) {
         if (!\extension_loaded('zip')) {
             throw new \Exception('The PHP extension "zip" is not loaded.');
         }

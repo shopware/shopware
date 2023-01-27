@@ -21,8 +21,11 @@ class Sitemap extends Struct
     /**
      * @throws \Exception
      */
-    public function __construct(string $filename, private int $urlCount, ?\DateTimeInterface $created = null)
-    {
+    public function __construct(
+        string $filename,
+        private int $urlCount,
+        ?\DateTimeInterface $created = null
+    ) {
         $this->filename = $filename;
         $this->created = $created ?: new \DateTime('NOW', new \DateTimeZone('UTC'));
     }

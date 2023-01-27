@@ -25,8 +25,10 @@ class ScheduledTaskRunner extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly TaskScheduler $scheduler, private readonly CacheItemPoolInterface $restartSignalCachePool)
-    {
+    public function __construct(
+        private readonly TaskScheduler $scheduler,
+        private readonly CacheItemPoolInterface $restartSignalCachePool
+    ) {
         parent::__construct();
     }
 

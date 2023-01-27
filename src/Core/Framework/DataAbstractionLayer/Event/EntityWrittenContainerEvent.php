@@ -18,8 +18,11 @@ class EntityWrittenContainerEvent extends NestedEvent
 
     protected bool $cloned = false;
 
-    public function __construct(Context $context, private readonly NestedEventCollection $events, private readonly array $errors)
-    {
+    public function __construct(
+        Context $context,
+        private readonly NestedEventCollection $events,
+        private readonly array $errors
+    ) {
         $this->context = $context;
     }
 

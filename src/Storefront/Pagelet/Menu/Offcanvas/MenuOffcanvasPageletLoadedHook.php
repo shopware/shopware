@@ -21,8 +21,10 @@ class MenuOffcanvasPageletLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'menu-offcanvas-pagelet-loaded';
 
-    public function __construct(private readonly MenuOffcanvasPagelet $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly MenuOffcanvasPagelet $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

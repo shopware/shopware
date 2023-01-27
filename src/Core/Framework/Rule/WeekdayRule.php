@@ -14,8 +14,10 @@ class WeekdayRule extends Rule
     /**
      * @internal
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?int $dayOfWeek = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?int $dayOfWeek = null
+    ) {
         parent::__construct();
     }
 

@@ -19,8 +19,11 @@ class TestEvent extends Event implements FlowEventAware
 {
     final public const EVENT_NAME = 'test.event';
 
-    public function __construct(private readonly Context $context, private readonly CustomerEntity $customer, private readonly OrderEntity $order)
-    {
+    public function __construct(
+        private readonly Context $context,
+        private readonly CustomerEntity $customer,
+        private readonly OrderEntity $order
+    ) {
     }
 
     public function getName(): string

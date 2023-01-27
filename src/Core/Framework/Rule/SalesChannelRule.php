@@ -15,8 +15,10 @@ class SalesChannelRule extends Rule
      *
      * @param list<string>|null $salesChannelIds
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $salesChannelIds = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $salesChannelIds = null
+    ) {
         parent::__construct();
     }
 

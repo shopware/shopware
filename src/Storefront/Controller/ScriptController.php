@@ -22,8 +22,10 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Package('core')]
 class ScriptController extends StorefrontController
 {
-    public function __construct(private readonly GenericPageLoaderInterface $pageLoader, private readonly ScriptResponseEncoder $scriptResponseEncoder)
-    {
+    public function __construct(
+        private readonly GenericPageLoaderInterface $pageLoader,
+        private readonly ScriptResponseEncoder $scriptResponseEncoder
+    ) {
     }
 
     #[Route(path: '/storefront/script/{hook}', name: 'frontend.script_endpoint', requirements: ['hook' => '.+'], defaults: ['XmlHttpRequest' => true], methods: ['GET', 'POST'])]

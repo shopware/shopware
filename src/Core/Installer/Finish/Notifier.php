@@ -14,8 +14,12 @@ class Notifier
     final public const EVENT_INSTALL_STARTED = 'Installer started';
     final public const EVENT_INSTALL_FINISHED = 'Installer finished';
 
-    public function __construct(private readonly string $apiEndPoint, private readonly UniqueIdGenerator $idGenerator, private readonly Client $client, private readonly string $shopwareVersion)
-    {
+    public function __construct(
+        private readonly string $apiEndPoint,
+        private readonly UniqueIdGenerator $idGenerator,
+        private readonly Client $client,
+        private readonly string $shopwareVersion
+    ) {
     }
 
     /**

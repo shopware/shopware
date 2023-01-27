@@ -12,8 +12,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('inventory')]
 class ProductCrossSellingCriteriaLoadEvent extends Event implements ShopwareSalesChannelEvent
 {
-    public function __construct(protected Criteria $criteria, protected SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        protected Criteria $criteria,
+        protected SalesChannelContext $salesChannelContext
+    ) {
     }
 
     public function getCriteria(): Criteria

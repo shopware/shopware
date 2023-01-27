@@ -22,8 +22,11 @@ class StorefrontMediaUploader
     /**
      * @internal
      */
-    public function __construct(private readonly MediaService $mediaService, private readonly FileSaver $fileSaver, private readonly StorefrontMediaValidatorRegistry $validator)
-    {
+    public function __construct(
+        private readonly MediaService $mediaService,
+        private readonly FileSaver $fileSaver,
+        private readonly StorefrontMediaValidatorRegistry $validator
+    ) {
     }
 
     /**

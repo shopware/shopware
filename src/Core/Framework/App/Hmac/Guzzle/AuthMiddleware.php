@@ -29,8 +29,10 @@ class AuthMiddleware
     /**
      * @internal
      */
-    public function __construct(private readonly string $shopwareVersion, private readonly AppLocaleProvider $localeProvider)
-    {
+    public function __construct(
+        private readonly string $shopwareVersion,
+        private readonly AppLocaleProvider $localeProvider
+    ) {
     }
 
     public function __invoke(callable $handler): \Closure

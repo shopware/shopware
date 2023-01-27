@@ -10,8 +10,14 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class StateMachineMigration
 {
-    public function __construct(private string $technicalName, private string $de, private string $en, private array $states = [], private array $transitions = [], private ?string $initialState = null)
-    {
+    public function __construct(
+        private string $technicalName,
+        private string $de,
+        private string $en,
+        private array $states = [],
+        private array $transitions = [],
+        private ?string $initialState = null
+    ) {
     }
 
     public static function state(string $technicalName, string $de, string $en): array

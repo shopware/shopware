@@ -27,8 +27,11 @@ class ApiHook extends Hook implements StoppableHook
 
     final public const HOOK_NAME = 'api-{hook}';
 
-    public function __construct(private readonly string $name, private readonly array $request, Context $context)
-    {
+    public function __construct(
+        private readonly string $name,
+        private readonly array $request,
+        Context $context
+    ) {
         parent::__construct($context);
     }
 

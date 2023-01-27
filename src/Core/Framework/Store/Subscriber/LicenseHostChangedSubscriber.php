@@ -15,8 +15,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('merchant-services')]
 class LicenseHostChangedSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly SystemConfigService $systemConfigService,
+        private readonly Connection $connection
+    ) {
     }
 
     public static function getSubscribedEvents(): array

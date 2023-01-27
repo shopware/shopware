@@ -21,8 +21,10 @@ class SuggestPageLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'suggest-page-loaded';
 
-    public function __construct(private readonly SuggestPage $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly SuggestPage $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

@@ -20,8 +20,10 @@ final class GenerateThumbnailsHandler
     /**
      * @internal
      */
-    public function __construct(private readonly ThumbnailService $thumbnailService, private readonly EntityRepository $mediaRepository)
-    {
+    public function __construct(
+        private readonly ThumbnailService $thumbnailService,
+        private readonly EntityRepository $mediaRepository
+    ) {
     }
 
     public function __invoke(GenerateThumbnailsMessage|UpdateThumbnailsMessage $msg): void

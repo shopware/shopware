@@ -22,8 +22,12 @@ class SalesChannelIndexer extends EntityIndexer
     /**
      * @internal
      */
-    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly EventDispatcherInterface $eventDispatcher, private readonly ManyToManyIdFieldUpdater $manyToManyUpdater)
-    {
+    public function __construct(
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ManyToManyIdFieldUpdater $manyToManyUpdater
+    ) {
     }
 
     public function getName(): string

@@ -12,8 +12,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('core')]
 class SalesChannelContextSwitchEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    public function __construct(private readonly SalesChannelContext $salesChannelContext, private readonly DataBag $requestDataBag)
-    {
+    public function __construct(
+        private readonly SalesChannelContext $salesChannelContext,
+        private readonly DataBag $requestDataBag
+    ) {
     }
 
     public function getContext(): Context

@@ -16,8 +16,10 @@ use Symfony\Component\Routing\RouterInterface;
 #[Package('core')]
 class ScriptResponseFactoryFacadeHookFactory extends HookServiceFactory
 {
-    public function __construct(private readonly RouterInterface $router, private readonly ?ScriptController $scriptController)
-    {
+    public function __construct(
+        private readonly RouterInterface $router,
+        private readonly ?ScriptController $scriptController
+    ) {
     }
 
     public function factory(Hook $hook, Script $script): ScriptResponseFactoryFacade

@@ -15,8 +15,11 @@ class ProductPageLoadedEvent extends PageLoadedEvent
      */
     protected $page;
 
-    public function __construct(ProductPage $page, SalesChannelContext $salesChannelContext, Request $request)
-    {
+    public function __construct(
+        ProductPage $page,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
         $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }

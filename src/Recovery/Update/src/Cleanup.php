@@ -33,8 +33,10 @@ class Cleanup
      * @param string $shopwarePath
      * @param string $backupDirectory
      */
-    public function __construct($shopwarePath, $backupDirectory)
-    {
+    public function __construct(
+        $shopwarePath,
+        $backupDirectory
+    ) {
         $this->shopwarePath = $shopwarePath;
         $this->backupDirectory = $backupDirectory;
     }

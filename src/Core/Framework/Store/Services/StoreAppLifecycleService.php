@@ -27,8 +27,16 @@ use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirm
 #[Package('merchant-services')]
 class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 {
-    public function __construct(private readonly StoreClient $storeClient, private readonly AbstractAppLoader $appLoader, private readonly AbstractAppLifecycle $appLifecycle, private readonly EntityRepository $appRepository, private readonly EntityRepository $salesChannelRepository, private readonly ?EntityRepository $themeRepository, private readonly AppStateService $appStateService, private readonly AppConfirmationDeltaProvider $appDeltaService)
-    {
+    public function __construct(
+        private readonly StoreClient $storeClient,
+        private readonly AbstractAppLoader $appLoader,
+        private readonly AbstractAppLifecycle $appLifecycle,
+        private readonly EntityRepository $appRepository,
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly ?EntityRepository $themeRepository,
+        private readonly AppStateService $appStateService,
+        private readonly AppConfirmationDeltaProvider $appDeltaService
+    ) {
     }
 
     public function installExtension(string $technicalName, Context $context): void

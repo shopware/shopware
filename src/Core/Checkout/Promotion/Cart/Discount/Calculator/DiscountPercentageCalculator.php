@@ -16,8 +16,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class DiscountPercentageCalculator
 {
-    public function __construct(private readonly AbsolutePriceCalculator $absolutePriceCalculator, private readonly PercentagePriceCalculator $percentagePriceCalculator)
-    {
+    public function __construct(
+        private readonly AbsolutePriceCalculator $absolutePriceCalculator,
+        private readonly PercentagePriceCalculator $percentagePriceCalculator
+    ) {
     }
 
     /**

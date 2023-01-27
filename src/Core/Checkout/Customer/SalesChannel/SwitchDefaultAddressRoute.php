@@ -27,8 +27,11 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
     /**
      * @internal
      */
-    public function __construct(EntityRepository $addressRepository, private readonly EntityRepository $customerRepository, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        EntityRepository $addressRepository,
+        private readonly EntityRepository $customerRepository,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
         $this->addressRepository = $addressRepository;
     }
 

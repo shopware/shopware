@@ -9,8 +9,11 @@ use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 #[Package('core')]
 final class AdditionalBundleParameters
 {
-    public function __construct(private ClassLoader $classLoader, private KernelPluginCollection $pluginInstances, private array $kernelParameters)
-    {
+    public function __construct(
+        private ClassLoader $classLoader,
+        private KernelPluginCollection $pluginInstances,
+        private array $kernelParameters
+    ) {
     }
 
     public function getClassLoader(): ClassLoader

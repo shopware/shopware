@@ -13,8 +13,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('merchant-services')]
 class FirstRunWizardStartedEvent extends Event
 {
-    public function __construct(private readonly FrwState $state, private readonly Context $context)
-    {
+    public function __construct(
+        private readonly FrwState $state,
+        private readonly Context $context
+    ) {
     }
 
     public function getState(): FrwState

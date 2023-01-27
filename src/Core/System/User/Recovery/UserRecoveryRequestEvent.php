@@ -23,8 +23,11 @@ class UserRecoveryRequestEvent extends Event implements UserAware, MailAware, Re
 
     private ?MailRecipientStruct $mailRecipientStruct = null;
 
-    public function __construct(private readonly UserRecoveryEntity $userRecovery, private readonly string $resetUrl, private readonly Context $context)
-    {
+    public function __construct(
+        private readonly UserRecoveryEntity $userRecovery,
+        private readonly string $resetUrl,
+        private readonly Context $context
+    ) {
     }
 
     public function getName(): string

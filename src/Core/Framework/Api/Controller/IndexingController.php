@@ -21,8 +21,10 @@ class IndexingController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly EntityIndexerRegistry $registry, private readonly MessageBusInterface $messageBus)
-    {
+    public function __construct(
+        private readonly EntityIndexerRegistry $registry,
+        private readonly MessageBusInterface $messageBus
+    ) {
     }
 
     #[Route(path: '/api/_action/indexing', name: 'api.action.indexing', methods: ['POST'])]

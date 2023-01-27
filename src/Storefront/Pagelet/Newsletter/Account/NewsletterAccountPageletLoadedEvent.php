@@ -10,8 +10,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('customer-order')]
 class NewsletterAccountPageletLoadedEvent extends PageletLoadedEvent
 {
-    public function __construct(protected NewsletterAccountPagelet $pagelet, SalesChannelContext $salesChannelContext, Request $request)
-    {
+    public function __construct(
+        protected NewsletterAccountPagelet $pagelet,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
         parent::__construct($salesChannelContext, $request);
     }
 

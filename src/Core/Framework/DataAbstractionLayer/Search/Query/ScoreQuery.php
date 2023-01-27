@@ -11,8 +11,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class ScoreQuery extends Filter
 {
-    public function __construct(private readonly Filter $query, private readonly float $score, private readonly ?string $scoreField = null)
-    {
+    public function __construct(
+        private readonly Filter $query,
+        private readonly float $score,
+        private readonly ?string $scoreField = null
+    ) {
     }
 
     public function getFields(): array

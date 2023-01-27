@@ -19,8 +19,12 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
     /**
      * @internal
      */
-    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractCategoryRoute $cmsPageRoute, private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer)
-    {
+    public function __construct(
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractCategoryRoute $cmsPageRoute,
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer
+    ) {
     }
 
     public function load(Request $request, SalesChannelContext $context): NavigationPage

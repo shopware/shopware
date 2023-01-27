@@ -19,8 +19,10 @@ class Transaction extends Struct
      */
     protected $paymentMethodId;
 
-    public function __construct(CalculatedPrice $amount, string $paymentMethodId)
-    {
+    public function __construct(
+        CalculatedPrice $amount,
+        string $paymentMethodId
+    ) {
         $this->amount = $amount;
         $this->paymentMethodId = $paymentMethodId;
     }

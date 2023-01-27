@@ -31,8 +31,14 @@ class CheckoutRegisterPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly AbstractListAddressRoute $listAddressRoute, private readonly EventDispatcherInterface $eventDispatcher, private readonly CartService $cartService, private readonly AbstractSalutationRoute $salutationRoute, private readonly AbstractCountryRoute $countryRoute)
-    {
+    public function __construct(
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly AbstractListAddressRoute $listAddressRoute,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CartService $cartService,
+        private readonly AbstractSalutationRoute $salutationRoute,
+        private readonly AbstractCountryRoute $countryRoute
+    ) {
     }
 
     /**

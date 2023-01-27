@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('storefront')]
 class ThemeCompileException extends ShopwareHttpException
 {
-    public function __construct(string $themeName, string $message = '')
-    {
+    public function __construct(
+        string $themeName,
+        string $message = ''
+    ) {
         parent::__construct(
             'Unable to compile the theme "{{ themeName }}". {{ message }}',
             [

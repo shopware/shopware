@@ -21,8 +21,10 @@ class BillingCountryRule extends Rule
      *
      * @param list<string>|null $countryIds
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $countryIds = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $countryIds = null
+    ) {
         parent::__construct();
     }
 

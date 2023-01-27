@@ -24,8 +24,10 @@ class TreeItem extends Struct
      */
     protected $children;
 
-    public function __construct(?CategoryEntity $category, array $children)
-    {
+    public function __construct(
+        ?CategoryEntity $category,
+        array $children
+    ) {
         $this->category = $category;
         $this->children = $children;
         $this->afterId = $category ? $category->getAfterCategoryId() : null;

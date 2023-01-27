@@ -28,8 +28,11 @@ class ProductListingCollectFilterEvent extends NestedEvent implements ShopwareSa
      */
     protected $filters;
 
-    public function __construct(Request $request, FilterCollection $filters, SalesChannelContext $context)
-    {
+    public function __construct(
+        Request $request,
+        FilterCollection $filters,
+        SalesChannelContext $context
+    ) {
         $this->request = $request;
         $this->context = $context;
         $this->filters = $filters;

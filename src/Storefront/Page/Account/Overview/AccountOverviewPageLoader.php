@@ -26,8 +26,13 @@ class AccountOverviewPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractOrderRoute $orderRoute, private readonly AbstractCustomerRoute $customerRoute, private readonly NewsletterAccountPageletLoader $newsletterAccountPageletLoader)
-    {
+    public function __construct(
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractOrderRoute $orderRoute,
+        private readonly AbstractCustomerRoute $customerRoute,
+        private readonly NewsletterAccountPageletLoader $newsletterAccountPageletLoader
+    ) {
     }
 
     /**

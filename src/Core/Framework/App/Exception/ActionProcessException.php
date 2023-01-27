@@ -9,8 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('core')]
 class ActionProcessException extends ShopwareHttpException
 {
-    public function __construct(private readonly string $actionId, string $errorMessage, ?\Throwable $e = null)
-    {
+    public function __construct(
+        private readonly string $actionId,
+        string $errorMessage,
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             'The synchronous action process was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
             ['errorMessage' => $errorMessage],

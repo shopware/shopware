@@ -19,8 +19,10 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
     /**
      * @internal
      */
-    public function __construct(protected Connection $connection, protected Kernel $kernel)
-    {
+    public function __construct(
+        protected Connection $connection,
+        protected Kernel $kernel
+    ) {
     }
 
     public function getDecorated(): AbstractSystemConfigLoader

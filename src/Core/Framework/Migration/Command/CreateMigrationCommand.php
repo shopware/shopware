@@ -22,8 +22,11 @@ class CreateMigrationCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly KernelPluginCollection $kernelPluginCollection, private readonly string $coreDir, private readonly string $shopwareVersion)
-    {
+    public function __construct(
+        private readonly KernelPluginCollection $kernelPluginCollection,
+        private readonly string $coreDir,
+        private readonly string $shopwareVersion
+    ) {
         parent::__construct();
     }
 

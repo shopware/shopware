@@ -12,8 +12,11 @@ class UnpackStep
 {
     private readonly string $destinationDir;
 
-    public function __construct(private readonly string $source, $destinationDir, private readonly bool $testMode = false)
-    {
+    public function __construct(
+        private readonly string $source,
+        $destinationDir,
+        private readonly bool $testMode = false
+    ) {
         $this->destinationDir = rtrim((string) $destinationDir, '/') . '/';
     }
 

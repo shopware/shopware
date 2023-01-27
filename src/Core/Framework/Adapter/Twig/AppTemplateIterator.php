@@ -16,8 +16,10 @@ class AppTemplateIterator implements \IteratorAggregate
     /**
      * @internal
      */
-    public function __construct(private readonly \IteratorAggregate $templateIterator, private readonly EntityRepository $templateRepository)
-    {
+    public function __construct(
+        private readonly \IteratorAggregate $templateIterator,
+        private readonly EntityRepository $templateRepository
+    ) {
     }
 
     public function getIterator(): \Traversable

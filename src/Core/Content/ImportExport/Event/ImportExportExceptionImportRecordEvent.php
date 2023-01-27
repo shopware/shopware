@@ -10,8 +10,13 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('system-settings')]
 class ImportExportExceptionImportRecordEvent extends Event
 {
-    public function __construct(private ?\Throwable $exception, private readonly array $record, private readonly array $row, private readonly Config $config, private readonly Context $context)
-    {
+    public function __construct(
+        private ?\Throwable $exception,
+        private readonly array $record,
+        private readonly array $row,
+        private readonly Config $config,
+        private readonly Context $context
+    ) {
     }
 
     public function getException(): ?\Throwable

@@ -31,8 +31,13 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly StorefrontPluginRegistryInterface $storefrontPluginRegistry, private readonly string $projectDirectory, private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory, private readonly ThemeLifecycleHandler $themeLifecycleHandler, private readonly ThemeLifecycleService $themeLifecycleService)
-    {
+    public function __construct(
+        private readonly StorefrontPluginRegistryInterface $storefrontPluginRegistry,
+        private readonly string $projectDirectory,
+        private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
+        private readonly ThemeLifecycleHandler $themeLifecycleHandler,
+        private readonly ThemeLifecycleService $themeLifecycleService
+    ) {
     }
 
     /**

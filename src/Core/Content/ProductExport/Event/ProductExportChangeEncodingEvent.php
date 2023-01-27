@@ -11,8 +11,11 @@ class ProductExportChangeEncodingEvent extends Event
 {
     final public const NAME = 'product_export.change_encoding';
 
-    public function __construct(private readonly ProductExportEntity $productExportEntity, private readonly string $content, private string $encodedContent)
-    {
+    public function __construct(
+        private readonly ProductExportEntity $productExportEntity,
+        private readonly string $content,
+        private string $encodedContent
+    ) {
     }
 
     public function getProductExportEntity(): ProductExportEntity

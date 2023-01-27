@@ -21,8 +21,10 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
     /**
      * @internal
      */
-    public function __construct(EntityRepository $scheduledTaskRepository, private readonly EntityRepository $newsletterRecipientRepository)
-    {
+    public function __construct(
+        EntityRepository $scheduledTaskRepository,
+        private readonly EntityRepository $newsletterRecipientRepository
+    ) {
         parent::__construct($scheduledTaskRepository);
     }
 

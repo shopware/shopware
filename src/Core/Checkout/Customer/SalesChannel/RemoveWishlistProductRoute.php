@@ -27,8 +27,12 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $wishlistRepository, private readonly EntityRepository $productRepository, private readonly SystemConfigService $systemConfigService, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly EntityRepository $wishlistRepository,
+        private readonly EntityRepository $productRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function getDecorated(): AbstractRemoveWishlistProductRoute

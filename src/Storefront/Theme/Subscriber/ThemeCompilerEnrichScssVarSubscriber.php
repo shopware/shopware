@@ -18,8 +18,10 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly ConfigurationService $configurationService, private readonly StorefrontPluginRegistryInterface $storefrontPluginRegistry)
-    {
+    public function __construct(
+        private readonly ConfigurationService $configurationService,
+        private readonly StorefrontPluginRegistryInterface $storefrontPluginRegistry
+    ) {
     }
 
     /**

@@ -55,8 +55,13 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly EntityRepository $optionRepository, private readonly EntityRepository $sortingRepository, private readonly SystemConfigService $systemConfigService, private readonly EventDispatcherInterface $dispatcher)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EntityRepository $optionRepository,
+        private readonly EntityRepository $sortingRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $dispatcher
+    ) {
     }
 
     public static function getSubscribedEvents(): array

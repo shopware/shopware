@@ -339,6 +339,7 @@
         "e2e:setup": [
             "@putenv APP_ENV=e2e",
             "@setup",
+            "@init:e2e",
             "@e2e:prepare"
         ],
         "ecs": "ecs check src tests",

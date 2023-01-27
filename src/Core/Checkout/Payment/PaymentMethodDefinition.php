@@ -93,6 +93,9 @@ class PaymentMethodDefinition extends EntityDefinition
             (new OneToManyAssociationField('orderTransactions', OrderTransactionDefinition::class, 'payment_method_id', 'id'))->addFlags(new RestrictDelete()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelPaymentMethodDefinition::class, 'payment_method_id', 'sales_channel_id'),
             (new OneToOneAssociationField('appPaymentMethod', 'id', 'payment_method_id', AppPaymentMethodDefinition::class, true))->addFlags(new CascadeDelete()),
+
+            // runtime fields
+            (new StringField('short_name', 'shortName'))->addFlags(new ApiAware(), new Runtime()),
         ]);
     }
 }

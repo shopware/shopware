@@ -33,6 +33,7 @@ class ProductReviewSubscriber implements EventSubscriberInterface
 
     public function deleteReview(BeforeDeleteEvent $event): void
     {
+        /** @var array<string> $ids */
         $ids = $event->getIds(ProductReviewDefinition::ENTITY_NAME);
 
         if (empty($ids)) {

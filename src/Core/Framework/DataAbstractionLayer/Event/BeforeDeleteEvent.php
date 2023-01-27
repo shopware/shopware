@@ -20,19 +20,22 @@ use Symfony\Contracts\EventDispatcher\Event;
 class BeforeDeleteEvent extends Event implements ShopwareEvent
 {
     /**
-     * @var \Closure[]
+     * @var list<\Closure>
      */
     private array $successCallbacks = [];
 
     /**
-     * @var \Closure[]
+     * @var list<\Closure>
      */
     private array $errorCallbacks = [];
 
+    /**
+     * @var array<string, list<array<string, string>|string>>
+     */
     private array $ids = [];
 
     /**
-     * @param WriteCommand[] $commands
+     * @param array<WriteCommand> $commands
      */
     private function __construct(
         private readonly WriteContext $writeContext,
@@ -40,6 +43,9 @@ class BeforeDeleteEvent extends Event implements ShopwareEvent
     ) {
     }
 
+    /**
+     * @param array<WriteCommand> $commands
+     */
     public static function create(WriteContext $writeContext, array $commands): self
     {
         $deleteCommands = \array_filter($commands, static fn (WriteCommand $command) => $command instanceof DeleteCommand);
@@ -57,11 +63,17 @@ class BeforeDeleteEvent extends Event implements ShopwareEvent
         return $this->writeContext;
     }
 
+    /**
+     * @return array<WriteCommand>
+     */
     public function getCommands(): array
     {
         return $this->commands;
     }
 
+    /**
+     * @return list<array<string, string>|string>
+     */
     public function getIds(string $entity): array
     {
         if (\array_key_exists($entity, $this->ids)) {
@@ -84,7 +96,9 @@ class BeforeDeleteEvent extends Event implements ShopwareEvent
             $ids[] = $this->getCommandPrimaryKey($entityWriteResult, $primaryKeys);
         }
 
-        return $this->ids[$entity] = $ids;
+        $this->ids[$entity] = $ids;
+
+        return $ids;
     }
 
     public function filled(): bool
@@ -116,6 +130,9 @@ class BeforeDeleteEvent extends Event implements ShopwareEvent
         }
     }
 
+    /**
+     * @return array<string, string>|string
+     */
     private function getCommandPrimaryKey(WriteCommand $command, FieldCollection $fields): array|string
     {
         $primaryKey = $command->getPrimaryKey();
@@ -123,10 +140,10 @@ class BeforeDeleteEvent extends Event implements ShopwareEvent
         $data = [];
 
         if ($fields->count() === 1) {
-            /** @var StorageAware $field */
             $field = $fields->first();
-
-            return Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
+            if ($field instanceof StorageAware) {
+                return Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
+            }
         }
 
         foreach ($fields as $field) {

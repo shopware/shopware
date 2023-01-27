@@ -51,6 +51,7 @@ class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
      */
     public function beforeDeletion(BeforeDeleteEvent $event): void
     {
+        /** @var array<string> $cmsPageIds */
         $cmsPageIds = $event->getIds(CmsPageDefinition::ENTITY_NAME);
 
         // no cms page is affected by this deletion event

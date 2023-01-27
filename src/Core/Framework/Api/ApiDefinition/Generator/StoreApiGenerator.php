@@ -97,7 +97,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     /**
      * {@inheritdoc}
      *
-     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
+     * @param array<string, EntityDefinition>|array<string, EntityDefinition&SalesChannelDefinitionInterface> $definitions
      *
      * @return never
      */

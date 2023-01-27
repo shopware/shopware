@@ -16,6 +16,9 @@ class CustomFields extends JsonField
         parent::__construct($storageName, $propertyName);
     }
 
+    /**
+     * @param list<Field> $propertyMapping
+     */
     public function setPropertyMapping(array $propertyMapping): void
     {
         $this->propertyMapping = $propertyMapping;

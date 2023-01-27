@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Flow\DataAbstractionLayer;
+namespace Shopware\Tests\Integration\Core\Content\Flow\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
@@ -11,12 +11,14 @@ use Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
+use Shopware\Core\Content\Flow\FlowCollection;
 use Shopware\Core\Content\Flow\FlowEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 
 /**
@@ -25,8 +27,12 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 #[Package('business-ops')]
 class FlowPayloadUpdaterTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
+    /**
+     * @var EntityRepository<FlowCollection>
+     */
     private EntityRepository $flowRepository;
 
     private TestDataCollection $ids;
@@ -42,7 +48,7 @@ class FlowPayloadUpdaterTest extends TestCase
     {
         $this->createTestData();
 
-        $flow = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), Context::createDefaultContext())->first();
+        $flow = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), Context::createDefaultContext())->getEntities()->first();
         static::assertNotNull($flow);
 
         $trueCaseNextAction = new ActionSequence();
@@ -100,7 +106,8 @@ class FlowPayloadUpdaterTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $flow = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), Context::createDefaultContext())->first();
+        $flow = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($flow);
 
         $falseCase = new ActionSequence();
         $falseCase->action = AddOrderTagAction::getName();
@@ -150,9 +157,10 @@ class FlowPayloadUpdaterTest extends TestCase
 
         $criteria = new Criteria([$this->ids->get('flow_id')]);
         $criteria->addAssociation('sequences');
-        $flow = $this->flowRepository->search($criteria, Context::createDefaultContext())->first();
+        $flow = $this->flowRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($flow);
 
-        static::assertSame([], $flow->getSequences()->getElements());
+        static::assertSame([], $flow->getSequences()?->getElements());
         static::assertSame(serialize(new Flow($this->ids->get('flow_id'), [])), $flow->getPayload());
     }
 
@@ -170,9 +178,10 @@ class FlowPayloadUpdaterTest extends TestCase
 
         $criteria = new Criteria([$this->ids->get('flow_id')]);
         $criteria->addAssociation('sequences');
-        $flow = $this->flowRepository->search($criteria, Context::createDefaultContext())->first();
+        $flow = $this->flowRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($flow);
 
-        static::assertSame([], $flow->getSequences()->getElements());
+        static::assertSame([], $flow->getSequences()?->getElements());
         static::assertSame(serialize(new Flow($this->ids->get('flow_id'), [])), $flow->getPayload());
     }
 
@@ -180,20 +189,21 @@ class FlowPayloadUpdaterTest extends TestCase
     {
         $this->createTestData();
 
-        /** @var FlowEntity $flowEntity */
-        $flowEntity = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), Context::createDefaultContext())->first();
+        $flowEntity = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), Context::createDefaultContext())->getEntities()->first();
+        static::assertInstanceOf(FlowEntity::class, $flowEntity);
 
-        /** @var string $payload */
         $payload = $flowEntity->getPayload();
+        static::assertIsString($payload);
         $flow = unserialize($payload);
-        static::assertTrue($flow->getSequences()[0] instanceof IfSequence);
+        static::assertInstanceOf(Flow::class, $flow);
+        static::assertInstanceOf(IfSequence::class, $flow->getSequences()[0]);
 
         $flat = $flow->getFlat();
-        static::assertTrue($flat[$this->ids->create('flow_sequence_id1')] instanceof ActionSequence);
-        static::assertTrue($flat[$this->ids->create('flow_sequence_id')] instanceof IfSequence);
+        static::assertInstanceOf(ActionSequence::class, $flat[$this->ids->create('flow_sequence_id1')]);
+        static::assertInstanceOf(IfSequence::class, $flat[$this->ids->create('flow_sequence_id')]);
 
         $flow->jump($this->ids->create('flow_sequence_id1'));
-        static::assertTrue($flow->getSequences()[0] instanceof ActionSequence);
+        static::assertInstanceOf(ActionSequence::class, $flow->getSequences()[0]);
     }
 
     private function createTestData(): void

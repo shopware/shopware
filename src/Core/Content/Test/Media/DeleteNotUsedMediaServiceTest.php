@@ -3,10 +3,10 @@
 namespace Shopware\Core\Content\Test\Media;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepositoryDecorator;
 use Shopware\Core\Content\Media\DeleteNotUsedMediaService;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -28,7 +28,7 @@ class DeleteNotUsedMediaServiceTest extends TestCase
     private $deleteMediaService;
 
     /**
-     * @var MediaRepositoryDecorator
+     * @var EntityRepository
      */
     private $mediaRepo;
 

@@ -46,7 +46,7 @@ class SeoUrlEntity extends Entity
     protected $seoPathInfo;
 
     /**
-     * @var bool
+     * @var bool|null
      */
     protected $isCanonical;
 
@@ -213,5 +213,15 @@ class SeoUrlEntity extends Entity
     public function setError(?string $error): void
     {
         $this->error = $error;
+    }
+
+    public function getIsValid(): bool
+    {
+        return $this->isValid;
+    }
+
+    public function setIsValid(bool $isValid): void
+    {
+        $this->isValid = $isValid;
     }
 }

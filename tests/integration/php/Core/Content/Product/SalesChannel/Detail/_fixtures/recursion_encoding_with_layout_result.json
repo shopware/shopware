@@ -92,14 +92,6 @@
       "name": "t1",
       "position": 0,
       "translated": [],
-      "extensions": {
-        "foreignKeys": {
-          "apiAlias": "array_struct"
-        },
-        "internal_mapping_storage": {
-          "apiAlias": "array_struct"
-        }
-      },
       "customFields": null,
       "apiAlias": "tax"
     },
@@ -113,14 +105,6 @@
         "name": "m1",
         "description": null,
         "customFields": []
-      },
-      "extensions": {
-        "foreignKeys": {
-          "apiAlias": "array_struct"
-        },
-        "internal_mapping_storage": {
-          "apiAlias": "array_struct"
-        }
       },
       "customFields": null,
       "apiAlias": "product_manufacturer"
@@ -151,23 +135,10 @@
             "title": null,
             "customFields": []
           },
-          "extensions": {
-            "foreignKeys": {
-              "apiAlias": "array_struct"
-            },
-            "internal_mapping_storage": {
-              "apiAlias": "array_struct"
-            }
-          },
           "customFields": null,
           "apiAlias": "media"
         },
         "translated": [],
-        "extensions": {
-          "foreignKeys": {
-            "apiAlias": "array_struct"
-          }
-        },
         "customFields": null,
         "apiAlias": "product_media"
       },
@@ -192,23 +163,10 @@
             "title": null,
             "customFields": []
           },
-          "extensions": {
-            "foreignKeys": {
-              "apiAlias": "array_struct"
-            },
-            "internal_mapping_storage": {
-              "apiAlias": "array_struct"
-            }
-          },
           "customFields": null,
           "apiAlias": "media"
         },
         "translated": [],
-        "extensions": {
-          "foreignKeys": {
-            "apiAlias": "array_struct"
-          }
-        },
         "customFields": null,
         "apiAlias": "product_media"
       },
@@ -233,23 +191,10 @@
             "title": null,
             "customFields": []
           },
-          "extensions": {
-            "foreignKeys": {
-              "apiAlias": "array_struct"
-            },
-            "internal_mapping_storage": {
-              "apiAlias": "array_struct"
-            }
-          },
           "customFields": null,
           "apiAlias": "media"
         },
         "translated": [],
-        "extensions": {
-          "foreignKeys": {
-            "apiAlias": "array_struct"
-          }
-        },
         "customFields": null,
         "apiAlias": "product_media"
       }
@@ -287,11 +232,6 @@
                     "config": null,
                     "customFields": []
                   },
-                  "extensions": {
-                    "foreignKeys": {
-                      "apiAlias": "array_struct"
-                    }
-                  },
                   "customFields": null,
                   "apiAlias": "cms_slot"
                 },
@@ -320,14 +260,6 @@
                         "description": null,
                         "customFields": []
                       },
-                      "extensions": {
-                        "foreignKeys": {
-                          "apiAlias": "array_struct"
-                        },
-                        "internal_mapping_storage": {
-                          "apiAlias": "array_struct"
-                        }
-                      },
                       "customFields": null,
                       "apiAlias": "product_manufacturer"
                     },
@@ -340,11 +272,6 @@
                   "translated": {
                     "config": null,
                     "customFields": []
-                  },
-                  "extensions": {
-                    "foreignKeys": {
-                      "apiAlias": "array_struct"
-                    }
                   },
                   "customFields": null,
                   "apiAlias": "cms_slot"
@@ -362,11 +289,6 @@
               "backgroundMediaMode": null,
               "cssClass": null,
               "translated": [],
-              "extensions": {
-                "foreignKeys": {
-                  "apiAlias": "array_struct"
-                }
-              },
               "customFields": null,
               "apiAlias": "cms_block"
             },
@@ -389,11 +311,6 @@
                   "translated": {
                     "config": null,
                     "customFields": []
-                  },
-                  "extensions": {
-                    "foreignKeys": {
-                      "apiAlias": "array_struct"
-                    }
                   },
                   "customFields": null,
                   "apiAlias": "cms_slot"
@@ -505,14 +422,6 @@
                         "name": "t1",
                         "position": 0,
                         "translated": [],
-                        "extensions": {
-                          "foreignKeys": {
-                            "apiAlias": "array_struct"
-                          },
-                          "internal_mapping_storage": {
-                            "apiAlias": "array_struct"
-                          }
-                        },
                         "customFields": null,
                         "apiAlias": "tax"
                       },
@@ -526,14 +435,6 @@
                           "name": "m1",
                           "description": null,
                           "customFields": []
-                        },
-                        "extensions": {
-                          "foreignKeys": {
-                            "apiAlias": "array_struct"
-                          },
-                          "internal_mapping_storage": {
-                            "apiAlias": "array_struct"
-                          }
                         },
                         "customFields": null,
                         "apiAlias": "product_manufacturer"
@@ -564,23 +465,10 @@
                               "title": null,
                               "customFields": []
                             },
-                            "extensions": {
-                              "foreignKeys": {
-                                "apiAlias": "array_struct"
-                              },
-                              "internal_mapping_storage": {
-                                "apiAlias": "array_struct"
-                              }
-                            },
                             "customFields": null,
                             "apiAlias": "media"
                           },
                           "translated": [],
-                          "extensions": {
-                            "foreignKeys": {
-                              "apiAlias": "array_struct"
-                            }
-                          },
                           "customFields": null,
                           "apiAlias": "product_media"
                         },
@@ -605,23 +493,10 @@
                               "title": null,
                               "customFields": []
                             },
-                            "extensions": {
-                              "foreignKeys": {
-                                "apiAlias": "array_struct"
-                              },
-                              "internal_mapping_storage": {
-                                "apiAlias": "array_struct"
-                              }
-                            },
                             "customFields": null,
                             "apiAlias": "media"
                           },
                           "translated": [],
-                          "extensions": {
-                            "foreignKeys": {
-                              "apiAlias": "array_struct"
-                            }
-                          },
                           "customFields": null,
                           "apiAlias": "product_media"
                         },
@@ -646,23 +521,10 @@
                               "title": null,
                               "customFields": []
                             },
-                            "extensions": {
-                              "foreignKeys": {
-                                "apiAlias": "array_struct"
-                              },
-                              "internal_mapping_storage": {
-                                "apiAlias": "array_struct"
-                              }
-                            },
                             "customFields": null,
                             "apiAlias": "media"
                           },
                           "translated": [],
-                          "extensions": {
-                            "foreignKeys": {
-                              "apiAlias": "array_struct"
-                            }
-                          },
                           "customFields": null,
                           "apiAlias": "product_media"
                         }
@@ -674,8 +536,6 @@
                       "options": null,
                       "configuratorSettings": null,
                       "categoriesRo": null,
-                      "blacklistIds": null,
-                      "whitelistIds": null,
                       "categoryIds": null,
                       "productReviews": [
                         {
@@ -685,11 +545,6 @@
                           "content": "test",
                           "title": "Test",
                           "translated": [],
-                          "extensions": {
-                            "foreignKeys": {
-                              "apiAlias": "array_struct"
-                            }
-                          },
                           "customFields": null,
                           "apiAlias": "product_review"
                         }
@@ -710,11 +565,6 @@
                           "translated": {
                             "name": "selling"
                           },
-                          "extensions": {
-                            "foreignKeys": {
-                              "apiAlias": "array_struct"
-                            }
-                          },
                           "apiAlias": "product_cross_selling"
                         }
                       ],
@@ -730,11 +580,6 @@
                         "packUnitPlural": null,
                         "customFields": []
                       },
-                      "extensions": {
-                        "foreignKeys": {
-                          "apiAlias": "array_struct"
-                        }
-                      },
                       "customFields": [],
                       "apiAlias": "product"
                     },
@@ -745,11 +590,6 @@
                   "translated": {
                     "config": null,
                     "customFields": []
-                  },
-                  "extensions": {
-                    "foreignKeys": {
-                      "apiAlias": "array_struct"
-                    }
                   },
                   "customFields": null,
                   "apiAlias": "cms_slot"
@@ -767,11 +607,6 @@
               "backgroundMediaMode": null,
               "cssClass": null,
               "translated": [],
-              "extensions": {
-                "foreignKeys": {
-                  "apiAlias": "array_struct"
-                }
-              },
               "customFields": null,
               "apiAlias": "cms_block"
             },
@@ -832,11 +667,6 @@
                           "content": "test",
                           "title": "Test",
                           "translated": [],
-                          "extensions": {
-                            "foreignKeys": {
-                              "apiAlias": "array_struct"
-                            }
-                          },
                           "customFields": null,
                           "apiAlias": "product_review"
                         }
@@ -936,14 +766,6 @@
                         "name": "t1",
                         "position": 0,
                         "translated": [],
-                        "extensions": {
-                          "foreignKeys": {
-                            "apiAlias": "array_struct"
-                          },
-                          "internal_mapping_storage": {
-                            "apiAlias": "array_struct"
-                          }
-                        },
                         "customFields": null,
                         "apiAlias": "tax"
                       },
@@ -957,14 +779,6 @@
                           "name": "m1",
                           "description": null,
                           "customFields": []
-                        },
-                        "extensions": {
-                          "foreignKeys": {
-                            "apiAlias": "array_struct"
-                          },
-                          "internal_mapping_storage": {
-                            "apiAlias": "array_struct"
-                          }
                         },
                         "customFields": null,
                         "apiAlias": "product_manufacturer"
@@ -995,23 +809,10 @@
                               "title": null,
                               "customFields": []
                             },
-                            "extensions": {
-                              "foreignKeys": {
-                                "apiAlias": "array_struct"
-                              },
-                              "internal_mapping_storage": {
-                                "apiAlias": "array_struct"
-                              }
-                            },
                             "customFields": null,
                             "apiAlias": "media"
                           },
                           "translated": [],
-                          "extensions": {
-                            "foreignKeys": {
-                              "apiAlias": "array_struct"
-                            }
-                          },
                           "customFields": null,
                           "apiAlias": "product_media"
                         },
@@ -1036,23 +837,10 @@
                               "title": null,
                               "customFields": []
                             },
-                            "extensions": {
-                              "foreignKeys": {
-                                "apiAlias": "array_struct"
-                              },
-                              "internal_mapping_storage": {
-                                "apiAlias": "array_struct"
-                              }
-                            },
                             "customFields": null,
                             "apiAlias": "media"
                           },
                           "translated": [],
-                          "extensions": {
-                            "foreignKeys": {
-                              "apiAlias": "array_struct"
-                            }
-                          },
                           "customFields": null,
                           "apiAlias": "product_media"
                         },
@@ -1077,23 +865,10 @@
                               "title": null,
                               "customFields": []
                             },
-                            "extensions": {
-                              "foreignKeys": {
-                                "apiAlias": "array_struct"
-                              },
-                              "internal_mapping_storage": {
-                                "apiAlias": "array_struct"
-                              }
-                            },
                             "customFields": null,
                             "apiAlias": "media"
                           },
                           "translated": [],
-                          "extensions": {
-                            "foreignKeys": {
-                              "apiAlias": "array_struct"
-                            }
-                          },
                           "customFields": null,
                           "apiAlias": "product_media"
                         }
@@ -1105,8 +880,6 @@
                       "options": null,
                       "configuratorSettings": null,
                       "categoriesRo": null,
-                      "blacklistIds": null,
-                      "whitelistIds": null,
                       "categoryIds": null,
                       "productReviews": [
                         {
@@ -1116,11 +889,6 @@
                           "content": "test",
                           "title": "Test",
                           "translated": [],
-                          "extensions": {
-                            "foreignKeys": {
-                              "apiAlias": "array_struct"
-                            }
-                          },
                           "customFields": null,
                           "apiAlias": "product_review"
                         }
@@ -1141,11 +909,6 @@
                           "translated": {
                             "name": "selling"
                           },
-                          "extensions": {
-                            "foreignKeys": {
-                              "apiAlias": "array_struct"
-                            }
-                          },
                           "apiAlias": "product_cross_selling"
                         }
                       ],
@@ -1161,11 +924,6 @@
                         "packUnitPlural": null,
                         "customFields": []
                       },
-                      "extensions": {
-                        "foreignKeys": {
-                          "apiAlias": "array_struct"
-                        }
-                      },
                       "customFields": [],
                       "apiAlias": "product"
                     },
@@ -1175,11 +933,6 @@
                   "translated": {
                     "config": null,
                     "customFields": []
-                  },
-                  "extensions": {
-                    "foreignKeys": {
-                      "apiAlias": "array_struct"
-                    }
                   },
                   "customFields": null,
                   "apiAlias": "cms_slot"
@@ -1197,11 +950,6 @@
               "backgroundMediaMode": null,
               "cssClass": null,
               "translated": [],
-              "extensions": {
-                "foreignKeys": {
-                  "apiAlias": "array_struct"
-                }
-              },
               "customFields": null,
               "apiAlias": "cms_block"
             },
@@ -1235,11 +983,6 @@
                           "translations": null,
                           "translated": {
                             "name": "selling"
-                          },
-                          "extensions": {
-                            "foreignKeys": {
-                              "apiAlias": "array_struct"
-                            }
                           },
                           "apiAlias": "product_cross_selling"
                         },
@@ -1336,14 +1079,6 @@
                               "name": "t1",
                               "position": 0,
                               "translated": [],
-                              "extensions": {
-                                "foreignKeys": {
-                                  "apiAlias": "array_struct"
-                                },
-                                "internal_mapping_storage": {
-                                  "apiAlias": "array_struct"
-                                }
-                              },
                               "customFields": null,
                               "apiAlias": "tax"
                             },
@@ -1360,8 +1095,6 @@
                             "options": [],
                             "configuratorSettings": null,
                             "categoriesRo": null,
-                            "blacklistIds": null,
-                            "whitelistIds": null,
                             "categoryIds": null,
                             "productReviews": null,
                             "ratingAverage": null,
@@ -1379,15 +1112,6 @@
                               "packUnit": null,
                               "packUnitPlural": null,
                               "customFields": []
-                            },
-                            "extensions": {
-                              "foreignKeys": {
-                                "apiAlias": "array_struct"
-                              },
-                              "search": {
-                                "translated": [],
-                                "apiAlias": "array"
-                              }
                             },
                             "customFields": [],
                             "apiAlias": "product"
@@ -1484,14 +1208,6 @@
                               "name": "t1",
                               "position": 0,
                               "translated": [],
-                              "extensions": {
-                                "foreignKeys": {
-                                  "apiAlias": "array_struct"
-                                },
-                                "internal_mapping_storage": {
-                                  "apiAlias": "array_struct"
-                                }
-                              },
                               "customFields": null,
                               "apiAlias": "tax"
                             },
@@ -1508,8 +1224,6 @@
                             "options": [],
                             "configuratorSettings": null,
                             "categoriesRo": null,
-                            "blacklistIds": null,
-                            "whitelistIds": null,
                             "categoryIds": null,
                             "productReviews": null,
                             "ratingAverage": 3,
@@ -1528,15 +1242,6 @@
                               "packUnitPlural": null,
                               "customFields": []
                             },
-                            "extensions": {
-                              "foreignKeys": {
-                                "apiAlias": "array_struct"
-                              },
-                              "search": {
-                                "translated": [],
-                                "apiAlias": "array"
-                              }
-                            },
                             "customFields": [],
                             "apiAlias": "product"
                           }
@@ -1551,11 +1256,6 @@
                   "translated": {
                     "config": null,
                     "customFields": []
-                  },
-                  "extensions": {
-                    "foreignKeys": {
-                      "apiAlias": "array_struct"
-                    }
                   },
                   "customFields": null,
                   "apiAlias": "cms_slot"
@@ -1573,11 +1273,6 @@
               "backgroundMediaMode": null,
               "cssClass": null,
               "translated": [],
-              "extensions": {
-                "foreignKeys": {
-                  "apiAlias": "array_struct"
-                }
-              },
               "customFields": null,
               "apiAlias": "cms_block"
             }
@@ -1592,11 +1287,6 @@
           "backgroundMediaMode": null,
           "cssClass": null,
           "translated": [],
-          "extensions": {
-            "foreignKeys": {
-              "apiAlias": "array_struct"
-            }
-          },
           "customFields": null,
           "apiAlias": "cms_section"
         }
@@ -1609,11 +1299,6 @@
         "name": "l1",
         "customFields": []
       },
-      "extensions": {
-        "foreignKeys": {
-          "apiAlias": "array_struct"
-        }
-      },
       "customFields": null,
       "apiAlias": "cms_page"
     },
@@ -1623,8 +1308,6 @@
     "options": null,
     "configuratorSettings": null,
     "categoriesRo": null,
-    "blacklistIds": null,
-    "whitelistIds": null,
     "categoryIds": null,
     "productReviews": [
       {
@@ -1634,11 +1317,6 @@
         "content": "test",
         "title": "Test",
         "translated": [],
-        "extensions": {
-          "foreignKeys": {
-            "apiAlias": "array_struct"
-          }
-        },
         "customFields": null,
         "apiAlias": "product_review"
       }
@@ -1659,11 +1337,6 @@
         "translated": {
           "name": "selling"
         },
-        "extensions": {
-          "foreignKeys": {
-            "apiAlias": "array_struct"
-          }
-        },
         "apiAlias": "product_cross_selling"
       }
     ],
@@ -1678,11 +1351,6 @@
       "packUnit": null,
       "packUnitPlural": null,
       "customFields": []
-    },
-    "extensions": {
-      "foreignKeys": {
-        "apiAlias": "array_struct"
-      }
     },
     "customFields": [],
     "apiAlias": "product"

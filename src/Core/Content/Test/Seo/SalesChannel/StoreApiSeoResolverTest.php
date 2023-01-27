@@ -74,7 +74,6 @@ class StoreApiSeoResolverTest extends TestCase
 
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertIsArray($response['extensions']);
         static::assertArrayHasKey('seoUrls', $response);
         static::assertCount(1, $response['seoUrls']);
         static::assertSame(TestNavigationSeoUrlRoute::ROUTE_NAME, $response['seoUrls'][0]['routeName']);
@@ -99,7 +98,6 @@ class StoreApiSeoResolverTest extends TestCase
 
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertIsArray($response['extensions']);
         static::assertArrayHasKey('seoUrls', $response);
         static::assertCount(1, $response['seoUrls']);
         static::assertSame(TestNavigationSeoUrlRoute::ROUTE_NAME, $response['seoUrls'][0]['routeName']);

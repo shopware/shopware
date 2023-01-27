@@ -550,7 +550,7 @@ class EntityHydrator
             throw new \RuntimeException(sprintf('Expected instance of Entity.php, got %s', $entity::class));
         }
 
-        $entity->addExtension(EntityReader::FOREIGN_KEYS, new ArrayStruct());
+        $entity->addExtension(EntityReader::FOREIGN_KEYS, new ArrayStruct([], $definition->getEntityName() . '_foreign_keys_extension'));
         $entity->addExtension(EntityReader::INTERNAL_MAPPING_STORAGE, new ArrayStruct());
 
         $entity->setUniqueIdentifier($identifier);

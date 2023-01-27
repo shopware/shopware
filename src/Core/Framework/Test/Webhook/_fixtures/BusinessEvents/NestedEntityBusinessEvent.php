@@ -26,6 +26,9 @@ class NestedEntityBusinessEvent implements FlowEventAware, BusinessEventEncoderT
                 ->add('tax', new EntityType(TaxDefinition::class)));
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     public function getEncodeValues(string $shopwareVersion): array
     {
         return [
@@ -39,12 +42,12 @@ class NestedEntityBusinessEvent implements FlowEventAware, BusinessEventEncoderT
                     'position' => $this->tax->getPosition(),
                     'customFields' => null,
                     'translated' => [],
-                    'createdAt' => $this->tax->getCreatedAt()->format(\DATE_RFC3339_EXTENDED),
+                    'createdAt' => $this->tax->getCreatedAt() ? $this->tax->getCreatedAt()->format(\DATE_RFC3339_EXTENDED) : null,
                     'updatedAt' => null,
                     'extensions' => [
                         'foreignKeys' => [
                             'extensions' => [],
-                            'apiAlias' => null,
+                            'apiAlias' => 'tax_foreign_keys_extension',
                         ],
                     ],
                     'apiAlias' => 'tax',

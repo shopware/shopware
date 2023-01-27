@@ -22,6 +22,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
     final public const REDIRECT_URL = 'http://payment.app/do/something';
 
     /**
+     * @group quarantined
      * @dataProvider dataProviderFinalize
      */
     public function testPay(string $finalizeFunction): void

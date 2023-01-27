@@ -1,7 +1,5 @@
 # 6.6.0.0
 ## Introduced in 6.5.0.0
-## Custom fields in cart removed:
-* Add custom fields to custom field allow list in CartBeforeSerializationEvent if you need them in cart. Custom fields used in cart rules will not be removed by default.
 ## Removed `SyncOperationResult`
 The `\Shopware\Core\Framework\Api\Sync\SyncOperationResult` class was removed without replacement, as it was unused.
 ## Removal of `MessageSubscriberInterface` for `ScheduledTaskHandler`

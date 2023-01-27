@@ -38,6 +38,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
+        /** @var array<string, mixed> $attributes */
         $attributes = $data->getValue();
         if ($attributes === null) {
             yield $field->getStorageName() => null;
@@ -52,7 +53,6 @@ class CustomFieldsSerializer extends JsonFieldSerializer
         }
 
         // set fields dynamically
-        /** @var array<string, mixed> $attributes */
         $field->setPropertyMapping($this->getFields(array_keys($attributes)));
         $encoded = $this->validateMapping($field, $attributes, $parameters);
 
@@ -80,7 +80,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
 
         if ($value) {
             // set fields dynamically
-            /** @var array<string> $attributes */
+            /** @var list<string> $attributes */
             $attributes = array_keys(json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR));
 
             $field->setPropertyMapping($this->getFields($attributes));
@@ -90,9 +90,9 @@ class CustomFieldsSerializer extends JsonFieldSerializer
     }
 
     /**
-     * @param array<string> $attributeNames
+     * @param list<string> $attributeNames
      *
-     * @return array<Field>
+     * @return list<Field>
      */
     private function getFields(array $attributeNames): array
     {

@@ -61,7 +61,7 @@ class AppRegistrationService
     /**
      * @throws GuzzleException
      *
-     * @return array<string,string>
+     * @return array<string, string>
      */
     private function registerWithApp(Manifest $manifest, Context $context): array
     {
@@ -104,7 +104,7 @@ class AppRegistrationService
     }
 
     /**
-     * @return array<string,string>
+     * @return array<string, string>
      */
     private function parseResponse(AppHandshakeInterface $handshake, ResponseInterface $response): array
     {
@@ -128,7 +128,7 @@ class AppRegistrationService
     }
 
     /**
-     * @return array<string,string>
+     * @return array<string, string>
      */
     private function getConfirmationPayload(string $id, string $secretAccessKey, Context $context): array
     {
@@ -152,7 +152,7 @@ class AppRegistrationService
     }
 
     /**
-     * @param array<string,string> $body
+     * @param array<string, string> $body
      */
     private function signPayload(array $body, string $secret): string
     {

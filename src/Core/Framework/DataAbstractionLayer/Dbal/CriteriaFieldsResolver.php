@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 class CriteriaFieldsResolver
 {
     /**
-     * @return array<string,mixed>
+     * @return array<string, mixed>
      */
     public function resolve(Criteria $criteria, EntityDefinition $definition): array
     {

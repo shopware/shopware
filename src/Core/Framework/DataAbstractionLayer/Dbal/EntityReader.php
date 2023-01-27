@@ -89,7 +89,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string,mixed> $partial
+     * @param array<string, mixed> $partial
      *
      * @return EntityCollection<Entity>
      */
@@ -143,7 +143,7 @@ class EntityReader implements EntityReaderInterface
     }
 
     /**
-     * @param array<string,mixed> $partial
+     * @param array<string, mixed> $partial
      */
     private function joinBasic(
         EntityDefinition $definition,
@@ -279,9 +279,9 @@ class EntityReader implements EntityReaderInterface
     }
 
     /**
-     * @param array<string,mixed> $partial
+     * @param array<string, mixed> $partial
      *
-     * @return list<array<string,mixed>>
+     * @return list<array<string, mixed>>
      */
     private function fetch(Criteria $criteria, EntityDefinition $definition, Context $context, FieldCollection $fields, array $partial = []): array
     {
@@ -309,7 +309,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string,mixed> $partial
+     * @param array<string, mixed> $partial
      */
     private function loadManyToMany(
         Criteria $criteria,
@@ -407,7 +407,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string,mixed> $partial
+     * @param array<string, mixed> $partial
      */
     private function loadOneToMany(
         Criteria $criteria,
@@ -441,7 +441,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string,mixed> $partial
+     * @param array<string, mixed> $partial
      */
     private function loadOneToManyWithoutPagination(
         EntityDefinition $definition,
@@ -540,7 +540,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string,mixed> $partial
+     * @param array<string, mixed> $partial
      */
     private function loadOneToManyWithPagination(
         EntityDefinition $definition,
@@ -649,7 +649,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string,mixed> $partial
+     * @param array<string, mixed> $partial
      */
     private function loadManyToManyOverExtension(
         Criteria $criteria,
@@ -698,7 +698,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string,mixed> $partial
+     * @param array<string, mixed> $partial
      */
     private function loadManyToManyWithCriteria(
         Criteria $fieldCriteria,
@@ -857,7 +857,7 @@ class EntityReader implements EntityReaderInterface
     /**
      * @param EntityCollection<Entity> $collection
      *
-     * @return array<string,string[]>
+     * @return array<string, string[]>
      */
     private function fetchPaginatedOneToManyMapping(
         EntityDefinition $definition,
@@ -1093,7 +1093,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string,mixed> $partial
+     * @param array<string, mixed> $partial
      */
     private function loadToOne(
         AssociationField $association,
@@ -1176,7 +1176,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string,mixed> $partial
+     * @param array<string, mixed> $partial
      *
      * @return EntityCollection<Entity>
      */

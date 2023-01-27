@@ -194,7 +194,7 @@ class DatabaseConfigLoaderTest extends TestCase
      * @dataProvider configurationLoadingProvider
      *
      * @param array<string, mixed> $config
-     * @param array<string|int,mixed> $expected>
+     * @param array<string|int, mixed> $expected>
      */
     public function testConfigurationLoading(string $key, array $config, array $expected): void
     {
@@ -335,7 +335,7 @@ class DatabaseConfigLoaderTest extends TestCase
     }
 
     /**
-     * @return array<string,string|null>
+     * @return array<string, string|null>
      */
     private static function field(string $value): array
     {
@@ -343,7 +343,7 @@ class DatabaseConfigLoaderTest extends TestCase
     }
 
     /**
-     * @return array<string,string|null>
+     * @return array<string, string|null>
      */
     private static function media(?string $value): array
     {
@@ -351,7 +351,7 @@ class DatabaseConfigLoaderTest extends TestCase
     }
 
     /**
-     * @return array<string,string|int>
+     * @return array<string, string|int>
      */
     private static function fieldUntyped(string|int $value): array
     {

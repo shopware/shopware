@@ -45,6 +45,7 @@ use PhpCsFixerCustomFixers\Fixer\NoSuperfluousConcatenationFixer;
 use PhpCsFixerCustomFixers\Fixer\NoUselessCommentFixer;
 use PhpCsFixerCustomFixers\Fixer\NoUselessParenthesisFixer;
 use PhpCsFixerCustomFixers\Fixer\NoUselessStrlenFixer;
+use PhpCsFixerCustomFixers\Fixer\PhpdocTypesCommaSpacesFixer;
 use PhpCsFixerCustomFixers\Fixer\SingleSpaceAfterStatementFixer;
 use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayListItemNewlineFixer;
 use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayOpenerAndCloserNewlineFixer;
@@ -87,6 +88,7 @@ return static function (ECSConfig $ecsConfig): void {
         SingleSpaceAfterStatementFixer::class,
         NoUselessParenthesisFixer::class,
         NoUselessStrlenFixer::class,
+        PhpdocTypesCommaSpacesFixer::class
     ]);
 
     $ecsConfig->ruleWithConfiguration(ClassAttributesSeparationFixer::class, ['elements' => ['property' => 'one', 'method' => 'one']]);

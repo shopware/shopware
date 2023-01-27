@@ -103,7 +103,7 @@ class SchemaUpdaterTest extends TestCase
      * @dataProvider associationPairsProvider
      *
      * @param list<array{name: string, fields: string}> $entities
-     * @param array<string,list<string>> $expectedSchema
+     * @param array<string, list<string>> $expectedSchema
      */
     public function testAssociations(array $entities, array $expectedSchema): void
     {

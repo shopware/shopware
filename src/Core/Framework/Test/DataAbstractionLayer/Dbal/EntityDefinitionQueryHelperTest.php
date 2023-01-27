@@ -39,7 +39,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
     }
 
     /**
-     * @return iterable<string,  array<int, array<int, string>|string|false>>
+     * @return iterable<string, array<int, array<int, string>|string|false>>
      */
     public function getData(): iterable
     {

@@ -602,7 +602,7 @@ class EntityAggregator implements EntityAggregatorInterface
     }
 
     /**
-     * @param array<array<string,string>> $rows
+     * @param array<array<string, string>> $rows
      */
     private function hydrateRangeAggregation(RangeAggregation $aggregation, array $rows): RangeResult
     {

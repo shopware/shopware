@@ -165,7 +165,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @return array<string, array{type: 'plugin', css: string[], js: string[], baseUrl: ?string }|array{type: 'app', name: string, active: bool, integrationId: string, baseUrl: string, version: string, permissions: array<string,string[]>}>
+     * @return array<string, array{type: 'plugin', css: string[], js: string[], baseUrl: ?string }|array{type: 'app', name: string, active: bool, integrationId: string, baseUrl: string, version: string, permissions: array<string, string[]>}>
      */
     private function getBundles(Context $context): array
     {
@@ -278,7 +278,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @return list<array{name: string, active: int, integrationId: string, baseUrl: string, version: string, privileges: array<string,list<string>>}>
+     * @return list<array{name: string, active: int, integrationId: string, baseUrl: string, version: string, privileges: array<string, list<string>>}>
      */
     private function getActiveApps(): array
     {

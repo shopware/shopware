@@ -16,7 +16,7 @@ class ChangelogParserTest extends TestCase
     use ChangelogTestBehaviour;
 
     /**
-     * @return list<array{0: string, 1: array<string, string|null>,2: string, 3: int}>
+     * @return list<array{0: string, 1: array<string, string|null>, 2: string, 3: int}>
      */
     public function provide(): array
     {

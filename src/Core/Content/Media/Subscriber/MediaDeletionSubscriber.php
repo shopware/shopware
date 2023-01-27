@@ -212,9 +212,9 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
             }
 
             if ($media->isPrivate()) {
-                $privatePaths[] = $thumbnail->getPath();
+                $privatePaths[] = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
             } else {
-                $publicPaths[] = $thumbnail->getPath();
+                $publicPaths[] = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
             }
         }
 

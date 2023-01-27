@@ -3971,36 +3971,6 @@ parameters:
 			path: src/Core/Content/Test/Cms/SalesChannel/CmsRouteTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$flow\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 4
-			path: src/Core/Content/Test/Flow/DataAbstractionLayer/FlowPayloadUpdaterTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getPayload\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/DataAbstractionLayer/FlowPayloadUpdaterTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with false will always evaluate to false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/DataAbstractionLayer/FlowPayloadUpdaterTest.php
-
-		-
-			message: "#^Cannot call method getPayload\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Flow/DataAbstractionLayer/FlowPayloadUpdaterTest.php
-
-		-
-			message: "#^Cannot call method getSequences\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Flow/DataAbstractionLayer/FlowPayloadUpdaterTest.php
-
-		-
-			message: "#^Instanceof between Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Struct\\\\IfSequence and Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Struct\\\\ActionSequence will always evaluate to false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/DataAbstractionLayer/FlowPayloadUpdaterTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 4
 			path: src/Core/Content/Test/Flow/Dispatching/FlowBuilderTest.php
@@ -6865,6 +6835,16 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/IteratorFactory.php
 
 		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\RepositoryIterator\\:\\:fetchIds\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/RepositoryIterator.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\SalesChannelRepositoryIterator\\:\\:fetchIds\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/SalesChannelRepositoryIterator.php
+
+		-
 			message: "#^Instanceof between Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field&Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware and Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityDefinitionQueryHelper.php
@@ -6968,6 +6948,11 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\FieldAccessorBuilder\\\\JsonFieldAccessorBuilder\\:\\:getField\\(\\) has parameter \\$fields with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/FieldAccessorBuilder/JsonFieldAccessorBuilder.php
+
+		-
+			message: "#^Parameter \\#1 \\$filters of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\JoinGroupBuilder\\:\\:recursion\\(\\) expects list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\Filter\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\Filter\\> given\\.$#"
+			count: 1
+			path: src/Core/Framework/DataAbstractionLayer/Dbal/JoinGroupBuilder.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\QueryBuilder\\:\\:getStates\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -7113,46 +7098,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityProtection\\\\WriteProtection\\:\\:getAllowedScopes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/EntityProtection/WriteProtection.php
-
-		-
-			message: "#^Anonymous variable in a `\\$definition\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Framework/DataAbstractionLayer/Event/BeforeDeleteEvent.php
-
-		-
-			message: "#^Anonymous variable in a `\\$definition\\-\\>getPrimaryKeys\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/BeforeDeleteEvent.php
-
-		-
-			message: "#^Anonymous variable in a `\\$entityWriteResult\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/BeforeDeleteEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\BeforeDeleteEvent\\:\\:create\\(\\) has parameter \\$commands with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/BeforeDeleteEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\BeforeDeleteEvent\\:\\:getCommandPrimaryKey\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/BeforeDeleteEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\BeforeDeleteEvent\\:\\:getCommands\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/BeforeDeleteEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\BeforeDeleteEvent\\:\\:getIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/BeforeDeleteEvent.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\BeforeDeleteEvent\\:\\:\\$ids type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/BeforeDeleteEvent.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityDeletedEvent\\:\\:__construct\\(\\) has parameter \\$errors with no value type specified in iterable type array\\.$#"

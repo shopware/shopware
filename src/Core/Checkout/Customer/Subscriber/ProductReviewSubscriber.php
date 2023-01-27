@@ -36,10 +36,8 @@ class ProductReviewSubscriber implements EventSubscriberInterface
 
     public function detectChangeset(EntityDeleteEvent $event): void
     {
-        foreach ($event->getCommands() as $command) {
-            if (!$command instanceof DeleteCommand) {
-                continue;
-            }
+        /** @var array<string> $ids */
+        $ids = $event->getIds(ProductReviewDefinition::ENTITY_NAME);
 
             if ($command->getDefinition()->getEntityName() !== ProductReviewDefinition::ENTITY_NAME) {
                 continue;

@@ -257,63 +257,7 @@ You are now able to configure own transports and dispatch message over your own 
 
 ## Json encoded message queue messages
 Before 6.5, we php-serialized all message queue messages and php-unserialize them. This causes different problems, and we decided to change this format to json. This format is also recommend from symfony and other open source projects. Due to this change, you may have to change your messages when you added some php objects to the message. If you have simple PHP objects within a message, the symfony serializer should be able to encode and decode your objects. For more information take a look to the offical symfony documentation: https://symfony.com/doc/current/messenger.html#serializing-messages
-## Define country address formatting structure
-From the next major v6.5.0.0, address of a country are no longer fixed, but you can modify it by drag-drop address elements in admin Settings > Countries > detail page > Address tab
-The address elements are stored as a structured json in `country_translation.address_format`, the default structure can be found in `\Shopware\Core\System\Country\CountryDefinition::DEFAULT_ADDRESS_FORMAT`
-## Extension can add custom element to use in address formatting structure
-* Plugins can define their own custom snippets by placed twig files in `<pluginRoot>/src/Resources/views/snippets`, you can refer to the default Core address snippets in `src/Core/Framework/Resources/views/snippets/address`
 Since v6.6.0.0, `ContextTokenResponse` class won't return the contextToken value in the response body anymore, please using the header `sw-context-token` instead
-* Use the respective mutations instead
-## Deprecated manifest-1.0.xsd
-
-With the upcoming major release we are going to release a new XML-schema for Shopware Apps. In the new schema we remove two deprecations from the existing schema.
-
-1. attribute `parent` for element `module` will be required.
-
-   Please make sure that every of your admin modules has this attribute set like described in [our documentation](https://developer.shopware.com/docs/guides/plugins/apps/administration/add-custom-modules)
-2. attribute `openNewTab` for element `action-button` will be removed.
-
-    Make sure to remove the attribute `openNewTab` from your `action-button` elements in your `manifest.xml` and use ActionButtonResponses as described in our [documentation](https://developer.shopware.com/docs/guides/plugins/apps/administration/add-custom-action-button) instead.
-3. Deprecation of `manifest-1.0.xsd`
-
-    Update the `xsi:noNamespaceSchemaLocation` attribute of your `manifest` root element. to `https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd`
-### MessageQueue Deprecations
-
-For v6.5.0.0 we will remove our wrapper around the symfony messenger component and remove the enqueue integration as well. Therefore, we deprecated several classes for the retry and encryption handling, without replacement, as we  will use the symfony standards for that.
-
-Additionally, we deprecated the `Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler`, you should directly implement the `\Symfony\Component\Messenger\Handler\MessageSubscriberInterface` instead.
-
-Before:
-```php
-class MyMessageHandler extends AbstractMessageHandler
-{
-    public static function getHandledMessages(): iterable
-    {
-        return [MyMessage::class];
-    }
-
-    public function handle(MyMessage $message): void
-    {
-        // do something
-    }
-}
-```
-
-After:
-```php
-class MyMessageHandler implements MessageSubscriberInterface
-{
-    public static function getHandledMessages(): iterable
-    {
-        return [MyMessage::class];
-    }
-
-    public function __invoke(MyMessage $message): void
-    {
-        // do something
-    }
-}
-```
 ## DBAL upgrade
 
 We upgraded DBAL from 2.x to 3.x. Please take a look at the [DBAL upgrade information](https://github.com/doctrine/dbal/blob/3.5.x/UPGRADE.md) itself to see if you need to adjust your code.
@@ -352,15 +296,6 @@ or prepare your env by replacing the var with the new one like
 ```yaml
 elasticsearch:
     hosts: "%env(string:OPENSEARCH_URL)%"
-```
-## Twig filter whitelist for `map`, `filter`, `reduce` and `sort`
-
-The whitelist can be extended using a yaml configuration:
-
-```yaml
-shopware:
-    twig:
-        allowed_php_functions: [ "is_bool" ]
 ```
 ## Selector to open an ajax modal
 The JavaScript plugin `AjaxModal` is able to open a Bootstrap modal and fetching content via ajax.
@@ -476,6 +411,22 @@ abstract public function sort(EntityCollection $options): PropertyGroupCollectio
 ```
 
 # 6.5.0.0
+## Introduced in 6.4.18.0
+## Create new shipping method
+When you create a new shipping method, the default value for the active flag is false, i.e. the method is inactive after saving. 
+Please provide the active value if you create shipping methods over the API.
+## Remove static address formatting:
+* Deprecated fixed address formatting, use `@Framework/snippets/render.html.twig` instead, applied on:
+  - `src/Storefront/Resources/views/storefront/component/address/address.html.twig`
+  - `src/Core/Framework/Resources/views/documents/delivery_note.html.twig`
+  - `src/Core/Framework/Resources/views/documents/includes/letter_header.html.twig`
+## Remove "marc1706/fast-image-size" dependency
+
+The dependency on the "marc1706/fast-image-size" library was removed, require the library yourself if you need it.
+## Deprecated action:
+* action `setAppModules` in `src/app/state/shopware-apps.store.ts` will be removed
+* action `setAppModules` in `src/app/state/shopware-apps.store.ts` will be removed
+
 ## Introduced in 6.4.17.0
 * In the next major, the flow actions are not executed over the symfony events anymore, we'll remove the dependence from `EventSubscriberInterface` in `Shopware\Core\Content\Flow\Dispatching\Action\FlowAction`.
 * In the next major, the flow actions are not executed via symfony events anymore, we'll remove the dependency from `EventSubscriberInterface` in `Shopware\Core\Content\Flow\Dispatching\Action\FlowAction`.

@@ -1,21 +1,5 @@
 # 6.6.0.0
 ## Introduced in 6.5.0.0
-## Custom fields in cart removed:
-* Add custom fields to custom field allow list in CartBeforeSerializationEvent if you need them in cart. Custom fields used in cart rules will not be removed by default.
-## Create new shipping method
-When you create a new shipping method, the default value for the active flag is false, i.e. the method is inactive after saving. 
-Please provide the active value if you create shipping methods over the API.
-## Remove static address formatting:
-* Deprecated fixed address formatting, use `@Framework/snippets/render.html.twig` instead, applied on:
-  - `src/Storefront/Resources/views/storefront/component/address/address.html.twig`
-  - `src/Core/Framework/Resources/views/documents/delivery_note.html.twig`
-  - `src/Core/Framework/Resources/views/documents/includes/letter_header.html.twig`
-## Remove "marc1706/fast-image-size" dependency
-
-The dependency on the "marc1706/fast-image-size" library was removed, require the library yourself if you need it.
-## Deprecated action:
-* action `setAppModules` in `src/app/state/shopware-apps.store.ts` will be removed
-* action `setAppModules` in `src/app/state/shopware-apps.store.ts` will be removed
 ## Removed `SyncOperationResult`
 The `\Shopware\Core\Framework\Api\Sync\SyncOperationResult` class was removed without replacement, as it was unused.
 ## Removal of `MessageSubscriberInterface` for `ScheduledTaskHandler`

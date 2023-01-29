@@ -1,6 +1,6 @@
 ---
 title: Define Store API context route as service.
-issue: https://github.com/shopware/platform/issues/2845
+issue: NEXT-25220
 author: Andreas Allacher
 author_email: andreas.allacher@massiveart.com
 author_github: @AndreasA

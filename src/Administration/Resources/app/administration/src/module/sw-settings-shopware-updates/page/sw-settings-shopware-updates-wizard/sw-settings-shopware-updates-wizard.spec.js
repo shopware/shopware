@@ -6,6 +6,7 @@ import 'src/module/sw-settings-shopware-updates/page/sw-settings-shopware-update
 import 'src/app/component/structure/sw-page';
 import 'src/module/sw-settings-shopware-updates/view/sw-settings-shopware-updates-requirements';
 import 'src/app/component/base/sw-card';
+import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/structure/sw-card-view';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-button';
@@ -16,6 +17,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
     const localVue = createLocalVue();
 
     beforeEach(async () => {
+        Shopware.Application.view.deleteReactive = () => {};
         wrapper = shallowMount(await Shopware.Component.build('sw-settings-shopware-updates-wizard'), {
             localVue,
             provide: {
@@ -68,6 +70,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         return Promise.reject(error);
                     },
                     extensionCompatibility: () => Promise.resolve([]),
+                    downloadRecovery: () => Promise.resolve([]),
                 }
             },
             mocks: {
@@ -159,7 +162,15 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                 'sw-app-actions': true,
                 'sw-extension-component-section': true,
                 'sw-error-summary': true,
-            }
+                'sw-modal': {
+                    template: '<div><slot name="modal-footer"></slot></div>'
+                },
+                'sw-progress-bar': true,
+                'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+                'sw-field-error': true,
+                'sw-base-field': true,
+            },
+            attachTo: document.body,
         });
     });
 
@@ -200,5 +211,121 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                 themeName: '7305fd18-09ee-4d2c-afd4-b9fb90ad8508'
             }
         );
+    });
+
+    it('deactivate plugins success', async () => {
+        wrapper.vm.updateService.deactivatePlugins = () => {
+            return Promise.resolve({
+                offset: 0,
+                total: 0
+            });
+        };
+
+        const redirectSpy = jest.fn();
+        wrapper.vm.redirectToPage = redirectSpy;
+
+        await wrapper.vm.deactivatePlugins(0);
+
+        expect(redirectSpy).toHaveBeenCalledWith(`${Shopware.Context.api.basePath}/shopware-installer.phar.php`);
+    });
+
+    it('deactivate plugins success loops to disable all', async () => {
+        wrapper.vm.updateService.deactivatePlugins = (offset) => {
+            if (offset === 0) {
+                return Promise.resolve({
+                    offset: 1,
+                    total: 2
+                });
+            }
+
+            return Promise.resolve({
+                offset: 1,
+                total: 1
+            });
+        };
+
+        const redirectSpy = jest.fn();
+        wrapper.vm.redirectToPage = redirectSpy;
+
+        const updateCallSpy = jest.spyOn(wrapper.vm.updateService, 'deactivatePlugins');
+
+        await wrapper.vm.deactivatePlugins(0);
+        await flushPromises();
+
+        expect(redirectSpy).toHaveBeenCalledWith(`${Shopware.Context.api.basePath}/shopware-installer.phar.php`);
+        expect(updateCallSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('download recovery should disable extensions', async () => {
+        const disableExtensionsSpy = jest.spyOn(wrapper.vm, 'deactivatePlugins');
+
+        await wrapper.vm.downloadRecovery();
+        expect(wrapper.vm.progressbarValue).toBe(0);
+
+        expect(disableExtensionsSpy).toHaveBeenCalled();
+    });
+
+    it('download recovery should on error notification', async () => {
+        wrapper.vm.updateService.downloadRecovery = () => Promise.reject(new Error('error'));
+
+        const createNotificationErrorSpy = jest.spyOn(wrapper.vm, 'createNotificationError');
+
+        await wrapper.vm.downloadRecovery();
+        await flushPromises();
+
+        expect(wrapper.vm.progressbarValue).toBe(0);
+        expect(createNotificationErrorSpy).toHaveBeenCalled();
+    });
+
+    it('start update should download recovery', async () => {
+        const downloadRecoverySpy = jest.spyOn(wrapper.vm, 'downloadRecovery');
+
+        await wrapper.vm.startUpdateProcess();
+        expect(downloadRecoverySpy).toHaveBeenCalled();
+
+        expect(wrapper.emitted('update-started')).toBeTruthy();
+        expect(wrapper.emitted('update-started').length).toBe(1);
+    });
+
+    it('test changelog info are rendered', async () => {
+        const element = await wrapper.get('div[changelog]');
+        expect(element.attributes().changelog).toBe('This is a test release');
+    });
+
+    it('click on update button', async () => {
+        wrapper.vm.updateService.deactivatePlugins = () => {
+            return Promise.resolve({
+                offset: 1,
+                total: 1
+            });
+        };
+        wrapper.vm.requirements = [];
+
+        expect(wrapper.vm.updatePossible).toBe(true);
+        expect(wrapper.vm.updaterIsRunning).toBe(false);
+        expect(wrapper.vm.updateModalShown).toBe(false);
+
+        await wrapper.vm.$nextTick();
+
+        await wrapper.get('.sw-settings-shopware-updates-wizard__start-update').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.updateModalShown).toBe(true);
+
+        expect(wrapper.find('.sw-settings-shopware-updates-check__start-update').exists()).toBe(true);
+
+        await wrapper.get('.sw-settings-shopware-updates-check__start-update-backup-checkbox input').setChecked(true);
+
+        await wrapper.get('.sw-settings-shopware-updates-check__start-update-button').trigger('click');
+
+        const redirectSpy = jest.fn();
+        wrapper.vm.redirectToPage = redirectSpy;
+
+        expect(wrapper.emitted('update-started')).toBeTruthy();
+        expect(wrapper.emitted('update-started').length).toBe(1);
+
+        await flushPromises();
+
+        expect(redirectSpy).toHaveBeenCalledWith(`${Shopware.Context.api.basePath}/shopware-installer.phar.php`);
     });
 });

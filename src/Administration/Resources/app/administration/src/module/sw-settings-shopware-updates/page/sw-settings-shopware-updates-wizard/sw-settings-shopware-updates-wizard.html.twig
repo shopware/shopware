@@ -25,6 +25,7 @@
                 :disabled="!updatePossible"
                 :is-loading="updaterIsRunning"
                 variant="primary"
+                class="sw-settings-shopware-updates-wizard__start-update"
                 @click="updateModalShown = true"
             >
                 {{ $t('sw-settings-shopware-updates.infos.startUpdate') }}
@@ -114,6 +115,7 @@
             <template #modal-footer>
                 <sw-checkbox-field
                     v-model="checkedBackupCheckbox"
+                    class="sw-settings-shopware-updates-check__start-update-backup-checkbox"
                     :label="$tc('sw-settings-shopware-updates.updateModal.backupLabel')"
                 />
 
@@ -129,6 +131,7 @@
                         :disabled="!checkedBackupCheckbox"
                         variant="primary"
                         size="small"
+                        class="sw-settings-shopware-updates-check__start-update-button"
                         @click="startUpdateProcess()"
                     >
                         {{ $tc('sw-settings-shopware-updates.updateModal.actions.install') }}

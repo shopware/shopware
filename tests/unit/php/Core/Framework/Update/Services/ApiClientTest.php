@@ -75,7 +75,7 @@ class ApiClientTest extends TestCase
 
         $client->downloadRecoveryTool();
 
-        static::assertFileExists(__DIR__ . '/public/shopware-recovery.phar.php');
+        static::assertFileExists(__DIR__ . '/public/shopware-installer.phar.php');
 
         $fs->remove(__DIR__ . '/public');
 

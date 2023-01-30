@@ -23,10 +23,10 @@ parameters:
         consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/PHPStan/console-application.php
 
     excludePaths:
-        - src/WebRecovery/src/Resources/
-        - src/WebRecovery/ecs.php
-        - src/WebRecovery/vendor
-        - src/WebRecovery/tests/_fixtures
+        - src/WebInstaller/src/Resources/
+        - src/WebInstaller/ecs.php
+        - src/WebInstaller/vendor
+        - src/WebInstaller/tests/_fixtures
 
         - src/Core/DevOps/StaticAnalyze/Rector/ClassPackageRector.php
         # Compatibility fixes for doctrine annotation parser https://github.com/doctrine/annotations/issues/421

@@ -1,12 +1,15 @@
 import './page/sw-settings-shopware-updates-wizard';
+import './page/sw-settings-shopware-updates-index';
 import './view/sw-settings-shopware-updates-info';
 import './view/sw-settings-shopware-updates-requirements';
 import './view/sw-settings-shopware-updates-plugins';
 import './acl';
 
-
 const { Module } = Shopware;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-shopware-updates', {
     type: 'core',

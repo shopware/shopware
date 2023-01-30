@@ -11,14 +11,15 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * @phpstan-import-type VersionFixedVulnerabilities from \Shopware\Core\Framework\Update\Struct\Version
  */
 #[Package('system-settings')]
-final class ApiClient
+class ApiClient
 {
     /**
      * @internal
      */
     public function __construct(
-        private HttpClientInterface $client,
-        private readonly bool $shopwareUpdateEnabled
+        private readonly HttpClientInterface $client,
+        private readonly bool $shopwareUpdateEnabled,
+        private readonly string $projectDir
     ) {
     }
 
@@ -58,9 +59,9 @@ final class ApiClient
             return;
         }
 
-        $content = $this->client->request('GET', 'https://github.com/shopware/web-recovery/releases/latest/download/shopware-recovery.phar.php')->getContent();
+        $content = $this->client->request('GET', 'https://github.com/shopware/web-installer/releases/latest/download/shopware-installer.phar.php')->getContent();
 
-        file_put_contents($this->projectDir . '/public/shopware-recovery.phar.php', $content);
+        file_put_contents($this->projectDir . '/public/shopware-installer.phar.php', $content);
     }
 
     private function determineLatestShopwareVersion(): string

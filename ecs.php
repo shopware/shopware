@@ -125,7 +125,7 @@ return static function (ECSConfig $ecsConfig): void {
         __DIR__ . '/src/Core/Framework/Compatibility/AnnotationReader.php',
 
         // Fixture
-        __DIR__ . '/src/WebRecovery/tests/_fixtures/Options.php',
+        __DIR__ . '/src/WebInstaller/tests/_fixtures/Options.php',
 
         ArrayOpenerAndCloserNewlineFixer::class => null,
         ArrayListItemNewlineFixer::class => null,

@@ -1,0 +1,103 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_settings_showare_updates_index %}
+<sw-page class="sw-settings-shopware-updates">
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_showare_updates_smart_bar_header %}
+    <template #smart-bar-header>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_settings_showare_updates_smart_bar_header_title %}
+        <h2>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_showare_updates_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="regular-chevron-right-xs"
+                small
+            />
+            {{ $tc('sw-settings-shopware-updates.general.emptyTitle') }}
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_showare_updates_smart_bar_actions %}
+    <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_settings_showare_updates_actions_save %}
+        <sw-button-process
+            class="sw-store-detail__save-action"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="isLoading"
+            variant="primary"
+            @process-finish="saveFinish"
+            @click="onSave()"
+        >
+            {{ $tc('sw-settings-store.general.buttonSave') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_showare_updates_content %}
+    <template #content>
+        <sw-card-view>
+            <sw-skeleton v-if="isLoading" />
+
+            {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
+            <sw-system-config
+                v-show="!isLoading"
+                ref="systemConfig"
+                domain="core.update"
+                @loading-changed="onLoadingChanged"
+            >
+                <template #card-element-last>
+                    <div class="sw-settings-shopware-updates-index__check-for-updates-btn">
+                        <sw-button
+                            variant="ghost"
+                            :is-loading="isSearchingForUpdates"
+                            @click="searchForUpdates"
+                        >
+                            {{ $t('sw-settings-shopware-updates.general.checkForUpdates') }}
+                        </sw-button>
+                        <span class="sw-settings-shopware-updates-index__current-version">
+                            {{ $t('sw-settings-shopware-updates.general.currentVersion') }} {{ shopwareVersion }}
+                        </span>
+                    </div>
+                </template>
+            </sw-system-config>
+        </sw-card-view>
+
+        <sw-modal
+            v-if="updateModalShown"
+            :title="$t('sw-settings-shopware-updates.general.emptyTitle')"
+            variant="small"
+            @modal-close="updateModalShown = false"
+        >
+            {{ $t('sw-settings-shopware-updates.updateModal.messageUpdateCheck', {version: updateInfo.version}) }}
+
+            <template #modal-footer>
+                <sw-button
+                    size="small"
+                    @click="updateModalShown = false"
+                >
+                    {{ $tc('sw-settings-shopware-updates.updateModal.actions.cancel') }}
+                </sw-button>
+
+                <sw-button
+                    variant="primary"
+                    size="small"
+                    @click="openUpdateWizard()"
+                >
+                    {{ $tc('sw-settings-shopware-updates.updateModal.actions.goToUpdate') }}
+                </sw-button>
+            </template>
+        </sw-modal>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

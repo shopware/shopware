@@ -65,7 +65,7 @@ describe('Minimal auto update', () => {
 
         // wait for /update/_finish ajax call to finish
 
-        cy.intercept('/shopware-recovery.phar.php/update/_finish').as('updateFinish');
+        cy.intercept('/shopware-installer.phar.php/update/_finish').as('updateFinish');
         cy.wait('@updateFinish', {timeout: 120000});
 
         // Shows finish page
@@ -74,10 +74,15 @@ describe('Minimal auto update', () => {
 
         cy.get('.btn-primary').click();
 
+        cy.get('#sw-field--username').type('admin');
+        cy.get('#sw-field--password').type('shopware');
+
+        cy.get('.sw-login__login-action').click();
+
         cy.get('.sw-version__info').contains('6.5.');
 
         // visit updater and expect 404
-        cy.visit('/shopware-recovery.phar.php', {failOnStatusCode: false});
+        cy.visit('/shopware-installer.phar.php', {failOnStatusCode: false});
         cy.contains('Page not found');
     });
 });

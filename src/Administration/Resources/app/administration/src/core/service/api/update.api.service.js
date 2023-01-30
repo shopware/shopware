@@ -1,4 +1,5 @@
 /**
+ * @deprecated tag:v6.6.0 - Will be private
  * @package admin
  */
 
@@ -34,6 +35,13 @@ class UpdateService extends ApiService {
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
+    }
+
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed
+     */
+    pluginCompatibility() {
+        return {};
     }
 
     extensionCompatibility() {

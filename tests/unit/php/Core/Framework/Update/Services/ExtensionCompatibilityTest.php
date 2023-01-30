@@ -49,7 +49,7 @@ class ExtensionCompatibilityTest extends TestCase
     /**
      * @return iterable<string, array{0: string, 1: string, 2: string|null}>
      */
-    public function statusProvider(): iterable
+    public static function statusProvider(): iterable
     {
         yield 'future' => [
             __DIR__ . './../_fixtures/responses/extension-yellow.json',

@@ -1,11 +1,12 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-shopware-updates-wizard.html.twig';
 import './sw-settings-shopware-updates-wizard.scss';
 
 const { Component, Mixin } = Shopware;
 
+/**
+ * @package system-settings
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-shopware-updates-wizard', {
     template,
@@ -41,8 +42,15 @@ Component.register('sw-settings-shopware-updates-wizard', {
     },
     computed: {
         updatePossible() {
-            // check if result of every requirement is true. If it's the case return true otherwise return false.
+            // Check if the result of every requirement is true. If it's the case, return true, otherwise return false.
             return this.requirements.every(requirement => requirement.result === true);
+        },
+
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
+        changelog() {
+            return this.updateInfo.changelog;
         },
 
         updateButtonTooltip() {
@@ -146,6 +154,20 @@ Component.register('sw-settings-shopware-updates-wizard', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
+        downloadUpdate(offset) {
+            return this.downloadRecovery(offset);
+        },
+
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
+        unpackUpdate() {
+
+        },
+
         downloadRecovery(offset) {
             this.updateService.downloadRecovery(offset).then(() => {
                 this.progressbarValue = 0;
@@ -163,13 +185,9 @@ Component.register('sw-settings-shopware-updates-wizard', {
                 this.progressbarValue = (Math.floor((response.offset / response.total) * 100));
 
                 if (response.offset === response.total) {
-                    window.location.href = `${Shopware.Context.api.basePath}/shopware-recovery.phar.php`;
-                } else if (response.offset !== response.total) {
-                    this.deactivatePlugins(response.offset);
+                    this.redirectToPage(`${Shopware.Context.api.basePath}/shopware-installer.phar.php`);
                 } else {
-                    this.createNotificationError({
-                        message: this.$tc('sw-settings-shopware-updates.notifications.deactivationFailed'),
-                    });
+                    this.deactivatePlugins(response.offset);
                 }
             }).catch((e) => {
                 this.stopUpdateProcess();
@@ -199,6 +217,10 @@ Component.register('sw-settings-shopware-updates-wizard', {
                     });
                 }
             });
+        },
+
+        redirectToPage(url) {
+            window.location.href = url;
         },
     },
 });

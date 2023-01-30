@@ -343,7 +343,7 @@
             "@init:e2e",
             "@e2e:prepare"
         ],
-        "e2e:recovery:start": [
+        "e2e:web-update:start": [
             "@putenv SW_RECOVERY_NEXT_VERSION=6.5.99.9",
             "@putenv CYPRESS_SKIP_INIT=1",
             "symfony local:server:stop --dir=shop",
@@ -351,12 +351,12 @@
             "APP_URL=${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}} symfony local:server:start --dir=shop --port=8050 -d",
             "symfony local:server:start --dir=tests/e2e/update-api-mock --port=8060 -d"
         ],
-        "e2e:recovery:open": [
+        "e2e:web-update:open": [
             "Composer\\Config::disableProcessTimeout",
-            "@e2e:recovery:start",
+            "@e2e:web-update:start",
             "export CYPRESS_baseUrl=${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}}; export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress open"
         ],
-        "e2e:recovery:setup": [
+        "e2e:web-update:prepare": [
             "rm -rf shop",
             "wget -q -O install.zip https://releases.shopware.com/sw6/install_v6.4.17.2_4d2c85fb448571fa4f30edce635f33a67dda1d76.zip",
             "unzip -q -o -d shop install.zip",
@@ -370,9 +370,9 @@
             "cd shop; composer config repositories.0 '{\"type\": \"path\", \"url\": \"../src/*\"}'",
             "cd shop; sed -i '/\\$this->verifyResponseSignature(\\$response);/d' vendor/shopware/core/Framework/Update/Services/ApiClient.php",
             "cd shop; sed -i 's/\\$signatureHeaderName = self::SHOPWARE_SIGNATURE_HEADER;/return \\$response;/g' vendor/shopware/core/Framework/Store/Services/VerifyResponseSignatureMiddleware.php",
-            "cd src/WebRecovery; composer install",
-            "cd src/WebRecovery; composer build-phar",
-            "mv src/WebRecovery/shopware-recovery.phar.php shop/public/shopware-recovery.phar.php"
+            "cd src/WebInstaller; composer install",
+            "cd src/WebInstaller; composer build-phar",
+            "mv src/WebInstaller/shopware-installer.phar.php shop/public/shopware-installer.phar.php"
         ],
         "ecs": "ecs check src tests",
         "ecs-fix": "ecs check --fix src tests",

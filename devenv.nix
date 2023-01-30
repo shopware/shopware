@@ -115,9 +115,9 @@
   env.CYPRESS_dbName = lib.mkDefault "shopware";
 
   scripts.build-updater.exec = ''
-      ${pkgs.phpPackages.box}/bin/box compile -d src/WebRecovery
-      mv src/WebRecovery/shopware-recovery.phar.php shop/public/shopware-recovery.phar.php
+      ${pkgs.phpPackages.box}/bin/box compile -d src/WebInstaller
+      mv src/WebInstaller/shopware-installer.phar.php shop/public/shopware-installer.phar.php
   '';
 
-  scripts.watch-updater.exec = "${pkgs.watchexec}/bin/watchexec -i src/WebRecovery/shopware-recovery.phar.php  -eyaml,php,js build-updater";
+  scripts.watch-updater.exec = "${pkgs.watchexec}/bin/watchexec -i src/WebInstaller/shopware-installer.phar.php  -eyaml,php,js build-updater";
 }

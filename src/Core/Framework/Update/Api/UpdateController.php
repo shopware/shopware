@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Update\Api;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Update\Checkers\LicenseCheck;
@@ -48,7 +49,7 @@ class UpdateController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/update/check', name: 'api.custom.updateapi.check', methods: ['GET'], defaults: ['_acl' => ['system:core:update']])]
+    #[Route(path: '/api/_action/update/check', name: 'api.custom.updateapi.check', defaults: ['_acl' => ['system:core:update']], methods: ['GET'])]
     public function updateApiCheck(): JsonResponse
     {
         if ($this->disableUpdateCheck) {
@@ -64,7 +65,7 @@ class UpdateController extends AbstractController
         return new JsonResponse($updates);
     }
 
-    #[Route(path: '/api/_action/update/check-requirements', name: 'api.custom.update.check_requirements', methods: ['GET'], defaults: ['_acl' => ['system:core:update']])]
+    #[Route(path: '/api/_action/update/check-requirements', name: 'api.custom.update.check_requirements', defaults: ['_acl' => ['system:core:update']], methods: ['GET'])]
     public function checkRequirements(): JsonResponse
     {
         return new JsonResponse([
@@ -81,15 +82,15 @@ class UpdateController extends AbstractController
         return new JsonResponse($this->extensionCompatibility->getExtensionCompatibilities($update, $context));
     }
 
-    #[Route(path: '/api/_action/update/download-latest-update', name: 'api.custom.updateapi.download_latest_update', methods: ['GET'], defaults: ['_acl' => ['system:core:update', 'system_config:read']])]
-    public function downloadLatestRecovery(Request $request): Response
+    #[Route(path: '/api/_action/update/download-recovery', name: 'api.custom.updateapi.download-recovery', defaults: ['_acl' => ['system:core:update', 'system_config:read']], methods: ['GET'])]
+    public function downloadLatestRecovery(): Response
     {
         $this->apiClient->downloadRecoveryTool();
 
         return new NoContentResponse();
     }
 
-    #[Route(path: '/api/_action/update/deactivate-plugins', name: 'api.custom.updateapi.deactivate-plugins', methods: ['GET'], defaults: ['_acl' => ['system:core:update', 'system_config:read']])]
+    #[Route(path: '/api/_action/update/deactivate-plugins', name: 'api.custom.updateapi.deactivate-plugins', defaults: ['_acl' => ['system:core:update', 'system_config:read']], methods: ['GET'])]
     public function deactivatePlugins(Request $request, Context $context): JsonResponse
     {
         $update = $this->apiClient->checkForUpdates();

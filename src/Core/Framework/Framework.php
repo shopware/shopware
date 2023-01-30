@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\RedisPrefixCompiler
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RouteScopeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\WindowsCompatibilityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Core\Framework\Increment\IncrementerGatewayCompilerPass;
 use Shopware\Core\Framework\Log\Package;
@@ -111,6 +112,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new RateLimiterCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->addCompilerPass(new IncrementerGatewayCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->addCompilerPass(new RedisPrefixCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new WindowsCompatibilityCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $container->addCompilerPass(new DisableRateLimiterCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);

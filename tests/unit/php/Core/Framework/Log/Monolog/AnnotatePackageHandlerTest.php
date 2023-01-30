@@ -3,7 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Framework\Log\Monolog;
 
 use Monolog\Handler\AbstractHandler;
-use Monolog\Logger;
+use Monolog\Level;
+use Monolog\LogRecord;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Monolog\AnnotatePackageHandler;
 use Shopware\Core\Framework\Log\Package;
@@ -19,19 +20,6 @@ use Symfony\Component\HttpFoundation\Response;
  * @covers \Shopware\Core\Framework\Log\Monolog\AnnotatePackageHandler
  *
  * @internal
- *
- * @phpstan-import-type Record from Logger
- *
- * @package core
- */
-/**
- * @covers \Shopware\Core\Framework\Log\Monolog\AnnotatePackageHandler
- *
- * @internal
- *
- * @phpstan-import-type Record from Logger
- *
- * @package core
  */
 #[Package('cause')]
 class AnnotatePackageHandlerTest extends TestCase
@@ -46,12 +34,24 @@ class AnnotatePackageHandlerTest extends TestCase
         $request->attributes->set('_controller', TestController::class . '::load');
         $requestStack->push($request);
 
-        /** @var Record $record */
-        $record = ['context' => []];
-        $expected = $record;
-        $expected['context'][Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
+        $record = new LogRecord(
+            new \DateTimeImmutable(),
+            'business events',
+            Level::Error,
+            'Some message'
+        );
+
+        $context[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
             'entrypoint' => 'controller',
         ];
+
+        $expected = new LogRecord(
+            $record->datetime,
+            $record->channel,
+            $record->level,
+            $record->message,
+            $context
+        );
 
         $inner->expects(static::once())
             ->method('handle')
@@ -69,24 +69,37 @@ class AnnotatePackageHandlerTest extends TestCase
         $request->attributes->set('_controller', TestController::class . '::load');
         $requestStack->push($request);
 
-        $exception = null;
-
         try {
             throw new TestException('test');
         } catch (\Throwable $e) {
             $exception = $e;
         }
 
-        /** @var Record $record */
-        $record = ['context' => [
+        $context = [
             'exception' => $exception,
-        ]];
-        $expected = $record;
-        $expected['context'][Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
+        ];
+
+        $record = new LogRecord(
+            new \DateTimeImmutable(),
+            'business events',
+            Level::Error,
+            'Some message',
+            $context
+        );
+
+        $context[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
             'entrypoint' => 'controller',
             'exception' => 'exception',
             'causingClass' => 'cause',
         ];
+
+        $expected = new LogRecord(
+            $record->datetime,
+            $record->channel,
+            $record->level,
+            $record->message,
+            $context
+        );
 
         $inner->expects(static::once())
             ->method('handle')
@@ -104,22 +117,35 @@ class AnnotatePackageHandlerTest extends TestCase
         $request->attributes->set('_controller', TestControllerNoPackage::class . '::load');
         $requestStack->push($request);
 
-        $exception = null;
-
         try {
             throw new TestExceptionNoPackage('test');
         } catch (\Throwable $e) {
             $exception = $e;
         }
 
-        /** @var Record $record */
-        $record = ['context' => [
+        $context = [
             'exception' => $exception,
-        ]];
-        $expected = $record;
-        $expected['context'][Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
+        ];
+
+        $record = new LogRecord(
+            new \DateTimeImmutable(),
+            'business events',
+            Level::Error,
+            'Some message',
+            $context
+        );
+
+        $context[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
             'causingClass' => 'cause',
         ];
+
+        $expected = new LogRecord(
+            $record->datetime,
+            $record->channel,
+            $record->level,
+            $record->message,
+            $context
+        );
 
         $inner->expects(static::once())
             ->method('handle')
@@ -141,21 +167,31 @@ class AnnotatePackageHandlerTest extends TestCase
         $inner = $this->createMock(AbstractHandler::class);
         $handler = new AnnotatePackageHandler($inner, $this->createMock(RequestStack::class));
 
-        /** @var Record $record */
-        $record = [
-            'context' => [
-                'exception' => $exception,
-                'dataIsPassedThru' => true,
-            ],
+        $context = [
+            'exception' => $exception,
             'dataIsPassedThru' => true,
         ];
+        $record = new LogRecord(
+            new \DateTimeImmutable(),
+            'business events',
+            Level::Error,
+            'Some message',
+            $context
+        );
 
-        $expected = $record;
-        $expected['context'][Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
+        $context[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
             'entrypoint' => 'command',
             'exception' => 'exception',
             'causingClass' => 'command',
         ];
+
+        $expected = new LogRecord(
+            $record->datetime,
+            $record->channel,
+            $record->level,
+            $record->message,
+            $context
+        );
 
         $inner->expects(static::once())
             ->method('handle')

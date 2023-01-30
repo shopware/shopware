@@ -3,9 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Framework\Log\Monolog;
 
 use Monolog\Handler\FingersCrossedHandler;
+use Monolog\Level;
+use Monolog\LogRecord;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
@@ -17,12 +20,11 @@ use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 class ExcludeFlowEventHandlerTest extends TestCase
 {
     /**
-     * @param array{message: string, context: array<mixed>, level: 100|200|250|300|400|500|550|600, level_name: 'ALERT'|'CRITICAL'|'DEBUG'|'EMERGENCY'|'ERROR'|'INFO'|'NOTICE'|'WARNING', channel: string, datetime: \DateTimeImmutable, extra: array<mixed>} $record
-     * @param array<int, string> $excludeList
+     * @param list<string> $excludeList
      *
      * @dataProvider cases
      */
-    public function testHandler(array $record, array $excludeList, bool $shouldBePassed): void
+    public function testHandler(LogRecord $record, array $excludeList, bool $shouldBePassed): void
     {
         $innerHandler = $this->createMock(FingersCrossedHandler::class);
         $innerHandler->expects($shouldBePassed ? static::once() : static::never())->method('handle')->willReturn(true);
@@ -36,30 +38,19 @@ class ExcludeFlowEventHandlerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<int, bool|array<mixed>>>
+     * @return iterable<string, array{0: LogRecord, 1: list<string>, 2: bool}>
      */
     public function cases(): iterable
     {
         // record, exclude list, should be passed
-        yield 'empty record' => [
-            [],
-            [],
-            true,
-        ];
-
         yield 'event without exclude list' => [
-            [
-                'message' => 'some message',
-            ],
+            new LogRecord(new \DateTimeImmutable(), 'foo', Level::Alert, 'some message'),
             [],
             true,
         ];
 
         yield 'event with exclude list that matches but different channel' => [
-            [
-                'channel' => 'app',
-                'message' => 'user.recovery.request',
-            ],
+            new LogRecord(new \DateTimeImmutable(), 'app', Level::Alert, UserRecoveryRequestEvent::EVENT_NAME),
             [
                 UserRecoveryRequestEvent::EVENT_NAME,
             ],
@@ -67,10 +58,7 @@ class ExcludeFlowEventHandlerTest extends TestCase
         ];
 
         yield 'event with exclude list that matches' => [
-            [
-                'channel' => 'business_events',
-                'message' => 'user.recovery.request',
-            ],
+            new LogRecord(new \DateTimeImmutable(), 'business_events', Level::Alert, UserRecoveryRequestEvent::EVENT_NAME),
             [
                 UserRecoveryRequestEvent::EVENT_NAME,
             ],
@@ -78,10 +66,7 @@ class ExcludeFlowEventHandlerTest extends TestCase
         ];
 
         yield 'event with exclude list that not matches' => [
-            [
-                'channel' => 'business_events',
-                'message' => 'user.recovery.request',
-            ],
+            new LogRecord(new \DateTimeImmutable(), 'business_events', Level::Alert, UserRecoveryRequestEvent::EVENT_NAME),
             [
                 CustomerAccountRecoverRequestEvent::EVENT_NAME,
             ],
@@ -89,15 +74,17 @@ class ExcludeFlowEventHandlerTest extends TestCase
         ];
 
         yield 'mail event with exclude list that matches' => [
-            [
-                'channel' => 'business_events',
-                'message' => 'mail.sent',
-                'context' => [
+            new LogRecord(
+                new \DateTimeImmutable(),
+                'business_events',
+                Level::Alert,
+                MailSentEvent::EVENT_NAME,
+                [
                     'additionalData' => [
                         'eventName' => CustomerAccountRecoverRequestEvent::EVENT_NAME,
                     ],
-                ],
-            ],
+                ]
+            ),
             [
                 CustomerAccountRecoverRequestEvent::EVENT_NAME,
             ],
@@ -105,15 +92,17 @@ class ExcludeFlowEventHandlerTest extends TestCase
         ];
 
         yield 'mail event with exclude list that not matches' => [
-            [
-                'channel' => 'business_events',
-                'message' => 'mail.sent',
-                'context' => [
+            new LogRecord(
+                new \DateTimeImmutable(),
+                'business_events',
+                Level::Alert,
+                MailSentEvent::EVENT_NAME,
+                [
                     'additionalData' => [
                         'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
                     ],
-                ],
-            ],
+                ]
+            ),
             [
                 CustomerAccountRecoverRequestEvent::EVENT_NAME,
             ],
@@ -121,11 +110,12 @@ class ExcludeFlowEventHandlerTest extends TestCase
         ];
 
         yield 'mail event with exclude list without additionalData' => [
-            [
-                'channel' => 'business_events',
-                'message' => 'mail.sent',
-                'context' => [],
-            ],
+            new LogRecord(
+                new \DateTimeImmutable(),
+                'business_events',
+                Level::Alert,
+                MailSentEvent::EVENT_NAME,
+            ),
             [
                 CustomerAccountRecoverRequestEvent::EVENT_NAME,
             ],

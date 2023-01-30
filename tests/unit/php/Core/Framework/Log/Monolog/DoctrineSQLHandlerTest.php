@@ -3,7 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Framework\Log\Monolog;
 
 use Doctrine\DBAL\Connection;
-use Monolog\Logger;
+use Monolog\Level;
+use Monolog\LogRecord;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler;
@@ -13,16 +14,11 @@ use Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler;
  *
  * @internal
  *
- * @phpstan-import-type Record from Logger
- *
  * @package core
  */
 class DoctrineSQLHandlerTest extends TestCase
 {
-    /**
-     * @var Connection&MockObject
-     */
-    private Connection $connection;
+    private Connection&MockObject $connection;
 
     protected function setUp(): void
     {
@@ -35,15 +31,12 @@ class DoctrineSQLHandlerTest extends TestCase
 
         $handler = new DoctrineSQLHandler($this->connection);
 
-        $record = [
-            'message' => 'Some message',
-            'context' => [],
-            'level' => Logger::ERROR,
-            'level_name' => 'ERROR',
-            'channel' => 'business events',
-            'datetime' => new \DateTimeImmutable(),
-            'extra' => [],
-        ];
+        $record = new LogRecord(
+            new \DateTimeImmutable(),
+            'business events',
+            Level::Error,
+            'Some message'
+        );
 
         $handler->handle($record);
     }
@@ -80,17 +73,15 @@ class DoctrineSQLHandlerTest extends TestCase
 
         $handler = new DoctrineSQLHandler($this->connection);
 
-        $record = [
-            'message' => 'Some message',
-            'context' => [
+        $record = new LogRecord(
+            new \DateTimeImmutable(),
+            'business events',
+            Level::Error,
+            'Some message',
+            [
                 'environment' => 'test',
             ],
-            'level' => Logger::ERROR,
-            'level_name' => 'ERROR',
-            'channel' => 'business events',
-            'datetime' => new \DateTimeImmutable(),
-            'extra' => [],
-        ];
+        );
 
         $handler->handle($record);
         static::assertNotNull($exceptionThrown);

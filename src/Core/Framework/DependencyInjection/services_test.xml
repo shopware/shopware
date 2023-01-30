@@ -6,7 +6,7 @@
 
     <monolog:config>
         <monolog:handler
-                id="Shopware\Core\Framework\Test\Logging\Monolog\DiscardHandler"
+                id="Monolog\Handler\NullHandler"
                 name="business_event_handler_discard"
                 type="service"
                 priority="1">
@@ -126,7 +126,7 @@
             <argument type="service" id="test.client.cookiejar" />
         </service>
 
-        <service id="Shopware\Core\Framework\Test\Logging\Monolog\DiscardHandler">
+        <service id="Monolog\Handler\NullHandler">
         </service>
 
         <service id="Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessageHandler">

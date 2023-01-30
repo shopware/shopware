@@ -16,7 +16,7 @@ class WindowsCompatibilityCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        if (PHP_OS_FAMILY !== 'Windows') {
+        if (\PHP_OS_FAMILY !== 'Windows') {
             return;
         }
 
@@ -32,7 +32,7 @@ class WindowsCompatibilityCompilerPass implements CompilerPassInterface
         $definitions = $container->getDefinitions();
         $cryptKeyDefinitions = array_filter(
             $definitions,
-            static fn(Definition $definition) => $definition->getClass() === CryptKey::class
+            static fn (Definition $definition) => $definition->getClass() === CryptKey::class
         );
 
         foreach ($cryptKeyDefinitions as $definition) {
